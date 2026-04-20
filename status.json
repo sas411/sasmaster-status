@@ -1,0 +1,82 @@
+{
+  "generated_at": "2026-04-20T22:43:00.917Z",
+  "jarvis_online": true,
+  "tasks": {
+    "high": [
+      "[HIGH] Merge sasmaster-homepage.html and sasmaster-programming-portal.html into one single file: sasmaster.html. Homepage and portal are views within the same file — no page loads, just smooth view transitions. This is the new canonical file. All future Claude Code edits go to sasmaster.html only. Delete the two old files once merged and verified.",
+      "[HIGH] Fix homepage 4-stage color transitions (day → spring green → purple evening → deep night)",
+      "[HIGH] Archive old UI files — move sasmaster-homepage.html and sasmaster-programming-portal.html into ~/SaSMaster/archive/. Do NOT delete them. Do NOT integrate them into v7. Claude Design v7 (SaSMaster Portal v7.html) is the new canonical UI file. All future work builds on v7 only.",
+      "[HIGH] Integrate Claude Design v7 (src_v7_snapshot/SaSMaster Portal v7.html) into sasmaster.html as the canonical portal view. This replaces the previous Programming Research portal dashboard. Match exactly — do not restyle.",
+      "[HIGH] Wire full top navigation: CONTENT · ADVERTISING · MARKETING · CPG · EXCHANGE. Each tab switches the portal view. CONTENT is default active state.",
+      "[HIGH] Implement network selector tabs: BET, ESPN, TNT, USA, FX, FOOD, HGTV, DISC, HIST, LIFE. ESPN active by default. Switching network updates all KPI cards and charts.",
+      "[HIGH] Wire 3 sub-views per portal: OVERVIEW · MY NETWORK VIEW · RIGHTS & METADATA. Tab switching shows/hides correct panels.",
+      "[HIGH] &lt;desc&gt; — injected via JARVIS Apr 20, 01:26 PM EST"
+    ],
+    "all_count": 41
+  },
+  "recent_done": [
+    {
+      "date": "2026-04-20",
+      "task": "Tier 3 — Agent Fleet (all 4 agents)",
+      "notes": "- tmdb-trending-agent.js — pulls /trending/tv/day, dedupes vs DONE_LOG,\n    injects [HIGH] programming research tasks. F"
+    },
+    {
+      "date": "2026-04-20",
+      "task": "Tier 1 + Tier 2 — JARVIS v4, scripts, cron schedule",
+      "notes": "TIER 1:\n  - inject-task.sh — CLI task injection with Slack notify (HIGH/MED/EXPLORE)\n  - post-briefing.sh — posts format"
+    },
+    {
+      "date": "2026-04-20",
+      "task": "Daily visual poster to Slack",
+      "notes": "screenshot-boards.sh + post-visuals.js + daily-visuals.sh deployed.\n       Playwright + Chromium installed. Board (287KB"
+    },
+    {
+      "date": "2026-04-20",
+      "task": "Deploy JARVIS Socket Mode Daemon",
+      "notes": "Real-time Slack WebSocket daemon deployed. Handles !build, !task, !briefing, !status.\n       Auto-starts on Mac boot via"
+    },
+    {
+      "date": "2026-04-20 00:30",
+      "task": "Skipped items — UI merge, archive, v7 integration, nav wiring, network selector",
+      "notes": ""
+    }
+  ],
+  "agents": [
+    {
+      "name": "JARVIS",
+      "log": "jarvis.log",
+      "label": "Socket Mode Daemon",
+      "last_run": "2026-04-20T21:32:25.086Z",
+      "status": "ok"
+    },
+    {
+      "name": "Media Intel",
+      "log": "media-intel.log",
+      "label": "Evan + M&E feeds",
+      "last_run": "2026-04-20T21:35:16.851Z",
+      "status": "ok"
+    },
+    {
+      "name": "TMDB Trending",
+      "log": "tmdb-agent.log",
+      "label": "Content trends",
+      "last_run": "2026-04-20T21:29:15.990Z",
+      "status": "ok"
+    },
+    {
+      "name": "DoneLog Analyst",
+      "log": "donelog-analyst.log",
+      "label": "Portal gap filler",
+      "last_run": "2026-04-20T21:29:23.996Z",
+      "status": "ok"
+    },
+    {
+      "name": "LinkedIn Agent",
+      "log": "linkedin-agent.log",
+      "label": "Post drafts",
+      "last_run": null,
+      "status": "never"
+    }
+  ],
+  "pending_approvals": []
+}
