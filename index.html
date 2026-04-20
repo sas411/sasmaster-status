@@ -303,29 +303,25 @@ function timeAgo(iso) {
   return Math.floor(d/86400) + 'd ago';
 }
 
-// ── HEATMAP ──────────────────────────────────────────────────
-function buildHeatmap(builds) {
+// ── HEATMAP — 100% real from DONE_LOG dates ──────────────────
+function buildHeatmap(heatmap) {
   const cells = [];
   const today = new Date();
-  // Generate 28 days of mock + real data
-  const buildDates = new Set((builds||[]).map(b => b.date ? b.date.slice(0,10) : ''));
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const startD = new Date(today); startD.setDate(startD.getDate() - 27);
+
   for (let i = 27; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const key = d.toISOString().slice(0,10);
-    const isToday = i === 0;
-    // Simulate build intensity (real data + mock for visual richness)
-    let level = 0;
-    if (buildDates.has(key)) level = 3;
-    else if (Math.random() > 0.4) level = Math.floor(Math.random() * 3) + 1;
-    cells.push({ key, level, isToday });
+    const count = (heatmap||{})[key] || 0;
+    const level = count === 0 ? 0 : count === 1 ? 2 : count === 2 ? 3 : 4;
+    cells.push({ key, level, isToday: i === 0, count });
   }
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const startD = new Date(today); startD.setDate(startD.getDate() - 27);
-  const endD = today;
+
   return `
     <div class="heatmap-grid" id="hm-grid">
-      ${cells.map(c => `<div class="hm-cell l${c.level}${c.isToday?' today':''}" title="${c.key}"></div>`).join('')}
+      ${cells.map(c => `<div class="hm-cell l${c.level}${c.isToday?' today':''}" title="${c.key}${c.count?' · '+c.count+' build'+(c.count>1?'s':''):''}"></div>`).join('')}
     </div>
     <div class="hm-labels">
       <span class="hm-label">${months[startD.getMonth()]} ${startD.getDate()}</span>
@@ -341,26 +337,13 @@ function buildHeatmap(builds) {
     </div>`;
 }
 
-// ── KANBAN BOARD ─────────────────────────────────────────────
-function buildKanban(queue, builds) {
-  const doneItems = (builds||[]).slice(0,4).map(b => b.task || 'Task');
-  const highItems = (queue?.highItems||[]).slice(0,4);
-  const inProgress = [
-    'SaSMaster status page v2',
-    'Media Intel Agent — 6AM live',
-    'Daily visuals to Slack'
-  ];
-  const backlog = [
-    'EMBA Study Agent',
-    'Dr. Scoop Intelligence Agent',
-    'Competitor Intel Agent',
-    'Sunday Night Recap',
-    'Siri Shortcuts for JARVIS'
-  ];
-  const review = [
-    '"Future of TV" article draft',
-    'LinkedIn Writing Agent voice test'
-  ];
+// ── KANBAN — 100% real from TASKS.md + pending-approvals ─────
+function buildKanban(kanban, queue, builds) {
+  const backlog    = (kanban?.backlog    || []).slice(0, 6);
+  const highItems  = (queue?.highItems  || []).slice(0, 5);
+  const inProgress = (kanban?.inProgress|| []);
+  const review     = (kanban?.review    || []);
+  const doneItems  = (kanban?.done      || (builds||[]).map(b=>b.task||'')).slice(0, 5);
 
   function card(text, cls, tag, tagCls) {
     return `<div class="kb-card${cls?' '+cls:''}">
@@ -375,7 +358,7 @@ function buildKanban(queue, builds) {
         <span class="kb-col-title backlog">Backlog</span>
         <span class="kb-count backlog">${backlog.length}</span>
       </div>
-      ${backlog.map(t => card(t,'','AGENT','kt-agent')).join('')}
+      ${backlog.length ? backlog.map(t => card(t,'','MED','kt-agent')).join('') : '<div class="empty">Nothing queued</div>'}
     </div>
     <div class="kb-col">
       <div class="kb-col-hdr">
@@ -390,14 +373,14 @@ function buildKanban(queue, builds) {
         <span class="kb-col-title prog">In Progress</span>
         <span class="kb-count prog">${inProgress.length}</span>
       </div>
-      ${inProgress.map(t => card(t,'','BUILD','kt-infra')).join('')}
+      ${inProgress.length ? inProgress.map(t => card(t,'','BUILD','kt-infra')).join('') : '<div class="empty">Idle</div>'}
     </div>
     <div class="kb-col">
       <div class="kb-col-hdr">
         <span class="kb-col-title review">Review</span>
         <span class="kb-count review">${review.length}</span>
       </div>
-      ${review.map(t => card(t,'','REVIEW','kt-ui')).join('')}
+      ${review.length ? review.map(t => card(t,'','APPROVE','kt-ui')).join('') : '<div class="empty">Nothing pending</div>'}
     </div>
     <div class="kb-col">
       <div class="kb-col-hdr">
@@ -445,6 +428,8 @@ function buildUsage(usage) {
 function render(data) {
   const alive   = data.system?.jarvis?.alive !== false;
   const queue   = data.queue   || {};
+  const kanban  = data.kanban  || {};
+  const heatmap = data.heatmap || {};
   const agents  = data.agents  || [];
   const builds  = data.recentBuilds || [];
   const usage   = data.claudeUsage  || {};
@@ -508,7 +493,7 @@ function render(data) {
           <div class="card-title">Build Heatmap — 28 Days</div>
           <span class="card-badge cb-lav">${builds.length} LOGGED</span>
         </div>
-        ${buildHeatmap(builds)}
+        ${buildHeatmap(heatmap)}
       </div>
       <div class="card">
         <div class="card-hdr">
@@ -538,7 +523,7 @@ function render(data) {
         <div class="card-title">SaSMaster Kanban</div>
         <span class="card-badge cb-lav">${(queue.high||0)+(queue.med||0)} ACTIVE TASKS</span>
       </div>
-      ${buildKanban(queue, builds)}
+      ${buildKanban(kanban, queue, builds)}
     </div>
 
     <!-- ROW 3: CLAUDE USAGE + QUEUE -->
