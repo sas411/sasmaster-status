@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaSMaster Status</title>
+  <style>
+    :root {
+      --bg:        #f4f0fb;
+      --surface:   #ffffff;
+      --surface2:  #ede8f7;
+      --border:    #d8cef0;
+      --accent:    #7c5cbf;
+      --accent2:   #a880e8;
+      --text:      #1a1330;
+      --muted:     #7a6e91;
+      --green:     #2d9e6b;
+      --green-bg:  #e6f7f0;
+      --red:       #c0392b;
+      --red-bg:    #fdecea;
+      --yellow:    #b07d00;
+      --yellow-bg: #fff8e1;
+      --radius:    10px;
+      --mono:      'SF Mono', 'Fira Code', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--accent);
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.04em; }
+    header .sub { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+
+    #system-banner {
+      padding: 10px 32px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #system-banner.online  { background: var(--green-bg); color: var(--green); }
+    #system-banner.offline { background: var(--red-bg);   color: var(--red); }
+    .dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      display: inline-block;
+    }
+    .dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .dot.red   { background: var(--red);   box-shadow: 0 0 6px var(--red); }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 24px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .card.full { grid-column: 1 / -1; }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .badge {
+      background: var(--accent2);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+    .badge.red    { background: var(--red); }
+    .badge.green  { background: var(--green); }
+    .badge.yellow { background: var(--yellow); color: #fff; }
+
+    /* Agents */
+    .agent-row {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--surface2);
+      gap: 10px;
+    }
+    .agent-row:last-child { border-bottom: none; }
+    .agent-name { font-weight: 600; flex: 1; }
+    .agent-label { color: var(--muted); font-size: 12px; flex: 1.5; }
+    .agent-time  { color: var(--muted); font-size: 11px; font-family: var(--mono); }
+    .status-pill {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+    }
+    .status-pill.ok    { background: var(--green-bg); color: var(--green); }
+    .status-pill.error { background: var(--red-bg);   color: var(--red); }
+    .status-pill.never { background: var(--surface2); color: var(--muted); }
+
+    /* Tasks */
+    .task-list { list-style: none; }
+    .task-list li {
+      padding: 6px 0 6px 14px;
+      border-left: 3px solid var(--accent2);
+      margin-bottom: 8px;
+      font-size: 13px;
+      line-height: 1.4;
+      color: var(--text);
+    }
+    .task-list li:last-child { margin-bottom: 0; }
+
+    /* Done log */
+    .done-entry {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--surface2);
+    }
+    .done-entry:last-child { border-bottom: none; }
+    .done-task { font-weight: 600; font-size: 13px; }
+    .done-date { color: var(--muted); font-size: 11px; font-family: var(--mono); margin-top: 2px; }
+    .done-notes { color: var(--muted); font-size: 12px; margin-top: 4px; line-height: 1.4; }
+
+    /* Pending */
+    .pending-item {
+      background: var(--yellow-bg);
+      border: 1px solid #f0d060;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+    }
+    .pending-item:last-child { margin-bottom: 0; }
+    .pending-desc { font-weight: 600; font-size: 13px; }
+    .pending-id   { font-family: var(--mono); font-size: 11px; color: var(--yellow); margin-top: 3px; }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 12px;
+    }
+    #last-updated { font-family: var(--mono); }
+
+    /* Loading */
+    #loading {
+      text-align: center;
+      padding: 80px;
+      color: var(--muted);
+      font-size: 16px;
+      grid-column: 1 / -1;
+    }
+
+    /* Empty state */
+    .empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>⚡ SaSMaster Status</h1>
+    <div class="sub">Bloomberg Terminal for Media · Internal Dashboard</div>
+  </div>
+  <div style="font-size:12px;opacity:0.7;">Auto-refreshes every 60s</div>
+</header>
+
+<div id="system-banner" class="online">
+  <span class="dot green" id="status-dot"></span>
+  <span id="status-text">Loading...</span>
+</div>
+
+<main id="main">
+  <div id="loading">Loading status...</div>
+</main>
+
+<footer>
+  Last updated: <span id="last-updated">—</span>
+</footer>
+
+<script>
+const fmt = iso => {
+  if (!iso) return 'never';
+  const d = new Date(iso);
+  return d.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit', hour12: true
+  }) + ' EST';
+};
+
+const timeAgo = iso => {
+  if (!iso) return '';
+  const mins = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (mins < 1)   return 'just now';
+  if (mins < 60)  return `${mins}m ago`;
+  if (mins < 1440) return `${Math.round(mins/60)}h ago`;
+  return `${Math.round(mins/1440)}d ago`;
+};
+
+function render(s) {
+  // Banner
+  const banner = document.getElementById('system-banner');
+  const dot = document.getElementById('status-dot');
+  const statusText = document.getElementById('status-text');
+  if (s.jarvis_online) {
+    banner.className = 'online';
+    dot.className = 'dot green';
+    statusText.textContent = 'JARVIS Online — Socket Mode Connected';
+  } else {
+    banner.className = 'offline';
+    dot.className = 'dot red';
+    statusText.textContent = 'JARVIS Offline — Check launchd';
+  }
+
+  const highCount = s.tasks.high.length;
+  const pendingCount = s.pending_approvals.length;
+
+  document.getElementById('main').innerHTML = `
+
+    <!-- Agent Fleet -->
+    <div class="card full">
+      <div class="card-title">
+        Agent Fleet
+        <span class="badge">${s.agents.length} agents</span>
+      </div>
+      ${s.agents.map(a => `
+        <div class="agent-row">
+          <div class="agent-name">${a.name}</div>
+          <div class="agent-label">${a.label}</div>
+          <div class="agent-time">${timeAgo(a.last_run)}</div>
+          <span class="status-pill ${a.status}">${a.status.toUpperCase()}</span>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- HIGH Priority Queue -->
+    <div class="card">
+      <div class="card-title">
+        High Priority Queue
+        <span class="badge ${highCount > 0 ? 'red' : 'green'}">${highCount} HIGH</span>
+      </div>
+      ${highCount > 0
+        ? `<ul class="task-list">${s.tasks.high.map(t => `<li>${t}</li>`).join('')}</ul>`
+        : `<div class="empty">Queue clear — nothing pending.</div>`
+      }
+    </div>
+
+    <!-- Pending Approvals -->
+    <div class="card">
+      <div class="card-title">
+        Pending Approvals
+        <span class="badge ${pendingCount > 0 ? 'yellow' : 'green'}">${pendingCount} pending</span>
+      </div>
+      ${pendingCount > 0
+        ? s.pending_approvals.map(p => `
+            <div class="pending-item">
+              <div class="pending-desc">${p.description || p.type}</div>
+              <div class="pending-id">ID: ${p.id} · ${fmt(p.timestamp)}</div>
+            </div>
+          `).join('')
+        : `<div class="empty">Nothing awaiting approval.</div>`
+      }
+    </div>
+
+    <!-- Recent Completed -->
+    <div class="card full">
+      <div class="card-title">
+        Recent Completed Tasks
+        <span class="badge green">DONE_LOG</span>
+      </div>
+      ${s.recent_done.length > 0
+        ? s.recent_done.map(e => `
+            <div class="done-entry">
+              <div class="done-task">${e.task}</div>
+              <div class="done-date">${e.date}</div>
+              ${e.notes ? `<div class="done-notes">${e.notes}</div>` : ''}
+            </div>
+          `).join('')
+        : `<div class="empty">No completed tasks yet.</div>`
+      }
+    </div>
+
+  `;
+
+  document.getElementById('last-updated').textContent = fmt(s.generated_at);
+}
+
+async function load() {
+  try {
+    const res = await fetch(`status.json?t=${Date.now()}`);
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    render(data);
+  } catch (e) {
+    document.getElementById('main').innerHTML =
+      `<div id="loading" style="color:#c0392b">Failed to load status.json — ${e.message}</div>`;
+  }
+}
+
+load();
+setInterval(load, 60000);
+</script>
+
+</body>
+</html>
