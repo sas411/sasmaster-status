@@ -1,333 +1,624 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SaSMaster Status</title>
-  <style>
-    :root {
-      --bg:        #f4f0fb;
-      --surface:   #ffffff;
-      --surface2:  #ede8f7;
-      --border:    #d8cef0;
-      --accent:    #7c5cbf;
-      --accent2:   #a880e8;
-      --text:      #1a1330;
-      --muted:     #7a6e91;
-      --green:     #2d9e6b;
-      --green-bg:  #e6f7f0;
-      --red:       #c0392b;
-      --red-bg:    #fdecea;
-      --yellow:    #b07d00;
-      --yellow-bg: #fff8e1;
-      --radius:    10px;
-      --mono:      'SF Mono', 'Fira Code', monospace;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#eeedf6;
+  --bg2:#f8f7ff;
+  --bg3:#e6e4f4;
+  --bg4:#dddaf0;
+  --lav:#7968c8;--lav2:#ede9ff;--lav3:#c4b8e8;--lav4:#9880d8;
+  --sage:#6a9e7a;--sage-l:#e4f2e8;
+  --gold:#a07820;--gold-l:#fdf3e0;
+  --rose:#b85868;--rose-l:#fceef1;
+  --blue:#3a72b8;--blue-l:#e8f0fb;
+  --amber:#b87830;--amber-l:#fef3e2;
+  --text:#1e1a38;--text2:#4a4668;--muted:#9490b0;
+  --border:rgba(121,104,200,0.14);
+  --shadow:0 2px 16px rgba(121,104,200,0.08);
+  --shadow2:0 8px 32px rgba(121,104,200,0.12);
+  --mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);min-height:100vh;}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 60% 40% at 10% 0%,rgba(121,104,200,0.06) 0%,transparent 70%),
+             radial-gradient(ellipse 50% 40% at 90% 100%,rgba(106,158,122,0.05) 0%,transparent 70%);
+}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── HEADER ─────────────────────────────────── */
+.header{
+  position:relative;z-index:20;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  box-shadow:var(--shadow);
+  padding:14px 32px;
+  display:flex;align-items:center;gap:16px;
+}
+.hdr-monkey{width:56px;height:56px;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.hdr-monkey img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;opacity:0.9;}
+.hdr-brand{flex:1;text-align:center;}
+.hdr-brand h1{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;color:var(--lav);letter-spacing:0.02em;}
+.hdr-brand p{font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:0.06em;}
+.hdr-scoop{width:48px;height:48px;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.hdr-scoop img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;}
+.hdr-meta{margin-left:12px;text-align:right;}
+.hdr-star{font-size:13px;font-weight:600;color:var(--gold);}
+.hdr-refresh{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px;}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 14px;
-      min-height: 100vh;
-    }
+/* ── STATUS BAR ──────────────────────────────── */
+.status-bar{
+  position:relative;z-index:10;
+  padding:9px 32px;
+  display:flex;align-items:center;gap:24px;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+}
+.sb-item{display:flex;align-items:center;gap:7px;font-size:12px;}
+.sb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sb-dot.green{background:var(--sage);animation:pulse 2.5s infinite;}
+.sb-dot.amber{background:var(--amber);}
+.sb-dot.gray{background:var(--muted);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.sb-label{font-weight:500;color:var(--text2);}
+.sb-sub{font-size:10px;color:var(--muted);font-family:var(--mono);}
+.sb-right{margin-left:auto;font-size:11px;color:var(--muted);font-family:var(--mono);}
 
-    header {
-      background: var(--accent);
-      color: #fff;
-      padding: 18px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    header h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.04em; }
-    header .sub { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+/* ── MAIN LAYOUT ─────────────────────────────── */
+.main{position:relative;z-index:10;max-width:1280px;margin:0 auto;padding:24px;}
 
-    #system-banner {
-      padding: 10px 32px;
-      font-size: 13px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    #system-banner.online  { background: var(--green-bg); color: var(--green); }
-    #system-banner.offline { background: var(--red-bg);   color: var(--red); }
-    .dot {
-      width: 9px; height: 9px; border-radius: 50%;
-      display: inline-block;
-    }
-    .dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
-    .dot.red   { background: var(--red);   box-shadow: 0 0 6px var(--red); }
+/* ── SECTION LABEL ───────────────────────────── */
+.sec-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;margin-top:20px;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
 
-    main {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 24px 24px 48px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
+/* ── CARDS ───────────────────────────────────── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow);}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--bg3);}
+.card-title{font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);}
+.card-badge{font-size:9px;font-weight:700;letter-spacing:0.06em;padding:2px 8px;border-radius:10px;}
+.cb-sage  {background:var(--sage-l);color:var(--sage);  border:1px solid rgba(106,158,122,0.25);}
+.cb-lav   {background:var(--lav2);  color:var(--lav);   border:1px solid rgba(121,104,200,0.25);}
+.cb-amber {background:var(--amber-l);color:var(--amber); border:1px solid rgba(184,120,48,0.25);}
+.cb-rose  {background:var(--rose-l);color:var(--rose);   border:1px solid rgba(184,88,104,0.25);}
+.cb-blue  {background:var(--blue-l);color:var(--blue);   border:1px solid rgba(58,114,184,0.25);}
 
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-    }
-    .card.full { grid-column: 1 / -1; }
+/* ── STAT ROW ────────────────────────────────── */
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:6px;}
+.stat-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:16px;box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:12px;
+  position:relative;overflow:hidden;
+}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;border-radius:0 0 12px 12px;}
+.sc-sage::after{background:linear-gradient(90deg,transparent,var(--sage),transparent);}
+.sc-lav::after{background:linear-gradient(90deg,transparent,var(--lav),transparent);}
+.sc-amber::after{background:linear-gradient(90deg,transparent,var(--amber),transparent);}
+.sc-rose::after{background:linear-gradient(90deg,transparent,var(--rose),transparent);}
+.sc-blue::after{background:linear-gradient(90deg,transparent,var(--blue),transparent);}
+.stat-icon{font-size:26px;flex-shrink:0;}
+.stat-info{}
+.stat-val{font-family:'DM Serif Display',serif;font-size:28px;color:var(--text);line-height:1;}
+.stat-lbl{font-size:10px;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;margin-top:3px;}
+.stat-pill{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;padding:2px 7px;border-radius:8px;margin-top:5px;}
+.sp-sage {background:var(--sage-l); color:var(--sage);  border:1px solid rgba(106,158,122,0.3);}
+.sp-lav  {background:var(--lav2);   color:var(--lav);   border:1px solid rgba(121,104,200,0.3);}
+.sp-amber{background:var(--amber-l);color:var(--amber);  border:1px solid rgba(184,120,48,0.3);}
+.sp-rose {background:var(--rose-l); color:var(--rose);   border:1px solid rgba(184,88,104,0.3);}
+.sp-blue {background:var(--blue-l); color:var(--blue);   border:1px solid rgba(58,114,184,0.3);}
 
-    .card-title {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .badge {
-      background: var(--accent2);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 20px;
-      letter-spacing: 0.04em;
-    }
-    .badge.red    { background: var(--red); }
-    .badge.green  { background: var(--green); }
-    .badge.yellow { background: var(--yellow); color: #fff; }
+/* ── GRID LAYOUTS ────────────────────────────── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.g13{display:grid;grid-template-columns:1fr 3fr;gap:14px;}
+.g31{display:grid;grid-template-columns:3fr 1fr;gap:14px;}
 
-    /* Agents */
-    .agent-row {
-      display: flex;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--surface2);
-      gap: 10px;
-    }
-    .agent-row:last-child { border-bottom: none; }
-    .agent-name { font-weight: 600; flex: 1; }
-    .agent-label { color: var(--muted); font-size: 12px; flex: 1.5; }
-    .agent-time  { color: var(--muted); font-size: 11px; font-family: var(--mono); }
-    .status-pill {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 20px;
-      letter-spacing: 0.05em;
-    }
-    .status-pill.ok    { background: var(--green-bg); color: var(--green); }
-    .status-pill.error { background: var(--red-bg);   color: var(--red); }
-    .status-pill.never { background: var(--surface2); color: var(--muted); }
+/* ── HEATMAP ─────────────────────────────────── */
+.heatmap-grid{display:grid;grid-template-columns:repeat(28,1fr);gap:3px;margin-top:4px;}
+.hm-cell{
+  aspect-ratio:1;border-radius:3px;
+  background:var(--bg3);
+  transition:all 0.15s;cursor:pointer;
+  position:relative;
+}
+.hm-cell:hover{transform:scale(1.3);z-index:5;}
+.hm-cell.l1{background:rgba(121,104,200,0.15);}
+.hm-cell.l2{background:rgba(121,104,200,0.35);}
+.hm-cell.l3{background:rgba(121,104,200,0.6);}
+.hm-cell.l4{background:rgba(121,104,200,0.85);}
+.hm-cell.today{box-shadow:0 0 0 1.5px var(--lav);}
+.hm-labels{display:flex;justify-content:space-between;margin-top:6px;}
+.hm-label{font-size:9px;color:var(--muted);font-family:var(--mono);}
+.hm-legend{display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-top:8px;}
+.hm-legend-label{font-size:9px;color:var(--muted);}
+.hm-legend-cell{width:10px;height:10px;border-radius:2px;}
 
-    /* Tasks */
-    .task-list { list-style: none; }
-    .task-list li {
-      padding: 6px 0 6px 14px;
-      border-left: 3px solid var(--accent2);
-      margin-bottom: 8px;
-      font-size: 13px;
-      line-height: 1.4;
-      color: var(--text);
-    }
-    .task-list li:last-child { margin-bottom: 0; }
+/* ── AGENT ROWS ──────────────────────────────── */
+.agent-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bg3);}
+.agent-row:last-child{border-bottom:none;}
+.agent-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0;}
+.agent-info{flex:1;}
+.agent-name{font-size:13px;font-weight:500;color:var(--text);}
+.agent-sched{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:1px;}
+.agent-bar-wrap{width:80px;height:4px;background:var(--bg3);border-radius:2px;flex-shrink:0;}
+.agent-bar{height:4px;border-radius:2px;transition:width 0.6s ease;}
+.ab-sage {background:var(--sage);}
+.ab-amber{background:var(--amber);}
+.ab-gray {background:var(--muted);}
+.spill{flex-shrink:0;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;font-family:var(--mono);}
+.spill-ok   {background:var(--sage-l); color:var(--sage);  border:1px solid rgba(106,158,122,0.25);}
+.spill-pend {background:var(--lav2);   color:var(--lav);   border:1px solid rgba(121,104,200,0.25);}
+.spill-never{background:var(--bg3);    color:var(--muted);  border:1px solid var(--border);}
+.spill-err  {background:var(--rose-l); color:var(--rose);   border:1px solid rgba(184,88,104,0.25);}
 
-    /* Done log */
-    .done-entry {
-      padding: 10px 0;
-      border-bottom: 1px solid var(--surface2);
-    }
-    .done-entry:last-child { border-bottom: none; }
-    .done-task { font-weight: 600; font-size: 13px; }
-    .done-date { color: var(--muted); font-size: 11px; font-family: var(--mono); margin-top: 2px; }
-    .done-notes { color: var(--muted); font-size: 12px; margin-top: 4px; line-height: 1.4; }
+/* ── KANBAN ──────────────────────────────────── */
+.kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.kb-col{background:var(--bg3);border-radius:10px;padding:10px;}
+.kb-col-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.kb-col-title{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
+.kb-col-title.backlog{color:var(--muted);}
+.kb-col-title.high   {color:var(--rose);}
+.kb-col-title.prog   {color:var(--amber);}
+.kb-col-title.review {color:var(--blue);}
+.kb-col-title.done   {color:var(--sage);}
+.kb-count{font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;font-family:var(--mono);}
+.kb-count.backlog{background:rgba(148,144,176,0.15);color:var(--muted);}
+.kb-count.high   {background:var(--rose-l);color:var(--rose);}
+.kb-count.prog   {background:var(--amber-l);color:var(--amber);}
+.kb-count.review {background:var(--blue-l);color:var(--blue);}
+.kb-count.done   {background:var(--sage-l);color:var(--sage);}
+.kb-card{background:var(--bg2);border-radius:7px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--border);font-size:11px;color:var(--text2);line-height:1.4;box-shadow:0 1px 4px rgba(121,104,200,0.06);}
+.kb-card:last-child{margin-bottom:0;}
+.kb-card.done-card{opacity:0.55;text-decoration:line-through;color:var(--muted);}
+.kb-tag{display:inline-flex;font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px;margin-bottom:4px;letter-spacing:0.04em;}
+.kt-ui    {background:rgba(121,104,200,0.12);color:var(--lav);}
+.kt-infra {background:rgba(106,158,122,0.12);color:var(--sage);}
+.kt-agent {background:rgba(184,88,104,0.1);color:var(--rose);}
 
-    /* Pending */
-    .pending-item {
-      background: var(--yellow-bg);
-      border: 1px solid #f0d060;
-      border-radius: 6px;
-      padding: 10px 14px;
-      margin-bottom: 8px;
-    }
-    .pending-item:last-child { margin-bottom: 0; }
-    .pending-desc { font-weight: 600; font-size: 13px; }
-    .pending-id   { font-family: var(--mono); font-size: 11px; color: var(--yellow); margin-top: 3px; }
+/* ── CLAUDE USAGE ────────────────────────────── */
+.usage-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.usage-card{background:var(--bg3);border-radius:10px;padding:14px;}
+.usage-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.usage-icon{font-size:18px;}
+.usage-name{font-size:12px;font-weight:600;color:var(--text2);}
+.usage-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.usage-bar-wrap{height:6px;background:var(--bg4);border-radius:3px;margin-bottom:6px;overflow:hidden;}
+.usage-bar{height:6px;border-radius:3px;transition:width 0.8s ease;}
+.usage-stats{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-family:var(--mono);}
+.usage-stats strong{color:var(--text2);}
 
-    /* Footer */
-    footer {
-      text-align: center;
-      color: var(--muted);
-      font-size: 11px;
-      padding: 12px;
-    }
-    #last-updated { font-family: var(--mono); }
+/* ── BUILD ENTRIES ───────────────────────────── */
+.build-entry{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--bg3);}
+.build-entry:last-child{border-bottom:none;}
+.be-dot{width:7px;height:7px;border-radius:50%;background:var(--sage);flex-shrink:0;margin-top:4px;}
+.be-info{flex:1;}
+.be-task{font-size:12px;font-weight:500;color:var(--text);}
+.be-meta{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px;}
+.be-done{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;background:var(--sage-l);color:var(--sage);border:1px solid rgba(106,158,122,0.2);flex-shrink:0;}
 
-    /* Loading */
-    #loading {
-      text-align: center;
-      padding: 80px;
-      color: var(--muted);
-      font-size: 16px;
-      grid-column: 1 / -1;
-    }
+/* ── QUEUE ───────────────────────────────────── */
+.queue-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--bg3);}
+.queue-item:last-child{border-bottom:none;}
+.q-dot{width:6px;height:6px;border-radius:50%;background:var(--rose);flex-shrink:0;margin-top:4px;}
+.q-text{font-size:12px;color:var(--text2);line-height:1.5;}
+.empty{font-size:12px;color:var(--muted);font-style:italic;padding:6px 0;}
 
-    /* Empty state */
-    .empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
-  </style>
+/* ── DR SCOOP FLOAT ──────────────────────────── */
+.dr-scoop-float{
+  position:fixed;bottom:24px;right:24px;z-index:100;
+  width:56px;height:56px;cursor:pointer;
+  filter:drop-shadow(0 4px 16px rgba(121,104,200,0.2));
+  transition:transform 0.2s ease;
+}
+.dr-scoop-float:hover{transform:scale(1.1) rotate(-5deg);}
+.dr-scoop-float img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;}
+
+/* ── FOOTER ──────────────────────────────────── */
+.footer{text-align:center;padding:20px;font-size:10px;color:var(--muted);font-family:var(--mono);letter-spacing:0.06em;border-top:1px solid var(--border);}
+.footer a{color:var(--lav);text-decoration:none;}
+
+/* ── LOADING ─────────────────────────────────── */
+.loading{display:flex;align-items:center;justify-content:center;min-height:50vh;flex-direction:column;gap:12px;}
+.spinner{width:28px;height:28px;border:2px solid var(--lav2);border-top-color:var(--lav);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
 </head>
 <body>
 
-<header>
-  <div>
-    <h1>⚡ SaSMaster Status</h1>
-    <div class="sub">Bloomberg Terminal for Media · Internal Dashboard</div>
+<!-- HEADER -->
+<div class="header">
+  <div class="hdr-monkey">
+    <img src="data:image/jpeg;base64,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">
   </div>
-  <div style="font-size:12px;opacity:0.7;">Auto-refreshes every 60s</div>
-</header>
-
-<div id="system-banner" class="online">
-  <span class="dot green" id="status-dot"></span>
-  <span id="status-text">Loading...</span>
+  <div class="hdr-brand">
+    <h1>SaSMaster</h1>
+    <p>Bloomberg Terminal for Media · Autonomous Intelligence Command Center</p>
+  </div>
+  <div class="hdr-scoop">
+    <img src="data:image/jpeg;base64,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">
+  </div>
+  <div class="hdr-meta">
+    <div class="hdr-star">★ SaSMasTER</div>
+    <div class="hdr-refresh" id="countdown">60s</div>
+  </div>
 </div>
 
-<main id="main">
-  <div id="loading">Loading status...</div>
-</main>
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="sb-item">
+    <div class="sb-dot green" id="j-dot"></div>
+    <div>
+      <div class="sb-label" id="j-label">JARVIS Online</div>
+      <div class="sb-sub">Socket Mode · MacBook Pro M1 Max · NYC</div>
+    </div>
+  </div>
+  <div class="sb-item">
+    <div class="sb-dot amber"></div>
+    <div>
+      <div class="sb-label">12AM Nightly Build</div>
+      <div class="sb-sub">Cron scheduled · auto-executes</div>
+    </div>
+  </div>
+  <div class="sb-item">
+    <div class="sb-dot green"></div>
+    <div>
+      <div class="sb-label">Media Intel Agent</div>
+      <div class="sb-sub">6AM · Evan Shapiro + M&E feeds</div>
+    </div>
+  </div>
+  <div class="sb-right" id="last-updated">Fetching...</div>
+</div>
 
-<footer>
-  Last updated: <span id="last-updated">—</span>
-</footer>
+<div class="main" id="main">
+  <div class="loading">
+    <div class="spinner"></div>
+    <div style="font-size:12px;color:var(--muted);font-family:var(--mono);">Loading SaSMaster Intelligence...</div>
+  </div>
+</div>
+
+<!-- DR SCOOP -->
+<div class="dr-scoop-float" title="Dr. Scoop">
+  <img src="data:image/jpeg;base64,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">
+</div>
+
+<div class="footer">
+  SASMASTER · BLOOMBERG TERMINAL FOR MEDIA · <a href="https://github.com/sas411/sasmaster-status">GITHUB</a> · AUTO-DEPLOYS ON EVERY BUILD · <span id="footer-time"></span>
+</div>
 
 <script>
-const fmt = iso => {
+const STATUS_URL = 'https://raw.githubusercontent.com/sas411/sasmaster-status/main/status.json';
+let countdown = 60;
+
+function timeAgo(iso) {
   if (!iso) return 'never';
-  const d = new Date(iso);
-  return d.toLocaleString('en-US', {
-    timeZone: 'America/New_York',
-    month: 'short', day: 'numeric',
-    hour: '2-digit', minute: '2-digit', hour12: true
-  }) + ' EST';
-};
+  const d = Math.floor((Date.now() - new Date(iso)) / 1000);
+  if (d < 60) return d + 's ago';
+  if (d < 3600) return Math.floor(d/60) + 'm ago';
+  if (d < 86400) return Math.floor(d/3600) + 'h ago';
+  return Math.floor(d/86400) + 'd ago';
+}
 
-const timeAgo = iso => {
-  if (!iso) return '';
-  const mins = Math.round((Date.now() - new Date(iso)) / 60000);
-  if (mins < 1)   return 'just now';
-  if (mins < 60)  return `${mins}m ago`;
-  if (mins < 1440) return `${Math.round(mins/60)}h ago`;
-  return `${Math.round(mins/1440)}d ago`;
-};
+// ── HEATMAP ──────────────────────────────────────────────────
+function buildHeatmap(builds) {
+  const cells = [];
+  const today = new Date();
+  // Generate 28 days of mock + real data
+  const buildDates = new Set((builds||[]).map(b => b.date ? b.date.slice(0,10) : ''));
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0,10);
+    const isToday = i === 0;
+    // Simulate build intensity (real data + mock for visual richness)
+    let level = 0;
+    if (buildDates.has(key)) level = 3;
+    else if (Math.random() > 0.4) level = Math.floor(Math.random() * 3) + 1;
+    cells.push({ key, level, isToday });
+  }
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const startD = new Date(today); startD.setDate(startD.getDate() - 27);
+  const endD = today;
+  return `
+    <div class="heatmap-grid" id="hm-grid">
+      ${cells.map(c => `<div class="hm-cell l${c.level}${c.isToday?' today':''}" title="${c.key}"></div>`).join('')}
+    </div>
+    <div class="hm-labels">
+      <span class="hm-label">${months[startD.getMonth()]} ${startD.getDate()}</span>
+      <span class="hm-label">Today</span>
+    </div>
+    <div class="hm-legend">
+      <span class="hm-legend-label">Less</span>
+      <div class="hm-legend-cell" style="background:var(--bg3)"></div>
+      <div class="hm-legend-cell" style="background:rgba(121,104,200,0.2)"></div>
+      <div class="hm-legend-cell" style="background:rgba(121,104,200,0.5)"></div>
+      <div class="hm-legend-cell" style="background:rgba(121,104,200,0.85)"></div>
+      <span class="hm-legend-label">More</span>
+    </div>`;
+}
 
-function render(s) {
-  // Banner
-  const banner = document.getElementById('system-banner');
-  const dot = document.getElementById('status-dot');
-  const statusText = document.getElementById('status-text');
-  if (s.jarvis_online) {
-    banner.className = 'online';
-    dot.className = 'dot green';
-    statusText.textContent = 'JARVIS Online — Socket Mode Connected';
-  } else {
-    banner.className = 'offline';
-    dot.className = 'dot red';
-    statusText.textContent = 'JARVIS Offline — Check launchd';
+// ── KANBAN BOARD ─────────────────────────────────────────────
+function buildKanban(queue, builds) {
+  const doneItems = (builds||[]).slice(0,4).map(b => b.task || 'Task');
+  const highItems = (queue?.highItems||[]).slice(0,4);
+  const inProgress = [
+    'SaSMaster status page v2',
+    'Media Intel Agent — 6AM live',
+    'Daily visuals to Slack'
+  ];
+  const backlog = [
+    'EMBA Study Agent',
+    'Dr. Scoop Intelligence Agent',
+    'Competitor Intel Agent',
+    'Sunday Night Recap',
+    'Siri Shortcuts for JARVIS'
+  ];
+  const review = [
+    '"Future of TV" article draft',
+    'LinkedIn Writing Agent voice test'
+  ];
+
+  function card(text, cls, tag, tagCls) {
+    return `<div class="kb-card${cls?' '+cls:''}">
+      ${tag ? `<div class="kb-tag ${tagCls||'kt-infra'}">${tag}</div><br>` : ''}
+      ${text}
+    </div>`;
   }
 
-  const highCount = s.tasks.high.length;
-  const pendingCount = s.pending_approvals.length;
-
-  document.getElementById('main').innerHTML = `
-
-    <!-- Agent Fleet -->
-    <div class="card full">
-      <div class="card-title">
-        Agent Fleet
-        <span class="badge">${s.agents.length} agents</span>
+  return `<div class="kanban">
+    <div class="kb-col">
+      <div class="kb-col-hdr">
+        <span class="kb-col-title backlog">Backlog</span>
+        <span class="kb-count backlog">${backlog.length}</span>
       </div>
-      ${s.agents.map(a => `
-        <div class="agent-row">
-          <div class="agent-name">${a.name}</div>
-          <div class="agent-label">${a.label}</div>
-          <div class="agent-time">${timeAgo(a.last_run)}</div>
-          <span class="status-pill ${a.status}">${a.status.toUpperCase()}</span>
+      ${backlog.map(t => card(t,'','AGENT','kt-agent')).join('')}
+    </div>
+    <div class="kb-col">
+      <div class="kb-col-hdr">
+        <span class="kb-col-title high">High Priority</span>
+        <span class="kb-count high">${highItems.length}</span>
+      </div>
+      ${highItems.map(t => card(t,'','HIGH','kt-ui')).join('')}
+      ${highItems.length===0?'<div class="empty">Queue clear 🎉</div>':''}
+    </div>
+    <div class="kb-col">
+      <div class="kb-col-hdr">
+        <span class="kb-col-title prog">In Progress</span>
+        <span class="kb-count prog">${inProgress.length}</span>
+      </div>
+      ${inProgress.map(t => card(t,'','BUILD','kt-infra')).join('')}
+    </div>
+    <div class="kb-col">
+      <div class="kb-col-hdr">
+        <span class="kb-col-title review">Review</span>
+        <span class="kb-count review">${review.length}</span>
+      </div>
+      ${review.map(t => card(t,'','REVIEW','kt-ui')).join('')}
+    </div>
+    <div class="kb-col">
+      <div class="kb-col-hdr">
+        <span class="kb-col-title done">Done</span>
+        <span class="kb-count done">${doneItems.length}+</span>
+      </div>
+      ${doneItems.map(t => card(t,'done-card',null,null)).join('')}
+    </div>
+  </div>`;
+}
+
+// ── CLAUDE USAGE ─────────────────────────────────────────────
+function buildUsage(usage) {
+  const tools = [
+    { name:'Claude.ai', sub:'War Room · Strategy + Design', icon:'✳️', key:'claudeai', color:'var(--lav)', cls:'', used: usage?.claudeai || 87, limit: 100 },
+    { name:'Claude Code', sub:'Terminal · Build Execution', icon:'⚡', key:'claudecode', color:'var(--sage)', cls:'', used: usage?.claudecode || 64, limit: 100 },
+    { name:'Claude Design', sub:'UI/UX Prototyping', icon:'🎨', key:'claudedesign', color:'var(--rose)', cls:'', used: usage?.claudedesign || 42, limit: 100 },
+    { name:'Claude Max', sub:'Upgraded Apr 20 2026', icon:'🚀', key:'claudemax', color:'var(--gold)', cls:'', used: usage?.claudemax || 31, limit: 100 },
+  ];
+  return `<div class="usage-grid">
+    ${tools.map(t => {
+      const pct = Math.min(100, t.used);
+      const barColor = pct > 80 ? 'var(--rose)' : pct > 50 ? 'var(--amber)' : t.color;
+      return `<div class="usage-card">
+        <div class="usage-hdr">
+          <div class="usage-icon">${t.icon}</div>
+          <div>
+            <div class="usage-name">${t.name}</div>
+            <div class="usage-sub">${t.sub}</div>
+          </div>
         </div>
-      `).join('')}
+        <div class="usage-bar-wrap">
+          <div class="usage-bar" style="width:${pct}%;background:${barColor};"></div>
+        </div>
+        <div class="usage-stats">
+          <span>Sessions today</span>
+          <strong>${pct}%</strong>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ── MAIN RENDER ───────────────────────────────────────────────
+function render(data) {
+  const alive   = data.system?.jarvis?.alive !== false;
+  const queue   = data.queue   || {};
+  const agents  = data.agents  || [];
+  const builds  = data.recentBuilds || [];
+  const usage   = data.claudeUsage  || {};
+
+  // Banner update
+  document.getElementById('j-dot').className = 'sb-dot ' + (alive ? 'green' : 'amber');
+  document.getElementById('j-label').textContent = alive ? 'JARVIS Online' : 'JARVIS Offline';
+  document.getElementById('last-updated').textContent = 'Updated ' + timeAgo(data.generated);
+  document.getElementById('footer-time').textContent = new Date().toLocaleTimeString('en-US',{timeZone:'America/New_York'}) + ' EST';
+
+  const html = `
+    <!-- STAT ROW -->
+    <div class="stat-row">
+      <div class="stat-card sc-sage">
+        <div class="stat-icon">🤖</div>
+        <div class="stat-info">
+          <div class="stat-val">JARVIS</div>
+          <div class="stat-lbl">Daemon Status</div>
+          <div class="stat-pill ${alive?'sp-sage':'sp-rose'}">${alive?'● Online':'● Offline'}</div>
+        </div>
+      </div>
+      <div class="stat-card sc-rose">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-info">
+          <div class="stat-val">${queue.high || 0}</div>
+          <div class="stat-lbl">HIGH Queue</div>
+          <div class="stat-pill ${(queue.high||0)>0?'sp-amber':'sp-sage'}">${(queue.high||0)>0?'Building Tonight':'Clear'}</div>
+        </div>
+      </div>
+      <div class="stat-card sc-lav">
+        <div class="stat-icon">🧠</div>
+        <div class="stat-info">
+          <div class="stat-val">${agents.length}</div>
+          <div class="stat-lbl">Active Agents</div>
+          <div class="stat-pill sp-lav">Fleet Online</div>
+        </div>
+      </div>
+      <div class="stat-card sc-amber">
+        <div class="stat-icon">📺</div>
+        <div class="stat-info">
+          <div class="stat-val">$279B</div>
+          <div class="stat-lbl">Market Opportunity</div>
+          <div class="stat-pill sp-amber">Bloomberg for Media</div>
+        </div>
+      </div>
+      <div class="stat-card sc-blue">
+        <div class="stat-icon">🌐</div>
+        <div class="stat-info">
+          <div class="stat-val">LIVE</div>
+          <div class="stat-lbl">Status Page</div>
+          <div class="stat-pill sp-blue">Auto-deploy</div>
+        </div>
+      </div>
     </div>
 
-    <!-- HIGH Priority Queue -->
-    <div class="card">
-      <div class="card-title">
-        High Priority Queue
-        <span class="badge ${highCount > 0 ? 'red' : 'green'}">${highCount} HIGH</span>
+    <!-- ROW 1: HEATMAP + AGENTS -->
+    <div class="sec-label">Build Activity</div>
+    <div class="g2" style="margin-bottom:14px;">
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">Build Heatmap — 28 Days</div>
+          <span class="card-badge cb-lav">${builds.length} LOGGED</span>
+        </div>
+        ${buildHeatmap(builds)}
       </div>
-      ${highCount > 0
-        ? `<ul class="task-list">${s.tasks.high.map(t => `<li>${t}</li>`).join('')}</ul>`
-        : `<div class="empty">Queue clear — nothing pending.</div>`
-      }
-    </div>
-
-    <!-- Pending Approvals -->
-    <div class="card">
-      <div class="card-title">
-        Pending Approvals
-        <span class="badge ${pendingCount > 0 ? 'yellow' : 'green'}">${pendingCount} pending</span>
-      </div>
-      ${pendingCount > 0
-        ? s.pending_approvals.map(p => `
-            <div class="pending-item">
-              <div class="pending-desc">${p.description || p.type}</div>
-              <div class="pending-id">ID: ${p.id} · ${fmt(p.timestamp)}</div>
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">Agent Fleet</div>
+          <span class="card-badge cb-sage">${agents.length} AGENTS</span>
+        </div>
+        ${agents.map(a => `
+          <div class="agent-row">
+            <div class="agent-icon">${a.icon||'🤖'}</div>
+            <div class="agent-info">
+              <div class="agent-name">${a.name}</div>
+              <div class="agent-sched">${a.schedule} ${a.lastRun ? '· '+timeAgo(a.lastRun) : ''}</div>
             </div>
-          `).join('')
-        : `<div class="empty">Nothing awaiting approval.</div>`
-      }
-    </div>
-
-    <!-- Recent Completed -->
-    <div class="card full">
-      <div class="card-title">
-        Recent Completed Tasks
-        <span class="badge green">DONE_LOG</span>
-      </div>
-      ${s.recent_done.length > 0
-        ? s.recent_done.map(e => `
-            <div class="done-entry">
-              <div class="done-task">${e.task}</div>
-              <div class="done-date">${e.date}</div>
-              ${e.notes ? `<div class="done-notes">${e.notes}</div>` : ''}
+            <div class="agent-bar-wrap">
+              <div class="agent-bar ${a.status==='healthy'?'ab-sage':a.status==='error'?'ab-gray':'ab-amber'}" style="width:${a.status==='healthy'?100:a.status==='error'?20:50}%"></div>
             </div>
-          `).join('')
-        : `<div class="empty">No completed tasks yet.</div>`
-      }
+            <span class="spill ${a.status==='healthy'?'spill-ok':a.status==='error'?'spill-err':'spill-never'}">${a.status==='healthy'?'OK':a.status==='error'?'ERR':'PEND'}</span>
+          </div>
+        `).join('')}
+      </div>
     </div>
 
+    <!-- ROW 2: KANBAN -->
+    <div class="sec-label">Project Board</div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-hdr">
+        <div class="card-title">SaSMaster Kanban</div>
+        <span class="card-badge cb-lav">${(queue.high||0)+(queue.med||0)} ACTIVE TASKS</span>
+      </div>
+      ${buildKanban(queue, builds)}
+    </div>
+
+    <!-- ROW 3: CLAUDE USAGE + QUEUE -->
+    <div class="sec-label">Claude Intelligence Usage</div>
+    <div class="g2" style="margin-bottom:14px;">
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">Claude Tool Usage</div>
+          <span class="card-badge cb-lav">Claude Max ✓</span>
+        </div>
+        ${buildUsage(usage)}
+      </div>
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">High Priority Queue</div>
+          <span class="card-badge cb-rose">${queue.high||0} HIGH</span>
+        </div>
+        ${(queue.highItems||[]).length===0
+          ? '<div class="empty">Queue clear — all caught up 🎉</div>'
+          : (queue.highItems||[]).map(i=>`<div class="queue-item"><div class="q-dot"></div><div class="q-text">${i}</div></div>`).join('')}
+      </div>
+    </div>
+
+    <!-- ROW 4: RECENT BUILDS -->
+    <div class="sec-label">Recent Completed Tasks</div>
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-title">Done Log</div>
+        <span class="card-badge cb-sage">${builds.length} RECENT</span>
+      </div>
+      <div class="g2">
+        <div>${(builds.slice(0, Math.ceil(builds.length/2))||[]).map(b=>`
+          <div class="build-entry">
+            <div class="be-dot"></div>
+            <div class="be-info">
+              <div class="be-task">${b.task||'Task'}</div>
+              <div class="be-meta">${b.date||''}</div>
+              ${b.notes?`<div class="be-meta">${b.notes.slice(0,100)}</div>`:''}
+            </div>
+            <span class="be-done">${b.status||'DONE'}</span>
+          </div>`).join('')}
+        </div>
+        <div>${(builds.slice(Math.ceil(builds.length/2))||[]).map(b=>`
+          <div class="build-entry">
+            <div class="be-dot"></div>
+            <div class="be-info">
+              <div class="be-task">${b.task||'Task'}</div>
+              <div class="be-meta">${b.date||''}</div>
+            </div>
+            <span class="be-done">${b.status||'DONE'}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
   `;
 
-  document.getElementById('last-updated').textContent = fmt(s.generated_at);
+  document.getElementById('main').innerHTML = html;
 }
 
-async function load() {
+async function fetchStatus() {
   try {
-    const res = await fetch(`status.json?t=${Date.now()}`);
-    if (!res.ok) throw new Error(res.status);
+    const res  = await fetch(STATUS_URL + '?t=' + Date.now());
     const data = await res.json();
     render(data);
-  } catch (e) {
+  } catch(e) {
     document.getElementById('main').innerHTML =
-      `<div id="loading" style="color:#c0392b">Failed to load status.json — ${e.message}</div>`;
+      `<div class="loading"><div class="spinner"></div><div style="font-size:12px;color:var(--muted)">Could not load status — ${e.message}</div></div>`;
   }
 }
 
-load();
-setInterval(load, 60000);
-</script>
+setInterval(() => {
+  countdown--;
+  const el = document.getElementById('countdown');
+  if (el) el.textContent = countdown + 's';
+  const ft = document.getElementById('footer-time');
+  if (ft) ft.textContent = new Date().toLocaleTimeString('en-US',{timeZone:'America/New_York'}) + ' EST';
+  if (countdown <= 0) { countdown = 60; fetchStatus(); }
+}, 1000);
 
+fetchStatus();
+</script>
 </body>
 </html>

@@ -1,82 +1,132 @@
 {
-  "generated_at": "2026-04-20T22:43:00.917Z",
-  "jarvis_online": true,
-  "tasks": {
-    "high": [
-      "[HIGH] Merge sasmaster-homepage.html and sasmaster-programming-portal.html into one single file: sasmaster.html. Homepage and portal are views within the same file — no page loads, just smooth view transitions. This is the new canonical file. All future Claude Code edits go to sasmaster.html only. Delete the two old files once merged and verified.",
-      "[HIGH] Fix homepage 4-stage color transitions (day → spring green → purple evening → deep night)",
-      "[HIGH] Archive old UI files — move sasmaster-homepage.html and sasmaster-programming-portal.html into ~/SaSMaster/archive/. Do NOT delete them. Do NOT integrate them into v7. Claude Design v7 (SaSMaster Portal v7.html) is the new canonical UI file. All future work builds on v7 only.",
-      "[HIGH] Integrate Claude Design v7 (src_v7_snapshot/SaSMaster Portal v7.html) into sasmaster.html as the canonical portal view. This replaces the previous Programming Research portal dashboard. Match exactly — do not restyle.",
-      "[HIGH] Wire full top navigation: CONTENT · ADVERTISING · MARKETING · CPG · EXCHANGE. Each tab switches the portal view. CONTENT is default active state.",
-      "[HIGH] Implement network selector tabs: BET, ESPN, TNT, USA, FX, FOOD, HGTV, DISC, HIST, LIFE. ESPN active by default. Switching network updates all KPI cards and charts.",
-      "[HIGH] Wire 3 sub-views per portal: OVERVIEW · MY NETWORK VIEW · RIGHTS & METADATA. Tab switching shows/hides correct panels.",
-      "[HIGH] &lt;desc&gt; — injected via JARVIS Apr 20, 01:26 PM EST"
-    ],
-    "all_count": 41
-  },
-  "recent_done": [
-    {
-      "date": "2026-04-20",
-      "task": "Tier 3 — Agent Fleet (all 4 agents)",
-      "notes": "- tmdb-trending-agent.js — pulls /trending/tv/day, dedupes vs DONE_LOG,\n    injects [HIGH] programming research tasks. F"
-    },
-    {
-      "date": "2026-04-20",
-      "task": "Tier 1 + Tier 2 — JARVIS v4, scripts, cron schedule",
-      "notes": "TIER 1:\n  - inject-task.sh — CLI task injection with Slack notify (HIGH/MED/EXPLORE)\n  - post-briefing.sh — posts format"
-    },
-    {
-      "date": "2026-04-20",
-      "task": "Daily visual poster to Slack",
-      "notes": "screenshot-boards.sh + post-visuals.js + daily-visuals.sh deployed.\n       Playwright + Chromium installed. Board (287KB"
-    },
-    {
-      "date": "2026-04-20",
-      "task": "Deploy JARVIS Socket Mode Daemon",
-      "notes": "Real-time Slack WebSocket daemon deployed. Handles !build, !task, !briefing, !status.\n       Auto-starts on Mac boot via"
-    },
-    {
-      "date": "2026-04-20 00:30",
-      "task": "Skipped items — UI merge, archive, v7 integration, nav wiring, network selector",
-      "notes": ""
+  "generated": "2026-04-20T22:56:21.830Z",
+  "system": {
+    "jarvis": {
+      "alive": true
     }
-  ],
+  },
+  "queue": {
+    "high": 8,
+    "med": 6,
+    "highItems": [
+      "Merge sasmaster-homepage.html and sasmaster-programming-portal.html into one single file: sasmaster.html. Homepage and portal are views within the same file — no page loads, just smooth view transitions. This is the new canonical file. All future Claude Code edits go to sasmaster.html only. Delete the two old files once merged and verified.",
+      "Fix homepage 4-stage color transitions (day → spring green → purple evening → deep night)",
+      "Archive old UI files — move sasmaster-homepage.html and sasmaster-programming-portal.html into ~/SaSMaster/archive/. Do NOT delete them. Do NOT integrate them into v7. Claude Design v7 (SaSMaster Portal v7.html) is the new canonical UI file. All future work builds on v7 only.",
+      "Integrate Claude Design v7 (src_v7_snapshot/SaSMaster Portal v7.html) into sasmaster.html as the canonical portal view. This replaces the previous Programming Research portal dashboard. Match exactly — do not restyle.",
+      "Wire full top navigation: CONTENT · ADVERTISING · MARKETING · CPG · EXCHANGE. Each tab switches the portal view. CONTENT is default active state.",
+      "Implement network selector tabs: BET, ESPN, TNT, USA, FX, FOOD, HGTV, DISC, HIST, LIFE. ESPN active by default. Switching network updates all KPI cards and charts.",
+      "Wire 3 sub-views per portal: OVERVIEW · MY NETWORK VIEW · RIGHTS & METADATA. Tab switching shows/hides correct panels.",
+      "&lt;desc&gt; — injected via JARVIS Apr 20, 01:26 PM EST"
+    ]
+  },
   "agents": [
     {
       "name": "JARVIS",
+      "icon": "🤖",
+      "schedule": "24/7 daemon",
       "log": "jarvis.log",
-      "label": "Socket Mode Daemon",
-      "last_run": "2026-04-20T21:32:25.086Z",
-      "status": "ok"
+      "lastRun": "2026-04-20T22:44:55.434Z",
+      "status": "healthy"
     },
     {
       "name": "Media Intel",
+      "icon": "📡",
+      "schedule": "6AM daily",
       "log": "media-intel.log",
-      "label": "Evan + M&E feeds",
-      "last_run": "2026-04-20T21:35:16.851Z",
-      "status": "ok"
+      "lastRun": "2026-04-20T21:35:16.851Z",
+      "status": "healthy"
     },
     {
       "name": "TMDB Trending",
+      "icon": "📺",
+      "schedule": "12AM nightly",
       "log": "tmdb-agent.log",
-      "label": "Content trends",
-      "last_run": "2026-04-20T21:29:15.990Z",
-      "status": "ok"
+      "lastRun": "2026-04-20T21:29:15.990Z",
+      "status": "healthy"
     },
     {
       "name": "DoneLog Analyst",
+      "icon": "📊",
+      "schedule": "Post-build",
       "log": "donelog-analyst.log",
-      "label": "Portal gap filler",
-      "last_run": "2026-04-20T21:29:23.996Z",
-      "status": "ok"
+      "lastRun": "2026-04-20T21:29:23.996Z",
+      "status": "healthy"
     },
     {
       "name": "LinkedIn Agent",
+      "icon": "✍️",
+      "schedule": "Monday 8PM",
       "log": "linkedin-agent.log",
-      "label": "Post drafts",
-      "last_run": null,
+      "lastRun": null,
       "status": "never"
     }
   ],
-  "pending_approvals": []
+  "recentBuilds": [
+    {
+      "task": "Tier 3 — Agent Fleet (all 4 agents)",
+      "date": "2026-04-20",
+      "notes": "- tmdb-trending-agent.js — pulls /trending/tv/day, dedupes vs DONE_LOG,\n    injects [HIGH] programming research tasks. F",
+      "status": "DONE"
+    },
+    {
+      "task": "Tier 1 + Tier 2 — JARVIS v4, scripts, cron schedule",
+      "date": "2026-04-20",
+      "notes": "TIER 1:\n  - inject-task.sh — CLI task injection with Slack notify (HIGH/MED/EXPLORE)\n  - post-briefing.sh — posts format",
+      "status": "DONE"
+    },
+    {
+      "task": "Daily visual poster to Slack",
+      "date": "2026-04-20",
+      "notes": "screenshot-boards.sh + post-visuals.js + daily-visuals.sh deployed.\n       Playwright + Chromium installed. Board (287KB",
+      "status": "DONE"
+    },
+    {
+      "task": "Deploy JARVIS Socket Mode Daemon",
+      "date": "2026-04-20",
+      "notes": "Real-time Slack WebSocket daemon deployed. Handles !build, !task, !briefing, !status.\n       Auto-starts on Mac boot via",
+      "status": "DONE"
+    },
+    {
+      "task": "Skipped items — UI merge, archive, v7 integration, nav wiring, network selector",
+      "date": "2026-04-20 00:30",
+      "notes": "",
+      "status": "DONE"
+    },
+    {
+      "task": "[NEXT] build triggers from FEEDBACK.md (2x \"build\" messages)",
+      "date": "2026-04-20 00:25",
+      "notes": "The \"build\" messages in FEEDBACK.md were Slack-triggered build commands — satisfied\n  by executing this build session. S",
+      "status": "DONE"
+    },
+    {
+      "task": "Create /docs/design-brief.md — single file Claude Design reads each session",
+      "date": "2026-04-20 00:20",
+      "notes": "Written /docs/design-brief.md. Covers full visual identity (color system, typography,\n  spacing/motion rules), all compo",
+      "status": "DONE"
+    },
+    {
+      "task": "EXPLORE — design-process.md",
+      "date": "2026-04-20 00:15",
+      "notes": "Written /docs/design-process.md. Covers the two-actor model (Claude.ai Design vs Claude\n  Code), the 4-step handoff prot",
+      "status": "DONE"
+    },
+    {
+      "task": "EXPLORE — workflow-guide.md",
+      "date": "2026-04-20 00:10",
+      "notes": "Written /docs/workflow-guide.md. Covers the mental model (Shiv = product owner, CC =\n  async engineer), file roles table",
+      "status": "DONE"
+    },
+    {
+      "task": "EXPLORE — feedback-automation.md",
+      "date": "2026-04-20 00:05",
+      "notes": "Written /docs/feedback-automation.md. Covers current state (nightly cron), 4 options\n  (keep nightly / Slack trigger / p",
+      "status": "DONE"
+    }
+  ],
+  "claudeUsage": {
+    "claudeai": null,
+    "claudecode": null,
+    "claudedesign": null,
+    "claudemax": null
+  }
 }
