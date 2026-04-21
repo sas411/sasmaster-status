@@ -172,13 +172,35 @@ body::before{
 .kb-count.prog   {background:var(--amber-l);color:var(--amber);}
 .kb-count.review {background:var(--blue-l);color:var(--blue);}
 .kb-count.done   {background:var(--sage-l);color:var(--sage);}
-.kb-card{background:var(--bg2);border-radius:7px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--border);font-size:11px;color:var(--text2);line-height:1.4;box-shadow:0 1px 4px rgba(121,104,200,0.06);}
+.kb-card{background:var(--bg2);border-radius:7px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--border);font-size:11px;color:var(--text2);line-height:1.4;box-shadow:0 1px 4px rgba(121,104,200,0.06);cursor:pointer;transition:box-shadow 0.15s,border-color 0.15s;}
+.kb-card:hover{box-shadow:0 3px 14px rgba(121,104,200,0.14);border-color:rgba(121,104,200,0.28);}
 .kb-card:last-child{margin-bottom:0;}
-.kb-card.done-card{opacity:0.55;text-decoration:line-through;color:var(--muted);}
-.kb-tag{display:inline-flex;font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px;margin-bottom:4px;letter-spacing:0.04em;}
-.kt-ui    {background:rgba(121,104,200,0.12);color:var(--lav);}
-.kt-infra {background:rgba(106,158,122,0.12);color:var(--sage);}
-.kt-agent {background:rgba(184,88,104,0.1);color:var(--rose);}
+.kb-card.done-card{opacity:0.55;color:var(--muted);}
+.kb-card[data-sprint*="Sprint 2"]{border-left:2px solid rgba(121,104,200,0.45);}
+.kb-card[data-sprint*="Sprint 3"]{border-left:2px solid rgba(58,114,184,0.45);}
+.kb-card-body{font-size:11px;color:var(--text2);line-height:1.4;}
+.kb-card-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:4px;}
+.kb-card-expand{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--bg3);font-size:11px;color:var(--text2);line-height:1.6;}
+.kb-card.expanded .kb-card-expand{display:block;}
+.kb-card-actions{display:flex;gap:5px;margin-top:8px;}
+.kb-btn{font-size:9px;font-weight:700;letter-spacing:0.05em;padding:3px 10px;border-radius:4px;border:none;cursor:pointer;transition:all 0.15s;font-family:var(--mono);}
+.kb-btn-start{background:var(--lav2);color:var(--lav);border:1px solid rgba(121,104,200,0.3);}
+.kb-btn-start:hover{background:var(--lav);color:#fff;}
+.kb-btn-done{background:var(--sage-l);color:var(--sage);border:1px solid rgba(106,158,122,0.3);}
+.kb-btn-done:hover{background:var(--sage);color:#fff;}
+.kb-tag{display:inline-flex;font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px;letter-spacing:0.04em;}
+.kt-ui     {background:rgba(121,104,200,0.12);color:var(--lav);}
+.kt-infra  {background:rgba(106,158,122,0.12);color:var(--sage);}
+.kt-agent  {background:rgba(184,88,104,0.1);color:var(--rose);}
+.kt-edgar  {background:rgba(58,114,184,0.12);color:var(--blue);}
+.kt-data   {background:rgba(184,120,48,0.12);color:var(--amber);}
+.kt-pending{background:rgba(184,120,48,0.12);color:var(--amber);}
+.kt-done   {background:rgba(106,158,122,0.1);color:var(--sage);}
+.kb-sprint{font-size:8px;font-weight:600;letter-spacing:0.04em;color:var(--muted);opacity:0.75;}
+.kb-filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.kb-filter-btn{font-size:10px;font-weight:700;letter-spacing:0.07em;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:var(--mono);}
+.kb-filter-btn:hover,.kb-filter-btn.kf-active{background:var(--lav2);color:var(--lav);border-color:rgba(121,104,200,0.35);}
+.kb-card.kb-hidden{display:none;}
 
 /* ── CLAUDE USAGE ────────────────────────────── */
 .usage-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
@@ -402,55 +424,86 @@ function buildHeatmap(heatmap) {
 
 // ── KANBAN — 100% real from TASKS.md + pending-approvals ─────
 function buildKanban(kanban, queue, builds) {
-  const backlog    = (kanban?.backlog    || []).slice(0, 6);
-  const highItems  = (queue?.highItems  || []).slice(0, 5);
-  const inProgress = (kanban?.inProgress|| []);
-  const review     = (kanban?.review    || []);
-  const doneItems  = (kanban?.done      || (builds||[]).map(b=>b.task||'')).slice(0, 5);
+  const ip      = JSON.parse(localStorage.getItem('sm-inprogress') || '[]');
+  const allHigh = (queue?.highItems || []);
+  const inProg  = allHigh.filter(t => ip.includes(t.id));
+  const highQ   = allHigh.filter(t => !ip.includes(t.id));
+  const backlog  = (kanban?.backlog  || []);
+  const review   = (kanban?.review   || []);
+  const doneItems = (kanban?.done    || []).slice(0, 5);
 
-  function card(text, cls, tag, tagCls) {
-    return `<div class="kb-card${cls?' '+cls:''}">
-      ${tag ? `<div class="kb-tag ${tagCls||'kt-infra'}">${tag}</div><br>` : ''}
-      ${text}
+  // Tag → CSS class
+  const tagCls = { UI:'kt-ui', INFRA:'kt-infra', AGENT:'kt-agent', EDGAR:'kt-edgar', DATA:'kt-data', PENDING:'kt-pending', DONE:'kt-done' };
+
+  function card(item, col) {
+    if (typeof item === 'string') item = { id: 'legacy', text: item, full: item, sprint: '', tag: 'INFRA', priority: col };
+    const tc   = tagCls[item.tag] || 'kt-infra';
+    const done = col === 'done';
+    const actions = col === 'high'
+      ? `<div class="kb-card-actions"><button class="kb-btn kb-btn-start" onclick="startTask('${item.id}',event)">▶ Start</button></div>`
+      : col === 'inprogress'
+      ? `<div class="kb-card-actions"><button class="kb-btn kb-btn-done" onclick="finishTask('${item.id}',event)">✓ Done</button></div>`
+      : '';
+    return `<div class="kb-card${done?' done-card':''}" data-id="${item.id}" data-sprint="${item.sprint||''}" onclick="toggleCard('${item.id}')">
+      <div class="kb-card-meta">
+        <span class="kb-tag ${tc}">${item.tag}</span>
+        ${item.sprint ? `<span class="kb-sprint">${item.sprint.replace(/^Sprint \d+ — /,'').replace(/^Sprint /,'S')}</span>` : ''}
+      </div>
+      <div class="kb-card-body">${item.text}</div>
+      ${item.full && item.full !== item.text ? `<div class="kb-card-expand">${item.full}</div>` : ''}
+      ${actions}
     </div>`;
   }
 
-  return `<div class="kanban">
+  // Sprint filter buttons (unique sprints across high + backlog)
+  const sprints = [...new Set([...allHigh, ...backlog].map(t => t.sprint).filter(Boolean))];
+  const filterBar = sprints.length > 1 ? `
+    <div class="kb-filter">
+      <button class="kb-filter-btn kf-active" onclick="filterKanban('ALL',this)">ALL</button>
+      ${sprints.map(s => `<button class="kb-filter-btn" onclick="filterKanban('${s}',this)">${s.replace('Sprint 2 — ','S2 ').replace('Sprint 3 — ','S3 ').replace('Sprint 2','S2').replace('Sprint 3','S3').replace('Design v7 Integration (PRIORITY)','v7 UI').replace('Architecture & UI','Arch').replace('EDGAR Financial Intelligence (Full Spec)','EDGAR')}</button>`).join('')}
+    </div>` : '';
+
+  return filterBar + `<div class="kanban">
     <div class="kb-col">
       <div class="kb-col-hdr">
         <span class="kb-col-title backlog">Backlog</span>
-        <span class="kb-count backlog">${backlog.length}</span>
+        <span class="kb-count backlog" id="kb-count-backlog">${backlog.length}</span>
       </div>
-      ${backlog.length ? backlog.map(t => card(t,'','MED','kt-agent')).join('') : '<div class="empty">Nothing queued</div>'}
+      <div id="kb-backlog">
+        ${backlog.length ? backlog.map(t => card(t,'backlog')).join('') : '<div class="empty">Nothing queued</div>'}
+      </div>
     </div>
     <div class="kb-col">
       <div class="kb-col-hdr">
         <span class="kb-col-title high">High Priority</span>
-        <span class="kb-count high">${highItems.length}</span>
+        <span class="kb-count high" id="kb-count-high">${highQ.length}</span>
       </div>
-      ${highItems.map(t => card(t,'','HIGH','kt-ui')).join('')}
-      ${highItems.length===0?'<div class="empty">Queue clear 🎉</div>':''}
+      <div id="kb-high">
+        ${highQ.length ? highQ.map(t => card(t,'high')).join('') : '<div class="empty">Queue clear 🎉</div>'}
+      </div>
     </div>
     <div class="kb-col">
       <div class="kb-col-hdr">
         <span class="kb-col-title prog">In Progress</span>
-        <span class="kb-count prog">${inProgress.length}</span>
+        <span class="kb-count prog" id="kb-count-ip">${inProg.length}</span>
       </div>
-      ${inProgress.length ? inProgress.map(t => card(t,'','BUILD','kt-infra')).join('') : '<div class="empty">Idle</div>'}
+      <div id="kb-inprogress">
+        ${inProg.length ? inProg.map(t => card(t,'inprogress')).join('') : '<div class="empty" id="kb-ip-empty">Idle</div>'}
+      </div>
     </div>
     <div class="kb-col">
       <div class="kb-col-hdr">
         <span class="kb-col-title review">Review</span>
         <span class="kb-count review">${review.length}</span>
       </div>
-      ${review.length ? review.map(t => card(t,'','APPROVE','kt-ui')).join('') : '<div class="empty">Nothing pending</div>'}
+      ${review.length ? review.map(t => card(t,'review')).join('') : '<div class="empty">Nothing pending</div>'}
     </div>
     <div class="kb-col">
       <div class="kb-col-hdr">
         <span class="kb-col-title done">Done</span>
         <span class="kb-count done">${doneItems.length}+</span>
       </div>
-      ${doneItems.map(t => card(t,'done-card',null,null)).join('')}
+      ${doneItems.map(t => card(t,'done')).join('')}
     </div>
   </div>`;
 }
@@ -581,6 +634,7 @@ function buildIntelFeed(feed) {
 
 // ── MAIN RENDER ───────────────────────────────────────────────
 function render(data) {
+  window.SM_LAST_DATA = data;
   const alive       = data.system?.jarvis?.alive !== false;
   const queue       = data.queue    || {};
   const kanban      = data.kanban   || {};
@@ -710,7 +764,7 @@ function render(data) {
         </div>
         ${(queue.highItems||[]).length===0
           ? '<div class="empty">Queue clear — all caught up 🎉</div>'
-          : (queue.highItems||[]).map(i=>`<div class="queue-item"><div class="q-dot"></div><div class="q-text">${i}</div></div>`).join('')}
+          : (queue.highItems||[]).map(i=>`<div class="queue-item"><div class="q-dot"></div><div class="q-text">${typeof i==='object'?i.text:i}</div></div>`).join('')}
       </div>
     </div>
 
@@ -787,6 +841,43 @@ function render(data) {
   `;
 
   document.getElementById('main').innerHTML = html;
+}
+
+// ── Kanban interactivity ──────────────────────────────────────
+function toggleCard(id) {
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (el) el.classList.toggle('expanded');
+}
+
+function startTask(id, event) {
+  event.stopPropagation();
+  const ip = JSON.parse(localStorage.getItem('sm-inprogress') || '[]');
+  if (!ip.includes(id)) ip.push(id);
+  localStorage.setItem('sm-inprogress', JSON.stringify(ip));
+  if (window.SM_LAST_DATA) render(window.SM_LAST_DATA);
+}
+
+function finishTask(id, event) {
+  event.stopPropagation();
+  const ip = JSON.parse(localStorage.getItem('sm-inprogress') || '[]').filter(x => x !== id);
+  localStorage.setItem('sm-inprogress', JSON.stringify(ip));
+  if (window.SM_LAST_DATA) render(window.SM_LAST_DATA);
+}
+
+function filterKanban(sprint, btn) {
+  document.querySelectorAll('.kb-filter-btn').forEach(b => b.classList.remove('kf-active'));
+  if (btn) btn.classList.add('kf-active');
+  document.querySelectorAll('#kb-high .kb-card, #kb-backlog .kb-card').forEach(card => {
+    const cs = card.dataset.sprint || '';
+    card.classList.toggle('kb-hidden', sprint !== 'ALL' && cs !== sprint);
+  });
+  // Update counts
+  const hCount = document.querySelectorAll('#kb-high .kb-card:not(.kb-hidden)').length;
+  const bCount = document.querySelectorAll('#kb-backlog .kb-card:not(.kb-hidden)').length;
+  const hEl = document.getElementById('kb-count-high');
+  const bEl = document.getElementById('kb-count-backlog');
+  if (hEl) hEl.textContent = hCount;
+  if (bEl) bEl.textContent = bCount;
 }
 
 async function fetchStatus() {
