@@ -192,6 +192,26 @@ body::before{
 .usage-stats{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-family:var(--mono);}
 .usage-stats strong{color:var(--text2);}
 
+/* ── TARGET 10 ───────────────────────────────── */
+.t10-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bg3);}
+.t10-row:last-child{border-bottom:none;}
+.t10-num{font-family:var(--mono);font-size:11px;color:var(--muted);width:18px;flex-shrink:0;text-align:right;}
+.t10-info{flex:1;}
+.t10-name{font-size:13px;font-weight:600;color:var(--text);}
+.t10-co{font-size:11px;color:var(--muted);margin-top:1px;}
+.t10-why{font-size:11px;color:var(--text2);margin-top:3px;font-style:italic;}
+.t10-touch{font-size:10px;color:var(--muted);font-family:var(--mono);flex-shrink:0;}
+.t10-status{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;letter-spacing:0.04em;}
+.ts-identified{background:var(--bg3);color:var(--muted);border:1px solid var(--border);}
+.ts-contacted {background:var(--blue-l);color:var(--blue);border:1px solid rgba(58,114,184,0.25);}
+.ts-responded {background:var(--amber-l);color:var(--amber);border:1px solid rgba(184,120,48,0.25);}
+.ts-meeting   {background:var(--lav2);color:var(--lav);border:1px solid rgba(121,104,200,0.25);}
+.ts-demo      {background:var(--rose-l);color:var(--rose);border:1px solid rgba(184,88,104,0.25);}
+.ts-advocate  {background:var(--sage-l);color:var(--sage);border:1px solid rgba(106,158,122,0.25);}
+.t10-progress{display:flex;gap:3px;align-items:center;margin-top:6px;}
+.t10-pip{width:24px;height:3px;border-radius:2px;background:var(--bg3);}
+.t10-pip.active{background:var(--lav);}
+
 /* ── BUILD ENTRIES ───────────────────────────── */
 .build-entry{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--bg3);}
 .build-entry:last-child{border-bottom:none;}
@@ -426,13 +446,14 @@ function buildUsage(usage) {
 
 // ── MAIN RENDER ───────────────────────────────────────────────
 function render(data) {
-  const alive   = data.system?.jarvis?.alive !== false;
-  const queue   = data.queue   || {};
-  const kanban  = data.kanban  || {};
-  const heatmap = data.heatmap || {};
-  const agents  = data.agents  || [];
-  const builds  = data.recentBuilds || [];
-  const usage   = data.claudeUsage  || {};
+  const alive    = data.system?.jarvis?.alive !== false;
+  const queue    = data.queue    || {};
+  const kanban   = data.kanban   || {};
+  const heatmap  = data.heatmap  || {};
+  const agents   = data.agents   || [];
+  const builds   = data.recentBuilds || [];
+  const usage    = data.claudeUsage  || {};
+  const target10 = data.target10 || [];
 
   // Banner update
   document.getElementById('j-dot').className = 'sb-dot ' + (alive ? 'green' : 'amber');
@@ -545,6 +566,35 @@ function render(data) {
           ? '<div class="empty">Queue clear — all caught up 🎉</div>'
           : (queue.highItems||[]).map(i=>`<div class="queue-item"><div class="q-dot"></div><div class="q-text">${i}</div></div>`).join('')}
       </div>
+    </div>
+
+    <!-- TARGET 10 -->
+    <div class="sec-label">Target 10 — Relationship Pipeline</div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-hdr">
+        <div class="card-title">Find Your 10</div>
+        <span class="card-badge cb-lav">${target10.length}/10 IDENTIFIED</span>
+      </div>
+      ${target10.length === 0
+        ? `<div class="empty">No targets yet — run: <code>sm target add &lt;name&gt; &lt;company&gt;</code></div>`
+        : target10.map((t, i) => {
+            const stages = ['identified','contacted','responded','meeting','demo','advocate'];
+            const si = stages.indexOf(t.status || 'identified');
+            return `<div class="t10-row">
+              <div class="t10-num">${i+1}</div>
+              <div class="t10-info">
+                <div class="t10-name">${t.name}</div>
+                <div class="t10-co">${t.title ? t.title + ' · ' : ''}${t.company}</div>
+                ${t.why ? `<div class="t10-why">${t.why}</div>` : ''}
+                <div class="t10-progress">
+                  ${stages.map((s,idx) => `<div class="t10-pip${idx<=si?' active':''}" title="${s}"></div>`).join('')}
+                </div>
+              </div>
+              <div class="t10-touch">${t.last_touch ? timeAgo(t.last_touch+'T00:00:00Z') : 'no contact'}</div>
+              <span class="t10-status ts-${t.status||'identified'}">${(t.status||'identified').toUpperCase()}</span>
+            </div>`;
+          }).join('')
+      }
     </div>
 
     <!-- ROW 4: RECENT BUILDS -->

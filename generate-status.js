@@ -108,6 +108,14 @@ function parseAgents() {
   });
 }
 
+// ── Target 10 ────────────────────────────────────────────────────────────────
+function parseTarget10() {
+  const file = path.join(SASMASTER, 'target10.json');
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8')).filter(t => t.name);
+  } catch { return []; }
+}
+
 // ── Assemble + write ─────────────────────────────────────────────────────────
 const tasks         = parseTasks();
 const { entries: recentBuilds, heatmap } = parseDoneLog();
@@ -130,6 +138,7 @@ const status = {
     done:       recentBuilds.map(b => b.task),
   },
   heatmap,
+  target10: parseTarget10(),
   agents:       parseAgents(),
   recentBuilds,
   claudeUsage:  { claudeai: null, claudecode: null, claudedesign: null, claudemax: null },
