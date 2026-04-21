@@ -144,6 +144,14 @@ function parseAgents() {
   });
 }
 
+// ── Intel feed ───────────────────────────────────────────────────────────────
+function parseIntelFeed() {
+  const file = path.join(SASMASTER, 'status', 'intel-feed.json');
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8')).filter(i => i.text);
+  } catch { return []; }
+}
+
 // ── Target 10 ────────────────────────────────────────────────────────────────
 function parseTarget10() {
   const file = path.join(SASMASTER, 'target10.json');
@@ -156,6 +164,7 @@ function parseTarget10() {
 const tasks         = parseTasks();
 const { entries: recentBuilds, heatmap } = parseDoneLog();
 const reviewItems   = parsePending();
+const intelFeed     = parseIntelFeed();
 
 const status = {
   generated: new Date().toISOString(),
@@ -177,6 +186,7 @@ const status = {
   target10: parseTarget10(),
   agents:       parseAgents(),
   recentBuilds,
+  intel_feed:   intelFeed,
   claudeUsage:  { claudeai: null, claudecode: null, claudedesign: null, claudemax: null },
 };
 
