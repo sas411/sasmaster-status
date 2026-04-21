@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-21T00:04:31.201Z",
+  "generated": "2026-04-21T12:11:00.532Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -16,7 +16,7 @@
       "Wire full top navigation: CONTENT · ADVERTISING · MARKETING · CPG · EXCHANGE. Each tab switches the portal view. CONTENT is default active state.",
       "Implement network selector tabs: BET, ESPN, TNT, USA, FX, FOOD, HGTV, DISC, HIST, LIFE. ESPN active by default. Switching network updates all KPI cards and charts.",
       "Wire 3 sub-views per portal: OVERVIEW · MY NETWORK VIEW · RIGHTS & METADATA. Tab switching shows/hides correct panels.",
-      "&lt;desc&gt;"
+      "Build EDGAR Scraper Agent (agents/edgar-scraper.js) — 16 companies total: 9 media (Paramount 0000813828, WBD 0001437107, Netflix 0001065280, Disney 0001001039, Comcast 0001166691, Fox 0001754301, Lionsgate 0000929351, AMC Networks 0001091895, Spotify 0001639920) + 7 competitor intel (comScore 0001158172, Trade Desk 0001671933, Magnite 0001368365, LiveRamp 0001372514, S&P Global 0000064040, Snowflake 0001640147, Adobe 0000796343). Hit submissions + companyfacts endpoints. Save raw JSON to S3 sasmaster-2026/edgar/companyfacts/{cik}.json. Daily delta: check submissions for new 8-K/10-Q since last run (state.json checkpoint). Alert #sasmaster-intel via Slack on new filing detected. Cron: 6:30 AM daily. User-Agent: \"SaSMaster contact@sasmaster.io\". NOTE: existing agents/sec-edgar-agent.js is v0 quick build — this replaces it with full S3-backed pipeline."
     ],
     "medItems": [
       "Build Ad Research portal stub (same pattern as Programming Research)",
@@ -38,7 +38,9 @@
       "Write DONE-LOG-ANALYST-MISSION.md — daily agent reads DONE_LOG.md, identifies portal gaps, injects fill tasks"
     ],
     "inProgress": [],
-    "review": [],
+    "review": [
+      "LinkedIn article — \"The Future of TV Is More TV\" (finished draft)"
+    ],
     "done": [
       "Tier 1 + 2 Productivity Systems",
       "Tier 3 — Agent Fleet (all 4 agents)",
@@ -63,7 +65,7 @@
       "icon": "🤖",
       "schedule": "24/7 daemon",
       "log": "jarvis.log",
-      "lastRun": "2026-04-20T22:44:55.434Z",
+      "lastRun": "2026-04-21T11:44:28.402Z",
       "status": "healthy"
     },
     {
@@ -71,7 +73,7 @@
       "icon": "📡",
       "schedule": "6AM daily",
       "log": "media-intel.log",
-      "lastRun": "2026-04-20T21:35:16.851Z",
+      "lastRun": null,
       "status": "healthy"
     },
     {
@@ -79,7 +81,7 @@
       "icon": "📺",
       "schedule": "12AM nightly",
       "log": "tmdb-agent.log",
-      "lastRun": "2026-04-20T21:29:15.990Z",
+      "lastRun": null,
       "status": "healthy"
     },
     {
@@ -95,8 +97,8 @@
       "icon": "✍️",
       "schedule": "Monday 8PM",
       "log": "linkedin-agent.log",
-      "lastRun": null,
-      "status": "healthy"
+      "lastRun": "2026-04-21T12:07:16.737Z",
+      "status": "error"
     }
   ],
   "recentBuilds": [
@@ -166,5 +168,90 @@
     "claudecode": null,
     "claudedesign": null,
     "claudemax": null
+  },
+  "last_updated": "2026-04-21T12:11:00.549Z",
+  "alerts": [
+    {
+      "id": 1745286000000,
+      "level": "warning",
+      "message": "12AM Nightly Build DID NOT EXECUTE last night",
+      "detail": "PATH bug in sasmaster-build.sh — fixed this morning. Tonight's build will run clean.",
+      "timestamp": "2026-04-21T00:00:00Z",
+      "dismissed": false
+    }
+  ],
+  "overnight_debrief": {
+    "date": "Tue Apr 21 2026",
+    "ran": [
+      {
+        "time": "01:48",
+        "agent": "Media Intel Agent",
+        "result": "36 items from 10 sources → #sasmaster-intel",
+        "status": "ok"
+      },
+      {
+        "time": "03:25",
+        "agent": "SEC EDGAR Agent",
+        "result": "10/10 companies fetched",
+        "status": "ok"
+      },
+      {
+        "time": "05:00",
+        "agent": "TMDB Trending Agent",
+        "result": "Cron attempted (PATH now fixed)",
+        "status": "ok"
+      },
+      {
+        "time": "06:05",
+        "agent": "Morning Package",
+        "result": "Posted to #sasmaster-builds",
+        "status": "ok"
+      }
+    ],
+    "failed": [
+      {
+        "time": "00:00",
+        "agent": "Nightly Build",
+        "result": "DID NOT EXECUTE — 0 tasks (PATH bug — fixed this morning)",
+        "status": "critical"
+      },
+      {
+        "time": "07:00",
+        "agent": "Score Queue Build",
+        "result": "Failed — same root cause (now fixed)",
+        "status": "critical"
+      },
+      {
+        "time": "05:02",
+        "agent": "Daily Visuals",
+        "result": "node not found — screenshots not posted (now fixed)",
+        "status": "warning"
+      }
+    ]
+  },
+  "tmdb_progress": {
+    "running": false
+  },
+  "intel_feed": [
+    {
+      "source": "MEDIA INTEL",
+      "text": "36 signals from 10 sources — Evan Shapiro sweep complete",
+      "ts": "2026-04-21T01:48:00Z"
+    },
+    {
+      "source": "SEC EDGAR",
+      "text": "10/10 companies fetched — XBRL revenue + YoY delta computed",
+      "ts": "2026-04-21T03:25:00Z"
+    },
+    {
+      "source": "TMDB",
+      "text": "467K/1.18M titles loaded → s3://sasmaster-2026/tmdb_dev/ (39.4%)",
+      "ts": "2026-04-21T08:00:00Z"
+    }
+  ],
+  "slack_feed": {
+    "builds": [],
+    "intel": [],
+    "content": []
   }
 }
