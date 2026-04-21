@@ -112,22 +112,35 @@ function parsePending() {
 function parseAgents() {
   const LOG = path.join(SASMASTER, 'logs');
   const agents = [
-    { name: 'JARVIS',          icon: '🤖', schedule: '24/7 daemon',  log: 'jarvis.log' },
-    { name: 'Media Intel',     icon: '📡', schedule: '6AM daily',     log: 'media-intel.log' },
-    { name: 'TMDB Trending',   icon: '📺', schedule: '12AM nightly',  log: 'tmdb-agent.log' },
-    { name: 'DoneLog Analyst', icon: '📊', schedule: 'Post-build',    log: 'donelog-analyst.log' },
-    { name: 'LinkedIn Agent',  icon: '✍️', schedule: 'Monday 8PM',   log: 'linkedin-agent.log' },
+    { name: 'JARVIS',          icon: '🤖', schedule: '24/7 daemon',  nextRun: 'Always on',    log: 'jarvis.log' },
+    { name: 'Media Intel',     icon: '📡', schedule: '6AM daily',     nextRun: 'Tomorrow 6AM', log: 'media-intel.log' },
+    { name: 'TMDB Trending',   icon: '📺', schedule: '12AM nightly',  nextRun: 'Tonight 12AM', log: 'tmdb-agent.log' },
+    { name: 'DoneLog Analyst', icon: '📊', schedule: 'Post-build',    nextRun: 'Post 12AM build', log: 'donelog-analyst.log' },
+    { name: 'LinkedIn Agent',  icon: '✍️', schedule: 'Monday 8PM',   nextRun: 'Mon 8PM',      log: 'linkedin-agent.log' },
   ];
 
   return agents.map(a => {
     const logFile = path.join(LOG, a.log);
-    if (!fs.existsSync(logFile)) return { ...a, lastRun: null, status: 'never' };
-    const lines   = fs.readFileSync(logFile, 'utf8').split('\n').filter(Boolean);
-    const last    = lines[lines.length - 1] || '';
+    if (!fs.existsSync(logFile)) return { ...a, lastRun: null, lastOutput: null, status: 'never' };
+
+    const lines = fs.readFileSync(logFile, 'utf8').split('\n').filter(Boolean);
+    const last  = lines[lines.length - 1] || '';
+
+    // Find last timestamp
     const tsMatch = last.match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
     const lastRun = tsMatch ? tsMatch[1] : null;
-    const error   = /error|fatal/i.test(last);
-    return { ...a, lastRun, status: error ? 'error' : 'healthy' };
+
+    // Extract readable summary: strip timestamp + tag prefix, cap at 80 chars
+    const summary = last.replace(/^\[\d{4}-\d{2}-\d{2}T[\d:.]+Z\]\s*/, '')
+                        .replace(/^\[[A-Z0-9_-]+\]\s*/i, '')
+                        .slice(0, 80);
+
+    // not_in_channel = routing issue, not agent failure
+    const routingErr = /not_in_channel/i.test(last);
+    const hardError  = !routingErr && /error|fatal/i.test(last);
+    const status     = hardError ? 'error' : routingErr ? 'routing' : 'healthy';
+
+    return { ...a, lastRun, lastOutput: summary, status };
   });
 }
 

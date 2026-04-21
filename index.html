@@ -99,27 +99,32 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
 .panel-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
 .panel-badge{font-size:9px;padding:2px 8px;border-radius:20px;background:var(--purple-pale);color:var(--purple);font-weight:600}
-.heatmap-grid{display:grid;grid-template-columns:repeat(28,1fr);gap:2px}
-.hm-cell{aspect-ratio:1;border-radius:2px;background:var(--border-light)}
+.heatmap-grid{display:flex;gap:3px;align-items:center}
+.hm-cell{width:100%;height:22px;border-radius:3px;background:var(--border-light);flex:1}
 .hm-cell.l1{background:#d8d0f8}
 .hm-cell.l2{background:#b0a0f0}
 .hm-cell.l3{background:#8060e0}
 .hm-cell.l4{background:#5040c0}
-.hm-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;color:var(--text-faint)}
+.hm-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--text-faint)}
 
-.agent-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-light)}
-.agent-row:last-child{border-bottom:none}
-.agent-icon{width:28px;height:28px;border-radius:6px;background:var(--purple-pale);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-right:10px}
-.agent-info{flex:1}
+.agent-row{display:flex;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border-light)}
+.agent-row:last-child{border-bottom:none;padding-bottom:0}
+.agent-icon{width:32px;height:32px;border-radius:7px;background:var(--purple-pale);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-right:10px;margin-top:1px}
+.agent-info{flex:1;min-width:0}
 .agent-name{font-size:12px;font-weight:600;color:var(--text)}
-.agent-schedule{font-size:10px;color:var(--text-faint);font-family:var(--mono)}
-.agent-bar{height:3px;border-radius:2px;background:var(--border-light);margin-top:5px;overflow:hidden}
+.agent-meta{display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap}
+.agent-schedule{font-size:9px;color:var(--text-faint);font-family:var(--mono)}
+.agent-next{font-size:9px;color:var(--purple);font-family:var(--mono)}
+.agent-lastrun{font-size:9px;color:var(--text-muted);font-family:var(--mono)}
+.agent-output{font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.4;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.agent-bar{height:2px;border-radius:2px;background:var(--border-light);margin-top:6px;overflow:hidden}
 .agent-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--purple),var(--purple-light))}
-.agent-status{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600;white-space:nowrap;margin-left:8px}
+.agent-status{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600;white-space:nowrap;margin-left:8px;flex-shrink:0}
 .s-ok{background:var(--green-bg);color:var(--green)}
 .s-running{background:var(--amber-bg);color:var(--amber)}
 .s-pending{background:var(--bg);color:var(--text-faint);border:1px solid var(--border)}
 .s-error{background:var(--red-bg);color:var(--red)}
+.s-routing{background:var(--amber-bg);color:var(--amber)}
 
 .pipe-progress{margin-top:10px;padding:10px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border)}
 .pipe-header{display:flex;justify-content:space-between;font-size:10px;margin-bottom:6px}
@@ -441,35 +446,40 @@ function buildHeatmap(heatmap) {
   const fmt = d => d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
   return `
     <div class="heatmap-grid">${cells.join('')}</div>
-    <div class="hm-labels"><span>${fmt(startDate)}</span><span>Today</span></div>
-    <div style="display:flex;align-items:center;gap:4px;margin-top:8px;font-size:9px;color:var(--text-faint)">
-      Less
-      <span style="width:10px;height:10px;border-radius:2px;background:var(--border-light);display:inline-block"></span>
-      <span style="width:10px;height:10px;border-radius:2px;background:#d8d0f8;display:inline-block"></span>
-      <span style="width:10px;height:10px;border-radius:2px;background:#8060e0;display:inline-block"></span>
-      <span style="width:10px;height:10px;border-radius:2px;background:#5040c0;display:inline-block"></span>
-      More
-    </div>`;
+    <div class="hm-labels"><span>${fmt(startDate)}</span><span style="display:flex;align-items:center;gap:3px">
+      <span style="width:8px;height:8px;border-radius:1px;background:var(--border-light);display:inline-block"></span>
+      <span style="width:8px;height:8px;border-radius:1px;background:#d8d0f8;display:inline-block"></span>
+      <span style="width:8px;height:8px;border-radius:1px;background:#8060e0;display:inline-block"></span>
+      <span style="width:8px;height:8px;border-radius:1px;background:#5040c0;display:inline-block"></span>
+      Today</span></div>`;
 }
 
 // ── AGENT FLEET ────────────────────────────────────────────────
 function buildAgentFleet(agents, tmdb) {
   if (!agents.length) return '<div class="empty">No agents configured</div>';
   return agents.map(a => {
-    const statusCls = a.status === 'healthy' ? 's-ok' : a.status === 'error' ? 's-error' : 's-pending';
-    const statusTxt = a.status === 'healthy' ? 'OK' : a.status === 'error' ? 'ERR' : 'PEND';
-    const barPct = a.status === 'healthy' ? 100 : a.status === 'error' ? 20 : 50;
-    const lastRunTxt = a.lastRun ? timeAgo(a.lastRun) : 'never';
+    const statusMap = { healthy: ['s-ok','OK'], error: ['s-error','ERR'], routing: ['s-routing','ROUTING'], never: ['s-pending','NEVER'] };
+    const [statusCls, statusTxt] = statusMap[a.status] || ['s-pending', 'PEND'];
+    const barPct = a.status === 'healthy' ? 100 : a.status === 'error' ? 15 : a.status === 'routing' ? 70 : 40;
+    const lastRunTxt = a.lastRun ? timeAgo(a.lastRun) : '—';
     const isTmdb = /tmdb/i.test(a.name);
+    const output = a.lastOutput || '';
     return `
       <div class="agent-row">
         <div class="agent-icon">${a.icon || '🤖'}</div>
         <div class="agent-info">
           <div class="agent-name">${a.name}</div>
-          <div class="agent-schedule">${a.schedule} · ${lastRunTxt}</div>
+          <div class="agent-meta">
+            <span class="agent-schedule">${a.schedule}</span>
+            <span style="color:var(--border);font-size:9px">·</span>
+            <span class="agent-lastrun">last: ${lastRunTxt}</span>
+            <span style="color:var(--border);font-size:9px">·</span>
+            <span class="agent-next">next: ${a.nextRun || '—'}</span>
+          </div>
+          ${output ? `<div class="agent-output" title="${output}">${output}</div>` : ''}
           ${isTmdb && tmdb && tmdb.running
-            ? `<div class="pipe-progress">
-                <div class="pipe-header"><span class="pipe-label">TMDB Bulk Load — Phase ${tmdb.phase || 1}/3</span><span class="pipe-pct">${tmdb.pct || 0}%</span></div>
+            ? `<div class="pipe-progress" style="margin-top:6px">
+                <div class="pipe-header"><span class="pipe-label">Bulk Load Phase ${tmdb.phase || 1}/3</span><span class="pipe-pct">${tmdb.pct || 0}%</span></div>
                 <div class="pipe-track"><div class="pipe-fill" style="width:${tmdb.pct || 0}%"></div></div>
                 <div class="pipe-sub">${(tmdb.complete || 0).toLocaleString()} / ${(tmdb.total || 0).toLocaleString()} · ${tmdb.s3_path || ''}</div>
               </div>`

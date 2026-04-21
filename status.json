@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-21T12:46:12.866Z",
+  "generated": "2026-04-21T12:56:23.323Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -251,41 +251,51 @@
       "name": "JARVIS",
       "icon": "🤖",
       "schedule": "24/7 daemon",
+      "nextRun": "Always on",
       "log": "jarvis.log",
       "lastRun": "2026-04-21T12:37:16.401Z",
+      "lastOutput": "Message received: `!approve mo8l2s5d`",
       "status": "healthy"
     },
     {
       "name": "Media Intel",
       "icon": "📡",
       "schedule": "6AM daily",
+      "nextRun": "Tomorrow 6AM",
       "log": "media-intel.log",
       "lastRun": null,
+      "lastOutput": "/bin/sh: node: command not found",
       "status": "healthy"
     },
     {
       "name": "TMDB Trending",
       "icon": "📺",
       "schedule": "12AM nightly",
+      "nextRun": "Tonight 12AM",
       "log": "tmdb-agent.log",
       "lastRun": null,
+      "lastOutput": "/bin/sh: node: command not found",
       "status": "healthy"
     },
     {
       "name": "DoneLog Analyst",
       "icon": "📊",
       "schedule": "Post-build",
+      "nextRun": "Post 12AM build",
       "log": "donelog-analyst.log",
       "lastRun": "2026-04-20T21:29:23.996Z",
+      "lastOutput": "Analysis complete. Gaps: none. Injected: none",
       "status": "healthy"
     },
     {
       "name": "LinkedIn Agent",
       "icon": "✍️",
       "schedule": "Monday 8PM",
+      "nextRun": "Mon 8PM",
       "log": "linkedin-agent.log",
       "lastRun": "2026-04-21T12:11:57.417Z",
-      "status": "error"
+      "lastOutput": "Fatal error: An API error occurred: not_in_channel",
+      "status": "routing"
     }
   ],
   "recentBuilds": [
@@ -355,93 +365,5 @@
     "claudecode": null,
     "claudedesign": null,
     "claudemax": null
-  },
-  "last_updated": "2026-04-21T12:46:12.880Z",
-  "alerts": [],
-  "overnight_debrief": {
-    "date": "Tue Apr 21 2026",
-    "ran": [
-      {
-        "time": "01:48",
-        "agent": "Media Intel Agent",
-        "result": "36 items from 10 sources → #sasmaster-intel",
-        "status": "ok"
-      },
-      {
-        "time": "03:25",
-        "agent": "SEC EDGAR Agent",
-        "result": "10/10 companies fetched",
-        "status": "ok"
-      },
-      {
-        "time": "05:00",
-        "agent": "TMDB Trending Agent",
-        "result": "Cron attempted (PATH now fixed)",
-        "status": "ok"
-      },
-      {
-        "time": "06:05",
-        "agent": "Morning Package",
-        "result": "Posted to #sasmaster-builds",
-        "status": "ok"
-      },
-      {
-        "time": "08:40",
-        "agent": "Nightly Build",
-        "result": "5m 56s",
-        "status": "ok"
-      },
-      {
-        "time": "08:46",
-        "agent": "Nightly Build",
-        "result": "9m 15s",
-        "status": "ok"
-      }
-    ],
-    "failed": [
-      {
-        "time": "00:00",
-        "agent": "Nightly Build",
-        "result": "DID NOT EXECUTE — 0 tasks (PATH bug — fixed this morning)",
-        "status": "critical"
-      },
-      {
-        "time": "07:00",
-        "agent": "Score Queue Build",
-        "result": "Failed — same root cause (now fixed)",
-        "status": "critical"
-      },
-      {
-        "time": "05:02",
-        "agent": "Daily Visuals",
-        "result": "node not found — screenshots not posted (now fixed)",
-        "status": "warning"
-      }
-    ]
-  },
-  "tmdb_progress": {
-    "running": false
-  },
-  "intel_feed": [
-    {
-      "source": "MEDIA INTEL",
-      "text": "36 signals from 10 sources — Evan Shapiro sweep complete",
-      "ts": "2026-04-21T01:48:00Z"
-    },
-    {
-      "source": "SEC EDGAR",
-      "text": "10/10 companies fetched — XBRL revenue + YoY delta computed",
-      "ts": "2026-04-21T03:25:00Z"
-    },
-    {
-      "source": "TMDB",
-      "text": "467K/1.18M titles loaded → s3://sasmaster-2026/tmdb_dev/ (39.4%)",
-      "ts": "2026-04-21T08:00:00Z"
-    }
-  ],
-  "slack_feed": {
-    "builds": [],
-    "intel": [],
-    "content": []
   }
 }
