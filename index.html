@@ -205,6 +205,44 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .btn-cancel{padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;font-family:var(--font);color:var(--text-muted)}
 .btn-save{padding:6px 12px;border-radius:6px;border:none;background:var(--purple);color:#fff;cursor:pointer;font-family:var(--font);font-weight:600}
 
+/* LIVE COMMAND LAYER */
+.live-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:#dcfce7;border:1px solid #86efac;color:#15803d}
+.live-dot{width:5px;height:5px;border-radius:50%;background:#22c55e;animation:livepulse 1.5s infinite;flex-shrink:0}
+@keyframes livepulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+.api-offline .live-badge{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)}
+.last-sync{font-size:9px;color:var(--text-faint);font-family:var(--mono)}
+
+.btn-trigger{font-size:9px;padding:2px 9px;border-radius:4px;border:1px solid var(--purple);background:transparent;color:var(--purple);cursor:pointer;font-family:var(--font);font-weight:600;transition:all .15s;white-space:nowrap}
+.btn-trigger:hover{background:var(--purple);color:#fff}
+.btn-trigger.loading{opacity:.55;pointer-events:none;cursor:default}
+.btn-trigger.queued{background:var(--green-bg);border-color:var(--green-border);color:var(--green);pointer-events:none}
+.btn-trigger.err{background:var(--red-bg);border-color:var(--red-border);color:var(--red);pointer-events:none}
+
+.queue-panel{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.q-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:11px}
+.q-col-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.q-col-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.q-col-cnt{font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;color:#fff}
+.q-col.q-high .q-col-name{color:#c02020}.q-col.q-high .q-col-cnt{background:linear-gradient(90deg,#c02020,#7020c0)}
+.q-col.q-med .q-col-name{color:var(--amber)}.q-col.q-med .q-col-cnt{background:linear-gradient(90deg,#f0a030,#8a5010)}
+.q-col.q-explore .q-col-name{color:var(--blue)}.q-col.q-explore .q-col-cnt{background:linear-gradient(90deg,#1a5080,#06b6d4)}
+.q-item{font-size:10px;padding:5px 7px;border-radius:4px;margin-bottom:4px;line-height:1.4;color:var(--text);background:var(--bg);border-left:3px solid transparent}
+.q-col.q-high .q-item{border-color:#e04040;background:#fff8f8}
+.q-col.q-med .q-item{border-color:#f0a030;background:#fffaf4}
+.q-col.q-explore .q-item{border-color:#1a5080;background:#f4f7ff}
+.q-empty{font-size:10px;color:var(--text-faint);font-style:italic}
+
+.drawer-mask{display:none;position:fixed;inset:0;background:rgba(26,24,48,.45);z-index:400}
+.drawer-mask.open{display:block}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:540px;max-width:95vw;background:var(--surface);border-left:2px solid var(--border);z-index:401;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1)}
+.drawer.open{transform:translateX(0)}
+.drawer-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.drawer-title{font-size:13px;font-weight:700;flex:1;color:var(--text)}
+.drawer-sub{font-size:10px;color:var(--text-faint);font-family:var(--mono)}
+.drawer-x{background:none;border:none;font-size:20px;line-height:1;cursor:pointer;color:var(--text-muted);padding:0 2px;flex-shrink:0}
+.drawer-body{flex:1;overflow-y:auto;padding:14px 16px;font-family:var(--mono);font-size:11px;line-height:1.65;color:var(--text-muted);white-space:pre-wrap;word-break:break-all}
+.drawer-status{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-faint);font-size:12px}
+
 /* MOBILE */
 @media(max-width:768px){
   .header-top{flex-wrap:wrap;gap:8px}
@@ -265,6 +303,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
   <div class="sec-label"><span style="color:#3008F0">Build</span> <span style="color:#20c080">Activity</span></div>
   <div class="build-row" id="build-row"></div>
 
+  <div class="sec-label" id="queue-label" style="display:none"><span style="color:#3008F0">Live</span> <span style="color:#20c080">Queue</span> — TASKS.md via Command API <span id="queue-sync" class="last-sync" style="margin-left:8px"></span></div>
+  <div class="queue-panel" id="queue-panel" style="display:none"></div>
+
   <div class="sec-label"><span style="color:#3008F0">Project</span> <span style="color:#20c080">Board</span> — Interactive Kanban</div>
   <div style="margin-bottom:14px">
     <div class="kanban-toolbar">
@@ -308,8 +349,21 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
   </div>
 </div>
 
+<div class="drawer-mask" id="drawer-mask" onclick="closeDrawer()"></div>
+<div class="drawer" id="log-drawer">
+  <div class="drawer-head">
+    <div>
+      <div class="drawer-title" id="drawer-title">Agent Logs</div>
+      <div class="drawer-sub" id="drawer-sub"></div>
+    </div>
+    <button class="drawer-x" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"><div class="drawer-status">Select an agent to view logs</div></div>
+</div>
+
 <script>
 const STATUS_URL = 'https://raw.githubusercontent.com/sas411/sasmaster-status/main/status.json';
+const API_BASE = localStorage.getItem('SASMASTER_API_URL') || 'http://localhost:3002';
 let af = 'all';
 let kanbanData = { backlog:[], high:[], progress:[], review:[], done:[] };
 let localTasks = JSON.parse(localStorage.getItem('sm-local-tasks') || '[]');
@@ -588,6 +642,161 @@ function buildDoneLog(builds) {
     </div>`).join('');
 }
 
+// ── COMMAND API: TOKEN ──────────────────────────────────────────
+function getToken() { return localStorage.getItem('SASMASTER_TOKEN'); }
+
+function ensureToken() {
+  if (getToken()) return true;
+  const t = prompt('Enter your SASMASTER_TOKEN to enable trigger buttons:');
+  if (t && t.trim()) {
+    localStorage.setItem('SASMASTER_TOKEN', t.trim());
+    return true;
+  }
+  return false;
+}
+
+// ── COMMAND API: LIVE FETCH ─────────────────────────────────────
+let _apiOnline = false;
+let _lastApiSync = null;
+
+async function fetchApiStatus() {
+  try {
+    const [sRes, qRes, dRes] = await Promise.all([
+      fetch(`${API_BASE}/status`, { signal: AbortSignal.timeout(5000) }),
+      fetch(`${API_BASE}/queue`, { signal: AbortSignal.timeout(5000) }),
+      fetch(`${API_BASE}/done-log?limit=10`, { signal: AbortSignal.timeout(5000) }),
+    ]);
+    if (!sRes.ok) throw new Error('API offline');
+    const [apiStatus, queue, doneLog] = await Promise.all([sRes.json(), qRes.json(), dRes.json()]);
+    _apiOnline = true;
+    _lastApiSync = new Date();
+    return { ok: true, apiStatus, queue, doneLog };
+  } catch {
+    _apiOnline = false;
+    return { ok: false };
+  }
+}
+
+// ── COMMAND API: LIVE INDICATOR ─────────────────────────────────
+function updateLiveBadge() {
+  const pills = document.getElementById('header-pills');
+  if (!pills) return;
+  const existing = pills.querySelector('.live-badge');
+  if (_apiOnline) {
+    const syncStr = _lastApiSync ? _lastApiSync.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
+    const badge = `<span class="live-badge"><span class="live-dot"></span>API LIVE · ${syncStr}</span>`;
+    if (existing) existing.outerHTML = badge;
+    else pills.insertAdjacentHTML('afterbegin', badge + ' ');
+  } else {
+    if (existing) existing.remove();
+  }
+}
+
+// ── COMMAND API: QUEUE PANEL ────────────────────────────────────
+function buildQueuePanel(queue) {
+  const label = document.getElementById('queue-label');
+  const panel = document.getElementById('queue-panel');
+  const sync = document.getElementById('queue-sync');
+  if (!queue || (!queue.high.length && !queue.med.length && !queue.explore.length)) {
+    if (label) label.style.display = 'none';
+    if (panel) panel.style.display = 'none';
+    return;
+  }
+  label.style.display = '';
+  panel.style.display = '';
+  sync.textContent = _lastApiSync ? 'synced ' + timeAgo(_lastApiSync.toISOString()) : '';
+  const col = (items, cls, name) => `
+    <div class="q-col ${cls}">
+      <div class="q-col-head"><span class="q-col-name">${name}</span><span class="q-col-cnt">${items.length}</span></div>
+      ${items.length
+        ? items.slice(0,8).map(i => `<div class="q-item">${i.text}</div>`).join('') + (items.length > 8 ? `<div class="q-empty">+${items.length-8} more…</div>` : '')
+        : '<div class="q-empty">Queue clear</div>'}
+    </div>`;
+  panel.innerHTML = col(queue.high,'q-high','High Priority') + col(queue.med,'q-med','Medium') + col(queue.explore,'q-explore','Explore');
+}
+
+// ── COMMAND API: TRIGGER JOB ────────────────────────────────────
+const JOB_MAP = {
+  'build':'build','media-intel':'media-intel','linkedin-agent':'linkedin-agent',
+  'tech-intel':'tech-intel','weekly-review':'weekly-review','tmdb-load':'tmdb-load',
+};
+
+async function triggerJob(job, btn) {
+  if (!ensureToken()) return;
+  btn.textContent = '⏳ Queuing…';
+  btn.className = 'btn-trigger loading';
+  try {
+    const res = await fetch(`${API_BASE}/trigger`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${getToken()}` },
+      body: JSON.stringify({ job }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (res.status === 401) { localStorage.removeItem('SASMASTER_TOKEN'); throw new Error('Token rejected'); }
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    btn.textContent = `✅ Queued #${data.queuePosition}`;
+    btn.className = 'btn-trigger queued';
+    setTimeout(() => { btn.textContent = '▶ Run'; btn.className = 'btn-trigger'; }, 5000);
+  } catch (e) {
+    btn.textContent = `❌ ${e.message}`;
+    btn.className = 'btn-trigger err';
+    setTimeout(() => { btn.textContent = '▶ Run'; btn.className = 'btn-trigger'; }, 4000);
+  }
+}
+
+// ── COMMAND API: LOG DRAWER ─────────────────────────────────────
+function openDrawer(agentName) {
+  document.getElementById('drawer-title').textContent = agentName + ' — Log Tail';
+  document.getElementById('drawer-sub').textContent = 'last 50 lines · live from Command API';
+  document.getElementById('drawer-body').innerHTML = '<div class="drawer-status">Loading…</div>';
+  document.getElementById('drawer-mask').classList.add('open');
+  document.getElementById('log-drawer').classList.add('open');
+
+  fetch(`${API_BASE}/logs?agent=${encodeURIComponent(agentName)}&lines=50`, { signal: AbortSignal.timeout(6000) })
+    .then(r => { if (!r.ok) throw new Error('API ' + r.status); return r.json(); })
+    .then(d => { document.getElementById('drawer-body').textContent = d.content || '(empty)'; })
+    .catch(e => { document.getElementById('drawer-body').innerHTML = `<div class="drawer-status">Error: ${e.message}<br><small>Is Command API running on port 3002?</small></div>`; });
+}
+
+function closeDrawer() {
+  document.getElementById('drawer-mask').classList.remove('open');
+  document.getElementById('log-drawer').classList.remove('open');
+}
+
+// ── COMMAND API: ENRICH AGENT CARDS ────────────────────────────
+function enrichAgentCards(liveAgents) {
+  if (!liveAgents) return;
+  const liveMap = {};
+  liveAgents.forEach(a => liveMap[a.name] = a);
+
+  document.querySelectorAll('.agent-card').forEach(card => {
+    const nameEl = card.querySelector('.a-name');
+    if (!nameEl) return;
+    const name = nameEl.textContent.trim().toLowerCase().replace(/\s+/g,'-');
+    const jobKey = JOB_MAP[name];
+
+    // Add trigger button if not already added
+    if (!card.querySelector('.btn-trigger')) {
+      const btnWrap = document.createElement('div');
+      btnWrap.style.cssText = 'display:flex;gap:6px;margin-top:5px;align-items:center';
+      if (jobKey) {
+        const btn = document.createElement('button');
+        btn.className = 'btn-trigger';
+        btn.textContent = '▶ Run';
+        btn.onclick = () => triggerJob(jobKey, btn);
+        btnWrap.appendChild(btn);
+      }
+      const logBtn = document.createElement('button');
+      logBtn.style.cssText = 'font-size:9px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:none;color:var(--text-muted);cursor:pointer;font-family:var(--font)';
+      logBtn.textContent = '📋 Logs';
+      logBtn.onclick = () => openDrawer(name);
+      btnWrap.appendChild(logBtn);
+      card.appendChild(btnWrap);
+    }
+  });
+}
+
 // ── MAIN RENDER ────────────────────────────────────────────────
 function render(data) {
   window.SM_LAST_DATA = data;
@@ -604,18 +813,46 @@ function render(data) {
 }
 
 // ── FETCH LOOP ─────────────────────────────────────────────────
+let _lastKnownData = null;
+
 async function fetchStatus() {
-  try {
-    const res = await fetch(STATUS_URL + '?t=' + Date.now());
-    if (!res.ok) throw new Error(res.status);
-    render(await res.json());
-  } catch(e) {
-    console.warn('Fetch failed:', e);
+  // Fetch live API and static status.json in parallel
+  const [live, staticRes] = await Promise.allSettled([
+    fetchApiStatus(),
+    fetch(STATUS_URL + '?t=' + Date.now()).then(r => r.ok ? r.json() : Promise.reject(r.status)),
+  ]);
+
+  const liveData = live.status === 'fulfilled' ? live.value : { ok: false };
+  const staticData = staticRes.status === 'fulfilled' ? staticRes.value : null;
+
+  if (staticData) {
+    _lastKnownData = staticData;
+    render(staticData);
+    // Enrich with live API data after render
+    if (liveData.ok) {
+      buildQueuePanel(liveData.queue);
+      setTimeout(() => enrichAgentCards(liveData.apiStatus?.agents), 100);
+    } else {
+      const qPanel = document.getElementById('queue-panel');
+      if (qPanel) qPanel.style.display = 'none';
+      document.getElementById('queue-label').style.display = 'none';
+    }
+  } else if (_lastKnownData) {
+    // Static failed — use last known state as fallback
+    render(_lastKnownData);
+    if (liveData.ok) {
+      buildQueuePanel(liveData.queue);
+      setTimeout(() => enrichAgentCards(liveData.apiStatus?.agents), 100);
+    }
+  } else {
     document.getElementById('header-pills').innerHTML = '<span class="pill red"><span class="dot"></span>Fetch error — retrying</span>';
   }
+
+  updateLiveBadge();
 }
+
 fetchStatus();
-setInterval(fetchStatus, 60000);
+setInterval(fetchStatus, 30000);
 </script>
 </body>
 </html>
