@@ -27,8 +27,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .header-top{display:flex;align-items:center;gap:12px;margin-bottom:8px}
 .logo-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .logo-img{width:36px;height:36px;border-radius:7px;object-fit:contain;mix-blend-mode:multiply;opacity:.88}
-.brand{font-size:18px;font-weight:700;color:var(--purple);letter-spacing:-0.01em;white-space:nowrap}
-.brand span{color:var(--text-faint)}
+.brand{font-size:18px;font-weight:700;letter-spacing:-0.01em;white-space:nowrap;background:linear-gradient(90deg,#3008F0,#20c080);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.brand span{-webkit-text-fill-color:transparent}
 .pills{display:flex;gap:6px;flex:1;flex-wrap:wrap;align-items:center}
 .pill{display:flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;border-radius:20px;border:1px solid;font-weight:500;white-space:nowrap}
 .pill.green{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
@@ -43,7 +43,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 
 /* NEWS TICKER */
 .ticker-wrap{overflow:hidden;background:var(--purple-pale);border-radius:6px;padding:5px 0;position:relative}
-.ticker-label{position:absolute;left:0;top:0;bottom:0;background:var(--purple);color:#fff;font-size:9px;font-weight:700;letter-spacing:.1em;padding:0 10px;display:flex;align-items:center;z-index:2;border-radius:6px 0 0 6px;text-transform:uppercase}
+.ticker-label{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#3008F0,#20c080);color:#fff;font-size:9px;font-weight:700;letter-spacing:.1em;padding:0 10px;display:flex;align-items:center;z-index:2;border-radius:6px 0 0 6px;text-transform:uppercase;border:1px solid transparent}
 .ticker-track{display:flex;padding-left:90px;animation:scroll 50s linear infinite}
 .ticker-track:hover{animation-play-state:paused}
 .ticker-item{display:flex;align-items:center;gap:6px;white-space:nowrap;padding:0 24px;font-size:11px;color:var(--purple)}
@@ -58,7 +58,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 
 .page{max-width:1400px;margin:0 auto;padding:14px 16px}
 .sec-label{font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.sec-label::after{content:'';flex:1;height:1px;background:var(--border-light)}
+.sec-label span[style*="color"]{letter-spacing:.15em;font-weight:700;font-size:9px}
+.sec-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#3008F0,#20c080,transparent)}
 
 /* DEBRIEF */
 .debrief{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -80,8 +81,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
 .kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:11px 12px;position:relative;overflow:hidden}
 .kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
-.kpi.k1::after{background:var(--purple)}.kpi.k2::after{background:#e04040}
-.kpi.k3::after{background:#8b5cf6}.kpi.k4::after{background:var(--teal)}.kpi.k5::after{background:#06b6d4}
+.kpi.k1::after,.kpi.k2::after,.kpi.k3::after,.kpi.k4::after,.kpi.k5::after{background:linear-gradient(90deg,#0080F0,#300080,#20c080)}
 .kpi-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-faint);margin-bottom:3px;font-weight:600}
 .kpi-val{font-size:20px;font-weight:700;line-height:1;margin-bottom:3px}
 .kpi.k1 .kpi-val{color:var(--purple)}.kpi.k2 .kpi-val{color:#c02020}
@@ -106,7 +106,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .sched-time{color:var(--purple);font-weight:600;font-family:var(--mono);font-size:9px}
 
 /* AGENT CARDS */
-.agent-card{border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:6px}
+.agent-card{border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:6px;border-top:2px solid transparent;background-image:linear-gradient(var(--surface),var(--surface)),linear-gradient(90deg,#3008F0,#20c080);background-origin:border-box;background-clip:padding-box,border-box}
 .agent-card:last-child{margin-bottom:0}
 .agent-card.err{border-left:3px solid #e04040;border-radius:0 var(--radius-sm) var(--radius-sm) 0}
 .agent-card.warn{border-left:3px solid #f0a030;border-radius:0 var(--radius-sm) var(--radius-sm) 0}
@@ -144,12 +144,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .k-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
 .col-backlog .k-name{color:var(--text-muted)}.col-high .k-name{color:#c02020}
 .col-progress .k-name{color:var(--amber)}.col-review .k-name{color:var(--blue)}.col-done .k-name{color:var(--green)}
-.k-cnt{font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
-.col-backlog .k-cnt{background:var(--border-light);color:var(--text-faint)}
-.col-high .k-cnt{background:var(--red-bg);color:#c02020}
-.col-progress .k-cnt{background:var(--amber-bg);color:var(--amber)}
-.col-review .k-cnt{background:var(--blue-bg);color:var(--blue)}
-.col-done .k-cnt{background:var(--green-bg);color:var(--green)}
+.k-cnt{font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;background:linear-gradient(90deg,#3008F0,#20c080);color:#fff}
+.col-backlog .k-cnt{background:linear-gradient(90deg,#5040a0,#8060e0);color:#fff}
+.col-high .k-cnt{background:linear-gradient(90deg,#3008F0,#7020c0);color:#fff}
+.col-progress .k-cnt{background:linear-gradient(90deg,#3008F0,#20c080);color:#fff}
+.col-review .k-cnt{background:linear-gradient(90deg,#0080F0,#20c080);color:#fff}
+.col-done .k-cnt{background:linear-gradient(90deg,#20c080,#0891b2);color:#fff}
 .task{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 8px;margin-bottom:5px;cursor:grab;transition:box-shadow .15s,transform .15s}
 .task:hover{box-shadow:0 3px 10px rgba(80,64,160,.1);transform:translateY(-1px)}
 .task.done-task .task-txt{text-decoration:line-through;color:var(--text-faint)}
@@ -256,16 +256,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 <div id="alert-container"></div>
 
 <div class="page">
-  <div class="sec-label" id="debrief-label" style="display:none">Overnight Debrief</div>
+  <div class="sec-label" id="debrief-label" style="display:none"><span style="color:#3008F0">Overnight</span> <span style="color:#20c080">Debrief</span></div>
   <div class="debrief" id="debrief-section" style="display:none"></div>
 
-  <div class="sec-label">System Status</div>
+  <div class="sec-label"><span style="color:#3008F0">System</span> <span style="color:#20c080">Status</span></div>
   <div class="kpi-row" id="kpi-row"></div>
 
-  <div class="sec-label">Build Activity</div>
+  <div class="sec-label"><span style="color:#3008F0">Build</span> <span style="color:#20c080">Activity</span></div>
   <div class="build-row" id="build-row"></div>
 
-  <div class="sec-label">Project Board — Interactive Kanban</div>
+  <div class="sec-label"><span style="color:#3008F0">Project</span> <span style="color:#20c080">Board</span> — Interactive Kanban</div>
   <div style="margin-bottom:14px">
     <div class="kanban-toolbar">
       <button class="kf active" onclick="filterK('all',this)">All</button>
@@ -283,13 +283,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
     </div>
   </div>
 
-  <div class="sec-label">Live Activity — 3 Channels + Intelligence Feed</div>
+  <div class="sec-label"><span style="color:#3008F0">Live</span> <span style="color:#20c080">Activity</span> — 3 Channels + Intelligence Feed</div>
   <div id="slack-intel"></div>
 
-  <div class="sec-label">Recent Completions</div>
+  <div class="sec-label"><span style="color:#3008F0">Recent</span> <span style="color:#20c080">Completions</span></div>
   <div class="panel" id="done-log"></div>
 
-  <div class="footer">SaSMaster · Bloomberg Terminal for Media · Auto-deploys on every build · We Will Be Fucking Successful — No Excuses</div>
+  <div class="footer">SaSMaster · Bloomberg Terminal for Media · Auto-deploys on every build · <span style="font-size:1rem;font-weight:700;letter-spacing:.01em;background:linear-gradient(90deg,#3008F0,#20c080);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">We Will Be Fucking Successful — No Excuses →</span></div>
 </div>
 
 <div class="modal-overlay" id="modal">
