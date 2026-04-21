@@ -246,6 +246,49 @@ body::before{
 .loading{display:flex;align-items:center;justify-content:center;min-height:50vh;flex-direction:column;gap:12px;}
 .spinner{width:28px;height:28px;border:2px solid var(--lav2);border-top-color:var(--lav);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── ALERT BANNER ────────────────────────────── */
+.alert-banner{border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px;border-left:4px solid;}
+.alert-banner.ac-critical{background:#fff4e8;border-color:#e05020;color:#7a2000;}
+.alert-banner.ac-warning{background:#fffbee;border-color:#d4a030;color:#7a5010;}
+.alert-banner.ac-info{background:#f0f4ff;border-color:#4060c0;color:#203080;}
+.alert-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.alert-body{flex:1;}
+.alert-msg{font-size:13px;font-weight:600;}
+.alert-detail{font-size:11px;margin-top:3px;opacity:0.8;font-family:var(--mono);}
+.alert-dismiss{font-size:11px;cursor:pointer;opacity:0.6;padding:2px 8px;border:1px solid currentColor;border-radius:4px;flex-shrink:0;background:none;color:inherit;margin-top:2px;}
+.alert-dismiss:hover{opacity:1;}
+
+/* ── OVERNIGHT DEBRIEF ───────────────────────── */
+.debrief-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;}
+.debrief-table{width:100%;border-collapse:collapse;font-size:12px;}
+.debrief-table th{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);}
+.debrief-table td{padding:6px 8px;border-bottom:1px solid rgba(121,104,200,0.06);vertical-align:top;}
+.debrief-table td:first-child{font-family:var(--mono);color:var(--muted);font-size:11px;white-space:nowrap;}
+.debrief-table td:nth-child(2){font-weight:500;color:var(--text);}
+.debrief-table td:nth-child(3){color:var(--text2);font-size:11px;}
+.debrief-fail td{background:rgba(184,88,104,0.04);}
+.debrief-fail td:nth-child(2){color:var(--rose);}
+.debrief-col-title{font-size:11px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+
+/* ── TMDB PROGRESS BAR ───────────────────────── */
+.tmdb-progress{margin-top:8px;padding:10px 12px;background:var(--bg3);border-radius:8px;}
+.tmdb-prog-label{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between;}
+.tmdb-prog-track{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.tmdb-prog-fill{height:100%;background:#6050c0;border-radius:3px;transition:width 0.5s ease;}
+.tmdb-prog-sub{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px;}
+
+/* ── INTEL FEED ──────────────────────────────── */
+.intel-feed{display:flex;flex-direction:column;gap:6px;}
+.intel-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px;}
+.intel-tag{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.1em;padding:2px 7px;border-radius:3px;white-space:nowrap;flex-shrink:0;}
+.it-media{background:rgba(106,158,122,0.15);color:var(--sage);}
+.it-edgar{background:rgba(58,114,184,0.15);color:var(--blue);}
+.it-tech{background:rgba(121,104,200,0.15);color:var(--lav);}
+.it-tmdb{background:rgba(184,120,48,0.15);color:var(--amber);}
+.it-linkedin{background:rgba(106,158,122,0.12);color:#1a7a70;}
+.intel-text{font-size:12px;color:var(--text2);flex:1;}
+.intel-ts{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -444,16 +487,112 @@ function buildUsage(usage) {
   </div>`;
 }
 
+// ── ALERT BANNER ──────────────────────────────────────────────
+function buildAlertBanner(alerts) {
+  if (!alerts || !alerts.length) return '';
+  const dismissed = JSON.parse(localStorage.getItem('sa-dismissed') || '[]')
+    .filter(e => e.ts > Date.now() - 86400000).map(e => e.id);
+  const visible = alerts.filter(a => !a.dismissed && !dismissed.includes(a.id));
+  if (!visible.length) return '';
+  return visible.map(a => `
+    <div class="alert-banner ac-${a.level||'warning'}">
+      <div class="alert-icon">${a.level==='critical'?'🚨':a.level==='info'?'ℹ️':'⚠️'}</div>
+      <div class="alert-body">
+        <div class="alert-msg">${a.level?.toUpperCase()} · ${a.message}</div>
+        ${a.detail ? `<div class="alert-detail">${a.detail}</div>` : ''}
+      </div>
+      <button class="alert-dismiss" onclick="dismissAlert(${a.id})">Dismiss</button>
+    </div>`).join('');
+}
+
+function dismissAlert(id) {
+  const key = 'sa-dismissed';
+  const dismissed = JSON.parse(localStorage.getItem(key) || '[]')
+    .filter(e => e.ts > Date.now() - 86400000);
+  dismissed.push({ id, ts: Date.now() });
+  localStorage.setItem(key, JSON.stringify(dismissed));
+  fetchStatus();
+}
+
+// ── OVERNIGHT DEBRIEF ──────────────────────────────────────────
+function buildOvernightDebrief(debrief) {
+  if (!debrief || (!debrief.ran?.length && !debrief.failed?.length)) return '';
+  const row = (r, cls='') => `
+    <tr class="${cls}">
+      <td>${r.time||''}</td>
+      <td>${r.agent||''}</td>
+      <td>${r.result||''}</td>
+    </tr>`;
+  return `
+    <div class="sec-label">Overnight Debrief — ${debrief.date||''}</div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-hdr">
+        <div class="card-title">Last Night's Activity</div>
+        <span class="card-badge cb-sage">${debrief.ran?.length||0} ran · ${debrief.failed?.length||0} failed</span>
+      </div>
+      <div class="debrief-grid">
+        <div>
+          <div class="debrief-col-title" style="color:var(--sage);">✅ What Ran</div>
+          <table class="debrief-table">
+            <thead><tr><th>Time</th><th>Agent</th><th>Result</th></tr></thead>
+            <tbody>${(debrief.ran||[]).map(r => row(r)).join('')}</tbody>
+          </table>
+          ${!debrief.ran?.length ? '<div class="empty">Nothing ran last night</div>' : ''}
+        </div>
+        <div>
+          <div class="debrief-col-title" style="color:var(--rose);">❌ What Failed</div>
+          <table class="debrief-table">
+            <thead><tr><th>Time</th><th>Agent</th><th>Result</th></tr></thead>
+            <tbody>${(debrief.failed||[]).map(r => row(r,'debrief-fail')).join('')}</tbody>
+          </table>
+          ${!debrief.failed?.length ? '<div class="empty" style="color:var(--sage);">All clear ✓</div>' : ''}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── TMDB PROGRESS ──────────────────────────────────────────────
+function buildTmdbProgress(prog) {
+  if (!prog || !prog.running) return '';
+  return `
+    <div class="tmdb-progress">
+      <div class="tmdb-prog-label">
+        <span>TMDB Bulk Load — Phase ${prog.phase||1}/${prog.phase_total||3} (${prog.phase})</span>
+        <span>${prog.pct||0}%</span>
+      </div>
+      <div class="tmdb-prog-track">
+        <div class="tmdb-prog-fill" style="width:${prog.pct||0}%"></div>
+      </div>
+      <div class="tmdb-prog-sub">${(prog.complete||0).toLocaleString()} / ${(prog.total||0).toLocaleString()} · ${prog.s3_path||''} · updated ${timeAgo(prog.last_updated)}</div>
+    </div>`;
+}
+
+// ── INTEL FEED ─────────────────────────────────────────────────
+function buildIntelFeed(feed) {
+  if (!feed || !feed.length) return '<div class="empty">No signals yet — agents will populate this</div>';
+  const tagClass = { 'MEDIA INTEL':'it-media','SEC EDGAR':'it-edgar','TECH INTEL':'it-tech','TMDB':'it-tmdb','LINKEDIN':'it-linkedin' };
+  return `<div class="intel-feed">` + feed.slice(0,10).map(item => `
+    <div class="intel-item">
+      <span class="intel-tag ${tagClass[item.source]||'it-media'}">${item.source}</span>
+      <span class="intel-text">${item.text}</span>
+      <span class="intel-ts">${timeAgo(item.ts)}</span>
+    </div>`).join('') + `</div>`;
+}
+
 // ── MAIN RENDER ───────────────────────────────────────────────
 function render(data) {
-  const alive    = data.system?.jarvis?.alive !== false;
-  const queue    = data.queue    || {};
-  const kanban   = data.kanban   || {};
-  const heatmap  = data.heatmap  || {};
-  const agents   = data.agents   || [];
-  const builds   = data.recentBuilds || [];
-  const usage    = data.claudeUsage  || {};
-  const target10 = data.target10 || [];
+  const alive       = data.system?.jarvis?.alive !== false;
+  const queue       = data.queue    || {};
+  const kanban      = data.kanban   || {};
+  const heatmap     = data.heatmap  || {};
+  const agents      = data.agents   || [];
+  const builds      = data.recentBuilds || [];
+  const usage       = data.claudeUsage  || {};
+  const target10    = data.target10 || [];
+  const alerts      = data.alerts || [];
+  const debrief     = data.overnight_debrief || null;
+  const tmdbProg    = data.tmdb_progress || null;
+  const intelFeed   = data.intel_feed || [];
 
   // Banner update
   document.getElementById('j-dot').className = 'sb-dot ' + (alive ? 'green' : 'amber');
@@ -462,6 +601,9 @@ function render(data) {
   document.getElementById('footer-time').textContent = new Date().toLocaleTimeString('en-US',{timeZone:'America/New_York'}) + ' EST';
 
   const html = `
+    <!-- ALERT BANNERS -->
+    ${buildAlertBanner(alerts)}
+
     <!-- STAT ROW -->
     <div class="stat-row">
       <div class="stat-card sc-sage">
@@ -506,6 +648,9 @@ function render(data) {
       </div>
     </div>
 
+    <!-- OVERNIGHT DEBRIEF -->
+    ${buildOvernightDebrief(debrief)}
+
     <!-- ROW 1: HEATMAP + AGENTS -->
     <div class="sec-label">Build Activity</div>
     <div class="g2" style="margin-bottom:14px;">
@@ -533,6 +678,7 @@ function render(data) {
             </div>
             <span class="spill ${a.status==='healthy'?'spill-ok':a.status==='error'?'spill-err':'spill-never'}">${a.status==='healthy'?'OK':a.status==='error'?'ERR':'PEND'}</span>
           </div>
+          ${a.name==='TMDB Trending' ? buildTmdbProgress(tmdbProg) : ''}
         `).join('')}
       </div>
     </div>
@@ -566,6 +712,16 @@ function render(data) {
           ? '<div class="empty">Queue clear — all caught up 🎉</div>'
           : (queue.highItems||[]).map(i=>`<div class="queue-item"><div class="q-dot"></div><div class="q-text">${i}</div></div>`).join('')}
       </div>
+    </div>
+
+    <!-- INTELLIGENCE FEED -->
+    <div class="sec-label">Intelligence Feed</div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-hdr">
+        <div class="card-title">Agent Signals</div>
+        <span class="card-badge cb-lav">${intelFeed.length} SIGNALS</span>
+      </div>
+      ${buildIntelFeed(intelFeed)}
     </div>
 
     <!-- TARGET 10 -->
