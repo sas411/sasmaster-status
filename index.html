@@ -363,7 +363,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 
 <script>
 const STATUS_URL = 'https://raw.githubusercontent.com/sas411/sasmaster-status/main/status.json';
-const API_BASE = localStorage.getItem('SASMASTER_API_URL') || 'http://localhost:3002';
+const API_BASE = localStorage.getItem('SASMASTER_API_URL') || 'https://api.sasmaster.dev';
 let af = 'all';
 let kanbanData = { backlog:[], high:[], progress:[], review:[], done:[] };
 let localTasks = JSON.parse(localStorage.getItem('sm-local-tasks') || '[]');
