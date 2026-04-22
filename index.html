@@ -213,7 +213,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13
 .ba{background:var(--amber)}.bg2{background:var(--green)}.bc2{background:var(--cyan)}
 
 /* ════ S3 ════ */
-.s3-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+.s3-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;transition:max-height .25s ease, opacity .2s ease;max-height:3000px;opacity:1;overflow:hidden}
+#s3-section.collapsed .s3-grid{max-height:0;opacity:0;margin-top:0;padding-top:0;pointer-events:none}
+#s3-section.collapsed #s3-chevron{transform:rotate(-90deg);display:inline-block}
+.s3-sh:hover{background:rgba(255,255,255,.02)}
+.s3c .s3p{text-align:center}
 .s3c{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:10px 11px}
 .s3c.live{border-color:var(--gbd);background:var(--gbg)}.s3c.land{border-color:var(--pbd);background:var(--pbg)}
 .s3l{font-family:var(--cond);font-size:12px;font-weight:800;margin-bottom:1px}
@@ -560,8 +564,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13
 </section>
 
 <!-- S3 LAKE -->
-<section>
-  <div class="sh"><span class="sn">08</span><span class="st2">S3 Data Lake &middot; s3://sasmaster-2026/</span><div class="sdiv"></div><span class="sr">Paths LOCKED Apr 21 &middot; $0/mo Phase 1</span></div>
+<section id="s3-section">
+  <div class="sh s3-sh" onclick="toggleS3()" style="cursor:pointer;user-select:none"><span class="sn">08</span><span class="st2">S3 Data Lake &middot; s3://sasmaster-2026/</span><span id="s3-chevron" style="margin-left:6px;font-family:var(--mono);font-size:10px;color:var(--dim)">▼</span><div class="sdiv"></div><span class="sr" id="s3-summary">Paths LOCKED Apr 21 &middot; $0/mo Phase 1</span></div>
   <div class="s3-grid" id="s3-grid"></div>
 </section>
 
@@ -990,9 +994,38 @@ function renderPipeline(scrapers) {
   }).join('');
 }
 
+const S3_COLLAPSED_KEY = 'sm-s3-collapsed';
+function toggleS3() {
+  const sec = document.getElementById('s3-section');
+  if (!sec) return;
+  const willCollapse = !sec.classList.contains('collapsed');
+  sec.classList.toggle('collapsed', willCollapse);
+  try { localStorage.setItem(S3_COLLAPSED_KEY, willCollapse ? '1' : '0'); } catch (_) {}
+  const chev = document.getElementById('s3-chevron');
+  if (chev) chev.textContent = willCollapse ? '▶' : '▼';
+}
+function restoreS3CollapseState() {
+  try {
+    if (localStorage.getItem(S3_COLLAPSED_KEY) === '1') {
+      const sec = document.getElementById('s3-section');
+      if (sec) sec.classList.add('collapsed');
+      const chev = document.getElementById('s3-chevron');
+      if (chev) chev.textContent = '▶';
+    }
+  } catch (_) {}
+}
+
 function renderS3(s3_lake) {
   const el = document.getElementById('s3-grid');
   if (!el) return;
+
+  // Summary line (visible even when collapsed)
+  const summary = document.getElementById('s3-summary');
+  if (summary && s3_lake && s3_lake.length) {
+    const totalGb = s3_lake.reduce((s, b) => s + (b.size_gb || 0), 0);
+    const liveCount = s3_lake.filter(b => b.status === 'live').length;
+    summary.textContent = `${s3_lake.length} prefixes · ${totalGb.toFixed(1)} GB · ${liveCount} live`;
+  }
 
   const fmtNum = n => {
     if (n == null) return null;
@@ -1024,7 +1057,7 @@ function renderS3(s3_lake) {
         <span class="st ${stCls}">${b.status}</span>
         <span style="font-family:var(--mono);font-size:7.5px;color:var(--dim);letter-spacing:.06em">Phase ${b.phase}</span>
       </div>
-      <div class="s3p" style="font-weight:700;color:var(--text);margin-bottom:3px">${escHtml(b.path)}</div>
+      <div class="s3p" style="font-weight:700;color:var(--text);margin-bottom:3px;text-align:center">${escHtml(b.path)}</div>
       <div class="s3r" style="color:${b.status === 'live' ? 'var(--green)' : 'var(--dim)'};font-size:16px">${fmtSize(b.size_gb)}</div>
       <div style="font-family:var(--mono);font-size:8px;color:var(--muted);margin-top:1px">${b.object_count || 0} obj</div>
       ${hasAnyEntity ? `<div style="border-top:1px dashed var(--border-light);margin-top:7px;padding-top:6px">
@@ -1610,6 +1643,7 @@ async function fetchStatus() {
 }
 
 loadResources();
+restoreS3CollapseState();
 fetchStatus();
 setInterval(fetchStatus, 30000);
 </script>
