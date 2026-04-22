@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — Platform Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400;500&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple: #7B6FD4;
+    --purple-light: #A89DE8;
+    --purple-dark: #4A3FA0;
+    --lavender: #C4BEFF;
+    --white: #F5F4FF;
+    --dim: #9B96C8;
+    --bg: #0A0912;
+    --bg2: #100E1E;
+    --bg3: #17142B;
+    --border: rgba(123,111,212,0.2);
+    --border-bright: rgba(123,111,212,0.45);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 60px 48px;
+  }
+
+  /* HEADER */
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    border-bottom: 1px solid var(--border-bright);
+    padding-bottom: 36px;
+    margin-bottom: 48px;
+    gap: 40px;
+  }
+
+  .logo-lockup { display: flex; flex-direction: column; gap: 8px; }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--lavender) 0%, var(--purple) 60%, var(--purple-dark) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .tagline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--purple-light);
+  }
+
+  .header-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    padding-top: 8px;
+  }
+
+  .header-meta span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 0.05em;
+  }
+
+  .status-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #5BE8A0;
+  }
+
+  .status-dot::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #5BE8A0;
+    box-shadow: 0 0 8px #5BE8A0;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  /* LEAD */
+  .lead {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--white);
+    max-width: 780px;
+    margin-bottom: 48px;
+    border-left: 3px solid var(--purple);
+    padding-left: 24px;
+  }
+
+  /* STAT ROW */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 52px;
+  }
+
+  .stat {
+    background: var(--bg2);
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 0.04em;
+    color: var(--lavender);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  /* SECTION */
+  .section { margin-bottom: 48px; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .section-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--purple-light);
+    background: rgba(123,111,212,0.12);
+    border: 1px solid var(--border-bright);
+    padding: 4px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.08em;
+    color: var(--white);
+  }
+
+  /* ARCH GRID */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .arch-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .arch-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--purple-dark), var(--purple-light));
+  }
+
+  .arch-card:hover { border-color: var(--border-bright); }
+
+  .arch-icon {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--purple-light);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .arch-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .arch-desc {
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--dim);
+    line-height: 1.55;
+  }
+
+  /* PIPELINE */
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    position: relative;
+    margin-bottom: 12px;
+  }
+
+  .pipeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+  }
+
+  .pipeline-step:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -10px;
+    top: 18px;
+    color: var(--purple);
+    font-size: 16px;
+    z-index: 2;
+  }
+
+  .pipeline-node {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--bg3);
+    border: 1.5px solid var(--border-bright);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--purple-light);
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .pipeline-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--white);
+    letter-spacing: 0.05em;
+    margin-bottom: 3px;
+  }
+
+  .pipeline-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--dim);
+  }
+
+  /* PORTALS */
+  .portals {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .portal-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 16px;
+    text-align: center;
+  }
+
+  .portal-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--purple);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .portal-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+
+  .portal-desc {
+    font-size: 11.5px;
+    color: var(--dim);
+    line-height: 1.4;
+  }
+
+  /* AGENT TABLE */
+  .agent-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .agent-table th {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .agent-table td {
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--white);
+    border-bottom: 1px solid rgba(123,111,212,0.08);
+    vertical-align: middle;
+  }
+
+  .agent-table tr:last-child td { border-bottom: none; }
+
+  .agent-table tr:hover td { background: rgba(123,111,212,0.04); }
+
+  .agent-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--lavender);
+  }
+
+  .agent-status {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .live { background: rgba(91,232,160,0.1); color: #5BE8A0; border: 1px solid rgba(91,232,160,0.3); }
+  .building { background: rgba(123,111,212,0.1); color: var(--purple-light); border: 1px solid var(--border-bright); }
+
+  /* TWO-COL */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .info-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px;
+  }
+
+  .info-block-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--purple-light);
+    margin-bottom: 14px;
+  }
+
+  .info-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .info-list li {
+    font-size: 13px;
+    color: var(--dim);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.4;
+  }
+
+  .info-list li::before {
+    content: '—';
+    color: var(--purple);
+    flex-shrink: 0;
+    font-size: 13px;
+    margin-top: 1px;
+  }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .footer-left {
+    font-size: 12px;
+    color: var(--dim);
+    line-height: 1.6;
+  }
+
+  .footer-url {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--purple-light);
+    letter-spacing: 0.05em;
+  }
+
+  .confidential {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--dim);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 4px;
+  }
+
+  /* DIVIDER LINE */
+  .rule {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0 0 48px;
+  }
+
+  @media print {
+    body { background: #0A0912; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { padding: 40px; }
+    .arch-card:hover { border-color: var(--border); }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-lockup">
+      <div class="logo">SaSMaster</div>
+      <div class="tagline">The Bloomberg Terminal for Media &amp; Entertainment</div>
+    </div>
+    <div class="header-meta">
+      <span class="status-dot">PLATFORM LIVE</span>
+      <span>April 2026</span>
+      <span>v1.0 Production</span>
+      <span>sasmaster-status.vercel.app</span>
+    </div>
+  </div>
+
+  <!-- LEAD -->
+  <p class="lead">
+    SaSMaster is an AI-powered media intelligence platform that gives television networks, streaming services, advertising agencies, and CPG brands unified access to audience data, content analytics, and market research — delivered through a professional portal and an always-on agent fleet.
+  </p>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">589K</div>
+      <div class="stat-label">Titles in master database</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">15</div>
+      <div class="stat-label">Live data scrapers</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">10</div>
+      <div class="stat-label">AI agents in fleet</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">4</div>
+      <div class="stat-label">Research portals</div>
+    </div>
+  </div>
+
+  <!-- WHAT IT DOES -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag">01 / Platform</span>
+      <span class="section-title">What SaSMaster Does</span>
+    </div>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-icon">DATA LAYER</div>
+        <div class="arch-name">Unified Title Database</div>
+        <div class="arch-desc">A master record of 589,000 movies and TV series, stitching together IMDB, TMDB, Nielsen, and Gracenote into a single, authoritative ID — the Parent Key. No other platform has this at this scale.</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">INTELLIGENCE LAYER</div>
+        <div class="arch-name">Autonomous Agent Fleet</div>
+        <div class="arch-desc">10 specialized AI agents run 24/7 — collecting industry news, monitoring IAB standards, tracking technology advances, and synthesizing research briefs. Delivered to Slack before the workday starts.</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">EXPERIENCE LAYER</div>
+        <div class="arch-name">Four Research Portals</div>
+        <div class="arch-desc">Purpose-built interfaces for Programming, Marketing, Advertising, and CPG research teams. Each portal surfaces relevant data, audience analytics, and AI-generated insights for that specific buyer persona.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- DATA PIPELINE -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag">02 / Architecture</span>
+      <span class="section-title">How Data Flows</span>
+    </div>
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="pipeline-node">SRC</div>
+        <div class="pipeline-label">15 Sources</div>
+        <div class="pipeline-sub">IMDB · TMDB<br>Nielsen · IAB</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-node">ETL</div>
+        <div class="pipeline-label">Daily Scrapers</div>
+        <div class="pipeline-sub">Automated<br>collection</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-node">S3</div>
+        <div class="pipeline-label">Data Lake</div>
+        <div class="pipeline-sub">Parquet / ZSTD<br>compressed</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-node">AI</div>
+        <div class="pipeline-label">Agent Fleet</div>
+        <div class="pipeline-sub">Synthesis +<br>classification</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-node">UX</div>
+        <div class="pipeline-label">Portals</div>
+        <div class="pipeline-sub">Research +<br>marketplace</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- PORTALS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag">03 / Product</span>
+      <span class="section-title">Research Portals</span>
+    </div>
+    <div class="portals">
+      <div class="portal-card">
+        <div class="portal-num">01</div>
+        <div class="portal-name">Programming Research</div>
+        <div class="portal-desc">Content strategy, title performance, audience trends for network and streaming teams</div>
+      </div>
+      <div class="portal-card">
+        <div class="portal-num">02</div>
+        <div class="portal-name">Marketing Research</div>
+        <div class="portal-desc">Campaign analytics, audience segmentation, and competitive positioning intelligence</div>
+      </div>
+      <div class="portal-card">
+        <div class="portal-num">03</div>
+        <div class="portal-name">Ad Research</div>
+        <div class="portal-desc">IAB-aligned inventory insights, targeting data, and programmatic audience analytics</div>
+      </div>
+      <div class="portal-card">
+        <div class="portal-num">04</div>
+        <div class="portal-name">CPG Research</div>
+        <div class="portal-desc">Consumer brand audience intelligence and media investment optimization data</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- AGENT FLEET -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-tag">04 / Intelligence</span>
+      <span class="section-title">AI Agent Fleet</span>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+      <table class="agent-table">
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>Function</th>
+            <th>Schedule</th>
+            <th>Output</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="agent-name">Media Intel</span></td>
+            <td style="color:var(--dim);font-size:13px">13-source daily industry synthesis</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim)">Daily 6AM</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim)">#intel</td>
+            <td><span class="agent-status live">LIVE</span></td>
+          </tr>
+          <tr>
+            <td><span class="agent-name">Tech Intel</span></td>
+            <td style="color:var(--dim);font-size:13px">14-source technology landscape brief</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim)">Friday 6PM</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim)">#intel</td>
+            <td><span class="agent-status live">LIVE</span></td>
+          </tr>
+          <tr>
+            <td><span class="agent-name">IAB Intel</span></td>
+            <td style="color:var(--dim);font-size:13px">Industry standards, NYC events, research advances</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim)">Monday 7AM</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim)">#intel</td>
+            <td><span class="agent-status live">LIVE</span></td>
+          </tr>
+          <tr>
+            <td><span class="agent-name">!research</span></td>
+            <td style="color:var(--dim);font-size:13px">On-demand topic research, any subject</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim)">On-demand</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim)">#intel</td>
+            <td><span class="agent-status live">LIVE</span></td>
+          </tr>
+          <tr>
+            <td><span class="agent-name">Architect</span></td>
+            <td style="color:var(--dim);font-size:13px">Senior technical advisor, read-only review</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim)">On-demand</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim)">Inline</td>
+            <td><span class="agent-status live">LIVE</span></td>
+          </tr>
+          <tr>
+            <td><span class="agent-name">RAG Assistant</span></td>
+            <td style="color:var(--dim);font-size:13px">Personal knowledge retrieval across vault + S3</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim)">On-demand</td>
+            <td style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim)">#intel</td>
+            <td><span class="agent-status building">IN BUILD</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- DIFFERENTIATORS + TECH STACK -->
+  <div class="two-col">
+    <div class="info-block">
+      <div class="info-block-title">Why SaSMaster Wins</div>
+      <ul class="info-list">
+        <li>Only platform with a unified Parent Key stitching IMDB, TMDB, Nielsen, and Gracenote at 589K+ titles</li>
+        <li>Always-on AI agent fleet delivers intelligence before competitors open their laptops</li>
+        <li>IAB Content Taxonomy 3.0 native — ad-tech ready out of the box</li>
+        <li>Built by a practitioner with 15 years inside the largest media data platforms</li>
+        <li>The Exchange marketplace enables buy/sell data transactions directly inside the platform</li>
+        <li>No legacy architecture — cloud-native, agentic, and built for the AI era from day one</li>
+      </ul>
+    </div>
+    <div class="info-block">
+      <div class="info-block-title">Technology Foundation</div>
+      <ul class="info-list">
+        <li>Amazon S3 data lake with Parquet / ZSTD — query-ready via DuckDB</li>
+        <li>Claude AI (Anthropic) — Opus for planning, Sonnet for execution</li>
+        <li>JARVIS orchestration layer — Slack Socket Mode, launchd daemon</li>
+        <li>Cloudflare Tunnel — secure remote access, no open ports</li>
+        <li>Vercel War Room — live status dashboard, auto-deploy on push</li>
+        <li>Obsidian vault + ChromaDB — semantic memory and RAG retrieval</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:500;color:var(--white);margin-bottom:4px">Shiv Ashish Sehgal</div>
+      <div style="font-size:12px;color:var(--dim)">Founder · SaSMaster &nbsp;·&nbsp; 15+ years media data &amp; AI/ML, former EVP Rightsline</div>
+      <div class="footer-url" style="margin-top:6px">sasmaster-status.vercel.app</div>
+    </div>
+    <div class="confidential">Confidential · April 2026</div>
+  </div>
+
+</div>
+</body>
+</html>
