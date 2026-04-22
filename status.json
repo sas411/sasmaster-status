@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-22T10:26:08.950Z",
+  "generated": "2026-04-22T10:29:28.613Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -29,7 +29,7 @@
         "id": "t76",
         "text": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass…",
         "full": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass already confirmed 8,522 unique `belongs_to_collection.id` in movies NDJSON. Fetches `/collection/{id}?append=images`. Ready to run as soon as main loader settles or idles.",
-        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (on deck, 2026-04-22 06:15)",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
         "priority": "HIGH"
       },
@@ -37,7 +37,7 @@
         "id": "t78",
         "text": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series…",
         "full": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series phase completes (DuckDB needs full tv_series NDJSON to extract unique network IDs). Fetches `/network/{id}?append=alternative_names,images`.",
-        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (on deck, 2026-04-22 06:15)",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
         "priority": "HIGH"
       },
@@ -45,7 +45,7 @@
         "id": "t80",
         "text": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_se…",
         "full": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_series phase completes (DuckDB UNION over movies + tv_series production_companies). Fetches `/company/{id}?append=alternative_names,images`.",
-        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (on deck, 2026-04-22 06:15)",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
         "priority": "HIGH"
       },
@@ -53,7 +53,7 @@
         "id": "t82",
         "text": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_ser…",
         "full": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_series phase completes (DuckDB UNNEST tv_series.seasons[] → (series_id, season_number) pairs). Fetches `/tv/{id}/season/{n}?append=external_ids,videos,images`.",
-        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (on deck, 2026-04-22 06:15)",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
         "priority": "HIGH"
       },
@@ -61,7 +61,7 @@
         "id": "t84",
         "text": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until…",
         "full": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until TV Seasons done. DuckDB UNNEST seasons.episodes (~2M TMDB episodes across 300K series) + LEFT JOIN imdb/title_episode parquet (9.6M superset) to populate imdb_id. Saves ~2M would-be API calls.",
-        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (on deck, 2026-04-22 06:15)",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
         "priority": "HIGH"
       },
@@ -69,7 +69,7 @@
         "id": "t86",
         "text": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKE…",
         "full": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKED until main loader fully idle (people phase complete) to avoid rate-limit contention. Sidecar-only: writes watch/providers+videos+reviews+images for the 1.18M pre-v2 movies to `tmdb_dev/movies_enrichment/YYYY-MM-DD/`. Never touches existing `tmdb_dev/movies/`.",
-        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (on deck, 2026-04-22 06:15)",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
         "priority": "HIGH"
       },
@@ -270,20 +270,12 @@
         "sprint": "",
         "tag": "DONE",
         "priority": "DONE"
-      },
-      {
-        "id": "done-3",
-        "text": "Build Financial Analysis Agent — bug fixes (S3 path, XBRL path, stream API)",
-        "full": "Build Financial Analysis Agent — bug fixes (S3 path, XBRL path, stream API)",
-        "sprint": "",
-        "tag": "DONE",
-        "priority": "DONE"
       }
     ]
   },
   "heatmap": {
     "2026-04-22": 4,
-    "2026-04-21": 9,
+    "2026-04-21": 8,
     "2026-04-20": 12,
     "2026-04-19": 3
   },
@@ -416,12 +408,6 @@
       "date": "2026-04-21 00:15",
       "notes": "Wrote structured research analysis for 9 TMDB trending shows to\n  data/tmdb-research-20260421.md. Each show: audience pr",
       "status": "DONE"
-    },
-    {
-      "task": "Build Financial Analysis Agent — bug fixes (S3 path, XBRL path, stream API)",
-      "date": "2026-04-21 00:10",
-      "notes": "Fixed 3 bugs in agents/financial-analyst.js that would have caused silent failures:\n  (1) S3_PREFIX was 'sasmaster-2026/",
-      "status": "DONE"
     }
   ],
   "intel_feed": [
@@ -453,10 +439,10 @@
       "name": "TMDB bulk loader",
       "phase": "1",
       "status": "running",
-      "pct": 9.6,
-      "row_count": 21000,
+      "pct": 10.9,
+      "row_count": 24000,
       "total": 219843,
-      "last_run": "2026-04-22T10:25:22.486Z",
+      "last_run": "2026-04-22T10:29:16.734Z",
       "s3_path": "s3://sasmaster-2026/tmdb_dev/"
     },
     {
@@ -837,11 +823,6 @@
       "ts": "2026-04-21 00:15"
     },
     {
-      "type": "build",
-      "text": "Build Financial Analysis Agent — bug fixes (S3 path, XBRL path, stream API)",
-      "ts": "2026-04-21 00:10"
-    },
-    {
       "type": "intel",
       "text": "36 signals from 10 sources — Evan Shapiro sweep complete",
       "ts": "2026-04-21T01:48:00Z"
@@ -858,8 +839,8 @@
     },
     {
       "type": "pipeline",
-      "text": "TMDB bulk 9.6% — 21K / 220K titles → s3://sasmaster-2026/tmdb_dev/",
-      "ts": "2026-04-22T10:25:22.486Z"
+      "text": "TMDB bulk 10.9% — 24K / 220K titles → s3://sasmaster-2026/tmdb_dev/",
+      "ts": "2026-04-22T10:29:16.734Z"
     }
   ],
   "cron": [
@@ -1099,13 +1080,6 @@
       "priority": "DONE",
       "tag": "DONE",
       "est": "—"
-    },
-    {
-      "title": "Build Financial Analysis Agent — bug fixes (S3 path, XBRL path, stream API)",
-      "status": "DONE",
-      "priority": "DONE",
-      "tag": "DONE",
-      "est": "—"
     }
   ],
   "recent_completions": [
@@ -1126,12 +1100,6 @@
       "category": "Build",
       "path": "",
       "completed_at": "2026-04-21 00:15"
-    },
-    {
-      "title": "Build Financial Analysis Agent — bug fixes (S3 path, XBRL path, stream API)",
-      "category": "Agent",
-      "path": "",
-      "completed_at": "2026-04-21 00:10"
     }
   ],
   "slack_feed": {
