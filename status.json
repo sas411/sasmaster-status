@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-22T09:24:02.749Z",
+  "generated": "2026-04-22T10:08:17.867Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -349,7 +349,7 @@
       "log": "media-intel.log",
       "channel": "#sasmaster-intel",
       "jobId": "media-intel",
-      "lastRun": "2026-04-22T08:51:29.123Z",
+      "lastRun": "2026-04-22T10:00:20.603Z",
       "lastOutput": "Brief posted to #sasmaster-intel ✅",
       "status": "healthy"
     },
@@ -523,18 +523,77 @@
       "name": "TMDB bulk loader",
       "phase": "1",
       "status": "running",
-      "pct": 99.3,
-      "row_count": 1176000,
-      "total": 1184436,
-      "last_run": "2026-04-22T09:23:21.802Z",
+      "pct": 3.2,
+      "row_count": 7000,
+      "total": 219843,
+      "last_run": "2026-04-22T10:07:08.880Z",
       "s3_path": "s3://sasmaster-2026/tmdb_dev/"
     },
     {
-      "name": "TMDB delta (hourly)",
+      "name": "TMDB delta (biweekly)",
       "phase": "1",
-      "status": "designed",
+      "status": "queued",
       "pct": 0,
-      "last_run": null
+      "last_run": null,
+      "note": "cron: 1st + 16th of month; fetches /movie|tv|person/changes since last run"
+    },
+    {
+      "name": "TMDB Configuration",
+      "phase": "1",
+      "status": "live",
+      "pct": null,
+      "last_run": "2026-04-22T05:58:43.000Z",
+      "s3_path": "s3://sasmaster-2026/tmdb_dev/configuration/"
+    },
+    {
+      "name": "TMDB Collections",
+      "phase": "1",
+      "status": "queued",
+      "pct": null,
+      "last_run": null,
+      "s3_path": "s3://sasmaster-2026/tmdb_dev/collections/"
+    },
+    {
+      "name": "TMDB Networks",
+      "phase": "1",
+      "status": "queued",
+      "pct": null,
+      "last_run": null,
+      "s3_path": "s3://sasmaster-2026/tmdb_dev/networks/"
+    },
+    {
+      "name": "TMDB Companies",
+      "phase": "1",
+      "status": "queued",
+      "pct": null,
+      "last_run": null,
+      "s3_path": "s3://sasmaster-2026/tmdb_dev/companies/"
+    },
+    {
+      "name": "TMDB TV Seasons",
+      "phase": "1",
+      "status": "queued",
+      "pct": null,
+      "last_run": null,
+      "s3_path": "s3://sasmaster-2026/tmdb_dev/tv_seasons/"
+    },
+    {
+      "name": "TMDB TV Episodes",
+      "phase": "1",
+      "status": "queued",
+      "pct": null,
+      "last_run": null,
+      "s3_path": "s3://sasmaster-2026/tmdb_dev/tv_episodes/",
+      "note": "derived from tv_seasons + IMDB title_episode cross-ref (zero API calls)"
+    },
+    {
+      "name": "TMDB Movie Enrichment",
+      "phase": "1",
+      "status": "queued",
+      "pct": null,
+      "last_run": null,
+      "s3_path": "s3://sasmaster-2026/tmdb_dev/movies_enrichment/",
+      "note": "sidecar adding watch_providers+videos+reviews+images to 1.18M pre-v2 movies"
     },
     {
       "name": "IMDb parser",
@@ -580,8 +639,8 @@
       "phase": "2a",
       "status": "landing",
       "pct": null,
-      "last_run": "2026-04-22T04:20:37.000Z",
-      "size_gb": 40.1
+      "last_run": "2026-04-22T05:51:32.000Z",
+      "size_gb": 75.4
     },
     {
       "name": "Gracenote snapshot",
@@ -639,9 +698,9 @@
       "prefix": "tmdb_dev/",
       "phase": "1",
       "status": "landing",
-      "size_gb": 5.5,
-      "object_count": 1171,
-      "last_updated": "2026-04-22T05:03:42.000Z",
+      "size_gb": 5.9,
+      "object_count": 1211,
+      "last_updated": "2026-04-22T06:07:08.000Z",
       "entities": {
         "movies": 1155000,
         "tv_series": null,
@@ -707,9 +766,9 @@
       "prefix": "Nielsen/",
       "phase": "2a",
       "status": "landing",
-      "size_gb": 40.1,
-      "object_count": 27,
-      "last_updated": "2026-04-22T04:20:37.000Z",
+      "size_gb": 75.4,
+      "object_count": 29,
+      "last_updated": "2026-04-22T05:51:32.000Z",
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -810,8 +869,8 @@
       "phase": "—",
       "status": "live",
       "size_gb": 0,
-      "object_count": 1,
-      "last_updated": "2026-04-22T05:03:43.000Z",
+      "object_count": 2,
+      "last_updated": "2026-04-22T06:07:09.000Z",
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -820,14 +879,65 @@
         "telecasts": null
       },
       "note": "loader progress marker, not entity data"
+    },
+    {
+      "path": "tmdb_dev/movies/",
+      "prefix": "tmdb_dev/movies/",
+      "phase": "—",
+      "status": "landing",
+      "size_gb": 5.4,
+      "object_count": 1185,
+      "last_updated": "2026-04-22T05:32:52.000Z",
+      "entities": {
+        "movies": null,
+        "tv_series": null,
+        "episodes": null,
+        "people": null,
+        "telecasts": null
+      },
+      "note": null
+    },
+    {
+      "path": "tmdb_dev/tv_series/",
+      "prefix": "tmdb_dev/tv_series/",
+      "phase": "—",
+      "status": "landing",
+      "size_gb": 0.25,
+      "object_count": 7,
+      "last_updated": "2026-04-22T06:07:08.000Z",
+      "entities": {
+        "movies": null,
+        "tv_series": null,
+        "episodes": null,
+        "people": null,
+        "telecasts": null
+      },
+      "note": null
+    },
+    {
+      "path": "tmdb_dev/configuration/",
+      "prefix": "tmdb_dev/configuration/",
+      "phase": "—",
+      "status": "landing",
+      "size_gb": 0,
+      "object_count": 1,
+      "last_updated": "2026-04-22T05:58:43.000Z",
+      "entities": {
+        "movies": null,
+        "tv_series": null,
+        "episodes": null,
+        "people": null,
+        "telecasts": null
+      },
+      "note": null
     }
   ],
   "kpis": {
     "agents_running": 7,
     "agents_total": 9,
-    "scrapers_live": 3,
-    "scrapers_total": 15,
-    "s3_gb": 49.7,
+    "scrapers_live": 4,
+    "scrapers_total": 22,
+    "s3_gb": 91,
     "parent_key_rows": 861878,
     "tasks_open": 18
   },
@@ -879,8 +989,8 @@
     },
     {
       "type": "pipeline",
-      "text": "TMDB bulk 99.3% — 1176K / 1184K titles → s3://sasmaster-2026/tmdb_dev/",
-      "ts": "2026-04-22T09:23:21.802Z"
+      "text": "TMDB bulk 3.2% — 7K / 220K titles → s3://sasmaster-2026/tmdb_dev/",
+      "ts": "2026-04-22T10:07:08.880Z"
     }
   ],
   "cron": [
@@ -898,6 +1008,14 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/slack-feed-cache.js >> /Users/shivashish/SaSMaster/logs/slack-feed.log 2>&1",
       "channel": "—",
       "weekly": false,
+      "status": "pending"
+    },
+    {
+      "time": "12:00 AM",
+      "name": "tmdb delta biweekly",
+      "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/load-tmdb-deltas.js >> /Users/shivashish/SaSMaster/logs/tmdb-deltas.log 2>&1",
+      "channel": "—",
+      "weekly": true,
       "status": "pending"
     },
     {
@@ -938,7 +1056,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/media-intel-agent.js >> /Users/shivashish/SaSMaster/logs/media-intel.log 2>&1",
       "channel": "#sasmaster-intel",
       "weekly": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "6:05 AM",
@@ -946,7 +1064,7 @@
       "command": "bash /Users/shivashish/SaSMaster/scripts/morning-package.sh >> /Users/shivashish/SaSMaster/logs/morning-package.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "6:30 AM",
@@ -1249,6 +1367,14 @@
     ],
     "intel": [
       {
+        "ts": "6:00 AM",
+        "text": ":newspaper: *SaSMaster Media Intelligence — Wednesday, Apr 22* _10 sources · 36 signals · 3-tier intelligence_ --- # SaSMaster Daily Intelligence Briefing **Shi"
+      },
+      {
+        "ts": "5:22 AM",
+        "text": ":tv: *TMDB Daily — Apr 22, 05:22 AM EST* _12 endpoints polled · top 3 per list_ *:clapper: Movies* • _Now Playing_ — 1. The Super Mario Galaxy Movie :fire:683 :"
+      },
+      {
         "ts": "4:51 AM",
         "text": ":newspaper: *SaSMaster Media Intelligence — Wednesday, Apr 22* _10 sources · 36 signals · 3-tier intelligence_ --- # SaSMaster Daily Intelligence Briefing *Shiv"
       },
@@ -1275,36 +1401,36 @@
     ],
     "content": [
       {
-        "ts": "5:19 AM",
-        "text": ":tv: *TMDB Daily — Apr 22, 05:19 AM EST* _12 endpoints polled · top 3 per list_ *:clapper: Movies* • _Now Playing_ — 1. The Super Mario Galaxy Movie :fire:683 :"
+        "ts": "5:58 AM",
+        "text": ":package: *TMDB [tv_series]* — Fetching 219,843 records → S3 (resuming from batch 0)"
       },
       {
-        "ts": "5:00 AM",
-        "text": ":tv: *TMDB Trending Agent — Apr 22, 05:00 AM EST* 1 new show(s) injected into TASKS.md: 1. *Criminal Record* — :star: 6.6 | :fire: 6 Run `!build` to research or"
+        "ts": "5:58 AM",
+        "text": ":white_check_mark: *TMDB [movies] complete* — 1,184,436 records stored in `<s3://sasmaster-2026/tmdb_dev/movies/>`"
       },
       {
-        "ts": "3:55 AM",
-        "text": ":bar_chart: *TMDB [movies] progress* — 1,100,000/1,184,436 records (92.9%) → `<s3://sasmaster-2026/tmdb_dev/movies/>`"
+        "ts": "5:58 AM",
+        "text": ":package: *TMDB [movies]* — Fetching 1,184,903 records → S3 (resuming from batch 1185)"
       },
       {
-        "ts": "2:00 AM",
-        "text": ":bar_chart: *TMDB [movies] progress* — 1,000,000/1,184,436 records (84.4%) → `<s3://sasmaster-2026/tmdb_dev/movies/>`"
+        "ts": "5:58 AM",
+        "text": ":white_check_mark: *TMDB Phase 1 complete* — Export files in S3: • movie_ids (24.2MB) • tv_series_ids (4.4MB) • person_ids (62.0MB) • collection_ids (0.1MB) • t"
       },
       {
-        "ts": "1:49 AM",
-        "text": ":tv: *TMDB Trending Agent — Apr 22, 01:49 AM EST* All top 10 trending shows already tracked. No new tasks injected."
+        "ts": "5:57 AM",
+        "text": ":clapper: *TMDB Bulk Load started* — Wed, Apr 22 Phase 1: Downloading 6 export ID files → `<s3://sasmaster-2026/tmdb_dev/>`"
       },
       {
-        "ts": "1:46 AM",
-        "text": "`!approve mo9mqkhy`"
+        "ts": "5:32 AM",
+        "text": ":package: *TMDB [tv_series]* — Fetching 219,750 records → S3 (resuming from batch 0)"
       },
       {
-        "ts": "1:46 AM",
-        "text": ":writing_hand: *LinkedIn Draft Ready — Apr 22, 01:46 AM EST* Theme: _the future of tv_ *ID:* `mo9mqkhy` --- \"TV is dying\" is the laziest take in media right now"
+        "ts": "5:32 AM",
+        "text": ":white_check_mark: *TMDB [movies] complete* — 1,184,436 records stored in `<s3://sasmaster-2026/tmdb_dev/movies/>`"
       },
       {
-        "ts": "1:44 AM",
-        "text": "!linkedin the future of tv"
+        "ts": "5:20 AM",
+        "text": ":tv: *TMDB Daily — Apr 22, 05:20 AM EST* _12 endpoints polled · top 3 per list_ *:clapper: Movies* • _Now Playing_ — 1. The Super Mario Galaxy Movie :fire:683 :"
       }
     ]
   }
