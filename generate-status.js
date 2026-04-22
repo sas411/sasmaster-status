@@ -402,7 +402,14 @@ function buildS3Lake(scrapers, s3Inv, entityCounts) {
 
   const tmdb = scrapers.find(s => s.name === 'TMDB bulk loader');
 
-  return s3Inv.prefixes.map(p => {
+  // Hide TMDB sub-prefixes from the S3 Data Lake grid — they're nested under
+  // tmdb_dev/ and their bytes are already counted in the parent tile.
+  // s3-inventory.json still contains them for the scraper cards' prefix() lookup.
+  const gridPrefixes = s3Inv.prefixes.filter(p =>
+    p.prefix === 'tmdb_dev/' || !p.prefix.startsWith('tmdb_dev/')
+  );
+
+  return gridPrefixes.map(p => {
     const meta = META[p.prefix] || { label: p.prefix, phase: '—', status_hint: 'landing' };
     const ec   = (entityCounts || {})[p.prefix] || {};
     // TMDB prefix: while bulk loader is running, status=landing not live
