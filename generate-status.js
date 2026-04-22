@@ -123,6 +123,7 @@ function parseAgents() {
     { name: 'Tech Intel',        icon: '🛰️', schedule: 'Friday 6PM',   nextRun: 'Fri 6PM',         log: 'tech-intel.log',        channel: '#sasmaster-intel',   jobId: 'tech-intel' },
     { name: 'Financial Analyst', icon: '💰', schedule: 'Sunday 8PM',   nextRun: 'Sun 8PM',         log: 'financial-analyst.log', channel: '#sasmaster-intel',   jobId: null },
     { name: 'Weekly Review',     icon: '🗂️', schedule: 'Sunday 8PM',   nextRun: 'Sun 8PM',         log: 'weekly-review.log',     channel: '#sasmaster-builds',  jobId: 'weekly-review' },
+    { name: 'IAB Intel',         icon: '📡', schedule: 'Monday 7AM',   nextRun: 'Mon 7AM',         log: 'iab-agent.log',         channel: '#sasmaster-intel',   jobId: 'iab-intel' },
   ];
 
   return agents.map(a => {
