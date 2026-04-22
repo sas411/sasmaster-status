@@ -116,7 +116,7 @@ function parseAgents() {
   const agents = [
     { name: 'JARVIS',            icon: '🤖', schedule: '24/7 daemon',   nextRun: 'Always on',       log: 'jarvis.log',            channel: '24/7 daemon',        jobId: null },
     { name: 'Media Intel',       icon: '📡', schedule: '6AM daily',     nextRun: 'Tomorrow 6AM',    log: 'media-intel.log',       channel: '#sasmaster-intel',   jobId: 'media-intel' },
-    { name: 'TMDB Daily',        icon: '📺', schedule: '5AM daily',     nextRun: 'Tomorrow 5AM',    log: 'tmdb-agent.log',        channel: '#sasmaster-content', jobId: 'tmdb-daily' },
+    { name: 'TMDB Daily',        icon: '📺', schedule: '5AM daily',     nextRun: 'Tomorrow 5AM',    log: 'tmdb-agent.log',        channel: '#sasmaster-intel',   jobId: 'tmdb-daily' },
     { name: 'DoneLog Analyst',   icon: '📊', schedule: 'Post-build',    nextRun: 'Post 12AM build', log: 'donelog-analyst.log',   channel: '#sasmaster-builds',  jobId: null },
     { name: 'LinkedIn Agent',    icon: '✍️',  schedule: 'Monday 8PM',   nextRun: 'Mon 8PM',         log: 'linkedin-agent.log',    channel: '#sasmaster-content', jobId: 'linkedin-agent' },
     { name: 'SEC EDGAR',         icon: '📑', schedule: '6:30 AM daily', nextRun: 'Tomorrow 6:30 AM',log: 'sec-edgar.log',         channel: '#sasmaster-intel',   jobId: null },
