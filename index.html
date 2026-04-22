@@ -993,18 +993,49 @@ function renderPipeline(scrapers) {
 function renderS3(s3_lake) {
   const el = document.getElementById('s3-grid');
   if (!el) return;
+
+  const fmtNum = n => {
+    if (n == null) return null;
+    if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return Math.round(n/1e3) + 'K';
+    return String(n);
+  };
+  const fmtSize = gb => {
+    if (gb == null) return '—';
+    if (gb >= 1)    return gb.toFixed(1) + ' GB';
+    if (gb >= 0.01) return Math.round(gb * 1024) + ' MB';
+    return '<1 MB';
+  };
+
+  // Entity rows shown in each card — only non-null entities render.
+  const entityRow = (label, val, color) => val != null
+    ? `<div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:8.5px;line-height:1.6"><span style="color:var(--muted)">${label}</span><span style="color:${color};font-weight:600">${fmtNum(val)}</span></div>`
+    : '';
+
+  el.className = 's3-grid-11';
+  el.style.cssText = 'display:grid;grid-template-columns:repeat(4,1fr);gap:8px';
   el.innerHTML = (s3_lake || []).map(b => {
-    const cls = b.status === 'live' ? 'live' : b.status === 'landing' ? 'land' : '';
-    const sizeLabel = b.size_gb != null ? (b.size_gb >= 1 ? b.size_gb.toFixed(1) + 'GB' : Math.round(b.size_gb * 1024) + 'MB') : '—';
-    const rowLabel = b.rows != null ? (b.rows >= 1e6 ? (b.rows/1e6).toFixed(1) + 'M rows' : (b.rows/1000).toFixed(0) + 'K rows') : '';
     const stCls = b.status === 'live' ? 'live' : b.status === 'landing' ? 'land' : 'que';
-    return '<div class="s3c ' + cls + '">'
-      + '<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span class="st ' + stCls + '">' + b.status + '</span></div>'
-      + '<div class="s3p">' + escHtml(b.path) + '</div>'
-      + '<div class="s3r" style="color:var(--' + (b.status === 'live' ? 'green' : 'dim') + ')">' + sizeLabel + '</div>'
-      + (rowLabel ? '<div style="font-family:var(--mono);font-size:8px;color:var(--muted);margin-top:2px">' + rowLabel + '</div>' : '')
-      + '<div class="s3ft">' + (b.last_updated ? 'updated ' + timeAgo(b.last_updated) : '&nbsp;') + '</div>'
-      + '</div>';
+    const e = b.entities || {};
+    const hasAnyEntity = Object.values(e).some(v => v != null);
+
+    return `<div class="s3c ${b.status === 'live' ? 'live' : b.status === 'landing' ? 'land' : ''}" style="padding:10px 11px;min-height:130px;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span class="st ${stCls}">${b.status}</span>
+        <span style="font-family:var(--mono);font-size:7.5px;color:var(--dim);letter-spacing:.06em">Phase ${b.phase}</span>
+      </div>
+      <div class="s3p" style="font-weight:700;color:var(--text);margin-bottom:3px">${escHtml(b.path)}</div>
+      <div class="s3r" style="color:${b.status === 'live' ? 'var(--green)' : 'var(--dim)'};font-size:16px">${fmtSize(b.size_gb)}</div>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--muted);margin-top:1px">${b.object_count || 0} obj</div>
+      ${hasAnyEntity ? `<div style="border-top:1px dashed var(--border-light);margin-top:7px;padding-top:6px">
+        ${entityRow('movies',    e.movies,    'var(--cyan)')}
+        ${entityRow('tv series', e.tv_series, 'var(--purple)')}
+        ${entityRow('episodes',  e.episodes,  'var(--blue)')}
+        ${entityRow('people',    e.people,    'var(--amber)')}
+        ${entityRow('telecasts', e.telecasts, 'var(--red)')}
+      </div>` : (b.note ? `<div style="border-top:1px dashed var(--border-light);margin-top:7px;padding-top:6px;font-family:var(--mono);font-size:8px;color:var(--dim);line-height:1.4">${escHtml(b.note)}</div>` : '')}
+      <div class="s3ft" style="margin-top:auto;padding-top:6px">${b.last_updated ? 'updated ' + timeAgo(b.last_updated) : '&nbsp;'}</div>
+    </div>`;
   }).join('');
 }
 

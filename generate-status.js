@@ -177,6 +177,13 @@ function parseS3Inventory() {
   catch { return null; }
 }
 
+// ── S3 entity counts (from scripts/s3-entity-counts.js cache) ────────────────
+function parseS3EntityCounts() {
+  const file = path.join(SASMASTER, 'status', 's3-entity-counts.json');
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')).prefixes || {}; }
+  catch { return {}; }
+}
+
 // ── Log mtime helper for per-scraper health ──────────────────────────────────
 function logMtime(logName) {
   const p = path.join(SASMASTER, 'logs', logName);
@@ -293,7 +300,8 @@ function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents) {
       phase: '1',
       status: pkP.object_count > 0 ? 'live' : 'designed',
       pct: 100,
-      row_count: 589814,
+      row_count: 861878,      // total parquet rows (589,814 matched + 272,064 synthetic)
+      matched_count: 589814,  // IMDB-matched subset (68.4% match rate)
       last_run: pkP.last_modified || '2026-04-22T03:04:00Z',
     },
     {
@@ -346,38 +354,54 @@ function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents) {
 }
 
 // ── S3 Data Lake inventory ───────────────────────────────────────────────────
-// Prefers real data from scripts/s3-inventory.js cache when present.
-// Falls back to derived values from scrapers for fresh deploys.
-function buildS3Lake(scrapers, s3Inv) {
-  const prefix = name => (s3Inv?.prefixes || []).find(p => p.prefix === name);
+// Emits ONE card per real S3 prefix with real sizes + entity counts where
+// computable. Entity counts come from scripts/s3-entity-counts.json; prefixes
+// flagged { note: 'deferred' } render with em-dash placeholders.
+function buildS3Lake(scrapers, s3Inv, entityCounts) {
+  if (!s3Inv?.prefixes) return [];
 
-  // Rows are not in S3 metadata — derive from known scraper row_counts
-  const tmdb  = scrapers.find(s => s.name === 'TMDB bulk loader');
-  const imdb  = scrapers.find(s => s.name === 'IMDb parser');
-  const pk    = scrapers.find(s => s.name === 'SAS-MASTER Parent Key v1');
-
-  const card = (p, displayName, status, rowCount) => {
-    const pfx = prefix(p);
-    if (!pfx && !rowCount) return null;
-    return {
-      path: displayName || p,
-      status,
-      rows: rowCount ?? null,
-      size_gb: pfx ? +(pfx.size_gb.toFixed(2)) : null,
-      last_updated: pfx?.last_modified || null,
-      object_count: pfx?.object_count || null,
-    };
+  // Human label + phase classification per prefix
+  const META = {
+    'tmdb_dev/':     { label: 'tmdb_dev/',          phase: '1',  status_hint: 'running' },
+    'imdb/':         { label: 'imdb/',              phase: '1',  status_hint: 'live'    },
+    'imdb_prd/':     { label: 'imdb_prd/ (legacy)', phase: '1',  status_hint: 'live'    },
+    'parent_keys/':  { label: 'parent_keys/',       phase: '1',  status_hint: 'live'    },
+    'Nielsen/':      { label: 'Nielsen/',           phase: '2a', status_hint: 'landing' },
+    'gracenote/':    { label: 'gracenote/',         phase: '2a', status_hint: 'landing' },
+    'fyi/':          { label: 'fyi/',               phase: '2a', status_hint: 'landing' },
+    'opus/':         { label: 'opus/',              phase: '2a', status_hint: 'landing' },
+    'eidr/':         { label: 'eidr/',              phase: '1b', status_hint: 'landing' },
+    'shiv_curated/': { label: 'shiv_curated/',      phase: '1',  status_hint: 'live'    },
+    'progress/':     { label: 'progress/',          phase: '—',  status_hint: 'live'    },
   };
 
-  const cards = [
-    card('tmdb_dev/',    'tmdb_dev/',    tmdb?.status === 'running' ? 'landing' : 'live', tmdb?.row_count),
-    card('imdb/',        'imdb/',        imdb?.status === 'live' ? 'live' : 'landing',    imdb?.row_count),
-    card('parent_keys/', 'parent_keys/', 'live',                                          pk?.row_count),
-    card('Nielsen/',     'rsg_snap/nielsen/', 'landing', null),
-    card('eidr/',        'eidr/',        'landing', null),
-  ].filter(Boolean);
+  const tmdb = scrapers.find(s => s.name === 'TMDB bulk loader');
 
-  return cards;
+  return s3Inv.prefixes.map(p => {
+    const meta = META[p.prefix] || { label: p.prefix, phase: '—', status_hint: 'landing' };
+    const ec   = (entityCounts || {})[p.prefix] || {};
+    // TMDB prefix: while bulk loader is running, status=landing not live
+    let status = meta.status_hint;
+    if (p.prefix === 'tmdb_dev/' && tmdb?.status === 'running') status = 'landing';
+
+    return {
+      path: meta.label,
+      prefix: p.prefix,
+      phase: meta.phase,
+      status,
+      size_gb: +(p.size_gb.toFixed(2)),
+      object_count: p.object_count,
+      last_updated: p.last_modified,
+      entities: {
+        movies:    ec.movies    ?? null,
+        tv_series: ec.tv_series ?? null,
+        episodes:  ec.episodes  ?? null,
+        people:    ec.people    ?? null,
+        telecasts: ec.telecasts ?? null,
+      },
+      note: ec.note || null,
+    };
+  });
 }
 
 // ── KPIs (derived) ───────────────────────────────────────────────────────────
@@ -588,8 +612,9 @@ const alerts        = parseAlerts();
 const agents        = parseAgents();
 const tmdbProgress  = parseTMDBProgress();
 const s3Inv         = parseS3Inventory();
+const entityCounts  = parseS3EntityCounts();
 const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents);
-const s3_lake       = buildS3Lake(scrapers, s3Inv);
+const s3_lake       = buildS3Lake(scrapers, s3Inv, entityCounts);
 const cronJobsRaw   = parseCrontab();
 const cron          = enrichCronStatus(cronJobsRaw, agents);
 

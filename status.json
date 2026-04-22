@@ -1,12 +1,12 @@
 {
-  "generated": "2026-04-22T08:52:06.030Z",
+  "generated": "2026-04-22T09:04:41.804Z",
   "system": {
     "jarvis": {
       "alive": true
     }
   },
   "queue": {
-    "high": 10,
+    "high": 11,
     "med": 9,
     "highItems": [
       {
@@ -369,8 +369,8 @@
       "log": "tmdb-agent.log",
       "channel": "#sasmaster-content",
       "jobId": "tmdb-load",
-      "lastRun": "2026-04-22T05:49:23.220Z",
-      "lastOutput": "No new trending shows to inject",
+      "lastRun": "2026-04-22T09:00:01.183Z",
+      "lastOutput": "Injected 1 tasks: Criminal Record",
       "status": "healthy"
     },
     {
@@ -537,10 +537,10 @@
       "name": "TMDB bulk loader",
       "phase": "1",
       "status": "running",
-      "pct": 96.9,
-      "row_count": 1148000,
+      "pct": 97.9,
+      "row_count": 1159000,
       "total": 1184436,
-      "last_run": "2026-04-22T08:51:03.926Z",
+      "last_run": "2026-04-22T09:03:42.230Z",
       "s3_path": "s3://sasmaster-2026/tmdb_dev/"
     },
     {
@@ -563,7 +563,8 @@
       "phase": "1",
       "status": "live",
       "pct": 100,
-      "row_count": 589814,
+      "row_count": 861878,
+      "matched_count": 589814,
       "last_run": "2026-04-21T23:04:10.000Z"
     },
     {
@@ -649,43 +650,190 @@
   "s3_lake": [
     {
       "path": "tmdb_dev/",
+      "prefix": "tmdb_dev/",
+      "phase": "1",
       "status": "landing",
-      "rows": 1148000,
       "size_gb": 5.5,
-      "last_updated": "2026-04-22T04:40:02.000Z",
-      "object_count": 1150
+      "object_count": 1171,
+      "last_updated": "2026-04-22T05:03:42.000Z",
+      "entities": {
+        "movies": 1155000,
+        "tv_series": null,
+        "episodes": null,
+        "people": null,
+        "telecasts": null
+      },
+      "note": null
     },
     {
       "path": "imdb/",
+      "prefix": "imdb/",
+      "phase": "1",
       "status": "live",
-      "rows": 206444399,
       "size_gb": 1.4,
+      "object_count": 7,
       "last_updated": "2026-04-21T23:00:01.000Z",
-      "object_count": 7
+      "entities": {
+        "movies": 743825,
+        "tv_series": 298238,
+        "episodes": 9614102,
+        "people": 15257687,
+        "telecasts": null
+      },
+      "note": null
+    },
+    {
+      "path": "imdb_prd/ (legacy)",
+      "prefix": "imdb_prd/",
+      "phase": "1",
+      "status": "live",
+      "size_gb": 1.8,
+      "object_count": 7,
+      "last_updated": "2026-04-20T22:06:38.000Z",
+      "entities": {
+        "movies": null,
+        "tv_series": null,
+        "episodes": null,
+        "people": null,
+        "telecasts": null
+      },
+      "note": "legacy TSV.gz snapshot; no entity breakdown"
     },
     {
       "path": "parent_keys/",
+      "prefix": "parent_keys/",
+      "phase": "1",
       "status": "live",
-      "rows": 589814,
       "size_gb": 0.02,
+      "object_count": 1,
       "last_updated": "2026-04-21T23:04:10.000Z",
-      "object_count": 1
+      "entities": {
+        "movies": 861878,
+        "tv_series": null,
+        "episodes": null,
+        "people": null,
+        "telecasts": null
+      },
+      "note": null
     },
     {
-      "path": "rsg_snap/nielsen/",
+      "path": "Nielsen/",
+      "prefix": "Nielsen/",
+      "phase": "2a",
       "status": "landing",
-      "rows": null,
       "size_gb": 40.1,
+      "object_count": 27,
       "last_updated": "2026-04-22T04:20:37.000Z",
-      "object_count": 27
+      "entities": {
+        "movies": null,
+        "tv_series": null,
+        "episodes": null,
+        "people": null,
+        "telecasts": null
+      },
+      "note": "needs MIT_GN_MASTER + VIEWERSHIP CSV parse (deferred)"
+    },
+    {
+      "path": "gracenote/",
+      "prefix": "gracenote/",
+      "phase": "2a",
+      "status": "landing",
+      "size_gb": 0,
+      "object_count": 2,
+      "last_updated": "2026-04-22T02:47:11.000Z",
+      "entities": {
+        "movies": null,
+        "tv_series": null,
+        "episodes": null,
+        "people": null,
+        "telecasts": null
+      },
+      "note": "xlsx parse deferred"
+    },
+    {
+      "path": "fyi/",
+      "prefix": "fyi/",
+      "phase": "2a",
+      "status": "landing",
+      "size_gb": 0,
+      "object_count": 2,
+      "last_updated": "2026-04-22T02:38:36.000Z",
+      "entities": {
+        "movies": null,
+        "tv_series": null,
+        "episodes": null,
+        "people": null,
+        "telecasts": null
+      },
+      "note": "xlsx parse deferred"
+    },
+    {
+      "path": "opus/",
+      "prefix": "opus/",
+      "phase": "2a",
+      "status": "landing",
+      "size_gb": 0,
+      "object_count": 2,
+      "last_updated": "2026-04-22T04:42:21.000Z",
+      "entities": {
+        "movies": null,
+        "tv_series": null,
+        "episodes": null,
+        "people": null,
+        "telecasts": null
+      },
+      "note": "csv parse deferred"
     },
     {
       "path": "eidr/",
+      "prefix": "eidr/",
+      "phase": "1b",
       "status": "landing",
-      "rows": null,
       "size_gb": 0.18,
+      "object_count": 9,
       "last_updated": "2026-04-22T01:11:20.000Z",
-      "object_count": 9
+      "entities": {
+        "movies": null,
+        "tv_series": null,
+        "episodes": null,
+        "people": null,
+        "telecasts": null
+      },
+      "note": "xlsx/csv parse deferred"
+    },
+    {
+      "path": "shiv_curated/",
+      "prefix": "shiv_curated/",
+      "phase": "1",
+      "status": "live",
+      "size_gb": 0.69,
+      "object_count": 5,
+      "last_updated": "2026-04-22T01:13:31.000Z",
+      "entities": {
+        "movies": null,
+        "tv_series": null,
+        "episodes": null,
+        "people": null,
+        "telecasts": null
+      },
+      "note": "csv parse deferred"
+    },
+    {
+      "path": "progress/",
+      "prefix": "progress/",
+      "phase": "—",
+      "status": "live",
+      "size_gb": 0,
+      "object_count": 1,
+      "last_updated": "2026-04-22T05:03:43.000Z",
+      "entities": {
+        "movies": null,
+        "tv_series": null,
+        "episodes": null,
+        "people": null,
+        "telecasts": null
+      },
+      "note": "loader progress marker, not entity data"
     }
   ],
   "kpis": {
@@ -693,8 +841,8 @@
     "agents_total": 9,
     "scrapers_live": 3,
     "scrapers_total": 15,
-    "s3_gb": 47.2,
-    "parent_key_rows": 589814,
+    "s3_gb": 49.7,
+    "parent_key_rows": 861878,
     "tasks_open": 18
   },
   "recent_activity": [
@@ -745,8 +893,8 @@
     },
     {
       "type": "pipeline",
-      "text": "TMDB bulk 96.9% — 1148K / 1184K titles → s3://sasmaster-2026/tmdb_dev/",
-      "ts": "2026-04-22T08:51:03.926Z"
+      "text": "TMDB bulk 97.9% — 1159K / 1184K titles → s3://sasmaster-2026/tmdb_dev/",
+      "ts": "2026-04-22T09:03:42.230Z"
     }
   ],
   "cron": [
@@ -780,7 +928,7 @@
       "command": "/Users/shivashish/SaSMaster/scripts/daily-briefing.sh >> /Users/shivashish/SaSMaster/logs/briefing.log 2>&1",
       "channel": "#sasmaster-builds",
       "weekly": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "5:00 AM",
@@ -788,7 +936,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/tmdb-trending-agent.js >> /Users/shivashish/SaSMaster/logs/tmdb-agent.log 2>&1",
       "channel": "#sasmaster-content",
       "weekly": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "5:02 AM",
@@ -1135,6 +1283,10 @@
       }
     ],
     "intel": [
+      {
+        "ts": "4:51 AM",
+        "text": ":newspaper: *SaSMaster Media Intelligence — Wednesday, Apr 22* _10 sources · 36 signals · 3-tier intelligence_ --- # SaSMaster Daily Intelligence Briefing *Shiv"
+      },
       {
         "ts": "12:50 AM",
         "text": ":white_check_mark: *Slack routing smoke test* — JARVIS bot can post to this channel. (2026-04-22T04:50:24.725Z)"
