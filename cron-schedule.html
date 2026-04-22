@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>SaSMaster — Cron Schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lav-50:#FAF8FF;--lav-100:#F3EEFC;--lav-150:#EDE4FA;--lav-200:#E8DEFA;
+    --lav-300:#D4C4F3;--lav-400:#B79FEA;
+    --pur-500:#8B5CF6;--pur-600:#7C3AED;--pur-700:#6D28D9;--pur-900:#4C1D95;
+    --ink-900:#1E1B2E;--ink-800:#29253E;--ink-700:#3B345A;--ink-500:#6B6486;--ink-400:#9690AE;
+    --ok:#059669;--ok-bg:#D1FAE5;--warn:#D97706;--warn-bg:#FEF3C7;
+    --info:#0EA5E9;--info-bg:#E0F2FE;--white:#FFFFFF;
+    --shadow-sm:0 1px 2px rgba(76,29,149,0.06);
+    --shadow-md:0 4px 12px rgba(76,29,149,0.08);
+    --shadow-lg:0 8px 24px rgba(76,29,149,0.12);
+
+    /* category colours */
+    --c-build:  #7C3AED; --c-build-bg:  #F5F3FF;  --c-build-border:  #DDD6FE;
+    --c-data:   #0EA5E9; --c-data-bg:   #F0F9FF;   --c-data-border:   #BAE6FD;
+    --c-intel:  #059669; --c-intel-bg:  #F0FDF4;  --c-intel-border:  #A7F3D0;
+    --c-comms:  #D97706; --c-comms-bg:  #FFFBEB;  --c-comms-border:  #FDE68A;
+    --c-fin:    #DC2626; --c-fin-bg:    #FFF1F2;   --c-fin-border:    #FECDD3;
+    --c-util:   #6B7280; --c-util-bg:   #F9FAFB;   --c-util-border:   #E5E7EB;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{
+    font-family:'Inter',-apple-system,sans-serif;
+    background:
+      radial-gradient(ellipse at top left,#F5F0FF 0%,transparent 60%),
+      radial-gradient(ellipse at bottom right,#FDF2F8 0%,transparent 55%),
+      linear-gradient(180deg,#FAF8FF 0%,#FFFFFF 100%);
+    color:var(--ink-900);-webkit-font-smoothing:antialiased;font-size:13px;line-height:1.45;min-height:100vh;
+  }
+  code{font-family:'JetBrains Mono',monospace;font-size:11px;}
+
+  /* ── Header ── */
+  .page-header{
+    background:linear-gradient(135deg,var(--pur-900) 0%,var(--pur-700) 55%,var(--pur-500) 100%);
+    padding:32px 40px 28px;color:white;position:relative;overflow:hidden;
+  }
+  .page-header::after{
+    content:'';position:absolute;bottom:-30px;right:60px;
+    width:300px;height:300px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,255,255,0.04) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .page-header .eyebrow{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--lav-300);margin-bottom:8px;}
+  .page-header h1{font-size:26px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px;}
+  .page-header .sub{font-size:13px;color:var(--lav-300);}
+  .badge-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.04em;}
+  .badge-ok{background:rgba(5,150,105,.25);color:#6EE7B7;border:1px solid rgba(5,150,105,.4);}
+  .badge-info{background:rgba(14,165,233,.2);color:#BAE6FD;border:1px solid rgba(14,165,233,.35);}
+  .badge-lav{background:rgba(196,180,255,.15);color:var(--lav-300);border:1px solid rgba(196,180,255,.3);}
+  .badge-warn{background:rgba(217,119,6,.2);color:#FDE68A;border:1px solid rgba(217,119,6,.35);}
+  .dot-live{width:6px;height:6px;border-radius:50%;background:#34D399;animation:pulse 2s infinite;flex-shrink:0;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  .canvas{max-width:1100px;margin:0 auto;padding:36px 32px 60px;}
+  .sec-title{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pur-600);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .sec-title::after{content:'';flex:1;height:1px;background:var(--lav-200);}
+
+  /* ── Stats bar ── */
+  .stats-bar{
+    display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:40px;
+  }
+  .stat-card{
+    background:var(--white);border:1.5px solid var(--lav-200);border-radius:12px;
+    padding:14px 16px;box-shadow:var(--shadow-sm);text-align:center;
+  }
+  .stat-num{font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1;}
+  .stat-label{font-size:10px;color:var(--ink-400);margin-top:4px;font-weight:500;}
+
+  /* ── 24h Timeline ── */
+  .timeline-wrap{
+    background:var(--white);border:1.5px solid var(--lav-200);border-radius:16px;
+    padding:28px 28px 24px;box-shadow:var(--shadow-md);margin-bottom:40px;overflow:hidden;
+  }
+  .tl-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+  .tl-title{font-size:14px;font-weight:700;color:var(--ink-900);}
+  .tl-sub{font-size:11px;color:var(--ink-400);}
+
+  /* Hour ruler */
+  .hour-ruler{position:relative;margin-bottom:8px;}
+  .hour-labels{display:flex;justify-content:space-between;padding:0 0 4px;}
+  .hour-label{font-size:9px;font-weight:600;color:var(--ink-400);font-family:'JetBrains Mono',monospace;width:30px;text-align:center;margin-left:-15px;}
+  .hour-label:first-child{margin-left:0;}
+  .hour-label:last-child{margin-left:-30px;}
+
+  /* Track */
+  .tl-track{
+    position:relative;height:10px;
+    background:linear-gradient(90deg,var(--lav-100) 0%,var(--lav-200) 100%);
+    border-radius:5px;margin-bottom:28px;overflow:visible;
+  }
+  /* Hour tick marks */
+  .tl-track::before{
+    content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+    background:repeating-linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent calc(100%/24 - 1px),
+      rgba(139,92,246,0.15) calc(100%/24 - 1px),
+      rgba(139,92,246,0.15) calc(100%/24)
+    );
+    border-radius:5px;
+  }
+  /* Current time indicator - set via JS */
+  .tl-now{
+    position:absolute;top:-6px;bottom:-6px;width:2px;
+    background:var(--ok);border-radius:1px;z-index:10;
+    box-shadow:0 0 6px rgba(5,150,105,0.6);
+  }
+  .tl-now::after{
+    content:'NOW';position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+    font-size:8px;font-weight:800;color:var(--ok);letter-spacing:.06em;white-space:nowrap;
+  }
+
+  /* Event pip on the track */
+  .tl-pip{
+    position:absolute;top:50%;transform:translateY(-50%);
+    width:14px;height:14px;border-radius:50%;border:2px solid white;
+    cursor:pointer;transition:transform .15s;box-shadow:var(--shadow-sm);
+    z-index:5;
+  }
+  .tl-pip:hover{transform:translateY(-50%) scale(1.4);z-index:20;}
+
+  /* Pip label */
+  .tl-pip-label{
+    position:absolute;top:calc(100% + 14px);left:50%;transform:translateX(-50%);
+    background:var(--ink-900);color:white;font-size:9px;font-weight:600;
+    padding:3px 7px;border-radius:5px;white-space:nowrap;pointer-events:none;
+    opacity:0;transition:opacity .15s;z-index:30;
+  }
+  .tl-pip:hover .tl-pip-label{opacity:1;}
+  .tl-pip-label::before{
+    content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+    border:4px solid transparent;border-bottom-color:var(--ink-900);
+  }
+
+  /* High-frequency band */
+  .tl-hf{
+    position:absolute;top:0;left:0;right:0;bottom:0;
+    background:repeating-linear-gradient(
+      90deg,
+      rgba(107,114,128,0.12) 0px,
+      rgba(107,114,128,0.12) 2px,
+      transparent 2px,
+      transparent calc(100%/288)
+    );
+    border-radius:5px;
+  }
+
+  /* ── Legend ── */
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-600);}
+  .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+  /* ── Daily schedule rows ── */
+  .day-schedule{margin-bottom:40px;}
+  .ds-row{
+    display:flex;align-items:stretch;gap:0;margin-bottom:2px;
+    border-radius:8px;overflow:hidden;border:1px solid transparent;
+    transition:box-shadow .12s;
+  }
+  .ds-row:hover{box-shadow:var(--shadow-md);}
+  .ds-time{
+    width:72px;flex-shrink:0;padding:10px 12px;
+    font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;
+    color:white;display:flex;align-items:center;justify-content:center;
+    letter-spacing:.02em;
+  }
+  .ds-body{flex:1;padding:9px 14px;display:flex;align-items:center;gap:12px;}
+  .ds-name{font-size:12px;font-weight:700;color:var(--ink-900);min-width:200px;}
+  .ds-script{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-400);flex:1;}
+  .ds-channel{
+    font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:2px 7px;border-radius:4px;white-space:nowrap;
+  }
+  .ds-freq{
+    font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;
+    background:var(--lav-100);color:var(--pur-700);white-space:nowrap;
+  }
+
+  /* ── Weekly grid ── */
+  .week-grid{margin-bottom:40px;}
+  .wg-header{display:grid;grid-template-columns:80px repeat(7,1fr);gap:2px;margin-bottom:4px;}
+  .wg-day-label{text-align:center;font-size:10px;font-weight:700;color:var(--ink-400);letter-spacing:.04em;text-transform:uppercase;padding:4px;}
+  .wg-day-label.today{color:var(--pur-600);}
+  .wg-row{display:grid;grid-template-columns:80px repeat(7,1fr);gap:2px;margin-bottom:2px;}
+  .wg-time-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-400);padding:6px 4px;display:flex;align-items:center;}
+  .wg-cell{
+    border-radius:6px;padding:6px 8px;min-height:36px;
+    display:flex;align-items:center;
+    background:var(--lav-50);border:1px solid transparent;
+  }
+  .wg-cell.has-job{cursor:default;}
+  .wg-job{font-size:10px;font-weight:600;line-height:1.3;color:white;}
+  .wg-job-sub{font-size:9px;opacity:0.8;margin-top:1px;}
+
+  /* ── Full job table ── */
+  .job-table{width:100%;border-collapse:collapse;margin-bottom:40px;}
+  .job-table th{
+    text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-400);padding:8px 12px;border-bottom:2px solid var(--lav-200);background:var(--lav-50);
+  }
+  .job-table td{padding:9px 12px;font-size:11.5px;border-bottom:1px solid var(--lav-100);vertical-align:middle;}
+  .job-table tr:last-child td{border-bottom:none;}
+  .job-table tr:hover td{background:var(--lav-50);}
+  .jt-cron{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-500);}
+  .jt-script{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--pur-700);}
+  .cat-pill{
+    display:inline-flex;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 8px;border-radius:4px;white-space:nowrap;
+  }
+
+  .footer{text-align:center;padding-top:24px;font-size:10px;color:var(--ink-400);}
+
+  @media(max-width:768px){
+    .stats-bar{grid-template-columns:repeat(3,1fr);}
+    .wg-header,.wg-row{grid-template-columns:60px repeat(7,1fr);}
+    .ds-script{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="eyebrow">SaSMaster · Infrastructure</div>
+  <h1>Cron Schedule Visualizer</h1>
+  <div class="sub">18 jobs · daily + weekly + biweekly + every-5-min · sourced from live crontab</div>
+  <div class="badge-row">
+    <span class="badge badge-ok"><span class="dot-live"></span>18 Live Jobs</span>
+    <span class="badge badge-info">6 Categories</span>
+    <span class="badge badge-warn">5AM–7AM peak window</span>
+    <span class="badge badge-lav">Every 5 min: Slack feed cache</span>
+  </div>
+</div>
+
+<div class="canvas">
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--pur-600);">18</div>
+      <div class="stat-label">Total Jobs</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--ok);">13</div>
+      <div class="stat-label">Daily</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--info);">4</div>
+      <div class="stat-label">Weekly</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--warn);">1</div>
+      <div class="stat-label">Biweekly</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--c-util);">1</div>
+      <div class="stat-label">Every 5 min</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:var(--c-comms);">5AM–7AM</div>
+      <div class="stat-label">Peak window</div>
+    </div>
+  </div>
+
+  <!-- 24h Timeline -->
+  <div class="sec-title">24-Hour Daily Timeline</div>
+  <div class="timeline-wrap">
+    <div class="tl-header">
+      <div>
+        <div class="tl-title">Daily job distribution across 24 hours (EDT)</div>
+        <div class="tl-sub">Hover any dot for details · green line = current time</div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-build);"></div>Build / Ops</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-data);"></div>Data / Scrapers</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-intel);"></div>Intel / Agents</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-comms);"></div>Briefing / Comms</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-fin);"></div>Finance</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--c-util);"></div>Utility</div>
+    </div>
+
+    <!-- Hour labels -->
+    <div style="position:relative;padding:0 0 0 0;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span style="font-size:9px;font-weight:600;color:var(--ink-400);font-family:'JetBrains Mono',monospace;">00:00</span>
+        <span style="font-size:9px;font-weight:600;color:var(--ink-400);font-family:'JetBrains Mono',monospace;">03:00</span>
+        <span style="font-size:9px;font-weight:600;color:var(--ink-400);font-family:'JetBrains Mono',monospace;">06:00</span>
+        <span style="font-size:9px;font-weight:600;color:var(--ink-400);font-family:'JetBrains Mono',monospace;">09:00</span>
+        <span style="font-size:9px;font-weight:600;color:var(--ink-400);font-family:'JetBrains Mono',monospace;">12:00</span>
+        <span style="font-size:9px;font-weight:600;color:var(--ink-400);font-family:'JetBrains Mono',monospace;">15:00</span>
+        <span style="font-size:9px;font-weight:600;color:var(--ink-400);font-family:'JetBrains Mono',monospace;">18:00</span>
+        <span style="font-size:9px;font-weight:600;color:var(--ink-400);font-family:'JetBrains Mono',monospace;">21:00</span>
+        <span style="font-size:9px;font-weight:600;color:var(--ink-400);font-family:'JetBrains Mono',monospace;">24:00</span>
+      </div>
+
+      <!-- Track -->
+      <div class="tl-track" id="tl-track">
+        <!-- High-freq band visual hint -->
+        <div class="tl-hf"></div>
+        <!-- Now line injected by JS -->
+        <div class="tl-now" id="tl-now"></div>
+
+        <!-- Every-5-min pulse bar -->
+        <div style="position:absolute;top:1px;left:0;right:0;bottom:1px;
+          background:repeating-linear-gradient(90deg,
+            rgba(107,114,128,0.18) 0px, rgba(107,114,128,0.18) 1px,
+            transparent 1px, transparent calc(100%/288));
+          border-radius:5px;pointer-events:none;"></div>
+
+        <!-- 00:00 nightly build -->
+        <div class="tl-pip" style="left:calc(0/1440*100%);background:var(--c-build);margin-left:-7px;">
+          <span class="tl-pip-label">00:00 · Nightly Build</span>
+        </div>
+        <!-- 02:00 TMDB bulk -->
+        <div class="tl-pip" style="left:calc(120/1440*100%);background:var(--c-data);margin-left:-7px;">
+          <span class="tl-pip-label">02:00 · TMDB Bulk Load</span>
+        </div>
+        <!-- 05:00 daily-briefing (two jobs — stack slightly) -->
+        <div class="tl-pip" style="left:calc(300/1440*100%);background:var(--c-comms);margin-left:-7px;top:20%;">
+          <span class="tl-pip-label">05:00 · Daily Briefing</span>
+        </div>
+        <div class="tl-pip" style="left:calc(300/1440*100%);background:var(--c-data);margin-left:2px;top:80%;">
+          <span class="tl-pip-label">05:00 · TMDB Daily Agent</span>
+        </div>
+        <!-- 05:02 daily-visuals -->
+        <div class="tl-pip" style="left:calc(302/1440*100%);background:var(--c-comms);margin-left:-7px;">
+          <span class="tl-pip-label">05:02 · Daily Visuals</span>
+        </div>
+        <!-- 06:00 media-intel -->
+        <div class="tl-pip" style="left:calc(360/1440*100%);background:var(--c-intel);margin-left:-7px;top:20%;">
+          <span class="tl-pip-label">06:00 · Media Intel (13 sources)</span>
+        </div>
+        <!-- 06:05 morning-package -->
+        <div class="tl-pip" style="left:calc(365/1440*100%);background:var(--c-comms);margin-left:-7px;top:80%;">
+          <span class="tl-pip-label">06:05 · Morning Package</span>
+        </div>
+        <!-- 06:30 edgar -->
+        <div class="tl-pip" style="left:calc(390/1440*100%);background:var(--c-fin);margin-left:-7px;">
+          <span class="tl-pip-label">06:30 · SEC EDGAR Scraper</span>
+        </div>
+        <!-- 07:00 score-queue AM -->
+        <div class="tl-pip" style="left:calc(420/1440*100%);background:var(--c-build);margin-left:-7px;">
+          <span class="tl-pip-label">07:00 · JARVIS Score Queue</span>
+        </div>
+        <!-- 12:00 donelog -->
+        <div class="tl-pip" style="left:calc(720/1440*100%);background:var(--c-intel);margin-left:-7px;">
+          <span class="tl-pip-label">12:00 · Donelog Analyst</span>
+        </div>
+        <!-- 14:00 score-queue PM -->
+        <div class="tl-pip" style="left:calc(840/1440*100%);background:var(--c-build);margin-left:-7px;">
+          <span class="tl-pip-label">14:00 · JARVIS Score Queue</span>
+        </div>
+      </div>
+
+      <!-- Zoom annotation: 5AM-7AM cluster -->
+      <div style="position:relative;margin-top:8px;">
+        <div style="
+          position:absolute;
+          left:calc(300/1440*100% - 8px);
+          width:calc((420-300)/1440*100% + 16px);
+          top:0;height:20px;
+          border:1.5px solid rgba(139,92,246,0.3);
+          border-radius:4px;
+          background:rgba(139,92,246,0.04);
+        "></div>
+        <div style="
+          position:absolute;
+          left:calc(300/1440*100%);
+          top:2px;
+          font-size:8.5px;font-weight:700;color:var(--pur-600);letter-spacing:.05em;
+          white-space:nowrap;
+        ">◀ 5AM–7AM peak: 7 jobs in 2h ▶</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Daily schedule rows -->
+  <div class="sec-title">Daily Schedule — All Jobs</div>
+  <div class="day-schedule">
+
+    <!-- midnight -->
+    <div class="ds-row" style="border-color:var(--c-build-border);background:var(--c-build-bg);">
+      <div class="ds-time" style="background:var(--c-build);">00:00</div>
+      <div class="ds-body">
+        <div class="ds-name">Nightly Build</div>
+        <div class="ds-script">scripts/sasmaster-build.sh</div>
+        <span class="ds-channel" style="background:var(--lav-100);color:var(--pur-700);">#builds</span>
+        <span class="ds-freq">daily</span>
+      </div>
+    </div>
+
+    <!-- TMDB delta (biweekly at midnight) -->
+    <div class="ds-row" style="border-color:var(--c-data-border);background:var(--c-data-bg);">
+      <div class="ds-time" style="background:var(--c-data);font-size:10px;">00:00<br><span style="opacity:.7;font-size:9px;">1st+16th</span></div>
+      <div class="ds-body">
+        <div class="ds-name">TMDB Delta Load</div>
+        <div class="ds-script">scripts/load-tmdb-deltas.js</div>
+        <span class="ds-channel" style="background:var(--c-data-bg);color:var(--c-data);border:1px solid var(--c-data-border);">S3</span>
+        <span class="ds-freq">biweekly</span>
+      </div>
+    </div>
+
+    <!-- 2am TMDB bulk -->
+    <div class="ds-row" style="border-color:var(--c-data-border);background:var(--c-data-bg);">
+      <div class="ds-time" style="background:var(--c-data);">02:00</div>
+      <div class="ds-body">
+        <div class="ds-name">TMDB Bulk Load</div>
+        <div class="ds-script">scripts/load-tmdb-to-s3.js all</div>
+        <span class="ds-channel" style="background:var(--c-data-bg);color:var(--c-data);border:1px solid var(--c-data-border);">S3</span>
+        <span class="ds-freq">daily</span>
+      </div>
+    </div>
+
+    <!-- 5am block -->
+    <div style="display:flex;align-items:center;gap:8px;margin:10px 0 6px;padding:0 4px;">
+      <span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--pur-500);">▼ 5AM–7AM Peak Window</span>
+      <span style="flex:1;height:1px;background:var(--lav-200);"></span>
+    </div>
+
+    <div class="ds-row" style="border-color:var(--c-comms-border);background:var(--c-comms-bg);">
+      <div class="ds-time" style="background:var(--c-comms);">05:00</div>
+      <div class="ds-body">
+        <div class="ds-name">Daily Briefing</div>
+        <div class="ds-script">scripts/daily-briefing.sh</div>
+        <span class="ds-channel" style="background:var(--lav-100);color:var(--pur-700);">#builds</span>
+        <span class="ds-freq">daily</span>
+      </div>
+    </div>
+
+    <div class="ds-row" style="border-color:var(--c-data-border);background:var(--c-data-bg);">
+      <div class="ds-time" style="background:var(--c-data);">05:00</div>
+      <div class="ds-body">
+        <div class="ds-name">TMDB Daily Agent</div>
+        <div class="ds-script">agents/tmdb-daily-agent.js</div>
+        <span class="ds-channel" style="background:var(--lav-100);color:var(--pur-700);">#intel</span>
+        <span class="ds-freq">daily</span>
+      </div>
+    </div>
+
+    <div class="ds-row" style="border-color:var(--c-comms-border);background:var(--c-comms-bg);">
+      <div class="ds-time" style="background:var(--c-comms);">05:02</div>
+      <div class="ds-body">
+        <div class="ds-name">Daily Visuals</div>
+        <div class="ds-script">scripts/daily-visuals.sh</div>
+        <span class="ds-channel" style="background:var(--lav-100);color:var(--pur-700);">#builds</span>
+        <span class="ds-freq">daily</span>
+      </div>
+    </div>
+
+    <div class="ds-row" style="border-color:var(--c-intel-border);background:var(--c-intel-bg);">
+      <div class="ds-time" style="background:var(--c-intel);">06:00</div>
+      <div class="ds-body">
+        <div class="ds-name">Media Intel Agent</div>
+        <div class="ds-script">agents/media-intel-agent.js</div>
+        <span class="ds-channel" style="background:#D1FAE5;color:var(--c-intel);border:1px solid var(--c-intel-border);">#intel</span>
+        <span style="font-size:10px;color:var(--ink-400);">13 sources</span>
+        <span class="ds-freq">daily</span>
+      </div>
+    </div>
+
+    <div class="ds-row" style="border-color:var(--c-comms-border);background:var(--c-comms-bg);">
+      <div class="ds-time" style="background:var(--c-comms);">06:05</div>
+      <div class="ds-body">
+        <div class="ds-name">Morning Package</div>
+        <div class="ds-script">scripts/morning-package.sh</div>
+        <span class="ds-channel" style="background:var(--lav-100);color:var(--pur-700);">#builds</span>
+        <span class="ds-freq">daily</span>
+      </div>
+    </div>
+
+    <div class="ds-row" style="border-color:var(--c-fin-border);background:var(--c-fin-bg);">
+      <div class="ds-time" style="background:var(--c-fin);">06:30</div>
+      <div class="ds-body">
+        <div class="ds-name">SEC EDGAR Scraper</div>
+        <div class="ds-script">agents/edgar-scraper.js</div>
+        <span class="ds-channel" style="background:var(--c-fin-bg);color:var(--c-fin);border:1px solid var(--c-fin-border);">#intel</span>
+        <span class="ds-freq">daily</span>
+      </div>
+    </div>
+
+    <div class="ds-row" style="border-color:var(--c-build-border);background:var(--c-build-bg);">
+      <div class="ds-time" style="background:var(--c-build);">07:00</div>
+      <div class="ds-body">
+        <div class="ds-name">JARVIS Score Queue</div>
+        <div class="ds-script">scripts/score-queue.sh</div>
+        <span class="ds-channel" style="background:var(--lav-100);color:var(--pur-700);">#builds</span>
+        <span style="font-size:10px;color:var(--ink-400);">checks TASKS.md — fires !build if HIGH items</span>
+        <span class="ds-freq">daily</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;margin:10px 0 6px;padding:0 4px;">
+      <span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-400);">▼ Midday / Afternoon</span>
+      <span style="flex:1;height:1px;background:var(--lav-200);"></span>
+    </div>
+
+    <div class="ds-row" style="border-color:var(--c-intel-border);background:var(--c-intel-bg);">
+      <div class="ds-time" style="background:var(--c-intel);">12:00</div>
+      <div class="ds-body">
+        <div class="ds-name">Donelog Analyst</div>
+        <div class="ds-script">agents/donelog-analyst.js</div>
+        <span class="ds-channel" style="background:var(--lav-100);color:var(--pur-700);">#intel</span>
+        <span class="ds-freq">daily</span>
+      </div>
+    </div>
+
+    <div class="ds-row" style="border-color:var(--c-build-border);background:var(--c-build-bg);">
+      <div class="ds-time" style="background:var(--c-build);">14:00</div>
+      <div class="ds-body">
+        <div class="ds-name">JARVIS Score Queue</div>
+        <div class="ds-script">scripts/score-queue.sh</div>
+        <span class="ds-channel" style="background:var(--lav-100);color:var(--pur-700);">#builds</span>
+        <span style="font-size:10px;color:var(--ink-400);">afternoon check</span>
+        <span class="ds-freq">daily</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;margin:10px 0 6px;padding:0 4px;">
+      <span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-400);">▼ Continuous</span>
+      <span style="flex:1;height:1px;background:var(--lav-200);"></span>
+    </div>
+
+    <div class="ds-row" style="border-color:#E5E7EB;background:#F9FAFB;">
+      <div class="ds-time" style="background:var(--c-util);font-size:10px;">*/5 min</div>
+      <div class="ds-body">
+        <div class="ds-name">Slack Feed Cache</div>
+        <div class="ds-script">scripts/slack-feed-cache.js</div>
+        <span class="ds-channel" style="background:#F3F4F6;color:var(--c-util);border:1px solid #E5E7EB;">War Room</span>
+        <span style="font-size:10px;color:var(--ink-400);">288 runs/day · feeds War Room live Slack feed</span>
+        <span class="ds-freq">every 5 min</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Weekly grid -->
+  <div class="sec-title">Weekly Calendar</div>
+  <div class="week-grid">
+    <div class="wg-header">
+      <div></div>
+      <div class="wg-day-label">MON</div>
+      <div class="wg-day-label">TUE</div>
+      <div class="wg-day-label">WED</div>
+      <div class="wg-day-label">THU</div>
+      <div class="wg-day-label">FRI</div>
+      <div class="wg-day-label">SAT</div>
+      <div class="wg-day-label">SUN</div>
+    </div>
+
+    <!-- 18:00 row -->
+    <div class="wg-row">
+      <div class="wg-time-label">18:00</div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell has-job" style="background:var(--c-intel-bg);border-color:var(--c-intel-border);">
+        <div>
+          <div class="wg-job" style="color:var(--c-intel);">Tech Intel</div>
+          <div class="wg-job-sub" style="color:var(--c-intel);opacity:.7;">14 sources → #intel</div>
+        </div>
+      </div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+    </div>
+
+    <!-- 20:00 row -->
+    <div class="wg-row">
+      <div class="wg-time-label">20:00</div>
+      <div class="wg-cell has-job" style="background:var(--c-comms-bg);border-color:var(--c-comms-border);">
+        <div>
+          <div class="wg-job" style="color:var(--c-comms);">LinkedIn Agent</div>
+          <div class="wg-job-sub" style="color:var(--c-comms);opacity:.7;">draft → #content</div>
+        </div>
+      </div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell" style="background:var(--lav-50);border-color:var(--lav-200);">
+        <div style="display:flex;flex-direction:column;gap:4px;width:100%;">
+          <div>
+            <div class="wg-job" style="color:var(--c-intel);font-size:9.5px;">Weekly Review</div>
+          </div>
+          <div style="height:1px;background:var(--lav-200);width:100%;"></div>
+          <div>
+            <div class="wg-job" style="color:var(--c-fin);font-size:9.5px;">Financial Analyst</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Biweekly note -->
+    <div class="wg-row" style="margin-top:8px;">
+      <div class="wg-time-label" style="font-size:9px;">00:00<br><span style="color:var(--c-data);">1st+16th</span></div>
+      <div class="wg-cell has-job" style="grid-column:2/-1;background:var(--c-data-bg);border-color:var(--c-data-border);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="wg-job" style="color:var(--c-data);">TMDB Delta Load</div>
+          <div style="font-size:10px;color:var(--ink-400);">Fires on the 1st and 16th of every month at midnight · <code>load-tmdb-deltas.js</code></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Full table -->
+  <div class="sec-title">Complete Job Registry</div>
+  <div style="background:var(--white);border:1px solid var(--lav-200);border-radius:12px;box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:40px;">
+    <table class="job-table">
+      <thead>
+        <tr>
+          <th>Cron expression</th>
+          <th>Job name</th>
+          <th>Script</th>
+          <th>Category</th>
+          <th>Output / channel</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="jt-cron">0 0 * * *</td>
+          <td style="font-weight:600;">Nightly Build</td>
+          <td class="jt-script">scripts/sasmaster-build.sh</td>
+          <td><span class="cat-pill" style="background:var(--c-build-bg);color:var(--c-build);">Build/Ops</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#builds · retry+escalate on fail</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">0 0 1,16 * *</td>
+          <td style="font-weight:600;">TMDB Delta Load</td>
+          <td class="jt-script">scripts/load-tmdb-deltas.js</td>
+          <td><span class="cat-pill" style="background:var(--c-data-bg);color:var(--c-data);">Data</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">S3 tmdb_dev/deltas/</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">0 2 * * *</td>
+          <td style="font-weight:600;">TMDB Bulk Load</td>
+          <td class="jt-script">scripts/load-tmdb-to-s3.js all</td>
+          <td><span class="cat-pill" style="background:var(--c-data-bg);color:var(--c-data);">Data</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">S3 tmdb_dev/</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">0 5 * * *</td>
+          <td style="font-weight:600;">Daily Briefing</td>
+          <td class="jt-script">scripts/daily-briefing.sh</td>
+          <td><span class="cat-pill" style="background:var(--c-comms-bg);color:var(--c-comms);">Comms</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#builds</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">0 5 * * *</td>
+          <td style="font-weight:600;">TMDB Daily Agent</td>
+          <td class="jt-script">agents/tmdb-daily-agent.js</td>
+          <td><span class="cat-pill" style="background:var(--c-data-bg);color:var(--c-data);">Data</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#intel</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">2 5 * * *</td>
+          <td style="font-weight:600;">Daily Visuals</td>
+          <td class="jt-script">scripts/daily-visuals.sh</td>
+          <td><span class="cat-pill" style="background:var(--c-comms-bg);color:var(--c-comms);">Comms</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#builds · board + arch PNGs</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">0 6 * * *</td>
+          <td style="font-weight:600;">Media Intel Agent</td>
+          <td class="jt-script">agents/media-intel-agent.js</td>
+          <td><span class="cat-pill" style="background:var(--c-intel-bg);color:var(--c-intel);">Intel</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#intel · 13 sources</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">5 6 * * *</td>
+          <td style="font-weight:600;">Morning Package</td>
+          <td class="jt-script">scripts/morning-package.sh</td>
+          <td><span class="cat-pill" style="background:var(--c-comms-bg);color:var(--c-comms);">Comms</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#builds</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">30 6 * * *</td>
+          <td style="font-weight:600;">SEC EDGAR Scraper</td>
+          <td class="jt-script">agents/edgar-scraper.js</td>
+          <td><span class="cat-pill" style="background:var(--c-fin-bg);color:var(--c-fin);">Finance</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#intel · 10 media companies</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">0 7 * * *</td>
+          <td style="font-weight:600;">JARVIS Score Queue (AM)</td>
+          <td class="jt-script">scripts/score-queue.sh</td>
+          <td><span class="cat-pill" style="background:var(--c-build-bg);color:var(--c-build);">Build/Ops</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#builds · fires !build if HIGH items in TASKS.md</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">0 12 * * *</td>
+          <td style="font-weight:600;">Donelog Analyst</td>
+          <td class="jt-script">agents/donelog-analyst.js</td>
+          <td><span class="cat-pill" style="background:var(--c-intel-bg);color:var(--c-intel);">Intel</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#intel</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">0 14 * * *</td>
+          <td style="font-weight:600;">JARVIS Score Queue (PM)</td>
+          <td class="jt-script">scripts/score-queue.sh</td>
+          <td><span class="cat-pill" style="background:var(--c-build-bg);color:var(--c-build);">Build/Ops</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#builds · afternoon check</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">0 18 * * 5</td>
+          <td style="font-weight:600;">Tech Intel Agent</td>
+          <td class="jt-script">scripts/agents/tech-intel-agent.js</td>
+          <td><span class="cat-pill" style="background:var(--c-intel-bg);color:var(--c-intel);">Intel</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#intel · Fri 18:00 · 14 sources</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">0 20 * * 1</td>
+          <td style="font-weight:600;">LinkedIn Agent</td>
+          <td class="jt-script">agents/linkedin-agent.js</td>
+          <td><span class="cat-pill" style="background:var(--c-comms-bg);color:var(--c-comms);">Comms</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#content · Mon 20:00</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">0 20 * * 0</td>
+          <td style="font-weight:600;">Weekly Review Agent</td>
+          <td class="jt-script">agents/weekly-review-agent.js</td>
+          <td><span class="cat-pill" style="background:var(--c-intel-bg);color:var(--c-intel);">Intel</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">Sun 20:00</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">0 20 * * 0</td>
+          <td style="font-weight:600;">Financial Analyst</td>
+          <td class="jt-script">agents/financial-analyst.js</td>
+          <td><span class="cat-pill" style="background:var(--c-fin-bg);color:var(--c-fin);">Finance</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">Sun 20:00</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">*/5 * * * *</td>
+          <td style="font-weight:600;">Slack Feed Cache</td>
+          <td class="jt-script">scripts/slack-feed-cache.js</td>
+          <td><span class="cat-pill" style="background:#F9FAFB;color:var(--c-util);">Utility</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">War Room live feed · 288×/day</td>
+        </tr>
+        <tr style="opacity:.45;">
+          <td class="jt-cron" style="text-decoration:line-through;">7 8 21 4 *</td>
+          <td style="font-weight:600;text-decoration:line-through;">Finish Future of TV</td>
+          <td class="jt-script" style="text-decoration:line-through;">agents/finish-future-of-tv.js</td>
+          <td><span class="cat-pill" style="background:#F3F4F6;color:#9CA3AF;">One-shot</span></td>
+          <td style="font-size:11px;color:var(--ink-400);">Fired 2026-04-21 — already ran</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    SaSMaster Cron Schedule Visualizer · Sourced from live crontab · Updated 2026-04-22 · Maintained by Claude Code
+  </div>
+
+</div>
+
+<script>
+  // Set current-time indicator on the 24h track
+  function updateNowLine() {
+    const now = new Date();
+    const mins = now.getHours() * 60 + now.getMinutes();
+    const pct = (mins / 1440) * 100;
+    const el = document.getElementById('tl-now');
+    if (el) el.style.left = pct + '%';
+  }
+  updateNowLine();
+  setInterval(updateNowLine, 60000);
+
+  // Highlight today's column in weekly grid
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const todayIdx = new Date().getDay(); // 0=Sun
+  const labels = document.querySelectorAll('.wg-day-label');
+  labels.forEach((l, i) => {
+    if (l.textContent.trim() === days[todayIdx]) l.classList.add('today');
+  });
+</script>
+</body>
+</html>
