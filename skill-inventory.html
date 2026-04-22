@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>SaSMaster — Skill Inventory v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lav-50:#FAF8FF;--lav-100:#F3EEFC;--lav-150:#EDE4FA;--lav-200:#E8DEFA;
+    --lav-300:#D4C4F3;--lav-400:#B79FEA;
+    --pur-500:#8B5CF6;--pur-600:#7C3AED;--pur-700:#6D28D9;--pur-900:#4C1D95;
+    --ink-900:#1E1B2E;--ink-800:#29253E;--ink-700:#3B345A;--ink-500:#6B6486;--ink-400:#9690AE;
+    --ok:#059669;--ok-bg:#D1FAE5;--ok-border:#A7F3D0;
+    --warn:#D97706;--warn-bg:#FEF3C7;
+    --info:#0EA5E9;--info-bg:#E0F2FE;
+    --white:#FFFFFF;
+    --shadow-sm:0 1px 2px rgba(76,29,149,0.06);
+    --shadow-md:0 4px 12px rgba(76,29,149,0.08);
+    --shadow-lg:0 8px 24px rgba(76,29,149,0.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{
+    font-family:'Inter',-apple-system,sans-serif;
+    background:radial-gradient(ellipse at top left,#F5F0FF 0%,transparent 60%),
+      radial-gradient(ellipse at bottom right,#FDF2F8 0%,transparent 55%),
+      linear-gradient(180deg,#FAF8FF 0%,#FFFFFF 100%);
+    color:var(--ink-900);-webkit-font-smoothing:antialiased;font-size:13px;line-height:1.45;min-height:100vh;
+  }
+  code{font-family:'JetBrains Mono',monospace;font-size:11px;}
+
+  /* ── Header ── */
+  .page-header{
+    background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+    padding:32px 40px 28px;color:white;position:relative;overflow:hidden;
+  }
+  .page-header::before{
+    content:'';position:absolute;top:-40px;right:-40px;width:280px;height:280px;border-radius:50%;
+    background:radial-gradient(circle,rgba(139,92,246,0.2) 0%,transparent 70%);pointer-events:none;
+  }
+  .page-header::after{
+    content:'';position:absolute;bottom:-60px;left:30%;width:200px;height:200px;border-radius:50%;
+    background:radial-gradient(circle,rgba(96,165,250,0.1) 0%,transparent 70%);pointer-events:none;
+  }
+  .eyebrow{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#94A3B8;margin-bottom:8px;}
+  .page-header h1{font-size:28px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px;}
+  .page-header .sub{font-size:13px;color:#94A3B8;margin-top:4px;}
+  .badge-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.04em;}
+  .badge-live{background:rgba(5,150,105,.25);color:#6EE7B7;border:1px solid rgba(5,150,105,.4);}
+  .badge-info{background:rgba(14,165,233,.2);color:#BAE6FD;border:1px solid rgba(14,165,233,.35);}
+  .badge-pur{background:rgba(139,92,246,.2);color:#C4B5FD;border:1px solid rgba(139,92,246,.35);}
+  .badge-amber{background:rgba(245,158,11,.2);color:#FDE68A;border:1px solid rgba(245,158,11,.35);}
+  .dot{width:6px;height:6px;border-radius:50%;background:#34D399;animation:pulse 2s infinite;flex-shrink:0;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  /* ── Canvas ── */
+  .canvas{max-width:1120px;margin:0 auto;padding:36px 32px 80px;}
+
+  /* ── Stats bar ── */
+  .stats-bar{
+    background:#0F172A;border-radius:10px;padding:14px 20px;
+    display:flex;align-items:center;gap:24px;margin-bottom:36px;flex-wrap:wrap;
+    border:1px solid rgba(139,92,246,0.2);
+  }
+  .sb-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#CBD5E1;}
+  .sb-item strong{color:#C4B5FD;font-size:18px;font-weight:700;}
+  .sb-item span{font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:#64748B;}
+  .sb-sep{width:1px;height:28px;background:#1E293B;}
+
+  /* ── Section title ── */
+  .sec-title{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pur-600);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .sec-title::after{content:'';flex:1;height:1px;background:var(--lav-200);}
+
+  /* ── Filter tabs ── */
+  .filter-row{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap;}
+  .filter-btn{
+    padding:5px 14px;border-radius:20px;border:1.5px solid var(--lav-200);
+    background:white;color:var(--ink-500);font-size:11px;font-weight:600;cursor:pointer;
+    transition:all .15s;white-space:nowrap;
+  }
+  .filter-btn:hover,.filter-btn.active{
+    background:var(--pur-600);border-color:var(--pur-600);color:white;
+  }
+
+  /* ── Skill grid ── */
+  .skill-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;
+    margin-bottom:48px;
+  }
+
+  /* ── Skill card ── */
+  .skill-card{
+    background:white;border-radius:14px;border:1.5px solid var(--lav-200);
+    box-shadow:var(--shadow-md);overflow:hidden;display:flex;flex-direction:column;
+    transition:transform .15s,box-shadow .15s;
+  }
+  .skill-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);}
+  .skill-card.hidden{display:none;}
+
+  .sc-stripe{height:3px;}
+  .cat-sasmaster .sc-stripe{background:linear-gradient(90deg,#7C3AED,#4F46E5);}
+  .cat-engineering .sc-stripe{background:linear-gradient(90deg,#0EA5E9,#06B6D4);}
+  .cat-emba .sc-stripe{background:linear-gradient(90deg,#059669,#10B981);}
+  .cat-personal .sc-stripe{background:linear-gradient(90deg,#F59E0B,#EF4444);}
+  .cat-consulting .sc-stripe{background:linear-gradient(90deg,#EC4899,#F43F5E);}
+
+  .sc-header{padding:14px 16px 10px;border-bottom:1px solid var(--lav-100);}
+  .sc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}
+  .sc-name{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--ink-900);}
+  .sc-cat{
+    font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:2px 8px;border-radius:4px;white-space:nowrap;
+  }
+  .cat-sasmaster .sc-cat{background:rgba(124,58,237,.1);color:#7C3AED;}
+  .cat-engineering .sc-cat{background:rgba(14,165,233,.1);color:#0369A1;}
+  .cat-emba .sc-cat{background:rgba(5,150,105,.1);color:#065F46;}
+  .cat-personal .sc-cat{background:rgba(245,158,11,.1);color:#92400E;}
+  .cat-consulting .sc-cat{background:rgba(236,72,153,.1);color:#9D174D;}
+
+  .sc-desc{font-size:11.5px;color:var(--ink-500);line-height:1.5;}
+
+  .sc-body{padding:12px 16px;flex:1;}
+  .sc-triggers{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+  .trigger-tag{
+    font-size:10px;padding:2px 7px;border-radius:4px;
+    background:var(--lav-50);border:1px solid var(--lav-200);color:var(--pur-700);
+    font-weight:500;
+  }
+
+  .sc-footer{
+    padding:8px 16px;background:var(--lav-50);border-top:1px solid var(--lav-100);
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .sc-meta{font-size:10px;color:var(--ink-400);display:flex;align-items:center;gap:12px;}
+  .sc-lines{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--ink-700);}
+  .sc-sync{
+    font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 8px;border-radius:4px;
+    background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-border);
+  }
+
+  /* ── Evolution pipeline ── */
+  .pipeline-section{margin-bottom:48px;}
+  .pipeline-box{
+    background:white;border-radius:14px;border:1.5px solid var(--lav-200);
+    box-shadow:var(--shadow-md);padding:24px 28px;
+  }
+  .pipeline-title{font-size:14px;font-weight:700;color:var(--ink-900);margin-bottom:6px;}
+  .pipeline-sub{font-size:12px;color:var(--ink-500);margin-bottom:24px;}
+  .pipeline-flow{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative;
+  }
+  .pipeline-flow::before{
+    content:'';position:absolute;top:28px;left:calc(16.67% + 16px);
+    width:calc(66.67% - 32px);height:2px;
+    background:linear-gradient(90deg,var(--pur-500),#06B6D4);
+    z-index:0;
+  }
+  .pf-step{
+    display:flex;flex-direction:column;align-items:center;text-align:center;
+    position:relative;z-index:1;padding:0 12px;
+  }
+  .pf-icon{
+    width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-size:22px;margin-bottom:12px;border:2px solid;
+  }
+  .pf-step:nth-child(1) .pf-icon{background:rgba(124,58,237,.1);border-color:rgba(124,58,237,.3);}
+  .pf-step:nth-child(2) .pf-icon{background:rgba(14,165,233,.1);border-color:rgba(14,165,233,.3);}
+  .pf-step:nth-child(3) .pf-icon{background:rgba(5,150,105,.1);border-color:rgba(5,150,105,.3);}
+  .pf-label{font-size:12px;font-weight:700;color:var(--ink-800);margin-bottom:4px;}
+  .pf-detail{font-size:11px;color:var(--ink-500);line-height:1.5;}
+  .pf-code{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--pur-600);
+    background:var(--lav-50);border:1px solid var(--lav-200);border-radius:4px;
+    padding:2px 6px;margin-top:4px;display:inline-block;}
+
+  /* ── Coverage table ── */
+  .coverage-table{width:100%;border-collapse:collapse;font-size:12px;}
+  .coverage-table th{
+    font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-400);padding:8px 12px;text-align:left;
+    border-bottom:2px solid var(--lav-200);background:var(--lav-50);
+  }
+  .coverage-table td{padding:10px 12px;border-bottom:1px solid var(--lav-100);vertical-align:top;}
+  .coverage-table tr:last-child td{border-bottom:none;}
+  .coverage-table tr:hover td{background:var(--lav-50);}
+
+  td.skill-name-cell{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--ink-900);white-space:nowrap;}
+  td.desc-cell{color:var(--ink-500);line-height:1.5;}
+  td.lines-cell{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--ink-700);text-align:right;white-space:nowrap;}
+  td.sync-cell{text-align:center;}
+  .sync-both{
+    display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;
+    background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-border);
+    white-space:nowrap;
+  }
+  .sync-local{
+    display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px;
+    background:var(--warn-bg);color:var(--warn);border:1px solid #FDE68A;
+    white-space:nowrap;
+  }
+
+  /* ── Responsive ── */
+  @media(max-width:700px){
+    .canvas{padding:20px 16px 60px;}
+    .skill-grid{grid-template-columns:1fr;}
+    .pipeline-flow{grid-template-columns:1fr;gap:20px;}
+    .pipeline-flow::before{display:none;}
+    .stats-bar{gap:12px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div class="page-header">
+  <div class="eyebrow">SaSMaster Intelligence Platform</div>
+  <h1>🧠 Skill Inventory — v1</h1>
+  <div class="sub">Claude Code personal skill library · synced across claude.ai + local · self-evolving via post-build capture</div>
+  <div class="badge-row">
+    <span class="badge badge-live"><span class="dot"></span>13 Skills Active</span>
+    <span class="badge badge-pur">5 SaSMaster Domain</span>
+    <span class="badge badge-info">3 Engineering</span>
+    <span class="badge badge-amber">Friday Auto-Review Cron</span>
+  </div>
+</div>
+
+<div class="canvas">
+
+  <!-- ── Stats bar ── -->
+  <div class="stats-bar">
+    <div class="sb-item"><strong>13</strong><span>Total Skills</span></div>
+    <div class="sb-sep"></div>
+    <div class="sb-item"><strong>12</strong><span>Synced Both</span></div>
+    <div class="sb-sep"></div>
+    <div class="sb-item"><strong>2305</strong><span>Lines of Knowledge</span></div>
+    <div class="sb-sep"></div>
+    <div class="sb-item"><strong>5</strong><span>SaSMaster Domain</span></div>
+    <div class="sb-sep"></div>
+    <div class="sb-item"><strong>Fri 5:50PM</strong><span>Auto-Review Cron</span></div>
+    <div class="sb-sep"></div>
+    <div class="sb-item"><strong>Post-Build</strong><span>Learnings Capture</span></div>
+  </div>
+
+  <!-- ── Filter ── -->
+  <div class="sec-title">Skills</div>
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="filterSkills('all',this)">All (13)</button>
+    <button class="filter-btn" onclick="filterSkills('sasmaster',this)">SaSMaster Domain (5)</button>
+    <button class="filter-btn" onclick="filterSkills('engineering',this)">Engineering (3)</button>
+    <button class="filter-btn" onclick="filterSkills('emba',this)">EMBA / Academia (2)</button>
+    <button class="filter-btn" onclick="filterSkills('consulting',this)">Consulting (1)</button>
+    <button class="filter-btn" onclick="filterSkills('personal',this)">Personal (2)</button>
+  </div>
+
+  <!-- ── Skill grid ── -->
+  <div class="skill-grid" id="skillGrid">
+
+    <!-- SaSMaster Domain -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">jarvis-ops</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">SaSMaster operational brain — JARVIS commands, TASKS.md schema, async build loop, Slack routing, War Room status, cron schedule, S3 paths, agent architecture. Load at session start.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">!status</span>
+          <span class="trigger-tag">!approve</span>
+          <span class="trigger-tag">TASKS.md</span>
+          <span class="trigger-tag">JARVIS</span>
+          <span class="trigger-tag">async-prompt</span>
+          <span class="trigger-tag">Command API</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">190 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">scraper-engineer</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">11 direct scrapers + 4 RSG bridges. Rate limiting per-source (TMDB 40rps, EDGAR 10rps, EIDR ≤5rps), async patterns, retry/backoff, lockfile guards, checkpoint patterns, NDJSON output, Slack pings.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">scraper</span>
+          <span class="trigger-tag">TMDB</span>
+          <span class="trigger-tag">EDGAR</span>
+          <span class="trigger-tag">rate limit</span>
+          <span class="trigger-tag">NDJSON</span>
+          <span class="trigger-tag">ingestion</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">190 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">duckdb-parquet</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">DuckDB over S3 via httpfs, ZSTD Parquet writes, date-partitioned glob patterns, partition pruning, JOIN strategies (broadcast/merge), Arrow memory limits, NDJSON vs Parquet tradeoffs, schema evolution.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">DuckDB</span>
+          <span class="trigger-tag">Parquet</span>
+          <span class="trigger-tag">S3 query</span>
+          <span class="trigger-tag">ZSTD</span>
+          <span class="trigger-tag">httpfs</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">147 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">media-domain</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">TMDB/IMDB schema quirks, tconst format, Nielsen/Gracenote data structures, EIDR backfill logic, Parent Key hierarchy, 16-company EDGAR map, join surfaces across all data sources.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">tconst</span>
+          <span class="trigger-tag">Parent Key</span>
+          <span class="trigger-tag">EIDR</span>
+          <span class="trigger-tag">Nielsen</span>
+          <span class="trigger-tag">Gracenote</span>
+          <span class="trigger-tag">TMDB ID</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">150 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">s3-data-architect</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">Locked S3 path conventions, IAM least-privilege, credential hygiene (always from .env), NDJSON→Parquet pipeline, additive-only write discipline, state checkpoint patterns, versioned path schema evolution.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">S3 path</span>
+          <span class="trigger-tag">IAM</span>
+          <span class="trigger-tag">boto3</span>
+          <span class="trigger-tag">NDJSON→Parquet</span>
+          <span class="trigger-tag">additive writes</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">183 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync" style="background:#FEF3C7;color:#D97706;border-color:#FDE68A;">⚠ Upload to claude.ai</span>
+      </div>
+    </div>
+
+    <!-- Engineering -->
+    <div class="skill-card cat-engineering" data-cat="engineering">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">fullstack-architect</span>
+          <span class="sc-cat">Engineering</span>
+        </div>
+        <div class="sc-desc">Engineering constitution for all code — React/TypeScript, Fastify/FastAPI, Snowflake/Databricks, AWS Bedrock GenAI, ETL two-tier architecture, Exchange marketplace module. Use for every code task without exception.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">React component</span>
+          <span class="trigger-tag">API</span>
+          <span class="trigger-tag">ETL</span>
+          <span class="trigger-tag">GenAI</span>
+          <span class="trigger-tag">Exchange</span>
+          <span class="trigger-tag">any code task</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">286 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <div class="skill-card cat-engineering" data-cat="engineering">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">uiux-mastery</span>
+          <span class="sc-cat">Engineering</span>
+        </div>
+        <div class="sc-desc">Audit, diagnose, and prescribe UI/UX improvements for Frankenstein codebases. Always produces a polished, interactive HTML visual prototype. Phases: recon → audit → diagnosis → recommendations → prototype.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">improve UI</span>
+          <span class="trigger-tag">design system</span>
+          <span class="trigger-tag">UX review</span>
+          <span class="trigger-tag">inconsistent styles</span>
+          <span class="trigger-tag">visual prototype</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">235 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <div class="skill-card cat-engineering" data-cat="engineering">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">no-finger-prints</span>
+          <span class="sc-cat">Engineering</span>
+        </div>
+        <div class="sc-desc">Protocol for accessing production systems (Snowflake, Databricks, RSG API bridge) during dev without leaving unauthorized traces. Read-only discipline, throttling, abstraction layer, and exit ramp design.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">prod access</span>
+          <span class="trigger-tag">RSG bridge</span>
+          <span class="trigger-tag">dev against live data</span>
+          <span class="trigger-tag">exit ramp</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">48 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <!-- EMBA -->
+    <div class="skill-card cat-emba" data-cat="emba">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">emba-analyst</span>
+          <span class="sc-cat">EMBA / Academia</span>
+        </div>
+        <div class="sc-desc">UCLA-NUS Global EMBA Intake 22 support. Porter's Five Forces, BCG Matrix, SWOT, Blue Ocean, VRIO, case method protocol, finance ratios, DCF/WACC, OB frameworks, Perception & Bias module.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">case study</span>
+          <span class="trigger-tag">Porter's Five Forces</span>
+          <span class="trigger-tag">DCF</span>
+          <span class="trigger-tag">EMBA</span>
+          <span class="trigger-tag">NUS/UCLA</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">188 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <div class="skill-card cat-emba" data-cat="emba">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">math-mastery</span>
+          <span class="sc-cat">EMBA / Academia</span>
+        </div>
+        <div class="sc-desc">Coursework-first math solver. Finance TVM (PV, FV, annuities, NPV, IRR), statistics (hypothesis tests, regression), probability, calculus, algebra. Python/Decimal for precision. Full working shown, final answer boxed.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">TVM</span>
+          <span class="trigger-tag">annuity</span>
+          <span class="trigger-tag">hypothesis test</span>
+          <span class="trigger-tag">show working</span>
+          <span class="trigger-tag">exam prep</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">117 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <!-- Consulting -->
+    <div class="skill-card cat-consulting" data-cat="consulting">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">sow-consultant</span>
+          <span class="sc-cat">Consulting</span>
+        </div>
+        <div class="sc-desc">SOW drafting, retainer agreements, scope definitions, milestone structures, IP clauses, change order templates. Grounded in Shiv's positioning as senior media analytics + AI/ML consultant. Gray Matter engagement reference included.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">SOW</span>
+          <span class="trigger-tag">retainer</span>
+          <span class="trigger-tag">scope</span>
+          <span class="trigger-tag">milestone</span>
+          <span class="trigger-tag">change order</span>
+          <span class="trigger-tag">Gray Matter</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">211 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <!-- Personal -->
+    <div class="skill-card cat-personal" data-cat="personal">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">linkedin-thought-leader</span>
+          <span class="sc-cat">Personal</span>
+        </div>
+        <div class="sc-desc">LinkedIn content in Shiv's voice — direct, analytically grounded, media-industry insider. 5 post formats, article structure, topic bank, never-say list, announcement templates, posting cadence. Never corporate-bland.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">LinkedIn post</span>
+          <span class="trigger-tag">thought leadership</span>
+          <span class="trigger-tag">article</span>
+          <span class="trigger-tag">SaSMaster milestone</span>
+          <span class="trigger-tag">announcement</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">169 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <div class="skill-card cat-personal" data-cat="personal">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">ableton-sme</span>
+          <span class="sc-cat">Personal</span>
+        </div>
+        <div class="sc-desc">World-class Ableton Live expert. All native instruments (Drift, Wavetable, Operator, Mangle), Session/Arrangement workflows, MIDI/automation, mixing/mastering, macOS M1 plugin support (NI, Omnisphere, Waves, iLok/eLicenser).</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">Ableton</span>
+          <span class="trigger-tag">sound design</span>
+          <span class="trigger-tag">mixing</span>
+          <span class="trigger-tag">VST plugin</span>
+          <span class="trigger-tag">MIDI</span>
+          <span class="trigger-tag">mastering</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">191 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+  </div><!-- /skill-grid -->
+
+  <!-- ── Evolution Pipeline ── -->
+  <div class="pipeline-section">
+    <div class="sec-title">Skill Evolution Pipeline</div>
+    <div class="pipeline-box">
+      <div class="pipeline-title">Self-Evolving Skill System</div>
+      <div class="pipeline-sub">Skills improve automatically after every successful build and via Friday weekly review</div>
+      <div class="pipeline-flow">
+
+        <div class="pf-step">
+          <div class="pf-icon">🏗️</div>
+          <div class="pf-label">Post-Build Capture</div>
+          <div class="pf-detail">After every successful nightly build, <code>capture-learnings.sh</code> scans <code>DONE_LOG.md</code> for <code>#skill-worthy</code> entries and appends timestamped lessons to the relevant skill's <code>references/learnings.md</code></div>
+          <div class="pf-code">capture-learnings.sh</div>
+        </div>
+
+        <div class="pf-step">
+          <div class="pf-icon">📅</div>
+          <div class="pf-label">Friday Review Cron</div>
+          <div class="pf-detail">Every Friday at 5:50PM, <code>skill-review.sh</code> loops all 13 skills, runs Claude on each with recent TASKS.md completions + CLAUDE_MEMORY.md context, and edits <code>skill.md</code> with new patterns. Pairs with 6PM Tech Intel.</div>
+          <div class="pf-code">50 17 * * 5</div>
+        </div>
+
+        <div class="pf-step">
+          <div class="pf-icon">✨</div>
+          <div class="pf-label">Async Build Loop</div>
+          <div class="pf-detail">When Claude marks a task <code>[DONE]</code> tagged <code>#skill-worthy</code>, async-prompt Step 5 instructs it to write a structured lesson (Pattern / Context / Anti-pattern) and edit <code>skill.md</code> directly if the learning is core.</div>
+          <div class="pf-code">async-prompt.md §5</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Full coverage table ── -->
+  <div class="sec-title">Full Skill Registry</div>
+  <div style="background:white;border-radius:14px;border:1.5px solid var(--lav-200);box-shadow:var(--shadow-md);overflow:hidden;">
+    <table class="coverage-table">
+      <thead>
+        <tr>
+          <th>Skill</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th style="text-align:right;">Lines</th>
+          <th style="text-align:center;">Sync</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="skill-name-cell">jarvis-ops</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">JARVIS commands, TASKS.md schema, async build loop, Slack routing, Command API, cron schedule</td><td class="lines-cell">190</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">scraper-engineer</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">11 scrapers + 4 RSG bridges, rate limits, retry/backoff, lockfile/checkpoint patterns</td><td class="lines-cell">190</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">s3-data-architect</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Locked S3 paths, IAM least-privilege, credential hygiene, NDJSON→Parquet pipeline, additive writes</td><td class="lines-cell">183</td><td class="sync-cell"><span class="sync-local">⚠ Local only</span></td></tr>
+        <tr><td class="skill-name-cell">media-domain</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">TMDB/IMDB schemas, tconst, Parent Key, EIDR, Nielsen/Gracenote, EDGAR 16-company map</td><td class="lines-cell">150</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">duckdb-parquet</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">DuckDB/S3 httpfs, ZSTD Parquet, glob patterns, partition pruning, JOIN strategies, schema evolution</td><td class="lines-cell">147</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">fullstack-architect</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">Engineering constitution — React/TS, Fastify/FastAPI, Snowflake, Bedrock GenAI, Exchange marketplace</td><td class="lines-cell">286</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">uiux-mastery</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">Frankenstein UI audit → diagnosis → prototype. Always renders polished interactive HTML visual.</td><td class="lines-cell">235</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">no-finger-prints</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">Read-only prod access protocol — throttling, abstraction layer, exit ramp by design</td><td class="lines-cell">48</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">emba-analyst</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(5,150,105,.1);color:#065F46;font-size:9px;font-weight:700;text-transform:uppercase;">EMBA</span></td><td class="desc-cell">UCLA-NUS Intake 22 — Porter's Five Forces, BCG, SWOT, Blue Ocean, VRIO, case method, DCF/WACC</td><td class="lines-cell">188</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">math-mastery</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(5,150,105,.1);color:#065F46;font-size:9px;font-weight:700;text-transform:uppercase;">EMBA</span></td><td class="desc-cell">Finance TVM, statistics, probability, calculus, algebra — full working, Python precision, answer boxed</td><td class="lines-cell">117</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">sow-consultant</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(236,72,153,.1);color:#9D174D;font-size:9px;font-weight:700;text-transform:uppercase;">Consulting</span></td><td class="desc-cell">SOW drafting, retainer structures, IP clauses, change order templates — Gray Matter engagement reference</td><td class="lines-cell">211</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">linkedin-thought-leader</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(245,158,11,.1);color:#92400E;font-size:9px;font-weight:700;text-transform:uppercase;">Personal</span></td><td class="desc-cell">LinkedIn in Shiv's voice — contrarian takes, builder's log, data point drops, post formats, topic bank</td><td class="lines-cell">169</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">ableton-sme</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(245,158,11,.1);color:#92400E;font-size:9px;font-weight:700;text-transform:uppercase;">Personal</span></td><td class="desc-cell">Ableton Live expert — synthesis, Session/Arrangement, MIDI/automation, mixing/mastering, macOS M1 plugins</td><td class="lines-cell">191</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="text-align:center;margin-top:32px;font-size:11px;color:var(--ink-400);">
+    SaSMaster Intelligence Platform · Skill Inventory v1 · Generated Apr 22, 2026 · 13 skills · 2,305 lines
+  </div>
+
+</div><!-- /canvas -->
+
+<script>
+function filterSkills(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.skill-card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+}
+</script>
+</body>
+</html>
