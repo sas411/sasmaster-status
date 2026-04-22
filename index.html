@@ -474,6 +474,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13
 <section>
   <div class="sh">
     <span class="sn">01</span><span class="st2">Agent Fleet</span><div class="sdiv"></div>
+    <div style="display:flex;align-items:center;gap:5px;margin-right:8px">
+      <button onclick="setFleetView('grid')" id="vg" style="font-family:var(--mono);font-size:8px;padding:3px 10px;border-radius:3px;border:1px solid var(--purple);background:var(--purple);color:#fff;cursor:pointer;font-weight:600;letter-spacing:.08em">GRID</button>
+      <button onclick="setFleetView('list')" id="vl" style="font-family:var(--mono);font-size:8px;padding:3px 10px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-weight:600;letter-spacing:.08em">LIST</button>
+    </div>
     <span class="sr" id="fleet-count">&mdash;</span>
   </div>
   <div class="fleet" id="fleet-grid"></div>
@@ -802,22 +806,81 @@ function renderTicker(activity) {
   }).join('');
 }
 
+let fleetView = 'grid';
+
+const FLEET_STATUS_CLASS = { healthy: 'ok', routing: 'route', error: 'run', never: 'que' };
+const FLEET_STATUS_LABEL = { healthy: 'OK', routing: 'ROUTING', error: 'ERR', never: 'NEVER' };
+const FLEET_JOB_MAP = { 'Media Intel': 'media-intel', 'TMDB Trending': 'tmdb-load', 'LinkedIn Agent': 'linkedin-agent' };
+const FLEET_CHANNEL_MAP = {
+  'JARVIS': '24/7 daemon',
+  'Media Intel': '#sasmaster-intel',
+  'TMDB Trending': '#sasmaster-content',
+  'DoneLog Analyst': '#sasmaster-builds',
+  'LinkedIn Agent': '#sasmaster-content',
+};
+
+function setFleetView(mode) {
+  fleetView = mode;
+  const vg = document.getElementById('vg');
+  const vl = document.getElementById('vl');
+  if (vg && vl) {
+    const active = (mode === 'grid') ? vg : vl;
+    const inactive = (mode === 'grid') ? vl : vg;
+    active.style.background = 'var(--purple)'; active.style.color = '#fff'; active.style.borderColor = 'var(--purple)';
+    inactive.style.background = 'transparent'; inactive.style.color = 'var(--muted)'; inactive.style.borderColor = 'var(--border)';
+  }
+  if (window._lastStatus) renderFleet(window._lastStatus.agents || []);
+}
+window.setFleetView = setFleetView;
+
 function renderFleet(agents) {
-  const STATUS_CLASS = { healthy: 'ok', routing: 'route', error: 'run', never: 'que' };
-  const STATUS_LABEL = { healthy: 'OK', routing: 'ROUTING', error: 'ERR', never: 'NEVER' };
-  document.getElementById('fleet-count').textContent = (agents || []).filter(a => a.status === 'healthy').length + '/' + (agents || []).length + ' OK · click to expand';
-  const JOB_MAP = { 'Media Intel': 'media-intel', 'TMDB Trending': 'tmdb-load', 'LinkedIn Agent': 'linkedin-agent' };
-  const CHANNEL_MAP = {
-    'JARVIS': '24/7 daemon',
-    'Media Intel': '#sasmaster-intel',
-    'TMDB Trending': '#sasmaster-content',
-    'DoneLog Analyst': '#sasmaster-builds',
-    'LinkedIn Agent': '#sasmaster-content',
-  };
-  document.getElementById('fleet-grid').innerHTML = (agents || []).map(a => {
-    const cls = STATUS_CLASS[a.status] || 'ok';
-    const label = STATUS_LABEL[a.status] || (a.status || 'OK').toUpperCase();
-    const jobId = JOB_MAP[a.name] || '';
+  document.getElementById('fleet-count').textContent = (agents || []).filter(a => a.status === 'healthy').length + '/' + (agents || []).length + ' OK · ' + (fleetView === 'grid' ? 'click card to expand' : 'compact list view');
+
+  const el = document.getElementById('fleet-grid');
+  if (!el) return;
+
+  if (fleetView === 'list') {
+    el.className = '';
+    el.style.display = 'block';
+    el.style.background = 'var(--card)';
+    el.style.border = '1px solid var(--border)';
+    el.style.borderRadius = 'var(--r)';
+    el.style.overflow = 'hidden';
+    el.innerHTML = '<div style="display:grid;grid-template-columns:22px 1fr 80px 90px 90px 150px 130px;gap:10px;padding:8px 14px;background:var(--bg);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:8px;color:var(--muted);letter-spacing:.08em;font-weight:600">'
+      +   '<span></span><span>AGENT</span><span>STATUS</span><span>LAST</span><span>NEXT</span><span>CHANNEL</span><span style="text-align:right">ACTIONS</span>'
+      + '</div>'
+      + (agents || []).map(a => {
+          const cls = FLEET_STATUS_CLASS[a.status] || 'ok';
+          const label = FLEET_STATUS_LABEL[a.status] || (a.status || 'OK').toUpperCase();
+          const jobId = FLEET_JOB_MAP[a.name] || '';
+          const canRun = !!jobId;
+          return '<div style="display:grid;grid-template-columns:22px 1fr 80px 90px 90px 150px 130px;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border-light);align-items:center;transition:background .12s" onmouseover="this.style.background=\'var(--sbg)\'" onmouseout="this.style.background=\'\'">'
+            + '<span style="font-size:14px">' + (a.icon || '🤖') + '</span>'
+            + '<span style="font-family:var(--sans);font-size:11px;font-weight:600;background:linear-gradient(135deg,#6D28D9,#2563EB);-webkit-background-clip:text;-webkit-text-fill-color:transparent">' + escHtml(a.name) + '</span>'
+            + '<span><span class="st ' + cls + '">' + label + '</span></span>'
+            + '<span style="font-family:var(--mono);font-size:9px;color:var(--muted)">' + timeAgo(a.lastRun) + '</span>'
+            + '<span style="font-family:var(--mono);font-size:9px;color:var(--green)">' + escHtml(a.nextRun || '—') + '</span>'
+            + '<span style="font-family:var(--mono);font-size:9px;color:var(--purple)">' + escHtml(FLEET_CHANNEL_MAP[a.name] || '—') + '</span>'
+            + '<span style="display:flex;gap:5px;justify-content:flex-end">'
+            +   (canRun ? '<button class="btn brun" onclick="triggerJob(\'' + jobId + '\',this)">▶ Run</button>' : '')
+            +   '<button class="btn blog" onclick="openLogDrawer(\'' + escQ(a.name) + '\',\'' + escQ(a.log || '') + '\')">📄 Logs</button>'
+            + '</span>'
+            + '</div>';
+        }).join('');
+    return;
+  }
+
+  // GRID view (default)
+  el.className = 'fleet';
+  el.style.display = '';
+  el.style.background = '';
+  el.style.border = '';
+  el.style.borderRadius = '';
+  el.style.overflow = '';
+  el.innerHTML = (agents || []).map(a => {
+    const cls = FLEET_STATUS_CLASS[a.status] || 'ok';
+    const label = FLEET_STATUS_LABEL[a.status] || (a.status || 'OK').toUpperCase();
+    const jobId = FLEET_JOB_MAP[a.name] || '';
     const canRun = !!jobId;
     const fixHint = a.status === 'routing' ? '<div style="font-family:var(--mono);font-size:9px;color:var(--purple);margin-top:6px">Fix: /invite @jarvis in #sasmaster-content (and intel, builds if missing)</div>' : '';
     return '<div class="fc" onclick="this.classList.toggle(\'open\')">'
@@ -830,7 +893,7 @@ function renderFleet(agents) {
       +   '<div class="fc-r"><span class="fck">last</span><span class="fcv">' + timeAgo(a.lastRun) + '</span></div>'
       +   '<div class="fc-r"><span class="fck">next</span><span class="fcv">' + escHtml(a.nextRun || '—') + '</span></div>'
       + '</div>'
-      + '<div class="fc-ch">→ ' + escHtml(CHANNEL_MAP[a.name] || '—') + '</div>'
+      + '<div class="fc-ch">→ ' + escHtml(FLEET_CHANNEL_MAP[a.name] || '—') + '</div>'
       + '<div class="fc-exp">'
       +   '<div class="term">' + escHtml(a.lastOutput || 'No recent output.') + '</div>'
       +   fixHint
@@ -1443,6 +1506,7 @@ let _lastKnownData = null;
 let _kanbanSeeded = false;
 
 function render(s, apiLive) {
+  window._lastStatus = s;
   renderPills(s, apiLive);
   renderKPIs(s);
   renderTicker(s.recent_activity || []);
