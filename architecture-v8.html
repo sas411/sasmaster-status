@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>SaSMaster — Technology Architecture v8 · Comprehensive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lav-50:  #FAF8FF;
+    --lav-100: #F3EEFC;
+    --lav-150: #EDE4FA;
+    --lav-200: #E8DEFA;
+    --lav-300: #D4C4F3;
+    --lav-400: #B79FEA;
+    --pur-500: #8B5CF6;
+    --pur-600: #7C3AED;
+    --pur-700: #6D28D9;
+    --pur-800: #5B21B6;
+    --pur-900: #4C1D95;
+    --ink-900: #1E1B2E;
+    --ink-800: #29253E;
+    --ink-700: #3B345A;
+    --ink-500: #6B6486;
+    --ink-400: #9690AE;
+    --ink-300: #BFB9D1;
+    --ok:      #059669;
+    --ok-bg:   #D1FAE5;
+    --warn:    #D97706;
+    --warn-bg: #FEF3C7;
+    --err:     #DC2626;
+    --err-bg:  #FEE2E2;
+    --new:     #EC4899;
+    --new-bg:  #FCE7F3;
+    --info:    #0EA5E9;
+    --info-bg: #E0F2FE;
+    --white:   #FFFFFF;
+    --shadow-sm: 0 1px 2px rgba(76, 29, 149, 0.06);
+    --shadow-md: 0 4px 12px rgba(76, 29, 149, 0.08);
+    --shadow-lg: 0 8px 24px rgba(76, 29, 149, 0.10);
+    --shadow-xl: 0 12px 40px rgba(76, 29, 149, 0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background:
+      radial-gradient(ellipse at top left, #F5F0FF 0%, transparent 60%),
+      radial-gradient(ellipse at bottom right, #FDF2F8 0%, transparent 55%),
+      linear-gradient(180deg, #FAF8FF 0%, #FFFFFF 100%);
+    color: var(--ink-900);
+    -webkit-font-smoothing: antialiased;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  code, .mono {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.5px;
+  }
+  .canvas {
+    width: 1600px;
+    margin: 0 auto;
+    padding: 32px 44px 48px;
+  }
+
+  /* ═════════════════ HEADER ═════════════════ */
+  .header {
+    display: grid;
+    grid-template-columns: 120px 1fr 120px;
+    align-items: center;
+    gap: 24px;
+    padding: 16px 32px 28px;
+    border-bottom: 2px solid var(--lav-200);
+    margin-bottom: 28px;
+  }
+  .icon-slot {
+    width: 110px; height: 110px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 68px;
+    background: var(--white);
+    border: 2px dashed var(--lav-300);
+    border-radius: 22px;
+    position: relative;
+    box-shadow: var(--shadow-md);
+  }
+  .icon-slot::after {
+    content: 'BASE64 SLOT · keep from v7';
+    position: absolute;
+    bottom: -22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    color: var(--ink-400);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .title-block { text-align: center; }
+  .title-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 3px;
+    color: var(--pur-600);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .title {
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    color: var(--pur-900);
+    margin-bottom: 6px;
+    line-height: 1.1;
+  }
+  .title .sasmaster { color: var(--ink-900); }
+  .title .v {
+    color: var(--pur-600);
+    background: linear-gradient(135deg, var(--pur-500), var(--new));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--ink-500);
+    font-weight: 400;
+  }
+  .subtitle .sep { color: var(--lav-400); padding: 0 10px; }
+  .subtitle strong { color: var(--pur-700); font-weight: 600; }
+
+  /* ═════════════════ STATUS BAR ═════════════════ */
+  .status-bar {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 13px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    background: var(--white);
+    border: 1px solid var(--lav-200);
+    box-shadow: var(--shadow-sm);
+  }
+  .pill .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--ok);
+    box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
+  }
+  .pill.warn .dot { background: var(--warn); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15); }
+  .pill.new {
+    background: linear-gradient(135deg, #FCE7F3, #FBCFE8);
+    border-color: #F9A8D4;
+    color: #9D174D;
+  }
+  .pill.new .dot { background: var(--new); box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2); }
+  .pill .label { color: var(--ink-500); font-weight: 500; }
+  .pill .val { color: var(--ink-900); }
+
+  /* ═════════════════ SECTIONS ═════════════════ */
+  .section { margin-bottom: 28px; }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 14px;
+    padding-left: 2px;
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--pur-500);
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    background: var(--lav-100);
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+  .section-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--pur-900);
+    letter-spacing: -0.3px;
+  }
+  .section-sub {
+    font-size: 12px;
+    color: var(--ink-500);
+    font-weight: 400;
+    margin-left: auto;
+  }
+  .section-sub strong { color: var(--pur-700); font-weight: 600; }
+
+  /* ═════════════════ CARDS ═════════════════ */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--lav-200);
+    border-radius: 14px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+  .card.accent {
+    background: linear-gradient(180deg, var(--lav-50) 0%, var(--white) 40%);
+    border-color: var(--lav-300);
+  }
+  .card.pop {
+    background: linear-gradient(180deg, #F5F0FF 0%, var(--white) 50%);
+    border: 1.5px solid var(--pur-500);
+    box-shadow: var(--shadow-md);
+  }
+  .card.new-card {
+    background: linear-gradient(180deg, #FDF2F8 0%, var(--white) 60%);
+    border: 1.5px solid var(--new);
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.10);
+  }
+  .card.new-card::before {
+    content: 'NEW in v8';
+    position: absolute;
+    top: -9px; right: 14px;
+    background: var(--new);
+    color: var(--white);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    padding: 2px 9px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+  .card-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--pur-900);
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .card-title .glyph { font-size: 16px; }
+  .card-sub {
+    font-size: 10.5px;
+    color: var(--ink-500);
+    font-weight: 500;
+    margin-bottom: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.3px;
+  }
+  .card-body {
+    font-size: 11.5px;
+    color: var(--ink-700);
+    line-height: 1.6;
+  }
+  .card-body ul { list-style: none; }
+  .card-body li {
+    padding: 3px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+  }
+  .card-body li::before {
+    content: '·';
+    color: var(--pur-500);
+    font-weight: 700;
+    flex-shrink: 0;
+    font-size: 14px;
+    line-height: 1;
+  }
+  .card-body li.ok::before { content: '✓'; color: var(--ok); font-size: 11px; }
+  .card-body li.warn::before { content: '⚠'; color: var(--warn); font-size: 10px; }
+  .card-body li.new::before { content: '✦'; color: var(--new); font-size: 11px; }
+  .card-body li.pending::before { content: '◐'; color: var(--ink-400); font-size: 11px; }
+  .card-body li.todo::before { content: '○'; color: var(--ink-400); font-size: 10px; }
+
+  /* ═════════════════ GRIDS ═════════════════ */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 16px; }
+  .grid-3-eq { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+
+  /* ═════════════════ AGENTIC WORKFLOW ═════════════════ */
+  .workflow {
+    background: var(--white);
+    border: 1.5px solid var(--lav-200);
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: var(--shadow-md);
+  }
+  .workflow-row {
+    display: grid;
+    grid-template-columns: 0.9fr 40px 1fr 40px 1.1fr 40px 1.1fr 40px 0.9fr;
+    align-items: center;
+    gap: 0;
+  }
+  .wf-node {
+    text-align: center;
+    padding: 14px 10px;
+    border-radius: 12px;
+    border: 1.5px solid var(--lav-200);
+    background: var(--lav-50);
+    min-height: 96px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .wf-node.primary {
+    border-color: var(--pur-500);
+    background: linear-gradient(180deg, #F5F0FF, var(--white));
+    box-shadow: var(--shadow-sm);
+  }
+  .wf-node.human {
+    border-color: var(--pur-700);
+    background: linear-gradient(180deg, var(--lav-100), var(--white));
+  }
+  .wf-node.output {
+    border-color: var(--info);
+    background: linear-gradient(180deg, var(--info-bg), var(--white));
+  }
+  .wf-glyph { font-size: 26px; margin-bottom: 4px; }
+  .wf-title {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--pur-900);
+    margin-bottom: 2px;
+  }
+  .wf-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--ink-500);
+    line-height: 1.3;
+  }
+  .wf-arrow {
+    text-align: center;
+    color: var(--pur-500);
+    font-size: 20px;
+    font-weight: 300;
+  }
+
+  /* ═════════════════ 24H TIMELINE ═════════════════ */
+  .timeline {
+    background: var(--white);
+    border: 1.5px solid var(--lav-200);
+    border-radius: 16px;
+    padding: 20px 24px 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .timeline-scale {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 3px;
+  }
+  .timeline-ticks {
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    border-bottom: 1px solid var(--lav-200);
+    padding-bottom: 3px;
+  }
+  .timeline-tick {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--ink-400);
+    border-left: 1px solid var(--lav-100);
+  }
+  .timeline-tick:first-child { border-left: 0; }
+  .timeline-tick.major { color: var(--pur-600); font-weight: 600; }
+  .timeline-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 16px;
+    align-items: center;
+    margin: 6px 0;
+  }
+  .timeline-label {
+    font-size: 10.5px;
+    color: var(--ink-700);
+    font-weight: 600;
+    text-align: right;
+  }
+  .timeline-bar {
+    position: relative;
+    height: 22px;
+    background: var(--lav-50);
+    border-radius: 6px;
+    overflow: visible;
+  }
+  .tl-mark {
+    position: absolute;
+    top: 3px;
+    height: 16px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    white-space: nowrap;
+  }
+  .tl-mark.pur { background: var(--pur-600); }
+  .tl-mark.ok { background: var(--ok); }
+  .tl-mark.new { background: var(--new); }
+  .tl-mark.warn { background: var(--warn); }
+  .tl-mark.info { background: var(--info); }
+  .tl-mark.continuous {
+    left: 0; right: 0;
+    background: linear-gradient(90deg, var(--pur-500), var(--pur-700), var(--pur-500));
+    background-size: 200% 100%;
+  }
+
+  /* ═════════════════ AGENT CARDS ═════════════════ */
+  .agent-card {
+    background: var(--white);
+    border: 1px solid var(--lav-200);
+    border-radius: 11px;
+    padding: 12px 14px;
+    box-shadow: var(--shadow-sm);
+  }
+  .agent-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 7px;
+  }
+  .agent-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pur-900);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .agent-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+  }
+  .agent-status.ok { background: var(--ok-bg); color: #065F46; }
+  .agent-status.warn { background: var(--warn-bg); color: #92400E; }
+  .agent-status.pending { background: var(--lav-100); color: var(--pur-700); }
+  .agent-schedule {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-600);
+    line-height: 1.4;
+  }
+  .agent-chan {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--pur-600);
+    margin-top: 4px;
+    padding-top: 5px;
+    border-top: 1px solid var(--lav-100);
+  }
+
+  /* ═════════════════ PIPELINE ═════════════════ */
+  .pipeline {
+    display: grid;
+    grid-template-columns: 1.15fr 1.15fr 1fr 1fr;
+    gap: 14px;
+  }
+  .phase-col {
+    background: var(--white);
+    border: 1.5px solid var(--lav-200);
+    border-radius: 14px;
+    padding: 14px 16px;
+    position: relative;
+  }
+  .phase-col.active {
+    border-color: var(--pur-500);
+    background: linear-gradient(180deg, var(--lav-50), var(--white));
+  }
+  .phase-col.bridge {
+    border-color: var(--new);
+    background: linear-gradient(180deg, #FDF2F8, var(--white));
+  }
+  .phase-col.future {
+    border-style: dashed;
+    opacity: 0.88;
+  }
+  .phase-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: var(--pur-600);
+    margin-bottom: 3px;
+  }
+  .phase-col.bridge .phase-tag { color: #BE185D; }
+  .phase-col.future .phase-tag { color: var(--ink-400); }
+  .phase-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--pur-900);
+    margin-bottom: 10px;
+  }
+  .phase-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .chip {
+    font-size: 11px;
+    padding: 6px 10px;
+    background: var(--lav-50);
+    border: 1px solid var(--lav-200);
+    border-radius: 8px;
+    color: var(--ink-700);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 500;
+  }
+  .chip .st {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--ink-500);
+    font-weight: 600;
+  }
+  .chip.ok { border-color: #A7F3D0; background: #ECFDF5; }
+  .chip.ok .st { color: var(--ok); }
+  .chip.running {
+    border-color: #FDE68A;
+    background: #FFFBEB;
+    border-width: 1.5px;
+  }
+  .chip.running .st { color: var(--warn); font-weight: 700; }
+  .chip.new-chip {
+    border-color: #F9A8D4;
+    background: #FDF2F8;
+    border-width: 1.5px;
+  }
+  .chip.new-chip .st { color: var(--new); font-weight: 700; }
+  .chip.designed { color: var(--ink-500); }
+  .chip.future { border-style: dashed; color: var(--ink-400); background: transparent; }
+  .phase-footnote {
+    margin-top: 11px;
+    padding-top: 9px;
+    border-top: 1px dashed var(--lav-300);
+    font-size: 10px;
+    color: var(--ink-500);
+    line-height: 1.45;
+  }
+
+  /* ═════════════════ S3 LAKE ═════════════════ */
+  .lake {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+  .bucket {
+    background: var(--white);
+    border: 1px solid var(--lav-200);
+    border-radius: 11px;
+    padding: 12px 14px;
+  }
+  .bucket.new-bucket {
+    border-color: var(--new);
+    background: linear-gradient(180deg, #FDF2F8, var(--white));
+    border-width: 1.5px;
+  }
+  .bucket-path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--pur-700);
+    font-weight: 700;
+    margin-bottom: 5px;
+    word-break: break-word;
+  }
+  .bucket-note {
+    font-size: 10.5px;
+    color: var(--ink-500);
+    line-height: 1.45;
+  }
+  .bucket-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+  }
+  .bucket-tag.live { background: var(--ok-bg); color: #065F46; }
+  .bucket-tag.new-tag { background: var(--new-bg); color: #9D174D; }
+  .bucket-tag.pending { background: var(--lav-100); color: var(--pur-700); }
+
+  /* ═════════════════ TRIGGERS ═════════════════ */
+  .triggers { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .trigger {
+    background: var(--white);
+    border: 1px solid var(--lav-200);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .trigger.primary {
+    border-color: var(--pur-500);
+    border-width: 1.5px;
+    background: linear-gradient(180deg, var(--lav-50), var(--white));
+  }
+  .trigger-icon { font-size: 28px; margin-bottom: 6px; }
+  .trigger-name { font-size: 13px; font-weight: 700; color: var(--pur-900); margin-bottom: 3px; }
+  .trigger-url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--pur-600);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .trigger-note { font-size: 11px; color: var(--ink-500); line-height: 1.45; }
+
+  /* ═════════════════ SELF-LOOP ═════════════════ */
+  .loop {
+    background: linear-gradient(90deg, var(--lav-50) 0%, var(--white) 50%, var(--lav-50) 100%);
+    border: 1.5px solid var(--lav-200);
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .loop-step {
+    flex: 1;
+    text-align: center;
+  }
+  .loop-step .s-glyph {
+    font-size: 22px;
+    margin-bottom: 3px;
+  }
+  .loop-step .s-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--pur-700);
+    font-weight: 700;
+    margin-bottom: 1px;
+  }
+  .loop-step .s-sub {
+    font-size: 10px;
+    color: var(--ink-500);
+  }
+  .loop-arrow {
+    color: var(--lav-400);
+    font-size: 16px;
+    padding: 0 2px;
+  }
+
+  /* ═════════════════ CRON TABLE ═════════════════ */
+  .cron-table {
+    background: var(--white);
+    border: 1px solid var(--lav-200);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .cron-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 140px 120px;
+    padding: 9px 16px;
+    align-items: center;
+    border-bottom: 1px solid var(--lav-100);
+    font-size: 11.5px;
+  }
+  .cron-row:last-child { border-bottom: 0; }
+  .cron-row.header {
+    background: var(--lav-50);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--pur-700);
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+  .cron-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--pur-700);
+  }
+  .cron-job { color: var(--ink-700); font-weight: 500; }
+  .cron-channel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--pur-600);
+  }
+  .cron-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 5px;
+    justify-self: start;
+  }
+  .cron-status.ok { background: var(--ok-bg); color: #065F46; }
+  .cron-status.running { background: var(--warn-bg); color: #92400E; }
+  .cron-status.pending { background: var(--lav-100); color: var(--pur-700); }
+
+  /* ═════════════════ SECURITY ═════════════════ */
+  .security {
+    background: linear-gradient(135deg, var(--lav-50), var(--white));
+    border: 1.5px solid var(--lav-200);
+    border-radius: 14px;
+    padding: 18px 22px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .sec-item .sec-glyph { font-size: 20px; margin-bottom: 4px; }
+  .sec-item .sec-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pur-900);
+    margin-bottom: 3px;
+  }
+  .sec-item .sec-body {
+    font-size: 10.5px;
+    color: var(--ink-500);
+    line-height: 1.5;
+  }
+
+  /* ═════════════════ FOOTER ═════════════════ */
+  .footer {
+    margin-top: 36px;
+    padding-top: 18px;
+    border-top: 2px solid var(--lav-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-500);
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer .legend { display: flex; gap: 16px; flex-wrap: wrap; }
+  .footer .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .footer .legend .sw { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  .footer .motto {
+    font-weight: 700;
+    color: var(--pur-700);
+    letter-spacing: 0.5px;
+  }
+
+  /* Divider label */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 36px 0 22px;
+  }
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--lav-300), transparent);
+  }
+  .divider-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--pur-600);
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ════════════════════════════ HEADER ════════════════════════════ -->
+  <header class="header">
+    <div class="icon-slot" title="Frankenstein Monkey — base64 from v7">🦍</div>
+    <div class="title-block">
+      <div class="title-eyebrow">Self-Directed Media Intelligence Platform · Bloomberg Terminal for Media</div>
+      <div class="title"><span class="sasmaster">SaSMaSTeR</span> · Technology Architecture <span class="v">v8</span></div>
+      <div class="subtitle">
+        <strong>Wed · Apr 22 · 2026</strong>
+        <span class="sep">·</span>
+        <span>MacBook Pro M1 Max · 24/7 autonomous server</span>
+        <span class="sep">·</span>
+        <span>credential-free by design</span>
+        <span class="sep">·</span>
+        <strong>We Will Be Fucking Successful</strong>
+      </div>
+    </div>
+    <div class="icon-slot" title="Dr. Scoop — base64 from v7">🥄</div>
+  </header>
+
+  <!-- ════════════════════════════ STATUS PILLS ════════════════════════════ -->
+  <div class="status-bar">
+    <span class="pill"><span class="dot"></span><span class="val">API LIVE</span><span class="label">api.sasmaster.dev</span></span>
+    <span class="pill"><span class="dot"></span><span class="val">JARVIS</span><span class="label">24/7 · 2 procs</span></span>
+    <span class="pill"><span class="dot"></span><span class="val">TMDB bulk</span><span class="label">77.2% · 914K/1.18M</span></span>
+    <span class="pill new"><span class="dot"></span><span class="val">Nielsen pipeline</span><span class="label">in-flight · ref 9/9 · AMRLD running</span></span>
+    <span class="pill"><span class="dot"></span><span class="val">Cloudflare Tunnel</span><span class="label">TLS + DDoS · launchd</span></span>
+    <span class="pill"><span class="dot"></span><span class="val">S3 paths</span><span class="label">LOCKED · Apr 21 EOD</span></span>
+    <span class="pill warn"><span class="dot"></span><span class="val">LinkedIn Agent</span><span class="label">#content /invite pending</span></span>
+  </div>
+
+  <!-- ════════════════════════════ 01 · AGENTIC WORKFLOW ════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <span class="section-title">Agentic Workflow</span>
+      <span class="section-sub">Human sets direction · Claude executes · Autonomous loop runs · Outputs flow</span>
+    </div>
+    <div class="workflow">
+      <div class="workflow-row">
+        <div class="wf-node human">
+          <div class="wf-glyph">👤</div>
+          <div class="wf-title">Shiv</div>
+          <div class="wf-sub">strategy · approver<br/>final call</div>
+        </div>
+        <div class="wf-arrow">→</div>
+        <div class="wf-node primary">
+          <div class="wf-glyph">💬</div>
+          <div class="wf-title">Claude.ai (this chat)</div>
+          <div class="wf-sub">strategy · design · UI<br/>prototypes · planning</div>
+        </div>
+        <div class="wf-arrow">→</div>
+        <div class="wf-node primary">
+          <div class="wf-glyph">⌨️</div>
+          <div class="wf-title">Claude Code · Sonnet 4.6</div>
+          <div class="wf-sub">execution · file ops<br/>builds · data pulls</div>
+        </div>
+        <div class="wf-arrow">→</div>
+        <div class="wf-node primary">
+          <div class="wf-glyph">🤖</div>
+          <div class="wf-title">JARVIS + Agent Fleet</div>
+          <div class="wf-sub">cron-driven · self-healing<br/>subagent batches</div>
+        </div>
+        <div class="wf-arrow">→</div>
+        <div class="wf-node output">
+          <div class="wf-glyph">📦</div>
+          <div class="wf-title">Outputs</div>
+          <div class="wf-sub">S3 lake · portals<br/>Slack · LinkedIn</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════ 02 · 24H AGENT TIMELINE ════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <span class="section-title">24-Hour Agent Timeline</span>
+      <span class="section-sub">All times EDT · cron schedule matches live crontab</span>
+    </div>
+    <div class="timeline">
+      <div class="timeline-scale">
+        <div></div>
+        <div class="timeline-ticks">
+          <div class="timeline-tick major">0</div>
+          <div class="timeline-tick">1</div>
+          <div class="timeline-tick">2</div>
+          <div class="timeline-tick">3</div>
+          <div class="timeline-tick">4</div>
+          <div class="timeline-tick">5</div>
+          <div class="timeline-tick major">6</div>
+          <div class="timeline-tick">7</div>
+          <div class="timeline-tick">8</div>
+          <div class="timeline-tick">9</div>
+          <div class="timeline-tick">10</div>
+          <div class="timeline-tick">11</div>
+          <div class="timeline-tick major">12</div>
+          <div class="timeline-tick">13</div>
+          <div class="timeline-tick">14</div>
+          <div class="timeline-tick">15</div>
+          <div class="timeline-tick">16</div>
+          <div class="timeline-tick">17</div>
+          <div class="timeline-tick major">18</div>
+          <div class="timeline-tick">19</div>
+          <div class="timeline-tick">20</div>
+          <div class="timeline-tick">21</div>
+          <div class="timeline-tick">22</div>
+          <div class="timeline-tick">23</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-label">JARVIS</div>
+        <div class="timeline-bar">
+          <div class="tl-mark continuous" style="top:3px; height:16px; border-radius:4px; display:flex; align-items:center; justify-content:center; color:white; font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:600;">24/7 Socket Mode daemon</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-label">Nightly Build</div>
+        <div class="timeline-bar">
+          <div class="tl-mark pur" style="left:calc(0/24*100%); width:4%;">00:00</div>
+          <div class="tl-mark pur" style="left:calc(12/24*100%); width:4%;">12:00 PM</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-label">TMDB Trending</div>
+        <div class="timeline-bar">
+          <div class="tl-mark pur" style="left:calc(0/24*100%); width:4%;">00:00</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-label">TMDB Bulk → S3</div>
+        <div class="timeline-bar">
+          <div class="tl-mark warn" style="left:calc(2/24*100%); width:4%;">02:00</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-label">Daily Briefing</div>
+        <div class="timeline-bar">
+          <div class="tl-mark ok" style="left:calc(5/24*100%); width:4%;">05:00</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-label">Daily Visuals → Slack</div>
+        <div class="timeline-bar">
+          <div class="tl-mark ok" style="left:calc(5.033/24*100%); width:5%;">05:02</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-label">Media Intel</div>
+        <div class="timeline-bar">
+          <div class="tl-mark pur" style="left:calc(6/24*100%); width:4%;">06:00</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-label">SEC EDGAR</div>
+        <div class="timeline-bar">
+          <div class="tl-mark pur" style="left:calc(6.5/24*100%); width:4%;">06:30</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-label">DoneLog Analyst</div>
+        <div class="timeline-bar">
+          <div class="tl-mark info" style="left:calc(12/24*100%); width:4%;">12:00</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-label">Tech Intel <span style="color:var(--ink-400);font-weight:400;">· Fri only</span></div>
+        <div class="timeline-bar">
+          <div class="tl-mark pur" style="left:calc(18/24*100%); width:4%;">18:00</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-label">LinkedIn <span style="color:var(--ink-400);font-weight:400;">· Mon only</span></div>
+        <div class="timeline-bar">
+          <div class="tl-mark warn" style="left:calc(20/24*100%); width:4%;">20:00</div>
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-label">Nielsen pull <span style="color:var(--new);font-weight:700;">· NEW</span></div>
+        <div class="timeline-bar">
+          <div class="tl-mark new" style="left:calc(0.2/24*100%); width:14%;">Claude Code · ~hours</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════ 03 · CONTROL PLANE 3-COLUMN ════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <span class="section-title">Control Plane · 3-Column Core</span>
+      <span class="section-sub">Human approver · Autonomous server · Cloud surface</span>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title"><span class="glyph">👤</span>Shiv · Approver</div>
+        <div class="card-sub">strategy / design / final call</div>
+        <div class="card-body">
+          <ul>
+            <li>Sets vision in <code>CLAUDE.md</code></li>
+            <li>Approves HIGH-priority tasks via <code>!approve &lt;id&gt;</code></li>
+            <li>Reviews DONE_LOG + FEEDBACK loop daily</li>
+            <li>Claude.ai = strategy · Claude Code = execution</li>
+            <li>Final call on brand, palette, architecture</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card pop">
+        <div class="card-title"><span class="glyph">💻</span>MacBook Pro M1 Max · Autonomous Server</div>
+        <div class="card-sub">on 24/7 · caffeinated · launchd-managed</div>
+        <div class="card-body">
+          <ul>
+            <li class="ok">JARVIS daemon · Socket Mode · 2 <code>node jarvis.js</code> procs</li>
+            <li class="ok">Cron scheduler · 9 scheduled jobs · crontab verified</li>
+            <li class="ok">Express Command API · <code>localhost:3002</code></li>
+            <li class="ok">MCP Server · 6 tools · Claude Desktop native</li>
+            <li class="new">Claude Code session · Sonnet 4.6 · Frankenstein data-pull</li>
+            <li>Node.js · Python · DuckDB · caffeinate</li>
+            <li>Repos: <code>SaSMaster</code> · <code>Frankenstein</code> · <code>ra-linear-analytics-bundle</code></li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="glyph">☁️</span>Cloud</div>
+        <div class="card-sub">storage · tunnel · public surfaces</div>
+        <div class="card-body">
+          <ul>
+            <li class="ok">AWS S3 · <code>sasmaster-2026</code> bucket</li>
+            <li class="ok">Cloudflare · Tunnel + DNS · <code>sasmaster.dev</code></li>
+            <li class="ok">Vercel · War Room <code>sasmaster-status</code></li>
+            <li class="ok">Vercel · Portal <code>sasmaster-portal</code> (v7 proto)</li>
+            <li class="ok">Anthropic API · Claude Opus / Sonnet / Haiku</li>
+            <li>TMDB API · IMDB Datasets · SEC EDGAR</li>
+            <li>Snowflake + Databricks <span style="color:var(--new);font-weight:700;">(via RSG bridge)</span></li>
+            <li class="pending">Neon Postgres · deferred · audit + lookups</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════ 04 · COMMAND CENTER ════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <span class="section-title">Command Center</span>
+      <span class="section-sub"><strong>One backend · Two trigger surfaces · Zero credentials committed</strong></span>
+    </div>
+    <div class="grid-4">
+      <div class="card accent">
+        <div class="card-title"><span class="glyph">⚡</span>Express API</div>
+        <div class="card-sub">localhost:3002</div>
+        <div class="card-body">
+          <ul>
+            <li><code>GET /status</code> · live system state</li>
+            <li><code>POST /jobs/:id/run</code> · trigger</li>
+            <li>CORS allowlist enforced</li>
+            <li>Keeper loop on PID 55240</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card accent">
+        <div class="card-title"><span class="glyph">🔌</span>MCP Server</div>
+        <div class="card-sub">Claude Desktop · native</div>
+        <div class="card-body">
+          <ul>
+            <li><code>get_system_status</code></li>
+            <li><code>trigger_job</code></li>
+            <li><code>list_agents</code></li>
+            <li><code>get_logs</code> · <code>get_done_log</code></li>
+            <li><code>tail_build</code></li>
+          </ul>
+        </div>
+      </div>
+      <div class="card accent">
+        <div class="card-title"><span class="glyph">🌐</span>Cloudflare Tunnel</div>
+        <div class="card-sub">api.sasmaster.dev</div>
+        <div class="card-body">
+          <ul>
+            <li>Enterprise TLS termination</li>
+            <li>DDoS protection</li>
+            <li>launchd-managed daemon</li>
+            <li>Zero inbound ports opened</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card accent">
+        <div class="card-title"><span class="glyph">🔖</span>Domain</div>
+        <div class="card-sub">sasmaster.dev</div>
+        <div class="card-body">
+          <ul>
+            <li>Owned · registrar locked</li>
+            <li>CF DNS authoritative</li>
+            <li><code>api.*</code> → tunnel</li>
+            <li>Prod subdomains reserved</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════ 05 · TRIGGER SURFACES ════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-num">05</span>
+      <span class="section-title">Trigger Surfaces</span>
+      <span class="section-sub">Two active triggers · Slack demoted to notifications-only</span>
+    </div>
+    <div class="triggers">
+      <div class="trigger primary">
+        <div class="trigger-icon">🛰️</div>
+        <div class="trigger-name">War Room</div>
+        <div class="trigger-url">sasmaster-status.vercel.app</div>
+        <div class="trigger-note">Polls <code>/status</code> every 30s · ▶ Run buttons wired to Command API · light theme · auto-deploys on push · canonical live dashboard</div>
+      </div>
+      <div class="trigger primary">
+        <div class="trigger-icon">🧠</div>
+        <div class="trigger-name">Claude Desktop</div>
+        <div class="trigger-url">MCP · 6 tools</div>
+        <div class="trigger-note">Native trigger surface · conversational job control from any Claude Desktop chat · no web UI needed</div>
+      </div>
+      <div class="trigger">
+        <div class="trigger-icon">💬</div>
+        <div class="trigger-name">Slack · notify only</div>
+        <div class="trigger-url">#builds · #intel · #content</div>
+        <div class="trigger-note">Triggers removed · DONE_LOG pings · 5AM briefing · approval flow kept (<code>!approve</code>) · 3 channels, bot in all</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════ 06 · AGENT FLEET ════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-num">06</span>
+      <span class="section-title">Agent Fleet · 8 agents + DoneLog Analyst</span>
+      <span class="section-sub">cron-driven · self-healing · Slack-notifying · credential-free</span>
+    </div>
+    <div class="grid-4">
+      <div class="agent-card">
+        <div class="agent-head">
+          <div class="agent-name">🤖 JARVIS</div>
+          <div class="agent-status ok">OK</div>
+        </div>
+        <div class="agent-schedule">24/7 daemon · Socket Mode<br/>approvals + dispatch</div>
+        <div class="agent-chan">→ #sasmaster-builds</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-head">
+          <div class="agent-name">📰 Media Intel</div>
+          <div class="agent-status ok">OK</div>
+        </div>
+        <div class="agent-schedule">Daily 6:00 AM · 3-tier<br/>13 sources · morning pkg</div>
+        <div class="agent-chan">→ #sasmaster-intel</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-head">
+          <div class="agent-name">⚙️ Tech Intel</div>
+          <div class="agent-status ok">OK</div>
+        </div>
+        <div class="agent-schedule">Fri 6:00 PM · eng blogs<br/>GitHub · releases</div>
+        <div class="agent-chan">→ #sasmaster-intel</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-head">
+          <div class="agent-name">✍️ LinkedIn</div>
+          <div class="agent-status warn">ROUTE</div>
+        </div>
+        <div class="agent-schedule">Mon 8:00 PM · article<br/>drafter · 7 days ahead</div>
+        <div class="agent-chan">→ #sasmaster-content · <code>/invite</code> pending</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-head">
+          <div class="agent-name">🎬 TMDB Trending</div>
+          <div class="agent-status ok">OK</div>
+        </div>
+        <div class="agent-schedule">Nightly 12:00 AM<br/>spike detection</div>
+        <div class="agent-chan">→ #sasmaster-content</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-head">
+          <div class="agent-name">📊 SEC EDGAR</div>
+          <div class="agent-status ok">OK</div>
+        </div>
+        <div class="agent-schedule">Daily 6:30 AM · 10/10 cos<br/>XBRL revenue + YoY delta</div>
+        <div class="agent-chan">→ #sasmaster-intel</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-head">
+          <div class="agent-name">🥄 Dr. Scoop</div>
+          <div class="agent-status pending">ON-CALL</div>
+        </div>
+        <div class="agent-schedule">Portal companion<br/>interactive · floating UI</div>
+        <div class="agent-chan">embedded in Portal v7</div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-head">
+          <div class="agent-name">📈 DoneLog Analyst</div>
+          <div class="agent-status ok">OK</div>
+        </div>
+        <div class="agent-schedule">Post-build · portal coverage<br/>gap analysis · injection</div>
+        <div class="agent-chan">→ #sasmaster-builds</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════ DIVIDER ════════════════════════════ -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-text">DATA PLANE</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ════════════════════════════ 07 · DATA PIPELINE (Phase 1/2a/2b) ════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-num">07</span>
+      <span class="section-title">Data Pipeline · 15-Scraper Inventory · Phase 1 / 2a / 2b</span>
+      <span class="section-sub"><strong>11 direct scrapers</strong> + <strong>4 RSG API snapshot consumers</strong> · Parent Key is the foundation</span>
+    </div>
+    <div class="pipeline">
+
+      <div class="phase-col active">
+        <div class="phase-tag">PHASE 1 · DIRECT SCRAPERS</div>
+        <div class="phase-title">Open-source foundations</div>
+        <div class="phase-items">
+          <div class="chip running">TMDB bulk loader<span class="st">77% · RUNNING</span></div>
+          <div class="chip ok">TMDB delta (hourly)<span class="st">designed</span></div>
+          <div class="chip ok">IMDB parser · DuckDB 7min<span class="st">LIVE</span></div>
+          <div class="chip ok">SAS-MASTER Parent Key v1<span class="st">589K rows</span></div>
+          <div class="chip ok">SEC EDGAR scraper<span class="st">LIVE</span></div>
+          <div class="chip designed">EIDR scraper<span class="st">designed</span></div>
+          <div class="chip designed">Rights scraper<span class="st">designed</span></div>
+        </div>
+        <div class="phase-footnote">
+          <strong>Cadence:</strong> TMDB + IMDB = 15 days · Parent Key = post-load.<br/>
+          <strong>Foundation:</strong> everything downstream depends on SAS-MASTER Parent Key resolution.
+        </div>
+      </div>
+
+      <div class="phase-col bridge">
+        <div class="phase-tag">PHASE 2a · RSG API BRIDGE</div>
+        <div class="phase-title">Interim snapshot consumers</div>
+        <div class="phase-items">
+          <div class="chip new-chip">Nielsen snapshot<span class="st">RUNNING</span></div>
+          <div class="chip designed">Gracenote snapshot<span class="st">queued</span></div>
+          <div class="chip designed">FYI snapshot<span class="st">queued</span></div>
+          <div class="chip designed">Opus snapshot<span class="st">queued</span></div>
+        </div>
+        <div class="phase-footnote">
+          <strong>Bridge:</strong> <code>ra-linear-analytics-bundle</code> →<br/>
+          Snowflake + Databricks APIs.<br/>
+          <strong>Executor:</strong> Frankenstein / Claude Code<br/>Sonnet 4.6 session · self-healing via <code>progress.json</code>.<br/>
+          <strong>Cuts months</strong> off roadmap vs. from-scratch.
+        </div>
+      </div>
+
+      <div class="phase-col future">
+        <div class="phase-tag">PHASE 2b · POST-LICENSE</div>
+        <div class="phase-title">Direct integrations</div>
+        <div class="phase-items">
+          <div class="chip future">Nielsen direct · license pending</div>
+          <div class="chip future">Gracenote direct · likely follows</div>
+          <div class="chip future">Wikidata · supplementary</div>
+          <div class="chip future">JustWatch · availability signals</div>
+          <div class="chip future">Twitter/X · social signals</div>
+        </div>
+        <div class="phase-footnote">
+          <strong>Trigger:</strong> Nielsen direct-license close.<br/>
+          <strong>Flip:</strong> snapshot consumer → direct scraper.<br/>
+          Gracenote expected to follow the same path.
+        </div>
+      </div>
+
+      <div class="phase-col">
+        <div class="phase-tag">COMPUTE · RESOLVER</div>
+        <div class="phase-title">DuckDB over S3</div>
+        <div class="phase-items">
+          <div class="chip ok">Parent Key resolver v1<span class="st">LIVE</span></div>
+          <div class="chip ok">Parquet ZSTD compute<span class="st">LIVE</span></div>
+          <div class="chip designed">EIDR backfill<span class="st">Phase 1b</span></div>
+          <div class="chip designed">Entity fusion<span class="st">multi-vendor</span></div>
+          <div class="chip designed">Completeness grading<span class="st">designed</span></div>
+          <div class="chip designed">Threshold match loop<span class="st">designed</span></div>
+        </div>
+        <div class="phase-footnote">
+          <strong>Parent Key v1:</strong><br/>
+          <code>COALESCE(imdb_tconst,<br/>
+          &nbsp;&nbsp;'tmdb_mov_&lt;id&gt;' |<br/>
+          &nbsp;&nbsp;'tmdb_tv_&lt;id&gt;')</code><br/>
+          <code>eidr_id</code> = NULL in v1 · backfill Phase 1b.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ════════════════════════════ 08 · S3 DATA LAKE ════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-num">08</span>
+      <span class="section-title">S3 Data Lake · <code>s3://sasmaster-2026/</code></span>
+      <span class="section-sub">Paths <strong>LOCKED Apr 21 EOD</strong> · DuckDB over S3 for compute · $0/mo Phase 1</span>
+    </div>
+    <div class="lake">
+      <div class="bucket">
+        <span class="bucket-tag live">LIVE</span>
+        <div class="bucket-path">tmdb_dev/</div>
+        <div class="bucket-note">Bulk NDJSON · movies phase · 914K/1.18M · <code>tmdb_dev/deltas/</code> for hourly delta loader</div>
+      </div>
+      <div class="bucket">
+        <span class="bucket-tag live">LIVE</span>
+        <div class="bucket-path">imdb_prd/*.tsv.gz</div>
+        <div class="bucket-note">Raw archival · 7 datasets · 206.4M rows parsed to <code>imdb/&lt;dataset&gt;/YYYY-MM-DD/data.parquet</code> ZSTD</div>
+      </div>
+      <div class="bucket">
+        <span class="bucket-tag live">LIVE</span>
+        <div class="bucket-path">parent_keys/v1/</div>
+        <div class="bucket-note"><code>YYYY-MM-DD/{movies, tv_series}.parquet</code> · 589K IMDB-matched movies · first landed Apr 21 ~11PM EDT</div>
+      </div>
+      <div class="bucket new-bucket">
+        <span class="bucket-tag new-tag">NEW · in-flight</span>
+        <div class="bucket-path">rsg_snap/nielsen/*</div>
+        <div class="bucket-note">Currently landing at <code>Nielsen/march_2026/</code> · post-run <code>aws s3 mv</code> → <code>rsg_snap/nielsen/YYYY-MM-DD/</code></div>
+      </div>
+      <div class="bucket">
+        <span class="bucket-tag pending">reserved</span>
+        <div class="bucket-path">rsg_snap/{gracenote,fyi,opus}/</div>
+        <div class="bucket-note">Namespace reserved for Phase 2a snapshot consumers · same date-partition convention</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════ DIVIDER ════════════════════════════ -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-text">OPERATIONS</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ════════════════════════════ 09 · SELF-DIRECTED BUILD LOOP ════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-num">09</span>
+      <span class="section-title">Self-Directed Build Loop</span>
+      <span class="section-sub">Async feedback · credential-free · HIGH-priority approval gate</span>
+    </div>
+    <div class="loop">
+      <div class="loop-step">
+        <div class="s-glyph">📜</div>
+        <div class="s-label">CLAUDE.md</div>
+        <div class="s-sub">dispatch brain</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="s-glyph">📋</div>
+        <div class="s-label">TASKS.md</div>
+        <div class="s-sub">queue · priority</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="s-glyph">🛠️</div>
+        <div class="s-label">build.sh</div>
+        <div class="s-sub">subagent batch</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="s-glyph">✅</div>
+        <div class="s-label">DONE_LOG.md</div>
+        <div class="s-sub">artifacts + links</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="s-glyph">💭</div>
+        <div class="s-label">FEEDBACK.md</div>
+        <div class="s-sub">self-critique</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="s-glyph">🔔</div>
+        <div class="s-label">Slack notify</div>
+        <div class="s-sub">DoneLog Analyst</div>
+      </div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step">
+        <div class="s-glyph">👤</div>
+        <div class="s-label">!approve</div>
+        <div class="s-sub">Shiv HIGH-gate</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════ 10 · CRON SCHEDULE ════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-num">10</span>
+      <span class="section-title">Cron Schedule · launchd + crontab</span>
+      <span class="section-sub">Verified against live crontab · all times EDT</span>
+    </div>
+    <div class="cron-table">
+      <div class="cron-row header">
+        <div>Time</div><div>Job</div><div>Channel</div><div>Status</div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">00:00</div>
+        <div class="cron-job">Nightly Build · <code>sasmaster-build.sh</code></div>
+        <div class="cron-channel">#builds</div>
+        <div><span class="cron-status ok">FIRED 04:00Z</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">00:00</div>
+        <div class="cron-job">TMDB Trending · spike detection</div>
+        <div class="cron-channel">#content</div>
+        <div><span class="cron-status ok">OK</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">02:00</div>
+        <div class="cron-job">TMDB Bulk Load → S3</div>
+        <div class="cron-channel">#content</div>
+        <div><span class="cron-status running">RUNNING · 77%</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">05:00</div>
+        <div class="cron-job">Daily Briefing</div>
+        <div class="cron-channel">#builds</div>
+        <div><span class="cron-status pending">QUEUED</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">05:02</div>
+        <div class="cron-job">Daily Visuals → Slack (board + arch PNGs)</div>
+        <div class="cron-channel">#builds</div>
+        <div><span class="cron-status pending">QUEUED</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">06:00</div>
+        <div class="cron-job">Media Intel · 3-tier 13-source</div>
+        <div class="cron-channel">#intel</div>
+        <div><span class="cron-status pending">QUEUED</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">06:30</div>
+        <div class="cron-job">SEC EDGAR Scraper</div>
+        <div class="cron-channel">#intel</div>
+        <div><span class="cron-status pending">QUEUED</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">12:00</div>
+        <div class="cron-job">DoneLog Analyst · portal coverage</div>
+        <div class="cron-channel">#builds</div>
+        <div><span class="cron-status pending">QUEUED</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">Fri 18:00</div>
+        <div class="cron-job">Tech Intel · eng blogs + GitHub</div>
+        <div class="cron-channel">#intel</div>
+        <div><span class="cron-status pending">Fri only</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">Mon 20:00</div>
+        <div class="cron-job">LinkedIn Agent · article drafter</div>
+        <div class="cron-channel">#content</div>
+        <div><span class="cron-status pending">Mon only</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════ 11 · SECURITY POSTURE ════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <span class="section-num">11</span>
+      <span class="section-title">Security Posture</span>
+      <span class="section-sub">Hygiene pass #1 executed Apr 21 EOD · credential-free architecture</span>
+    </div>
+    <div class="security">
+      <div class="sec-item">
+        <div class="sec-glyph">🔐</div>
+        <div class="sec-title">Secrets</div>
+        <div class="sec-body">All credentials only in <code>~/SaSMaster/.env</code> · never in diagrams, screenshots, or commits · <code>.env</code> untracked in <code>.gitignore</code> (125 lines)</div>
+      </div>
+      <div class="sec-item">
+        <div class="sec-glyph">🛡️</div>
+        <div class="sec-title">Pre-commit</div>
+        <div class="sec-body">gitleaks live-tested · pre-commit hook blocks <code>AKIA</code> · git history = 0 leaks · filter-repo sanitized 4 commits</div>
+      </div>
+      <div class="sec-item">
+        <div class="sec-glyph">🔄</div>
+        <div class="sec-title">Rotation</div>
+        <div class="sec-body">Deferred Apr 22: rotate Slack webhook (assume compromised) · AWS IAM rotate ~Jul 21 · 90-day cadence</div>
+      </div>
+      <div class="sec-item">
+        <div class="sec-glyph">🌐</div>
+        <div class="sec-title">Public surface</div>
+        <div class="sec-body">Cloudflare Tunnel only · zero inbound ports · <code>sasmaster-status</code> repo public but <code>status.json</code> has zero credentials or file paths</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════ FOOTER ════════════════════════════ -->
+  <footer class="footer">
+    <div class="legend">
+      <span><span class="sw" style="background: var(--ok);"></span> Live / OK</span>
+      <span><span class="sw" style="background: var(--warn);"></span> Running / Needs attention</span>
+      <span><span class="sw" style="background: var(--new);"></span> NEW in v8</span>
+      <span><span class="sw" style="background: var(--lav-300);"></span> Designed / queued</span>
+      <span><span class="sw" style="background: var(--lav-100); border: 1px dashed var(--ink-400);"></span> Future / post-license</span>
+    </div>
+    <div>
+      SaSMaster · Architecture <strong style="color:var(--pur-700);">v8</strong> · 2026-04-22
+    </div>
+    <div class="motto">WE WILL BE FUCKING SUCCESSFUL · NO EXCUSES</div>
+  </footer>
+
+</div>
+</body>
+</html>

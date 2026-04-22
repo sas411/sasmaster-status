@@ -265,6 +265,40 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
   .k-cols{grid-template-columns:1fr}
   .col-progress,.col-review,.col-done{display:none}
 }
+
+/* RESOURCES SECTION */
+.resources-section{margin-bottom:18px}
+.resources-section .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.resources-section .filter-tab{padding:6px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text-muted);font-size:11px;font-weight:600;font-family:var(--font);cursor:pointer;transition:all .15s ease;display:inline-flex;align-items:center;gap:6px}
+.resources-section .filter-tab:hover{border-color:var(--purple);color:var(--purple)}
+.resources-section .filter-tab.active{background:var(--purple-pale);border-color:var(--purple);color:var(--text)}
+.resources-section .filter-tab .count{font-family:var(--mono);font-size:9px;padding:1px 5px;border-radius:8px;background:var(--purple-pale);color:var(--purple);font-weight:700}
+.resources-section .filter-tab.active .count{background:var(--purple);color:#fff}
+.resources-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:960px){.resources-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.resources-grid{grid-template-columns:1fr}}
+.res-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;display:flex;flex-direction:column;gap:8px;transition:all .15s ease;position:relative}
+.res-card:hover{border-color:var(--purple-light);box-shadow:0 4px 12px rgba(80,64,160,0.08);transform:translateY(-1px)}
+.res-card.latest{border-color:var(--purple);background:linear-gradient(180deg,var(--purple-pale),var(--surface))}
+.res-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.res-cat{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:4px;text-transform:uppercase}
+.res-cat.architecture{background:var(--purple-pale);color:#3008F0}
+.res-cat.pipelines{background:#fce7f3;color:#9D174D}
+.res-cat.boards{background:var(--green-bg);color:var(--green)}
+.res-cat.portals{background:var(--blue-bg);color:var(--blue)}
+.res-cat.research{background:var(--amber-bg);color:var(--amber)}
+.res-cat.docs{background:var(--border-light);color:var(--text-muted)}
+.res-latest-badge{font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.6px;padding:2px 6px;border-radius:4px;background:linear-gradient(90deg,#3008F0,#20c080);color:#fff}
+.res-title{font-size:13px;font-weight:700;color:var(--text);line-height:1.3}
+.res-sub{font-family:var(--mono);font-size:10px;color:var(--text-muted);line-height:1.5}
+.res-meta{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:7px;border-top:1px dashed var(--border)}
+.res-date{font-family:var(--mono);font-size:9.5px;color:var(--text-faint)}
+.res-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.res-btn{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:var(--mono);font-size:9.5px;font-weight:600;text-decoration:none;transition:all .12s ease;cursor:pointer;white-space:nowrap}
+.res-btn:hover{border-color:var(--purple);background:var(--purple-pale);color:var(--purple)}
+.res-btn.primary{background:var(--purple);color:#fff;border-color:var(--purple)}
+.res-btn.primary:hover{background:#3008F0;border-color:#3008F0;color:#fff}
+.res-empty{padding:24px;text-align:center;color:var(--text-faint);font-size:11px;border:1px dashed var(--border);border-radius:var(--radius)}
 </style>
 </head>
 <body>
@@ -329,6 +363,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 
   <div class="sec-label"><span style="color:#3008F0">Recent</span> <span style="color:#20c080">Completions</span></div>
   <div class="panel" id="done-log"></div>
+
+  <div class="sec-label"><span style="color:#3008F0">Resources</span> <span style="color:#20c080">&amp; Artifacts</span> — architecture diagrams, pipeline flows, portals</div>
+  <div class="resources-section">
+    <div class="filters" id="res-filters">
+      <button class="filter-tab active" data-filter="all">All <span class="count" id="res-count-all">0</span></button>
+      <button class="filter-tab" data-filter="architecture">Architecture <span class="count" id="res-count-architecture">0</span></button>
+      <button class="filter-tab" data-filter="pipelines">Pipelines <span class="count" id="res-count-pipelines">0</span></button>
+      <button class="filter-tab" data-filter="portals">Portals <span class="count" id="res-count-portals">0</span></button>
+    </div>
+    <div class="resources-grid" id="res-grid"><div class="res-empty">Loading resources…</div></div>
+  </div>
 
   <div class="footer">
     <div style="font-size:1.35rem;font-weight:700;letter-spacing:.01em;margin-bottom:8px;line-height:1.5">
@@ -853,6 +898,89 @@ async function fetchStatus() {
 
 fetchStatus();
 setInterval(fetchStatus, 30000);
+
+// ── RESOURCES SECTION ────────────────────────────────────────
+const RES_CATEGORIES = ['all','architecture','pipelines','boards','portals','research','docs'];
+let __resFilter = 'all';
+
+async function loadResources(){
+  const grid = document.getElementById('res-grid');
+  if (!grid) return;
+  try {
+    const r = await fetch('/resources.json?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    window.__RESOURCES = j.resources || [];
+    renderResources();
+  } catch (e) {
+    grid.innerHTML = '<div class="res-empty">Could not load resources.json — ' + e.message + '</div>';
+  }
+}
+
+function renderResources(){
+  const grid = document.getElementById('res-grid');
+  if (!grid) return;
+  const items = window.__RESOURCES || [];
+
+  const counts = { all: items.length };
+  items.forEach(r => { counts[r.category] = (counts[r.category] || 0) + 1; });
+  RES_CATEGORIES.forEach(cat => {
+    const el = document.getElementById('res-count-' + cat);
+    if (el) el.textContent = counts[cat] || 0;
+  });
+
+  const visible = items
+    .filter(r => __resFilter === 'all' || r.category === __resFilter)
+    .sort((a, b) => {
+      if (a.latest !== b.latest) return a.latest ? -1 : 1;
+      return (b.date || '').localeCompare(a.date || '');
+    });
+
+  if (!visible.length) {
+    grid.innerHTML = '<div class="res-empty">No resources in this category yet.</div>';
+    return;
+  }
+
+  grid.innerHTML = visible.map(r => `
+    <div class="res-card ${r.latest ? 'latest' : ''}">
+      <div class="res-head">
+        <span class="res-cat ${r.category}">${r.category}</span>
+        ${r.latest ? '<span class="res-latest-badge">LATEST</span>' : ''}
+      </div>
+      <div class="res-title">${r.title}</div>
+      <div class="res-sub">${r.subtitle || ''}</div>
+      <div class="res-meta">
+        <span class="res-date">${r.date || ''}</span>
+        <div class="res-actions">
+          ${(r.files || []).map(f => {
+            const isExternal = f.type === 'external' || /^https?:/.test(f.url);
+            const isDownload = f.type === 'pdf';
+            return `<a class="res-btn ${f.primary ? 'primary' : ''}"
+               href="${f.url}"
+               ${isDownload ? 'download' : ''}
+               ${isExternal ? 'target="_blank" rel="noopener"' : ''}>
+              ${f.label}
+            </a>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+const resFilters = document.getElementById('res-filters');
+if (resFilters) {
+  resFilters.addEventListener('click', e => {
+    const btn = e.target.closest('.filter-tab');
+    if (!btn) return;
+    resFilters.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    __resFilter = btn.dataset.filter;
+    renderResources();
+  });
+}
+
+loadResources();
 </script>
 </body>
 </html>
