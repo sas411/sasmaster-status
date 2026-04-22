@@ -1091,7 +1091,10 @@ function renderSidebar(s) {
 function renderAlerts(alerts) {
   const c = document.getElementById('alert-container');
   if (!c) return;
-  c.innerHTML = (alerts || []).map(a => {
+  const list = (alerts || []).filter(a => a && (a.message || a.text));
+  if (!list.length) { c.style.display = 'none'; c.innerHTML = ''; return; }
+  c.style.display = 'flex';
+  c.innerHTML = list.map(a => {
     return '<div style="background:#FFF4E8;border-left:4px solid #E05020;padding:8px 14px;border-radius:4px;display:flex;align-items:center;gap:10px;box-shadow:var(--sh)">'
       + '<span style="flex:1;font-size:11px;color:#7A2000;font-weight:500">' + escHtml(a.message || a.text || '') + '</span>'
       + '<button onclick="this.parentElement.style.display=\'none\'" style="background:none;border:none;cursor:pointer;font-size:14px;color:#7A2000;opacity:.5">×</button>'
@@ -1166,7 +1169,32 @@ const COLCFG = {
 let cards = [];
 let nextId = 1, dragCard = null, activeFilter = 'ALL', activeDetailId = null;
 
+const KANBAN_LS_KEY = 'sm-kanban-state';
+
+function saveKanbanState() {
+  try { localStorage.setItem(KANBAN_LS_KEY, JSON.stringify({ cards, nextId, savedAt: Date.now() })); }
+  catch { /* storage full or disabled — silent */ }
+}
+
+function loadKanbanState() {
+  try {
+    const raw = localStorage.getItem(KANBAN_LS_KEY);
+    if (!raw) return null;
+    const j = JSON.parse(raw);
+    if (!j || !Array.isArray(j.cards)) return null;
+    return j;
+  } catch { return null; }
+}
+
 function seedKanban(tasks) {
+  // Prefer locally-persisted state (Shiv's drags/edits) over a fresh reseed
+  const saved = loadKanbanState();
+  if (saved && saved.cards.length) {
+    cards = saved.cards;
+    nextId = saved.nextId || (cards.length + 1);
+    renderBoard();
+    return;
+  }
   if (!tasks || !tasks.length) return;
   cards = tasks.map((t, i) => ({
     id: i + 1,
@@ -1179,6 +1207,7 @@ function seedKanban(tasks) {
     ctx: t.ctx || '',
   }));
   nextId = cards.length + 1;
+  saveKanbanState();
   renderBoard();
 }
 
@@ -1232,7 +1261,7 @@ function setupDrag() {
       const id = parseInt(dragCard.dataset.id);
       const newCol = col.dataset.col;
       const card = cards.find(c => c.id === id);
-      if (card && card.col !== newCol) { card.col = newCol; renderBoard(); }
+      if (card && card.col !== newCol) { card.col = newCol; saveKanbanState(); renderBoard(); }
     });
   });
 }
@@ -1249,6 +1278,7 @@ function addCard(col) {
   const title = prompt('Card title:');
   if (!title) return;
   cards.push({ id: nextId++, title, col, pri: 'MED', tag: '', est: '—', desc: '', ctx: '' });
+  saveKanbanState();
   renderBoard();
 }
 window.addCard = addCard;
@@ -1299,6 +1329,7 @@ function saveDetail() {
       ctx: document.getElementById('dp-ctx').value,
     });
   }
+  saveKanbanState();
   closeDetail();
   renderBoard();
 }
@@ -1307,6 +1338,7 @@ window.saveDetail = saveDetail;
 function deleteCard() {
   if (activeDetailId && confirm('Delete this card?')) {
     cards = cards.filter(c => c.id !== activeDetailId);
+    saveKanbanState();
     closeDetail();
     renderBoard();
   }

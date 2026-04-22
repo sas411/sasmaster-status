@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-22T08:36:46.217Z",
+  "generated": "2026-04-22T08:43:44.061Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -529,10 +529,10 @@
       "name": "TMDB bulk loader",
       "phase": "1",
       "status": "running",
-      "pct": 95.7,
-      "row_count": 1134000,
+      "pct": 96.3,
+      "row_count": 1141000,
       "total": 1184436,
-      "last_run": "2026-04-22T08:35:40.793Z",
+      "last_run": "2026-04-22T08:43:21.046Z",
       "s3_path": "s3://sasmaster-2026/tmdb_dev/"
     },
     {
@@ -545,10 +545,10 @@
     {
       "name": "IMDb parser",
       "phase": "1",
-      "status": "designed",
-      "pct": 0,
+      "status": "live",
+      "pct": 100,
       "row_count": 206444399,
-      "last_run": null
+      "last_run": "2026-04-21T23:00:01.000Z"
     },
     {
       "name": "SAS-MASTER Parent Key v1",
@@ -556,21 +556,22 @@
       "status": "live",
       "pct": 100,
       "row_count": 589814,
-      "last_run": "2026-04-22T03:04:00Z"
+      "last_run": "2026-04-21T23:04:10.000Z"
     },
     {
       "name": "SEC EDGAR",
       "phase": "1",
       "status": "live",
       "pct": 100,
-      "last_run": null
+      "last_run": "2026-04-21T03:25:28.964Z"
     },
     {
       "name": "EIDR scraper",
       "phase": "1b",
-      "status": "designed",
-      "pct": 0,
-      "last_run": null
+      "status": "landing",
+      "pct": null,
+      "last_run": "2026-04-22T01:11:20.000Z",
+      "row_count": null
     },
     {
       "name": "Rights scraper",
@@ -584,21 +585,22 @@
       "phase": "2a",
       "status": "landing",
       "pct": null,
-      "last_run": null
+      "last_run": "2026-04-22T04:20:37.000Z",
+      "size_gb": 40.1
     },
     {
       "name": "Gracenote snapshot",
       "phase": "2a",
-      "status": "queued",
+      "status": "landing",
       "pct": 0,
-      "last_run": null
+      "last_run": "2026-04-22T02:47:11.000Z"
     },
     {
       "name": "FYI snapshot",
       "phase": "2a",
-      "status": "queued",
+      "status": "landing",
       "pct": 0,
-      "last_run": null
+      "last_run": "2026-04-22T02:38:36.000Z"
     },
     {
       "name": "Opus snapshot",
@@ -639,46 +641,51 @@
   "s3_lake": [
     {
       "path": "tmdb_dev/",
-      "status": "live",
-      "rows": 1134000,
-      "size_gb": 2.3813999999999997,
-      "last_updated": "2026-04-22T08:35:40.793Z"
+      "status": "landing",
+      "rows": 1141000,
+      "size_gb": 5.5,
+      "last_updated": "2026-04-22T04:40:02.000Z",
+      "object_count": 1150
     },
     {
       "path": "imdb/",
-      "status": "landing",
+      "status": "live",
       "rows": 206444399,
-      "size_gb": 1.51,
-      "last_updated": "2026-04-22T03:00:00Z"
+      "size_gb": 1.4,
+      "last_updated": "2026-04-21T23:00:01.000Z",
+      "object_count": 7
     },
     {
-      "path": "parent_keys/v1/",
+      "path": "parent_keys/",
       "status": "live",
       "rows": 589814,
       "size_gb": 0.02,
-      "last_updated": "2026-04-22T03:04:00Z"
-    },
-    {
-      "path": "edgar/",
-      "status": "live",
-      "rows": null,
-      "size_gb": null,
-      "last_updated": null
+      "last_updated": "2026-04-21T23:04:10.000Z",
+      "object_count": 1
     },
     {
       "path": "rsg_snap/nielsen/",
       "status": "landing",
       "rows": null,
-      "size_gb": null,
-      "last_updated": null
+      "size_gb": 40.1,
+      "last_updated": "2026-04-22T04:20:37.000Z",
+      "object_count": 27
+    },
+    {
+      "path": "eidr/",
+      "status": "landing",
+      "rows": null,
+      "size_gb": 0.18,
+      "last_updated": "2026-04-22T01:11:20.000Z",
+      "object_count": 9
     }
   ],
   "kpis": {
     "agents_running": 7,
     "agents_total": 9,
-    "scrapers_live": 2,
+    "scrapers_live": 3,
     "scrapers_total": 15,
-    "s3_gb": 3.9,
+    "s3_gb": 47.2,
     "parent_key_rows": 589814,
     "tasks_open": 17
   },
@@ -730,8 +737,8 @@
     },
     {
       "type": "pipeline",
-      "text": "TMDB bulk 95.7% — 1134K / 1184K titles → s3://sasmaster-2026/tmdb_dev/",
-      "ts": "2026-04-22T08:35:40.793Z"
+      "text": "TMDB bulk 96.3% — 1141K / 1184K titles → s3://sasmaster-2026/tmdb_dev/",
+      "ts": "2026-04-22T08:43:21.046Z"
     }
   ],
   "cron": [

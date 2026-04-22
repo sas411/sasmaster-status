@@ -170,6 +170,20 @@ function parseTMDBProgress() {
   catch { return null; }
 }
 
+// ── S3 inventory (from scripts/s3-inventory.js cache) ────────────────────────
+function parseS3Inventory() {
+  const file = path.join(SASMASTER, 'status', 's3-inventory.json');
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
+  catch { return null; }
+}
+
+// ── Log mtime helper for per-scraper health ──────────────────────────────────
+function logMtime(logName) {
+  const p = path.join(SASMASTER, 'logs', logName);
+  try { return fs.statSync(p).mtime.toISOString(); }
+  catch { return null; }
+}
+
 // ── Alerts ───────────────────────────────────────────────────────────────────
 function parseAlerts() {
   const file = path.join(SASMASTER, 'status', 'alerts.json');
@@ -234,10 +248,24 @@ function parseCrontab() {
 }
 
 // ── Scrapers inventory (15-scraper fleet from architecture v8) ───────────────
-function buildScrapers(tmdbProgress, doneEntries) {
-  // Heuristic: if a DONE_LOG entry mentions the scraper name in the last N days, mark live.
-  const donemillis = new Set(doneEntries.map(e => (e.task || '').toLowerCase()));
-  const wasDone = needle => [...donemillis].some(t => t.includes(needle.toLowerCase()));
+// Real status hydrated from (a) S3 inventory object counts, (b) agent log
+// mtimes, (c) progress JSON. Designed = no data + no script exists. Landing =
+// S3 has data but pipeline not fully automated. Live = automated + running.
+function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents) {
+  const prefix = name => (s3Inv?.prefixes || []).find(p => p.prefix === name) || {};
+  const agentByName = {};
+  (agents || []).forEach(a => { agentByName[a.name] = a; });
+
+  const tmdbP   = prefix('tmdb_dev/');
+  const imdbP   = prefix('imdb/');
+  const imdbPrd = prefix('imdb_prd/');
+  const pkP     = prefix('parent_keys/');
+  const nielsenP = prefix('Nielsen/');
+  const eidrP   = prefix('eidr/');
+  const gracP   = prefix('gracenote/');
+  const fyiP    = prefix('fyi/');
+
+  const edgarAgent = agentByName['SEC EDGAR'];
 
   return [
     // ── Phase 1 — Identity base
@@ -248,73 +276,108 @@ function buildScrapers(tmdbProgress, doneEntries) {
       pct: tmdbProgress?.pct ?? null,
       row_count: tmdbProgress?.complete ?? null,
       total: tmdbProgress?.total ?? null,
-      last_run: tmdbProgress?.last_updated ?? null,
+      last_run: tmdbProgress?.last_updated ?? tmdbP.last_modified ?? null,
       s3_path: tmdbProgress?.s3_path ?? 's3://sasmaster-2026/tmdb_dev/',
     },
     { name: 'TMDB delta (hourly)', phase: '1', status: 'designed', pct: 0, last_run: null },
-    { name: 'IMDb parser',         phase: '1', status: wasDone('imdb') ? 'live' : 'designed', pct: wasDone('imdb') ? 100 : 0, row_count: 206444399, last_run: null },
-    { name: 'SAS-MASTER Parent Key v1', phase: '1', status: 'live', pct: 100, row_count: 589814, last_run: '2026-04-22T03:04:00Z' },
-    { name: 'SEC EDGAR',           phase: '1', status: wasDone('edgar') ? 'live' : 'running', pct: wasDone('edgar') ? 100 : null, last_run: null },
+    {
+      name: 'IMDb parser',
+      phase: '1',
+      status: imdbP.object_count > 0 ? 'live' : 'designed',
+      pct: imdbP.object_count > 0 ? 100 : 0,
+      row_count: 206444399, // measured at Phase 1 milestone 2026-04-22
+      last_run: imdbP.last_modified || logMtime('imdb-parse.log'),
+    },
+    {
+      name: 'SAS-MASTER Parent Key v1',
+      phase: '1',
+      status: pkP.object_count > 0 ? 'live' : 'designed',
+      pct: 100,
+      row_count: 589814,
+      last_run: pkP.last_modified || '2026-04-22T03:04:00Z',
+    },
+    {
+      name: 'SEC EDGAR',
+      phase: '1',
+      status: edgarAgent?.status === 'routing' ? 'running' : (edgarAgent?.lastRun ? 'live' : 'designed'),
+      pct: edgarAgent?.lastRun ? 100 : null,
+      last_run: edgarAgent?.lastRun || logMtime('sec-edgar.log'),
+    },
     // ── Phase 1b — Metadata enrichment
-    { name: 'EIDR scraper',        phase: '1b', status: 'designed', pct: 0, last_run: null },
-    { name: 'Rights scraper',      phase: '1b', status: 'designed', pct: 0, last_run: null },
+    {
+      name: 'EIDR scraper',
+      phase: '1b',
+      status: eidrP.object_count > 0 ? 'landing' : 'designed',
+      pct: null,
+      last_run: eidrP.last_modified || null,
+      row_count: null,
+    },
+    { name: 'Rights scraper', phase: '1b', status: 'designed', pct: 0, last_run: null },
     // ── Phase 2a — Interim snapshots via RSG API bridge
-    { name: 'Nielsen snapshot',    phase: '2a', status: 'landing', pct: null, last_run: null },
-    { name: 'Gracenote snapshot',  phase: '2a', status: 'queued',  pct: 0, last_run: null },
-    { name: 'FYI snapshot',        phase: '2a', status: 'queued',  pct: 0, last_run: null },
-    { name: 'Opus snapshot',       phase: '2a', status: 'queued',  pct: 0, last_run: null },
+    {
+      name: 'Nielsen snapshot',
+      phase: '2a',
+      status: nielsenP.object_count > 0 ? 'landing' : 'queued',
+      pct: null,
+      last_run: nielsenP.last_modified || null,
+      size_gb: nielsenP.size_gb || null,
+    },
+    {
+      name: 'Gracenote snapshot',
+      phase: '2a',
+      status: gracP.object_count > 0 ? 'landing' : 'queued',
+      pct: 0,
+      last_run: gracP.last_modified || null,
+    },
+    {
+      name: 'FYI snapshot',
+      phase: '2a',
+      status: fyiP.object_count > 0 ? 'landing' : 'queued',
+      pct: 0,
+      last_run: fyiP.last_modified || null,
+    },
+    { name: 'Opus snapshot', phase: '2a', status: 'queued', pct: 0, last_run: null },
     // ── Phase 2b — Direct license
-    { name: 'Nielsen direct',      phase: '2b', status: 'designed', pct: 0, last_run: null },
-    { name: 'JustWatch',           phase: '2b', status: 'designed', pct: 0, last_run: null },
-    { name: 'Wikidata',            phase: '2b', status: 'designed', pct: 0, last_run: null },
-    { name: 'Twitter/X signals',   phase: '2b', status: 'designed', pct: 0, last_run: null },
+    { name: 'Nielsen direct',    phase: '2b', status: 'designed', pct: 0, last_run: null },
+    { name: 'JustWatch',         phase: '2b', status: 'designed', pct: 0, last_run: null },
+    { name: 'Wikidata',          phase: '2b', status: 'designed', pct: 0, last_run: null },
+    { name: 'Twitter/X signals', phase: '2b', status: 'designed', pct: 0, last_run: null },
   ];
 }
 
 // ── S3 Data Lake inventory ───────────────────────────────────────────────────
-function buildS3Lake(scrapers) {
-  const tmdb = scrapers.find(s => s.name === 'TMDB bulk loader');
-  const imdb = scrapers.find(s => s.name === 'IMDb parser');
-  const pk   = scrapers.find(s => s.name === 'SAS-MASTER Parent Key v1');
-  const edgar = scrapers.find(s => s.name === 'SEC EDGAR');
+// Prefers real data from scripts/s3-inventory.js cache when present.
+// Falls back to derived values from scrapers for fresh deploys.
+function buildS3Lake(scrapers, s3Inv) {
+  const prefix = name => (s3Inv?.prefixes || []).find(p => p.prefix === name);
 
-  return [
-    {
-      path: 'tmdb_dev/',
-      status: 'live',
-      rows: tmdb?.row_count ?? null,
-      size_gb: tmdb?.row_count ? (tmdb.row_count / 1e6 * 2.1) : null, // approx 2.1 GB per M rows TMDB
-      last_updated: tmdb?.last_run ?? null,
-    },
-    {
-      path: 'imdb/',
-      status: imdb?.status === 'live' ? 'live' : 'landing',
-      rows: imdb?.row_count ?? null,
-      size_gb: imdb?.row_count ? 1.51 : null, // measured at Phase 1 milestone
-      last_updated: '2026-04-22T03:00:00Z',
-    },
-    {
-      path: 'parent_keys/v1/',
-      status: 'live',
-      rows: pk?.row_count ?? null,
-      size_gb: 0.02, // 19.7MB per Phase 1 milestone
-      last_updated: pk?.last_run ?? null,
-    },
-    {
-      path: 'edgar/',
-      status: edgar?.status === 'live' ? 'live' : 'landing',
-      rows: null,
-      size_gb: null,
-      last_updated: null,
-    },
-    {
-      path: 'rsg_snap/nielsen/',
-      status: 'landing',
-      rows: null,
-      size_gb: null,
-      last_updated: null,
-    },
-  ];
+  // Rows are not in S3 metadata — derive from known scraper row_counts
+  const tmdb  = scrapers.find(s => s.name === 'TMDB bulk loader');
+  const imdb  = scrapers.find(s => s.name === 'IMDb parser');
+  const pk    = scrapers.find(s => s.name === 'SAS-MASTER Parent Key v1');
+
+  const card = (p, displayName, status, rowCount) => {
+    const pfx = prefix(p);
+    if (!pfx && !rowCount) return null;
+    return {
+      path: displayName || p,
+      status,
+      rows: rowCount ?? null,
+      size_gb: pfx ? +(pfx.size_gb.toFixed(2)) : null,
+      last_updated: pfx?.last_modified || null,
+      object_count: pfx?.object_count || null,
+    };
+  };
+
+  const cards = [
+    card('tmdb_dev/',    'tmdb_dev/',    tmdb?.status === 'running' ? 'landing' : 'live', tmdb?.row_count),
+    card('imdb/',        'imdb/',        imdb?.status === 'live' ? 'live' : 'landing',    imdb?.row_count),
+    card('parent_keys/', 'parent_keys/', 'live',                                          pk?.row_count),
+    card('Nielsen/',     'rsg_snap/nielsen/', 'landing', null),
+    card('eidr/',        'eidr/',        'landing', null),
+  ].filter(Boolean);
+
+  return cards;
 }
 
 // ── KPIs (derived) ───────────────────────────────────────────────────────────
@@ -495,8 +558,9 @@ const intelFeed     = parseIntelFeed();
 const alerts        = parseAlerts();
 const agents        = parseAgents();
 const tmdbProgress  = parseTMDBProgress();
-const scrapers      = buildScrapers(tmdbProgress, recentBuilds);
-const s3_lake       = buildS3Lake(scrapers);
+const s3Inv         = parseS3Inventory();
+const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents);
+const s3_lake       = buildS3Lake(scrapers, s3Inv);
 const cronJobsRaw   = parseCrontab();
 const cron          = enrichCronStatus(cronJobsRaw, agents);
 
