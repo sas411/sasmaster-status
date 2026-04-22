@@ -470,10 +470,39 @@ function enrichCronStatus(cronJobs, agents) {
   });
 }
 
-// ── Slack feed (derived from real sources until JARVIS caches to disk) ───────
-// Maps: recentBuilds → #sasmaster-builds, intel_feed → #sasmaster-intel,
-// LinkedIn + TMDB Trending log tails → #sasmaster-content.
+// ── Slack feed ───────────────────────────────────────────────────────────────
+// Primary source: ~/SaSMaster/status/slack-feed.json (real conversations.history
+// snapshot, updated every 5 min by scripts/slack-feed-cache.js).
+// Fallback: log-derived tails for stale/missing cache.
+function parseSlackFeedCache() {
+  const file = path.join(SASMASTER, 'status', 'slack-feed.json');
+  try {
+    const d = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (!d || !d.generated) return null;
+    // If stale (> 20 min old), return null and let the log-derived fallback run
+    const ageMin = (Date.now() - new Date(d.generated).getTime()) / 60000;
+    if (ageMin > 20) return null;
+    return d;
+  } catch { return null; }
+}
+
 function buildSlackFeed(recentBuilds, intelFeed) {
+  // Prefer the live Slack cache if fresh
+  const cache = parseSlackFeedCache();
+  if (cache) {
+    // Map bot-posted emoji prefixes for visual parity with the fallback
+    const dress = msgs => (msgs || []).slice(0, 8).map(m => ({
+      ts: m.ts,
+      text: m.bot ? m.text : m.text, // both rendered the same; raw bot status preserved for styling later
+    }));
+    return {
+      builds:  dress(cache.builds),
+      intel:   dress(cache.intel),
+      content: dress(cache.content),
+    };
+  }
+
+  // Fallback: derive from log files
   const LOG = path.join(SASMASTER, 'logs');
   const tsShort = iso => {
     if (!iso) return '';
