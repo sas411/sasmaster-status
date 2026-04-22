@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-22T07:52:14.498Z",
+  "generated": "2026-04-22T08:27:56.448Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -471,10 +471,10 @@
       "name": "TMDB bulk loader",
       "phase": "1",
       "status": "running",
-      "pct": 92.5,
-      "row_count": 1096000,
+      "pct": 95.1,
+      "row_count": 1126000,
       "total": 1184436,
-      "last_run": "2026-04-22T07:51:13.661Z",
+      "last_run": "2026-04-22T08:26:50.544Z",
       "s3_path": "s3://sasmaster-2026/tmdb_dev/"
     },
     {
@@ -582,9 +582,9 @@
     {
       "path": "tmdb_dev/",
       "status": "live",
-      "rows": 1096000,
-      "size_gb": 2.3016,
-      "last_updated": "2026-04-22T07:51:13.661Z"
+      "rows": 1126000,
+      "size_gb": 2.3646,
+      "last_updated": "2026-04-22T08:26:50.544Z"
     },
     {
       "path": "imdb/",
@@ -620,7 +620,7 @@
     "agents_total": 5,
     "scrapers_live": 2,
     "scrapers_total": 15,
-    "s3_gb": 3.8,
+    "s3_gb": 3.9,
     "parent_key_rows": 589814,
     "tasks_open": 17
   },
@@ -672,8 +672,8 @@
     },
     {
       "type": "pipeline",
-      "text": "TMDB bulk 92.5% — 1096K / 1184K titles → s3://sasmaster-2026/tmdb_dev/",
-      "ts": "2026-04-22T07:51:13.661Z"
+      "text": "TMDB bulk 95.1% — 1126K / 1184K titles → s3://sasmaster-2026/tmdb_dev/",
+      "ts": "2026-04-22T08:26:50.544Z"
     }
   ],
   "cron": [
@@ -683,7 +683,7 @@
       "command": "/Users/shivashish/SaSMaster/scripts/sasmaster-build.sh >> /Users/shivashish/SaSMaster/logs/cron.log 2>&1",
       "channel": "#sasmaster-builds",
       "weekly": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "2:00 AM",
@@ -691,7 +691,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/load-tmdb-to-s3.js all >> /Users/shivashish/SaSMaster/logs/tmdb-load.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "5:00 AM",
@@ -754,7 +754,7 @@
       "name": "finish future of tv.js",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/finish-future-of-tv.js >> /Users/shivashish/SaSMaster/logs/future-of-tv.log 2>&1",
       "channel": "—",
-      "weekly": false,
+      "weekly": true,
       "status": "pending"
     },
     {
@@ -763,7 +763,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/donelog-analyst.js >> /Users/shivashish/SaSMaster/logs/donelog-analyst.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "2:00 PM",
@@ -787,14 +787,14 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/linkedin-agent.js >> /Users/shivashish/SaSMaster/logs/linkedin-agent.log 2>&1",
       "channel": "#sasmaster-content",
       "weekly": true,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "8:00 PM",
       "name": "weekly review agent.js",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/weekly-review-agent.js >> /Users/shivashish/SaSMaster/logs/weekly-review.log 2>&1",
       "channel": "—",
-      "weekly": false,
+      "weekly": true,
       "status": "pending"
     },
     {
@@ -1019,8 +1019,83 @@
     }
   ],
   "slack_feed": {
-    "builds": [],
-    "intel": [],
-    "content": []
+    "builds": [
+      {
+        "ts": "1:52 AM",
+        "text": "✅ War Room Resources section + LinkedIn/TMDB routing repair"
+      },
+      {
+        "ts": "Apr 21",
+        "text": "✅ TMDB programming research — 9 shows analyzed"
+      },
+      {
+        "ts": "Apr 21",
+        "text": "✅ Build Financial Analysis Agent — bug fixes (S3 path, XBRL path, stream API)"
+      },
+      {
+        "ts": "Apr 21",
+        "text": "✅ Build EDGAR Scraper Agent v2 — bug fixes and full rewrite"
+      },
+      {
+        "ts": "Apr 21",
+        "text": "✅ Fix homepage 4-stage color transitions — v2 (strengthened)"
+      },
+      {
+        "ts": "6:30 AM",
+        "text": "✅ Build Financial Analysis Agent (agents/financial-analyst.js)"
+      }
+    ],
+    "intel": [
+      {
+        "ts": "Apr 20",
+        "text": "📡 36 signals from 10 sources — Evan Shapiro sweep complete"
+      },
+      {
+        "ts": "Apr 20",
+        "text": "📊 10/10 companies fetched — XBRL revenue + YoY delta computed"
+      },
+      {
+        "ts": "Apr 21",
+        "text": "📡 467K/1.18M titles loaded → s3://sasmaster-2026/tmdb_dev/ (39.4%)"
+      },
+      {
+        "ts": "Apr 20",
+        "text": "📡 Brief posted to #sasmaster-builds ✅"
+      },
+      {
+        "ts": "Apr 20",
+        "text": "📡 Total items: 36 from 10 sources"
+      },
+      {
+        "ts": "Apr 20",
+        "text": "📊 Got data for 10/10 companies"
+      }
+    ],
+    "content": [
+      {
+        "ts": "1:46 AM",
+        "text": "✍️ Draft posted to Slack, pending ID: mo9mqkhy"
+      },
+      {
+        "ts": "1:46 AM",
+        "text": "✍️ Drafting post — theme: \"the future of tv\""
+      },
+      {
+        "ts": "1:46 AM",
+        "text": "✍️ Starting LinkedIn Writing Agent..."
+      },
+      {
+        "ts": "1:49 AM",
+        "text": "📺 No new trending shows to inject"
+      },
+      {
+        "ts": "1:49 AM",
+        "text": "📺 Starting TMDB Trending Agent..."
+      },
+      {
+        "ts": "10:00 PM",
+        "text": "📺 Error: An API error occurred: not_in_channel"
+      }
+    ]
   }
 }

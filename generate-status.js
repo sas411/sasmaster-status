@@ -189,7 +189,6 @@ function parseCrontab() {
     if (!m) return;
     const [, min, hr, dom, mon, dow, cmd, comment] = m;
 
-    // Friendly time
     const h = parseInt(hr, 10);
     const m2 = parseInt(min, 10);
     let timeStr;
@@ -200,18 +199,21 @@ function parseCrontab() {
       timeStr = `${hh}:${String(m2).padStart(2, '0')} ${ampm}`;
     }
 
-    // Friendly name from comment or command
     const scriptMatch = cmd.match(/([a-z0-9\-]+\.(sh|js))\b/i);
     const name = comment || (scriptMatch ? scriptMatch[1] : cmd.slice(0, 40));
 
-    // Channel inference
     let channel = '—';
     if (/intel|edgar|media-intel|tech-intel/i.test(cmd)) channel = '#sasmaster-intel';
     else if (/linkedin|content|tmdb-trending/i.test(cmd)) channel = '#sasmaster-content';
     else if (/build|jarvis|briefing|visuals/i.test(cmd)) channel = '#sasmaster-builds';
 
-    // Weekly vs daily
-    const isWeekly = dow !== '*' && dow !== '0' || /mon8pm|sun8pm|fri/i.test(name);
+    // Weekly/monthly: any non-'*' in dow/dom/mon means this isn't a daily job
+    const isWeekly = (dow !== '*' && dow !== '') || (dom !== '*' && dom !== '') || (mon !== '*' && mon !== '');
+
+    // Today's scheduled Date for done/pending comparison
+    const scheduledToday = (!isNaN(h) && !isNaN(m2)) ? (() => {
+      const d = new Date(); d.setHours(h, m2, 0, 0); return d.getTime();
+    })() : null;
 
     jobs.push({
       time: timeStr,
@@ -219,8 +221,9 @@ function parseCrontab() {
       command: cmd,
       channel,
       weekly: isWeekly,
-      status: 'pending', // populated by caller against agent log timestamps
-      _sortKey: h * 60 + (isNaN(m2) ? 0 : m2),
+      status: 'pending', // enriched later
+      _sortKey: (isNaN(h) ? 0 : h) * 60 + (isNaN(m2) ? 0 : m2),
+      _scheduledToday: scheduledToday,
     });
   });
 
@@ -357,28 +360,107 @@ function buildRecentActivity(intelFeed, recentBuilds, scrapers) {
   return acts.slice(0, 12);
 }
 
-// ── Cron status enrichment (uses agent lastRun timestamps) ───────────────────
+// ── Cron status enrichment ───────────────────────────────────────────────────
+// Correct semantics: "done" = today's scheduled time has passed AND the agent
+// (or the log file) shows activity on/after that scheduled time.
+// "pending" = scheduled time is still in the future, OR scheduled time passed
+// but no activity since then (missed run).
 function enrichCronStatus(cronJobs, agents) {
   const now = Date.now();
-  const agentByScript = {};
-  agents.forEach(a => {
-    agentByScript[a.log.replace(/\.log$/, '')] = a;
-  });
 
   return cronJobs.map(c => {
-    // Derive status: done if agent ran in the last 26 hours, else pending
+    const sched = c._scheduledToday;
+    const { _scheduledToday, ...clean } = c;
+
+    // No scheduled time parsed → fall back to 'pending'
+    if (!sched) return { ...clean, status: 'pending' };
+
+    // Future today → pending
+    if (sched > now) return { ...clean, status: 'pending' };
+
+    // Past today → check agent or log mtime
     const scriptMatch = c.command.match(/([a-z0-9\-]+)(-agent)?\.js/i);
-    if (!scriptMatch) return { ...c, status: 'pending' };
-    const key = scriptMatch[1].replace(/-agent$/, '');
-    // Try matching common agent keys
-    const agent = agents.find(a => a.log.includes(key) || a.log.includes(scriptMatch[1]));
-    if (!agent || !agent.lastRun) return { ...c, status: 'pending' };
-    const ageHours = (now - new Date(agent.lastRun).getTime()) / 36e5;
-    let status = 'pending';
-    if (agent.status === 'routing') status = 'routing';
-    else if (ageHours < 26) status = 'done';
-    return { ...c, status };
+    const bashMatch   = c.command.match(/\b([a-z0-9\-]+)\.sh\b/i);
+    const key         = scriptMatch ? scriptMatch[1].replace(/-agent$/, '') : (bashMatch ? bashMatch[1] : '');
+    const agent = key ? agents.find(a => a.log && (a.log.includes(key) || (scriptMatch && a.log.includes(scriptMatch[1])))) : null;
+
+    if (agent && agent.status === 'routing') return { ...clean, status: 'routing' };
+    if (agent && agent.lastRun && new Date(agent.lastRun).getTime() >= sched) {
+      return { ...clean, status: 'done' };
+    }
+
+    // No agent match — check the redirected log file's mtime
+    const logMatch = c.command.match(/>>\s*([^\s]+\.log)/);
+    if (logMatch) {
+      const logPath = logMatch[1];
+      try {
+        const mtime = fs.statSync(logPath).mtime.getTime();
+        if (mtime >= sched) return { ...clean, status: 'done' };
+      } catch { /* log file missing */ }
+    }
+
+    // Scheduled fired but no activity detected
+    return { ...clean, status: 'pending' };
   });
+}
+
+// ── Slack feed (derived from real sources until JARVIS caches to disk) ───────
+// Maps: recentBuilds → #sasmaster-builds, intel_feed → #sasmaster-intel,
+// LinkedIn + TMDB Trending log tails → #sasmaster-content.
+function buildSlackFeed(recentBuilds, intelFeed) {
+  const LOG = path.join(SASMASTER, 'logs');
+  const tsShort = iso => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return String(iso).slice(0, 16);
+    // Format: "HH:MM AM/PM EDT" vs "Apr 22" for older
+    const diffHours = (Date.now() - d.getTime()) / 36e5;
+    if (diffHours < 24) {
+      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
+    }
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' });
+  };
+
+  // Tail a log file and return the last N readable lines as Slack-like messages
+  const tailLogAsMessages = (logName, emoji, max = 4) => {
+    const p = path.join(LOG, logName);
+    if (!fs.existsSync(p)) return [];
+    try {
+      const lines = fs.readFileSync(p, 'utf8').split('\n').filter(Boolean).slice(-15).reverse();
+      const out = [];
+      for (const line of lines) {
+        const m = line.match(/^\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]\s*(?:\[[A-Z0-9_-]+\]\s*)?(.*)$/);
+        if (!m) continue;
+        const text = m[2].trim();
+        if (!text) continue;
+        out.push({ ts: tsShort(m[1]), text: `${emoji} ${text.slice(0, 140)}` });
+        if (out.length >= max) break;
+      }
+      return out;
+    } catch { return []; }
+  };
+
+  // #sasmaster-builds — recent DONE_LOG entries (the build track)
+  const builds = (recentBuilds || []).slice(0, 6).map(b => ({
+    ts: tsShort(b.date),
+    text: `✅ ${(b.task || '').slice(0, 140)}`,
+  })).filter(m => m.text && m.text !== '✅ ');
+
+  // #sasmaster-intel — intel feed (EDGAR, Media Intel signals) + media-intel log tail
+  const intelFromFeed = (intelFeed || []).slice(0, 4).map(i => ({
+    ts: tsShort(i.ts),
+    text: `${/edgar/i.test(i.source || '') ? '📊' : '📡'} ${(i.text || '').slice(0, 140)}`,
+  }));
+  const intelFromLog  = tailLogAsMessages('media-intel.log', '📡', 2).concat(tailLogAsMessages('sec-edgar.log', '📊', 2));
+  const intel = [...intelFromFeed, ...intelFromLog].slice(0, 6);
+
+  // #sasmaster-content — LinkedIn + TMDB Trending log tails
+  const content = [
+    ...tailLogAsMessages('linkedin-agent.log', '✍️', 3),
+    ...tailLogAsMessages('tmdb-agent.log', '📺', 3),
+  ].slice(0, 6);
+
+  return { builds, intel, content };
 }
 
 // ── Tasks for v3 Kanban (flatten existing kanban into v3 shape) ──────────────
@@ -450,12 +532,7 @@ const status = {
     path: '',
     completed_at: b.date || '',
   })),
-  slack_feed: {
-    // TODO: wire to JARVIS-written cache file or Slack API poll
-    builds:  [],
-    intel:   [],
-    content: [],
-  },
+  slack_feed: buildSlackFeed(recentBuilds, intelFeed),
 };
 
 fs.writeFileSync(OUT, JSON.stringify(status, null, 2));
