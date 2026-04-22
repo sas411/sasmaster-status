@@ -109,14 +109,20 @@ function parsePending() {
 }
 
 // ── Agent fleet ──────────────────────────────────────────────────────────────
+// `jobId` maps to Command API /trigger VALID_JOBS — null means no Run button.
+// `channel` is the primary Slack destination — used by UI without a hardcoded map.
 function parseAgents() {
   const LOG = path.join(SASMASTER, 'logs');
   const agents = [
-    { name: 'JARVIS',          icon: '🤖', schedule: '24/7 daemon',  nextRun: 'Always on',    log: 'jarvis.log' },
-    { name: 'Media Intel',     icon: '📡', schedule: '6AM daily',     nextRun: 'Tomorrow 6AM', log: 'media-intel.log' },
-    { name: 'TMDB Trending',   icon: '📺', schedule: '12AM nightly',  nextRun: 'Tonight 12AM', log: 'tmdb-agent.log' },
-    { name: 'DoneLog Analyst', icon: '📊', schedule: 'Post-build',    nextRun: 'Post 12AM build', log: 'donelog-analyst.log' },
-    { name: 'LinkedIn Agent',  icon: '✍️', schedule: 'Monday 8PM',   nextRun: 'Mon 8PM',      log: 'linkedin-agent.log' },
+    { name: 'JARVIS',            icon: '🤖', schedule: '24/7 daemon',   nextRun: 'Always on',       log: 'jarvis.log',            channel: '24/7 daemon',        jobId: null },
+    { name: 'Media Intel',       icon: '📡', schedule: '6AM daily',     nextRun: 'Tomorrow 6AM',    log: 'media-intel.log',       channel: '#sasmaster-intel',   jobId: 'media-intel' },
+    { name: 'TMDB Trending',     icon: '📺', schedule: '5AM + 10PM',    nextRun: 'Tonight 10PM',    log: 'tmdb-agent.log',        channel: '#sasmaster-content', jobId: 'tmdb-load' },
+    { name: 'DoneLog Analyst',   icon: '📊', schedule: 'Post-build',    nextRun: 'Post 12AM build', log: 'donelog-analyst.log',   channel: '#sasmaster-builds',  jobId: null },
+    { name: 'LinkedIn Agent',    icon: '✍️',  schedule: 'Monday 8PM',   nextRun: 'Mon 8PM',         log: 'linkedin-agent.log',    channel: '#sasmaster-content', jobId: 'linkedin-agent' },
+    { name: 'SEC EDGAR',         icon: '📑', schedule: '6:30 AM daily', nextRun: 'Tomorrow 6:30 AM',log: 'sec-edgar.log',         channel: '#sasmaster-intel',   jobId: null },
+    { name: 'Tech Intel',        icon: '🛰️', schedule: 'Friday 6PM',   nextRun: 'Fri 6PM',         log: 'tech-intel.log',        channel: '#sasmaster-intel',   jobId: 'tech-intel' },
+    { name: 'Financial Analyst', icon: '💰', schedule: 'Sunday 8PM',   nextRun: 'Sun 8PM',         log: 'financial-analyst.log', channel: '#sasmaster-intel',   jobId: null },
+    { name: 'Weekly Review',     icon: '🗂️', schedule: 'Sunday 8PM',   nextRun: 'Sun 8PM',         log: 'weekly-review.log',     channel: '#sasmaster-builds',  jobId: 'weekly-review' },
   ];
 
   return agents.map(a => {
@@ -126,16 +132,13 @@ function parseAgents() {
     const lines = fs.readFileSync(logFile, 'utf8').split('\n').filter(Boolean);
     const last  = lines[lines.length - 1] || '';
 
-    // Find last timestamp
     const tsMatch = last.match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
     const lastRun = tsMatch ? tsMatch[1] : null;
 
-    // Extract readable summary: strip timestamp + tag prefix, cap at 80 chars
     const summary = last.replace(/^\[\d{4}-\d{2}-\d{2}T[\d:.]+Z\]\s*/, '')
                         .replace(/^\[[A-Z0-9_-]+\]\s*/i, '')
                         .slice(0, 80);
 
-    // not_in_channel = routing issue, not agent failure
     const routingErr = /not_in_channel/i.test(last);
     const hardError  = !routingErr && /error|fatal/i.test(last);
     const status     = hardError ? 'error' : routingErr ? 'routing' : 'healthy';
@@ -440,25 +443,36 @@ function buildSlackFeed(recentBuilds, intelFeed) {
     } catch { return []; }
   };
 
-  // #sasmaster-builds — recent DONE_LOG entries (the build track)
-  const builds = (recentBuilds || []).slice(0, 6).map(b => ({
+  // #sasmaster-builds — DONE_LOG + DoneLog Analyst + daily briefing + morning package
+  const buildsFromDone = (recentBuilds || []).slice(0, 4).map(b => ({
     ts: tsShort(b.date),
     text: `✅ ${(b.task || '').slice(0, 140)}`,
   })).filter(m => m.text && m.text !== '✅ ');
+  const buildsFromLogs = [
+    ...tailLogAsMessages('donelog-analyst.log', '📊', 2),
+    ...tailLogAsMessages('briefing.log',        '☀️', 1),
+    ...tailLogAsMessages('morning-package.log', '📦', 1),
+  ];
+  const builds = [...buildsFromDone, ...buildsFromLogs].slice(0, 8);
 
-  // #sasmaster-intel — intel feed (EDGAR, Media Intel signals) + media-intel log tail
-  const intelFromFeed = (intelFeed || []).slice(0, 4).map(i => ({
+  // #sasmaster-intel — intel_feed + media-intel + sec-edgar + tech-intel log tails
+  const intelFromFeed = (intelFeed || []).slice(0, 3).map(i => ({
     ts: tsShort(i.ts),
-    text: `${/edgar/i.test(i.source || '') ? '📊' : '📡'} ${(i.text || '').slice(0, 140)}`,
+    text: `${/edgar/i.test(i.source || '') ? '📑' : '📡'} ${(i.text || '').slice(0, 140)}`,
   }));
-  const intelFromLog  = tailLogAsMessages('media-intel.log', '📡', 2).concat(tailLogAsMessages('sec-edgar.log', '📊', 2));
-  const intel = [...intelFromFeed, ...intelFromLog].slice(0, 6);
+  const intelFromLogs = [
+    ...tailLogAsMessages('media-intel.log', '📡', 2),
+    ...tailLogAsMessages('sec-edgar.log',   '📑', 2),
+    ...tailLogAsMessages('tech-intel.log',  '🛰️', 2),
+  ];
+  const intel = [...intelFromFeed, ...intelFromLogs].slice(0, 8);
 
-  // #sasmaster-content — LinkedIn + TMDB Trending log tails
+  // #sasmaster-content — LinkedIn + TMDB Trending + Weekly Review
   const content = [
     ...tailLogAsMessages('linkedin-agent.log', '✍️', 3),
-    ...tailLogAsMessages('tmdb-agent.log', '📺', 3),
-  ].slice(0, 6);
+    ...tailLogAsMessages('tmdb-agent.log',     '📺', 3),
+    ...tailLogAsMessages('weekly-review.log',  '🗂️', 1),
+  ].slice(0, 8);
 
   return { builds, intel, content };
 }

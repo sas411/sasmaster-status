@@ -810,14 +810,6 @@ let fleetView = 'grid';
 
 const FLEET_STATUS_CLASS = { healthy: 'ok', routing: 'route', error: 'run', never: 'que' };
 const FLEET_STATUS_LABEL = { healthy: 'OK', routing: 'ROUTING', error: 'ERR', never: 'NEVER' };
-const FLEET_JOB_MAP = { 'Media Intel': 'media-intel', 'TMDB Trending': 'tmdb-load', 'LinkedIn Agent': 'linkedin-agent' };
-const FLEET_CHANNEL_MAP = {
-  'JARVIS': '24/7 daemon',
-  'Media Intel': '#sasmaster-intel',
-  'TMDB Trending': '#sasmaster-content',
-  'DoneLog Analyst': '#sasmaster-builds',
-  'LinkedIn Agent': '#sasmaster-content',
-};
 
 function setFleetView(mode) {
   fleetView = mode;
@@ -852,7 +844,7 @@ function renderFleet(agents) {
       + (agents || []).map(a => {
           const cls = FLEET_STATUS_CLASS[a.status] || 'ok';
           const label = FLEET_STATUS_LABEL[a.status] || (a.status || 'OK').toUpperCase();
-          const jobId = FLEET_JOB_MAP[a.name] || '';
+          const jobId = a.jobId || '';
           const canRun = !!jobId;
           return '<div style="display:grid;grid-template-columns:22px 1fr 80px 90px 90px 150px 130px;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border-light);align-items:center;transition:background .12s" onmouseover="this.style.background=\'var(--sbg)\'" onmouseout="this.style.background=\'\'">'
             + '<span style="font-size:14px">' + (a.icon || '🤖') + '</span>'
@@ -860,7 +852,7 @@ function renderFleet(agents) {
             + '<span><span class="st ' + cls + '">' + label + '</span></span>'
             + '<span style="font-family:var(--mono);font-size:9px;color:var(--muted)">' + timeAgo(a.lastRun) + '</span>'
             + '<span style="font-family:var(--mono);font-size:9px;color:var(--green)">' + escHtml(a.nextRun || '—') + '</span>'
-            + '<span style="font-family:var(--mono);font-size:9px;color:var(--purple)">' + escHtml(FLEET_CHANNEL_MAP[a.name] || '—') + '</span>'
+            + '<span style="font-family:var(--mono);font-size:9px;color:var(--purple)">' + escHtml(a.channel || '—') + '</span>'
             + '<span style="display:flex;gap:5px;justify-content:flex-end">'
             +   (canRun ? '<button class="btn brun" onclick="triggerJob(\'' + jobId + '\',this)">▶ Run</button>' : '')
             +   '<button class="btn blog" onclick="openLogDrawer(\'' + escQ(a.name) + '\',\'' + escQ(a.log || '') + '\')">📄 Logs</button>'
@@ -880,7 +872,7 @@ function renderFleet(agents) {
   el.innerHTML = (agents || []).map(a => {
     const cls = FLEET_STATUS_CLASS[a.status] || 'ok';
     const label = FLEET_STATUS_LABEL[a.status] || (a.status || 'OK').toUpperCase();
-    const jobId = FLEET_JOB_MAP[a.name] || '';
+    const jobId = a.jobId || '';
     const canRun = !!jobId;
     const fixHint = a.status === 'routing' ? '<div style="font-family:var(--mono);font-size:9px;color:var(--purple);margin-top:6px">Fix: /invite @jarvis in #sasmaster-content (and intel, builds if missing)</div>' : '';
     return '<div class="fc" onclick="this.classList.toggle(\'open\')">'
@@ -893,7 +885,7 @@ function renderFleet(agents) {
       +   '<div class="fc-r"><span class="fck">last</span><span class="fcv">' + timeAgo(a.lastRun) + '</span></div>'
       +   '<div class="fc-r"><span class="fck">next</span><span class="fcv">' + escHtml(a.nextRun || '—') + '</span></div>'
       + '</div>'
-      + '<div class="fc-ch">→ ' + escHtml(FLEET_CHANNEL_MAP[a.name] || '—') + '</div>'
+      + '<div class="fc-ch">→ ' + escHtml(a.channel || '—') + '</div>'
       + '<div class="fc-exp">'
       +   '<div class="term">' + escHtml(a.lastOutput || 'No recent output.') + '</div>'
       +   fixHint
