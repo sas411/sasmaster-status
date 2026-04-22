@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>SaSMaster — Distributed Memory System v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lav-50:  #FAF8FF;
+    --lav-100: #F3EEFC;
+    --lav-150: #EDE4FA;
+    --lav-200: #E8DEFA;
+    --lav-300: #D4C4F3;
+    --lav-400: #B79FEA;
+    --pur-500: #8B5CF6;
+    --pur-600: #7C3AED;
+    --pur-700: #6D28D9;
+    --pur-800: #5B21B6;
+    --pur-900: #4C1D95;
+    --ink-900: #1E1B2E;
+    --ink-800: #29253E;
+    --ink-700: #3B345A;
+    --ink-500: #6B6486;
+    --ink-400: #9690AE;
+    --ink-300: #BFB9D1;
+    --ok:      #059669;
+    --ok-bg:   #D1FAE5;
+    --warn:    #D97706;
+    --warn-bg: #FEF3C7;
+    --info:    #0EA5E9;
+    --info-bg: #E0F2FE;
+    --rose:    #E11D48;
+    --rose-bg: #FFE4E6;
+    --white:   #FFFFFF;
+    --shadow-sm: 0 1px 2px rgba(76,29,149,0.06);
+    --shadow-md: 0 4px 12px rgba(76,29,149,0.08);
+    --shadow-lg: 0 8px 24px rgba(76,29,149,0.10);
+    --shadow-xl: 0 12px 40px rgba(76,29,149,0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background:
+      radial-gradient(ellipse at top left, #F5F0FF 0%, transparent 60%),
+      radial-gradient(ellipse at bottom right, #FDF2F8 0%, transparent 55%),
+      linear-gradient(180deg, #FAF8FF 0%, #FFFFFF 100%);
+    color: var(--ink-900);
+    -webkit-font-smoothing: antialiased;
+    font-size: 13px;
+    line-height: 1.45;
+    min-height: 100vh;
+  }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+  .page-header {
+    background: linear-gradient(135deg, var(--pur-900) 0%, var(--pur-700) 60%, var(--pur-500) 100%);
+    padding: 32px 40px 28px;
+    color: white;
+  }
+  .page-header .eyebrow {
+    font-size: 10px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--lav-300); margin-bottom: 8px;
+  }
+  .page-header h1 { font-size: 26px; font-weight: 800; letter-spacing: -.4px; margin-bottom: 6px; }
+  .page-header .sub { font-size: 13px; color: var(--lav-300); font-weight: 400; }
+  .badge-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600;
+    letter-spacing: .04em;
+  }
+  .badge-ok   { background: rgba(5,150,105,.25);  color: #6EE7B7; border: 1px solid rgba(5,150,105,.4); }
+  .badge-info { background: rgba(14,165,233,.2);  color: #BAE6FD; border: 1px solid rgba(14,165,233,.35); }
+  .badge-lav  { background: rgba(196,180,255,.15);color: var(--lav-300); border: 1px solid rgba(196,180,255,.3); }
+  .badge-warn { background: rgba(217,119,6,.2);   color: #FDE68A; border: 1px solid rgba(217,119,6,.35); }
+  .dot-live { width: 6px; height: 6px; border-radius: 50%; background: #34D399; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  .canvas { max-width: 1100px; margin: 0 auto; padding: 36px 32px 60px; }
+
+  .sec-title {
+    font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--pur-600); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .sec-title::after { content:''; flex:1; height:1px; background: var(--lav-200); }
+
+  .card {
+    background: var(--white); border: 1px solid var(--lav-200);
+    border-radius: 12px; padding: 20px 22px;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* ── Layer stack ── */
+  .layer-stack { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
+  .layer {
+    border-radius: 12px; border: 1.5px solid var(--lav-200);
+    background: var(--white); box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .layer-header {
+    padding: 10px 18px; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--lav-100);
+  }
+  .layer-num {
+    width: 22px; height: 22px; border-radius: 50%; font-size: 10px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--pur-600); color: white; flex-shrink: 0;
+  }
+  .layer-title { font-size: 12px; font-weight: 700; color: var(--ink-900); flex: 1; }
+  .layer-tag {
+    font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 4px;
+  }
+  .tag-state  { background: var(--lav-100); color: var(--pur-700); }
+  .tag-new    { background: #ECFDF5; color: #065F46; }
+  .tag-trimmed{ background: var(--warn-bg); color: var(--warn); }
+  .tag-vault  { background: var(--info-bg); color: #0369A1; }
+  .layer-body { padding: 14px 18px; }
+
+  /* ── File grid ── */
+  .file-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 40px; }
+  .file-card {
+    background: var(--white); border-radius: 12px; padding: 18px 16px 16px;
+    border: 1.5px solid var(--lav-200); box-shadow: var(--shadow-sm);
+    display: flex; flex-direction: column; gap: 8px;
+    transition: box-shadow .15s, border-color .15s;
+  }
+  .file-card:hover { border-color: var(--pur-500); box-shadow: var(--shadow-lg); }
+  .file-card.updated { border-color: var(--warn); }
+  .file-card.new-card { border-color: var(--ok); }
+  .file-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+  .icon-mem   { background: linear-gradient(135deg,#EDE9FE,#DDD6FE); }
+  .icon-sh    { background: linear-gradient(135deg,#D1FAE5,#A7F3D0); }
+  .icon-patch { background: linear-gradient(135deg,#E0F2FE,#BAE6FD); }
+  .icon-upd   { background: linear-gradient(135deg,#FEF3C7,#FDE68A); }
+  .icon-agent { background: linear-gradient(135deg,#FCE7F3,#FBCFE8); }
+  .icon-vault { background: linear-gradient(135deg,#DBEAFE,#BFDBFE); }
+  .file-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--pur-700); }
+  .file-path { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--ink-400); }
+  .file-role { font-size: 11px; color: var(--ink-700); line-height: 1.5; flex: 1; }
+  .file-tag-pill {
+    align-self: flex-start; font-size: 9px; font-weight: 700; letter-spacing: .06em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  }
+  .tp-state   { background: var(--lav-100);  color: var(--pur-700); }
+  .tp-trimmed { background: var(--warn-bg);  color: var(--warn); }
+  .tp-deploy  { background: var(--ok-bg);    color: var(--ok); }
+  .tp-prompt  { background: var(--info-bg);  color: var(--info); }
+  .tp-update  { background: var(--warn-bg);  color: var(--warn); }
+  .tp-new     { background: #ECFDF5;         color: #065F46; }
+
+  /* ── Agent cards ── */
+  .agent-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 40px; }
+  .agent-card {
+    background: var(--white); border-radius: 12px; padding: 18px 16px 16px;
+    border: 1.5px solid #FBCFE8; box-shadow: var(--shadow-sm);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .agent-icon { font-size: 22px; }
+  .agent-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--pur-700); }
+  .agent-model{ font-size: 9.5px; color: var(--ink-400); font-family: 'JetBrains Mono', monospace; }
+  .agent-role { font-size: 11px; color: var(--ink-700); line-height: 1.5; flex: 1; }
+  .agent-scope {
+    font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 4px; align-self: flex-start;
+    background: #FCE7F3; color: #9D174D;
+  }
+
+  /* ── Vault table ── */
+  .vault-table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+  .vault-table th {
+    text-align: left; font-size: 10px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-400); padding: 8px 12px;
+    border-bottom: 2px solid var(--lav-200); background: var(--lav-50);
+  }
+  .vault-table td {
+    padding: 9px 12px; font-size: 11.5px; border-bottom: 1px solid var(--lav-100);
+    vertical-align: top;
+  }
+  .vault-table tr:last-child td { border-bottom: none; }
+  .vault-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--pur-700); font-weight: 600; }
+  .vault-table td:nth-child(2) { color: var(--ink-700); }
+  .vault-table td:nth-child(3) { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-400); }
+  .vault-table tr:hover td { background: var(--lav-50); }
+
+  /* ── Architecture diagram ── */
+  .arch-diagram {
+    background: var(--ink-900); border-radius: 14px; padding: 28px 32px; margin-bottom: 40px;
+    position: relative; overflow: hidden;
+  }
+  .arch-diagram::before {
+    content: '';
+    position: absolute; top: 0; right: 0; width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .arch-title { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #C4B5FD; margin-bottom: 20px; }
+  .arch-row { display: grid; gap: 12px; margin-bottom: 12px; }
+  .arch-row-3 { grid-template-columns: repeat(3,1fr); }
+  .arch-row-4 { grid-template-columns: repeat(4,1fr); }
+  .arch-row-1 { grid-template-columns: 1fr; }
+  .arch-node {
+    border-radius: 10px; padding: 12px 14px; border: 1px solid rgba(196,181,253,0.2);
+    background: rgba(255,255,255,0.04);
+  }
+  .arch-node.highlight { border-color: rgba(139,92,246,0.5); background: rgba(139,92,246,0.1); }
+  .arch-node.new-node  { border-color: rgba(52,211,153,0.4); background: rgba(52,211,153,0.07); }
+  .arch-node .an-label { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #9CA3AF; margin-bottom: 4px; }
+  .arch-node .an-title { font-size: 12px; font-weight: 700; color: #F3F4F6; }
+  .arch-node .an-sub   { font-size: 10px; color: #9CA3AF; margin-top: 3px; line-height: 1.4; }
+  .arch-node .an-tag   { display: inline-block; margin-top: 6px; font-size: 9px; font-weight: 600; padding: 1px 7px; border-radius: 3px; background: rgba(139,92,246,0.3); color: #C4B5FD; }
+  .arch-node .an-tag.green { background: rgba(52,211,153,0.25); color: #6EE7B7; }
+  .arch-connector {
+    display: flex; align-items: center; justify-content: center;
+    color: #6B7280; font-size: 18px; padding: 4px 0;
+  }
+
+  /* ── Flow diagram ── */
+  .flow-row {
+    display: grid; grid-template-columns: 1fr 40px 1fr 40px 1fr; align-items: center;
+    gap: 0; margin-bottom: 32px;
+  }
+  .flow-node {
+    background: var(--white); border: 1.5px solid var(--lav-200);
+    border-radius: 10px; padding: 14px 16px; text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .flow-node.accent { border-color: var(--pur-500); background: linear-gradient(135deg,#FAF8FF,#F3EEFC); }
+  .flow-node .fn-label { font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--ink-400); margin-bottom: 4px; }
+  .flow-node .fn-title { font-size: 13px; font-weight: 700; color: var(--ink-900); }
+  .flow-node .fn-sub   { font-size: 10px; color: var(--ink-500); margin-top: 2px; }
+  .flow-arrow { text-align: center; color: var(--pur-500); font-size: 20px; }
+  .arrow-label { font-size: 9px; color: var(--ink-400); display: block; margin-top: 2px; }
+
+  /* ── Status bar ── */
+  .status-bar {
+    background: var(--ink-900); border-radius: 10px; padding: 14px 20px;
+    display: flex; align-items: center; gap: 16px; margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .sb-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #D1D5DB; }
+  .sb-item strong { color: #C4B5FD; }
+  .sb-sep { color: #374151; }
+
+  /* ── Event grid ── */
+  .event-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 40px; }
+  .event-card {
+    background: var(--white); border: 1px solid var(--lav-150);
+    border-radius: 10px; padding: 14px 15px; box-shadow: var(--shadow-sm);
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .event-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .event-title { font-size: 12px; font-weight: 600; color: var(--ink-900); }
+  .event-sub   { font-size: 10.5px; color: var(--ink-500); margin-top: 2px; line-height: 1.5; }
+
+  /* ── Search hints ── */
+  .hints-table { width: 100%; border-collapse: collapse; }
+  .hints-table th {
+    text-align: left; font-size: 10px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-400); padding: 6px 12px;
+    border-bottom: 1px solid var(--lav-200);
+  }
+  .hints-table td {
+    padding: 8px 12px; font-size: 11.5px; border-bottom: 1px solid var(--lav-100);
+    vertical-align: top;
+  }
+  .hints-table tr:last-child td { border-bottom: none; }
+  .hints-table td:first-child { font-weight: 600; color: var(--ink-800); width: 38%; }
+  .hints-table td:last-child  { font-family: 'JetBrains Mono', monospace; color: var(--pur-700); font-size: 10.5px; }
+  .hints-table tr:hover td    { background: var(--lav-50); }
+  .hints-table tr.new-row td  { background: #F0FDF4; }
+  .hints-table tr.new-row td:first-child::after { content: ' ✦'; color: var(--ok); font-size: 9px; }
+
+  /* ── Delta badge ── */
+  .delta-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0;
+    border-radius: 20px; font-size: 9px; font-weight: 700; padding: 2px 8px;
+    letter-spacing: .04em; margin-left: 8px; vertical-align: middle;
+  }
+
+  .footer { text-align: center; padding-top: 24px; font-size: 10px; color: var(--ink-400); }
+
+  @media (max-width: 768px) {
+    .file-grid  { grid-template-columns: 1fr 1fr; }
+    .agent-grid { grid-template-columns: 1fr; }
+    .event-grid { grid-template-columns: 1fr; }
+    .flow-row   { grid-template-columns: 1fr; }
+    .arch-row-3, .arch-row-4 { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="eyebrow">SaSMaster · Memory System</div>
+  <h1>Distributed Memory — v2</h1>
+  <div class="sub">CLAUDE_MEMORY.md compressed to key:value · 3 sub-agents deployed · Obsidian knowledge vault initialized · scraper background knowledge complete</div>
+  <div class="badge-row">
+    <span class="badge badge-ok"><span class="dot-live"></span>Updated 2026-04-22</span>
+    <span class="badge badge-info">3 Agents Live</span>
+    <span class="badge badge-warn">Memory &lt;250 tokens</span>
+    <span class="badge badge-lav">8-doc Obsidian Vault</span>
+  </div>
+</div>
+
+<div class="canvas">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <div class="sb-item"><strong>Memory file:</strong> ~/SaSMaster/CLAUDE_MEMORY.md</div>
+    <span class="sb-sep">·</span>
+    <div class="sb-item"><strong>Agents:</strong> ~/.claude/agents/ (3 files)</div>
+    <span class="sb-sep">·</span>
+    <div class="sb-item"><strong>Vault:</strong> ~/SaSMaster/obsidian/ (8 docs, git init)</div>
+    <span class="sb-sep">·</span>
+    <div class="sb-item"><strong>Last updated:</strong> 2026-04-22 10:35 EDT</div>
+  </div>
+
+  <!-- Full system architecture -->
+  <div class="sec-title">Memory System Architecture</div>
+  <div class="arch-diagram">
+    <div class="arch-title">Context layers — how Claude knows what it knows</div>
+
+    <!-- Layer 1: Runtime context -->
+    <div class="arch-row arch-row-3" style="margin-bottom:8px;">
+      <div class="arch-node highlight">
+        <div class="an-label">Layer 1 — Runtime State</div>
+        <div class="an-title">CLAUDE_MEMORY.md</div>
+        <div class="an-sub">key:value compressed · &lt;250 tokens · loaded at every session via async-prompt.md</div>
+        <span class="an-tag">Source of Truth</span>
+      </div>
+      <div class="arch-node new-node">
+        <div class="an-label">Layer 2 — Sub-Agents</div>
+        <div class="an-title">~/.claude/agents/</div>
+        <div class="an-sub">data-modeler · scraper-debugger · jarvis-ops · architect</div>
+        <span class="an-tag green">4 agents live</span>
+      </div>
+      <div class="arch-node new-node">
+        <div class="an-label">Layer 3 — Knowledge Vault</div>
+        <div class="an-title">~/SaSMaster/obsidian/</div>
+        <div class="an-sub">2 ADRs · 2 schema docs · scraper inventory · agent fleet · phase roadmap · JARVIS runbook</div>
+        <span class="an-tag green">8 docs · git init</span>
+      </div>
+    </div>
+
+    <div class="arch-connector">↓ feeds into ↓</div>
+
+    <!-- Layer 2: Delivery mechanisms -->
+    <div class="arch-row arch-row-4" style="margin-bottom:8px;">
+      <div class="arch-node">
+        <div class="an-label">Delivery A</div>
+        <div class="an-title">async-prompt.md</div>
+        <div class="an-sub">prepends memory-load instructions to every Claude Code session</div>
+      </div>
+      <div class="arch-node">
+        <div class="an-label">Delivery B</div>
+        <div class="an-title">Agent tool</div>
+        <div class="an-sub">main session spawns sub-agents with full scraper / schema / ops context</div>
+      </div>
+      <div class="arch-node">
+        <div class="an-label">Delivery C</div>
+        <div class="an-title">update-memory.sh</div>
+        <div class="an-sub">appends timestamped events — auto-called after builds, deploys, schema changes</div>
+      </div>
+      <div class="arch-node">
+        <div class="an-label">Delivery D</div>
+        <div class="an-title">conversation_search</div>
+        <div class="an-sub">Claude.ai context recovery — Search Hints table maps topic → keywords</div>
+      </div>
+    </div>
+
+    <div class="arch-connector">↓ consumed by ↓</div>
+
+    <!-- Layer 3: Consumers -->
+    <div class="arch-row arch-row-3">
+      <div class="arch-node">
+        <div class="an-label">Consumer A</div>
+        <div class="an-title">Claude Code (CLI)</div>
+        <div class="an-sub">async build loop · JARVIS triggers · on-demand dev sessions</div>
+      </div>
+      <div class="arch-node">
+        <div class="an-label">Consumer B</div>
+        <div class="an-title">Claude.ai (chat)</div>
+        <div class="an-sub">strategic planning · design reviews · research sessions</div>
+      </div>
+      <div class="arch-node">
+        <div class="an-label">Consumer C</div>
+        <div class="an-title">Specialized Agents</div>
+        <div class="an-sub">data-modeler · scraper-debugger · jarvis-ops — each with domain-specific context baked in</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Core files (v1 baseline) -->
+  <div class="sec-title">Core Files — v1 Baseline</div>
+  <div class="file-grid">
+
+    <div class="file-card updated">
+      <div class="file-icon icon-mem">🧠</div>
+      <div>
+        <div class="file-name">CLAUDE_MEMORY.md</div>
+        <div class="file-path">~/SaSMaster/</div>
+      </div>
+      <div class="file-role">Compressed to key:value format. All critical values preserved: S3 paths, Slack IDs, channel IDs, phase statuses, cron schedule, security state. Under 250 tokens.</div>
+      <span class="file-tag-pill tp-trimmed">Compressed v2</span>
+    </div>
+
+    <div class="file-card">
+      <div class="file-icon icon-sh">🚀</div>
+      <div>
+        <div class="file-name">deploy-memory.sh</div>
+        <div class="file-path">~/SaSMaster/ (one-shot)</div>
+      </div>
+      <div class="file-role">One-shot installer. Copies CLAUDE_MEMORY.md, installs update-memory.sh, prepends memory-load instructions to async-prompt.md, runs smoke test.</div>
+      <span class="file-tag-pill tp-deploy">Already Run</span>
+    </div>
+
+    <div class="file-card">
+      <div class="file-icon icon-patch">📝</div>
+      <div>
+        <div class="file-name">async-prompt-patch.md</div>
+        <div class="file-path">prepended to async-prompt.md</div>
+      </div>
+      <div class="file-role">Injected at top of async-prompt.md. Instructs Claude Code to <code>cat CLAUDE_MEMORY.md</code> at session start and call update-memory.sh after events.</div>
+      <span class="file-tag-pill tp-prompt">Session Bootstrap</span>
+    </div>
+
+    <div class="file-card">
+      <div class="file-icon icon-upd">🔧</div>
+      <div>
+        <div class="file-name">update-memory.sh</div>
+        <div class="file-path">~/SaSMaster/scripts/</div>
+      </div>
+      <div class="file-role">Appends a timestamped entry to CLAUDE_MEMORY.md and refreshes the "Last updated" header. Auto-called after significant events.</div>
+      <span class="file-tag-pill tp-update">Auto-Called</span>
+    </div>
+
+  </div>
+
+  <!-- Sub-agents (v2 new) -->
+  <div class="sec-title">Sub-Agents <span class="delta-pill">✦ New in v2</span></div>
+  <div class="agent-grid">
+
+    <div class="agent-card">
+      <div class="agent-icon">🗄️</div>
+      <div>
+        <div class="agent-name">data-modeler.md</div>
+        <div class="agent-model">model: claude-opus-4-5 · read-only</div>
+      </div>
+      <div class="agent-role">Schema authority. Reasons about Parent Key design, field specs, migration risk, DuckDB query patterns, TMDB↔IMDB entity resolution. Never writes implementation code — main session executes.</div>
+      <span class="agent-scope">Schema · Migration · DuckDB</span>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-icon">🔬</div>
+      <div>
+        <div class="agent-name">scraper-debugger.md</div>
+        <div class="agent-model">model: claude-sonnet-4-5 · execution-capable</div>
+      </div>
+      <div class="agent-role">Triage agent for all 11 direct scrapers + 4 RSG consumers. Full per-scraper context baked in: SOURCE, SCHEDULE, OUTPUT_PATH, RATE_LIMIT, KNOWN_FAILURES, VALIDATION commands.</div>
+      <span class="agent-scope">11 Scrapers · S3 · Triage</span>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-icon">⚙️</div>
+      <div>
+        <div class="agent-name">jarvis-ops.md</div>
+        <div class="agent-model">model: claude-sonnet-4-5 · execution-capable</div>
+      </div>
+      <div class="agent-role">Expert in JARVIS Socket Mode daemon, async build loop, cron schedule, and Slack notification pipeline. Knows all channel IDs, commands, and launchd plist locations.</div>
+      <span class="agent-scope">JARVIS · Cron · Slack</span>
+    </div>
+
+  </div>
+
+  <!-- Obsidian vault (v2 new) -->
+  <div class="sec-title">Obsidian Knowledge Vault <span class="delta-pill">✦ New in v2</span></div>
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:40px;">
+    <table class="vault-table">
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Contents</th>
+          <th>Path</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ADR-001-parent-key-schema.md</td>
+          <td>Decision record: Parent Key v1 rationale, field specs, current state (589K rows), IP note</td>
+          <td>obsidian/00-ADRs/</td>
+        </tr>
+        <tr>
+          <td>ADR-002-s3-path-conventions.md</td>
+          <td>LOCKED path registry with rationale: ZSTD choice, date partitioning, versioned prefixes</td>
+          <td>obsidian/00-ADRs/</td>
+        </tr>
+        <tr>
+          <td>parent-key-v1.md</td>
+          <td>Canonical schema spec: derivation SQL, full field table, downstream consumers, evolution path</td>
+          <td>obsidian/01-Schema/</td>
+        </tr>
+        <tr>
+          <td>parquet-specs.md</td>
+          <td>ZSTD encoding defaults, per-dataset field specs, DuckDB query patterns, corruption recovery</td>
+          <td>obsidian/01-Schema/</td>
+        </tr>
+        <tr>
+          <td>scraper-inventory.md</td>
+          <td>Full background knowledge for all 11 scrapers: SOURCE, SCHEDULE, RATE_LIMIT, KNOWN_FAILURES, VALIDATION</td>
+          <td>obsidian/02-Scrapers/</td>
+        </tr>
+        <tr>
+          <td>agent-fleet.md</td>
+          <td>All production agents + sub-agents: models, schedules, channels, invocation patterns</td>
+          <td>obsidian/03-Agents/</td>
+        </tr>
+        <tr>
+          <td>phase-status.md</td>
+          <td>Phase 1 LIVE · Phase 1b IN PROGRESS · Phase 2a NEXT · Phase 2b FUTURE — with deliverables + blockers</td>
+          <td>obsidian/04-Roadmap/</td>
+        </tr>
+        <tr>
+          <td>jarvis-runbook.md</td>
+          <td>JARVIS commands, cron schedule, Slack routing, start/stop/restart procedures, known issues</td>
+          <td>obsidian/05-Ops/</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Session flow -->
+  <div class="sec-title">Session Flow</div>
+
+  <div style="margin-bottom:12px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ok);margin-bottom:10px;">
+      Path A — Claude Code Session (main)
+    </div>
+    <div class="flow-row">
+      <div class="flow-node">
+        <div class="fn-label">Trigger</div>
+        <div class="fn-title">Session Start</div>
+        <div class="fn-sub">async-prompt.md loaded</div>
+      </div>
+      <div class="flow-arrow">→<span class="arrow-label">reads</span></div>
+      <div class="flow-node accent">
+        <div class="fn-label">Memory Patch</div>
+        <div class="fn-title">cat CLAUDE_MEMORY.md</div>
+        <div class="fn-sub">full state in &lt;250 tokens</div>
+      </div>
+      <div class="flow-arrow">→<span class="arrow-label">on event</span></div>
+      <div class="flow-node">
+        <div class="fn-label">Post-Event</div>
+        <div class="fn-title">update-memory.sh</div>
+        <div class="fn-sub">"Description of event"</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:12px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#EC4899;margin-bottom:10px;">
+      Path B — Sub-Agent Invocation (new in v2)
+    </div>
+    <div class="flow-row">
+      <div class="flow-node">
+        <div class="fn-label">Trigger</div>
+        <div class="fn-title">Complex Sub-Task</div>
+        <div class="fn-sub">schema · triage · ops</div>
+      </div>
+      <div class="flow-arrow">→<span class="arrow-label">spawns</span></div>
+      <div class="flow-node accent">
+        <div class="fn-label">Agent Tool</div>
+        <div class="fn-title">Specialized Agent</div>
+        <div class="fn-sub">domain context pre-loaded</div>
+      </div>
+      <div class="flow-arrow">→<span class="arrow-label">returns</span></div>
+      <div class="flow-node">
+        <div class="fn-label">Result</div>
+        <div class="fn-title">Structured Output</div>
+        <div class="fn-sub">SCHEMA_DECISION / ROOT_CAUSE / ACTION</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:40px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--info);margin-bottom:10px;">
+      Path C — Claude.ai (context gap)
+    </div>
+    <div class="flow-row">
+      <div class="flow-node">
+        <div class="fn-label">Trigger</div>
+        <div class="fn-title">Missing Context</div>
+        <div class="fn-sub">Claude.ai 30-slot limit hit</div>
+      </div>
+      <div class="flow-arrow">→<span class="arrow-label">Shiv asks</span></div>
+      <div class="flow-node accent">
+        <div class="fn-label">conversation_search</div>
+        <div class="fn-title">"search past convos for…"</div>
+        <div class="fn-sub">uses Search Hints table</div>
+      </div>
+      <div class="flow-arrow">→<span class="arrow-label">returns</span></div>
+      <div class="flow-node">
+        <div class="fn-label">Result</div>
+        <div class="fn-title">Depth Restored</div>
+        <div class="fn-sub">past session context pulled</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- When to call update-memory.sh -->
+  <div class="sec-title">When Claude Code Calls update-memory.sh</div>
+  <div class="event-grid">
+    <div class="event-card"><div class="event-icon">✅</div><div><div class="event-title">Successful build or scraper run</div><div class="event-sub">Any sasmaster-build.sh completion, TMDB/IMDB ingest finish, cron pass.</div></div></div>
+    <div class="event-card"><div class="event-icon">🗄️</div><div><div class="event-title">Schema change or new S3 path</div><div class="event-sub">New bucket, path change, Parquet schema evolution, DuckDB view update.</div></div></div>
+    <div class="event-card"><div class="event-icon">🤖</div><div><div class="event-title">Agent deploy or config change</div><div class="event-sub">New cron entry, launchd daemon, JARVIS restart, channel wiring change.</div></div></div>
+    <div class="event-card"><div class="event-icon">🔑</div><div><div class="event-title">EIDR / Parent Key milestone</div><div class="event-sub">Auth activation, new match rate, backfill batch complete, TV pass done.</div></div></div>
+    <div class="event-card"><div class="event-icon">🔐</div><div><div class="event-title">Security event</div><div class="event-sub">Credential rotation, gitleaks scan, origin changes, pre-commit hook update.</div></div></div>
+    <div class="event-card"><div class="event-icon">✨</div><div><div class="event-title">Magic moment</div><div class="event-sub">Any first — first Parquet landed, first portal deploy, first agent live in prod.</div></div></div>
+  </div>
+
+  <!-- Search hints -->
+  <div class="sec-title">Conversation Search Hints</div>
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:40px;">
+    <table class="hints-table">
+      <thead><tr><th>Topic</th><th>Search Keywords</th></tr></thead>
+      <tbody>
+        <tr><td>EIDR backfill</td><td>EIDR backfill auth</td></tr>
+        <tr><td>Parent Key schema</td><td>parent key COALESCE imdb</td></tr>
+        <tr><td>TMDB pipeline</td><td>TMDB S3 NDJSON bulk</td></tr>
+        <tr><td>War Room deploy</td><td>War Room Vercel status</td></tr>
+        <tr><td>Security pass</td><td>gitleaks filter-repo origin</td></tr>
+        <tr><td>JARVIS setup</td><td>JARVIS socket mode launchd</td></tr>
+        <tr><td>UI design system</td><td>Bebas Neue Dr Scoop portal</td></tr>
+        <tr><td>IP ownership</td><td>RSG Databricks MM-Asset-ID</td></tr>
+        <tr><td>Nielsen license</td><td>Nielsen direct license Gracenote</td></tr>
+        <tr><td>Memory system deploy</td><td>deploy-memory.sh CLAUDE_MEMORY async-prompt</td></tr>
+        <tr class="new-row"><td>Sub-agents</td><td>data-modeler scraper-debugger jarvis-ops agent</td></tr>
+        <tr class="new-row"><td>Scraper triage</td><td>TMDB 429 S3 lockfile NDJSON Parquet scraper</td></tr>
+        <tr class="new-row"><td>Obsidian vault</td><td>obsidian ADR schema parquet-specs phase-status</td></tr>
+        <tr class="new-row"><td>Scraper inventory</td><td>tmdb-tv-seasons tmdb-collections imdb-title-basics</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    SaSMaster Distributed Memory System v2 · Updated 2026-04-22 · Maintained by Claude Code
+  </div>
+
+</div>
+</body>
+</html>
