@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>SaSMaster — JARVIS Slack Command Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lav-50:#FAF8FF;--lav-100:#F3EEFC;--lav-150:#EDE4FA;--lav-200:#E8DEFA;
+    --lav-300:#D4C4F3;--lav-400:#B79FEA;
+    --pur-500:#8B5CF6;--pur-600:#7C3AED;--pur-700:#6D28D9;--pur-900:#4C1D95;
+    --ink-900:#1E1B2E;--ink-800:#29253E;--ink-700:#3B345A;--ink-500:#6B6486;--ink-400:#9690AE;
+    --ok:#059669;--ok-bg:#D1FAE5;--warn:#D97706;--warn-bg:#FEF3C7;
+    --info:#0EA5E9;--info-bg:#E0F2FE;
+    --amber:#B45309;--amber-bg:#FEF3C7;--amber-border:#FDE68A;
+    --white:#FFFFFF;
+    --shadow-sm:0 1px 2px rgba(76,29,149,0.06);
+    --shadow-md:0 4px 12px rgba(76,29,149,0.08);
+    --shadow-lg:0 8px 24px rgba(76,29,149,0.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{
+    font-family:'Inter',-apple-system,sans-serif;
+    background:
+      radial-gradient(ellipse at top left,#F5F0FF 0%,transparent 60%),
+      radial-gradient(ellipse at bottom right,#FDF2F8 0%,transparent 55%),
+      linear-gradient(180deg,#FAF8FF 0%,#FFFFFF 100%);
+    color:var(--ink-900);-webkit-font-smoothing:antialiased;font-size:13px;line-height:1.45;min-height:100vh;
+  }
+  code{font-family:'JetBrains Mono',monospace;font-size:11px;}
+
+  /* ── Header ── */
+  .page-header{
+    background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+    padding:32px 40px 28px;color:white;position:relative;overflow:hidden;
+  }
+  .page-header::before{
+    content:'';position:absolute;top:-40px;right:-40px;
+    width:240px;height:240px;border-radius:50%;
+    background:radial-gradient(circle,rgba(139,92,246,0.2) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .page-header .eyebrow{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#94A3B8;margin-bottom:8px;}
+  .page-header h1{font-size:26px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px;}
+  .jarvis-tag{
+    display:inline-flex;align-items:center;gap:6px;
+    background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);
+    border-radius:6px;padding:2px 10px;font-size:11px;font-weight:700;color:#C4B5FD;
+    margin-right:8px;vertical-align:middle;
+  }
+  .page-header .sub{font-size:13px;color:#94A3B8;margin-top:4px;}
+  .badge-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.04em;}
+  .badge-live{background:rgba(5,150,105,.25);color:#6EE7B7;border:1px solid rgba(5,150,105,.4);}
+  .badge-info{background:rgba(14,165,233,.2);color:#BAE6FD;border:1px solid rgba(14,165,233,.35);}
+  .badge-amber{background:rgba(180,83,9,.2);color:#FDE68A;border:1px solid rgba(180,83,9,.35);}
+  .dot-live{width:6px;height:6px;border-radius:50%;background:#34D399;animation:pulse 2s infinite;flex-shrink:0;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  /* ── Canvas ── */
+  .canvas{max-width:1100px;margin:0 auto;padding:36px 32px 60px;}
+
+  /* ── Sec title ── */
+  .sec-title{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pur-600);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .sec-title::after{content:'';flex:1;height:1px;background:var(--lav-200);}
+
+  /* ── Status bar ── */
+  .status-bar{
+    background:#0F172A;border-radius:10px;padding:14px 20px;
+    display:flex;align-items:center;gap:16px;margin-bottom:40px;flex-wrap:wrap;
+    border:1px solid rgba(139,92,246,0.2);
+  }
+  .sb-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#CBD5E1;}
+  .sb-item strong{color:#C4B5FD;}
+  .sb-sep{color:#334155;}
+
+  /* ── Slack pill (command chip) ── */
+  .slack-cmd{
+    display:inline-flex;align-items:center;
+    font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;
+    background:#1A1A2E;color:#E2E8F0;
+    border:1.5px solid #3B4B6B;border-radius:5px;
+    padding:3px 9px;letter-spacing:.02em;white-space:nowrap;
+  }
+  .slack-cmd.highlight{background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.5);color:#C4B5FD;}
+
+  /* ── Command grid ── */
+  .cmd-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:40px;}
+  .cmd-card{
+    background:var(--white);border-radius:14px;border:1.5px solid var(--lav-200);
+    box-shadow:var(--shadow-md);overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  .cmd-card.build-card{border-top:3px solid #EF4444;}
+  .cmd-card.task-card{border-top:3px solid var(--pur-500);}
+  .cmd-card.queue-card{border-top:3px solid var(--ok);}
+  .cmd-card.intel-card{border-top:3px solid var(--info);}
+  .cmd-card.status-card{border-top:3px solid #F59E0B;}
+  .cmd-card.content-card{border-top:3px solid #EC4899;}
+
+  .cc-header{
+    padding:14px 18px 10px;border-bottom:1px solid var(--lav-100);
+    display:flex;align-items:flex-start;gap:12px;
+  }
+  .cc-emoji{font-size:22px;flex-shrink:0;margin-top:1px;}
+  .cc-titles{flex:1;}
+  .cc-cmd-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+  .cc-desc{font-size:11.5px;color:var(--ink-500);line-height:1.5;}
+  .cc-channel{
+    font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:2px 7px;border-radius:4px;background:var(--lav-100);color:var(--pur-700);
+    flex-shrink:0;margin-top:2px;
+  }
+  .cc-body{padding:14px 18px;flex:1;}
+
+  /* Response preview block */
+  .response-preview{
+    background:#0F172A;border-radius:8px;padding:10px 14px;margin-top:0;
+    border-left:3px solid rgba(139,92,246,0.5);
+  }
+  .rp-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#64748B;margin-bottom:6px;}
+  .rp-text{font-size:11px;color:#CBD5E1;font-family:'JetBrains Mono',monospace;line-height:1.7;}
+  .rp-text .rp-ok{color:#34D399;}
+  .rp-text .rp-warn{color:#FCD34D;}
+  .rp-text .rp-info{color:#7DD3FC;}
+  .rp-text .rp-muted{color:#475569;}
+
+  /* Detail rows */
+  .detail-row{display:flex;gap:6px;margin-bottom:6px;align-items:flex-start;}
+  .detail-key{
+    font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--pur-600);width:80px;flex-shrink:0;padding-top:1px;
+  }
+  .detail-val{font-size:11px;color:var(--ink-700);line-height:1.5;flex:1;}
+
+  /* Priority pills for !task */
+  .prio{
+    display:inline-flex;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+    padding:1px 7px;border-radius:4px;margin-right:4px;
+  }
+  .prio-high{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;}
+  .prio-med{background:#FFF7ED;color:#D97706;border:1px solid #FED7AA;}
+  .prio-explore{background:var(--info-bg);color:var(--info);border:1px solid #BAE6FD;}
+
+  /* ── Queue workflow ── */
+  .queue-flow{
+    background:var(--white);border-radius:14px;border:1.5px solid var(--lav-200);
+    box-shadow:var(--shadow-md);padding:24px;margin-bottom:40px;
+  }
+  .queue-steps{display:grid;grid-template-columns:1fr 32px 1fr 32px 1fr 32px 1fr;align-items:center;gap:0;}
+  .qs-node{
+    background:var(--lav-50);border:1.5px solid var(--lav-200);border-radius:10px;
+    padding:12px 14px;text-align:center;
+  }
+  .qs-node.accent{border-color:var(--pur-500);background:linear-gradient(135deg,#FAF8FF,#F3EEFC);}
+  .qs-node.ok-node{border-color:var(--ok);background:#F0FDF4;}
+  .qs-arrow{text-align:center;color:var(--pur-400);font-size:18px;}
+  .qs-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-400);margin-bottom:3px;}
+  .qs-title{font-size:12px;font-weight:700;color:var(--ink-900);}
+  .qs-sub{font-size:10px;color:var(--ink-500);margin-top:2px;line-height:1.4;}
+
+  /* ── Infra grid ── */
+  .infra-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:40px;}
+  .infra-card{
+    background:var(--white);border-radius:12px;border:1.5px solid var(--lav-200);
+    box-shadow:var(--shadow-sm);padding:18px 16px;
+  }
+  .infra-icon{font-size:22px;margin-bottom:8px;}
+  .infra-title{font-size:13px;font-weight:700;color:var(--ink-900);margin-bottom:4px;}
+  .infra-sub{font-size:11px;color:var(--ink-500);line-height:1.6;}
+  .infra-sub code{background:var(--lav-50);padding:1px 5px;border-radius:3px;color:var(--pur-700);}
+
+  /* ── Channel routing ── */
+  .channel-table{width:100%;border-collapse:collapse;margin-bottom:40px;}
+  .channel-table th{
+    text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-400);padding:8px 14px;border-bottom:2px solid var(--lav-200);background:var(--lav-50);
+  }
+  .channel-table td{padding:10px 14px;font-size:11.5px;border-bottom:1px solid var(--lav-100);vertical-align:middle;}
+  .channel-table tr:last-child td{border-bottom:none;}
+  .channel-table tr:hover td{background:var(--lav-50);}
+  .ch-name{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--pur-700);}
+  .ch-id{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-400);margin-top:2px;}
+  .ch-cmds{display:flex;gap:6px;flex-wrap:wrap;}
+
+  /* ── Build retry diagram ── */
+  .retry-diagram{
+    background:#0F172A;border-radius:12px;padding:22px 24px;margin-bottom:40px;
+    border:1px solid rgba(139,92,246,0.2);
+  }
+  .rd-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94A3B8;margin-bottom:16px;}
+  .rd-steps{display:flex;align-items:center;gap:0;}
+  .rd-node{
+    border-radius:8px;padding:10px 14px;border:1px solid;text-align:center;flex:1;
+  }
+  .rd-node.trigger{border-color:rgba(139,92,246,0.4);background:rgba(139,92,246,0.1);}
+  .rd-node.attempt{border-color:rgba(251,146,60,0.4);background:rgba(251,146,60,0.08);}
+  .rd-node.retry{border-color:rgba(251,191,36,0.4);background:rgba(251,191,36,0.08);}
+  .rd-node.success{border-color:rgba(52,211,153,0.4);background:rgba(52,211,153,0.08);}
+  .rd-node.escalate{border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.08);}
+  .rd-node .rdn-label{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6B7280;margin-bottom:3px;}
+  .rd-node .rdn-title{font-size:12px;font-weight:700;color:#F1F5F9;}
+  .rd-node .rdn-sub{font-size:9.5px;color:#64748B;margin-top:2px;line-height:1.4;}
+  .rd-arrow{padding:0 8px;color:#4B5563;font-size:16px;flex-shrink:0;}
+  .rd-fork{display:flex;flex-direction:column;gap:8px;flex:1;}
+
+  .footer{text-align:center;padding-top:24px;font-size:10px;color:var(--ink-400);}
+
+  @media(max-width:768px){
+    .cmd-grid{grid-template-columns:1fr;}
+    .infra-grid{grid-template-columns:1fr 1fr;}
+    .queue-steps{grid-template-columns:1fr;}
+    .qs-arrow{transform:rotate(90deg);}
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="eyebrow">SaSMaster · JARVIS</div>
+  <h1><span class="jarvis-tag">JARVIS v4</span> Slack Command Reference</h1>
+  <div class="sub">Socket Mode daemon · scripts/jarvis.js · launchd: com.sasmaster.jarvis · 9 commands live</div>
+  <div class="badge-row">
+    <span class="badge badge-live"><span class="dot-live"></span>All Commands Live</span>
+    <span class="badge badge-info">Socket Mode · Always-On</span>
+    <span class="badge badge-amber">Build retry + escalation</span>
+  </div>
+</div>
+
+<div class="canvas">
+
+  <div class="status-bar">
+    <div class="sb-item"><strong>Script:</strong> ~/SaSMaster/scripts/jarvis.js</div>
+    <span class="sb-sep">·</span>
+    <div class="sb-item"><strong>Daemon:</strong> launchd com.sasmaster.jarvis</div>
+    <span class="sb-sep">·</span>
+    <div class="sb-item"><strong>Queue:</strong> ~/SaSMaster/pending-approvals.json</div>
+    <span class="sb-sep">·</span>
+    <div class="sb-item"><strong>Claude:</strong> /Users/shivashish/.local/bin/claude</div>
+    <span class="sb-sep">·</span>
+    <div class="sb-item"><strong>Log:</strong> ~/SaSMaster/logs/</div>
+  </div>
+
+  <!-- Build & task commands -->
+  <div class="sec-title">Build Commands</div>
+  <div class="cmd-grid">
+
+    <div class="cmd-card build-card">
+      <div class="cc-header">
+        <div class="cc-emoji">⚡</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!build</span>
+            <span class="cc-channel">#builds</span>
+          </div>
+          <div class="cc-desc">Ad-hoc build trigger. Fires <code>sasmaster-build.sh</code> immediately. Retries once after 5 min on failure, escalates if it fails again.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="detail-row"><span class="detail-key">Fires</span><span class="detail-val"><code>sasmaster-build.sh</code> via Claude Code non-interactively</span></div>
+        <div class="detail-row"><span class="detail-key">On success</span><span class="detail-val">Posts "Build complete — check DONE_LOG.md"</span></div>
+        <div class="detail-row"><span class="detail-key">On failure</span><span class="detail-val">Schedules retry in 5 min → escalates to Slack on second failure</span></div>
+        <div class="response-preview" style="margin-top:12px;">
+          <div class="rp-label">Slack response</div>
+          <div class="rp-text">
+            <span class="rp-info">⚡ Ad-hoc build triggered — [timestamp]</span><br>
+            <span class="rp-muted">Claude Code is awake. Stand by...</span><br>
+            <span class="rp-ok">✅ Build complete — [timestamp]</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card task-card">
+      <div class="cc-header">
+        <div class="cc-emoji">📋</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!task</span>
+            <span class="slack-cmd">HIGH</span>
+            <span style="font-size:11px;color:var(--ink-400);">|</span>
+            <span class="slack-cmd">MED</span>
+            <span style="font-size:11px;color:var(--ink-400);">|</span>
+            <span class="slack-cmd">EXPLORE</span>
+            <span style="font-size:11px;color:var(--ink-700);font-style:italic;">&lt;description&gt;</span>
+            <span class="cc-channel">#builds</span>
+          </div>
+          <div class="cc-desc">Inject a task into <code>TASKS.md</code>. Will execute on the next build cycle (cron or manual <code>!build</code>).</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="detail-row">
+          <span class="detail-key">Priorities</span>
+          <span class="detail-val">
+            <span class="prio prio-high">HIGH</span> executes next build &nbsp;
+            <span class="prio prio-med">MED</span> queued &nbsp;
+            <span class="prio prio-explore">EXPLORE</span> research-only
+          </span>
+        </div>
+        <div class="detail-row"><span class="detail-key">Appends to</span><span class="detail-val"><code>~/SaSMaster/TASKS.md</code> with timestamp</span></div>
+        <div class="detail-row"><span class="detail-key">Example</span><span class="detail-val"><code>!task HIGH wire TMDB tv_series to parent key resolver</code></span></div>
+        <div class="response-preview" style="margin-top:12px;">
+          <div class="rp-label">Slack response</div>
+          <div class="rp-text">
+            <span class="rp-info">📋 Task injected [HIGH]</span><br>
+            <span class="rp-muted">> wire TMDB tv_series to parent key resolver</span><br>
+            <span class="rp-muted">Added to TASKS.md. Will execute on next build.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Queue commands -->
+  <div class="sec-title">Approval Queue Commands</div>
+
+  <!-- Queue workflow -->
+  <div class="queue-flow" style="margin-bottom:20px;">
+    <div style="font-size:11px;font-weight:600;color:var(--ink-500);margin-bottom:16px;">How the pending-approvals.json queue works:</div>
+    <div class="queue-steps">
+      <div class="qs-node">
+        <div class="qs-label">Trigger</div>
+        <div class="qs-title">Claude Code</div>
+        <div class="qs-sub">build completes, flags item needing Shiv approval</div>
+      </div>
+      <div class="qs-arrow">→</div>
+      <div class="qs-node accent">
+        <div class="qs-label">Queued</div>
+        <div class="qs-title">pending-approvals.json</div>
+        <div class="qs-sub">item sits in queue until Shiv responds</div>
+      </div>
+      <div class="qs-arrow">→</div>
+      <div class="qs-node">
+        <div class="qs-label">Shiv types</div>
+        <div class="qs-title">!approve or !skip</div>
+        <div class="qs-sub">in any monitored Slack channel</div>
+      </div>
+      <div class="qs-arrow">→</div>
+      <div class="qs-node ok-node">
+        <div class="qs-label">Result</div>
+        <div class="qs-title">Build fires / item removed</div>
+        <div class="qs-sub">approval triggers build · skip removes quietly</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+
+    <div class="cmd-card queue-card">
+      <div class="cc-header">
+        <div class="cc-emoji">✅</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!approve</span>
+            <span style="font-size:11px;color:var(--ink-400);">[id]</span>
+            <span class="cc-channel">any channel</span>
+          </div>
+          <div class="cc-desc">Approve the most recent pending item (or a specific item by ID). Removes from queue and triggers a build immediately.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="detail-row"><span class="detail-key">No ID</span><span class="detail-val">Approves the most recent item in the queue</span></div>
+        <div class="detail-row"><span class="detail-key">With ID</span><span class="detail-val"><code>!approve abc123</code> — approves specific queue item</span></div>
+        <div class="detail-row"><span class="detail-key">Empty queue</span><span class="detail-val">Posts "No pending approvals in queue"</span></div>
+        <div class="response-preview" style="margin-top:12px;">
+          <div class="rp-label">Slack response</div>
+          <div class="rp-text">
+            <span class="rp-ok">✅ Approved — [timestamp]</span><br>
+            <span class="rp-muted">> [item description]</span><br>
+            <span class="rp-info">Triggering build...</span><br>
+            <span class="rp-ok">✅ Build complete after approval</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card queue-card">
+      <div class="cc-header">
+        <div class="cc-emoji">⏭️</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!skip</span>
+            <span style="font-size:11px;color:var(--ink-400);">[id]</span>
+            <span class="cc-channel">any channel</span>
+          </div>
+          <div class="cc-desc">Skip (remove without acting on) the most recent pending item or a specific item by ID. No build triggered.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="detail-row"><span class="detail-key">No ID</span><span class="detail-val">Skips the most recent item in the queue</span></div>
+        <div class="detail-row"><span class="detail-key">With ID</span><span class="detail-val"><code>!skip abc123</code> — skips specific queue item</span></div>
+        <div class="detail-row"><span class="detail-key">Empty queue</span><span class="detail-val">Posts "No pending approvals in queue"</span></div>
+        <div class="response-preview" style="margin-top:12px;">
+          <div class="rp-label">Slack response</div>
+          <div class="rp-text">
+            <span class="rp-warn">⏭️ Skipped — [timestamp]</span><br>
+            <span class="rp-muted">> [item description]</span><br>
+            <span class="rp-muted">Removed from queue.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Intel & content commands -->
+  <div class="sec-title">Intel &amp; Content Commands</div>
+  <div class="cmd-grid">
+
+    <div class="cmd-card intel-card">
+      <div class="cc-header">
+        <div class="cc-emoji">🔬</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!tech</span>
+            <span class="cc-channel">#intel</span>
+          </div>
+          <div class="cc-desc">On-demand tech intelligence briefing. Fires <code>agents/tech-intel-agent.js</code> (14 sources) immediately without waiting for the Friday 6PM cron.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="detail-row"><span class="detail-key">Fires</span><span class="detail-val"><code>agents/tech-intel-agent.js</code> (14 sources)</span></div>
+        <div class="detail-row"><span class="detail-key">Normally</span><span class="detail-val">Cron: Friday 6:00PM → #intel</span></div>
+        <div class="detail-row"><span class="detail-key">Use when</span><span class="detail-val">Need tech pulse outside of Friday cadence (earnings, launches, news events)</span></div>
+        <div class="response-preview" style="margin-top:12px;">
+          <div class="rp-label">Slack response</div>
+          <div class="rp-text">
+            <span class="rp-info">🔬 Firing on-demand tech briefing...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card intel-card">
+      <div class="cc-header">
+        <div class="cc-emoji">📊</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!finance</span>
+            <span class="cc-channel">#intel</span>
+          </div>
+          <div class="cc-desc">SEC EDGAR digest for 10 major media companies. Fires <code>agents/sec-edgar-agent.js</code> on-demand.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="detail-row"><span class="detail-key">Fires</span><span class="detail-val"><code>agents/sec-edgar-agent.js</code></span></div>
+        <div class="detail-row"><span class="detail-key">Coverage</span><span class="detail-val">10 major media companies (SEC filings, earnings, 10-K/10-Q events)</span></div>
+        <div class="detail-row"><span class="detail-key">Use when</span><span class="detail-val">Earnings season, deal news, M&amp;A activity, regulatory filings</span></div>
+        <div class="response-preview" style="margin-top:12px;">
+          <div class="rp-label">Slack response</div>
+          <div class="rp-text">
+            <span class="rp-info">📊 Pulling SEC EDGAR filings for 10 media companies...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card content-card">
+      <div class="cc-header">
+        <div class="cc-emoji">✍️</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!linkedin</span>
+            <span style="font-size:11px;color:var(--ink-700);font-style:italic;">&lt;theme&gt;</span>
+            <span class="cc-channel">#content</span>
+          </div>
+          <div class="cc-desc">Draft a LinkedIn article in Shiv's voice on the given theme. Fires <code>agents/linkedin-agent.js</code> with the theme injected as an env var.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="detail-row"><span class="detail-key">Fires</span><span class="detail-val"><code>agents/linkedin-agent.js</code> with <code>LINKEDIN_THEME=&lt;theme&gt;</code></span></div>
+        <div class="detail-row"><span class="detail-key">Example</span><span class="detail-val"><code>!linkedin why engagement depth beats subscriber count</code></span></div>
+        <div class="detail-row"><span class="detail-key">Note</span><span class="detail-val">Trained on Shiv's published voice (Merger Paradox article as primary source)</span></div>
+        <div class="response-preview" style="margin-top:12px;">
+          <div class="rp-label">Slack response</div>
+          <div class="rp-text">
+            <span class="rp-info">✍️ LinkedIn draft requested — [timestamp]</span><br>
+            <span class="rp-muted">Theme: <em>why engagement depth beats subscriber count</em></span><br>
+            <span class="rp-muted">Drafting in your voice... stand by.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card content-card">
+      <div class="cc-header">
+        <div class="cc-emoji">🧠</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!briefing</span>
+            <span style="font-size:11px;color:var(--ink-700);font-style:italic;">&lt;session summary&gt;</span>
+            <span class="cc-channel">#builds</span>
+          </div>
+          <div class="cc-desc">Post a Claude.ai session summary to #builds. Used for cross-tool memory sync — when working in Claude.ai and want to log context back to the team channel.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="detail-row"><span class="detail-key">Use when</span><span class="detail-val">Finishing a Claude.ai session with important decisions or progress to log</span></div>
+        <div class="detail-row"><span class="detail-key">Example</span><span class="detail-val"><code>!briefing Resolved EIDR auth strategy — using gracenoteview.com for delta only</code></span></div>
+        <div class="detail-row"><span class="detail-key">Posts to</span><span class="detail-val">#builds with "Claude.ai Session Briefing" header and timestamp</span></div>
+        <div class="response-preview" style="margin-top:12px;">
+          <div class="rp-label">Slack response</div>
+          <div class="rp-text">
+            <span class="rp-info">🧠 Claude.ai Session Briefing — [timestamp]</span><br>
+            <span class="rp-muted">[your summary text]</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Status command -->
+  <div class="sec-title">Status Command</div>
+  <div style="max-width:680px;margin-bottom:40px;">
+    <div class="cmd-card status-card">
+      <div class="cc-header">
+        <div class="cc-emoji">🟢</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!status</span>
+            <span class="cc-channel">#builds</span>
+          </div>
+          <div class="cc-desc">JARVIS health check. Returns uptime, pending approval count, and the full command list.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="response-preview">
+          <div class="rp-label">Slack response (example)</div>
+          <div class="rp-text">
+            <span class="rp-ok">🟢 JARVIS v4 Online — Wed Apr 22 10:30 EDT</span><br>
+            <span class="rp-muted">Uptime: 142m | #builds</span><br>
+            <span class="rp-warn">Pending approvals: 2 item(s) — type !approve or !skip</span><br>
+            <span class="rp-muted">Commands: !build · !task HIGH &lt;desc&gt; · !briefing &lt;text&gt; · !approve · !skip · !status · !tech · !linkedin &lt;theme&gt;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Build retry diagram -->
+  <div class="sec-title">Build Retry &amp; Escalation Logic</div>
+  <div class="retry-diagram">
+    <div class="rd-title">What happens when a build fails</div>
+    <div class="rd-steps">
+      <div class="rd-node trigger">
+        <div class="rdn-label">Trigger</div>
+        <div class="rdn-title">!build or cron</div>
+        <div class="rdn-sub">sasmaster-build.sh fires</div>
+      </div>
+      <div class="rd-arrow">→</div>
+      <div class="rd-node attempt">
+        <div class="rdn-label">Attempt 1</div>
+        <div class="rdn-title">Build runs</div>
+        <div class="rdn-sub">Claude Code session</div>
+      </div>
+      <div class="rd-arrow">→</div>
+      <div class="rd-node retry">
+        <div class="rdn-label">Failure → +5 min</div>
+        <div class="rdn-title">Auto-retry</div>
+        <div class="rdn-sub">scheduled via setTimeout</div>
+      </div>
+      <div class="rd-arrow">→</div>
+      <div class="rd-fork">
+        <div class="rd-node success" style="margin-bottom:0;">
+          <div class="rdn-label">If retry passes</div>
+          <div class="rdn-title" style="color:#34D399;">✅ Complete</div>
+          <div class="rdn-sub">Posts success to #builds</div>
+        </div>
+        <div style="height:8px;"></div>
+        <div class="rd-node escalate">
+          <div class="rdn-label">If retry fails</div>
+          <div class="rdn-title" style="color:#F87171;">❌ Escalate</div>
+          <div class="rdn-sub">Posts "failed twice" alert to #builds</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Channel routing -->
+  <div class="sec-title">Channel Routing</div>
+  <div style="background:var(--white);border:1px solid var(--lav-200);border-radius:12px;box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:40px;">
+    <table class="channel-table">
+      <thead><tr><th>Channel</th><th>ID</th><th>Commands that post here</th><th>Scheduled content</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="ch-name">#builds</span></td>
+          <td><code>C0ATABZAH39</code></td>
+          <td>
+            <div class="ch-cmds">
+              <span class="slack-cmd">!build</span>
+              <span class="slack-cmd">!task</span>
+              <span class="slack-cmd">!status</span>
+              <span class="slack-cmd">!approve</span>
+              <span class="slack-cmd">!skip</span>
+              <span class="slack-cmd">!briefing</span>
+            </div>
+          </td>
+          <td style="font-size:11px;color:var(--ink-500);">Daily 5AM briefing · 5:02AM visuals · 7AM + 2PM JARVIS self-score</td>
+        </tr>
+        <tr>
+          <td><span class="ch-name">#intel</span></td>
+          <td><code>C0AU4M74A7Q</code></td>
+          <td>
+            <div class="ch-cmds">
+              <span class="slack-cmd">!tech</span>
+              <span class="slack-cmd">!finance</span>
+            </div>
+          </td>
+          <td style="font-size:11px;color:var(--ink-500);">Daily 6AM Media Intel (13 sources) · Friday 6PM Tech Intel (14 sources)</td>
+        </tr>
+        <tr>
+          <td><span class="ch-name">#content</span></td>
+          <td><code>C0AV11K9F08</code></td>
+          <td>
+            <div class="ch-cmds">
+              <span class="slack-cmd">!linkedin</span>
+            </div>
+          </td>
+          <td style="font-size:11px;color:var(--ink-500);">LinkedIn drafts · editorial output</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Infrastructure -->
+  <div class="sec-title">Infrastructure</div>
+  <div class="infra-grid">
+    <div class="infra-card">
+      <div class="infra-icon">🔌</div>
+      <div class="infra-title">Socket Mode WebSocket</div>
+      <div class="infra-sub">Always-on connection to Slack. Free tier sufficient. No outbound port required — Slack pushes events to JARVIS. Reconnects automatically on disconnect.</div>
+    </div>
+    <div class="infra-card">
+      <div class="infra-icon">🚀</div>
+      <div class="infra-title">launchd Auto-Start</div>
+      <div class="infra-sub">Registered as <code>com.sasmaster.jarvis</code>. Starts automatically on Mac boot. Restart: <code>launchctl stop/start com.sasmaster.jarvis</code></div>
+    </div>
+    <div class="infra-card">
+      <div class="infra-icon">📂</div>
+      <div class="infra-title">Approval Queue File</div>
+      <div class="infra-sub">JSON queue at <code>~/SaSMaster/pending-approvals.json</code>. Loaded atomically on each <code>!approve</code> / <code>!skip</code> call. Persists across JARVIS restarts.</div>
+    </div>
+    <div class="infra-card">
+      <div class="infra-icon">🔄</div>
+      <div class="infra-title">Build Retry Logic</div>
+      <div class="infra-sub">On failure: schedules 1 retry after 5 min. If retry also fails: posts escalation alert to #builds. No infinite loops — max 2 attempts per trigger.</div>
+    </div>
+    <div class="infra-card">
+      <div class="infra-icon">🔒</div>
+      <div class="infra-title">Channel Allowlist</div>
+      <div class="infra-sub">Commands only processed from <code>ALLOWED_CHANNELS</code> (builds + intel + content). Messages from other channels silently ignored. Bot ID filtered to prevent self-loops.</div>
+    </div>
+    <div class="infra-card">
+      <div class="infra-icon">👤</div>
+      <div class="infra-title">JARVIS Identity</div>
+      <div class="infra-sub">Runs as <code>U0AUXSGSSJU</code> (JARVIS user, owns <code>SLACK_BOT_TOKEN</code>). This is NOT the @SaSMaster Bot app — different token, different user ID.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    SaSMaster JARVIS Slack Command Reference · Updated 2026-04-22 · Maintained by Claude Code
+  </div>
+
+</div>
+</body>
+</html>
