@@ -1,13 +1,13 @@
 {
-  "generated": "2026-04-22T09:04:41.804Z",
+  "generated": "2026-04-22T09:21:07.410Z",
   "system": {
     "jarvis": {
       "alive": true
     }
   },
   "queue": {
-    "high": 11,
-    "med": 9,
+    "high": 12,
+    "med": 11,
     "highItems": [
       {
         "id": "t50",
@@ -18,7 +18,15 @@
         "priority": "HIGH"
       },
       {
-        "id": "t70",
+        "id": "t60",
+        "text": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + cre…",
+        "full": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + creds already exist. Bulk loop over 589,814 matched IMDB tconsts resolving to EIDR IDs. Rate-limit (EIDR API throttles; target ≤5 rps). Output: new `parent_keys/v1b/YYYY-MM-DD/movies.parquet` with eidr_id column populated where match found. Match-rate baseline TBD (likely 60–85% for studio-released films). Skip TMDB fallback keys (tmdb_mov_*) as EIDR has no TMDB join surface.",
+        "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
+        "tag": "DATA",
+        "priority": "HIGH"
+      },
+      {
+        "id": "t82",
         "text": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating anima…",
         "full": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating animation to homepage !task EXPLORE Research LinkedIn Writing Agent voice training approach",
         "sprint": "Done",
@@ -26,7 +34,7 @@
         "priority": "HIGH"
       },
       {
-        "id": "t80",
+        "id": "t92",
         "text": "Execute MEDIA-INTEL-AGENT-MISSION.md — build daily 6AM Evan Shapiro media intel agent",
         "full": "Execute MEDIA-INTEL-AGENT-MISSION.md — build daily 6AM Evan Shapiro media intel agent",
         "sprint": "Done",
@@ -34,7 +42,7 @@
         "priority": "HIGH"
       },
       {
-        "id": "t82",
+        "id": "t94",
         "text": "Execute TMDB-STATUS-INTEGRATION-MISSION.md — wire TMDB trends into status page + sm CLI",
         "full": "Execute TMDB-STATUS-INTEGRATION-MISSION.md — wire TMDB trends into status page + sm CLI",
         "sprint": "Done",
@@ -42,7 +50,7 @@
         "priority": "HIGH"
       },
       {
-        "id": "t83",
+        "id": "t95",
         "text": "COMMAND API TRIGGER: tmdb-load — triggered 04/21/2026, 15:48 EST",
         "full": "COMMAND API TRIGGER: tmdb-load — triggered 04/21/2026, 15:48 EST",
         "sprint": "Done",
@@ -50,7 +58,7 @@
         "priority": "HIGH"
       },
       {
-        "id": "t84",
+        "id": "t96",
         "text": "COMMAND API TRIGGER: media-intel — triggered 04/21/2026, 16:12 EST",
         "full": "COMMAND API TRIGGER: media-intel — triggered 04/21/2026, 16:12 EST",
         "sprint": "Done",
@@ -58,7 +66,7 @@
         "priority": "HIGH"
       },
       {
-        "id": "t86",
+        "id": "t98",
         "text": "Research programming opportunity: \"Unchosen\" — TMDB trending #1, popularity 92 — analyze…",
         "full": "Research programming opportunity: \"Unchosen\" — TMDB trending #1, popularity 92 — analyze audience, rights window, network fit",
         "sprint": "Done",
@@ -66,7 +74,7 @@
         "priority": "HIGH"
       },
       {
-        "id": "t87",
+        "id": "t99",
         "text": "Research programming opportunity: \"Fist of the North Star: HOKUTO NO KEN\" — TMDB trendin…",
         "full": "Research programming opportunity: \"Fist of the North Star: HOKUTO NO KEN\" — TMDB trending #5, popularity 40 — analyze audience, rights window, network fit",
         "sprint": "Done",
@@ -74,19 +82,11 @@
         "priority": "HIGH"
       },
       {
-        "id": "t88",
+        "id": "t100",
         "text": "Research programming opportunity: \"Daredevil: Born Again\" — TMDB trending #7, popularity…",
         "full": "Research programming opportunity: \"Daredevil: Born Again\" — TMDB trending #7, popularity 95 — analyze audience, rights window, network fit",
         "sprint": "Done",
         "tag": "DATA",
-        "priority": "HIGH"
-      },
-      {
-        "id": "t90",
-        "text": "COMMAND API TRIGGER: media-intel — triggered 04/22/2026, 04:51 EST",
-        "full": "COMMAND API TRIGGER: media-intel — triggered 04/22/2026, 04:51 EST",
-        "sprint": "Done",
-        "tag": "INFRA",
         "priority": "HIGH"
       }
     ],
@@ -132,14 +132,6 @@
         "priority": "MED"
       },
       {
-        "id": "t52",
-        "text": "Wire War Room \"Run\" buttons to actually spawn jobs. Today command-api/dist/index.js:166-…",
-        "full": "Wire War Room \"Run\" buttons to actually spawn jobs. Today command-api/dist/index.js:166-198 only appends `- [HIGH] COMMAND API TRIGGER: <job>` to TASKS.md — no worker picks it up, so \"Queued #N\" is misleading. Options: (a) cron-poll TASKS.md for TRIGGER lines, (b) spawn child_process in /trigger route, (c) hand the queue off to JARVIS's handleLinkedIn-style per-job handlers. Pick one and implement.",
-        "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
-        "tag": "AGENT",
-        "priority": "MED"
-      },
-      {
         "id": "t54",
         "text": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasma…",
         "full": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 EDT). Today blocked by JARVIS being down — either fix JARVIS first (above) or copy-paste the draft to LinkedIn manually and remove the entry from pending-approvals.json.",
@@ -153,6 +145,14 @@
         "full": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasmaster-status/ + append to resources.json (set latest:true, clear prior). Planned in the Resources section prototype but deferred for v1 ship.",
         "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
         "tag": "UI",
+        "priority": "MED"
+      },
+      {
+        "id": "t62",
+        "text": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/ma…",
+        "full": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTER_UPDATED.csv` (18GB) for movies/tv_series distinct counts, and `VIEWERSHIP_AMRLD_PROGRAM.csv` (9.8GB) for total telecasts. Add to ~/SaSMaster/scripts/s3-entity-counts.js as a separate runnable (takes ~60–120s). Cache in same JSON. Render in War Room S3 grid.",
+        "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
+        "tag": "EDGAR",
         "priority": "MED"
       }
     ],
@@ -201,14 +201,6 @@
         "priority": "MED"
       },
       {
-        "id": "t52",
-        "text": "Wire War Room \"Run\" buttons to actually spawn jobs. Today command-api/dist/index.js:166-…",
-        "full": "Wire War Room \"Run\" buttons to actually spawn jobs. Today command-api/dist/index.js:166-198 only appends `- [HIGH] COMMAND API TRIGGER: <job>` to TASKS.md — no worker picks it up, so \"Queued #N\" is misleading. Options: (a) cron-poll TASKS.md for TRIGGER lines, (b) spawn child_process in /trigger route, (c) hand the queue off to JARVIS's handleLinkedIn-style per-job handlers. Pick one and implement.",
-        "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
-        "tag": "AGENT",
-        "priority": "MED"
-      },
-      {
         "id": "t54",
         "text": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasma…",
         "full": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 EDT). Today blocked by JARVIS being down — either fix JARVIS first (above) or copy-paste the draft to LinkedIn manually and remove the entry from pending-approvals.json.",
@@ -222,6 +214,14 @@
         "full": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasmaster-status/ + append to resources.json (set latest:true, clear prior). Planned in the Resources section prototype but deferred for v1 ship.",
         "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
         "tag": "UI",
+        "priority": "MED"
+      },
+      {
+        "id": "t62",
+        "text": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/ma…",
+        "full": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTER_UPDATED.csv` (18GB) for movies/tv_series distinct counts, and `VIEWERSHIP_AMRLD_PROGRAM.csv` (9.8GB) for total telecasts. Add to ~/SaSMaster/scripts/s3-entity-counts.js as a separate runnable (takes ~60–120s). Cache in same JSON. Render in War Room S3 grid.",
+        "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
+        "tag": "EDGAR",
         "priority": "MED"
       }
     ],
@@ -249,6 +249,14 @@
     "done": [
       {
         "id": "done-0",
+        "text": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
+        "full": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-1",
         "text": "War Room Resources section + LinkedIn/TMDB routing repair",
         "full": "War Room Resources section + LinkedIn/TMDB routing repair",
         "sprint": "",
@@ -256,7 +264,7 @@
         "priority": "DONE"
       },
       {
-        "id": "done-1",
+        "id": "done-2",
         "text": "TMDB programming research — 9 shows analyzed",
         "full": "TMDB programming research — 9 shows analyzed",
         "sprint": "",
@@ -264,7 +272,7 @@
         "priority": "DONE"
       },
       {
-        "id": "done-2",
+        "id": "done-3",
         "text": "Build Financial Analysis Agent — bug fixes (S3 path, XBRL path, stream API)",
         "full": "Build Financial Analysis Agent — bug fixes (S3 path, XBRL path, stream API)",
         "sprint": "",
@@ -272,7 +280,7 @@
         "priority": "DONE"
       },
       {
-        "id": "done-3",
+        "id": "done-4",
         "text": "Build EDGAR Scraper Agent v2 — bug fixes and full rewrite",
         "full": "Build EDGAR Scraper Agent v2 — bug fixes and full rewrite",
         "sprint": "",
@@ -280,7 +288,7 @@
         "priority": "DONE"
       },
       {
-        "id": "done-4",
+        "id": "done-5",
         "text": "Fix homepage 4-stage color transitions — v2 (strengthened)",
         "full": "Fix homepage 4-stage color transitions — v2 (strengthened)",
         "sprint": "",
@@ -288,7 +296,7 @@
         "priority": "DONE"
       },
       {
-        "id": "done-5",
+        "id": "done-6",
         "text": "Build Financial Analysis Agent (agents/financial-analyst.js)",
         "full": "Build Financial Analysis Agent (agents/financial-analyst.js)",
         "sprint": "",
@@ -296,7 +304,7 @@
         "priority": "DONE"
       },
       {
-        "id": "done-6",
+        "id": "done-7",
         "text": "Build EDGAR Scraper Agent (agents/edgar-scraper.js)",
         "full": "Build EDGAR Scraper Agent (agents/edgar-scraper.js)",
         "sprint": "",
@@ -304,7 +312,7 @@
         "priority": "DONE"
       },
       {
-        "id": "done-7",
+        "id": "done-8",
         "text": "Fix homepage 4-stage color transitions (day → spring green → purple evening → deep night)",
         "full": "Fix homepage 4-stage color transitions (day → spring green → purple evening → deep night)",
         "sprint": "",
@@ -312,17 +320,9 @@
         "priority": "DONE"
       },
       {
-        "id": "done-8",
+        "id": "done-9",
         "text": "Tier 1 + 2 Productivity Systems",
         "full": "Tier 1 + 2 Productivity Systems",
-        "sprint": "",
-        "tag": "DONE",
-        "priority": "DONE"
-      },
-      {
-        "id": "done-9",
-        "text": "Tier 3 — Agent Fleet (all 4 agents)",
-        "full": "Tier 3 — Agent Fleet (all 4 agents)",
         "sprint": "",
         "tag": "DONE",
         "priority": "DONE"
@@ -330,9 +330,9 @@
     ]
   },
   "heatmap": {
-    "2026-04-22": 2,
+    "2026-04-22": 4,
     "2026-04-21": 14,
-    "2026-04-20": 14,
+    "2026-04-20": 13,
     "2026-04-19": 3
   },
   "target10": [],
@@ -362,15 +362,15 @@
       "status": "healthy"
     },
     {
-      "name": "TMDB Trending",
+      "name": "TMDB Daily",
       "icon": "📺",
-      "schedule": "5AM + 10PM",
-      "nextRun": "Tonight 10PM",
+      "schedule": "5AM daily",
+      "nextRun": "Tomorrow 5AM",
       "log": "tmdb-agent.log",
       "channel": "#sasmaster-content",
-      "jobId": "tmdb-load",
-      "lastRun": "2026-04-22T09:00:01.183Z",
-      "lastOutput": "Injected 1 tasks: Criminal Record",
+      "jobId": "tmdb-daily",
+      "lastRun": "2026-04-22T09:20:48.126Z",
+      "lastOutput": "Posted digest (1367 chars) to #sasmaster-content",
       "status": "healthy"
     },
     {
@@ -448,6 +448,12 @@
   ],
   "recentBuilds": [
     {
+      "task": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
+      "date": "2026-04-22 05:00",
+      "notes": "Large-scope evening. Key deliverables:\n\n  (1) War Room v3 full redesign — ported sasmaster-portal-v3 mock's CSS + struct",
+      "status": "DONE"
+    },
+    {
       "task": "War Room Resources section + LinkedIn/TMDB routing repair",
       "date": "2026-04-22 01:52",
       "notes": "Three deliverables shipped to https://sasmaster-status.vercel.app:\n\n  (1) Manifest-driven Resources & Artifacts section ",
@@ -500,12 +506,6 @@
       "date": "2026-04-20",
       "notes": "Built sm CLI (~/SaSMaster/bin/sm, in PATH), Context Memory System (CONTEXT.md auto-generated\n       post-build), Morning",
       "status": "DONE"
-    },
-    {
-      "task": "Tier 3 — Agent Fleet (all 4 agents)",
-      "date": "2026-04-20",
-      "notes": "- tmdb-trending-agent.js — pulls /trending/tv/day, dedupes vs DONE_LOG,\n    injects [HIGH] programming research tasks. F",
-      "status": "DONE"
     }
   ],
   "intel_feed": [
@@ -537,10 +537,10 @@
       "name": "TMDB bulk loader",
       "phase": "1",
       "status": "running",
-      "pct": 97.9,
-      "row_count": 1159000,
+      "pct": 99.1,
+      "row_count": 1174000,
       "total": 1184436,
-      "last_run": "2026-04-22T09:03:42.230Z",
+      "last_run": "2026-04-22T09:21:05.820Z",
       "s3_path": "s3://sasmaster-2026/tmdb_dev/"
     },
     {
@@ -848,6 +848,11 @@
   "recent_activity": [
     {
       "type": "build",
+      "text": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
+      "ts": "2026-04-22 05:00"
+    },
+    {
+      "type": "build",
       "text": "War Room Resources section + LinkedIn/TMDB routing repair",
       "ts": "2026-04-22 01:52"
     },
@@ -872,11 +877,6 @@
       "ts": "2026-04-21 00:00"
     },
     {
-      "type": "build",
-      "text": "Build Financial Analysis Agent (agents/financial-analyst.js)",
-      "ts": "2026-04-21 06:30"
-    },
-    {
       "type": "intel",
       "text": "36 signals from 10 sources — Evan Shapiro sweep complete",
       "ts": "2026-04-21T01:48:00Z"
@@ -893,8 +893,8 @@
     },
     {
       "type": "pipeline",
-      "text": "TMDB bulk 97.9% — 1159K / 1184K titles → s3://sasmaster-2026/tmdb_dev/",
-      "ts": "2026-04-22T09:03:42.230Z"
+      "text": "TMDB bulk 99.1% — 1174K / 1184K titles → s3://sasmaster-2026/tmdb_dev/",
+      "ts": "2026-04-22T09:21:05.820Z"
     }
   ],
   "cron": [
@@ -932,9 +932,9 @@
     },
     {
       "time": "5:00 AM",
-      "name": "tmdb agent 5am",
-      "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/tmdb-trending-agent.js >> /Users/shivashish/SaSMaster/logs/tmdb-agent.log 2>&1",
-      "channel": "#sasmaster-content",
+      "name": "tmdb daily 5am",
+      "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/tmdb-daily-agent.js >> /Users/shivashish/SaSMaster/logs/tmdb-agent.log 2>&1",
+      "channel": "—",
       "weekly": false,
       "status": "done"
     },
@@ -1033,14 +1033,6 @@
       "channel": "—",
       "weekly": true,
       "status": "pending"
-    },
-    {
-      "time": "10:00 PM",
-      "name": "tmdb agent 10pm",
-      "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/tmdb-trending-agent.js >> /Users/shivashish/SaSMaster/logs/tmdb-agent.log 2>&1",
-      "channel": "#sasmaster-content",
-      "weekly": false,
-      "status": "pending"
     }
   ],
   "tasks": [
@@ -1080,13 +1072,6 @@
       "est": "—"
     },
     {
-      "title": "Wire War Room \"Run\" buttons to actually spawn jobs. Today command-api/dist/index.js:166-…",
-      "status": "BACKLOG",
-      "priority": "MED",
-      "tag": "AGENT",
-      "est": "—"
-    },
-    {
       "title": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasma…",
       "status": "BACKLOG",
       "priority": "MED",
@@ -1101,6 +1086,13 @@
       "est": "—"
     },
     {
+      "title": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/ma…",
+      "status": "BACKLOG",
+      "priority": "MED",
+      "tag": "EDGAR",
+      "est": "—"
+    },
+    {
       "title": "LinkedIn article — \"The Future of TV Is More TV\" (finished draft)",
       "status": "REVIEW",
       "priority": "REVIEW",
@@ -1112,6 +1104,13 @@
       "status": "REVIEW",
       "priority": "REVIEW",
       "tag": "PENDING",
+      "est": "—"
+    },
+    {
+      "title": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
       "est": "—"
     },
     {
@@ -1176,16 +1175,15 @@
       "priority": "DONE",
       "tag": "DONE",
       "est": "—"
-    },
-    {
-      "title": "Tier 3 — Agent Fleet (all 4 agents)",
-      "status": "DONE",
-      "priority": "DONE",
-      "tag": "DONE",
-      "est": "—"
     }
   ],
   "recent_completions": [
+    {
+      "title": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
+      "category": "Build",
+      "path": "",
+      "completed_at": "2026-04-22 05:00"
+    },
     {
       "title": "War Room Resources section + LinkedIn/TMDB routing repair",
       "category": "Build",
@@ -1239,16 +1237,18 @@
       "category": "Build",
       "path": "",
       "completed_at": "2026-04-20"
-    },
-    {
-      "title": "Tier 3 — Agent Fleet (all 4 agents)",
-      "category": "Agent",
-      "path": "",
-      "completed_at": "2026-04-20"
     }
   ],
   "slack_feed": {
     "builds": [
+      {
+        "ts": "5:02 AM",
+        "text": ":building_construction: *SaSMaster Architecture v7 — Wednesday, Apr 22*"
+      },
+      {
+        "ts": "5:02 AM",
+        "text": ":bar_chart: *SaSMaster Project Board — Wednesday, Apr 22*"
+      },
       {
         "ts": "12:50 AM",
         "text": ":white_check_mark: *Slack routing smoke test* — JARVIS bot can post to this channel. (2026-04-22T04:50:24.725Z)"
@@ -1272,14 +1272,6 @@
       {
         "ts": "4:46 PM",
         "text": ":white_check_mark: SaSMaster build complete: *Cloudflare Tunnel live — api.sasmaster.dev* (2026-04-21 16:46). Review DONE_LOG.md for details."
-      },
-      {
-        "ts": "4:31 PM",
-        "text": ":white_check_mark: SaSMaster build complete: *Command API CORS allowlist added* (2026-04-21 16:31). Review DONE_LOG.md for details."
-      },
-      {
-        "ts": "2:05 PM",
-        "text": ":rotating_light: *Build failed twice* — needs Shiv to review. Check `~/SaSMaster/logs/score-queue-20260421.log`"
       }
     ],
     "intel": [
@@ -1310,6 +1302,14 @@
     ],
     "content": [
       {
+        "ts": "5:19 AM",
+        "text": ":tv: *TMDB Daily — Apr 22, 05:19 AM EST* _12 endpoints polled · top 3 per list_ *:clapper: Movies* • _Now Playing_ — 1. The Super Mario Galaxy Movie :fire:683 :"
+      },
+      {
+        "ts": "5:00 AM",
+        "text": ":tv: *TMDB Trending Agent — Apr 22, 05:00 AM EST* 1 new show(s) injected into TASKS.md: 1. *Criminal Record* — :star: 6.6 | :fire: 6 Run `!build` to research or"
+      },
+      {
         "ts": "3:55 AM",
         "text": ":bar_chart: *TMDB [movies] progress* — 1,100,000/1,184,436 records (92.9%) → `<s3://sasmaster-2026/tmdb_dev/movies/>`"
       },
@@ -1332,14 +1332,6 @@
       {
         "ts": "1:44 AM",
         "text": "!linkedin the future of tv"
-      },
-      {
-        "ts": "1:44 AM",
-        "text": "!linkedin &lt;the future of tv&gt;"
-      },
-      {
-        "ts": "1:43 AM",
-        "text": "!linkedin &lt;the future of tv&gt;"
       }
     ]
   }
