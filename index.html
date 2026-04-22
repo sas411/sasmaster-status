@@ -556,7 +556,7 @@ function buildAgentFleetHtml(agents, tmdb) {
     const lastRunTxt = a.lastRun ? timeAgo(a.lastRun) : '—';
     const output = (a.lastOutput || '').replace(/node: command not found/i, 'PATH issue — fixed as of Apr 21').slice(0, 72);
     const outCls = isErr ? 'out-err' : isRouting ? 'out-warn' : 'out-ok';
-    const fixNote = isRouting ? `Fix: /invite @SaSMaster Bot in #sasmaster-content` : '';
+    const fixNote = isRouting ? `Fix: /invite @jarvis in #sasmaster-content (and #sasmaster-intel, #sasmaster-builds if missing)` : '';
 
     html += `<div class="${cardCls}">
       <div class="a-top"><div class="a-icon">${a.icon||'🤖'}</div><div class="a-name">${a.name}</div><span class="a-pill ${pillCls}">${pillTxt}</span></div>
