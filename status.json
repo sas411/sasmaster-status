@@ -1,73 +1,81 @@
 {
-  "generated": "2026-04-22T11:52:20.548Z",
+  "generated": "2026-04-22T16:58:56.000Z",
   "system": {
     "jarvis": {
       "alive": true
     }
   },
   "queue": {
-    "high": 12,
+    "high": 11,
     "med": 11,
     "highItems": [
       {
+        "id": "t-research",
+        "text": "Add !research [topic] command to JARVIS \u2014 topic-agnostic synthesis pipeline \u2192 #intel",
+        "full": "Add !research [topic] command to JARVIS in scripts/jarvis.js. When triggered via Slack Socket Mode, invoke the 3-tier Media Intel pipeline against the given topic, synthesize a structured research brief, and post to #intel (C0AU4M74A7Q). Create a research-prompt.md template in prompts/ following async-prompt.md convention. Include error handling and Slack acknowledgement on receipt. Topic-agnostic: accepts freeform query string, NOT a fixed source list (different from !tech and !iab).",
+        "sprint": "Sprint 7 \u2014 Now (added 2026-04-22)",
+        "tag": "AGENT",
+        "priority": "HIGH"
+      },
+      {
         "id": "t62",
-        "text": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + cre…",
-        "full": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + creds already exist. Bulk loop over 589,814 matched IMDB tconsts resolving to EIDR IDs. Rate-limit (EIDR API throttles; target ≤5 rps). Output: new `parent_keys/v1b/YYYY-MM-DD/movies.parquet` with eidr_id column populated where match found. Match-rate baseline TBD (likely 60–85% for studio-released films). Skip TMDB fallback keys (tmdb_mov_*) as EIDR has no TMDB join surface.",
-        "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
+        "text": "EIDR backfill Phase 1b \u2014 populate parent_keys.eidr_id column. agents/eidr-agent.js + cre\u2026",
+        "full": "EIDR backfill Phase 1b \u2014 populate parent_keys.eidr_id column. agents/eidr-agent.js + creds already exist. Bulk loop over 589,814 matched IMDB tconsts resolving to EIDR IDs. Rate-limit (EIDR API throttles; target \u22645 rps). Output: new `parent_keys/v1b/YYYY-MM-DD/movies.parquet` with eidr_id column populated where match found. Match-rate baseline TBD (likely 60\u201385% for studio-released films). Skip TMDB fallback keys (tmdb_mov_*) as EIDR has no TMDB join surface.",
+        "sprint": "Sprint 5 \u2014 S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
         "tag": "DATA",
         "priority": "HIGH"
       },
       {
         "id": "t76",
-        "text": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass…",
-        "full": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass already confirmed 8,522 unique `belongs_to_collection.id` in movies NDJSON. Fetches `/collection/{id}?append=images`. Ready to run as soon as main loader settles or idles.",
-        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "text": "TMDB Collections loader \u2014 job `tmdb-collections` \u00b7 ~8.5K calls \u00b7 ~5 min. DuckDB pre-pass\u2026",
+        "full": "TMDB Collections loader \u2014 job `tmdb-collections` \u00b7 ~8.5K calls \u00b7 ~5 min. DuckDB pre-pass already confirmed 8,522 unique `belongs_to_collection.id` in movies NDJSON. Fetches `/collection/{id}?append=images`. Ready to run as soon as main loader settles or idles.",
+        "sprint": "Sprint 6 \u2014 TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
         "priority": "HIGH"
       },
       {
         "id": "t78",
-        "text": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series…",
-        "full": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series phase completes (DuckDB needs full tv_series NDJSON to extract unique network IDs). Fetches `/network/{id}?append=alternative_names,images`.",
-        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "text": "TMDB Networks loader \u2014 job `tmdb-networks` \u00b7 ~5K calls \u00b7 ~3 min. BLOCKED until tv_series\u2026",
+        "full": "TMDB Networks loader \u2014 job `tmdb-networks` \u00b7 ~5K calls \u00b7 ~3 min. BLOCKED until tv_series phase completes (DuckDB needs full tv_series NDJSON to extract unique network IDs). Fetches `/network/{id}?append=alternative_names,images`.",
+        "sprint": "Sprint 6 \u2014 TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
         "priority": "HIGH"
       },
       {
         "id": "t80",
-        "text": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_se…",
-        "full": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_series phase completes (DuckDB UNION over movies + tv_series production_companies). Fetches `/company/{id}?append=alternative_names,images`.",
-        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "text": "TMDB Companies loader \u2014 job `tmdb-companies` \u00b7 ~50K calls \u00b7 ~25 min. BLOCKED until tv_se\u2026",
+        "full": "TMDB Companies loader \u2014 job `tmdb-companies` \u00b7 ~50K calls \u00b7 ~25 min. BLOCKED until tv_series phase completes (DuckDB UNION over movies + tv_series production_companies). Fetches `/company/{id}?append=alternative_names,images`.",
+        "sprint": "Sprint 6 \u2014 TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
         "priority": "HIGH"
       },
       {
         "id": "t82",
-        "text": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_ser…",
-        "full": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_series phase completes (DuckDB UNNEST tv_series.seasons[] → (series_id, season_number) pairs). Fetches `/tv/{id}/season/{n}?append=external_ids,videos,images`.",
-        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "text": "TMDB TV Seasons loader \u2014 job `tmdb-tv-seasons` \u00b7 ~700K calls \u00b7 ~5h. BLOCKED until tv_ser\u2026",
+        "full": "TMDB TV Seasons loader \u2014 job `tmdb-tv-seasons` \u00b7 ~700K calls \u00b7 ~5h. BLOCKED until tv_series phase completes (DuckDB UNNEST tv_series.seasons[] \u2192 (series_id, season_number) pairs). Fetches `/tv/{id}/season/{n}?append=external_ids,videos,images`.",
+        "sprint": "Sprint 6 \u2014 TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
         "priority": "HIGH"
       },
       {
         "id": "t84",
-        "text": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until…",
-        "full": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until TV Seasons done. DuckDB UNNEST seasons.episodes (~2M TMDB episodes across 300K series) + LEFT JOIN imdb/title_episode parquet (9.6M superset) to populate imdb_id. Saves ~2M would-be API calls.",
-        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "text": "TMDB TV Episodes flatten \u2014 job `tmdb-tv-episodes` \u00b7 0 TMDB calls \u00b7 ~3 min. BLOCKED until\u2026",
+        "full": "TMDB TV Episodes flatten \u2014 job `tmdb-tv-episodes` \u00b7 0 TMDB calls \u00b7 ~3 min. BLOCKED until TV Seasons done. DuckDB UNNEST seasons.episodes (~2M TMDB episodes across 300K series) + LEFT JOIN imdb/title_episode parquet (9.6M superset) to populate imdb_id. Saves ~2M would-be API calls.",
+        "sprint": "Sprint 6 \u2014 TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
         "priority": "HIGH"
       },
       {
         "id": "t86",
-        "text": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKE…",
-        "full": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKED until main loader fully idle (people phase complete) to avoid rate-limit contention. Sidecar-only: writes watch/providers+videos+reviews+images for the 1.18M pre-v2 movies to `tmdb_dev/movies_enrichment/YYYY-MM-DD/`. Never touches existing `tmdb_dev/movies/`.",
-        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "text": "TMDB Movie Enrichment backfill \u2014 job `tmdb-movie-backfill` \u00b7 ~1.18M calls \u00b7 ~10h. BLOCKE\u2026",
+        "full": "TMDB Movie Enrichment backfill \u2014 job `tmdb-movie-backfill` \u00b7 ~1.18M calls \u00b7 ~10h. BLOCKED until main loader fully idle (people phase complete) to avoid rate-limit contention. Sidecar-only: writes watch/providers+videos+reviews+images for the 1.18M pre-v2 movies to `tmdb_dev/movies_enrichment/YYYY-MM-DD/`. Never touches existing `tmdb_dev/movies/`.",
+        "sprint": "Sprint 6 \u2014 TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
         "priority": "HIGH"
       },
       {
         "id": "t102",
-        "text": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating anima…",
+        "text": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating anima\u2026",
         "full": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating animation to homepage !task EXPLORE Research LinkedIn Writing Agent voice training approach",
         "sprint": "Done",
         "tag": "AGENT",
@@ -75,16 +83,16 @@
       },
       {
         "id": "t112",
-        "text": "Execute MEDIA-INTEL-AGENT-MISSION.md — build daily 6AM Evan Shapiro media intel agent",
-        "full": "Execute MEDIA-INTEL-AGENT-MISSION.md — build daily 6AM Evan Shapiro media intel agent",
+        "text": "Execute MEDIA-INTEL-AGENT-MISSION.md \u2014 build daily 6AM Evan Shapiro media intel agent",
+        "full": "Execute MEDIA-INTEL-AGENT-MISSION.md \u2014 build daily 6AM Evan Shapiro media intel agent",
         "sprint": "Done",
         "tag": "AGENT",
         "priority": "HIGH"
       },
       {
         "id": "t114",
-        "text": "Execute TMDB-STATUS-INTEGRATION-MISSION.md — wire TMDB trends into status page + sm CLI",
-        "full": "Execute TMDB-STATUS-INTEGRATION-MISSION.md — wire TMDB trends into status page + sm CLI",
+        "text": "Execute TMDB-STATUS-INTEGRATION-MISSION.md \u2014 wire TMDB trends into status page + sm CLI",
+        "full": "Execute TMDB-STATUS-INTEGRATION-MISSION.md \u2014 wire TMDB trends into status page + sm CLI",
         "sprint": "Done",
         "tag": "DATA",
         "priority": "HIGH"
@@ -95,7 +103,7 @@
         "id": "t12",
         "text": "Build Ad Research portal stub (same pattern as Programming Research)",
         "full": "Build Ad Research portal stub (same pattern as Programming Research)",
-        "sprint": "Sprint 2 — Architecture & UI",
+        "sprint": "Sprint 2 \u2014 Architecture & UI",
         "tag": "UI",
         "priority": "MED"
       },
@@ -103,7 +111,7 @@
         "id": "t13",
         "text": "Build Marketing Research portal stub",
         "full": "Build Marketing Research portal stub",
-        "sprint": "Sprint 2 — Architecture & UI",
+        "sprint": "Sprint 2 \u2014 Architecture & UI",
         "tag": "UI",
         "priority": "MED"
       },
@@ -111,47 +119,47 @@
         "id": "t14",
         "text": "Build CPG Research portal stub",
         "full": "Build CPG Research portal stub",
-        "sprint": "Sprint 2 — Architecture & UI",
+        "sprint": "Sprint 2 \u2014 Architecture & UI",
         "tag": "UI",
         "priority": "MED"
       },
       {
         "id": "t38",
-        "text": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant …",
-        "full": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant already exists in v7 — wire the toggle to apply CSS class.",
-        "sprint": "Sprint 2 — Design v7 Integration (PRIORITY)",
+        "text": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant \u2026",
+        "full": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant already exists in v7 \u2014 wire the toggle to apply CSS class.",
+        "sprint": "Sprint 2 \u2014 Design v7 Integration (PRIORITY)",
         "tag": "UI",
         "priority": "MED"
       },
       {
         "id": "t40",
-        "text": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback po…",
-        "full": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback points.",
-        "sprint": "Sprint 2 — Design v7 Integration (PRIORITY)",
+        "text": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched \u2014 never overwrite these rollback po\u2026",
+        "full": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched \u2014 never overwrite these rollback points.",
+        "sprint": "Sprint 2 \u2014 Design v7 Integration (PRIORITY)",
         "tag": "UI",
         "priority": "MED"
       },
       {
         "id": "t56",
-        "text": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasma…",
-        "full": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 EDT). Today blocked by JARVIS being down — either fix JARVIS first (above) or copy-paste the draft to LinkedIn manually and remove the entry from pending-approvals.json.",
-        "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
+        "text": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasma\u2026",
+        "full": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 EDT). Today blocked by JARVIS being down \u2014 either fix JARVIS first (above) or copy-paste the draft to LinkedIn manually and remove the entry from pending-approvals.json.",
+        "sprint": "Sprint 4 \u2014 War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
         "tag": "AGENT",
         "priority": "MED"
       },
       {
         "id": "t58",
-        "text": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest ar…",
-        "full": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasmaster-status/ + append to resources.json (set latest:true, clear prior). Planned in the Resources section prototype but deferred for v1 ship.",
-        "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
+        "text": "Add auto-population hook to daily-visuals.sh \u2014 on 5:02AM PNG render, also copy latest ar\u2026",
+        "full": "Add auto-population hook to daily-visuals.sh \u2014 on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasmaster-status/ + append to resources.json (set latest:true, clear prior). Planned in the Resources section prototype but deferred for v1 ship.",
+        "sprint": "Sprint 4 \u2014 War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
         "tag": "UI",
         "priority": "MED"
       },
       {
         "id": "t64",
-        "text": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/ma…",
-        "full": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTER_UPDATED.csv` (18GB) for movies/tv_series distinct counts, and `VIEWERSHIP_AMRLD_PROGRAM.csv` (9.8GB) for total telecasts. Add to ~/SaSMaster/scripts/s3-entity-counts.js as a separate runnable (takes ~60–120s). Cache in same JSON. Render in War Room S3 grid.",
-        "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
+        "text": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/ma\u2026",
+        "full": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTER_UPDATED.csv` (18GB) for movies/tv_series distinct counts, and `VIEWERSHIP_AMRLD_PROGRAM.csv` (9.8GB) for total telecasts. Add to ~/SaSMaster/scripts/s3-entity-counts.js as a separate runnable (takes ~60\u2013120s). Cache in same JSON. Render in War Room S3 grid.",
+        "sprint": "Sprint 5 \u2014 S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
         "tag": "EDGAR",
         "priority": "MED"
       }
@@ -164,7 +172,7 @@
         "id": "t12",
         "text": "Build Ad Research portal stub (same pattern as Programming Research)",
         "full": "Build Ad Research portal stub (same pattern as Programming Research)",
-        "sprint": "Sprint 2 — Architecture & UI",
+        "sprint": "Sprint 2 \u2014 Architecture & UI",
         "tag": "UI",
         "priority": "MED"
       },
@@ -172,7 +180,7 @@
         "id": "t13",
         "text": "Build Marketing Research portal stub",
         "full": "Build Marketing Research portal stub",
-        "sprint": "Sprint 2 — Architecture & UI",
+        "sprint": "Sprint 2 \u2014 Architecture & UI",
         "tag": "UI",
         "priority": "MED"
       },
@@ -180,57 +188,66 @@
         "id": "t14",
         "text": "Build CPG Research portal stub",
         "full": "Build CPG Research portal stub",
-        "sprint": "Sprint 2 — Architecture & UI",
+        "sprint": "Sprint 2 \u2014 Architecture & UI",
         "tag": "UI",
         "priority": "MED"
       },
       {
         "id": "t38",
-        "text": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant …",
-        "full": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant already exists in v7 — wire the toggle to apply CSS class.",
-        "sprint": "Sprint 2 — Design v7 Integration (PRIORITY)",
+        "text": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant \u2026",
+        "full": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant already exists in v7 \u2014 wire the toggle to apply CSS class.",
+        "sprint": "Sprint 2 \u2014 Design v7 Integration (PRIORITY)",
         "tag": "UI",
         "priority": "MED"
       },
       {
         "id": "t40",
-        "text": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback po…",
-        "full": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback points.",
-        "sprint": "Sprint 2 — Design v7 Integration (PRIORITY)",
+        "text": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched \u2014 never overwrite these rollback po\u2026",
+        "full": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched \u2014 never overwrite these rollback points.",
+        "sprint": "Sprint 2 \u2014 Design v7 Integration (PRIORITY)",
         "tag": "UI",
         "priority": "MED"
       },
       {
         "id": "t56",
-        "text": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasma…",
-        "full": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 EDT). Today blocked by JARVIS being down — either fix JARVIS first (above) or copy-paste the draft to LinkedIn manually and remove the entry from pending-approvals.json.",
-        "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
+        "text": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasma\u2026",
+        "full": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 EDT). Today blocked by JARVIS being down \u2014 either fix JARVIS first (above) or copy-paste the draft to LinkedIn manually and remove the entry from pending-approvals.json.",
+        "sprint": "Sprint 4 \u2014 War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
         "tag": "AGENT",
         "priority": "MED"
       },
       {
         "id": "t58",
-        "text": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest ar…",
-        "full": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasmaster-status/ + append to resources.json (set latest:true, clear prior). Planned in the Resources section prototype but deferred for v1 ship.",
-        "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
+        "text": "Add auto-population hook to daily-visuals.sh \u2014 on 5:02AM PNG render, also copy latest ar\u2026",
+        "full": "Add auto-population hook to daily-visuals.sh \u2014 on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasmaster-status/ + append to resources.json (set latest:true, clear prior). Planned in the Resources section prototype but deferred for v1 ship.",
+        "sprint": "Sprint 4 \u2014 War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
         "tag": "UI",
         "priority": "MED"
       },
       {
         "id": "t64",
-        "text": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/ma…",
-        "full": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTER_UPDATED.csv` (18GB) for movies/tv_series distinct counts, and `VIEWERSHIP_AMRLD_PROGRAM.csv` (9.8GB) for total telecasts. Add to ~/SaSMaster/scripts/s3-entity-counts.js as a separate runnable (takes ~60–120s). Cache in same JSON. Render in War Room S3 grid.",
-        "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
+        "text": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/ma\u2026",
+        "full": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTER_UPDATED.csv` (18GB) for movies/tv_series distinct counts, and `VIEWERSHIP_AMRLD_PROGRAM.csv` (9.8GB) for total telecasts. Add to ~/SaSMaster/scripts/s3-entity-counts.js as a separate runnable (takes ~60\u2013120s). Cache in same JSON. Render in War Room S3 grid.",
+        "sprint": "Sprint 5 \u2014 S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
         "tag": "EDGAR",
         "priority": "MED"
       }
     ],
-    "inProgress": [],
+    "inProgress": [
+      {
+        "id": "t-research",
+        "text": "Add !research [topic] command to JARVIS \u2014 topic-agnostic synthesis pipeline \u2192 #intel",
+        "full": "Add !research [topic] command to JARVIS in scripts/jarvis.js. When triggered via Slack Socket Mode, invoke the 3-tier Media Intel pipeline against the given topic, synthesize a structured research brief, and post to #intel (C0AU4M74A7Q). Create a research-prompt.md template in prompts/ following async-prompt.md convention. Include error handling and Slack acknowledgement on receipt. Topic-agnostic: accepts freeform query string, NOT a fixed source list (different from !tech and !iab).",
+        "sprint": "Sprint 7 \u2014 Now (added 2026-04-22)",
+        "tag": "AGENT",
+        "priority": "HIGH"
+      }
+    ],
     "review": [
       {
         "id": "review-0",
-        "text": "LinkedIn article — \"The Future of TV Is More TV\" (finished draft)",
-        "full": "LinkedIn article — \"The Future of TV Is More TV\" (finished draft)",
+        "text": "LinkedIn article \u2014 \"The Future of TV Is More TV\" (finished draft)",
+        "full": "LinkedIn article \u2014 \"The Future of TV Is More TV\" (finished draft)",
         "sprint": "Review",
         "tag": "PENDING",
         "priority": "REVIEW",
@@ -238,8 +255,8 @@
       },
       {
         "id": "review-1",
-        "text": "LinkedIn draft — \"the future of tv\"",
-        "full": "LinkedIn draft — \"the future of tv\"",
+        "text": "LinkedIn draft \u2014 \"the future of tv\"",
+        "full": "LinkedIn draft \u2014 \"the future of tv\"",
         "sprint": "Review",
         "tag": "PENDING",
         "priority": "REVIEW",
@@ -249,8 +266,8 @@
     "done": [
       {
         "id": "done-0",
-        "text": "Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
-        "full": "Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
+        "text": "Programming research \u2014 Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
+        "full": "Programming research \u2014 Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
         "sprint": "",
         "tag": "DONE",
         "priority": "DONE"
@@ -270,6 +287,30 @@
         "sprint": "",
         "tag": "DONE",
         "priority": "DONE"
+      },
+      {
+        "id": "done-3",
+        "text": "Distributed Memory System v2 \u2014 CLAUDE_MEMORY.md compressed, 3 sub-agents, Obsidian vault",
+        "full": "Distributed Memory System v2 \u2014 CLAUDE_MEMORY.md compressed to <250 tokens (key:value format). Sub-agents: data-modeler.md (claude-opus-4-5), scraper-debugger.md (claude-sonnet-4-5), jarvis-ops.md (claude-sonnet-4-5). Obsidian vault initialized at ~/SaSMaster/obsidian/ with 8 docs across 6 folders (ADRs, Schema, Scrapers, Agents, Roadmap, Ops). Memory System v2 diagram added to War Room Resources.",
+        "sprint": "Sprint 7 \u2014 Infrastructure & Memory System (2026-04-22)",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-4",
+        "text": "War Room upgrades \u2014 scraper inventory, JARVIS slack commands, cron schedule visualizer",
+        "full": "Added 3 new War Room Resources & Artifacts: scraper-inventory.html (11-scraper cards with full background knowledge), slack-commands.html (9 JARVIS command cards, approval queue flow, channel routing), cron-schedule.html (18-job visualizer with 24h timeline, weekly calendar, live crontab source). resources.json updated to 9 entries.",
+        "sprint": "Sprint 7 \u2014 Infrastructure & Memory System (2026-04-22)",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-5",
+        "text": "IAB Agent \u2014 4 parallel surfaces, Mon 7AM cron, !iab JARVIS command",
+        "full": "Built agents/iab-agent.js: 4 parallel surfaces (news/insights, NYC-filtered events, research reports, tech/standards). Claude synthesis via claude-sonnet-4-6, posts to #sasmaster-intel (C0AU4M74A7Q). Added !iab handler to scripts/jarvis.js. Monday 7AM cron live (SaSMaster-iab-agent-mon7am). Obsidian vault updated: agent-fleet.md + jarvis-runbook.md committed (0f81906).",
+        "sprint": "Sprint 7 \u2014 Infrastructure & Memory System (2026-04-22)",
+        "tag": "DONE",
+        "priority": "DONE"
       }
     ]
   },
@@ -283,31 +324,31 @@
   "agents": [
     {
       "name": "JARVIS",
-      "icon": "🤖",
+      "icon": "\ud83e\udd16",
       "schedule": "24/7 daemon",
       "nextRun": "Always on",
       "log": "jarvis.log",
       "channel": "24/7 daemon",
       "jobId": null,
       "lastRun": "2026-04-22T11:50:05.322Z",
-      "lastOutput": "JARVIS v4 online — Socket Mode connected",
+      "lastOutput": "JARVIS v4 online \u2014 Socket Mode connected",
       "status": "healthy"
     },
     {
       "name": "Media Intel",
-      "icon": "📡",
+      "icon": "\ud83d\udce1",
       "schedule": "6AM daily",
       "nextRun": "Tomorrow 6AM",
       "log": "media-intel.log",
       "channel": "#sasmaster-intel",
       "jobId": "media-intel",
       "lastRun": "2026-04-22T10:00:20.603Z",
-      "lastOutput": "Brief posted to #sasmaster-intel ✅",
+      "lastOutput": "Brief posted to #sasmaster-intel \u2705",
       "status": "healthy"
     },
     {
       "name": "TMDB Daily",
-      "icon": "📺",
+      "icon": "\ud83d\udcfa",
       "schedule": "5AM daily",
       "nextRun": "Tomorrow 5AM",
       "log": "tmdb-agent.log",
@@ -319,7 +360,7 @@
     },
     {
       "name": "DoneLog Analyst",
-      "icon": "📊",
+      "icon": "\ud83d\udcca",
       "schedule": "Post-build",
       "nextRun": "Post 12AM build",
       "log": "donelog-analyst.log",
@@ -331,7 +372,7 @@
     },
     {
       "name": "LinkedIn Agent",
-      "icon": "✍️",
+      "icon": "\u270d\ufe0f",
       "schedule": "Monday 8PM",
       "nextRun": "Mon 8PM",
       "log": "linkedin-agent.log",
@@ -343,31 +384,31 @@
     },
     {
       "name": "SEC EDGAR",
-      "icon": "📑",
+      "icon": "\ud83d\udcd1",
       "schedule": "6:30 AM daily",
       "nextRun": "Tomorrow 6:30 AM",
       "log": "sec-edgar.log",
       "channel": "#sasmaster-intel",
       "jobId": null,
       "lastRun": "2026-04-22T10:30:23.851Z",
-      "lastOutput": "═══ Done: 16/16 | 15 companies with new filings ═══",
+      "lastOutput": "\u2550\u2550\u2550 Done: 16/16 | 15 companies with new filings \u2550\u2550\u2550",
       "status": "healthy"
     },
     {
       "name": "Tech Intel",
-      "icon": "🛰️",
+      "icon": "\ud83d\udef0\ufe0f",
       "schedule": "Friday 6PM",
       "nextRun": "Fri 6PM",
       "log": "tech-intel.log",
       "channel": "#sasmaster-intel",
       "jobId": "tech-intel",
       "lastRun": "2026-04-21T02:30:51.856Z",
-      "lastOutput": "Tech brief posted to #sasmaster-builds ✅",
+      "lastOutput": "Tech brief posted to #sasmaster-builds \u2705",
       "status": "healthy"
     },
     {
       "name": "Financial Analyst",
-      "icon": "💰",
+      "icon": "\ud83d\udcb0",
       "schedule": "Sunday 8PM",
       "nextRun": "Sun 8PM",
       "log": "financial-analyst.log",
@@ -379,7 +420,7 @@
     },
     {
       "name": "Weekly Review",
-      "icon": "🗂️",
+      "icon": "\ud83d\uddc2\ufe0f",
       "schedule": "Sunday 8PM",
       "nextRun": "Sun 8PM",
       "log": "weekly-review.log",
@@ -388,11 +429,41 @@
       "lastRun": null,
       "lastOutput": null,
       "status": "never"
+    },
+    {
+      "name": "IAB Intel",
+      "icon": "\ud83d\udce1",
+      "schedule": "Monday 7AM",
+      "nextRun": "Mon 7AM",
+      "log": "iab-agent.log",
+      "channel": "#sasmaster-intel",
+      "jobId": "iab-intel",
+      "lastRun": null,
+      "lastOutput": null,
+      "status": "never"
     }
   ],
   "recentBuilds": [
     {
-      "task": "Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
+      "task": "IAB Agent \u2014 4 parallel surfaces, Mon 7AM cron, !iab JARVIS command",
+      "date": "2026-04-22 12:58",
+      "notes": "Built agents/iab-agent.js with 4 surfaces: news/insights (IAB RSS + thought-leadership), NYC-filtered events (HTML scrape), research reports, tech/standards (IAB Tech Lab feed). Claude synthesis \u2192 #intel. !iab added to JARVIS router. Cron: 0 7 * * 1. Obsidian vault committed (0f81906).",
+      "status": "DONE"
+    },
+    {
+      "task": "War Room upgrades \u2014 scraper inventory, JARVIS slack commands, cron schedule visualizer",
+      "date": "2026-04-22 12:58",
+      "notes": "3 new Resources: scraper-inventory.html (11 scrapers with full background knowledge docs), slack-commands.html (9 commands + approval flow), cron-schedule.html (18-job 24h timeline). resources.json at 9 entries. All committed and deployed to Vercel.",
+      "status": "DONE"
+    },
+    {
+      "task": "Distributed Memory System v2 \u2014 CLAUDE_MEMORY.md compressed, 3 sub-agents, Obsidian vault",
+      "date": "2026-04-22 12:58",
+      "notes": "CLAUDE_MEMORY.md trimmed to <250 tokens key:value. 3 sub-agents: data-modeler.md (opus-4-5), scraper-debugger.md (sonnet-4-5), jarvis-ops.md (sonnet-4-5). Obsidian vault: 8 docs across 00-ADRs/01-Schema/02-Scrapers/03-Agents/04-Roadmap/05-Ops. Git initialized (commit 2dbc4d4).",
+      "status": "DONE"
+    },
+    {
+      "task": "Programming research \u2014 Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
       "date": "2026-04-22 11:52",
       "notes": "Wrote data/tmdb-research-20260422.md with audience/rights/network-fit/signal analysis for all 4 titles. Key signals: Unc",
       "status": "DONE"
@@ -406,24 +477,24 @@
     {
       "task": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
       "date": "2026-04-22 05:00",
-      "notes": "Large-scope evening. Key deliverables:\n\n  (1) War Room v3 full redesign — ported sasmaster-portal-v3 mock's CSS + struct",
+      "notes": "Large-scope evening. Key deliverables:\n\n  (1) War Room v3 full redesign \u2014 ported sasmaster-portal-v3 mock's CSS + struct",
       "status": "DONE"
     }
   ],
   "intel_feed": [
     {
       "source": "MEDIA INTEL",
-      "text": "36 signals from 10 sources — Evan Shapiro sweep complete",
+      "text": "36 signals from 10 sources \u2014 Evan Shapiro sweep complete",
       "ts": "2026-04-21T01:48:00Z"
     },
     {
       "source": "SEC EDGAR",
-      "text": "10/10 companies fetched — XBRL revenue + YoY delta computed",
+      "text": "10/10 companies fetched \u2014 XBRL revenue + YoY delta computed",
       "ts": "2026-04-21T03:25:00Z"
     },
     {
       "source": "TMDB",
-      "text": "467K/1.18M titles loaded → s3://sasmaster-2026/tmdb_dev/ (39.4%)",
+      "text": "467K/1.18M titles loaded \u2192 s3://sasmaster-2026/tmdb_dev/ (39.4%)",
       "ts": "2026-04-21T08:00:00Z"
     }
   ],
@@ -782,7 +853,7 @@
     {
       "path": "progress/",
       "prefix": "progress/",
-      "phase": "—",
+      "phase": "\u2014",
       "status": "live",
       "size_gb": 0,
       "object_count": 2,
@@ -799,17 +870,32 @@
   ],
   "kpis": {
     "agents_running": 7,
-    "agents_total": 9,
+    "agents_total": 10,
     "scrapers_live": 4,
     "scrapers_total": 22,
     "s3_gb": 85.4,
     "parent_key_rows": 861878,
-    "tasks_open": 18
+    "tasks_open": 11
   },
   "recent_activity": [
     {
       "type": "build",
-      "text": "Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Crim",
+      "text": "IAB Agent live \u2014 4 surfaces, Mon 7AM cron, !iab command wired",
+      "ts": "2026-04-22 12:58"
+    },
+    {
+      "type": "build",
+      "text": "War Room: scraper-inventory + slack-commands + cron-schedule added to Resources",
+      "ts": "2026-04-22 12:58"
+    },
+    {
+      "type": "build",
+      "text": "Memory System v2 \u2014 CLAUDE_MEMORY.md compressed, 3 sub-agents, Obsidian vault (8 docs)",
+      "ts": "2026-04-22 12:58"
+    },
+    {
+      "type": "build",
+      "text": "Programming research \u2014 Unchosen, Fist of North Star, Daredevil: Born Again, Crim",
       "ts": "2026-04-22 11:52"
     },
     {
@@ -824,23 +910,8 @@
     },
     {
       "type": "intel",
-      "text": "36 signals from 10 sources — Evan Shapiro sweep complete",
+      "text": "36 signals from 10 sources \u2014 Evan Shapiro sweep complete",
       "ts": "2026-04-21T01:48:00Z"
-    },
-    {
-      "type": "intel",
-      "text": "10/10 companies fetched — XBRL revenue + YoY delta computed",
-      "ts": "2026-04-21T03:25:00Z"
-    },
-    {
-      "type": "content",
-      "text": "467K/1.18M titles loaded → s3://sasmaster-2026/tmdb_dev/ (39.4%)",
-      "ts": "2026-04-21T08:00:00Z"
-    },
-    {
-      "type": "pipeline",
-      "text": "TMDB bulk 40.5% — 89K / 220K titles → s3://sasmaster-2026/tmdb_dev/",
-      "ts": "2026-04-22T11:52:04.123Z"
     }
   ],
   "cron": [
@@ -856,7 +927,7 @@
       "time": "*:*/5",
       "name": "slack feed cache",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/slack-feed-cache.js >> /Users/shivashish/SaSMaster/logs/slack-feed.log 2>&1",
-      "channel": "—",
+      "channel": "\u2014",
       "weekly": false,
       "status": "pending"
     },
@@ -864,7 +935,7 @@
       "time": "12:00 AM",
       "name": "tmdb delta biweekly",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/load-tmdb-deltas.js >> /Users/shivashish/SaSMaster/logs/tmdb-deltas.log 2>&1",
-      "channel": "—",
+      "channel": "\u2014",
       "weekly": true,
       "status": "pending"
     },
@@ -872,7 +943,7 @@
       "time": "2:00 AM",
       "name": "load tmdb to s3.js",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/load-tmdb-to-s3.js all >> /Users/shivashish/SaSMaster/logs/tmdb-load.log 2>&1",
-      "channel": "—",
+      "channel": "\u2014",
       "weekly": false,
       "status": "done"
     },
@@ -888,7 +959,7 @@
       "time": "5:00 AM",
       "name": "tmdb daily 5am",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/tmdb-daily-agent.js >> /Users/shivashish/SaSMaster/logs/tmdb-agent.log 2>&1",
-      "channel": "—",
+      "channel": "\u2014",
       "weekly": false,
       "status": "done"
     },
@@ -912,7 +983,7 @@
       "time": "6:05 AM",
       "name": "morning package.sh",
       "command": "bash /Users/shivashish/SaSMaster/scripts/morning-package.sh >> /Users/shivashish/SaSMaster/logs/morning-package.log 2>&1",
-      "channel": "—",
+      "channel": "\u2014",
       "weekly": false,
       "status": "done"
     },
@@ -928,7 +999,7 @@
       "time": "7:00 AM",
       "name": "score queue 7am",
       "command": "bash /Users/shivashish/SaSMaster/scripts/score-queue.sh",
-      "channel": "—",
+      "channel": "\u2014",
       "weekly": false,
       "status": "pending"
     },
@@ -936,7 +1007,7 @@
       "time": "8:07 AM",
       "name": "finish future of tv.js",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/finish-future-of-tv.js >> /Users/shivashish/SaSMaster/logs/future-of-tv.log 2>&1",
-      "channel": "—",
+      "channel": "\u2014",
       "weekly": true,
       "status": "pending"
     },
@@ -944,7 +1015,7 @@
       "time": "12:00 PM",
       "name": "donelog analyst 12pm",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/donelog-analyst.js >> /Users/shivashish/SaSMaster/logs/donelog-analyst.log 2>&1",
-      "channel": "—",
+      "channel": "\u2014",
       "weekly": false,
       "status": "pending"
     },
@@ -952,7 +1023,7 @@
       "time": "2:00 PM",
       "name": "score queue 2pm",
       "command": "bash /Users/shivashish/SaSMaster/scripts/score-queue.sh",
-      "channel": "—",
+      "channel": "\u2014",
       "weekly": false,
       "status": "pending"
     },
@@ -976,7 +1047,7 @@
       "time": "8:00 PM",
       "name": "weekly review agent.js",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/weekly-review-agent.js >> /Users/shivashish/SaSMaster/logs/weekly-review.log 2>&1",
-      "channel": "—",
+      "channel": "\u2014",
       "weekly": true,
       "status": "pending"
     },
@@ -984,107 +1055,153 @@
       "time": "8:00 PM",
       "name": "financial analyst sun8pm",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/financial-analyst.js >> /Users/shivashish/SaSMaster/logs/financial-analyst.log 2>&1",
-      "channel": "—",
+      "channel": "\u2014",
       "weekly": true,
       "status": "pending"
     }
   ],
   "tasks": [
     {
+      "title": "Add !research [topic] command to JARVIS \u2014 topic-agnostic synthesis pipeline \u2192 #intel",
+      "status": "HIGH PRIORITY",
+      "priority": "HIGH",
+      "tag": "AGENT",
+      "est": "~1h"
+    },
+    {
       "title": "Build Ad Research portal stub (same pattern as Programming Research)",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "UI",
-      "est": "—"
+      "est": "\u2014"
     },
     {
       "title": "Build Marketing Research portal stub",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "UI",
-      "est": "—"
+      "est": "\u2014"
     },
     {
       "title": "Build CPG Research portal stub",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "UI",
-      "est": "—"
+      "est": "\u2014"
     },
     {
-      "title": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant …",
+      "title": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant \u2026",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "UI",
-      "est": "—"
+      "est": "\u2014"
     },
     {
-      "title": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback po…",
+      "title": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched \u2014 never overwrite these rollback po\u2026",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "UI",
-      "est": "—"
+      "est": "\u2014"
     },
     {
-      "title": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasma…",
+      "title": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasma\u2026",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "AGENT",
-      "est": "—"
+      "est": "\u2014"
     },
     {
-      "title": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest ar…",
+      "title": "Add auto-population hook to daily-visuals.sh \u2014 on 5:02AM PNG render, also copy latest ar\u2026",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "UI",
-      "est": "—"
+      "est": "\u2014"
     },
     {
-      "title": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/ma…",
+      "title": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/ma\u2026",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "EDGAR",
-      "est": "—"
+      "est": "\u2014"
     },
     {
-      "title": "LinkedIn article — \"The Future of TV Is More TV\" (finished draft)",
+      "title": "LinkedIn article \u2014 \"The Future of TV Is More TV\" (finished draft)",
       "status": "REVIEW",
       "priority": "REVIEW",
       "tag": "PENDING",
-      "est": "—"
+      "est": "\u2014"
     },
     {
-      "title": "LinkedIn draft — \"the future of tv\"",
+      "title": "LinkedIn draft \u2014 \"the future of tv\"",
       "status": "REVIEW",
       "priority": "REVIEW",
       "tag": "PENDING",
-      "est": "—"
+      "est": "\u2014"
     },
     {
-      "title": "Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
+      "title": "Programming research \u2014 Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
       "status": "DONE",
       "priority": "DONE",
       "tag": "DONE",
-      "est": "—"
+      "est": "\u2014"
     },
     {
       "title": "Restart JARVIS + widen channel filter",
       "status": "DONE",
       "priority": "DONE",
       "tag": "DONE",
-      "est": "—"
+      "est": "\u2014"
     },
     {
       "title": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
       "status": "DONE",
       "priority": "DONE",
       "tag": "DONE",
-      "est": "—"
+      "est": "\u2014"
+    },
+    {
+      "title": "Distributed Memory System v2 \u2014 CLAUDE_MEMORY.md compressed, 3 sub-agents, Obsidian vault",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "\u2014"
+    },
+    {
+      "title": "War Room upgrades \u2014 scraper inventory, JARVIS slack commands, cron schedule visualizer",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "\u2014"
+    },
+    {
+      "title": "IAB Agent \u2014 4 parallel surfaces, Mon 7AM cron, !iab JARVIS command",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "\u2014"
     }
   ],
   "recent_completions": [
     {
-      "title": "Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
+      "title": "IAB Agent \u2014 4 parallel surfaces, Mon 7AM cron, !iab JARVIS command",
+      "category": "Agent",
+      "path": "agents/iab-agent.js",
+      "completed_at": "2026-04-22 12:58"
+    },
+    {
+      "title": "War Room upgrades \u2014 scraper inventory, JARVIS commands, cron schedule",
+      "category": "Infrastructure",
+      "path": "sasmaster-status/resources.json",
+      "completed_at": "2026-04-22 12:58"
+    },
+    {
+      "title": "Distributed Memory System v2 \u2014 3 sub-agents + Obsidian vault",
+      "category": "Infrastructure",
+      "path": "~/.claude/agents/ + ~/SaSMaster/obsidian/",
+      "completed_at": "2026-04-22 12:58"
+    },
+    {
+      "title": "Programming research \u2014 Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
       "category": "Build",
       "path": "",
       "completed_at": "2026-04-22 11:52"
@@ -1107,20 +1224,20 @@
     "intel": [],
     "content": []
   },
-  "last_updated": "2026-04-22T11:52:20.561Z",
+  "last_updated": "2026-04-22T16:58:56.000Z",
   "overnight_debrief": {
     "date": "Wed Apr 22 2026",
     "ran": [
       {
         "time": "04:51",
         "agent": "Media Intel Agent",
-        "result": "36 items from 10 sources → #sasmaster-intel",
+        "result": "36 items from 10 sources \u2192 #sasmaster-intel",
         "status": "ok"
       },
       {
         "time": "05:00",
         "agent": "TMDB Trending Agent",
-        "result": "1 shows injected → #sasmaster-content",
+        "result": "1 shows injected \u2192 #sasmaster-content",
         "status": "ok"
       },
       {
@@ -1132,25 +1249,25 @@
       {
         "time": "05:19",
         "agent": "TMDB Daily Agent",
-        "result": "12 endpoints → #sasmaster-content",
+        "result": "12 endpoints \u2192 #sasmaster-content",
         "status": "ok"
       },
       {
         "time": "05:20",
         "agent": "TMDB Daily Agent",
-        "result": "12 endpoints → #sasmaster-content",
+        "result": "12 endpoints \u2192 #sasmaster-content",
         "status": "ok"
       },
       {
         "time": "05:22",
         "agent": "TMDB Daily Agent",
-        "result": "12 endpoints → #sasmaster-intel",
+        "result": "12 endpoints \u2192 #sasmaster-intel",
         "status": "ok"
       },
       {
         "time": "06:00",
         "agent": "Media Intel Agent",
-        "result": "36 items from 10 sources → #sasmaster-intel",
+        "result": "36 items from 10 sources \u2192 #sasmaster-intel",
         "status": "ok"
       },
       {
