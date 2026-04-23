@@ -1551,10 +1551,23 @@ function quickExport(id, ev) {
   }
   if (!r.url.startsWith('http')) {
     const w = window.open(r.url, '_blank');
-    if (w) w.addEventListener('load', () => { try { w.print(); } catch(e) {} });
+    if (w) {
+      w.addEventListener('load', () => {
+        try {
+          const doc = w.document;
+          const cW = Math.max(doc.body.scrollWidth, doc.documentElement.scrollWidth);
+          const cH = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+          const scale = Math.min(1084 / cW, 740 / cH, 1).toFixed(5);
+          const s = doc.createElement('style');
+          s.textContent = '@page{size:A4 landscape;margin:10mm}@media print{html{zoom:' + scale + ';-webkit-print-color-adjust:exact;print-color-adjust:exact}body{margin:0!important;overflow:hidden!important}*{page-break-inside:avoid!important;break-inside:avoid!important}}';
+          doc.head.appendChild(s);
+          setTimeout(() => w.print(), 500);
+        } catch(e) { w.print(); }
+      });
+    }
   } else {
     window.open(r.url, '_blank');
-    showFVToast('Opened in new tab — press Cmd+P / Ctrl+P to save as PDF', '#2563EB');
+    showFVToast('Opened — set Landscape + Fit to page in the print dialog', '#2563EB');
   }
 }
 window.quickExport = quickExport;
@@ -1644,10 +1657,33 @@ function exportResourcePDF() {
   if (!r || !r.url) return;
   if (!r.url.startsWith('http')) {
     const w = window.open(r.url, '_blank');
-    if (w) w.addEventListener('load', () => { try { w.print(); } catch(e) {} });
+    if (w) {
+      w.addEventListener('load', () => {
+        try {
+          const doc = w.document;
+          const cW = Math.max(doc.body.scrollWidth, doc.documentElement.scrollWidth);
+          const cH = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+          // A4 landscape printable area at 96dpi (minus 10mm margins each side)
+          const pageW = 1084, pageH = 740;
+          const scale = Math.min(pageW / cW, pageH / cH, 1).toFixed(5);
+          const s = doc.createElement('style');
+          s.textContent = [
+            '@page{size:A4 landscape;margin:10mm}',
+            '@media print{',
+            'html{zoom:' + scale + ';-webkit-print-color-adjust:exact;print-color-adjust:exact}',
+            'body{margin:0!important;padding:0!important;overflow:hidden!important;height:auto!important}',
+            '*{page-break-inside:avoid!important;break-inside:avoid!important;page-break-after:avoid!important;page-break-before:avoid!important}',
+            '::-webkit-scrollbar{display:none!important}',
+            '}'
+          ].join('');
+          doc.head.appendChild(s);
+          setTimeout(() => w.print(), 500);
+        } catch(e) { w.print(); }
+      });
+    }
   } else {
     window.open(r.url, '_blank');
-    showFVToast('Opened in new tab — press Cmd+P (Mac) or Ctrl+P to save as PDF', '#2563EB');
+    showFVToast('Opened — set Landscape + Fit to page in the print dialog', '#2563EB');
   }
 }
 window.exportResourcePDF = exportResourcePDF;
@@ -1670,16 +1706,26 @@ function exportResourcePNG() {
   const iframe = document.getElementById('fv-iframe');
   if (!iframe) { showFVToast('No preview loaded — open the resource first', '#D97706'); return; }
 
-  showFVToast('Capturing... this may take a moment', '#7C3AED');
+  showFVToast('Capturing full page — hold on...', '#7C3AED');
 
   const capture = () => {
     const iw = iframe.contentWindow;
     const id = iframe.contentDocument;
+    // Use full scroll dimensions so nothing is cropped
+    const cW = Math.max(id.documentElement.scrollWidth, id.body ? id.body.scrollWidth : 0, 1400);
+    const cH = Math.max(id.documentElement.scrollHeight, id.body ? id.body.scrollHeight : 0);
     iw.html2canvas(id.documentElement, {
-      scale: 2, useCORS: true, backgroundColor: '#ffffff',
-      windowWidth: id.documentElement.scrollWidth,
-      windowHeight: id.documentElement.scrollHeight,
-      scrollX: 0, scrollY: 0
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      windowWidth: cW,
+      windowHeight: cH,
+      width: cW,
+      height: cH,
+      x: 0, y: 0,
+      scrollX: 0, scrollY: 0,
+      imageTimeout: 15000
     }).then(canvas => {
       const a = document.createElement('a');
       a.href = canvas.toDataURL('image/png');
@@ -1700,7 +1746,7 @@ function exportResourcePNG() {
     script.onerror = () => showFVToast('Failed to load capture library', '#DC2626');
     iframe.contentDocument.head.appendChild(script);
   } catch(e) {
-    showFVToast('Cannot access page content — external URLs are not capturable', '#D97706');
+    showFVToast('Cannot access page — external URLs are not capturable', '#D97706');
   }
 }
 window.exportResourcePNG = exportResourcePNG;
