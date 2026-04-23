@@ -599,6 +599,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13
       <div id="fv-path" style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:1px"></div>
     </div>
     <button id="fv-open-btn" style="background:var(--purple);color:#fff;border:none;border-radius:4px;padding:5px 12px;font-size:10px;font-family:var(--mono);cursor:pointer;font-weight:600" onclick="openExternal()">&uarr; Open External</button>
+    <button id="fv-png-btn" onclick="exportResourcePNG()" style="background:linear-gradient(135deg,#0891B2,#7C3AED);color:#fff;border:none;border-radius:4px;padding:5px 10px;font-size:10px;font-family:var(--mono);cursor:pointer;font-weight:600" title="Export as PNG">&#11015; PNG</button>
+    <button id="fv-pdf-btn" onclick="exportResourcePDF()" style="background:linear-gradient(135deg,#16A34A,#059669);color:#fff;border:none;border-radius:4px;padding:5px 10px;font-size:10px;font-family:var(--mono);cursor:pointer;font-weight:600" title="Export as PDF (print dialog)">&#11015; PDF</button>
     <button onclick="closeFV()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:0 4px">&times;</button>
   </div>
   <div id="fv-body" style="flex:1;overflow:hidden;display:flex;flex-direction:column"></div>
@@ -1210,6 +1212,9 @@ async function openLogDrawer(agentName, logName) {
     document.getElementById('fv-path').textContent = '~/SaSMaster/logs/' + (logName || agentName);
     document.getElementById('fv-body').innerHTML = '<pre style="flex:1;overflow:auto;margin:0;padding:14px 20px;background:#0D0D0D;color:#D1FAE5;font-family:var(--mono);font-size:11px;line-height:1.6">' + escHtml(lines) + '</pre>';
     document.getElementById('fv-open-btn').style.display = 'none';
+    const _pb = document.getElementById('fv-png-btn'); if (_pb) _pb.style.display = 'none';
+    const _df = document.getElementById('fv-pdf-btn'); if (_df) _df.style.display = 'none';
+    __currentResource = null;
     document.getElementById('fv-overlay').style.display = 'block';
     document.getElementById('fv-modal').style.display = 'flex';
   } catch (e) {
@@ -1452,6 +1457,7 @@ window.toggleMobSidebar = toggleMobSidebar;
 // ═══════════════════════════════════════════════════════════════════
 
 let __resources = [];
+let __currentResource = null;
 let raFilter = 'all';
 
 const CAT_ICONS = { architecture: '🏗️', pipelines: '📊', portals: '🎨', research: '📝', docs: '📋', boards: '🗂️' };
@@ -1515,7 +1521,10 @@ function renderRA() {
       + '<div class="ra-desc">' + escHtml(r.desc) + '</div>'
       + '<div class="ra-footer">'
       +   '<div class="ra-date">' + escHtml(r.date) + '</div>'
-      +   '<button class="ra-btn ' + r.btnClass + '" onclick="openResource(\'' + escQ(r.id) + '\')">' + escHtml(r.btnLabel) + '</button>'
+      +   '<div style="display:flex;gap:5px;align-items:center">'
+      +     '<button class="ra-btn" style="background:var(--sbg);color:var(--slate);border:1px solid var(--border);padding:5px 8px;font-size:10px" title="Quick export (PDF for HTML, download for images)" onclick="quickExport(\'' + escQ(r.id) + '\',event)">&#11015;</button>'
+      +     '<button class="ra-btn ' + r.btnClass + '" onclick="openResource(\'' + escQ(r.id) + '\')">' + escHtml(r.btnLabel) + '</button>'
+      +   '</div>'
       + '</div></div>';
   }).join('');
 }
@@ -1526,15 +1535,46 @@ function filterRA(f) {
 }
 window.filterRA = filterRA;
 
+function quickExport(id, ev) {
+  ev && ev.stopPropagation();
+  const r = __resources.map(normalizeResource).find(x => x.id === id);
+  if (!r || !r.url) return;
+  if (r.preview === 'image') {
+    fetch(r.url).then(res => res.blob()).then(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (r.title || 'export').replace(/[^a-z0-9]/gi, '-') + '.png';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    }).catch(() => window.open(r.url, '_blank'));
+    return;
+  }
+  if (!r.url.startsWith('http')) {
+    const w = window.open(r.url, '_blank');
+    if (w) w.addEventListener('load', () => { try { w.print(); } catch(e) {} });
+  } else {
+    window.open(r.url, '_blank');
+    showFVToast('Opened in new tab — press Cmd+P / Ctrl+P to save as PDF', '#2563EB');
+  }
+}
+window.quickExport = quickExport;
+
 function openResource(id) {
   const r = __resources.map(normalizeResource).find(x => x.id === id);
   if (!r) return;
+  __currentResource = r;
   const modal = document.getElementById('fv-modal');
   document.getElementById('fv-icon').textContent = r.icon;
   document.getElementById('fv-name').textContent = r.title;
   document.getElementById('fv-path').textContent = r.url;
   document.getElementById('fv-overlay').style.display = 'block';
   modal.style.display = 'flex';
+  // PNG export: show for images + same-origin HTML; hide for pure external URLs
+  const pngBtn = document.getElementById('fv-png-btn');
+  const pdfBtn = document.getElementById('fv-pdf-btn');
+  const isExternal = r.url.startsWith('http');
+  if (pngBtn) pngBtn.style.display = (r.preview === 'image' || (r.preview === 'iframe' && !isExternal)) ? '' : 'none';
+  if (pdfBtn) pdfBtn.style.display = '';
   const body = document.getElementById('fv-body');
   const obtn = document.getElementById('fv-open-btn');
 
@@ -1574,11 +1614,96 @@ function openResource(id) {
 window.openResource = openResource;
 
 function closeFV() {
+  __currentResource = null;
   document.getElementById('fv-overlay').style.display = 'none';
   document.getElementById('fv-modal').style.display = 'none';
   document.getElementById('fv-body').innerHTML = '';
 }
 window.closeFV = closeFV;
+
+function showFVToast(msg, bg) {
+  const existing = document.getElementById('fv-toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.id = 'fv-toast';
+  Object.assign(t.style, {
+    position:'fixed', bottom:'60px', left:'50%', transform:'translateX(-50%)',
+    background: bg || '#7C3AED', color:'#fff', padding:'8px 20px',
+    borderRadius:'6px', fontFamily:'var(--mono)', fontSize:'11px', fontWeight:'600',
+    zIndex:'900', pointerEvents:'none', whiteSpace:'nowrap',
+    boxShadow:'0 4px 16px rgba(0,0,0,.4)', opacity:'0', transition:'opacity .2s ease'
+  });
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => { t.style.opacity = '1'; });
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 250); }, 3500);
+}
+
+function exportResourcePDF() {
+  const r = __currentResource;
+  if (!r || !r.url) return;
+  if (!r.url.startsWith('http')) {
+    const w = window.open(r.url, '_blank');
+    if (w) w.addEventListener('load', () => { try { w.print(); } catch(e) {} });
+  } else {
+    window.open(r.url, '_blank');
+    showFVToast('Opened in new tab — press Cmd+P (Mac) or Ctrl+P to save as PDF', '#2563EB');
+  }
+}
+window.exportResourcePDF = exportResourcePDF;
+
+function exportResourcePNG() {
+  const r = __currentResource;
+  if (!r) return;
+
+  if (r.preview === 'image') {
+    fetch(r.url).then(res => res.blob()).then(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (r.title || 'export').replace(/[^a-z0-9]/gi, '-') + '.png';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    }).catch(() => window.open(r.url, '_blank'));
+    return;
+  }
+
+  const iframe = document.getElementById('fv-iframe');
+  if (!iframe) { showFVToast('No preview loaded — open the resource first', '#D97706'); return; }
+
+  showFVToast('Capturing... this may take a moment', '#7C3AED');
+
+  const capture = () => {
+    const iw = iframe.contentWindow;
+    const id = iframe.contentDocument;
+    iw.html2canvas(id.documentElement, {
+      scale: 2, useCORS: true, backgroundColor: '#ffffff',
+      windowWidth: id.documentElement.scrollWidth,
+      windowHeight: id.documentElement.scrollHeight,
+      scrollX: 0, scrollY: 0
+    }).then(canvas => {
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = (r.title || 'export').replace(/[^a-z0-9]/gi, '-') + '.png';
+      a.click();
+    }).catch(() => showFVToast('Capture failed — try PDF instead', '#DC2626'));
+  };
+
+  if (iframe.contentWindow && iframe.contentWindow.html2canvas) {
+    capture();
+    return;
+  }
+
+  try {
+    const script = iframe.contentDocument.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    script.onload = capture;
+    script.onerror = () => showFVToast('Failed to load capture library', '#DC2626');
+    iframe.contentDocument.head.appendChild(script);
+  } catch(e) {
+    showFVToast('Cannot access page content — external URLs are not capturable', '#D97706');
+  }
+}
+window.exportResourcePNG = exportResourcePNG;
 
 function openExternal() {
   const url = document.getElementById('fv-path').textContent;
