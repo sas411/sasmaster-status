@@ -105,6 +105,8 @@
   .cat-emba .sc-stripe{background:linear-gradient(90deg,#059669,#10B981);}
   .cat-personal .sc-stripe{background:linear-gradient(90deg,#F59E0B,#EF4444);}
   .cat-consulting .sc-stripe{background:linear-gradient(90deg,#EC4899,#F43F5E);}
+  .cat-research .sc-stripe{background:linear-gradient(90deg,#0891B2,#0EA5E9);}
+  .cat-research .sc-cat{background:rgba(8,145,178,.1);color:#0369A1;}
 
   .sc-header{padding:14px 16px 10px;border-bottom:1px solid var(--lav-100);}
   .sc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}
@@ -219,8 +221,8 @@
   <h1>🧠 Skill Inventory — v1</h1>
   <div class="sub">Claude Code personal skill library · synced across claude.ai + local · self-evolving via post-build capture</div>
   <div class="badge-row">
-    <span class="badge badge-live"><span class="dot"></span>13 Skills Active</span>
-    <span class="badge badge-pur">5 SaSMaster Domain</span>
+    <span class="badge badge-live"><span class="dot"></span>15 Skills Active</span>
+    <span class="badge badge-pur">6 SaSMaster Domain</span>
     <span class="badge badge-info">3 Engineering</span>
     <span class="badge badge-amber">Friday Auto-Review Cron</span>
   </div>
@@ -230,13 +232,13 @@
 
   <!-- ── Stats bar ── -->
   <div class="stats-bar">
-    <div class="sb-item"><strong>13</strong><span>Total Skills</span></div>
+    <div class="sb-item"><strong>15</strong><span>Total Skills</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>12</strong><span>Synced Both</span></div>
+    <div class="sb-item"><strong>14</strong><span>Synced Both</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>2305</strong><span>Lines of Knowledge</span></div>
+    <div class="sb-item"><strong>6,635</strong><span>Lines of Knowledge</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>5</strong><span>SaSMaster Domain</span></div>
+    <div class="sb-item"><strong>6</strong><span>SaSMaster Domain</span></div>
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>Fri 5:50PM</strong><span>Auto-Review Cron</span></div>
     <div class="sb-sep"></div>
@@ -246,8 +248,9 @@
   <!-- ── Filter ── -->
   <div class="sec-title">Skills</div>
   <div class="filter-row">
-    <button class="filter-btn active" onclick="filterSkills('all',this)">All (13)</button>
-    <button class="filter-btn" onclick="filterSkills('sasmaster',this)">SaSMaster Domain (5)</button>
+    <button class="filter-btn active" onclick="filterSkills('all',this)">All (15)</button>
+    <button class="filter-btn" onclick="filterSkills('sasmaster',this)">SaSMaster Domain (6)</button>
+    <button class="filter-btn" onclick="filterSkills('research',this)">Research (1)</button>
     <button class="filter-btn" onclick="filterSkills('engineering',this)">Engineering (3)</button>
     <button class="filter-btn" onclick="filterSkills('emba',this)">EMBA / Academia (2)</button>
     <button class="filter-btn" onclick="filterSkills('consulting',this)">Consulting (1)</button>
@@ -377,7 +380,7 @@
       </div>
       <div class="sc-footer">
         <div class="sc-meta"><span class="sc-lines">183 lines</span><span>Updated Apr 22, 2026</span></div>
-        <span class="sc-sync" style="background:#FEF3C7;color:#D97706;border-color:#FDE68A;">⚠ Upload to claude.ai</span>
+        <span class="sc-sync">✓ Synced</span>
       </div>
     </div>
 
@@ -579,6 +582,58 @@
       </div>
     </div>
 
+    <!-- data-viz -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">data-viz</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">Build accurate, dynamic, cinematic data visualizations for media analytics and BI. 8-step system: chart type selection, SaSMaster design tokens, interactivity standards, accuracy checklist, media analytics specifics, code paths, dashboard composition, quality gate.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">chart</span>
+          <span class="trigger-tag">visualize</span>
+          <span class="trigger-tag">plot ratings</span>
+          <span class="trigger-tag">bubble chart</span>
+          <span class="trigger-tag">streamgraph</span>
+          <span class="trigger-tag">dashboard</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">2,037 lines</span><span>Updated Apr 22, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <!-- programming-researcher -->
+    <div class="skill-card cat-research" data-cat="research">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">programming-researcher</span>
+          <span class="sc-cat" style="background:rgba(8,145,178,.1);color:#0369A1;">Research</span>
+        </div>
+        <div class="sc-desc">Senior programming research analyst — 15+ years TV/streaming. Decodes Nielsen, Gracenote, IMDB/TMDB for radical insights. Three-layer analysis framework, 5 radical questions, RSG ML ensemble (CatBoost+LightGBM), binary optimization model, Lapsed/New/Retained PID migration, %GSHR/%SCH Index.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">analyze ratings</span>
+          <span class="trigger-tag">what's the insight</span>
+          <span class="trigger-tag">programming strategy</span>
+          <span class="trigger-tag">so-what</span>
+          <span class="trigger-tag">Nielsen</span>
+          <span class="trigger-tag">competitive landscape</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">2,293 lines</span><span>Added Apr 22, 2026</span></div>
+        <span class="sc-sync" style="background:#FEF3C7;color:#D97706;border-color:#FDE68A;">⚠ Upload to claude.ai</span>
+      </div>
+    </div>
+
   </div><!-- /skill-grid -->
 
   <!-- ── Evolution Pipeline ── -->
@@ -599,7 +654,7 @@
         <div class="pf-step">
           <div class="pf-icon">📅</div>
           <div class="pf-label">Friday Review Cron</div>
-          <div class="pf-detail">Every Friday at 5:50PM, <code>skill-review.sh</code> loops all 13 skills, runs Claude on each with recent TASKS.md completions + CLAUDE_MEMORY.md context, and edits <code>skill.md</code> with new patterns. Pairs with 6PM Tech Intel.</div>
+          <div class="pf-detail">Every Friday at 5:50PM, <code>skill-review.sh</code> loops all 15 skills, runs Claude on each with recent TASKS.md completions + CLAUDE_MEMORY.md context, and edits <code>skill.md</code> with new patterns. Pairs with 6PM Tech Intel.</div>
           <div class="pf-code">50 17 * * 5</div>
         </div>
 
@@ -630,7 +685,7 @@
       <tbody>
         <tr><td class="skill-name-cell">jarvis-ops</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">JARVIS commands, TASKS.md schema, async build loop, Slack routing, Command API, cron schedule</td><td class="lines-cell">190</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">scraper-engineer</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">11 scrapers + 4 RSG bridges, rate limits, retry/backoff, lockfile/checkpoint patterns</td><td class="lines-cell">190</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
-        <tr><td class="skill-name-cell">s3-data-architect</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Locked S3 paths, IAM least-privilege, credential hygiene, NDJSON→Parquet pipeline, additive writes</td><td class="lines-cell">183</td><td class="sync-cell"><span class="sync-local">⚠ Local only</span></td></tr>
+        <tr><td class="skill-name-cell">s3-data-architect</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Locked S3 paths, IAM least-privilege, credential hygiene, NDJSON→Parquet pipeline, additive writes</td><td class="lines-cell">183</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">media-domain</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">TMDB/IMDB schemas, tconst, Parent Key, EIDR, Nielsen/Gracenote, EDGAR 16-company map</td><td class="lines-cell">150</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">duckdb-parquet</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">DuckDB/S3 httpfs, ZSTD Parquet, glob patterns, partition pruning, JOIN strategies, schema evolution</td><td class="lines-cell">147</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">fullstack-architect</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">Engineering constitution — React/TS, Fastify/FastAPI, Snowflake, Bedrock GenAI, Exchange marketplace</td><td class="lines-cell">286</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
@@ -641,12 +696,14 @@
         <tr><td class="skill-name-cell">sow-consultant</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(236,72,153,.1);color:#9D174D;font-size:9px;font-weight:700;text-transform:uppercase;">Consulting</span></td><td class="desc-cell">SOW drafting, retainer structures, IP clauses, change order templates — Gray Matter engagement reference</td><td class="lines-cell">211</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">linkedin-thought-leader</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(245,158,11,.1);color:#92400E;font-size:9px;font-weight:700;text-transform:uppercase;">Personal</span></td><td class="desc-cell">LinkedIn in Shiv's voice — contrarian takes, builder's log, data point drops, post formats, topic bank</td><td class="lines-cell">169</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">ableton-sme</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(245,158,11,.1);color:#92400E;font-size:9px;font-weight:700;text-transform:uppercase;">Personal</span></td><td class="desc-cell">Ableton Live expert — synthesis, Session/Arrangement, MIDI/automation, mixing/mastering, macOS M1 plugins</td><td class="lines-cell">191</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">data-viz</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">8-step viz system — chart selection, SaSMaster tokens, interactivity, accuracy checklist, media analytics, Chart.js/D3/amCharts/nivo code paths, dashboard composition</td><td class="lines-cell">2,037</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">programming-researcher</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(8,145,178,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Research</span></td><td class="desc-cell">Senior TV/streaming analyst — 3-layer framework, RSG ML ensemble (MAE 0.283), %GSHR/%SCH Index, PID migration, binary optimization, Nielsen/Gracenote decode</td><td class="lines-cell">2,293</td><td class="sync-cell"><span class="sync-local">⚠ Upload</span></td></tr>
       </tbody>
     </table>
   </div>
 
   <div style="text-align:center;margin-top:32px;font-size:11px;color:var(--ink-400);">
-    SaSMaster Intelligence Platform · Skill Inventory v1 · Generated Apr 22, 2026 · 13 skills · 2,305 lines
+    SaSMaster Intelligence Platform · Skill Inventory v1 · Updated Apr 22, 2026 · 15 skills · 6,635 lines
   </div>
 
 </div><!-- /canvas -->
