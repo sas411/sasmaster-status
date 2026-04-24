@@ -976,6 +976,13 @@ body::before {
 }
 
 .ln-c5 {
+  background: rgba(251,146,60,0.08);
+  border: 2px solid #fb923c;
+  color: #fb923c;
+  box-shadow: 0 0 20px rgba(251,146,60,0.1);
+}
+
+.ln-c6 {
   background: rgba(244,114,182,0.08);
   border: 2px solid var(--pink);
   color: var(--pink);
@@ -1888,11 +1895,11 @@ body::before {
           </div>
           <div class="ac-name">skill-review.sh</div>
           <div class="ac-desc">
-            Friday 5:50PM cron synthesizes the week's learnings.md into candidate 
-            SKILL.md updates. Patterns that recur ≥3x get promoted to permanent 
-            skills. One-offs are flagged for manual review in the War Room.
+            Friday 5:50PM cron reviews curated lessons in <code style="font-family:var(--font-mono);font-size:11px;color:var(--lavender)">LESSONS.md</code> (Tier 2) and promotes
+            patterns referenced ≥3x into permanent <code style="font-family:var(--font-mono);font-size:11px;color:var(--lavender)">SKILL.md</code> updates (Tier 3).
+            One-offs are flagged for manual review in the War Room.
           </div>
-          <div class="ac-meta">Cron Fri 5:50PM · synthesize → promote → review</div>
+          <div class="ac-meta">Cron Fri 5:50PM · LESSONS.md (T2) → promote → SKILL.md (T3)</div>
         </div>
       </div>
     </div>
@@ -1935,7 +1942,7 @@ body::before {
       </div>
       <div class="cron-row">
         <div class="cron-time">Fri 5:50 PM</div>
-        <div class="cron-task">Skill Review<span>skill-review.sh → promote learnings → SKILL.md</span></div>
+        <div class="cron-task">Skill Review<span>skill-review.sh → LESSONS.md (T2) → promote → SKILL.md (T3)</span></div>
         <div class="cron-channel">local</div>
         <div class="cron-freq"><span class="freq-pill freq-weekly">Weekly</span></div>
       </div>
@@ -1981,15 +1988,23 @@ body::before {
             <div style="font-size:11px">LEARN</div>
           </div>
           <div class="ln-label">Pattern<br>Captured</div>
-          <div class="ln-sub">capture-learnings.sh<br>→ learnings.md</div>
+          <div class="ln-sub">capture-learnings.sh<br>→ learnings.md (T1)</div>
         </div>
 
         <div class="loop-node">
           <div class="ln-circle ln-c5">
+            <div style="font-size:11px">CURATE</div>
+          </div>
+          <div class="ln-label">Lesson<br>Curated</div>
+          <div class="ln-sub">manual curation<br>→ LESSONS.md (T2)</div>
+        </div>
+
+        <div class="loop-node">
+          <div class="ln-circle ln-c6">
             <div style="font-size:11px">SKILL</div>
           </div>
           <div class="ln-label">Skill<br>Promoted</div>
-          <div class="ln-sub">skill-review.sh<br>→ SKILL.md update</div>
+          <div class="ln-sub">skill-review.sh<br>→ SKILL.md (T3)</div>
         </div>
       </div>
 
