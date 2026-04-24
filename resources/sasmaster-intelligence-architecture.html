@@ -1,0 +1,2120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster · Intelligence Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Share+Tech+Mono&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-base: #0a0a0f;
+  --bg-2: #0f0f1a;
+  --bg-3: #141420;
+  --bg-card: #12121e;
+  --bg-card2: #1a1a2e;
+  --lavender: #a78bfa;
+  --lavender-dim: #7c5fd4;
+  --lavender-glow: rgba(167,139,250,0.12);
+  --lavender-border: rgba(167,139,250,0.25);
+  --teal: #22d3ee;
+  --teal-dim: #0e9fb5;
+  --teal-glow: rgba(34,211,238,0.1);
+  --teal-border: rgba(34,211,238,0.2);
+  --gold: #fbbf24;
+  --gold-dim: #d97706;
+  --gold-glow: rgba(251,191,36,0.1);
+  --white: #f0f0f8;
+  --muted: #7a7a9a;
+  --muted2: #555570;
+  --green: #34d399;
+  --pink: #f472b6;
+  --red: #f87171;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-sub: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-base);
+  color: var(--white);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* SCAN LINES OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* TUNNEL RINGS BG */
+.tunnel-bg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1400px;
+  height: 1400px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.04;
+}
+.tunnel-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  border-radius: 50%;
+  border: 1px solid var(--lavender);
+  transform: translate(-50%, -50%);
+  animation: pulseRing 8s ease-in-out infinite;
+}
+.tunnel-ring:nth-child(1) { width: 200px; height: 200px; animation-delay: 0s; }
+.tunnel-ring:nth-child(2) { width: 400px; height: 400px; animation-delay: 1s; }
+.tunnel-ring:nth-child(3) { width: 600px; height: 600px; animation-delay: 2s; }
+.tunnel-ring:nth-child(4) { width: 800px; height: 800px; animation-delay: 3s; }
+.tunnel-ring:nth-child(5) { width: 1000px; height: 1000px; animation-delay: 4s; }
+.tunnel-ring:nth-child(6) { width: 1200px; height: 1200px; animation-delay: 5s; }
+
+@keyframes pulseRing {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* WRAPPER */
+.wrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* ===================== HERO ===================== */
+.hero {
+  padding: 80px 0 60px;
+  text-align: center;
+  position: relative;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: var(--teal);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s forwards;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(60px, 8vw, 110px);
+  letter-spacing: 0.02em;
+  line-height: 0.92;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.4s forwards;
+}
+
+.hero-title .line1 { color: var(--white); display: block; }
+.hero-title .line2 {
+  display: block;
+  background: linear-gradient(135deg, var(--lavender) 0%, var(--teal) 50%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s ease-in-out infinite;
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.hero-subtitle {
+  font-family: var(--font-sub);
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  max-width: 680px;
+  margin: 0 auto 48px;
+  opacity: 0;
+  animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.6s forwards;
+}
+
+.hero-badges {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.8s forwards;
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 6px 14px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.badge-lavender { background: var(--lavender-glow); border: 1px solid var(--lavender-border); color: var(--lavender); }
+.badge-teal { background: var(--teal-glow); border: 1px solid var(--teal-border); color: var(--teal); }
+.badge-gold { background: var(--gold-glow); border: 1px solid rgba(251,191,36,0.2); color: var(--gold); }
+.badge-green { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.2); color: var(--green); }
+
+/* ===================== SECTION HEADERS ===================== */
+.section-num {
+  font-family: var(--font-display);
+  font-size: 120px;
+  color: rgba(167,139,250,0.05);
+  line-height: 1;
+  position: absolute;
+  top: -20px;
+  left: -10px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.section {
+  padding: 100px 0;
+  position: relative;
+}
+
+.section-header {
+  margin-bottom: 60px;
+  position: relative;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--teal);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  max-width: 80px;
+  height: 1px;
+  background: var(--teal-border);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(42px, 5vw, 72px);
+  letter-spacing: 0.02em;
+  line-height: 0.95;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+
+.section-desc {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--muted);
+  max-width: 600px;
+  line-height: 1.7;
+}
+
+/* ===================== DIVIDER ===================== */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--lavender-border), var(--teal-border), transparent);
+  margin: 0;
+}
+
+/* ===================== MEMORY SECTION ===================== */
+.memory-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 2px;
+  background: var(--lavender-border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+.memory-card {
+  background: var(--bg-card);
+  padding: 32px;
+  position: relative;
+  transition: background 0.3s ease;
+}
+
+.memory-card:hover {
+  background: var(--bg-card2);
+}
+
+.mem-icon {
+  font-family: var(--font-display);
+  font-size: 48px;
+  color: var(--lavender);
+  opacity: 0.4;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.mem-title {
+  font-family: var(--font-sub);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+
+.mem-file {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--teal);
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+}
+
+.mem-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 20px;
+}
+
+.mem-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mem-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--lavender-border);
+  color: var(--lavender);
+  background: var(--lavender-glow);
+}
+
+.mem-tag.teal {
+  border-color: var(--teal-border);
+  color: var(--teal);
+  background: var(--teal-glow);
+}
+
+.mem-tag.gold {
+  border-color: rgba(251,191,36,0.2);
+  color: var(--gold);
+  background: var(--gold-glow);
+}
+
+/* Memory flow diagram */
+.memory-flow {
+  background: var(--bg-card);
+  border: 1px solid var(--lavender-border);
+  border-radius: 16px;
+  padding: 40px;
+  margin-top: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.memory-flow::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--lavender), var(--teal));
+}
+
+.flow-title {
+  font-family: var(--font-sub);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+
+.flow-diagram {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.flow-node {
+  flex-shrink: 0;
+  background: var(--bg-3);
+  border: 1px solid var(--lavender-border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  text-align: center;
+  min-width: 130px;
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.flow-node:hover {
+  border-color: var(--lavender);
+  background: var(--lavender-glow);
+}
+
+.flow-node.teal-node {
+  border-color: var(--teal-border);
+}
+
+.flow-node.teal-node:hover {
+  border-color: var(--teal);
+  background: var(--teal-glow);
+}
+
+.flow-node.gold-node {
+  border-color: rgba(251,191,36,0.2);
+}
+
+.flow-node.gold-node:hover {
+  border-color: var(--gold);
+  background: var(--gold-glow);
+}
+
+.fn-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.fn-name {
+  font-family: var(--font-sub);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.fn-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--teal);
+  margin-top: 3px;
+}
+
+.flow-arrow {
+  flex-shrink: 0;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.flow-arrow::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 12px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--lavender-border), var(--teal-border));
+}
+
+.flow-arrow::after {
+  content: '›';
+  color: var(--teal);
+  font-size: 20px;
+  position: relative;
+  right: -2px;
+}
+
+/* ===================== SKILLS SECTION ===================== */
+.skills-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 40px;
+  align-items: start;
+}
+
+.skill-catalog {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: default;
+}
+
+.skill-row:hover {
+  border-color: var(--lavender-border);
+  background: var(--bg-card2);
+}
+
+.skill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skill-dot.active { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.skill-dot.lavender { background: var(--lavender); }
+.skill-dot.teal { background: var(--teal); }
+.skill-dot.gold { background: var(--gold); }
+
+.skill-name {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--white);
+  flex: 1;
+}
+
+.skill-type {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.skill-path {
+  font-size: 10px;
+  color: var(--muted2);
+  font-family: var(--font-mono);
+}
+
+/* Compute pipeline */
+.compute-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--teal-border);
+  border-radius: 16px;
+  overflow: hidden;
+  position: sticky;
+  top: 40px;
+}
+
+.compute-panel::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, var(--teal), var(--lavender));
+}
+
+.compute-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(34,211,238,0.1);
+}
+
+.compute-title {
+  font-family: var(--font-sub);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--teal);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.compute-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.compute-steps {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.cstep {
+  display: flex;
+  gap: 16px;
+  padding: 12px 0;
+  position: relative;
+}
+
+.cstep:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 44px;
+  bottom: 0;
+  width: 1px;
+  background: var(--lavender-border);
+}
+
+.cstep-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--lavender-glow);
+  border: 1px solid var(--lavender-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--lavender);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.cstep-body {}
+
+.cstep-name {
+  font-family: var(--font-sub);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 2px;
+}
+
+.cstep-detail {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.cstep-detail code {
+  color: var(--teal);
+  background: var(--teal-glow);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+/* Model router pill */
+.model-router {
+  margin: 16px 24px;
+  background: var(--bg-3);
+  border: 1px solid var(--gold-glow);
+  border-color: rgba(251,191,36,0.15);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.mr-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.mr-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+}
+
+.mr-mode {
+  font-size: 13px;
+  color: var(--muted);
+  font-family: var(--font-body);
+}
+
+.mr-model {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+.mr-opus { background: rgba(167,139,250,0.15); color: var(--lavender); border: 1px solid var(--lavender-border); }
+.mr-sonnet { background: var(--teal-glow); color: var(--teal); border: 1px solid var(--teal-border); }
+
+/* ===================== AUTONOMOUS SECTION ===================== */
+.auto-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 60px;
+}
+
+.auto-card {
+  background: var(--bg-card);
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.auto-card:hover {
+  transform: translateY(-2px);
+}
+
+.auto-card.card-lavender { border-color: var(--lavender-border); }
+.auto-card.card-lavender:hover { border-color: var(--lavender); }
+.auto-card.card-teal { border-color: var(--teal-border); }
+.auto-card.card-teal:hover { border-color: var(--teal); }
+.auto-card.card-gold { border-color: rgba(251,191,36,0.15); }
+.auto-card.card-gold:hover { border-color: var(--gold); }
+.auto-card.card-green { border-color: rgba(52,211,153,0.15); }
+.auto-card.card-green:hover { border-color: var(--green); }
+.auto-card.card-pink { border-color: rgba(244,114,182,0.15); }
+.auto-card.card-pink:hover { border-color: var(--pink); }
+.auto-card.card-red { border-color: rgba(248,113,113,0.15); }
+.auto-card.card-red:hover { border-color: var(--red); }
+
+.ac-top {
+  height: 3px;
+}
+.ac-top.lavender { background: linear-gradient(90deg, var(--lavender-dim), var(--lavender)); }
+.ac-top.teal { background: linear-gradient(90deg, var(--teal-dim), var(--teal)); }
+.ac-top.gold { background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
+.ac-top.green { background: var(--green); }
+.ac-top.pink { background: var(--pink); }
+.ac-top.red { background: var(--red); }
+
+.ac-body {
+  padding: 24px;
+}
+
+.ac-icon-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.ac-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.ac-icon.lavender { background: var(--lavender-glow); color: var(--lavender); }
+.ac-icon.teal { background: var(--teal-glow); color: var(--teal); }
+.ac-icon.gold { background: var(--gold-glow); color: var(--gold); }
+.ac-icon.green { background: rgba(52,211,153,0.1); color: var(--green); }
+.ac-icon.pink { background: rgba(244,114,182,0.1); color: var(--pink); }
+.ac-icon.red { background: rgba(248,113,113,0.1); color: var(--red); }
+
+.ac-status {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+
+.ac-status.live { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+.ac-status.active { background: rgba(34,211,238,0.1); color: var(--teal); border: 1px solid var(--teal-border); }
+.ac-status.pending { background: rgba(251,191,36,0.1); color: var(--gold); border: 1px solid rgba(251,191,36,0.2); }
+
+.ac-name {
+  font-family: var(--font-sub);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 6px;
+  letter-spacing: 0.03em;
+}
+
+.ac-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.ac-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted2);
+  letter-spacing: 0.05em;
+}
+
+/* ===================== CRON TIMELINE ===================== */
+.cron-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--lavender-border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.cron-panel::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, var(--lavender), var(--gold), var(--teal));
+}
+
+.cron-header {
+  padding: 20px 32px 16px;
+  border-bottom: 1px solid var(--lavender-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cron-title {
+  font-family: var(--font-sub);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--lavender);
+}
+
+.cron-tz {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.cron-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 120px 100px;
+  gap: 0;
+  align-items: center;
+  padding: 14px 32px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.2s;
+}
+
+.cron-row:hover {
+  background: rgba(167,139,250,0.04);
+}
+
+.cron-time {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--teal);
+  font-weight: bold;
+}
+
+.cron-task {
+  font-size: 14px;
+  color: var(--white);
+}
+
+.cron-task span {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  display: block;
+}
+
+.cron-channel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.cron-freq {
+  text-align: right;
+}
+
+.freq-pill {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+}
+
+.freq-daily { background: var(--lavender-glow); border: 1px solid var(--lavender-border); color: var(--lavender); }
+.freq-weekly { background: var(--teal-glow); border: 1px solid var(--teal-border); color: var(--teal); }
+.freq-realtime { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2); color: var(--green); }
+
+/* ===================== SELF-LEARNING LOOP ===================== */
+.loop-diagram {
+  background: var(--bg-card);
+  border: 1px solid var(--lavender-border);
+  border-radius: 16px;
+  padding: 48px;
+  margin-top: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.loop-diagram::after {
+  content: 'AUTONOMOUS LOOP';
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 110px;
+  color: rgba(167,139,250,0.03);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.loop-title {
+  font-family: var(--font-sub);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.loop-nodes {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 0;
+  position: relative;
+}
+
+/* Central spine */
+.loop-nodes::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 120px;
+  right: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--lavender-border), var(--teal-border), var(--gold-glow), var(--teal-border), var(--lavender-border));
+  transform: translateY(-50%);
+}
+
+.loop-node {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.ln-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-family: var(--font-sub);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: default;
+}
+
+.ln-circle:hover {
+  transform: scale(1.08);
+}
+
+.ln-c1 {
+  background: var(--lavender-glow);
+  border: 2px solid var(--lavender);
+  color: var(--lavender);
+  box-shadow: 0 0 20px rgba(167,139,250,0.15);
+}
+
+.ln-c2 {
+  background: var(--teal-glow);
+  border: 2px solid var(--teal);
+  color: var(--teal);
+  box-shadow: 0 0 20px rgba(34,211,238,0.1);
+}
+
+.ln-c3 {
+  background: var(--gold-glow);
+  border: 2px solid var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 20px rgba(251,191,36,0.1);
+  width: 88px;
+  height: 88px;
+  font-size: 13px;
+}
+
+.ln-c4 {
+  background: rgba(52,211,153,0.08);
+  border: 2px solid var(--green);
+  color: var(--green);
+  box-shadow: 0 0 20px rgba(52,211,153,0.1);
+}
+
+.ln-c5 {
+  background: rgba(244,114,182,0.08);
+  border: 2px solid var(--pink);
+  color: var(--pink);
+  box-shadow: 0 0 20px rgba(244,114,182,0.1);
+}
+
+.ln-label {
+  font-family: var(--font-sub);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white);
+  text-align: center;
+  line-height: 1.3;
+}
+
+.ln-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ===================== SECURITY BAR ===================== */
+.security-row {
+  display: flex;
+  gap: 20px;
+  margin-top: 60px;
+  flex-wrap: wrap;
+}
+
+.sec-item {
+  flex: 1;
+  min-width: 180px;
+  background: var(--bg-card);
+  border: 1px solid rgba(52,211,153,0.15);
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  flex-shrink: 0;
+  animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.sec-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--white);
+}
+
+.sec-text small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 2px;
+}
+
+/* ===================== FOOTER ===================== */
+.footer {
+  padding: 60px 0 40px;
+  border-top: 1px solid var(--lavender-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 32px;
+  letter-spacing: 0.05em;
+}
+
+.footer-logo span:first-child { color: var(--lavender); }
+.footer-logo span:last-child { color: var(--teal); }
+
+.footer-meta {
+  text-align: right;
+}
+
+.footer-meta p {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
+.footer-meta .version {
+  color: var(--gold);
+  font-size: 12px;
+}
+
+/* ===================== ANIMATIONS ===================== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===================== LIVE TICKER ===================== */
+.ticker-bar {
+  background: var(--bg-2);
+  border-top: 1px solid var(--lavender-border);
+  border-bottom: 1px solid var(--lavender-border);
+  overflow: hidden;
+  padding: 10px 0;
+  white-space: nowrap;
+  margin-bottom: 0;
+}
+
+.ticker-inner {
+  display: inline-block;
+  animation: ticker 40s linear infinite;
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 48px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.ticker-item .dot { width: 4px; height: 4px; border-radius: 50%; }
+.ticker-item .dot.green { background: var(--green); }
+.ticker-item .dot.teal { background: var(--teal); }
+.ticker-item .dot.lavender { background: var(--lavender); }
+.ticker-item .dot.gold { background: var(--gold); }
+.ticker-item .val { color: var(--white); }
+
+/* Code block */
+.code-block {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.code-block .kw { color: var(--lavender); }
+.code-block .fn { color: var(--teal); }
+.code-block .str { color: var(--gold); }
+.code-block .cm { color: var(--muted2); }
+
+/* stat strip */
+.stat-strip {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 60px;
+}
+
+.stat-cell {
+  flex: 1;
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid transparent;
+  transition: border-color 0.3s;
+}
+
+.stat-cell:hover {
+  border-color: var(--lavender-border);
+}
+
+.stat-val {
+  font-family: var(--font-display);
+  font-size: 36px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .memory-grid { grid-template-columns: 1fr 1fr; }
+  .skills-layout { grid-template-columns: 1fr; }
+  .auto-grid { grid-template-columns: 1fr 1fr; }
+  .loop-nodes { flex-direction: column; align-items: flex-start; gap: 24px; }
+  .loop-nodes::before { display: none; }
+  .footer { flex-direction: column; gap: 20px; text-align: center; }
+  .footer-meta { text-align: center; }
+}
+
+@media (max-width: 600px) {
+  .auto-grid { grid-template-columns: 1fr; }
+  .wrapper { padding: 0 20px; }
+  .cron-row { grid-template-columns: 80px 1fr; }
+  .cron-row > :nth-child(3),
+  .cron-row > :nth-child(4) { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- TUNNEL BG -->
+<div class="tunnel-bg" aria-hidden="true">
+  <div class="tunnel-ring"></div>
+  <div class="tunnel-ring"></div>
+  <div class="tunnel-ring"></div>
+  <div class="tunnel-ring"></div>
+  <div class="tunnel-ring"></div>
+  <div class="tunnel-ring"></div>
+</div>
+
+<!-- LIVE TICKER -->
+<div class="ticker-bar" role="marquee" aria-label="Live system status">
+  <div class="ticker-inner">
+    <span class="ticker-item"><span class="dot green"></span> JARVIS <span class="val">LIVE · SOCKET MODE</span></span>
+    <span class="ticker-item"><span class="dot teal"></span> Command Center <span class="val">sasmaster-status.vercel.app</span></span>
+    <span class="ticker-item"><span class="dot lavender"></span> Skills Installed <span class="val">24 ACTIVE</span></span>
+    <span class="ticker-item"><span class="dot gold"></span> S3 Bucket <span class="val">sasmaster-2026 · 589K+ PARENT KEYS</span></span>
+    <span class="ticker-item"><span class="dot green"></span> Media Intel Agent <span class="val">DAILY 6AM · 13 SOURCES</span></span>
+    <span class="ticker-item"><span class="dot teal"></span> Build Loop <span class="val">CRON 5AM · AUTO-COMMIT</span></span>
+    <span class="ticker-item"><span class="dot lavender"></span> Model Routing <span class="val">OPUS 4.7 PLAN · SONNET 4.6 EXEC</span></span>
+    <span class="ticker-item"><span class="dot gold"></span> Cloudflare Tunnel <span class="val">api.sasmaster.dev → ACTIVE</span></span>
+
+    <!-- DUPLICATE for seamless loop -->
+    <span class="ticker-item"><span class="dot green"></span> JARVIS <span class="val">LIVE · SOCKET MODE</span></span>
+    <span class="ticker-item"><span class="dot teal"></span> Command Center <span class="val">sasmaster-status.vercel.app</span></span>
+    <span class="ticker-item"><span class="dot lavender"></span> Skills Installed <span class="val">24 ACTIVE</span></span>
+    <span class="ticker-item"><span class="dot gold"></span> S3 Bucket <span class="val">sasmaster-2026 · 589K+ PARENT KEYS</span></span>
+    <span class="ticker-item"><span class="dot green"></span> Media Intel Agent <span class="val">DAILY 6AM · 13 SOURCES</span></span>
+    <span class="ticker-item"><span class="dot teal"></span> Build Loop <span class="val">CRON 5AM · AUTO-COMMIT</span></span>
+    <span class="ticker-item"><span class="dot lavender"></span> Model Routing <span class="val">OPUS 4.7 PLAN · SONNET 4.6 EXEC</span></span>
+    <span class="ticker-item"><span class="dot gold"></span> Cloudflare Tunnel <span class="val">api.sasmaster.dev → ACTIVE</span></span>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!--  HERO                                                  -->
+<!-- ====================================================== -->
+<div class="wrapper">
+  <header class="hero">
+    <div class="hero-eyebrow">SaSMaster Intelligence Architecture · April 2026</div>
+    <h1 class="hero-title">
+      <span class="line1">HOW THE</span>
+      <span class="line2">MACHINE THINKS</span>
+    </h1>
+    <p class="hero-subtitle">
+      A living document of distributed memory, agentic compute operations,
+      and the self-learning loop that makes SaSMaster autonomous.
+    </p>
+    <div class="hero-badges">
+      <span class="badge badge-lavender">Distributed Memory</span>
+      <span class="badge badge-teal">24 Claude Skills</span>
+      <span class="badge badge-gold">Agentic Compute</span>
+      <span class="badge badge-green">Self-Learning Loop</span>
+      <span class="badge" style="background:rgba(120,88,192,0.12);border:1px solid rgba(120,88,192,0.3);color:#c4b5fd;">Obsidian Vault Sync</span>
+    </div>
+  </header>
+</div>
+
+<!-- STAT STRIP -->
+<div class="wrapper">
+  <div class="stat-strip fade-in">
+    <div class="stat-cell">
+      <div class="stat-val" style="color:var(--lavender)">4</div>
+      <div class="stat-label">Memory Layers</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val" style="color:var(--teal)">24</div>
+      <div class="stat-label">Claude Skills</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val" style="color:var(--gold)">4</div>
+      <div class="stat-label">Active Agents</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val" style="color:var(--green)">11</div>
+      <div class="stat-label">Live Scrapers</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val" style="color:var(--pink)">5</div>
+      <div class="stat-label">Cron Triggers</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-val" style="color:var(--white)">589K+</div>
+      <div class="stat-label">Parent Keys</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ====================================================== -->
+<!--  SECTION 1 · MEMORY                                   -->
+<!-- ====================================================== -->
+<section class="section">
+  <div class="wrapper">
+    <div class="section-header fade-in">
+      <div class="section-num" aria-hidden="true">01</div>
+      <div class="section-label">Layer 1</div>
+      <h2 class="section-title">DISTRIBUTED<br>MEMORY</h2>
+      <p class="section-desc">
+        SaSMaster operates across four interlocking memory systems — each serving a distinct 
+        timescale and purpose. Claude.ai Memories, <code style="font-family:var(--font-mono);font-size:13px;color:var(--teal)">CLAUDE_MEMORY.md</code>, and <code style="font-family:var(--font-mono);font-size:13px;color:var(--teal)">TASKS.md</code> are live. 
+        The Obsidian vault mirrors operational state for human-readable handover — sync 
+        wired via <code style="font-family:var(--font-mono);font-size:13px;color:var(--lavender)">sync-obsidian.sh</code>, task queued.
+      </p>
+    </div>
+
+    <div class="memory-grid fade-in">
+      <!-- Card 1: Claude.ai Memories -->
+      <div class="memory-card">
+        <div class="mem-icon">✦</div>
+        <div class="mem-title">Claude.ai Memories</div>
+        <div class="mem-file">auto-generated · claude.ai</div>
+        <div class="mem-desc">
+          Persistent semantic memories derived from every conversation. Captures Shiv's 
+          working style, project context, sprint priorities, product vision, personal 
+          preferences, and long-term strategic context. Injected automatically into every 
+          new session — the system's "long-term memory."
+        </div>
+        <div class="mem-tags">
+          <span class="mem-tag">Strategy Layer</span>
+          <span class="mem-tag">Auto-Updated</span>
+          <span class="mem-tag teal">Cross-Session</span>
+          <span class="mem-tag gold">Semantic</span>
+        </div>
+        <div class="code-block" style="margin-top:16px">
+          <span class="cm"># What it holds</span><br>
+          <span class="kw">→</span> SaSMaster system state<br>
+          <span class="kw">→</span> Sprint priorities &amp; blockers<br>
+          <span class="kw">→</span> Design tokens &amp; canonical files<br>
+          <span class="kw">→</span> Division of labor rules<br>
+          <span class="kw">→</span> Recent wins &amp; decisions
+        </div>
+      </div>
+
+      <!-- Card 2: CLAUDE_MEMORY.md -->
+      <div class="memory-card" style="border-left:2px solid var(--teal);border-right:2px solid var(--teal);">
+        <div class="mem-icon" style="color:var(--teal)">▤</div>
+        <div class="mem-title">CLAUDE_MEMORY.md</div>
+        <div class="mem-file">~/SaSMaster/CLAUDE_MEMORY.md</div>
+        <div class="mem-desc">
+          The operational ground truth for Claude Code sessions. Loaded as the very 
+          first command in every terminal session — before any code is written. Contains 
+          architecture state, S3 paths, known issues, recent builds, and what's live 
+          vs planned. Updated by <code style="font-family:var(--font-mono);color:var(--teal);font-size:11px">update-memory.sh</code>.
+        </div>
+        <div class="mem-tags">
+          <span class="mem-tag teal">Execution Layer</span>
+          <span class="mem-tag teal">File-Based</span>
+          <span class="mem-tag">Per-Session Load</span>
+          <span class="mem-tag gold">Always Current</span>
+        </div>
+        <div class="code-block" style="margin-top:16px">
+          <span class="cm"># Sections</span><br>
+          <span class="fn">Current Sprint</span> — active priorities<br>
+          <span class="fn">Architecture State</span> — live vs planned<br>
+          <span class="fn">Recent Wins</span> — last 7 days<br>
+          <span class="fn">Known Issues</span> — bugs / blockers<br>
+          <span class="fn">S3 State</span> — latest data dates
+        </div>
+      </div>
+
+      <!-- Card 3: TASKS.md -->
+      <div class="memory-card">
+        <div class="mem-icon" style="color:var(--gold)">☰</div>
+        <div class="mem-title">TASKS.md</div>
+        <div class="mem-file">~/SaSMaster/TASKS.md</div>
+        <div class="mem-desc">
+          The self-scoring task queue. JARVIS checks this at 7AM and 2PM EDT — if 
+          HIGH-priority items exist, it automatically fires a build. Tasks flow from 
+          JARVIS commands, Claude.ai sessions, and async build outputs. Tagged with 
+          <code style="font-family:var(--font-mono);color:var(--gold);font-size:11px">#skill-worthy</code>, <code style="font-family:var(--font-mono);color:var(--gold);font-size:11px">#ui</code>, <code style="font-family:var(--font-mono);color:var(--gold);font-size:11px">#data</code>, <code style="font-family:var(--font-mono);color:var(--gold);font-size:11px">#infra</code>.
+        </div>
+        <div class="mem-tags">
+          <span class="mem-tag gold">Task Queue</span>
+          <span class="mem-tag gold">Self-Scoring</span>
+          <span class="mem-tag teal">JARVIS Trigger</span>
+          <span class="mem-tag">7AM + 2PM</span>
+        </div>
+        <div class="code-block" style="margin-top:16px">
+          <span class="cm"># Schema</span><br>
+          <span class="kw">## HIGH</span><br>
+          - [ ] [2026-04-23] Task <span class="str">#tag</span><br>
+          <span class="kw">## MED</span><br>
+          - [ ] [2026-04-23] Task<br>
+          <span class="kw">## DONE</span><br>
+          - [x] [2026-04-23] Completed
+        </div>
+      </div>
+      <!-- Card 4: Obsidian Vault -->
+      <div class="memory-card" style="position:relative;overflow:hidden;">
+        <div style="position:absolute;top:12px;right:12px;font-family:var(--font-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:3px 8px;border-radius:3px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);color:var(--gold)">Task Queued</div>
+        <div class="mem-icon" style="color:#c4b5fd;opacity:0.5">◈</div>
+        <div class="mem-title">Obsidian Vault</div>
+        <div class="mem-file">~/SaSMaster/obsidian/</div>
+        <div class="mem-desc">
+          Structured human-readable mirror of <code style="font-family:var(--font-mono);font-size:11px;color:#c4b5fd">CLAUDE_MEMORY.md</code>. 
+          Six section files with YAML frontmatter, wikilinks for graph continuity, 
+          and ADR documents for architecture decisions. Synced automatically via 
+          <code style="font-family:var(--font-mono);font-size:11px;color:#c4b5fd">sync-obsidian.sh</code> as the final step of every <code style="font-family:var(--font-mono);font-size:11px;color:#c4b5fd">update-memory.sh</code> run.
+          Built for handover — zero manual maintenance required.
+        </div>
+        <div class="mem-tags">
+          <span class="mem-tag" style="border-color:rgba(196,181,253,0.25);color:#c4b5fd;background:rgba(196,181,253,0.08)">Human Readable</span>
+          <span class="mem-tag" style="border-color:rgba(196,181,253,0.25);color:#c4b5fd;background:rgba(196,181,253,0.08)">Auto-Synced</span>
+          <span class="mem-tag gold">Handover Layer</span>
+          <span class="mem-tag teal">Graph View</span>
+        </div>
+        <div class="code-block" style="margin-top:16px">
+          <span class="cm"># Vault structure</span><br>
+          <span class="fn">00-ADRs/</span>     ← arch decisions<br>
+          <span class="fn">01-Schema/</span>   ← S3 state + specs<br>
+          <span class="fn">03-Agents/</span>   ← agent fleet<br>
+          <span class="fn">04-Roadmap/</span>  ← sprint + phases<br>
+          <span class="fn">05-Ops/</span>      ← JARVIS runbook
+        </div>
+      </div>
+
+    </div>
+    <div class="memory-flow fade-in">
+      <div class="flow-title">Memory Update, S3 State Tracking &amp; Obsidian Sync Flow</div>
+
+      <!-- Primary flow -->
+      <div class="flow-diagram">
+        <div class="flow-node">
+          <div class="fn-label">trigger</div>
+          <div class="fn-name">Claude.ai<br>Session</div>
+          <div class="fn-sub">Strategy layer</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node teal-node">
+          <div class="fn-label">script</div>
+          <div class="fn-name">update-memory<br>.sh</div>
+          <div class="fn-sub">writes to disk</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node">
+          <div class="fn-label">file</div>
+          <div class="fn-name">CLAUDE_MEMORY<br>.md</div>
+          <div class="fn-sub">~/SaSMaster/</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node gold-node">
+          <div class="fn-label">session start</div>
+          <div class="fn-name">Claude Code<br>cat memory</div>
+          <div class="fn-sub">first command</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node teal-node">
+          <div class="fn-label">execution</div>
+          <div class="fn-name">Build Loop<br>+ Scrapers</div>
+          <div class="fn-sub">code &amp; data</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node">
+          <div class="fn-label">notify</div>
+          <div class="fn-name">JARVIS<br>→ #builds</div>
+          <div class="fn-sub">Slack routing</div>
+        </div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node gold-node">
+          <div class="fn-label">review</div>
+          <div class="fn-name">War Room<br>Dashboard</div>
+          <div class="fn-sub">vercel.app</div>
+        </div>
+      </div>
+
+      <!-- Two branch panels -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;">
+
+        <!-- S3 State branch -->
+        <div style="background:var(--bg-3);border:1px solid var(--teal-border);border-radius:12px;padding:20px 24px;">
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.15em;color:var(--teal);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block;box-shadow:0 0 6px var(--teal)"></span>
+            S3 State — Tracked Inside CLAUDE_MEMORY.md
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+            <div style="flex:1;min-width:90px;background:var(--bg-card);border:1px solid rgba(34,211,238,0.12);border-radius:8px;padding:10px 12px;">
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-bottom:4px">TMDB</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--teal)">tmdb_dev/</div>
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:2px">15d cadence</div>
+            </div>
+            <div style="flex:1;min-width:90px;background:var(--bg-card);border:1px solid rgba(34,211,238,0.12);border-radius:8px;padding:10px 12px;">
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-bottom:4px">IMDB</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--teal)">imdb/&lt;ds&gt;/</div>
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:2px">YYYY-MM-DD</div>
+            </div>
+            <div style="flex:1;min-width:90px;background:var(--bg-card);border:1px solid rgba(34,211,238,0.12);border-radius:8px;padding:10px 12px;">
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-bottom:4px">Parent Keys</div>
+              <div style="font-family:var(--font-mono);font-size:12px;color:var(--gold);font-weight:bold">589K+</div>
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:2px">parent_keys/v1/</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.6">
+            S3 is the <em>data lake</em>, not a memory store. The <strong style="color:var(--white);font-weight:500">S3 State section</strong> inside 
+            <code style="font-family:var(--font-mono);font-size:11px;color:var(--teal)">CLAUDE_MEMORY.md</code> tracks last successful landing date per dataset — 
+            so every session knows exactly what's in the bucket without querying S3 live.
+          </div>
+        </div>
+
+        <!-- Obsidian sync branch -->
+        <div style="background:var(--bg-3);border:1px solid rgba(196,181,253,0.22);border-radius:12px;padding:20px 24px;position:relative;">
+          <div style="position:absolute;top:14px;right:14px;font-family:var(--font-mono);font-size:9px;letter-spacing:0.1em;padding:2px 8px;border-radius:3px;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.25);color:var(--gold);text-transform:uppercase;">Task Queued</div>
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.15em;color:#c4b5fd;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:#c4b5fd;display:inline-block;opacity:0.6;"></span>
+            Obsidian Sync — Via sync-obsidian.sh
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;font-family:var(--font-mono);font-size:11px;flex-wrap:wrap;">
+            <span style="color:var(--white);background:var(--bg-card);border:1px solid rgba(196,181,253,0.15);border-radius:5px;padding:5px 9px;">update-memory.sh</span>
+            <span style="color:var(--muted)">→</span>
+            <span style="color:#c4b5fd;background:rgba(196,181,253,0.08);border:1px solid rgba(196,181,253,0.2);border-radius:5px;padding:5px 9px;">sync-obsidian.sh</span>
+            <span style="color:var(--muted)">→</span>
+            <span style="color:var(--white);background:var(--bg-card);border:1px solid rgba(196,181,253,0.15);border-radius:5px;padding:5px 9px;">obsidian/</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+              <span style="font-family:var(--font-mono);color:var(--muted)">Current Sprint</span>
+              <span style="font-family:var(--font-mono);color:#c4b5fd;font-size:11px;">04-Roadmap/current-sprint.md</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+              <span style="font-family:var(--font-mono);color:var(--muted)">Architecture State</span>
+              <span style="font-family:var(--font-mono);color:#c4b5fd;font-size:11px;">04-Roadmap/phase-status.md</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+              <span style="font-family:var(--font-mono);color:var(--muted)">S3 State</span>
+              <span style="font-family:var(--font-mono);color:#c4b5fd;font-size:11px;">01-Schema/s3-state.md</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+              <span style="font-family:var(--font-mono);color:var(--muted)">Known Issues</span>
+              <span style="font-family:var(--font-mono);color:#c4b5fd;font-size:11px;">05-Ops/known-issues.md</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;">
+              <span style="font-family:var(--font-mono);color:var(--muted)">ADRs</span>
+              <span style="font-family:var(--font-mono);color:var(--muted2);font-size:11px;">00-ADRs/ ← manual only, never overwritten</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ====================================================== -->
+<!--  SECTION 2 · SKILLS & COMPUTE                         -->
+<!-- ====================================================== -->
+<section class="section">
+  <div class="wrapper">
+    <div class="section-header fade-in">
+      <div class="section-num" aria-hidden="true">02</div>
+      <div class="section-label">Layer 2</div>
+      <h2 class="section-title">SKILLS &amp;<br>COMPUTE OPS</h2>
+      <p class="section-desc">
+        Claude Skills are domain-specific instruction sets that agents read before executing 
+        any task. They encode best practices, constraints, and environment-specific knowledge 
+        — preventing the system from re-learning what already works.
+      </p>
+    </div>
+
+    <div class="skills-layout fade-in">
+      <!-- Skill Catalog -->
+      <div>
+        <div style="font-family:var(--font-sub);font-size:13px;font-weight:600;letter-spacing:0.15em;color:var(--muted);text-transform:uppercase;margin-bottom:16px">Installed Skill Catalog</div>
+        <div class="skill-catalog">
+          <!-- Public Skills -->
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.15em;color:var(--muted2);text-transform:uppercase;padding:8px 16px">Public Skills · /mnt/skills/public/</div>
+          <div class="skill-row">
+            <div class="skill-dot lavender"></div>
+            <div class="skill-name">frontend-design</div>
+            <div class="skill-type">UI</div>
+            <div class="skill-path">/public/frontend-design/</div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot lavender"></div>
+            <div class="skill-name">docx · pdf · pptx · xlsx</div>
+            <div class="skill-type">Doc</div>
+            <div class="skill-path">/public/</div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot lavender"></div>
+            <div class="skill-name">product-self-knowledge</div>
+            <div class="skill-type">System</div>
+            <div class="skill-path">/public/product-self-knowledge/</div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot lavender"></div>
+            <div class="skill-name">file-reading · pdf-reading</div>
+            <div class="skill-type">IO</div>
+            <div class="skill-path">/public/</div>
+          </div>
+
+          <!-- User Skills -->
+          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.15em;color:var(--muted2);text-transform:uppercase;padding:12px 16px 8px">User Skills · /mnt/skills/user/ · Auto-Captured</div>
+          <div class="skill-row">
+            <div class="skill-dot active"></div>
+            <div class="skill-name">jarvis-ops</div>
+            <div class="skill-type">Ops</div>
+            <div class="skill-path">/user/jarvis-ops/</div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot active"></div>
+            <div class="skill-name">fullstack-architect</div>
+            <div class="skill-type">Core</div>
+            <div class="skill-path">/user/fullstack-architect/</div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot active"></div>
+            <div class="skill-name">uiux-mastery</div>
+            <div class="skill-type">Design</div>
+            <div class="skill-path">/user/uiux-mastery/</div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot teal"></div>
+            <div class="skill-name">scraper-engineer</div>
+            <div class="skill-type">Data</div>
+            <div class="skill-path">/user/scraper-engineer/</div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot teal"></div>
+            <div class="skill-name">duckdb-parquet</div>
+            <div class="skill-type">Data</div>
+            <div class="skill-path">/user/duckdb-parquet/</div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot teal"></div>
+            <div class="skill-name">s3-data-architect</div>
+            <div class="skill-type">Infra</div>
+            <div class="skill-path">/user/s3-data-architect/</div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot gold"></div>
+            <div class="skill-name">media-domain</div>
+            <div class="skill-type">Domain</div>
+            <div class="skill-path">/user/media-domain/</div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot gold"></div>
+            <div class="skill-name">programming-researcher</div>
+            <div class="skill-type">Analytics</div>
+            <div class="skill-path">/user/programming-researcher/ <span style="color:var(--green)">↑ Apr 22</span></div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot gold"></div>
+            <div class="skill-name">data-viz</div>
+            <div class="skill-type">Viz</div>
+            <div class="skill-path">/user/data-viz/ <span style="color:var(--green)">↑ Apr 22</span></div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot active"></div>
+            <div class="skill-name">qa-agent</div>
+            <div class="skill-type">QA</div>
+            <div class="skill-path">/user/qa-agent/</div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot lavender"></div>
+            <div class="skill-name">math-mastery · emba-analyst</div>
+            <div class="skill-type">EMBA</div>
+            <div class="skill-path">/user/</div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot lavender"></div>
+            <div class="skill-name">sow-consultant · linkedin-thought-leader</div>
+            <div class="skill-type">Biz</div>
+            <div class="skill-path">/user/</div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-dot lavender"></div>
+            <div class="skill-name">no-finger-prints · ableton-sme</div>
+            <div class="skill-type">Misc</div>
+            <div class="skill-path">/user/</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compute Pipeline Panel -->
+      <div class="compute-panel">
+        <div class="compute-header">
+          <div class="compute-title">Agentic Compute Pipeline</div>
+          <div class="compute-sub">How skills power agent execution</div>
+        </div>
+
+        <div class="compute-steps">
+          <div class="cstep">
+            <div class="cstep-num">1</div>
+            <div class="cstep-body">
+              <div class="cstep-name">Task Received</div>
+              <div class="cstep-detail">
+                Via <code>!build</code>, cron, or inject-task.sh.<br>
+                JARVIS parses TASKS.md priority.
+              </div>
+            </div>
+          </div>
+          <div class="cstep">
+            <div class="cstep-num">2</div>
+            <div class="cstep-body">
+              <div class="cstep-name">Memory Loaded</div>
+              <div class="cstep-detail">
+                <code>cat CLAUDE_MEMORY.md</code> first.<br>
+                Session grounded in current state.
+              </div>
+            </div>
+          </div>
+          <div class="cstep">
+            <div class="cstep-num">3</div>
+            <div class="cstep-body">
+              <div class="cstep-name">Skills Read</div>
+              <div class="cstep-detail">
+                Agent reads all relevant SKILL.md<br>
+                files before writing any code.
+              </div>
+            </div>
+          </div>
+          <div class="cstep">
+            <div class="cstep-num">4</div>
+            <div class="cstep-body">
+              <div class="cstep-name">Model Routed</div>
+              <div class="cstep-detail">
+                Planning → <code>Opus 4.7</code><br>
+                Execution → <code>Sonnet 4.6</code>
+              </div>
+            </div>
+          </div>
+          <div class="cstep">
+            <div class="cstep-num">5</div>
+            <div class="cstep-body">
+              <div class="cstep-name">Code Executed</div>
+              <div class="cstep-detail">
+                sasmaster-build.sh runs.<br>
+                Git auto-commit on success.
+              </div>
+            </div>
+          </div>
+          <div class="cstep">
+            <div class="cstep-num">6</div>
+            <div class="cstep-body">
+              <div class="cstep-name">Slack Notified</div>
+              <div class="cstep-detail">
+                Results → <code>#builds</code><br>
+                Intel → <code>#intel</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="model-router">
+          <div class="mr-label">Model Router</div>
+          <div class="mr-row">
+            <span class="mr-mode">Planning Mode</span>
+            <span class="mr-model mr-opus">claude-opus-4.7</span>
+          </div>
+          <div class="mr-row">
+            <span class="mr-mode">Execution Mode</span>
+            <span class="mr-model mr-sonnet">claude-sonnet-4.6</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ====================================================== -->
+<!--  SECTION 3 · AUTONOMOUS & SELF-LEARNING               -->
+<!-- ====================================================== -->
+<section class="section">
+  <div class="wrapper">
+    <div class="section-header fade-in">
+      <div class="section-num" aria-hidden="true">03</div>
+      <div class="section-label">Layer 3</div>
+      <h2 class="section-title">AUTONOMOUS &amp;<br>SELF-LEARNING</h2>
+      <p class="section-desc">
+        The system doesn't just execute — it observes its own outputs, captures successful 
+        patterns as new skills, and improves with every build cycle. JARVIS's self-scoring 
+        queue closes the loop from task to learning.
+      </p>
+    </div>
+
+    <!-- Agent Cards -->
+    <div class="auto-grid fade-in">
+
+      <div class="auto-card card-lavender">
+        <div class="ac-top lavender"></div>
+        <div class="ac-body">
+          <div class="ac-icon-row">
+            <div class="ac-icon lavender">⚡</div>
+            <div class="ac-status live">live</div>
+          </div>
+          <div class="ac-name">JARVIS</div>
+          <div class="ac-desc">
+            Socket Mode Slack bot + orchestration brain. Listens 24/7 for <code style="font-family:var(--font-mono);font-size:11px;color:var(--lavender)">!build</code>, <code style="font-family:var(--font-mono);font-size:11px;color:var(--lavender)">!task</code>, <code style="font-family:var(--font-mono);font-size:11px;color:var(--lavender)">!status</code>. 
+            Self-scores TASKS.md at 7AM + 2PM, auto-fires build when HIGH items detected.
+          </div>
+          <div class="ac-meta">com.sasmaster.jarvis · launchd · auto-restart</div>
+        </div>
+      </div>
+
+      <div class="auto-card card-teal">
+        <div class="ac-top teal"></div>
+        <div class="ac-body">
+          <div class="ac-icon-row">
+            <div class="ac-icon teal">📡</div>
+            <div class="ac-status live">live</div>
+          </div>
+          <div class="ac-name">Media Intel Agent</div>
+          <div class="ac-desc">
+            3-tier, 13-source daily intelligence sweep. Scans streaming, linear, 
+            M&amp;A, and audience trends at 6AM EDT. Posts structured briefings to 
+            <code style="font-family:var(--font-mono);font-size:11px;color:var(--teal)">#intel</code> via Slack webhook.
+          </div>
+          <div class="ac-meta">Daily 6:00AM EDT · 13 sources · auto-post</div>
+        </div>
+      </div>
+
+      <div class="auto-card card-gold">
+        <div class="ac-top gold"></div>
+        <div class="ac-body">
+          <div class="ac-icon-row">
+            <div class="ac-icon gold">🔬</div>
+            <div class="ac-status active">active</div>
+          </div>
+          <div class="ac-name">Tech Intel Agent</div>
+          <div class="ac-desc">
+            Weekly technology intelligence sweep across 14 curated sources. Surfaces 
+            AI/ML breakthroughs, platform shifts, and infrastructure trends relevant 
+            to SaSMaster's roadmap.
+          </div>
+          <div class="ac-meta">Weekly · Friday 6:00PM EDT · 14 sources</div>
+        </div>
+      </div>
+
+      <div class="auto-card card-green">
+        <div class="ac-top green"></div>
+        <div class="ac-body">
+          <div class="ac-icon-row">
+            <div class="ac-icon green">🔁</div>
+            <div class="ac-status live">live</div>
+          </div>
+          <div class="ac-name">Async Build Loop</div>
+          <div class="ac-desc">
+            The execution engine. Runs <code style="font-family:var(--font-mono);font-size:11px;color:var(--green)">sasmaster-build.sh</code> via cron at 5AM 
+            and on-demand via JARVIS. Git auto-commits every successful build. 
+            Failed builds retry once then escalate to Slack.
+          </div>
+          <div class="ac-meta">Cron 5:00AM EDT · git auto-commit · retry logic</div>
+        </div>
+      </div>
+
+      <div class="auto-card card-pink">
+        <div class="ac-top pink"></div>
+        <div class="ac-body">
+          <div class="ac-icon-row">
+            <div class="ac-icon pink">🧠</div>
+            <div class="ac-status live">live</div>
+          </div>
+          <div class="ac-name">capture-learnings.sh</div>
+          <div class="ac-desc">
+            Post-build hook that watches for <code style="font-family:var(--font-mono);font-size:11px;color:var(--pink)">#skill-worthy</code> tags in completed 
+            TASKS.md entries. Appends successful patterns to <code style="font-family:var(--font-mono);font-size:11px;color:var(--pink)">learnings.md</code> 
+            automatically — the raw feed for skill evolution.
+          </div>
+          <div class="ac-meta">Post-build hook · #skill-worthy → learnings.md</div>
+        </div>
+      </div>
+
+      <div class="auto-card card-lavender">
+        <div class="ac-top lavender"></div>
+        <div class="ac-body">
+          <div class="ac-icon-row">
+            <div class="ac-icon lavender">🎓</div>
+            <div class="ac-status active">active</div>
+          </div>
+          <div class="ac-name">skill-review.sh</div>
+          <div class="ac-desc">
+            Friday 5:50PM cron synthesizes the week's learnings.md into candidate 
+            SKILL.md updates. Patterns that recur ≥3x get promoted to permanent 
+            skills. One-offs are flagged for manual review in the War Room.
+          </div>
+          <div class="ac-meta">Cron Fri 5:50PM · synthesize → promote → review</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cron Schedule -->
+    <div class="cron-panel fade-in">
+      <div class="cron-header">
+        <div class="cron-title">Autonomous Cron Schedule</div>
+        <div class="cron-tz">EDT (America/New_York)</div>
+      </div>
+      <div class="cron-row" style="background:rgba(167,139,250,0.04);">
+        <div class="cron-time">5:00 AM</div>
+        <div class="cron-task">Daily Briefing<span>daily-briefing.sh → Slack summary</span></div>
+        <div class="cron-channel">#builds</div>
+        <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">5:02 AM</div>
+        <div class="cron-task">Visual Poster<span>daily-visuals.sh → board + arch PNGs</span></div>
+        <div class="cron-channel">#builds</div>
+        <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
+      </div>
+      <div class="cron-row" style="background:rgba(34,211,238,0.03);">
+        <div class="cron-time">6:00 AM</div>
+        <div class="cron-task">Media Intel Agent<span>13-source daily scan → structured briefing</span></div>
+        <div class="cron-channel">#intel</div>
+        <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">7:00 AM</div>
+        <div class="cron-task">JARVIS Self-Score<span>TASKS.md review → auto-build if HIGH</span></div>
+        <div class="cron-channel">#builds</div>
+        <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
+      </div>
+      <div class="cron-row" style="background:rgba(167,139,250,0.04);">
+        <div class="cron-time">2:00 PM</div>
+        <div class="cron-task">JARVIS Self-Score<span>Afternoon check + inject queued tasks</span></div>
+        <div class="cron-channel">#builds</div>
+        <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">Fri 5:50 PM</div>
+        <div class="cron-task">Skill Review<span>skill-review.sh → promote learnings → SKILL.md</span></div>
+        <div class="cron-channel">local</div>
+        <div class="cron-freq"><span class="freq-pill freq-weekly">Weekly</span></div>
+      </div>
+      <div class="cron-row" style="background:rgba(34,211,238,0.03);">
+        <div class="cron-time">Fri 6:00 PM</div>
+        <div class="cron-task">Tech Intel Agent<span>14-source weekly tech scan</span></div>
+        <div class="cron-channel">#intel</div>
+        <div class="cron-freq"><span class="freq-pill freq-weekly">Weekly</span></div>
+      </div>
+    </div>
+
+    <!-- Self-Learning Loop Diagram -->
+    <div class="loop-diagram fade-in">
+      <div class="loop-title">The Self-Learning Feedback Loop</div>
+      <div class="loop-nodes">
+        <div class="loop-node">
+          <div class="ln-circle ln-c1">
+            <div style="font-size:13px">TASK</div>
+          </div>
+          <div class="ln-label">Task<br>Injected</div>
+          <div class="ln-sub">TASKS.md via<br>JARVIS / Claude.ai</div>
+        </div>
+
+        <div class="loop-node">
+          <div class="ln-circle ln-c2">
+            <div style="font-size:13px">BUILD</div>
+          </div>
+          <div class="ln-label">Agent<br>Executes</div>
+          <div class="ln-sub">Skills loaded,<br>code runs</div>
+        </div>
+
+        <div class="loop-node" style="flex:0 0 auto">
+          <div class="ln-circle ln-c3">
+            <div>AUTO</div>
+            <div style="font-size:10px">COMMIT</div>
+          </div>
+          <div class="ln-label">Git<br>Committed</div>
+          <div class="ln-sub">Success →<br>auto-push</div>
+        </div>
+
+        <div class="loop-node">
+          <div class="ln-circle ln-c4">
+            <div style="font-size:11px">LEARN</div>
+          </div>
+          <div class="ln-label">Pattern<br>Captured</div>
+          <div class="ln-sub">capture-learnings.sh<br>→ learnings.md</div>
+        </div>
+
+        <div class="loop-node">
+          <div class="ln-circle ln-c5">
+            <div style="font-size:11px">SKILL</div>
+          </div>
+          <div class="ln-label">Skill<br>Promoted</div>
+          <div class="ln-sub">skill-review.sh<br>→ SKILL.md update</div>
+        </div>
+      </div>
+
+      <div style="margin-top:40px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
+        <div style="text-align:center;padding:16px 24px;background:var(--bg-3);border-radius:10px;border:1px solid var(--lavender-border)">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Trigger Surface 1</div>
+          <div style="font-family:var(--font-sub);font-size:15px;font-weight:600;color:var(--lavender)">War Room</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:4px">▶ Run buttons → queue jobs</div>
+        </div>
+        <div style="text-align:center;padding:16px 24px;background:var(--bg-3);border-radius:10px;border:1px solid var(--teal-border)">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Trigger Surface 2</div>
+          <div style="font-family:var(--font-sub);font-size:15px;font-weight:600;color:var(--teal)">JARVIS Slack</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:4px">!build !task !briefing !status</div>
+        </div>
+        <div style="text-align:center;padding:16px 24px;background:var(--bg-3);border-radius:10px;border:1px solid rgba(251,191,36,0.15)">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Backend</div>
+          <div style="font-family:var(--font-sub);font-size:15px;font-weight:600;color:var(--gold)">One Engine</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:4px">sasmaster-build.sh</div>
+        </div>
+        <div style="text-align:center;padding:16px 24px;background:var(--bg-3);border-radius:10px;border:1px solid rgba(52,211,153,0.15)">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Division</div>
+          <div style="font-family:var(--font-sub);font-size:15px;font-weight:600;color:var(--green)">Claude.ai ↔ Code</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:4px">Strategy ↔ Execution</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Row -->
+    <div class="security-row fade-in">
+      <div class="sec-item">
+        <div class="sec-dot"></div>
+        <div class="sec-text">gitleaks clean<small>pre-commit hook · 0 secrets</small></div>
+      </div>
+      <div class="sec-item">
+        <div class="sec-dot"></div>
+        <div class="sec-text">.env untracked<small>never committed</small></div>
+      </div>
+      <div class="sec-item">
+        <div class="sec-dot"></div>
+        <div class="sec-text">Cloudflare Tunnel<small>api.sasmaster.dev · enterprise TLS</small></div>
+      </div>
+      <div class="sec-item">
+        <div class="sec-dot"></div>
+        <div class="sec-text">AWS env-only<small>credentials never hardcoded</small></div>
+      </div>
+      <div class="sec-item">
+        <div class="sec-dot"></div>
+        <div class="sec-text">Slack tokens .env<small>xapp- + xoxb- in process.env</small></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ====================================================== -->
+<!--  FOOTER                                               -->
+<!-- ====================================================== -->
+<div class="wrapper">
+  <footer class="footer fade-in">
+    <div>
+      <div class="footer-logo">
+        <span>SaS</span><span>MaStEr</span>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:0.05em">
+        Bloomberg Terminal for Media · Intelligence Architecture v8
+      </div>
+    </div>
+    <div class="footer-meta">
+      <p class="version">v8 · April 23, 2026</p>
+      <p>sasmaster-status.vercel.app</p>
+      <p>api.sasmaster.dev · sas411/sasmaster</p>
+      <p style="margin-top:8px;color:rgba(122,122,154,0.5)">CONFIDENTIAL · SHIV ASHISH</p>
+    </div>
+  </footer>
+</div>
+
+<script>
+// Scroll-based fade-in
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Animated counter for stat cells
+function animateCounter(el, target, suffix='') {
+  const isFloat = target.toString().includes('K') || target.toString().includes('+');
+  if (isFloat) return;
+  let start = 0;
+  const duration = 1200;
+  const step = (timestamp) => {
+    if (!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(eased * target) + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+const statVals = document.querySelectorAll('.stat-val');
+const statNumbers = [4, 24, 4, 11, 5];
+const statObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = [...statVals].indexOf(entry.target);
+      if (statNumbers[idx] !== undefined) {
+        animateCounter(entry.target, statNumbers[idx]);
+      }
+      statObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.5 });
+
+statVals.forEach((el, i) => {
+  if (statNumbers[i] !== undefined) statObserver.observe(el);
+});
+</script>
+
+</body>
+</html>
