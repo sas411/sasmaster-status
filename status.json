@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-22T17:50:00.000Z",
+  "generated": "2026-04-26T22:30:00.000Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -315,6 +315,7 @@
     ]
   },
   "heatmap": {
+    "2026-04-26": 3,
     "2026-04-23": 22,
     "2026-04-22": 7,
     "2026-04-21": 7,
@@ -885,14 +886,31 @@
   ],
   "kpis": {
     "agents_running": 7,
-    "agents_total": 13,
+    "agents_total": 14,
     "scrapers_live": 4,
     "scrapers_total": 22,
     "s3_gb": 85.4,
     "parent_key_rows": 861878,
-    "tasks_open": 11
+    "tasks_open": 11,
+    "skills_total": 24,
+    "commits_today": 3
   },
   "recent_activity": [
+    {
+      "type": "build",
+      "text": "build-auto cost logging — logs/cost-log.jsonl per-feature + per-run · ResultMessage.total_cost_usd · 11/11 smoke test pass",
+      "ts": "2026-04-26 22:25"
+    },
+    {
+      "type": "build",
+      "text": "autonomous-coding agent live — !build-auto <spec> spec-driven mode · bridge.sh · agents/autonomous-coding/ · Slack start+done pings",
+      "ts": "2026-04-26 14:55"
+    },
+    {
+      "type": "build",
+      "text": "Skills fleet 24/24 PASS — autonomous-ui-designer added · all SKILL.md uppercase · all trigger descriptions strong",
+      "ts": "2026-04-26 14:48"
+    },
     {
       "type": "build",
       "text": "Skills Library live — 21 skills pushed to github.com/sas411/sasmaster-skills · SLC pipeline installed",
@@ -1218,6 +1236,24 @@
   ],
   "recent_completions": [
     {
+      "title": "build-auto cost logging — logs/cost-log.jsonl · per-feature + per-run JSONL · ResultMessage.total_cost_usd · model + wall_seconds · 11/11 smoke test PASS",
+      "category": "Infrastructure",
+      "path": "scripts/build-auto/runner.py → logs/cost-log.jsonl",
+      "completed_at": "2026-04-26 22:25"
+    },
+    {
+      "title": "autonomous-coding agent — !build-auto <spec> spec-driven mode · agents/autonomous-coding/{agent.py,bridge.sh,security.py} · generations/<spec>/ output · JARVIS wired",
+      "category": "Agent",
+      "path": "agents/autonomous-coding/ + scripts/jarvis.js",
+      "completed_at": "2026-04-26 14:55"
+    },
+    {
+      "title": "Skills fleet 24/24 PASS — 22 WARN remediated (16 renames + 11 description rewrites) · autonomous-ui-designer added as 24th skill · validator exit 0",
+      "category": "Infrastructure",
+      "path": "~/.claude/skills/user/ → github.com/sas411/sasmaster-skills",
+      "completed_at": "2026-04-26 14:48"
+    },
+    {
       "title": "Skill Eval Loop — skill-review.sh extended with ## EVAL LOOP: trigger accuracy scoring, delta_vs_last, IMPROVING/STABLE/REGRESSING verdict, Slack digest to #builds",
       "category": "Infrastructure",
       "path": "scripts/skill-review.sh + skill-evals.md",
@@ -1313,7 +1349,7 @@
     "intel": [],
     "content": []
   },
-  "last_updated": "2026-04-23T17:30:00.000Z",
+  "last_updated": "2026-04-26T22:30:00.000Z",
   "overnight_debrief": {
     "date": "Wed Apr 22 2026",
     "ran": [
@@ -1395,8 +1431,22 @@
     {
       "id": "skills",
       "name": "Skills Library",
-      "desc": "21 personal skills — SLC self-learning pipeline",
+      "desc": "24 skills — 24/24 spec-compliant · SLC self-learning pipeline",
       "url": "https://github.com/sas411/sasmaster-skills",
+      "status": "live"
+    },
+    {
+      "id": "autonomous-coding",
+      "name": "autonomous-coding",
+      "desc": "Spec-driven agent — !build-auto <spec> · claude-sonnet-4-6 · generations/ output",
+      "url": "https://github.com/sas411/sasmaster/tree/main/agents/autonomous-coding",
+      "status": "live"
+    },
+    {
+      "id": "cost-log",
+      "name": "Cost Log",
+      "desc": "logs/cost-log.jsonl — per-feature + per-run spend tracking",
+      "url": "https://github.com/sas411/sasmaster/commit/fef74b8",
       "status": "live"
     }
   ]

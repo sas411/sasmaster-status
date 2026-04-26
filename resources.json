@@ -4,7 +4,7 @@
       "id": "one-pager-v1",
       "category": "overview",
       "title": "SaSMaster Platform Overview",
-      "subtitle": "589K titles · 15 scrapers · 10 AI agents · 4 portals · What it does, how data flows, research portals, agent fleet",
+      "subtitle": "589K titles · 15 scrapers · 11 AI agents · 4 portals · What it does, how data flows, research portals, agent fleet",
       "date": "2026-04-22",
       "latest": true,
       "files": [
@@ -20,8 +20,8 @@
       "id": "skills-github-v1",
       "category": "infrastructure",
       "title": "Skills Library — GitHub",
-      "subtitle": "23 skills · all spec-compliant (agentskills.io) · SLC taxonomy · capture-learnings.sh + skill-review.sh · Fri 5:50PM cron · end-to-end operational",
-      "date": "2026-04-23",
+      "subtitle": "24 skills · 24/24 spec-compliant (agentskills.io) · SLC taxonomy · capture-learnings.sh + skill-review.sh · Fri 5:50PM cron · end-to-end operational",
+      "date": "2026-04-26",
       "latest": true,
       "files": [
         {
@@ -36,8 +36,8 @@
       "id": "skill-inventory-v1",
       "category": "infrastructure",
       "title": "Skill Inventory v1",
-      "subtitle": "23 skills · 23/23 spec-compliant (agentskills.io) · all SKILL.md uppercase · all descriptions have trigger phrasing · self-evolving loop operational",
-      "date": "2026-04-23",
+      "subtitle": "24 skills · 24/24 spec-compliant (agentskills.io) · all SKILL.md uppercase · all descriptions have trigger phrasing · self-evolving loop operational",
+      "date": "2026-04-26",
       "latest": true,
       "files": [
         {
@@ -100,8 +100,8 @@
       "id": "slack-commands-v1",
       "category": "infrastructure",
       "title": "JARVIS Slack Command Reference",
-      "subtitle": "12 commands · !build-auto heavy-lift mode added 2026-04-23 · circuit breakers · process group kill · channel routing",
-      "date": "2026-04-23",
+      "subtitle": "13 commands · !build-auto <spec> spec-driven mode added 2026-04-26 · circuit breakers · process group kill · channel routing",
+      "date": "2026-04-26",
       "latest": true,
       "files": [
         {
@@ -116,15 +116,21 @@
       "id": "build-auto-v1",
       "category": "infrastructure",
       "title": "build-auto — JARVIS Heavy-Lift Mode",
-      "subtitle": "SQLite WAL state · 4-stage: runner+monitor+reaper+security · heartbeat reaper · idempotent features · process group kill · smoke test 11/11 PASS 2026-04-24",
-      "date": "2026-04-24",
+      "subtitle": "SQLite WAL · 4-stage: runner+monitor+reaper+security · cost-log.jsonl per-feature+run · spec-driven mode (agents/autonomous-coding) · smoke test 11/11 PASS",
+      "date": "2026-04-26",
       "latest": true,
       "files": [
         {
-          "label": "Docs",
+          "label": "TASKS.md mode",
           "type": "external",
           "url": "https://github.com/sas411/sasmaster/tree/main/scripts/build-auto",
           "primary": true
+        },
+        {
+          "label": "Spec-driven mode",
+          "type": "external",
+          "url": "https://github.com/sas411/sasmaster/tree/main/agents/autonomous-coding",
+          "primary": false
         }
       ]
     },
@@ -252,6 +258,38 @@
           "label": "Docs",
           "type": "external",
           "url": "https://github.com/sas411/sasmaster/tree/main/services/scoop",
+          "primary": true
+        }
+      ]
+    },
+    {
+      "id": "autonomous-coding-v1",
+      "category": "infrastructure",
+      "title": "autonomous-coding — Spec-Driven Agent",
+      "subtitle": "!build-auto <spec> · claude-sonnet-4-6 · 80 turns · 30min limit · generations/<spec>/ output · Slack start+done pings · smoke test passed 2026-04-26",
+      "date": "2026-04-26",
+      "latest": true,
+      "files": [
+        {
+          "label": "Docs",
+          "type": "external",
+          "url": "https://github.com/sas411/sasmaster/tree/main/agents/autonomous-coding",
+          "primary": true
+        }
+      ]
+    },
+    {
+      "id": "cost-log-v1",
+      "category": "infrastructure",
+      "title": "Build-Auto Cost Logging",
+      "subtitle": "logs/cost-log.jsonl · per-feature + per-run entries · ResultMessage.total_cost_usd · model + wall_seconds + status · live as of 2026-04-26",
+      "date": "2026-04-26",
+      "latest": true,
+      "files": [
+        {
+          "label": "Commit",
+          "type": "external",
+          "url": "https://github.com/sas411/sasmaster/commit/fef74b8",
           "primary": true
         }
       ]
