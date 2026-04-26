@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — Autonomous Coding System</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-base: #0a0a0f;
+  --bg-surface: #12121a;
+  --bg-elevated: #1a1a2e;
+  --bg-panel: #0d0d16;
+  --lavender: #a78bfa;
+  --lav-dim: rgba(167,139,250,0.10);
+  --lav-glow: rgba(167,139,250,0.20);
+  --teal: #22d3ee;
+  --teal-dim: rgba(34,211,238,0.10);
+  --teal-glow: rgba(34,211,238,0.18);
+  --gold: #f59e0b;
+  --gold-dim: rgba(245,158,11,0.10);
+  --gold-glow: rgba(245,158,11,0.18);
+  --green: #10b981;
+  --green-dim: rgba(16,185,129,0.10);
+  --green-glow: rgba(16,185,129,0.18);
+  --red: #ef4444;
+  --text-primary: #f8f8ff;
+  --text-secondary: #94a3b8;
+  --text-dim: #4b5563;
+  --border: rgba(167,139,250,0.10);
+  --border-active: rgba(167,139,250,0.30);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html, body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Barlow Condensed', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanline overlay for cinematic texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 48px 40px 80px;
+}
+
+/* ─── HEADER ─── */
+.header {
+  text-align: center;
+  margin-bottom: 56px;
+  animation: fadeUp 0.6s var(--ease) both;
+}
+
+.header-eyebrow {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--lavender);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.header-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(36px, 5vw, 64px);
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.header-title span {
+  color: var(--lavender);
+}
+
+.header-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  max-width: 560px;
+  margin: 0 auto 24px;
+  line-height: 1.5;
+}
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.header-meta-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--border-active);
+}
+
+/* ─── LEGEND ─── */
+.legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  margin-bottom: 48px;
+  animation: fadeUp 0.6s var(--ease) 0.1s both;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.legend-dot.human  { background: var(--teal); }
+.legend-dot.agent  { background: var(--lavender); }
+.legend-dot.gate   { background: var(--gold); }
+.legend-dot.output { background: var(--green); }
+
+/* ─── COLUMNS ─── */
+.workflow-grid {
+  display: grid;
+  grid-template-columns: 1fr 72px 1fr;
+  gap: 0;
+  align-items: start;
+}
+
+/* ─── PHASE HEADER ─── */
+.phase-header {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.phase-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.phase-badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+
+.phase-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.phase-desc {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Phase I styling */
+.phase-1 .phase-badge-dot { background: var(--teal); }
+.phase-1 .phase-title { color: var(--teal); }
+
+/* Phase II styling */
+.phase-2 .phase-badge-dot { background: var(--lavender); }
+.phase-2 .phase-title { color: var(--lavender); }
+
+/* ─── NODE ─── */
+.node {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 0;
+  transition: border-color 200ms var(--ease), transform 200ms var(--ease);
+}
+
+.node:hover {
+  border-color: var(--border-active);
+  transform: translateX(2px);
+}
+
+.node-stripe {
+  width: 3px;
+  flex-shrink: 0;
+}
+
+.node.human  .node-stripe { background: var(--teal); }
+.node.agent  .node-stripe { background: var(--lavender); }
+.node.gate   .node-stripe { background: var(--gold); }
+.node.output .node-stripe { background: var(--green); }
+
+.node.human  { background: var(--teal-dim); }
+.node.agent  { background: var(--lav-dim); }
+.node.gate   { background: var(--gold-dim); }
+.node.output { background: var(--green-dim); }
+
+.node-body {
+  flex: 1;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.node-icon {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 16px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.node.human  .node-icon { color: var(--teal); background: var(--teal-glow); }
+.node.agent  .node-icon { color: var(--lavender); background: var(--lav-glow); }
+.node.gate   .node-icon { color: var(--gold); background: var(--gold-glow); }
+.node.output .node-icon { color: var(--green); background: var(--green-glow); }
+
+.node-text { flex: 1; }
+
+.node-label {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+
+.node-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+}
+
+.node-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.node.human  .node-tag { color: var(--teal); background: var(--teal-glow); border: 1px solid rgba(34,211,238,0.25); }
+.node.agent  .node-tag { color: var(--lavender); background: var(--lav-glow); border: 1px solid rgba(167,139,250,0.25); }
+.node.gate   .node-tag { color: var(--gold); background: var(--gold-glow); border: 1px solid rgba(245,158,11,0.25); }
+.node.output .node-tag { color: var(--green); background: var(--green-glow); border: 1px solid rgba(16,185,129,0.25); }
+
+/* NEW badge on Phase II additional nodes */
+.new-badge {
+  position: absolute;
+  top: 8px; right: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: var(--lavender);
+  background: var(--lav-glow);
+  border: 1px solid rgba(167,139,250,0.35);
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* NEW node pulse animation */
+.node.is-new {
+  animation: newPulse 3s ease-in-out infinite;
+}
+
+@keyframes newPulse {
+  0%, 100% { border-color: var(--border); }
+  50% { border-color: rgba(167,139,250,0.35); }
+}
+
+/* ─── CONNECTOR ─── */
+.connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 0;
+  position: relative;
+}
+
+.connector-line {
+  width: 1px;
+  flex: 1;
+  min-height: 14px;
+  background: linear-gradient(to bottom, var(--border-active), var(--border));
+}
+
+.connector-arrow {
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid var(--border-active);
+}
+
+/* Branch connector (DEFER path from Gate) */
+.connector-branch {
+  margin: 4px 0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: rgba(239,68,68,0.07);
+  border: 1px solid rgba(239,68,68,0.20);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.branch-icon {
+  font-size: 11px;
+  color: var(--red);
+}
+
+.branch-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: #ef4444;
+  letter-spacing: 0.06em;
+}
+
+/* ─── MIDDLE DIVIDER ─── */
+.divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80px;
+  gap: 12px;
+  position: relative;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 40px;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--border), transparent);
+  transform: translateX(-50%);
+}
+
+.divider-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  position: relative;
+  z-index: 1;
+}
+
+.divider-arrow {
+  font-size: 18px;
+  color: var(--lavender);
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── SECTION GROUPING (Phase II) ─── */
+.node-group {
+  border: 1px solid rgba(167,139,250,0.15);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 0;
+  position: relative;
+  background: rgba(167,139,250,0.03);
+}
+
+.node-group-label {
+  position: absolute;
+  top: -9px;
+  left: 12px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--lavender);
+  background: var(--bg-base);
+  padding: 0 8px;
+  text-transform: uppercase;
+}
+
+/* ─── FOOTER STRIP ─── */
+.footer-strip {
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  animation: fadeUp 0.6s var(--ease) 0.5s both;
+}
+
+.footer-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  text-align: center;
+}
+
+.footer-card-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.footer-card-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.footer-card-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.footer-card.teal .footer-card-value { color: var(--teal); }
+.footer-card.lav  .footer-card-value { color: var(--lavender); }
+.footer-card.gold .footer-card-value { color: var(--gold); }
+
+/* ─── INSIGHT BANNER ─── */
+.insight {
+  margin-top: 32px;
+  padding: 20px 28px;
+  border: 1px solid rgba(167,139,250,0.20);
+  border-radius: 10px;
+  background: var(--lav-dim);
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  animation: fadeUp 0.6s var(--ease) 0.6s both;
+}
+
+.insight-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.insight-text {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.insight-text strong {
+  color: var(--lavender);
+  font-weight: 600;
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.phase-col { animation: fadeUp 0.5s var(--ease) both; }
+.phase-1-col { animation-delay: 0.15s; }
+.phase-2-col { animation-delay: 0.25s; }
+
+/* staggered node animation */
+.node { opacity: 0; animation: fadeUp 0.4s var(--ease) both; }
+.node:nth-child(1)  { animation-delay: 0.20s; }
+.node:nth-child(2)  { animation-delay: 0.25s; }
+.node:nth-child(3)  { animation-delay: 0.30s; }
+.node:nth-child(4)  { animation-delay: 0.35s; }
+.node:nth-child(5)  { animation-delay: 0.40s; }
+.node:nth-child(6)  { animation-delay: 0.45s; }
+.node:nth-child(7)  { animation-delay: 0.50s; }
+.node:nth-child(8)  { animation-delay: 0.55s; }
+.node:nth-child(9)  { animation-delay: 0.60s; }
+
+/* Phase II with extra delay */
+.phase-2-col .node:nth-child(1)  { animation-delay: 0.30s; }
+.phase-2-col .node:nth-child(2)  { animation-delay: 0.35s; }
+.phase-2-col .node:nth-child(3)  { animation-delay: 0.40s; }
+.phase-2-col .node:nth-child(4)  { animation-delay: 0.45s; }
+.phase-2-col .node:nth-child(5)  { animation-delay: 0.50s; }
+.phase-2-col .node:nth-child(6)  { animation-delay: 0.55s; }
+.phase-2-col .node:nth-child(7)  { animation-delay: 0.60s; }
+.phase-2-col .node:nth-child(8)  { animation-delay: 0.65s; }
+.phase-2-col .node:nth-child(9)  { animation-delay: 0.70s; }
+.phase-2-col .node:nth-child(10) { animation-delay: 0.75s; }
+.phase-2-col .node:nth-child(11) { animation-delay: 0.80s; }
+
+/* Stack spacing */
+.flow { display: flex; flex-direction: column; gap: 0; }
+.flow .connector { min-height: 20px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-eyebrow">SaSMaster Intelligence Platform · Agent Architecture</div>
+    <div class="header-title">Autonomous <span>Coding</span> System</div>
+    <div class="header-sub">From reactive execution to supervised autonomy — an executive overview of how the SaSMaster build pipeline operates today and evolves tomorrow.</div>
+    <div class="header-meta">
+      <span>ARCHITECTURE v2</span>
+      <div class="header-meta-dot"></div>
+      <span>2026-04-26</span>
+      <div class="header-meta-dot"></div>
+      <span>CONFIDENTIAL · SHIV ASHISH</span>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot human"></div>Human Action (Shiv)</div>
+    <div class="legend-item"><div class="legend-dot agent"></div>Agent Execution</div>
+    <div class="legend-item"><div class="legend-dot gate"></div>Gate / Checkpoint</div>
+    <div class="legend-item"><div class="legend-dot output"></div>Output / Sync</div>
+  </div>
+
+  <!-- WORKFLOW GRID -->
+  <div class="workflow-grid">
+
+    <!-- PHASE I -->
+    <div class="phase-col phase-1-col">
+      <div class="phase-header phase-1">
+        <div class="phase-badge"><div class="phase-badge-dot"></div>Current State</div>
+        <div class="phase-title">Reactive Execution</div>
+        <div class="phase-desc">You define every task. The agent executes precisely what you spec. No initiative — no ambiguity.</div>
+      </div>
+
+      <div class="flow">
+
+        <div class="node human">
+          <div class="node-stripe"></div>
+          <div class="node-body">
+            <div class="node-icon">✍</div>
+            <div class="node-text">
+              <div class="node-label">Write Task Card</div>
+              <div class="node-sub">TASKS.md · 6-field spec required</div>
+            </div>
+            <div class="node-tag">Human</div>
+          </div>
+        </div>
+
+        <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+        <div class="node human">
+          <div class="node-stripe"></div>
+          <div class="node-body">
+            <div class="node-icon">⚡</div>
+            <div class="node-text">
+              <div class="node-label">Trigger Build</div>
+              <div class="node-sub">!build-auto &lt;spec&gt;</div>
+            </div>
+            <div class="node-tag">Human</div>
+          </div>
+        </div>
+
+        <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+        <div class="node gate">
+          <div class="node-stripe"></div>
+          <div class="node-body">
+            <div class="node-icon">◉</div>
+            <div class="node-text">
+              <div class="node-label">Spec Validator</div>
+              <div class="node-sub">6-field check · DEFER if incomplete</div>
+            </div>
+            <div class="node-tag">Gate</div>
+          </div>
+        </div>
+
+        <div class="connector">
+          <div class="connector-line" style="min-height:6px"></div>
+          <div class="connector-branch">
+            <div class="branch-icon">↩</div>
+            <div class="branch-text">FAIL → status: DEFERRED · cost-log: $0</div>
+          </div>
+          <div class="connector-line" style="min-height:6px"></div>
+          <div class="connector-arrow"></div>
+        </div>
+
+        <div class="node agent">
+          <div class="node-stripe"></div>
+          <div class="node-body">
+            <div class="node-icon">🧠</div>
+            <div class="node-text">
+              <div class="node-label">Opus 4.7 — Planning</div>
+              <div class="node-sub">Decomposes spec into subtasks</div>
+            </div>
+            <div class="node-tag">Agent</div>
+          </div>
+        </div>
+
+        <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+        <div class="node agent">
+          <div class="node-stripe"></div>
+          <div class="node-body">
+            <div class="node-icon">⚙</div>
+            <div class="node-text">
+              <div class="node-label">Sonnet 4.6 — Execution</div>
+              <div class="node-sub">Code generation · file operations</div>
+            </div>
+            <div class="node-tag">Agent</div>
+          </div>
+        </div>
+
+        <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+        <div class="node agent">
+          <div class="node-stripe"></div>
+          <div class="node-body">
+            <div class="node-icon">◈</div>
+            <div class="node-text">
+              <div class="node-label">SQLite WAL Runner</div>
+              <div class="node-sub">State tracking · concurrent-safe</div>
+            </div>
+            <div class="node-tag">Agent</div>
+          </div>
+        </div>
+
+        <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+        <div class="node gate">
+          <div class="node-stripe"></div>
+          <div class="node-body">
+            <div class="node-icon">✓</div>
+            <div class="node-text">
+              <div class="node-label">Smoke Test</div>
+              <div class="node-sub">Verify output · must PASS to proceed</div>
+            </div>
+            <div class="node-tag">Gate</div>
+          </div>
+        </div>
+
+        <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+        <div class="node agent">
+          <div class="node-stripe"></div>
+          <div class="node-body">
+            <div class="node-icon">$</div>
+            <div class="node-text">
+              <div class="node-label">Cost Logger</div>
+              <div class="node-sub">cost-log.jsonl · tokens · model · status</div>
+            </div>
+            <div class="node-tag">Agent</div>
+          </div>
+        </div>
+
+        <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+        <div class="node output">
+          <div class="node-stripe"></div>
+          <div class="node-body">
+            <div class="node-icon">↑</div>
+            <div class="node-text">
+              <div class="node-label">Sync &amp; Commit</div>
+              <div class="node-sub">GitHub · Obsidian · War Room</div>
+            </div>
+            <div class="node-tag">Output</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div class="divider">
+      <div class="divider-arrow">→</div>
+      <div class="divider-label">Evolves To</div>
+    </div>
+
+    <!-- PHASE II -->
+    <div class="phase-col phase-2-col">
+      <div class="phase-header phase-2">
+        <div class="phase-badge"><div class="phase-badge-dot"></div>Next Evolution</div>
+        <div class="phase-title">Supervised Autonomy</div>
+        <div class="phase-desc">The agent observes system state and writes its own specs. You review, approve, and stay the decision-maker.</div>
+      </div>
+
+      <div class="flow">
+
+        <!-- NEW BLOCK: Observe + Draft -->
+        <div class="node-group" style="margin-bottom:0">
+          <div class="node-group-label">★ New Intelligence Layer</div>
+
+          <div class="node agent is-new" style="margin-bottom:0">
+            <div class="node-stripe"></div>
+            <div class="new-badge">NEW</div>
+            <div class="node-body">
+              <div class="node-icon">👁</div>
+              <div class="node-text">
+                <div class="node-label">Agent Observes State</div>
+                <div class="node-sub">War Room KPIs · TASKS.md queue · smoke results</div>
+              </div>
+              <div class="node-tag">Agent</div>
+            </div>
+          </div>
+
+          <div class="connector"><div class="connector-line" style="min-height:12px"></div><div class="connector-arrow"></div></div>
+
+          <div class="node agent is-new" style="margin-bottom:0">
+            <div class="node-stripe"></div>
+            <div class="new-badge">NEW</div>
+            <div class="node-body">
+              <div class="node-icon">✦</div>
+              <div class="node-text">
+                <div class="node-label">Generate DRAFT Task Cards</div>
+                <div class="node-sub">Autonomous spec writing · TASKS.md status: DRAFT</div>
+              </div>
+              <div class="node-tag">Agent</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+        <!-- HUMAN GATE — the critical new step -->
+        <div class="node gate is-new" style="border-color: rgba(245,158,11,0.40); box-shadow: 0 0 20px rgba(245,158,11,0.08);">
+          <div class="node-stripe"></div>
+          <div class="new-badge" style="color:var(--gold); background: var(--gold-glow); border-color: rgba(245,158,11,0.35);">NEW</div>
+          <div class="node-body">
+            <div class="node-icon" style="font-size:18px;">★</div>
+            <div class="node-text">
+              <div class="node-label" style="color:var(--gold)">Human Review Gate</div>
+              <div class="node-sub">Shiv approves · modifies · or rejects DRAFT</div>
+            </div>
+            <div class="node-tag">Gate</div>
+          </div>
+        </div>
+
+        <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+        <div class="node human is-new">
+          <div class="node-stripe"></div>
+          <div class="new-badge">NEW</div>
+          <div class="node-body">
+            <div class="node-icon">▲</div>
+            <div class="node-text">
+              <div class="node-label">Promote DRAFT → OPEN</div>
+              <div class="node-sub">TASKS.md status update · ready to execute</div>
+            </div>
+            <div class="node-tag">Human</div>
+          </div>
+        </div>
+
+        <div class="connector"><div class="connector-line"></div><div class="connector-arrow"></div></div>
+
+        <!-- Same execution pipeline as Phase I below -->
+        <div style="padding: 8px 12px; border-radius: 6px; background: var(--bg-surface); border: 1px solid var(--border); margin-bottom:0;">
+          <div style="font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.12em; color: var(--text-dim); text-transform:uppercase; margin-bottom:8px;">↓ Same Execution Pipeline as Phase I</div>
+
+          <div class="node gate" style="margin-bottom:0">
+            <div class="node-stripe"></div>
+            <div class="node-body">
+              <div class="node-icon">◉</div>
+              <div class="node-text">
+                <div class="node-label">Spec Validator</div>
+                <div class="node-sub">6-field check · auto-passes (agent-written)</div>
+              </div>
+              <div class="node-tag">Gate</div>
+            </div>
+          </div>
+
+          <div class="connector"><div class="connector-line" style="min-height:10px"></div><div class="connector-arrow"></div></div>
+
+          <div class="node agent" style="margin-bottom:0">
+            <div class="node-stripe"></div>
+            <div class="node-body">
+              <div class="node-icon">🧠</div>
+              <div class="node-text">
+                <div class="node-label">Opus 4.7 → Sonnet 4.6</div>
+                <div class="node-sub">Plan · execute · track via SQLite WAL</div>
+              </div>
+              <div class="node-tag">Agent</div>
+            </div>
+          </div>
+
+          <div class="connector"><div class="connector-line" style="min-height:10px"></div><div class="connector-arrow"></div></div>
+
+          <div class="node gate" style="margin-bottom:0">
+            <div class="node-stripe"></div>
+            <div class="node-body">
+              <div class="node-icon">✓</div>
+              <div class="node-text">
+                <div class="node-label">Smoke Test + Cost Log</div>
+                <div class="node-sub">Verify · log to cost-log.jsonl</div>
+              </div>
+              <div class="node-tag">Gate</div>
+            </div>
+          </div>
+
+          <div class="connector"><div class="connector-line" style="min-height:10px"></div><div class="connector-arrow"></div></div>
+
+          <div class="node output" style="margin-bottom:0">
+            <div class="node-stripe"></div>
+            <div class="node-body">
+              <div class="node-icon">↑</div>
+              <div class="node-text">
+                <div class="node-label">Sync &amp; Commit</div>
+                <div class="node-sub">GitHub · Obsidian · War Room</div>
+              </div>
+              <div class="node-tag">Output</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Loop back annotation -->
+        <div style="margin-top:12px; display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:6px; background:var(--lav-dim); border:1px solid var(--border-active);">
+          <div style="font-size:16px; color:var(--lavender);">↺</div>
+          <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--lavender); letter-spacing:0.08em;">Agent observes outputs → generates next DRAFT → loop continues</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER STATS -->
+  <div class="footer-strip">
+    <div class="footer-card teal">
+      <div class="footer-card-label">Human Touchpoints</div>
+      <div class="footer-card-value">2 → 1</div>
+      <div class="footer-card-sub">From writing + triggering, to approving only</div>
+    </div>
+    <div class="footer-card lav">
+      <div class="footer-card-label">Agent Coverage</div>
+      <div class="footer-card-value">6 → 8</div>
+      <div class="footer-card-sub">Steps handled autonomously per cycle</div>
+    </div>
+    <div class="footer-card gold">
+      <div class="footer-card-label">Decision Authority</div>
+      <div class="footer-card-value">100%</div>
+      <div class="footer-card-sub">Shiv retains final approval on every task</div>
+    </div>
+  </div>
+
+  <!-- INSIGHT BANNER -->
+  <div class="insight">
+    <div class="insight-icon">◈</div>
+    <div class="insight-text">
+      <strong>Core principle:</strong> The human gate is inviolable. In Phase II, the agent shifts from passive executor to intelligent observer — it reads system state, infers what should be built next, and writes the spec. But no task executes without <strong>explicit human approval</strong>. Shiv remains the pure decision-maker; the agent eliminates the cognitive load of observation and spec authorship.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
