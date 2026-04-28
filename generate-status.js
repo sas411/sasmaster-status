@@ -185,6 +185,30 @@ function parseS3EntityCounts() {
   catch { return {}; }
 }
 
+// ── S3 Freshness (age in hours per key prefix) ───────────────────────────────
+// Uses `aws s3 ls --recursive` on each prefix, picks the most-recent object.
+// Returns a map: { 'tmdb_dev/': { age_hours: 3.2, fresh: true }, ... }
+// Safe — returns empty map if aws CLI unavailable or any prefix times out.
+function getS3Freshness(prefixes = []) {
+  const result = {};
+  for (const prefix of prefixes) {
+    try {
+      const out = execSync(
+        `aws s3 ls s3://sasmaster-2026/${prefix} --recursive | sort | tail -1`,
+        { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], timeout: 8000 }
+      );
+      const match = out.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/);
+      if (!match) { result[prefix] = { age_hours: null, fresh: false }; continue; }
+      const lastMod = new Date(match[1] + ' UTC');
+      const ageHours = Math.round(((Date.now() - lastMod.getTime()) / 3600000) * 10) / 10;
+      result[prefix] = { age_hours: ageHours, fresh: ageHours < 24 };
+    } catch {
+      result[prefix] = { age_hours: null, fresh: false };
+    }
+  }
+  return result;
+}
+
 // ── Log mtime helper for per-scraper health ──────────────────────────────────
 function logMtime(logName) {
   const p = path.join(SASMASTER, 'logs', logName);
@@ -383,7 +407,7 @@ function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents) {
 // Emits ONE card per real S3 prefix with real sizes + entity counts where
 // computable. Entity counts come from scripts/s3-entity-counts.json; prefixes
 // flagged { note: 'deferred' } render with em-dash placeholders.
-function buildS3Lake(scrapers, s3Inv, entityCounts) {
+function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
   if (!s3Inv?.prefixes) return [];
 
   // Human label + phase classification per prefix
@@ -417,6 +441,7 @@ function buildS3Lake(scrapers, s3Inv, entityCounts) {
     let status = meta.status_hint;
     if (p.prefix === 'tmdb_dev/' && tmdb?.status === 'running') status = 'landing';
 
+    const freshData = (s3Freshness || {})[p.prefix] || { age_hours: null, fresh: false };
     return {
       path: meta.label,
       prefix: p.prefix,
@@ -425,6 +450,8 @@ function buildS3Lake(scrapers, s3Inv, entityCounts) {
       size_gb: +(p.size_gb.toFixed(2)),
       object_count: p.object_count,
       last_updated: p.last_modified,
+      fresh: freshData.fresh,
+      age_hours: freshData.age_hours,
       entities: {
         movies:    ec.movies    ?? null,
         tv_series: ec.tv_series ?? null,
@@ -437,8 +464,55 @@ function buildS3Lake(scrapers, s3Inv, entityCounts) {
   });
 }
 
+// ── Build events (Layer 7 audit trail) ───────────────────────────────────────
+// Reads today's build-YYYY-MM-DD.jsonl written by runner.py.
+// Returns structured events for the recent_activity feed.
+function getBuildEvents() {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const file = path.join(SASMASTER, 'logs', `build-${today}.jsonl`);
+  if (!fs.existsSync(file)) return { events: [], count: 0 };
+
+  try {
+    const lines = fs.readFileSync(file, 'utf8')
+      .split('\n')
+      .filter(Boolean)
+      .map(l => { try { return JSON.parse(l); } catch { return null; } })
+      .filter(Boolean);
+
+    const events = lines.slice(-20).map(e => {
+      const isSummary  = e.kind === 'run_summary';
+      const isError    = e.status === 'failed' || (Array.isArray(e.errors) && e.errors.length > 0);
+      const isComplete = isSummary || e.status === 'complete';
+
+      let type = 'build';
+      if (isError)         type = 'error';
+      else if (isComplete) type = 'complete';
+
+      let text;
+      if (isSummary) {
+        const mins = Math.round((e.wall_seconds || 0) / 60);
+        text = `Build run complete — ${e.features_ok}/${e.features_total} features, $${(e.total_cost_usd || 0).toFixed(2)}, ${mins}m`;
+      } else {
+        const icon = isError ? '❌' : '✅';
+        text = `${icon} ${(e.task || e.feat_id || '').slice(0, 70)}`;
+        if (e.decisions) text += ` — ${e.decisions.slice(0, 60)}`;
+      }
+
+      return {
+        type,
+        text:      text.slice(0, 120),
+        ts:        e.ts || '',
+        layer:     'APP',
+        component: 'build-auto',
+      };
+    });
+
+    return { events, count: lines.filter(e => e.kind !== 'run_summary').length };
+  } catch { return { events: [], count: 0 }; }
+}
+
 // ── KPIs (derived) ───────────────────────────────────────────────────────────
-function buildKPIs(agents, scrapers, s3_lake, tasks, pk) {
+function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount) {
   const agents_running = agents.filter(a => a.status === 'healthy' || a.status === 'routing').length;
   const scrapers_live  = scrapers.filter(s => s.status === 'live').length;
   const s3_gb = s3_lake.reduce((sum, b) => sum + (b.size_gb || 0), 0);
@@ -453,6 +527,7 @@ function buildKPIs(agents, scrapers, s3_lake, tasks, pk) {
     s3_gb: Math.round(s3_gb * 10) / 10,
     parent_key_rows: pkRows,
     tasks_open,
+    build_events_today: buildEventsCount || 0,
   };
 }
 
@@ -647,9 +722,17 @@ const tmdbProgress  = parseTMDBProgress();
 const s3Inv         = parseS3Inventory();
 const entityCounts  = parseS3EntityCounts();
 const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents);
-const s3_lake       = buildS3Lake(scrapers, s3Inv, entityCounts);
+
+// Compute freshness for each known S3 prefix (silent on AWS CLI failure)
+const s3FreshnessPrefixes = (s3Inv?.prefixes || []).map(p => p.prefix);
+const s3Freshness = getS3Freshness(s3FreshnessPrefixes);
+
+const s3_lake       = buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness);
 const cronJobsRaw   = parseCrontab();
 const cron          = enrichCronStatus(cronJobsRaw, agents);
+
+// Layer 7: build audit trail events
+const { events: buildEventsToday, count: buildEventsCount } = getBuildEvents();
 
 const kanban = {
   backlog:    [...tasks.medItems, ...tasks.exploreItems],
@@ -659,6 +742,12 @@ const kanban = {
 };
 
 const parentKeyScraper = scrapers.find(s => s.name === 'SAS-MASTER Parent Key v1');
+
+// Merge build events (prepend) + existing slack_feed events (append), cap at 25
+function buildMergedActivity(intelFeed, recentBuilds, scrapers, buildEvents) {
+  const existing = buildRecentActivity(intelFeed, recentBuilds, scrapers);
+  return [...buildEvents, ...existing].slice(0, 25);
+}
 
 const status = {
   generated: new Date().toISOString(),
@@ -684,8 +773,8 @@ const status = {
   // ── New fields for v3 War Room ──
   scrapers,
   s3_lake,
-  kpis:                buildKPIs(agents, scrapers, s3_lake, tasks, parentKeyScraper),
-  recent_activity:     buildRecentActivity(intelFeed, recentBuilds, scrapers),
+  kpis:                buildKPIs(agents, scrapers, s3_lake, tasks, parentKeyScraper, buildEventsCount),
+  recent_activity:     buildMergedActivity(intelFeed, recentBuilds, scrapers, buildEventsToday),
   cron,
   tasks:               buildTasksForV3(kanban),
   recent_completions:  recentBuilds.map(b => ({

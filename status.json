@@ -1,22 +1,14 @@
 {
-  "generated": "2026-04-26T22:30:00.000Z",
+  "generated": "2026-04-28T06:17:08.071Z",
   "system": {
     "jarvis": {
       "alive": true
     }
   },
   "queue": {
-    "high": 11,
-    "med": 11,
+    "high": 20,
+    "med": 13,
     "highItems": [
-      {
-        "id": "t-research",
-        "text": "Add !research [topic] command to JARVIS — topic-agnostic synthesis pipeline → #intel",
-        "full": "Add !research [topic] command to JARVIS in scripts/jarvis.js. When triggered via Slack Socket Mode, invoke the 3-tier Media Intel pipeline against the given topic, synthesize a structured research brief, and post to #intel (C0AU4M74A7Q). Create a research-prompt.md template in prompts/ following async-prompt.md convention. Include error handling and Slack acknowledgement on receipt. Topic-agnostic: accepts freeform query string, NOT a fixed source list (different from !tech and !iab).",
-        "sprint": "Sprint 7 — Now (added 2026-04-22)",
-        "tag": "AGENT",
-        "priority": "HIGH"
-      },
       {
         "id": "t62",
         "text": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + cre…",
@@ -233,16 +225,7 @@
         "priority": "MED"
       }
     ],
-    "inProgress": [
-      {
-        "id": "t-research",
-        "text": "Add !research [topic] command to JARVIS — topic-agnostic synthesis pipeline → #intel",
-        "full": "Add !research [topic] command to JARVIS in scripts/jarvis.js. When triggered via Slack Socket Mode, invoke the 3-tier Media Intel pipeline against the given topic, synthesize a structured research brief, and post to #intel (C0AU4M74A7Q). Create a research-prompt.md template in prompts/ following async-prompt.md convention. Include error handling and Slack acknowledgement on receipt. Topic-agnostic: accepts freeform query string, NOT a fixed source list (different from !tech and !iab).",
-        "sprint": "Sprint 7 — Now (added 2026-04-22)",
-        "tag": "AGENT",
-        "priority": "HIGH"
-      }
-    ],
+    "inProgress": [],
     "review": [
       {
         "id": "review-0",
@@ -261,11 +244,28 @@
         "tag": "PENDING",
         "priority": "REVIEW",
         "approvalId": "mo9mqkhy"
+      },
+      {
+        "id": "review-2",
+        "text": "Weekly Business Review — 2026-04-28 → 2026-04-27",
+        "full": "Weekly Business Review — 2026-04-28 → 2026-04-27",
+        "sprint": "Review",
+        "tag": "PENDING",
+        "priority": "REVIEW",
+        "approvalId": "wbr_mogjv39d"
       }
     ],
     "done": [
       {
         "id": "done-0",
+        "text": "Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)",
+        "full": "Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-1",
         "text": "Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
         "full": "Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
         "sprint": "",
@@ -273,51 +273,18 @@
         "priority": "DONE"
       },
       {
-        "id": "done-1",
+        "id": "done-2",
         "text": "Restart JARVIS + widen channel filter",
         "full": "Restart JARVIS + widen channel filter",
         "sprint": "",
-        "tag": "DONE",
-        "priority": "DONE"
-      },
-      {
-        "id": "done-2",
-        "text": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
-        "full": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
-        "sprint": "",
-        "tag": "DONE",
-        "priority": "DONE"
-      },
-      {
-        "id": "done-3",
-        "text": "Distributed Memory System v2 — CLAUDE_MEMORY.md compressed, 3 sub-agents, Obsidian vault",
-        "full": "Distributed Memory System v2 — CLAUDE_MEMORY.md compressed to <250 tokens (key:value format). Sub-agents: data-modeler.md (claude-opus-4-5), scraper-debugger.md (claude-sonnet-4-5), jarvis-ops.md (claude-sonnet-4-5). Obsidian vault initialized at ~/SaSMaster/obsidian/ with 8 docs across 6 folders (ADRs, Schema, Scrapers, Agents, Roadmap, Ops). Memory System v2 diagram added to War Room Resources.",
-        "sprint": "Sprint 7 — Infrastructure & Memory System (2026-04-22)",
-        "tag": "DONE",
-        "priority": "DONE"
-      },
-      {
-        "id": "done-4",
-        "text": "War Room upgrades — scraper inventory, JARVIS slack commands, cron schedule visualizer",
-        "full": "Added 3 new War Room Resources & Artifacts: scraper-inventory.html (11-scraper cards with full background knowledge), slack-commands.html (9 JARVIS command cards, approval queue flow, channel routing), cron-schedule.html (18-job visualizer with 24h timeline, weekly calendar, live crontab source). resources.json updated to 9 entries.",
-        "sprint": "Sprint 7 — Infrastructure & Memory System (2026-04-22)",
-        "tag": "DONE",
-        "priority": "DONE"
-      },
-      {
-        "id": "done-5",
-        "text": "IAB Agent — 4 parallel surfaces, Mon 7AM cron, !iab JARVIS command",
-        "full": "Built agents/iab-agent.js: 4 parallel surfaces (news/insights, NYC-filtered events, research reports, tech/standards). Claude synthesis via claude-sonnet-4-6, posts to #sasmaster-intel (C0AU4M74A7Q). Added !iab handler to scripts/jarvis.js. Monday 7AM cron live (SaSMaster-iab-agent-mon7am). Obsidian vault updated: agent-fleet.md + jarvis-runbook.md committed (0f81906).",
-        "sprint": "Sprint 7 — Infrastructure & Memory System (2026-04-22)",
         "tag": "DONE",
         "priority": "DONE"
       }
     ]
   },
   "heatmap": {
-    "2026-04-26": 3,
-    "2026-04-23": 22,
-    "2026-04-22": 7,
+    "2026-04-23": 2,
+    "2026-04-22": 6,
     "2026-04-21": 7,
     "2026-04-20": 12,
     "2026-04-19": 3
@@ -332,8 +299,8 @@
       "log": "jarvis.log",
       "channel": "24/7 daemon",
       "jobId": null,
-      "lastRun": "2026-04-22T11:50:05.322Z",
-      "lastOutput": "JARVIS v4 online — Socket Mode connected",
+      "lastRun": null,
+      "lastOutput": "_File: `shiv_travel_calendar_2026.html` (v4)_ *Sent using* Claude",
       "status": "healthy"
     },
     {
@@ -344,7 +311,7 @@
       "log": "media-intel.log",
       "channel": "#sasmaster-intel",
       "jobId": "media-intel",
-      "lastRun": "2026-04-22T10:00:20.603Z",
+      "lastRun": "2026-04-23T10:00:22.660Z",
       "lastOutput": "Brief posted to #sasmaster-intel ✅",
       "status": "healthy"
     },
@@ -356,8 +323,8 @@
       "log": "tmdb-agent.log",
       "channel": "#sasmaster-intel",
       "jobId": "tmdb-daily",
-      "lastRun": "2026-04-22T09:22:45.908Z",
-      "lastOutput": "Posted digest (1367 chars) to #sasmaster-intel",
+      "lastRun": "2026-04-24T09:00:02.669Z",
+      "lastOutput": "Posted digest (1380 chars) to #sasmaster-intel",
       "status": "healthy"
     },
     {
@@ -368,7 +335,7 @@
       "log": "donelog-analyst.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": "2026-04-21T16:00:01.117Z",
+      "lastRun": "2026-04-23T16:00:00.807Z",
       "lastOutput": "Analysis complete. Gaps: none. Injected: none",
       "status": "healthy"
     },
@@ -380,8 +347,8 @@
       "log": "linkedin-agent.log",
       "channel": "#sasmaster-content",
       "jobId": "linkedin-agent",
-      "lastRun": "2026-04-22T05:46:13.159Z",
-      "lastOutput": "Draft posted to Slack, pending ID: mo9mqkhy",
+      "lastRun": "2026-04-28T00:00:01.164Z",
+      "lastOutput": "No theme set — prompted Shiv for direction",
       "status": "healthy"
     },
     {
@@ -392,8 +359,8 @@
       "log": "sec-edgar.log",
       "channel": "#sasmaster-intel",
       "jobId": null,
-      "lastRun": "2026-04-22T10:30:23.851Z",
-      "lastOutput": "═══ Done: 16/16 | 15 companies with new filings ═══",
+      "lastRun": "2026-04-23T10:30:25.612Z",
+      "lastOutput": "═══ Done: 16/16 | 1 companies with new filings ═══",
       "status": "healthy"
     },
     {
@@ -416,9 +383,9 @@
       "log": "financial-analyst.log",
       "channel": "#sasmaster-intel",
       "jobId": null,
-      "lastRun": null,
-      "lastOutput": null,
-      "status": "never"
+      "lastRun": "2026-04-27T02:12:35.416Z",
+      "lastOutput": "═══ Financial Analyst Agent done ═══",
+      "status": "healthy"
     },
     {
       "name": "Weekly Review",
@@ -428,9 +395,9 @@
       "log": "weekly-review.log",
       "channel": "#sasmaster-builds",
       "jobId": "weekly-review",
-      "lastRun": null,
-      "lastOutput": null,
-      "status": "never"
+      "lastRun": "2026-04-27T02:00:08.748Z",
+      "lastOutput": "Posted WBR wbr_mogjv39d to Slack",
+      "status": "healthy"
     },
     {
       "name": "IAB Intel",
@@ -447,35 +414,9 @@
   ],
   "recentBuilds": [
     {
-      "id": "task6-portal-v8",
-      "label": "Portal v8",
-      "desc": "React + Framer Motion prototype — layoutId card expand, DrScoop chat, Exchange",
-      "url": "https://portal-v8-pi.vercel.app",
-      "ts": "2026-04-22T18:23:12.353078Z",
-      "status": "live"
-    },
-    {
-      "task": "Multi-Agent Researcher Crew — 3 subagents + 3 JARVIS commands",
-      "date": "2026-04-22 18:30",
-      "notes": "3 Claude Code subagents: scraper-debugger.md (sonnet-4-6), sql-analyst.md (sonnet-4-6), iab-intel.md (sonnet-4-6). 3 JARVIS scripts: debug-agent.js (!debug), sql-agent.js (!query), iab-analyze-agent.js (!iab-analyze). All wired into jarvis.js router. Obsidian vault updated (agent-fleet.md + jarvis-runbook.md). agents_total: 10 → 13.",
-      "status": "DONE"
-    },
-    {
-      "task": "IAB Agent — 4 parallel surfaces, Mon 7AM cron, !iab JARVIS command",
-      "date": "2026-04-22 12:58",
-      "notes": "Built agents/iab-agent.js with 4 surfaces: news/insights (IAB RSS + thought-leadership), NYC-filtered events (HTML scrape), research reports, tech/standards (IAB Tech Lab feed). Claude synthesis → #intel. !iab added to JARVIS router. Cron: 0 7 * * 1. Obsidian vault committed (0f81906).",
-      "status": "DONE"
-    },
-    {
-      "task": "War Room upgrades — scraper inventory, JARVIS slack commands, cron schedule visualizer",
-      "date": "2026-04-22 12:58",
-      "notes": "3 new Resources: scraper-inventory.html (11 scrapers with full background knowledge docs), slack-commands.html (9 commands + approval flow), cron-schedule.html (18-job 24h timeline). resources.json at 9 entries. All committed and deployed to Vercel.",
-      "status": "DONE"
-    },
-    {
-      "task": "Distributed Memory System v2 — CLAUDE_MEMORY.md compressed, 3 sub-agents, Obsidian vault",
-      "date": "2026-04-22 12:58",
-      "notes": "CLAUDE_MEMORY.md trimmed to <250 tokens key:value. 3 sub-agents: data-modeler.md (opus-4-5), scraper-debugger.md (sonnet-4-5), jarvis-ops.md (sonnet-4-5). Obsidian vault: 8 docs across 00-ADRs/01-Schema/02-Scrapers/03-Agents/04-Roadmap/05-Ops. Git initialized (commit 2dbc4d4).",
+      "task": "Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)",
+      "date": "2026-04-23",
+      "notes": "Vendored anthropics/claude-quickstarts as git submodule (SHA 4b2549e8) at vendor/claude-quickstarts/. Built wrapper laye",
       "status": "DONE"
     },
     {
@@ -488,12 +429,6 @@
       "task": "Restart JARVIS + widen channel filter",
       "date": "2026-04-22 11:52",
       "notes": "Killed 3 zombie JARVIS PIDs (81190/92431/92825 + cascade). Unloaded launchd plist before kill to stop KeepAlive respawn ",
-      "status": "DONE"
-    },
-    {
-      "task": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
-      "date": "2026-04-22 05:00",
-      "notes": "Large-scope evening. Key deliverables:\n\n  (1) War Room v3 full redesign — ported sasmaster-portal-v3 mock's CSS + struct",
       "status": "DONE"
     }
   ],
@@ -526,10 +461,10 @@
       "name": "TMDB bulk loader",
       "phase": "1",
       "status": "running",
-      "pct": 40.5,
-      "row_count": 89000,
-      "total": 219843,
-      "last_run": "2026-04-22T11:52:04.123Z",
+      "pct": 46.8,
+      "row_count": 2184000,
+      "total": 4663055,
+      "last_run": "2026-04-28T06:16:30.541Z",
       "s3_path": "s3://sasmaster-2026/tmdb_dev/"
     },
     {
@@ -620,7 +555,7 @@
       "phase": "1",
       "status": "live",
       "pct": 100,
-      "last_run": "2026-04-22T10:30:23.851Z"
+      "last_run": "2026-04-23T10:30:25.612Z"
     },
     {
       "name": "EIDR scraper",
@@ -704,6 +639,8 @@
       "size_gb": 5.9,
       "object_count": 1211,
       "last_updated": "2026-04-22T06:07:08.000Z",
+      "fresh": true,
+      "age_hours": 4,
       "entities": {
         "movies": 1184031,
         "tv_series": 20000,
@@ -721,6 +658,8 @@
       "size_gb": 1.4,
       "object_count": 7,
       "last_updated": "2026-04-21T23:00:01.000Z",
+      "fresh": false,
+      "age_hours": 151.3,
       "entities": {
         "movies": 743825,
         "tv_series": 298238,
@@ -738,6 +677,8 @@
       "size_gb": 1.8,
       "object_count": 7,
       "last_updated": "2026-04-20T22:06:38.000Z",
+      "fresh": false,
+      "age_hours": 176.2,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -755,6 +696,8 @@
       "size_gb": 0.02,
       "object_count": 1,
       "last_updated": "2026-04-21T23:04:10.000Z",
+      "fresh": false,
+      "age_hours": 151.2,
       "entities": {
         "movies": 861878,
         "tv_series": null,
@@ -772,6 +715,8 @@
       "size_gb": 75.4,
       "object_count": 29,
       "last_updated": "2026-04-22T05:51:32.000Z",
+      "fresh": false,
+      "age_hours": 142.5,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -789,6 +734,8 @@
       "size_gb": 0,
       "object_count": 2,
       "last_updated": "2026-04-22T02:47:11.000Z",
+      "fresh": false,
+      "age_hours": 147.5,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -806,6 +753,8 @@
       "size_gb": 0,
       "object_count": 2,
       "last_updated": "2026-04-22T02:38:36.000Z",
+      "fresh": false,
+      "age_hours": 147.6,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -823,6 +772,8 @@
       "size_gb": 0,
       "object_count": 2,
       "last_updated": "2026-04-22T04:42:21.000Z",
+      "fresh": false,
+      "age_hours": 145.6,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -840,6 +791,8 @@
       "size_gb": 0.18,
       "object_count": 9,
       "last_updated": "2026-04-22T01:11:20.000Z",
+      "fresh": false,
+      "age_hours": 142.4,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -857,6 +810,8 @@
       "size_gb": 0.69,
       "object_count": 5,
       "last_updated": "2026-04-22T01:13:31.000Z",
+      "fresh": false,
+      "age_hours": 149.1,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -874,6 +829,8 @@
       "size_gb": 0,
       "object_count": 2,
       "last_updated": "2026-04-22T06:07:09.000Z",
+      "fresh": true,
+      "age_hours": 4,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -885,66 +842,20 @@
     }
   ],
   "kpis": {
-    "agents_running": 7,
-    "agents_total": 14,
+    "agents_running": 9,
+    "agents_total": 10,
     "scrapers_live": 4,
     "scrapers_total": 22,
     "s3_gb": 85.4,
     "parent_key_rows": 861878,
-    "tasks_open": 11,
-    "skills_total": 24,
-    "commits_today": 3
+    "tasks_open": 18,
+    "build_events_today": 0
   },
   "recent_activity": [
     {
       "type": "build",
-      "text": "build-auto cost logging — logs/cost-log.jsonl per-feature + per-run · ResultMessage.total_cost_usd · 11/11 smoke test pass",
-      "ts": "2026-04-26 22:25"
-    },
-    {
-      "type": "build",
-      "text": "autonomous-coding agent live — !build-auto <spec> spec-driven mode · bridge.sh · agents/autonomous-coding/ · Slack start+done pings",
-      "ts": "2026-04-26 14:55"
-    },
-    {
-      "type": "build",
-      "text": "Skills fleet 24/24 PASS — autonomous-ui-designer added · all SKILL.md uppercase · all trigger descriptions strong",
-      "ts": "2026-04-26 14:48"
-    },
-    {
-      "type": "build",
-      "text": "Skills Library live — 21 skills pushed to github.com/sas411/sasmaster-skills · SLC pipeline installed",
-      "ts": "2026-04-23 00:00"
-    },
-    {
-      "type": "build",
-      "text": "Portal v8 DetailPage — TMDB score ring + drill-down crash fix (Rollup TDZ) + MetricStrip upgrades",
-      "ts": "2026-04-23 00:00"
-    },
-    {
-      "type": "build",
-      "text": "Task 5 DONE — Multi-Agent Researcher Crew: !debug/!query/!iab-analyze + 3 subagents",
-      "ts": "2026-04-22 18:30"
-    },
-    {
-      "ts": "17:30",
-      "msg": "[DONE] Task 3 — Design System. components.css + index.html living reference. All v7 tokens locked.",
-      "type": "build"
-    },
-    {
-      "type": "build",
-      "text": "IAB Agent live — 4 surfaces, Mon 7AM cron, !iab command wired",
-      "ts": "2026-04-22 12:58"
-    },
-    {
-      "type": "build",
-      "text": "War Room: scraper-inventory + slack-commands + cron-schedule added to Resources",
-      "ts": "2026-04-22 12:58"
-    },
-    {
-      "type": "build",
-      "text": "Memory System v2 — CLAUDE_MEMORY.md compressed, 3 sub-agents, Obsidian vault (8 docs)",
-      "ts": "2026-04-22 12:58"
+      "text": "Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)",
+      "ts": "2026-04-23"
     },
     {
       "type": "build",
@@ -957,14 +868,24 @@
       "ts": "2026-04-22 11:52"
     },
     {
-      "type": "build",
-      "text": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
-      "ts": "2026-04-22 05:00"
-    },
-    {
       "type": "intel",
       "text": "36 signals from 10 sources — Evan Shapiro sweep complete",
       "ts": "2026-04-21T01:48:00Z"
+    },
+    {
+      "type": "intel",
+      "text": "10/10 companies fetched — XBRL revenue + YoY delta computed",
+      "ts": "2026-04-21T03:25:00Z"
+    },
+    {
+      "type": "content",
+      "text": "467K/1.18M titles loaded → s3://sasmaster-2026/tmdb_dev/ (39.4%)",
+      "ts": "2026-04-21T08:00:00Z"
+    },
+    {
+      "type": "pipeline",
+      "text": "TMDB bulk 46.8% — 2184K / 4663K titles → s3://sasmaster-2026/tmdb_dev/",
+      "ts": "2026-04-28T06:16:30.541Z"
     }
   ],
   "cron": [
@@ -977,19 +898,19 @@
       "status": "done"
     },
     {
-      "time": "*:*/5",
-      "name": "slack feed cache",
-      "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/slack-feed-cache.js >> /Users/shivashish/SaSMaster/logs/slack-feed.log 2>&1",
-      "channel": "—",
-      "weekly": false,
-      "status": "pending"
-    },
-    {
       "time": "12:00 AM",
       "name": "tmdb delta biweekly",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/load-tmdb-deltas.js >> /Users/shivashish/SaSMaster/logs/tmdb-deltas.log 2>&1",
       "channel": "—",
       "weekly": true,
+      "status": "pending"
+    },
+    {
+      "time": "*:*/5",
+      "name": "build auto reaper",
+      "command": "/Users/shivashish/SaSMaster/scripts/build-auto/.venv/bin/python3 /Users/shivashish/SaSMaster/scripts/build-auto/reaper.py >> /Users/shivashish/SaSMaster/logs/build-auto-reaper.log 2>&1",
+      "channel": "#sasmaster-builds",
+      "weekly": false,
       "status": "pending"
     },
     {
@@ -1006,7 +927,7 @@
       "command": "/Users/shivashish/SaSMaster/scripts/daily-briefing.sh >> /Users/shivashish/SaSMaster/logs/briefing.log 2>&1",
       "channel": "#sasmaster-builds",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "5:00 AM",
@@ -1014,7 +935,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/tmdb-daily-agent.js >> /Users/shivashish/SaSMaster/logs/tmdb-agent.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "5:02 AM",
@@ -1030,7 +951,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/media-intel-agent.js >> /Users/shivashish/SaSMaster/logs/media-intel.log 2>&1",
       "channel": "#sasmaster-intel",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:05 AM",
@@ -1038,7 +959,7 @@
       "command": "bash /Users/shivashish/SaSMaster/scripts/morning-package.sh >> /Users/shivashish/SaSMaster/logs/morning-package.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:30 AM",
@@ -1046,7 +967,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/edgar-scraper.js >> /Users/shivashish/SaSMaster/logs/sec-edgar.log 2>&1",
       "channel": "#sasmaster-intel",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "7:00 AM",
@@ -1057,9 +978,9 @@
       "status": "pending"
     },
     {
-      "time": "8:07 AM",
-      "name": "finish future of tv.js",
-      "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/finish-future-of-tv.js >> /Users/shivashish/SaSMaster/logs/future-of-tv.log 2>&1",
+      "time": "7:00 AM",
+      "name": "iab agent mon7am",
+      "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/iab-agent.js >> /Users/shivashish/SaSMaster/logs/iab-agent.log 2>&1",
       "channel": "—",
       "weekly": true,
       "status": "pending"
@@ -1078,6 +999,14 @@
       "command": "bash /Users/shivashish/SaSMaster/scripts/score-queue.sh",
       "channel": "—",
       "weekly": false,
+      "status": "pending"
+    },
+    {
+      "time": "5:50 PM",
+      "name": "skill review fri550pm",
+      "command": "/Users/shivashish/SaSMaster/scripts/skill-review.sh >> /Users/shivashish/SaSMaster/logs/skill-review-$(date +\\%Y\\%m\\%d).log 2>&1",
+      "channel": "—",
+      "weekly": true,
       "status": "pending"
     },
     {
@@ -1105,22 +1034,23 @@
       "status": "pending"
     },
     {
-      "time": "8:00 PM",
+      "time": "8:10 PM",
       "name": "financial analyst sun8pm",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/financial-analyst.js >> /Users/shivashish/SaSMaster/logs/financial-analyst.log 2>&1",
+      "channel": "—",
+      "weekly": true,
+      "status": "pending"
+    },
+    {
+      "time": "11:00 PM",
+      "name": "archive done weekly",
+      "command": "bash /Users/shivashish/SaSMaster/scripts/archive-done-log.sh >> /Users/shivashish/SaSMaster/logs/archive-done.log 2>&1",
       "channel": "—",
       "weekly": true,
       "status": "pending"
     }
   ],
   "tasks": [
-    {
-      "title": "Add !research [topic] command to JARVIS — topic-agnostic synthesis pipeline → #intel",
-      "status": "HIGH PRIORITY",
-      "priority": "HIGH",
-      "tag": "AGENT",
-      "est": "~1h"
-    },
     {
       "title": "Build Ad Research portal stub (same pattern as Programming Research)",
       "status": "BACKLOG",
@@ -1192,6 +1122,20 @@
       "est": "—"
     },
     {
+      "title": "Weekly Business Review — 2026-04-28 → 2026-04-27",
+      "status": "REVIEW",
+      "priority": "REVIEW",
+      "tag": "PENDING",
+      "est": "—"
+    },
+    {
+      "title": "Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
+    },
+    {
       "title": "Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
       "status": "DONE",
       "priority": "DONE",
@@ -1200,34 +1144,6 @@
     },
     {
       "title": "Restart JARVIS + widen channel filter",
-      "status": "DONE",
-      "priority": "DONE",
-      "tag": "DONE",
-      "est": "—"
-    },
-    {
-      "title": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
-      "status": "DONE",
-      "priority": "DONE",
-      "tag": "DONE",
-      "est": "—"
-    },
-    {
-      "title": "Distributed Memory System v2 — CLAUDE_MEMORY.md compressed, 3 sub-agents, Obsidian vault",
-      "status": "DONE",
-      "priority": "DONE",
-      "tag": "DONE",
-      "est": "—"
-    },
-    {
-      "title": "War Room upgrades — scraper inventory, JARVIS slack commands, cron schedule visualizer",
-      "status": "DONE",
-      "priority": "DONE",
-      "tag": "DONE",
-      "est": "—"
-    },
-    {
-      "title": "IAB Agent — 4 parallel surfaces, Mon 7AM cron, !iab JARVIS command",
       "status": "DONE",
       "priority": "DONE",
       "tag": "DONE",
@@ -1236,94 +1152,10 @@
   ],
   "recent_completions": [
     {
-      "title": "build-auto cost logging — logs/cost-log.jsonl · per-feature + per-run JSONL · ResultMessage.total_cost_usd · model + wall_seconds · 11/11 smoke test PASS",
-      "category": "Infrastructure",
-      "path": "scripts/build-auto/runner.py → logs/cost-log.jsonl",
-      "completed_at": "2026-04-26 22:25"
-    },
-    {
-      "title": "autonomous-coding agent — !build-auto <spec> spec-driven mode · agents/autonomous-coding/{agent.py,bridge.sh,security.py} · generations/<spec>/ output · JARVIS wired",
-      "category": "Agent",
-      "path": "agents/autonomous-coding/ + scripts/jarvis.js",
-      "completed_at": "2026-04-26 14:55"
-    },
-    {
-      "title": "Skills fleet 24/24 PASS — 22 WARN remediated (16 renames + 11 description rewrites) · autonomous-ui-designer added as 24th skill · validator exit 0",
-      "category": "Infrastructure",
-      "path": "~/.claude/skills/user/ → github.com/sas411/sasmaster-skills",
-      "completed_at": "2026-04-26 14:48"
-    },
-    {
-      "title": "Skill Eval Loop — skill-review.sh extended with ## EVAL LOOP: trigger accuracy scoring, delta_vs_last, IMPROVING/STABLE/REGRESSING verdict, Slack digest to #builds",
-      "category": "Infrastructure",
-      "path": "scripts/skill-review.sh + skill-evals.md",
-      "completed_at": "2026-04-23 12:30"
-    },
-    {
-      "title": "Portal v8 — Related card drill-down navigation: client-side show swap, pushState URL, Back button, media_type routing, relCache reset",
-      "category": "UI/UX",
-      "path": "portal-v8/src/components/DetailPage/index.jsx",
-      "completed_at": "2026-04-23 12:00"
-    },
-    {
-      "title": "Portal v8 — Cast grid 4→3 cols, aspect-ratio:1/1, min-width:0, sections collapse-all default, sticky header hover fix",
-      "category": "UI/UX",
-      "path": "portal-v8/src/components/DetailPage/DetailPage.css",
-      "completed_at": "2026-04-23 11:30"
-    },
-    {
-      "title": "Portal v8 — Social Intelligence panel (04): X feed, reach metrics, gender split, sentiment bar, 24h heatmap, lazy render",
-      "category": "UI/UX",
-      "path": "portal-v8/src/components/DetailPage/",
-      "completed_at": "2026-04-23 11:00"
-    },
-    {
-      "title": "Skills Library — 21 skills pushed to GitHub · SLC pipeline (capture-learnings + skill-review) · 6 new skills: vite-react-production, portal-detailpage, svg-animation, css-debugging, bash-scripts-macos, slc-taxonomy",
-      "category": "Infrastructure",
-      "path": "~/.claude/skills/ → github.com/sas411/sasmaster-skills",
-      "completed_at": "2026-04-23 00:00"
-    },
-    {
-      "title": "Portal v8 DetailPage — TMDB user score ring, drill-down crash fix (Rollup TDZ), poster stretch, hero glass cards, MetricStrip AA+Asian rings + drag-to-scroll",
-      "category": "UI/UX",
-      "path": "portal-v8/src/components/DetailPage/ + MetricStrip",
-      "completed_at": "2026-04-23 00:00"
-    },
-    {
-      "title": "Multi-Agent Researcher Crew — scraper-debugger + sql-analyst + iab-intel subagents + !debug/!query/!iab-analyze JARVIS commands",
-      "category": "Agent",
-      "path": "agents/ + ~/.claude/agents/",
-      "completed_at": "2026-04-22 18:30"
-    },
-    {
-      "title": "Personal RAG System — embed-pipeline.py + retrieve.py + !rag JARVIS command",
-      "category": "AI/RAG",
-      "path": "rag/",
-      "completed_at": "2026-04-22 17:50"
-    },
-    {
-      "title": "Design System v1 — components.css token file + living HTML reference page",
-      "category": "UI/UX",
-      "path": "design-system/",
-      "completed_at": "2026-04-22 17:30"
-    },
-    {
-      "title": "IAB Agent — 4 parallel surfaces, Mon 7AM cron, !iab JARVIS command",
-      "category": "Agent",
-      "path": "agents/iab-agent.js",
-      "completed_at": "2026-04-22 12:58"
-    },
-    {
-      "title": "War Room upgrades — scraper inventory, JARVIS commands, cron schedule",
-      "category": "Infrastructure",
-      "path": "sasmaster-status/resources.json",
-      "completed_at": "2026-04-22 12:58"
-    },
-    {
-      "title": "Distributed Memory System v2 — 3 sub-agents + Obsidian vault",
-      "category": "Infrastructure",
-      "path": "~/.claude/agents/ + ~/SaSMaster/obsidian/",
-      "completed_at": "2026-04-22 12:58"
+      "title": "Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)",
+      "category": "Build",
+      "path": "",
+      "completed_at": "2026-04-23"
     },
     {
       "title": "Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
@@ -1336,118 +1168,94 @@
       "category": "Build",
       "path": "",
       "completed_at": "2026-04-22 11:52"
-    },
-    {
-      "title": "Real S3 data lake + entity counts + Slack feed writer + Run button worker",
-      "category": "Build",
-      "path": "",
-      "completed_at": "2026-04-22 05:00"
     }
   ],
   "slack_feed": {
-    "builds": [],
-    "intel": [],
-    "content": []
-  },
-  "last_updated": "2026-04-26T22:30:00.000Z",
-  "overnight_debrief": {
-    "date": "Wed Apr 22 2026",
-    "ran": [
+    "builds": [
       {
-        "time": "04:51",
-        "agent": "Media Intel Agent",
-        "result": "36 items from 10 sources → #sasmaster-intel",
-        "status": "ok"
+        "ts": "Apr 22",
+        "text": "✅ Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)"
       },
       {
-        "time": "05:00",
-        "agent": "TMDB Trending Agent",
-        "result": "1 shows injected → #sasmaster-content",
-        "status": "ok"
+        "ts": "Apr 22",
+        "text": "✅ Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record"
       },
       {
-        "time": "05:02",
-        "agent": "Daily Visuals",
-        "result": "Board + Architecture screenshots posted to Slack",
-        "status": "ok"
+        "ts": "Apr 22",
+        "text": "✅ Restart JARVIS + widen channel filter"
       },
       {
-        "time": "05:19",
-        "agent": "TMDB Daily Agent",
-        "result": "12 endpoints → #sasmaster-content",
-        "status": "ok"
+        "ts": "Apr 23",
+        "text": "📊 Analysis complete. Gaps: none. Injected: none"
       },
       {
-        "time": "05:20",
-        "agent": "TMDB Daily Agent",
-        "result": "12 endpoints → #sasmaster-content",
-        "status": "ok"
-      },
-      {
-        "time": "05:22",
-        "agent": "TMDB Daily Agent",
-        "result": "12 endpoints → #sasmaster-intel",
-        "status": "ok"
-      },
-      {
-        "time": "06:00",
-        "agent": "Media Intel Agent",
-        "result": "36 items from 10 sources → #sasmaster-intel",
-        "status": "ok"
-      },
-      {
-        "time": "06:30",
-        "agent": "EDGAR Scraper v2",
-        "result": "16/16 companies | 15 with new filings",
-        "status": "ok"
-      },
-      {
-        "time": "07:52",
-        "agent": "Nightly Build",
-        "result": "5m 31s",
-        "status": "ok"
+        "ts": "Apr 23",
+        "text": "📊 Analysis complete. Gaps: none. Injected: none"
       }
     ],
-    "failed": []
-  },
-  "tmdb_progress": {
-    "running": true,
-    "phase": "tv_series",
-    "phase_total": 3,
-    "complete": 89000,
-    "total": 219843,
-    "pct": 40.5,
-    "s3_path": "s3://sasmaster-2026/tmdb_dev/",
-    "last_updated": "2026-04-22T11:52:04.123Z"
-  },
-  "resources": [
-    {
-      "id": "portal-v8",
-      "name": "Portal v8",
-      "desc": "React + Framer Motion prototype",
-      "url": "https://portal-v8-pi.vercel.app",
-      "status": "live"
-    },
-    {
-      "id": "skills",
-      "name": "Skills Library",
-      "desc": "24 skills — 24/24 spec-compliant · SLC self-learning pipeline",
-      "url": "https://github.com/sas411/sasmaster-skills",
-      "status": "live"
-    },
-    {
-      "id": "autonomous-coding",
-      "name": "autonomous-coding",
-      "desc": "Spec-driven agent — !build-auto <spec> · claude-sonnet-4-6 · generations/ output",
-      "url": "https://github.com/sas411/sasmaster/tree/main/agents/autonomous-coding",
-      "status": "live"
-    },
-    {
-      "id": "cost-log",
-      "name": "Cost Log",
-      "desc": "logs/cost-log.jsonl — per-feature + per-run spend tracking",
-      "url": "https://github.com/sas411/sasmaster/commit/fef74b8",
-      "status": "live"
-    }
-  ]
+    "intel": [
+      {
+        "ts": "Apr 20",
+        "text": "📡 36 signals from 10 sources — Evan Shapiro sweep complete"
+      },
+      {
+        "ts": "Apr 20",
+        "text": "📑 10/10 companies fetched — XBRL revenue + YoY delta computed"
+      },
+      {
+        "ts": "Apr 21",
+        "text": "📡 467K/1.18M titles loaded → s3://sasmaster-2026/tmdb_dev/ (39.4%)"
+      },
+      {
+        "ts": "Apr 23",
+        "text": "📡 Brief posted to #sasmaster-intel ✅"
+      },
+      {
+        "ts": "Apr 23",
+        "text": "📡 Brief posted to #sasmaster-intel ✅"
+      },
+      {
+        "ts": "Apr 23",
+        "text": "📑 ═══ Done: 16/16 | 1 companies with new filings ═══"
+      },
+      {
+        "ts": "Apr 23",
+        "text": "📑 ═══ Done: 16/16 | 1 companies with new filings ═══"
+      },
+      {
+        "ts": "Apr 20",
+        "text": "🛰️ Tech brief posted to #sasmaster-builds ✅"
+      }
+    ],
+    "content": [
+      {
+        "ts": "8:00 PM",
+        "text": "✍️ No theme set — prompted Shiv for direction"
+      },
+      {
+        "ts": "8:00 PM",
+        "text": "✍️ No theme set — prompted Shiv for direction"
+      },
+      {
+        "ts": "8:00 PM",
+        "text": "✍️ Starting LinkedIn Writing Agent..."
+      },
+      {
+        "ts": "Apr 24",
+        "text": "📺 Posted digest (1380 chars) to #sasmaster-intel"
+      },
+      {
+        "ts": "Apr 24",
+        "text": "📺 Posted digest (1380 chars) to #sasmaster-intel"
+      },
+      {
+        "ts": "Apr 24",
+        "text": "📺 TV Series/Top Rated — 20 items"
+      },
+      {
+        "ts": "Apr 26",
+        "text": "🗂️ Posted WBR wbr_mogjv39d to Slack"
+      }
+    ]
+  }
 }
