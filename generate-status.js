@@ -894,3 +894,11 @@ const status = {
 
 fs.writeFileSync(OUT, JSON.stringify(status, null, 2));
 console.log(`[generate-status] wrote status.json — ${new Date().toISOString()}`);
+
+// Push to S3 for War Room fallback when local machine is unreachable
+try {
+  execSync(`aws s3 cp "${OUT}" s3://sasmaster-2026/status/status.json --content-type application/json`, { stdio: 'pipe' });
+  console.log(`[generate-status] pushed to s3://sasmaster-2026/status/status.json`);
+} catch (e) {
+  console.warn(`[generate-status] S3 push failed (non-fatal): ${e.message}`);
+}

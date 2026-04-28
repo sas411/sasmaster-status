@@ -1246,17 +1246,20 @@ let nextCostId = 9;
 // ══════════════════════════════════════════════════════════
 async function loadStatus() {
   try {
-    const d = await fetch('/status.json?t=' + Date.now()).then(r => {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    });
+    // Primary: live machine via /api/status (proxied to api.sasmaster.dev)
+    // Falls back inside /api/status to S3, then 503.
+    const r = await fetch('/api/status?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
     _lastData = d;
     hideFetchError();
     _syncSeconds = 0;
-
+    // Show data source in header so we know if we're on live vs fallback
+    const src = r.headers.get('X-Status-Source') || 'live';
+    document.title = src === 'live' ? 'War Room' : `War Room [${src}]`;
     populateAll(d);
   } catch (err) {
-    showFetchError('Could not load /status.json: ' + err.message);
+    showFetchError('Could not load status: ' + err.message);
   }
   scheduleRefresh();
 }
