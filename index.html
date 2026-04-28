@@ -1208,6 +1208,9 @@ a{color:inherit}
 // Token lives in Vercel env vars — never in the browser
 const API_BASE = '/api/command';
 function apiUrl(path) { return API_BASE + '?path=' + encodeURIComponent(path); }
+function getToken() {
+  return localStorage.getItem('wr-api-token') || '';
+}
 function authHeaders() {
   return { 'Content-Type': 'application/json' };
 }
@@ -1245,22 +1248,29 @@ let nextCostId = 9;
 // DATA LOADING
 // ══════════════════════════════════════════════════════════
 async function loadStatus() {
-  try {
-    // Primary: live machine via /api/status (proxied to api.sasmaster.dev)
-    // Falls back inside /api/status to S3, then 503.
-    const r = await fetch('/api/status?t=' + Date.now());
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const d = await r.json();
-    _lastData = d;
-    hideFetchError();
-    _syncSeconds = 0;
-    // Show data source in header so we know if we're on live vs fallback
-    const src = r.headers.get('X-Status-Source') || 'live';
-    document.title = src === 'live' ? 'War Room' : `War Room [${src}]`;
-    populateAll(d);
-  } catch (err) {
-    showFetchError('Could not load status: ' + err.message);
+  // Priority: live machine → S3 (both via /api/status) → static /status.json
+  const sources = [
+    { url: '/api/status', label: null },   // label comes from X-Status-Source header
+    { url: '/status.json', label: 'static' },
+  ];
+  for (const src of sources) {
+    try {
+      const r = await fetch(src.url + '?t=' + Date.now());
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const d = await r.json();
+      _lastData = d;
+      hideFetchError();
+      _syncSeconds = 0;
+      const label = src.label || r.headers.get('X-Status-Source') || 'live';
+      document.title = label === 'live' ? 'War Room' : `War Room [${label}]`;
+      populateAll(d);
+      scheduleRefresh();
+      return;
+    } catch (_) {
+      // try next source
+    }
   }
+  showFetchError('Could not load status from any source');
   scheduleRefresh();
 }
 
