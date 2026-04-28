@@ -1146,10 +1146,6 @@ a{color:inherit}
   <div class="modal modal-sm">
     <div class="modal-hdr"><span class="modal-title">War Room Settings</span><button class="modal-x" onclick="closeSettings()">✕</button></div>
     <div class="modal-body">
-      <div class="form-group"><label class="form-label">Command API Token</label>
-        <input class="form-input" id="settingsToken" type="password" placeholder="Stored in localStorage" oninput="localStorage.setItem('wr-api-token',this.value)">
-        <div style="font-size:10px;color:var(--text-3);margin-top:3px">Enables Run / Fire / Add Task actions</div>
-      </div>
       <div class="thresh-row"><span style="font-size:12px;flex:1">Refresh interval</span><span style="font-family:var(--mono);font-size:11px">60s (automatic)</span></div>
       <div class="thresh-row"><span style="font-size:12px;flex:1">Health warn threshold</span><input class="form-input" id="thr-hw" style="width:60px;padding:4px 7px" value="80"></div>
       <div class="thresh-row"><span style="font-size:12px;flex:1">Health critical threshold</span><input class="form-input" id="thr-hc" style="width:60px;padding:4px 7px" value="60"></div>
@@ -1208,11 +1204,12 @@ a{color:inherit}
 // ══════════════════════════════════════════════════════════
 // CONFIG & AUTH
 // ══════════════════════════════════════════════════════════
-const API_BASE = 'https://api.sasmaster.dev';
-function getToken() { return localStorage.getItem('wr-api-token') || ''; }
+// All action requests go through the Vercel serverless proxy (/api/command)
+// Token lives in Vercel env vars — never in the browser
+const API_BASE = '/api/command';
+function apiUrl(path) { return API_BASE + '?path=' + encodeURIComponent(path); }
 function authHeaders() {
-  const t = getToken();
-  return t ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + t } : { 'Content-Type': 'application/json' };
+  return { 'Content-Type': 'application/json' };
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1883,25 +1880,17 @@ function updateBottomBar(d) {
 // ACTION BUTTONS
 // ══════════════════════════════════════════════════════════
 async function triggerJob(jobId, btn) {
-  if (!getToken()) { showTokenModal(); return; }
   const orig = btn.innerHTML;
   btn.innerHTML = '⏳'; btn.disabled = true;
   try {
-    const r = await fetch(API_BASE + '/trigger', {
+    const r = await fetch(apiUrl('/trigger'), {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({job: jobId})
     });
     const data = await r.json();
-    if (r.ok) {
-      btn.innerHTML = '✓ Fired';
-      btn.style.background = 'var(--ok)';
-    } else if (r.status === 401 || r.status === 403) {
-      btn.innerHTML = '✗ Auth';
-      showTokenModal();
-    } else {
-      btn.innerHTML = '✗ ' + (data.error || 'Err');
-    }
+    btn.innerHTML = r.ok ? '✓ Fired' : '✗ ' + (data.error || 'Err');
+    if (r.ok) btn.style.background = 'var(--ok)';
   } catch(e) {
     btn.innerHTML = '✗ Net';
   }
@@ -1931,10 +1920,10 @@ async function openLogs(agentName, jobId, btn) {
   stream.innerHTML = '<div style="color:#475569;font-style:italic">Loading logs...</div>';
 
   try {
-    const r = await fetch(API_BASE + '/logs?agent=' + encodeURIComponent(agentName), {
+    const r = await fetch(apiUrl('/logs?agent=' + encodeURIComponent(agentName)), {
       headers: authHeaders()
     });
-    if (r.status === 401) { stream.innerHTML = '<div style="color:#F87171">Auth required — set token in Settings (⚙)</div>'; return; }
+    if (r.status === 401) { stream.innerHTML = '<div style="color:#F87171">Auth error — check Vercel env vars</div>'; return; }
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const d = await r.json();
     const lines = (d.content || '').split('\n');
@@ -1963,7 +1952,6 @@ function closeAddTask() {
 }
 
 async function submitTask() {
-  if (!getToken()) { closeAddTask(); showTokenModal(); return; }
   const text = document.getElementById('taskText').value.trim();
   if (!text) return;
   const priority = document.getElementById('taskPriority').value;
@@ -1973,7 +1961,7 @@ async function submitTask() {
   btn.disabled = true; btn.textContent = '⏳ Adding...';
 
   try {
-    const r = await fetch(API_BASE + '/add-task', {
+    const r = await fetch(apiUrl('/add-task'), {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({text, priority, tag})
@@ -1983,11 +1971,9 @@ async function submitTask() {
       status.style.display = 'block';
       status.style.background = 'var(--ok-bg)';
       status.style.color = 'var(--ok)';
-      status.textContent = '✓ Added: ' + (d.entry || text);
+      status.textContent = '✓ Added to TASKS.md';
       document.getElementById('taskText').value = '';
       setTimeout(() => closeAddTask(), 1800);
-    } else if (r.status === 401 || r.status === 403) {
-      closeAddTask(); showTokenModal();
     } else {
       status.style.display = 'block';
       status.style.background = 'var(--crit-bg)';
@@ -2008,7 +1994,7 @@ async function submitTask() {
 // ══════════════════════════════════════════════════════════
 async function loadQueue() {
   try {
-    const d = await fetch(API_BASE + '/queue', { headers: authHeaders() }).then(r => r.json());
+    const d = await fetch(apiUrl('/queue'), { headers: authHeaders() }).then(r => r.json());
     // d has { high:[], medium:[], explore:[] } format from API
     const high = d.high || d.highItems || [];
     const med = d.medium || d.med || d.medItems || [];
@@ -2243,11 +2229,10 @@ document.getElementById('cmdInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') {
     const v = e.target.value.trim();
     if (!v) return;
-    if (!getToken()) { showTokenModal(); e.target.value = ''; return; }
     const jobId = v.replace(/^fire\s+/i, '');
     const orig = e.target.value;
     e.target.value = '⏳ Firing ' + jobId + '...';
-    fetch(API_BASE + '/trigger', {
+    fetch(apiUrl('/trigger'), {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({job: jobId})
@@ -2332,13 +2317,7 @@ loadStatus();
 loadResources();
 renderCosts();
 
-// Prompt for token if not set
-if (!getToken()) {
-  setTimeout(() => {
-    const s = document.getElementById('settingsToken');
-    if (s) s.placeholder = 'Enter token to enable actions';
-  }, 1000);
-}
+// Token handled server-side via Vercel proxy — no client token needed
 </script>
 </body>
 </html>
