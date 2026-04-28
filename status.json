@@ -1,13 +1,13 @@
 {
-  "generated": "2026-04-28T09:35:00.923Z",
+  "generated": "2026-04-28T15:31:50.637Z",
   "system": {
     "jarvis": {
       "alive": true
     }
   },
   "queue": {
-    "high": 20,
-    "med": 14,
+    "high": 12,
+    "med": 17,
     "highItems": [
       {
         "id": "t62",
@@ -148,102 +148,6 @@
         "full": "COMMAND API TRIGGER: media-intel — triggered 04/21/2026, 16:12 EST",
         "sprint": "Done",
         "tag": "INFRA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t232",
-        "lineIndex": 232,
-        "text": "Fix TMDB pipeline blockage — identify tv_series blocker, unblock Collections/Networks/Companies loaders, get pipeline pa…",
-        "full": "Fix TMDB pipeline blockage — identify tv_series blocker, unblock Collections/Networks/Companies loaders, get pipeline past 40.5% #data *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "DATA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t233",
-        "lineIndex": 233,
-        "text": "Refresh stale S3 datasets — IMDB 6d stale, parent_keys 6d stale, run refresh, validate 589K+ row count, update War Room …",
-        "full": "Refresh stale S3 datasets — IMDB 6d stale, parent_keys 6d stale, run refresh, validate 589K+ row count, update War Room freshness #data *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "EDGAR",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t234",
-        "lineIndex": 234,
-        "text": "Wire Weekly Review + IAB Intel + Financial Analyst agents — audit why NEVER run, fix root cause, test run each, confirm …",
-        "full": "Wire Weekly Review + IAB Intel + Financial Analyst agents — audit why NEVER run, fix root cause, test run each, confirm Slack output to correct channels #infra *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "EDGAR",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t236",
-        "lineIndex": 236,
-        "text": "Fix War Room Kanban to live-read TASKS.md — currently rendering stale snapshot. Kanban HIGH/MED/EXPLORE columns should d…",
-        "full": "Fix War Room Kanban to live-read TASKS.md — currently rendering stale snapshot. Kanban HIGH/MED/EXPLORE columns should dynamically fetch and parse TASKS.md on every page load. DONE column should render the `## DONE` checked items `[x]` from TASKS.md. No more cached/static state. #infra *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "QA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t237",
-        "lineIndex": 237,
-        "text": "Surface cost-log.jsonl in War Room — add Token Usage KPI card to War Room dashboard showing total tokens + estimated $ p…",
-        "full": "Surface cost-log.jsonl in War Room — add Token Usage KPI card to War Room dashboard showing total tokens + estimated $ per build cycle, model breakdown (Opus vs Sonnet), and per-task cost. Read from logs/cost-log.jsonl. This must be live before any heavy build cycles. #infra *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "UI",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t238",
-        "lineIndex": 238,
-        "text": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions …",
-        "full": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions instead of one session per task. Specifically: agent-wiring tasks should run as one session, data pipeline tasks as one session. Reduces CLAUDE_MEMORY.md + TASKS.md context reload overhead per task. Document batching logic in runbook. #infra *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "AGENT",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t239",
-        "lineIndex": 239,
-        "text": "Harden build loop against API timeouts — add retry logic (3 attempts, exponential backoff) to all Claude API calls in sa…",
-        "full": "Harden build loop against API timeouts — add retry logic (3 attempts, exponential backoff) to all Claude API calls in sasmaster-build.sh and runner.py. Add timeout detection: if a task exceeds 10min with no token output, kill + requeue. Post timeout events to #sasmaster-builds with task name + duration. Log to logs/timeout-log.jsonl. This is P0 before any heavy build cycles. #infra *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "AGENT",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t240",
-        "lineIndex": 240,
-        "text": "Intelligent build loop sequencing — refactor sasmaster-build.sh to execute tasks in dependency order, not just top-to-bo…",
-        "full": "Intelligent build loop sequencing — refactor sasmaster-build.sh to execute tasks in dependency order, not just top-to-bottom. Priority sequence: (1) #infra tasks first — timeout hardening, token optimization, batching logic must complete before data tasks run. (2) #data tasks second. (3) #ui tasks last. Add a pre-flight check: if timeout hardening and cost-log are not confirmed live, hold all heavy #data tasks and post a warning to #sasmaster-builds. This is the gate before any heavy build cycles. #infra *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "AGENT",
         "priority": "HIGH",
         "state": "BACKLOG",
         "blockReason": "",
@@ -408,12 +312,48 @@
         "meta": {}
       },
       {
+        "id": "t238",
+        "lineIndex": 238,
+        "text": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions …",
+        "full": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions instead of one session per task. Specifically: agent-wiring tasks should run as one session, data pipeline tasks as one session. Reduces CLAUDE_MEMORY.md + TASKS.md context reload overhead per task. Document batching logic in runbook. #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t240",
+        "lineIndex": 240,
+        "text": "Intelligent build loop sequencing — priority ordering (#infra → #data → #ui) now handled by this session's execution ord…",
+        "full": "Intelligent build loop sequencing — priority ordering (#infra → #data → #ui) now handled by this session's execution order; formal pre-flight gate in build script deferred. #infra",
+        "sprint": "Done",
+        "tag": "UI",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
         "id": "t269",
         "lineIndex": 269,
         "text": "War Room Visual Export — upgrade to server-side screenshot via /api/screenshot.js Vercel serverless function using @spar…",
         "full": "War Room Visual Export — upgrade to server-side screenshot via /api/screenshot.js Vercel serverless function using @sparticuz/chromium + puppeteer-core. Current client-side window.open approach works but briefly flashes a popup. Server-side gives silent, pixel-perfect PNG capture. Requires: add @sparticuz/chromium + puppeteer-core to sasmaster-status package.json, create api/screenshot.js, update downloadVisual() in index.html to POST  to /api/screenshot and receive PNG blob. QA check: downloaded PNG > 100KB, background dark, no white/blank output. #infra",
         "sprint": "Done",
         "tag": "UI",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t273",
+        "lineIndex": 273,
+        "text": "Wire CLAUDE_CODE_OAUTH_TOKEN verification into update-memory.sh — on every run, check that CLAUDE_CODE_OAUTH_TOKEN is pr…",
+        "full": "Wire CLAUDE_CODE_OAUTH_TOKEN verification into update-memory.sh — on every run, check that CLAUDE_CODE_OAUTH_TOKEN is present in ~/SaSMaster/.env (grep -c returns 1). If missing, post warning to #sasmaster-builds and abort memory update. Token lives in keychain service \"Claude Code-credentials\" — extract with: security find-generic-password -s \"Claude Code-credentials\" -w. Token rotates on Claude Code re-auth; silent cron failures (5-line log, exit 1, no Claude output) are the symptom. #infra",
+        "sprint": "Post-Card A follow-up (added 2026-04-28)",
+        "tag": "AGENT",
         "priority": "MED",
         "state": "BACKLOG",
         "blockReason": "",
@@ -566,102 +506,6 @@
         "full": "COMMAND API TRIGGER: media-intel — triggered 04/21/2026, 16:12 EST",
         "sprint": "Done",
         "tag": "INFRA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t232",
-        "lineIndex": 232,
-        "text": "Fix TMDB pipeline blockage — identify tv_series blocker, unblock Collections/Networks/Companies loaders, get pipeline pa…",
-        "full": "Fix TMDB pipeline blockage — identify tv_series blocker, unblock Collections/Networks/Companies loaders, get pipeline past 40.5% #data *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "DATA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t233",
-        "lineIndex": 233,
-        "text": "Refresh stale S3 datasets — IMDB 6d stale, parent_keys 6d stale, run refresh, validate 589K+ row count, update War Room …",
-        "full": "Refresh stale S3 datasets — IMDB 6d stale, parent_keys 6d stale, run refresh, validate 589K+ row count, update War Room freshness #data *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "EDGAR",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t234",
-        "lineIndex": 234,
-        "text": "Wire Weekly Review + IAB Intel + Financial Analyst agents — audit why NEVER run, fix root cause, test run each, confirm …",
-        "full": "Wire Weekly Review + IAB Intel + Financial Analyst agents — audit why NEVER run, fix root cause, test run each, confirm Slack output to correct channels #infra *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "EDGAR",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t236",
-        "lineIndex": 236,
-        "text": "Fix War Room Kanban to live-read TASKS.md — currently rendering stale snapshot. Kanban HIGH/MED/EXPLORE columns should d…",
-        "full": "Fix War Room Kanban to live-read TASKS.md — currently rendering stale snapshot. Kanban HIGH/MED/EXPLORE columns should dynamically fetch and parse TASKS.md on every page load. DONE column should render the `## DONE` checked items `[x]` from TASKS.md. No more cached/static state. #infra *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "QA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t237",
-        "lineIndex": 237,
-        "text": "Surface cost-log.jsonl in War Room — add Token Usage KPI card to War Room dashboard showing total tokens + estimated $ p…",
-        "full": "Surface cost-log.jsonl in War Room — add Token Usage KPI card to War Room dashboard showing total tokens + estimated $ per build cycle, model breakdown (Opus vs Sonnet), and per-task cost. Read from logs/cost-log.jsonl. This must be live before any heavy build cycles. #infra *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "UI",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t238",
-        "lineIndex": 238,
-        "text": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions …",
-        "full": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions instead of one session per task. Specifically: agent-wiring tasks should run as one session, data pipeline tasks as one session. Reduces CLAUDE_MEMORY.md + TASKS.md context reload overhead per task. Document batching logic in runbook. #infra *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "AGENT",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t239",
-        "lineIndex": 239,
-        "text": "Harden build loop against API timeouts — add retry logic (3 attempts, exponential backoff) to all Claude API calls in sa…",
-        "full": "Harden build loop against API timeouts — add retry logic (3 attempts, exponential backoff) to all Claude API calls in sasmaster-build.sh and runner.py. Add timeout detection: if a task exceeds 10min with no token output, kill + requeue. Post timeout events to #sasmaster-builds with task name + duration. Log to logs/timeout-log.jsonl. This is P0 before any heavy build cycles. #infra *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "AGENT",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t240",
-        "lineIndex": 240,
-        "text": "Intelligent build loop sequencing — refactor sasmaster-build.sh to execute tasks in dependency order, not just top-to-bo…",
-        "full": "Intelligent build loop sequencing — refactor sasmaster-build.sh to execute tasks in dependency order, not just top-to-bottom. Priority sequence: (1) #infra tasks first — timeout hardening, token optimization, batching logic must complete before data tasks run. (2) #data tasks second. (3) #ui tasks last. Add a pre-flight check: if timeout hardening and cost-log are not confirmed live, hold all heavy #data tasks and post a warning to #sasmaster-builds. This is the gate before any heavy build cycles. #infra *Sent using* Claude",
-        "sprint": "Done",
-        "tag": "AGENT",
         "priority": "HIGH",
         "state": "BACKLOG",
         "blockReason": "",
@@ -824,12 +668,48 @@
         "meta": {}
       },
       {
+        "id": "t238",
+        "lineIndex": 238,
+        "text": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions …",
+        "full": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions instead of one session per task. Specifically: agent-wiring tasks should run as one session, data pipeline tasks as one session. Reduces CLAUDE_MEMORY.md + TASKS.md context reload overhead per task. Document batching logic in runbook. #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t240",
+        "lineIndex": 240,
+        "text": "Intelligent build loop sequencing — priority ordering (#infra → #data → #ui) now handled by this session's execution ord…",
+        "full": "Intelligent build loop sequencing — priority ordering (#infra → #data → #ui) now handled by this session's execution order; formal pre-flight gate in build script deferred. #infra",
+        "sprint": "Done",
+        "tag": "UI",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
         "id": "t269",
         "lineIndex": 269,
         "text": "War Room Visual Export — upgrade to server-side screenshot via /api/screenshot.js Vercel serverless function using @spar…",
         "full": "War Room Visual Export — upgrade to server-side screenshot via /api/screenshot.js Vercel serverless function using @sparticuz/chromium + puppeteer-core. Current client-side window.open approach works but briefly flashes a popup. Server-side gives silent, pixel-perfect PNG capture. Requires: add @sparticuz/chromium + puppeteer-core to sasmaster-status package.json, create api/screenshot.js, update downloadVisual() in index.html to POST  to /api/screenshot and receive PNG blob. QA check: downloaded PNG > 100KB, background dark, no white/blank output. #infra",
         "sprint": "Done",
         "tag": "UI",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t273",
+        "lineIndex": 273,
+        "text": "Wire CLAUDE_CODE_OAUTH_TOKEN verification into update-memory.sh — on every run, check that CLAUDE_CODE_OAUTH_TOKEN is pr…",
+        "full": "Wire CLAUDE_CODE_OAUTH_TOKEN verification into update-memory.sh — on every run, check that CLAUDE_CODE_OAUTH_TOKEN is present in ~/SaSMaster/.env (grep -c returns 1). If missing, post warning to #sasmaster-builds and abort memory update. Token lives in keychain service \"Claude Code-credentials\" — extract with: security find-generic-password -s \"Claude Code-credentials\" -w. Token rotates on Claude Code re-auth; silent cron failures (5-line log, exit 1, no Claude output) are the symptom. #infra",
+        "sprint": "Post-Card A follow-up (added 2026-04-28)",
+        "tag": "AGENT",
         "priority": "MED",
         "state": "BACKLOG",
         "blockReason": "",
@@ -997,6 +877,14 @@
     "done": [
       {
         "id": "done-0",
+        "text": "Infra hardening sprint — War Room live kanban, cost-log KPI, build retry, agent audit, TMDB/IMDB refresh",
+        "full": "Infra hardening sprint — War Room live kanban, cost-log KPI, build retry, agent audit, TMDB/IMDB refresh",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-1",
         "text": "Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)",
         "full": "Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)",
         "sprint": "",
@@ -1004,7 +892,7 @@
         "priority": "DONE"
       },
       {
-        "id": "done-1",
+        "id": "done-2",
         "text": "Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
         "full": "Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record",
         "sprint": "",
@@ -1012,7 +900,7 @@
         "priority": "DONE"
       },
       {
-        "id": "done-2",
+        "id": "done-3",
         "text": "Restart JARVIS + widen channel filter",
         "full": "Restart JARVIS + widen channel filter",
         "sprint": "",
@@ -1205,7 +1093,7 @@
       }
     },
     "counts": {
-      "backlog": 34,
+      "backlog": 29,
       "inProgress": 0,
       "blocked": 0,
       "review": 14,
@@ -1213,6 +1101,7 @@
     }
   },
   "heatmap": {
+    "2026-04-28": 2,
     "2026-04-23": 2,
     "2026-04-22": 6,
     "2026-04-21": 7,
@@ -1230,7 +1119,7 @@
       "channel": "24/7 daemon",
       "jobId": null,
       "lastRun": null,
-      "lastOutput": "_File: `shiv_travel_calendar_2026.html` (v4)_ *Sent using* Claude",
+      "lastOutput": "Post completion to #sasmaster-builds when all 3 steps done. #housekeeping *Sent ",
       "status": "healthy"
     },
     {
@@ -1241,7 +1130,7 @@
       "log": "media-intel.log",
       "channel": "#sasmaster-intel",
       "jobId": "media-intel",
-      "lastRun": "2026-04-23T10:00:22.660Z",
+      "lastRun": "2026-04-28T10:00:22.406Z",
       "lastOutput": "Brief posted to #sasmaster-intel ✅",
       "status": "healthy"
     },
@@ -1289,8 +1178,8 @@
       "log": "sec-edgar.log",
       "channel": "#sasmaster-intel",
       "jobId": null,
-      "lastRun": "2026-04-23T10:30:25.612Z",
-      "lastOutput": "═══ Done: 16/16 | 1 companies with new filings ═══",
+      "lastRun": "2026-04-28T10:30:22.672Z",
+      "lastOutput": "═══ Done: 16/16 | 3 companies with new filings ═══",
       "status": "healthy"
     },
     {
@@ -1323,7 +1212,7 @@
       "schedule": "Sunday 8PM",
       "nextRun": "Sun 8PM",
       "log": "weekly-review.log",
-      "channel": "#sasmaster-builds",
+      "channel": "#sasmaster-content",
       "jobId": "weekly-review",
       "lastRun": "2026-04-27T02:00:08.748Z",
       "lastOutput": "Posted WBR wbr_mogjv39d to Slack",
@@ -1337,12 +1226,18 @@
       "log": "iab-agent.log",
       "channel": "#sasmaster-intel",
       "jobId": "iab-intel",
-      "lastRun": null,
-      "lastOutput": null,
-      "status": "never"
+      "lastRun": "2026-04-28T15:23:23.763Z",
+      "lastOutput": "IAB brief posted to #sasmaster-intel ✅",
+      "status": "healthy"
     }
   ],
   "recentBuilds": [
+    {
+      "task": "Infra hardening sprint — War Room live kanban, cost-log KPI, build retry, agent audit, TMDB/IMDB refresh",
+      "date": "2026-04-28 15:30",
+      "notes": "Five HIGH items executed in dependency order. (1) command-api: added GET /tasks/kanban (live TASKS.md parse returning ba",
+      "status": "DONE"
+    },
     {
       "task": "Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)",
       "date": "2026-04-23",
@@ -1391,10 +1286,10 @@
       "name": "TMDB bulk loader",
       "phase": "1",
       "status": "running",
-      "pct": 50.6,
-      "row_count": 2359000,
+      "pct": 57.7,
+      "row_count": 2689000,
       "total": 4663055,
-      "last_run": "2026-04-28T09:34:02.151Z",
+      "last_run": "2026-04-28T15:31:27.073Z",
       "s3_path": "s3://sasmaster-2026/tmdb_dev/"
     },
     {
@@ -1485,7 +1380,7 @@
       "phase": "1",
       "status": "live",
       "pct": 100,
-      "last_run": "2026-04-23T10:30:25.612Z"
+      "last_run": "2026-04-28T10:30:22.672Z"
     },
     {
       "name": "EIDR scraper",
@@ -1569,8 +1464,8 @@
       "size_gb": 5.9,
       "object_count": 1211,
       "last_updated": "2026-04-22T06:07:08.000Z",
-      "fresh": false,
-      "age_hours": null,
+      "fresh": true,
+      "age_hours": 4,
       "entities": {
         "movies": 1184031,
         "tv_series": 20000,
@@ -1589,7 +1484,7 @@
       "object_count": 7,
       "last_updated": "2026-04-21T23:00:01.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 160.5,
       "entities": {
         "movies": 743825,
         "tv_series": 298238,
@@ -1607,8 +1502,8 @@
       "size_gb": 1.8,
       "object_count": 7,
       "last_updated": "2026-04-20T22:06:38.000Z",
-      "fresh": false,
-      "age_hours": null,
+      "fresh": true,
+      "age_hours": 4,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1627,7 +1522,7 @@
       "object_count": 1,
       "last_updated": "2026-04-21T23:04:10.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 160.5,
       "entities": {
         "movies": 861878,
         "tv_series": null,
@@ -1646,7 +1541,7 @@
       "object_count": 29,
       "last_updated": "2026-04-22T05:51:32.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 151.8,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1665,7 +1560,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:47:11.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 156.7,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1684,7 +1579,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:38:36.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 156.9,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1703,7 +1598,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T04:42:21.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 154.8,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1722,7 +1617,7 @@
       "object_count": 9,
       "last_updated": "2026-04-22T01:11:20.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 151.6,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1741,7 +1636,7 @@
       "object_count": 5,
       "last_updated": "2026-04-22T01:13:31.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 158.3,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1759,8 +1654,8 @@
       "size_gb": 0,
       "object_count": 2,
       "last_updated": "2026-04-22T06:07:09.000Z",
-      "fresh": false,
-      "age_hours": null,
+      "fresh": true,
+      "age_hours": 4,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1772,13 +1667,13 @@
     }
   ],
   "kpis": {
-    "agents_running": 9,
+    "agents_running": 10,
     "agents_total": 10,
     "scrapers_live": 4,
     "scrapers_total": 22,
     "s3_gb": 85.4,
     "parent_key_rows": 861878,
-    "tasks_open": 34,
+    "tasks_open": 29,
     "build_events_today": 0,
     "model_routing": "haiku+sonnet+opus",
     "haiku_pct_today": 0,
@@ -1787,6 +1682,11 @@
   },
   "build_trends": null,
   "recent_activity": [
+    {
+      "type": "build",
+      "text": "Infra hardening sprint — War Room live kanban, cost-log KPI, build retry, agent ",
+      "ts": "2026-04-28 15:30"
+    },
     {
       "type": "build",
       "text": "Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)",
@@ -1819,8 +1719,8 @@
     },
     {
       "type": "pipeline",
-      "text": "TMDB bulk 50.6% — 2359K / 4663K titles → s3://sasmaster-2026/tmdb_dev/",
-      "ts": "2026-04-28T09:34:02.151Z"
+      "text": "TMDB bulk 57.7% — 2689K / 4663K titles → s3://sasmaster-2026/tmdb_dev/",
+      "ts": "2026-04-28T15:31:27.073Z"
     }
   ],
   "cron": [
@@ -1894,7 +1794,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/media-intel-agent.js >> /Users/shivashish/SaSMaster/logs/media-intel.log 2>&1",
       "channel": "#sasmaster-intel",
       "weekly": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "6:05 AM",
@@ -1902,7 +1802,7 @@
       "command": "bash /Users/shivashish/SaSMaster/scripts/morning-package.sh >> /Users/shivashish/SaSMaster/logs/morning-package.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "6:30 AM",
@@ -1910,7 +1810,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/edgar-scraper.js >> /Users/shivashish/SaSMaster/logs/sec-edgar.log 2>&1",
       "channel": "#sasmaster-intel",
       "weekly": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "7:00 AM",
@@ -1926,7 +1826,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/iab-agent.js >> /Users/shivashish/SaSMaster/logs/iab-agent.log 2>&1",
       "channel": "—",
       "weekly": true,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "12:00 PM",
@@ -2079,62 +1979,6 @@
       "est": "—"
     },
     {
-      "title": "Fix TMDB pipeline blockage — identify tv_series blocker, unblock Collections/Networks/Companies loaders, get pipeline pa…",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "DATA",
-      "est": "—"
-    },
-    {
-      "title": "Refresh stale S3 datasets — IMDB 6d stale, parent_keys 6d stale, run refresh, validate 589K+ row count, update War Room …",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "EDGAR",
-      "est": "—"
-    },
-    {
-      "title": "Wire Weekly Review + IAB Intel + Financial Analyst agents — audit why NEVER run, fix root cause, test run each, confirm …",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "EDGAR",
-      "est": "—"
-    },
-    {
-      "title": "Fix War Room Kanban to live-read TASKS.md — currently rendering stale snapshot. Kanban HIGH/MED/EXPLORE columns should d…",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "QA",
-      "est": "—"
-    },
-    {
-      "title": "Surface cost-log.jsonl in War Room — add Token Usage KPI card to War Room dashboard showing total tokens + estimated $ p…",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "UI",
-      "est": "—"
-    },
-    {
-      "title": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions …",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "AGENT",
-      "est": "—"
-    },
-    {
-      "title": "Harden build loop against API timeouts — add retry logic (3 attempts, exponential backoff) to all Claude API calls in sa…",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "AGENT",
-      "est": "—"
-    },
-    {
-      "title": "Intelligent build loop sequencing — refactor sasmaster-build.sh to execute tasks in dependency order, not just top-to-bo…",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "AGENT",
-      "est": "—"
-    },
-    {
       "title": "Build Ad Research portal stub (same pattern as Programming Research)",
       "status": "BACKLOG",
       "priority": "MED",
@@ -2226,10 +2070,31 @@
       "est": "—"
     },
     {
+      "title": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions …",
+      "status": "BACKLOG",
+      "priority": "MED",
+      "tag": "AGENT",
+      "est": "—"
+    },
+    {
+      "title": "Intelligent build loop sequencing — priority ordering (#infra → #data → #ui) now handled by this session's execution ord…",
+      "status": "BACKLOG",
+      "priority": "MED",
+      "tag": "UI",
+      "est": "—"
+    },
+    {
       "title": "War Room Visual Export — upgrade to server-side screenshot via /api/screenshot.js Vercel serverless function using @spar…",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "UI",
+      "est": "—"
+    },
+    {
+      "title": "Wire CLAUDE_CODE_OAUTH_TOKEN verification into update-memory.sh — on every run, check that CLAUDE_CODE_OAUTH_TOKEN is pr…",
+      "status": "BACKLOG",
+      "priority": "MED",
+      "tag": "AGENT",
       "est": "—"
     },
     {
@@ -2331,6 +2196,13 @@
       "est": "—"
     },
     {
+      "title": "Infra hardening sprint — War Room live kanban, cost-log KPI, build retry, agent audit, TMDB/IMDB refresh",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
+    },
+    {
       "title": "Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)",
       "status": "DONE",
       "priority": "DONE",
@@ -2354,6 +2226,12 @@
   ],
   "recent_completions": [
     {
+      "title": "Infra hardening sprint — War Room live kanban, cost-log KPI, build retry, agent audit, TMDB/IMDB refresh",
+      "category": "Agent",
+      "path": "",
+      "completed_at": "2026-04-28 15:30"
+    },
+    {
       "title": "Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)",
       "category": "Build",
       "path": "",
@@ -2374,6 +2252,10 @@
   ],
   "slack_feed": {
     "builds": [
+      {
+        "ts": "3:30 PM",
+        "text": "✅ Infra hardening sprint — War Room live kanban, cost-log KPI, build retry, agent audit, TMDB/IMDB refresh"
+      },
       {
         "ts": "Apr 22",
         "text": "✅ Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)"
@@ -2409,20 +2291,20 @@
         "text": "📡 467K/1.18M titles loaded → s3://sasmaster-2026/tmdb_dev/ (39.4%)"
       },
       {
-        "ts": "Apr 23",
+        "ts": "6:00 AM",
         "text": "📡 Brief posted to #sasmaster-intel ✅"
       },
       {
-        "ts": "Apr 23",
+        "ts": "6:00 AM",
         "text": "📡 Brief posted to #sasmaster-intel ✅"
       },
       {
-        "ts": "Apr 23",
-        "text": "📑 ═══ Done: 16/16 | 1 companies with new filings ═══"
+        "ts": "6:30 AM",
+        "text": "📑 ═══ Done: 16/16 | 3 companies with new filings ═══"
       },
       {
-        "ts": "Apr 23",
-        "text": "📑 ═══ Done: 16/16 | 1 companies with new filings ═══"
+        "ts": "6:30 AM",
+        "text": "📑 ═══ Done: 16/16 | 3 companies with new filings ═══"
       },
       {
         "ts": "Apr 20",
