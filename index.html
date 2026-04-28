@@ -981,22 +981,30 @@ a{color:inherit}
         <div style="display:flex;gap:3px"><button class="tog active" id="tog-k" onclick="setQView('kanban')">KANBAN</button><button class="tog" id="tog-l" onclick="setQView('list')">LIST</button></div>
         <button class="btn-acc" onclick="openAddTask()">+ Add Task</button>
       </div>
-      <div class="kanban-board" id="kanbanView">
+      <!-- Phase strip + memory ribbon -->
+      <div id="phaseStrip" style="display:flex;gap:6px;padding:6px 12px;background:var(--bg2);border-bottom:1px solid var(--bdr);flex-wrap:wrap;align-items:center;font-size:10px;font-family:'DM Mono',monospace"></div>
+      <div id="memoryRibbon" style="display:none;padding:5px 12px;background:#1e1a2e;border-bottom:1px solid #3b2d6e;font-size:10px;color:#a78bfa;font-family:'DM Mono',monospace"></div>
+      <!-- 5-column Kanban -->
+      <div class="kanban-board" id="kanbanView" style="grid-template-columns:repeat(5,1fr)">
         <div class="kb-col">
-          <div class="kb-header"><span class="kb-title" style="color:var(--crit)">HIGH</span><span class="kb-count" id="kbCountHigh">--</span></div>
-          <div class="kb-items" id="kbHigh"></div>
+          <div class="kb-header"><span class="kb-title" style="color:var(--text-2)">BACKLOG</span><span class="kb-count" id="kbCountBacklog">--</span></div>
+          <div class="kb-items" id="kbBacklog" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
         </div>
         <div class="kb-col">
-          <div class="kb-header"><span class="kb-title" style="color:var(--warn)">MEDIUM</span><span class="kb-count" id="kbCountMed">--</span></div>
-          <div class="kb-items" id="kbMed"></div>
+          <div class="kb-header"><span class="kb-title" style="color:#60a5fa">IN PROGRESS</span><span class="kb-count" id="kbCountWip">--</span></div>
+          <div class="kb-items" id="kbWip" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
         </div>
         <div class="kb-col">
-          <div class="kb-header"><span class="kb-title" style="color:var(--text-3)">EXPLORE</span><span class="kb-count" id="kbCountExp">--</span></div>
-          <div class="kb-items" id="kbExp"></div>
+          <div class="kb-header"><span class="kb-title" style="color:var(--crit)">BLOCKED</span><span class="kb-count" id="kbCountBlocked">--</span></div>
+          <div class="kb-items" id="kbBlocked" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
+        </div>
+        <div class="kb-col">
+          <div class="kb-header"><span class="kb-title" style="color:var(--warn)">REVIEW</span><span class="kb-count" id="kbCountReview">--</span></div>
+          <div class="kb-items" id="kbReview" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
         </div>
         <div class="kb-col">
           <div class="kb-header"><span class="kb-title" style="color:var(--ok)">DONE</span><span class="kb-count" id="kbCountDone">--</span></div>
-          <div class="kb-items" id="kbDone"></div>
+          <div class="kb-items" id="kbDone" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
         </div>
       </div>
       <div class="list-view" id="listView" style="display:none">
@@ -1699,42 +1707,147 @@ function populateS3Grid(d) {
 
 // ── Kanban ────────────────────────────────────────────────
 function populateKanban(d) {
-  // Try queue from status.json first
-  const q = d.queue || {};
-  const highItems = q.highItems || [];
-  const medItems = q.medItems || [];
-  const expItems = q.exploreItems || [];
   const kb = d.kanban || {};
-  const doneItems = kb.done || [];
+  const q  = d.queue  || {};
 
-  renderKanban(highItems, medItems, expItems, doneItems);
+  // Phase strip
+  renderPhaseStrip(kb.phaseStatus || {});
+
+  // Memory ribbon
+  renderMemoryRibbon(kb.memoryPending || []);
+
+  // 5 columns
+  const backlog    = kb.backlog    || [...(q.highItems||[]), ...(q.medItems||[]), ...(q.exploreItems||[])];
+  const inProgress = kb.inProgress || q.wipItems     || [];
+  const blocked    = kb.blocked    || q.blockedItems  || [];
+  const review     = kb.review     || q.reviewItems   || [];
+  const done       = kb.done       || [];
+
+  document.getElementById('kbCountBacklog').textContent = backlog.length;
+  document.getElementById('kbCountWip').textContent     = inProgress.length;
+  document.getElementById('kbCountBlocked').textContent = blocked.length;
+  document.getElementById('kbCountReview').textContent  = review.length + (kb.counts?.qaDrafts ? ` (+${kb.counts.qaDrafts} QA)` : '');
+  document.getElementById('kbCountDone').textContent    = done.length;
+
+  document.getElementById('kbBacklog').innerHTML  = renderKbCards(backlog,    'backlog-card',  'backlog');
+  document.getElementById('kbWip').innerHTML      = renderKbCards(inProgress, 'wip-card',      'wip');
+  document.getElementById('kbBlocked').innerHTML  = renderKbCards(blocked,    'blocked-card',  'blocked');
+  document.getElementById('kbReview').innerHTML   = renderKbCards(review,     'review-card',   'review');
+  document.getElementById('kbDone').innerHTML     = renderKbCards(done,       'done-card',     'done');
 }
 
-function renderKanban(high, med, exp, done) {
-  document.getElementById('kbCountHigh').textContent = high.length;
-  document.getElementById('kbCountMed').textContent = med.length;
-  document.getElementById('kbCountExp').textContent = exp.length;
-  document.getElementById('kbCountDone').textContent = done.length;
-
-  document.getElementById('kbHigh').innerHTML = renderKbCards(high, 'high');
-  document.getElementById('kbMed').innerHTML = renderKbCards(med, 'med');
-  document.getElementById('kbExp').innerHTML = renderKbCards(exp, '');
-  document.getElementById('kbDone').innerHTML = renderKbCards(done, 'done-card');
-}
-
-function renderKbCards(items, cls) {
-  if (!items.length) return '<div style="font-size:10px;color:var(--text-3);padding:8px;text-align:center">Empty</div>';
-  return items.map(it => {
-    const f = _qFilter !== 'all' ? (it.tag || '').toLowerCase() === _qFilter : true;
-    const tagCls = it.tag === 'DATA' ? 't-data' : it.tag === 'AGENT' ? 't-agent' : it.tag === 'UI' ? 't-ui' : it.tag === 'DONE' ? 't-infra' : 't-infra';
-    const isBlocked = (it.text || '').includes('BLOCKED');
-    return `<div class="kb-card ${cls}${isBlocked?' blocked-card':''}" data-type="${(it.tag||'').toLowerCase()}" style="${!f?'display:none':''}">
-      <div class="kb-card-top"><span class="qtype ${tagCls}">${escHtml(it.tag||'?')}</span>${isBlocked?'<span style="font-size:9px;color:var(--crit);font-weight:700;margin-left:auto">⛔ BLOCKED</span>':''}</div>
-      <div class="kb-text">${escHtml((it.text||'').substring(0,80))}</div>
-      <div class="kb-meta">${escHtml(it.sprint||'')}</div>
-      ${it.priority === 'HIGH' && it.id && !it.id.startsWith('done') ? '<div class="kb-card-acts"><button class="btn-sm" onclick="triggerJobFromQueue(this)">▶ Fire</button></div>' : ''}
-    </div>`;
+function renderPhaseStrip(phases) {
+  const el = document.getElementById('phaseStrip');
+  if (!el || !Object.keys(phases).length) return;
+  const colors = { LIVE:'#22c55e', IN_PROGRESS:'#60a5fa', NEXT:'#f59e0b', FUTURE:'#6b7280' };
+  el.innerHTML = Object.entries(phases).map(([key, p]) => {
+    const label = key.replace('phase_','Phase ').toUpperCase();
+    const col   = colors[p.status] || '#6b7280';
+    return `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:${col}22;border:1px solid ${col}44;color:${col}">
+      <span style="width:5px;height:5px;border-radius:50%;background:${col}"></span>
+      ${label} · ${p.status}${p.desc ? ' — '+p.desc.slice(0,40) : ''}
+    </span>`;
   }).join('');
+}
+
+function renderMemoryRibbon(pending) {
+  const el = document.getElementById('memoryRibbon');
+  if (!el) return;
+  if (!pending.length) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = `<span style="color:#7c3aed;font-weight:700;margin-right:8px">⚡ MEMORY PENDING</span>` +
+    pending.map(p => `<span style="margin-right:12px;opacity:0.8">· ${escHtml(p)}</span>`).join('');
+}
+
+function renderKbCards(items, cls, column) {
+  if (!items.length) return '<div style="font-size:10px;color:var(--text-3);padding:8px;text-align:center">Empty</div>';
+  // Group by sprint
+  const groups = {};
+  items.forEach(it => {
+    const s = it.sprint || 'Backlog';
+    if (!groups[s]) groups[s] = [];
+    groups[s].push(it);
+  });
+  return Object.entries(groups).map(([sprint, its]) => {
+    const cards = its.map(it => renderKbCard(it, cls, column)).join('');
+    const header = sprint !== 'Backlog'
+      ? `<div style="font-size:9px;font-weight:700;color:var(--text-3);letter-spacing:.05em;padding:6px 6px 2px;text-transform:uppercase">${escHtml(sprint)}</div>`
+      : '';
+    return header + cards;
+  }).join('');
+}
+
+function renderKbCard(it, cls, column) {
+  const f      = _qFilter !== 'all' ? (it.tag||'').toLowerCase() === _qFilter : true;
+  const tagCls = {'DATA':'t-data','AGENT':'t-agent','UI':'t-ui','QA':'t-data','EDGAR':'t-infra'}[it.tag] || 't-infra';
+  const priCol = it.priority === 'HIGH' ? 'var(--crit)' : it.priority === 'MED' ? 'var(--warn)' : 'var(--text-3)';
+  const isQA   = it.tag === 'QA' || (it.id||'').startsWith('qa-');
+  const hasId  = it.id && !it.id.startsWith('t') && !it.id.startsWith('done') && !it.id.startsWith('review') && !it.id.startsWith('qa-');
+
+  // Action buttons based on column
+  let actions = '';
+  if (hasId) {
+    if (column === 'backlog')  actions = `<button class="btn-sm" onclick="taskAction('start','${it.id}',this)">▶ Start</button>`;
+    if (column === 'wip')      actions = `<button class="btn-sm" onclick="taskAction('review','${it.id}',this)">👀 Review</button><button class="btn-sm" style="color:var(--crit)" onclick="taskBlockPrompt('${it.id}',this)">⛔ Block</button><button class="btn-sm" style="color:var(--ok)" onclick="taskCompletePrompt('${it.id}',this)">✅ Done</button>`;
+    if (column === 'blocked')  actions = `<button class="btn-sm" onclick="taskAction('unblock','${it.id}',this)">🔓 Unblock</button>`;
+    if (column === 'review')   actions = isQA
+      ? `<button class="btn-sm" onclick="taskAction('start','${it.id}',this)">↑ Promote</button>`
+      : `<button class="btn-sm" style="color:var(--ok)" onclick="taskCompletePrompt('${it.id}',this)">✅ Done</button>`;
+  }
+
+  return `<div class="kb-card ${cls}" data-type="${(it.tag||'').toLowerCase()}" data-id="${it.id||''}" style="${!f?'display:none':''}">
+    <div class="kb-card-top">
+      <span style="width:3px;height:100%;background:${priCol};border-radius:2px;position:absolute;left:0;top:0"></span>
+      <span class="qtype ${tagCls}">${escHtml(it.tag||'?')}</span>
+      ${it.blockReason ? `<span style="font-size:9px;color:var(--crit);margin-left:auto">${escHtml(it.blockReason)}</span>` : ''}
+      ${it.id && hasId ? `<span style="font-size:8px;color:var(--text-3);margin-left:auto;font-family:'DM Mono',monospace">^${it.id}</span>` : ''}
+    </div>
+    <div class="kb-text">${escHtml((it.text||'').substring(0,100))}</div>
+    ${it.meta?.due ? `<div style="font-size:9px;color:var(--warn)">due: ${it.meta.due}</div>` : ''}
+    ${actions ? `<div class="kb-card-acts" style="position:relative">${actions}</div>` : ''}
+  </div>`;
+}
+
+async function taskAction(action, id, btn) {
+  btn.disabled = true;
+  btn.textContent = '…';
+  try {
+    const r = await fetch(apiUrl(`/tasks/${id}/${action}`), {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({}),
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    // Refresh data
+    await loadStatus();
+  } catch(e) {
+    btn.textContent = '✗';
+    setTimeout(() => { btn.disabled = false; btn.textContent = action; }, 2000);
+  }
+}
+
+async function taskBlockPrompt(id, btn) {
+  const reason = prompt('Block reason:');
+  if (!reason) return;
+  btn.disabled = true;
+  try {
+    await fetch(apiUrl(`/tasks/${id}/block`), {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ reason }),
+    });
+    await loadStatus();
+  } catch { btn.disabled = false; }
+}
+
+async function taskCompletePrompt(id, btn) {
+  const notes = prompt('Completion notes (optional):') || '';
+  btn.disabled = true;
+  try {
+    await fetch(apiUrl(`/tasks/${id}/complete`), {
+      method: 'POST', headers: authHeaders(),
+      body: JSON.stringify({ notes }),
+    });
+    await loadStatus();
+  } catch { btn.disabled = false; }
 }
 
 function filterQueue(f, btn) {
@@ -2013,7 +2126,7 @@ async function loadQueue() {
     const med = d.medium || d.med || d.medItems || [];
     const exp = d.explore || d.exploreItems || [];
     if (high.length || med.length || exp.length) {
-      renderKanban(high, med, exp, []);
+      // Kanban now driven by populateKanban() from status.json — skip renderKanban here
       document.getElementById('bbHigh').textContent = high.length;
       document.getElementById('bbMed').textContent = med.length;
       document.getElementById('bbExp').textContent = exp.length;

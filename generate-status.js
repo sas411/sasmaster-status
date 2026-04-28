@@ -22,43 +22,143 @@ function jarvisAlive() {
   } catch { return false; }
 }
 
-// ── TASKS.md parser ──────────────────────────────────────────────────────────
-function parseTasks() {
-  if (!fs.existsSync(TASKS_FILE)) return { high: 0, med: 0, highItems: [], medItems: [], exploreItems: [] };
-  const lines = fs.readFileSync(TASKS_FILE, 'utf8').split('\n');
+// ── TASKS.md parser (v2) ──────────────────────────────────────────────────────
+// Supports: - [HIGH|MED|EXPLORE] [WIP|BLOCK:reason|REVIEW] [TAG] text {meta} ^id
+// Backward compatible: lines without state/id still parse as BACKLOG with auto-tag.
 
-  function detectTag(text) {
-    if (/edgar|financial|s3|postgresql|scraper|financial.anal/i.test(text)) return 'EDGAR';
-    if (/tmdb|imdb|trending|content.*load/i.test(text)) return 'DATA';
-    if (/agent|cron|jarvis|slack|webhook|build\.sh/i.test(text)) return 'AGENT';
-    if (/ui|portal|nav|design|html|css|homepage|archive|v7|sasmaster\.html/i.test(text)) return 'UI';
-    return 'INFRA';
-  }
+const STATE_RE = /\[(WIP|BLOCK:([^\]]*)|REVIEW)\]/i;
+const ID_RE    = /\^([a-f0-9]{6})\s*$/;
+const META_RE  = /\{([^}]+)\}/;
+
+function detectTag(text) {
+  if (/edgar|financial|s3|postgresql|scraper|financial.anal/i.test(text)) return 'EDGAR';
+  if (/tmdb|imdb|trending|content.*load/i.test(text)) return 'DATA';
+  if (/agent|cron|jarvis|slack|webhook|build\.sh/i.test(text)) return 'AGENT';
+  if (/ui|portal|nav|design|html|css|homepage|archive|sasmaster\.html/i.test(text)) return 'UI';
+  if (/qa|test|check|puppeteer/i.test(text)) return 'QA';
+  return 'INFRA';
+}
+
+function parseTasks() {
+  if (!fs.existsSync(TASKS_FILE)) return { high: 0, med: 0, highItems: [], medItems: [], exploreItems: [], wipItems: [], blockedItems: [], reviewItems: [] };
+  const lines = fs.readFileSync(TASKS_FILE, 'utf8').split('\n');
 
   let sprint = 'Backlog';
   const highItems = [], medItems = [], exploreItems = [];
+  const wipItems = [], blockedItems = [], reviewItems = [];
 
   lines.forEach((line, idx) => {
-    if (/^##/.test(line)) { sprint = line.replace(/^#+\s*/, '').trim(); return; }
-    const m = line.match(/^\s*-\s*\[(HIGH|MED|EXPLORE)\]\s*(.*)/i);
-    if (!m) return;
-    const [, priority, raw] = m;
-    const full = raw.replace(/—\s*injected.*$/i, '').trim();
+    // Sprint headers (skip DRAFT headers — those go to parseQADrafts)
+    if (/^##/.test(line) && !/^##\s*\[DRAFT\]/.test(line)) {
+      sprint = line.replace(/^#+\s*/, '').trim();
+      return;
+    }
+
+    const pm = line.match(/^\s*-\s*\[(HIGH|MED|EXPLORE)\]/i);
+    if (!pm) return;
+
+    const priority = pm[1].toUpperCase();
+    let rest = line.slice(line.indexOf(`[${pm[1]}]`) + pm[1].length + 2).trim();
+
+    // Skip historical DONE lines
+    if (/^\[DONE/i.test(rest)) return;
+
+    // State tag
+    let state = 'BACKLOG', blockReason = '';
+    const sm = rest.match(STATE_RE);
+    if (sm) {
+      const sr = sm[1].toUpperCase();
+      if (sr === 'WIP')               state = 'WIP';
+      else if (sr.startsWith('BLOCK')){ state = 'BLOCKED'; blockReason = sm[2] || ''; }
+      else if (sr === 'REVIEW')        state = 'REVIEW';
+      rest = rest.replace(STATE_RE, '').trim();
+    }
+
+    // Explicit tag override [DATA|AGENT|UI|INFRA|EDGAR|QA]
+    let tag = '';
+    const tgm = rest.match(/^\[([A-Z]+)\]/);
+    if (tgm && ['DATA','AGENT','UI','INFRA','EDGAR','QA'].includes(tgm[1])) {
+      tag = tgm[1];
+      rest = rest.slice(tgm[0].length).trim();
+    }
+
+    // Inline metadata {key:val}
+    const meta = {};
+    const mm = rest.match(META_RE);
+    if (mm) {
+      mm[1].split(',').forEach(pair => {
+        const [k, v] = pair.split(':').map(s => s.trim());
+        if (k && v) meta[k] = v;
+      });
+      rest = rest.replace(META_RE, '').trim();
+    }
+
+    // ^id
+    let id = `t${idx}`;
+    const im = rest.match(ID_RE);
+    if (im) { id = im[1]; rest = rest.replace(ID_RE, '').trim(); }
+
+    const full = rest.replace(/—\s*injected.*$/i, '').trim();
     if (!full) return;
-    const text = full.length > 88 ? full.slice(0, 88) + '…' : full;
-    const item = { id: `t${idx}`, text, full, sprint, tag: detectTag(full), priority: priority.toUpperCase() };
-    if (priority.toUpperCase() === 'HIGH') highItems.push(item);
-    else if (priority.toUpperCase() === 'MED') medItems.push(item);
-    else exploreItems.push(item);
+    const text = full.length > 120 ? full.slice(0, 120) + '…' : full;
+    if (!tag) tag = detectTag(full);
+
+    const item = { id, lineIndex: idx, text, full, sprint, tag, priority, state, blockReason, meta };
+
+    // Route by state first, then priority for BACKLOG
+    if      (state === 'WIP')     wipItems.push(item);
+    else if (state === 'BLOCKED') blockedItems.push(item);
+    else if (state === 'REVIEW')  reviewItems.push(item);
+    else if (priority === 'HIGH') highItems.push(item);
+    else if (priority === 'MED')  medItems.push(item);
+    else                          exploreItems.push(item);
   });
 
   return {
-    high:         highItems.length,
-    med:          medItems.length,
-    highItems:    highItems.slice(0, 10),
-    medItems:     medItems.slice(0, 8),
-    exploreItems: exploreItems.slice(0, 4),
+    high: highItems.length, med: medItems.length,
+    highItems, medItems, exploreItems,   // no caps — return all
+    wipItems, blockedItems, reviewItems,
   };
+}
+
+// ── QA draft tasks ────────────────────────────────────────────────────────────
+function parseQADrafts() {
+  if (!fs.existsSync(TASKS_FILE)) return [];
+  const content = fs.readFileSync(TASKS_FILE, 'utf8');
+  const drafts  = [];
+  const blocks  = content.split(/\n(?=## \[DRAFT\])/);
+  blocks.forEach(block => {
+    if (!/^## \[DRAFT\]/i.test(block)) return;
+    const header   = (block.match(/^## \[DRAFT\]\s*(.+)/) || [])[1] || 'QA Draft';
+    const checkId  = (header.match(/·\s*([\w-]+)\s*·/) || [])[1] || '';
+    const buildId  = (header.match(/build:([\w-]+)/) || [])[1] || '';
+    const desc     = (block.match(/- description:\s*(.+)/) || [])[1] || '';
+    const fixDesc  = (block.match(/- fix_description:\s*(.+)/) || [])[1] || '';
+    drafts.push({ id: `qa-${checkId}`, checkId, buildId, text: desc || header, fixDesc, tag: 'QA', state: 'REVIEW', priority: 'HIGH', sprint: 'QA Drafts' });
+  });
+  return drafts;
+}
+
+// ── Memory pending + phase strip ──────────────────────────────────────────────
+function parseMemoryContext() {
+  const memFile = path.join(SASMASTER, 'CLAUDE_MEMORY.md');
+  if (!fs.existsSync(memFile)) return { phaseStatus: {}, pending: [] };
+  const content = fs.readFileSync(memFile, 'utf8');
+
+  // Phase status lines: phase_1: LIVE — description
+  const phaseStatus = {};
+  content.split('\n').forEach(line => {
+    const m = line.match(/^(phase_\w+):\s*(\S+)\s*(?:—\s*(.*))?/);
+    if (m) phaseStatus[m[1]] = { status: m[2], desc: (m[3] || '').trim() };
+  });
+
+  // Pending block (lines starting with "- " after a "# Pending" header)
+  const pendingMatch = content.match(/# Pending\n([\s\S]*?)(?:\n#|$)/);
+  const pending = pendingMatch
+    ? pendingMatch[1].split('\n').map(l => l.replace(/^-\s*/, '').trim()).filter(Boolean)
+    : [];
+
+  return { phaseStatus, pending };
 }
 
 // ── DONE_LOG.md ──────────────────────────────────────────────────────────────
@@ -806,7 +906,7 @@ function buildTasksForV3(kanban) {
 // ── Assemble + write ─────────────────────────────────────────────────────────
 const tasks         = parseTasks();
 const { entries: recentBuilds, heatmap } = parseDoneLog();
-const reviewItems   = parsePending();
+const pendingItems  = parsePending();
 const intelFeed     = parseIntelFeed();
 const alerts        = parseAlerts();
 const agents        = parseAgents();
@@ -814,6 +914,8 @@ const tmdbProgress  = parseTMDBProgress();
 const s3Inv         = parseS3Inventory();
 const entityCounts  = parseS3EntityCounts();
 const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents);
+const qaDrafts      = parseQADrafts();
+const { phaseStatus, pending: memoryPending } = parseMemoryContext();
 
 // Compute freshness for each known S3 prefix (silent on AWS CLI failure)
 const s3FreshnessPrefixes = (s3Inv?.prefixes || []).map(p => p.prefix);
@@ -830,10 +932,24 @@ const { events: buildEventsToday, count: buildEventsCount, haiku_pct: haikuPctTo
 const buildTrends = getBuildTrends();
 
 const kanban = {
-  backlog:    [...tasks.medItems, ...tasks.exploreItems],
-  inProgress: [],
-  review:     reviewItems,
+  // Lifecycle columns (state-driven)
+  backlog:    [...tasks.highItems, ...tasks.medItems, ...tasks.exploreItems],
+  inProgress: tasks.wipItems,
+  blocked:    tasks.blockedItems,
+  review:     [...tasks.reviewItems, ...pendingItems, ...qaDrafts],
   done:       recentBuilds.map((b, i) => ({ id: `done-${i}`, text: b.task, full: b.task, sprint: '', tag: 'DONE', priority: 'DONE' })),
+  // Context panels
+  qaDrafts,
+  memoryPending,
+  phaseStatus,
+  // Summary for KPI strip
+  counts: {
+    backlog:    tasks.highItems.length + tasks.medItems.length + tasks.exploreItems.length,
+    inProgress: tasks.wipItems.length,
+    blocked:    tasks.blockedItems.length,
+    review:     tasks.reviewItems.length + pendingItems.length + qaDrafts.length,
+    qaDrafts:   qaDrafts.length,
+  },
 };
 
 const parentKeyScraper = scrapers.find(s => s.name === 'SAS-MASTER Parent Key v1');
@@ -850,13 +966,15 @@ const status = {
   generated: new Date().toISOString(),
   system:    { jarvis: { alive: jarvisAlive() } },
 
-  // ── Existing fields (unchanged) ──
   queue: {
     high:         tasks.high,
     med:          tasks.med,
     highItems:    tasks.highItems,
     medItems:     tasks.medItems,
     exploreItems: tasks.exploreItems,
+    wipItems:     tasks.wipItems,
+    blockedItems: tasks.blockedItems,
+    reviewItems:  tasks.reviewItems,
   },
   kanban,
   heatmap,

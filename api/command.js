@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
 
   // path comes from query: /api/command?path=/trigger
   const path = req.query.path || '/health';
-  const allowed = ['/trigger', '/add-task', '/logs', '/queue', '/jobs', '/health', '/status', '/done-log'];
+  const allowed = ['/trigger', '/add-task', '/logs', '/queue', '/jobs', '/health', '/status', '/done-log', '/tasks'];
   if (!allowed.some(p => path.startsWith(p))) {
     res.status(403).json({ error: 'path not allowed' }); return;
   }
