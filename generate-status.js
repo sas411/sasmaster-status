@@ -511,6 +511,89 @@ function getBuildEvents() {
   } catch { return { events: [], count: 0 }; }
 }
 
+// ── Build performance trends (last 7 days) ────────────────────────────────────
+// Reads build-YYYY-MM-DD.jsonl files from ~/SaSMaster/logs/ for the past 7 days.
+// Returns null safely if no build logs exist yet — never throws.
+function getBuildTrends() {
+  try {
+    const now  = Date.now();
+    const DAY  = 86400000;
+
+    // Collect feature entries from each day file
+    const allEntries = [];   // { date: 'YYYY-MM-DD', entry }
+    const runIds     = new Set();
+
+    for (let i = 0; i < 7; i++) {
+      const d    = new Date(now - i * DAY);
+      const date = d.toISOString().slice(0, 10);
+      const file = path.join(SASMASTER, 'logs', `build-${date}.jsonl`);
+      if (!fs.existsSync(file)) continue;
+
+      try {
+        const lines = fs.readFileSync(file, 'utf8')
+          .split('\n')
+          .filter(Boolean)
+          .map(l => { try { return JSON.parse(l); } catch { return null; } })
+          .filter(Boolean);
+
+        for (const e of lines) {
+          if (e.kind === 'run_summary') {
+            if (e.run_id) runIds.add(e.run_id);
+            continue;
+          }
+          if (e.run_id) runIds.add(e.run_id);
+          allEntries.push({ date, entry: e });
+        }
+      } catch { continue; }
+    }
+
+    if (allEntries.length === 0) return null;
+
+    // ── Aggregate over all 7 days ─────────────────────────────────────────────
+    const costs     = allEntries.map(x => x.entry.cost_usd).filter(v => typeof v === 'number');
+    const durations = allEntries.map(x => x.entry.duration_s).filter(v => typeof v === 'number');
+    const total     = allEntries.length;
+    const failed    = allEntries.filter(x => x.entry.status === 'failed' || (Array.isArray(x.entry.errors) && x.entry.errors.length > 0)).length;
+
+    const avg_cost_usd   = costs.length     ? Math.round((costs.reduce((a, b) => a + b, 0) / costs.length) * 10000) / 10000 : 0;
+    const avg_duration_s = durations.length ? Math.round((durations.reduce((a, b) => a + b, 0) / durations.length) * 10) / 10 : 0;
+    const error_rate     = total > 0        ? Math.round((failed / total) * 1000) / 1000 : 0;
+
+    // ── Trend: compare last 3 days vs previous 4 days error_rate ─────────────
+    const recent3Days = new Set();
+    for (let i = 0; i < 3; i++) {
+      recent3Days.add(new Date(now - i * DAY).toISOString().slice(0, 10));
+    }
+
+    const recentEntries = allEntries.filter(x => recent3Days.has(x.date));
+    const olderEntries  = allEntries.filter(x => !recent3Days.has(x.date));
+
+    const errRate = (arr) => {
+      if (!arr.length) return null;
+      const f = arr.filter(x => x.entry.status === 'failed' || (Array.isArray(x.entry.errors) && x.entry.errors.length > 0)).length;
+      return f / arr.length;
+    };
+
+    const recentErr = errRate(recentEntries);
+    const olderErr  = errRate(olderEntries);
+
+    let trend = 'stable';
+    if (recentErr !== null && olderErr !== null) {
+      if (recentErr < olderErr - 0.02)  trend = 'improving';
+      else if (recentErr > olderErr + 0.02) trend = 'declining';
+    }
+
+    return {
+      avg_cost_usd,
+      avg_duration_s,
+      error_rate,
+      total_features_7d: total,
+      builds_7d:         runIds.size,
+      trend,
+    };
+  } catch { return null; }
+}
+
 // ── KPIs (derived) ───────────────────────────────────────────────────────────
 function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount) {
   const agents_running = agents.filter(a => a.status === 'healthy' || a.status === 'routing').length;
@@ -734,6 +817,9 @@ const cron          = enrichCronStatus(cronJobsRaw, agents);
 // Layer 7: build audit trail events
 const { events: buildEventsToday, count: buildEventsCount } = getBuildEvents();
 
+// Layer 6: performance trends (last 7 days)
+const buildTrends = getBuildTrends();
+
 const kanban = {
   backlog:    [...tasks.medItems, ...tasks.exploreItems],
   inProgress: [],
@@ -742,6 +828,8 @@ const kanban = {
 };
 
 const parentKeyScraper = scrapers.find(s => s.name === 'SAS-MASTER Parent Key v1');
+
+// Inject trend KPIs into kpis object after buildKPIs() runs — done below inline.
 
 // Merge build events (prepend) + existing slack_feed events (append), cap at 25
 function buildMergedActivity(intelFeed, recentBuilds, scrapers, buildEvents) {
@@ -773,7 +861,13 @@ const status = {
   // ── New fields for v3 War Room ──
   scrapers,
   s3_lake,
-  kpis:                buildKPIs(agents, scrapers, s3_lake, tasks, parentKeyScraper, buildEventsCount),
+  kpis:                (() => {
+    const kpis = buildKPIs(agents, scrapers, s3_lake, tasks, parentKeyScraper, buildEventsCount);
+    kpis.builds_7d       = buildTrends?.builds_7d   || 0;
+    kpis.error_rate_7d   = buildTrends?.error_rate   || 0;
+    return kpis;
+  })(),
+  build_trends:        buildTrends,
   recent_activity:     buildMergedActivity(intelFeed, recentBuilds, scrapers, buildEventsToday),
   cron,
   tasks:               buildTasksForV3(kanban),
