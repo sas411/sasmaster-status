@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-28T15:32:27.406Z",
+  "generated": "2026-04-28T17:05:35.538Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -1119,7 +1119,7 @@
       "channel": "24/7 daemon",
       "jobId": null,
       "lastRun": null,
-      "lastOutput": "Cards B + Telemetry will chain automatically after this posts its summary. Do NO",
+      "lastOutput": "_Root cause documented in commit:_ 2026-04-28 7AM cron failure — keychain inacce",
       "status": "healthy"
     },
     {
@@ -1154,8 +1154,8 @@
       "log": "donelog-analyst.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": "2026-04-23T16:00:00.807Z",
-      "lastOutput": "Analysis complete. Gaps: none. Injected: none",
+      "lastRun": "2026-04-28T16:00:00.795Z",
+      "lastOutput": "Spawned extract-build-lessons.js (non-blocking)",
       "status": "healthy"
     },
     {
@@ -1286,10 +1286,10 @@
       "name": "TMDB bulk loader",
       "phase": "1",
       "status": "running",
-      "pct": 57.7,
-      "row_count": 2689000,
+      "pct": 59.5,
+      "row_count": 2775000,
       "total": 4663055,
-      "last_run": "2026-04-28T15:31:27.073Z",
+      "last_run": "2026-04-28T17:04:14.656Z",
       "s3_path": "s3://sasmaster-2026/tmdb_dev/"
     },
     {
@@ -1484,7 +1484,7 @@
       "object_count": 7,
       "last_updated": "2026-04-21T23:00:01.000Z",
       "fresh": false,
-      "age_hours": 160.5,
+      "age_hours": 162.1,
       "entities": {
         "movies": 743825,
         "tv_series": 298238,
@@ -1503,7 +1503,7 @@
       "object_count": 7,
       "last_updated": "2026-04-20T22:06:38.000Z",
       "fresh": true,
-      "age_hours": 4,
+      "age_hours": 5.6,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1522,7 +1522,7 @@
       "object_count": 1,
       "last_updated": "2026-04-21T23:04:10.000Z",
       "fresh": false,
-      "age_hours": 160.5,
+      "age_hours": 162,
       "entities": {
         "movies": 861878,
         "tv_series": null,
@@ -1541,7 +1541,7 @@
       "object_count": 29,
       "last_updated": "2026-04-22T05:51:32.000Z",
       "fresh": false,
-      "age_hours": 151.8,
+      "age_hours": 153.3,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1560,7 +1560,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:47:11.000Z",
       "fresh": false,
-      "age_hours": 156.8,
+      "age_hours": 158.3,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1579,7 +1579,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:38:36.000Z",
       "fresh": false,
-      "age_hours": 156.9,
+      "age_hours": 158.4,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1598,7 +1598,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T04:42:21.000Z",
       "fresh": false,
-      "age_hours": 154.8,
+      "age_hours": 156.4,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1617,7 +1617,7 @@
       "object_count": 9,
       "last_updated": "2026-04-22T01:11:20.000Z",
       "fresh": false,
-      "age_hours": 151.7,
+      "age_hours": 153.2,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1636,7 +1636,7 @@
       "object_count": 5,
       "last_updated": "2026-04-22T01:13:31.000Z",
       "fresh": false,
-      "age_hours": 158.3,
+      "age_hours": 159.9,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1674,14 +1674,28 @@
     "s3_gb": 85.4,
     "parent_key_rows": 861878,
     "tasks_open": 29,
-    "build_events_today": 0,
+    "build_events_today": 1,
     "model_routing": "haiku+sonnet+opus",
     "haiku_pct_today": 0,
     "builds_7d": 0,
     "error_rate_7d": 0
   },
-  "build_trends": null,
+  "build_trends": {
+    "avg_cost_usd": 0,
+    "avg_duration_s": 840,
+    "error_rate": 0,
+    "total_features_7d": 1,
+    "builds_7d": 0,
+    "trend": "stable"
+  },
   "recent_activity": [
+    {
+      "type": "build",
+      "text": "✅  — ",
+      "ts": "",
+      "layer": "APP",
+      "component": "build-auto"
+    },
     {
       "type": "build",
       "text": "Infra hardening sprint — War Room live kanban, cost-log KPI, build retry, agent ",
@@ -1719,8 +1733,8 @@
     },
     {
       "type": "pipeline",
-      "text": "TMDB bulk 57.7% — 2689K / 4663K titles → s3://sasmaster-2026/tmdb_dev/",
-      "ts": "2026-04-28T15:31:27.073Z"
+      "text": "TMDB bulk 59.5% — 2775K / 4663K titles → s3://sasmaster-2026/tmdb_dev/",
+      "ts": "2026-04-28T17:04:14.656Z"
     }
   ],
   "cron": [
@@ -1834,7 +1848,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/donelog-analyst.js >> /Users/shivashish/SaSMaster/logs/donelog-analyst.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "2:00 PM",
@@ -1877,6 +1891,14 @@
       "status": "pending"
     },
     {
+      "time": "8:00 PM",
+      "name": "cost feedback sun8pm",
+      "command": "/opt/homebrew/bin/bash /Users/shivashish/SaSMaster/scripts/cost-feedback.sh >> /Users/shivashish/SaSMaster/logs/cost-feedback.log 2>&1",
+      "channel": "—",
+      "weekly": true,
+      "status": "pending"
+    },
+    {
       "time": "8:10 PM",
       "name": "financial analyst sun8pm",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/financial-analyst.js >> /Users/shivashish/SaSMaster/logs/financial-analyst.log 2>&1",
@@ -1890,6 +1912,14 @@
       "command": "bash /Users/shivashish/SaSMaster/scripts/archive-done-log.sh >> /Users/shivashish/SaSMaster/logs/archive-done.log 2>&1",
       "channel": "—",
       "weekly": true,
+      "status": "pending"
+    },
+    {
+      "time": "11:50 PM",
+      "name": "sync audit trail 2350",
+      "command": "/opt/homebrew/bin/bash /Users/shivashish/SaSMaster/scripts/sync-audit-trail.sh >> /Users/shivashish/SaSMaster/logs/sync-audit-trail.log 2>&1",
+      "channel": "—",
+      "weekly": false,
       "status": "pending"
     }
   ],
@@ -2251,61 +2281,95 @@
     }
   ],
   "slack_feed": {
-    "builds": [],
-    "intel": [],
-    "content": []
-  },
-  "last_updated": "2026-04-28T15:32:28.023Z",
-  "overnight_debrief": {
-    "date": "Tue Apr 28 2026",
-    "ran": [
+    "builds": [
       {
-        "time": "05:00",
-        "agent": "TMDB Daily Agent",
-        "result": "12 endpoints → #sasmaster-intel",
-        "status": "ok"
+        "ts": "3:30 PM",
+        "text": "✅ Infra hardening sprint — War Room live kanban, cost-log KPI, build retry, agent audit, TMDB/IMDB refresh"
       },
       {
-        "time": "05:02",
-        "agent": "Daily Visuals",
-        "result": "Board + Architecture screenshots posted to Slack",
-        "status": "ok"
+        "ts": "Apr 22",
+        "text": "✅ Integrate Autonomous-Coding Quickstart as JARVIS Heavy-Lift Mode (!build-auto)"
       },
       {
-        "time": "06:00",
-        "agent": "Media Intel Agent",
-        "result": "36 items from 10 sources → #sasmaster-intel",
-        "status": "ok"
+        "ts": "Apr 22",
+        "text": "✅ Programming research — Unchosen, Fist of North Star, Daredevil: Born Again, Criminal Record"
       },
       {
-        "time": "06:30",
-        "agent": "EDGAR Scraper v2",
-        "result": "16/16 companies | 3 with new filings",
-        "status": "ok"
+        "ts": "Apr 22",
+        "text": "✅ Restart JARVIS + widen channel filter"
       },
       {
-        "time": "11:23",
-        "agent": "IAB Agent",
-        "result": "8 items from 2 sources → #sasmaster-intel",
-        "status": "ok"
+        "ts": "12:00 PM",
+        "text": "📊 Spawned extract-build-lessons.js (non-blocking)"
       },
       {
-        "time": "11:32",
-        "agent": "Nightly Build",
-        "result": "16m 54s",
-        "status": "ok"
+        "ts": "12:00 PM",
+        "text": "📊 Spawned extract-build-lessons.js (non-blocking)"
       }
     ],
-    "failed": []
-  },
-  "tmdb_progress": {
-    "running": true,
-    "phase": "people",
-    "phase_total": 3,
-    "complete": 2689000,
-    "total": 4663055,
-    "pct": 57.7,
-    "s3_path": "s3://sasmaster-2026/tmdb_dev/",
-    "last_updated": "2026-04-28T15:31:27.073Z"
+    "intel": [
+      {
+        "ts": "Apr 20",
+        "text": "📡 36 signals from 10 sources — Evan Shapiro sweep complete"
+      },
+      {
+        "ts": "Apr 20",
+        "text": "📑 10/10 companies fetched — XBRL revenue + YoY delta computed"
+      },
+      {
+        "ts": "Apr 21",
+        "text": "📡 467K/1.18M titles loaded → s3://sasmaster-2026/tmdb_dev/ (39.4%)"
+      },
+      {
+        "ts": "6:00 AM",
+        "text": "📡 Brief posted to #sasmaster-intel ✅"
+      },
+      {
+        "ts": "6:00 AM",
+        "text": "📡 Brief posted to #sasmaster-intel ✅"
+      },
+      {
+        "ts": "6:30 AM",
+        "text": "📑 ═══ Done: 16/16 | 3 companies with new filings ═══"
+      },
+      {
+        "ts": "6:30 AM",
+        "text": "📑 ═══ Done: 16/16 | 3 companies with new filings ═══"
+      },
+      {
+        "ts": "Apr 20",
+        "text": "🛰️ Tech brief posted to #sasmaster-builds ✅"
+      }
+    ],
+    "content": [
+      {
+        "ts": "8:00 PM",
+        "text": "✍️ No theme set — prompted Shiv for direction"
+      },
+      {
+        "ts": "8:00 PM",
+        "text": "✍️ No theme set — prompted Shiv for direction"
+      },
+      {
+        "ts": "8:00 PM",
+        "text": "✍️ Starting LinkedIn Writing Agent..."
+      },
+      {
+        "ts": "5:00 AM",
+        "text": "📺 Posted digest (1354 chars) to #sasmaster-intel"
+      },
+      {
+        "ts": "5:00 AM",
+        "text": "📺 Posted digest (1354 chars) to #sasmaster-intel"
+      },
+      {
+        "ts": "5:00 AM",
+        "text": "📺 TV Series/Top Rated — 20 items"
+      },
+      {
+        "ts": "Apr 26",
+        "text": "🗂️ Posted WBR wbr_mogjv39d to Slack"
+      }
+    ]
   }
 }
