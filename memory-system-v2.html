@@ -301,10 +301,10 @@
 <div class="page-header">
   <div class="eyebrow">SaSMaster · Memory System</div>
   <h1>Distributed Memory — v2</h1>
-  <div class="sub">CLAUDE_MEMORY.md compressed to key:value · 3 sub-agents deployed · Obsidian knowledge vault initialized · scraper background knowledge complete</div>
+  <div class="sub">CLAUDE_MEMORY.md compressed to key:value · 6 sub-agents deployed · Obsidian knowledge vault initialized · Layer 7 cost-log write surface live</div>
   <div class="badge-row">
     <span class="badge badge-ok"><span class="dot-live"></span>Updated 2026-04-28</span>
-    <span class="badge badge-info">3 Agents Live</span>
+    <span class="badge badge-info">6 Agents Live</span>
     <span class="badge badge-warn">Memory &lt;250 tokens</span>
     <span class="badge badge-lav">8-doc Obsidian Vault</span>
   </div>
@@ -316,7 +316,7 @@
   <div class="status-bar">
     <div class="sb-item"><strong>Memory file:</strong> ~/SaSMaster/CLAUDE_MEMORY.md</div>
     <span class="sb-sep">·</span>
-    <div class="sb-item"><strong>Agents:</strong> ~/.claude/agents/ (3 files)</div>
+    <div class="sb-item"><strong>Agents:</strong> ~/.claude/agents/ (6 files)</div>
     <span class="sb-sep">·</span>
     <div class="sb-item"><strong>Vault:</strong> ~/SaSMaster/obsidian/ (8 docs, git init)</div>
     <span class="sb-sep">·</span>
@@ -339,8 +339,8 @@
       <div class="arch-node new-node">
         <div class="an-label">Layer 2 — Sub-Agents</div>
         <div class="an-title">~/.claude/agents/</div>
-        <div class="an-sub">data-modeler · scraper-debugger · jarvis-ops · architect</div>
-        <span class="an-tag green">4 agents live</span>
+        <div class="an-sub">data-modeler · scraper-debugger · jarvis-ops · architect · autonomous-coder · lessons-feedback</div>
+        <span class="an-tag green">6 agents live</span>
       </div>
       <div class="arch-node new-node">
         <div class="an-label">Layer 3 — Knowledge Vault</div>
@@ -486,6 +486,26 @@
       </div>
       <div class="agent-role">Post-build QA verification. Runs 15 Playwright checks (headless Chromium) against live Vercel portal URL. Field-level PASS/FAIL for NETWORK, TYPE, WHERE TO WATCH, User Score, drill-down nav, ID format. Registry in qa-cases.json. Blocks build marking on 3+ failures.</div>
       <span class="agent-scope">QA · Playwright · qa-cases.json</span>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-icon">⚡</div>
+      <div>
+        <div class="agent-name">autonomous-coder.md</div>
+        <div class="agent-model">model: claude-sonnet-4-6 · execution-capable</div>
+      </div>
+      <div class="agent-role">Build execution + cost-log writer · Phase I pipeline authority · Layer 7 write surface. Owns TASKS.md queue, 6-field spec validation, sasmaster-build.sh execution, DONE_LOG entry format, git auto-commit conventions, and Slack routing.</div>
+      <span class="agent-scope">Build · cost-log · Layer 7</span>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-icon">🧠</div>
+      <div>
+        <div class="agent-name">lessons-feedback.md</div>
+        <div class="agent-model">model: claude-sonnet-4-6 · execution-capable</div>
+      </div>
+      <div class="agent-role">SLC 3-tier pipeline · DONE_LOG analysis · FEEDBACK.md self-critique · skill promotion. Owns capture-learnings.sh → learnings.md (T1), LESSONS.md curation (T2), Friday skill-review.sh promotion to SKILL.md (T3, ≥3x patterns).</div>
+      <span class="agent-scope">SLC · Lessons · Skills</span>
     </div>
 
   </div>
@@ -651,7 +671,9 @@
         <tr><td>IP ownership</td><td>RSG Databricks MM-Asset-ID</td></tr>
         <tr><td>Nielsen license</td><td>Nielsen direct license Gracenote</td></tr>
         <tr><td>Memory system deploy</td><td>deploy-memory.sh CLAUDE_MEMORY async-prompt</td></tr>
-        <tr class="new-row"><td>Sub-agents</td><td>data-modeler scraper-debugger jarvis-ops agent</td></tr>
+        <tr class="new-row"><td>Sub-agents</td><td>data-modeler scraper-debugger jarvis-ops autonomous-coder lessons-feedback</td></tr>
+        <tr class="new-row"><td>Build execution + cost-log</td><td>autonomous-coder cost-log.jsonl Layer 7 TASKS.md build</td></tr>
+        <tr class="new-row"><td>SLC pipeline + skills</td><td>lessons-feedback SLC skill-review capture-learnings FEEDBACK LESSONS</td></tr>
         <tr class="new-row"><td>Scraper triage</td><td>TMDB 429 S3 lockfile NDJSON Parquet scraper</td></tr>
         <tr class="new-row"><td>Obsidian vault</td><td>obsidian ADR schema parquet-specs phase-status</td></tr>
         <tr class="new-row"><td>Scraper inventory</td><td>tmdb-tv-seasons tmdb-collections imdb-title-basics</td></tr>
