@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — Platform Assessment · Apr 28 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas:    #F0F4F8;
+  --surface:   #FFFFFF;
+  --border:    #E2E8F0;
+  --border-md: #CBD5E1;
+  --teal:      #0EA5E9;
+  --teal-lt:   #E0F2FE;
+  --blue:      #3B82F6;
+  --blue-lt:   #DBEAFE;
+  --green:     #10B981;
+  --green-lt:  #D1FAE5;
+  --red:       #EF4444;
+  --red-lt:    #FEE2E2;
+  --orange:    #FB923C;
+  --orange-lt: #FFEDD5;
+  --purple:    #8B5CF6;
+  --purple-lt: #EDE9FE;
+  --txt-1:     #1A202C;
+  --txt-2:     #4A5568;
+  --txt-m:     #94A3B8;
+  --ticker:    #1E293B;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--canvas);color:var(--txt-1);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.ticker{background:var(--ticker);padding:8px 0;overflow:hidden;white-space:nowrap}
+.ticker-inner{display:inline-block;animation:tick 55s linear infinite}
+.ti{display:inline-flex;align-items:center;gap:7px;margin-right:48px;font-family:'DM Mono',monospace;font-size:11px;color:#64748B}
+.ti .v{color:#F1F5F9;font-weight:500}
+.td{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.page{max-width:1160px;margin:0 auto;padding:36px 40px 64px}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+.hdr-logo{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.logo-box{width:34px;height:34px;background:linear-gradient(135deg,var(--teal),var(--blue));border-radius:9px;display:flex;align-items:center;justify-content:center}
+.logo-box svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
+.eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-m)}
+.h1{font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:700;color:var(--txt-1);letter-spacing:.02em;line-height:1;margin-bottom:5px}
+.h1 span{color:var(--teal)}
+.hsub{font-size:13px;color:var(--txt-2)}
+.hdr-r{text-align:right;flex-shrink:0}
+.hdate{font-family:'DM Mono',monospace;font-size:11px;color:var(--txt-m);margin-bottom:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:500;margin-bottom:4px}
+.chip-g{background:var(--green-lt);color:#059669}
+.chip-o{background:var(--orange-lt);color:#C2410C}
+.cdot-g{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.cdot-o{width:6px;height:6px;border-radius:50%;background:var(--orange);animation:pulse 2s ease-in-out infinite}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:28px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 12px;text-align:center;transition:box-shadow 150ms,border-color 150ms}
+.kpi:hover{box-shadow:0 2px 10px rgba(14,165,233,.12);border-color:#7DD3FC}
+.kv{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:3px}
+.kl{font-size:10px;color:var(--txt-m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.kd{font-family:'DM Mono',monospace;font-size:10px;color:var(--green)}
+.sl{display:flex;align-items:center;gap:9px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--txt-m);margin-bottom:10px}
+.sl::after{content:'';flex:1;height:1px;background:var(--border)}
+.sn{font-family:'DM Mono',monospace;font-size:10px;color:var(--txt-m)}
+.section{margin-bottom:28px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.badge{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.bl{background:var(--green-lt);color:#059669}
+.bn{background:var(--blue-lt);color:var(--blue)}
+.bw{background:var(--orange-lt);color:#C2410C}
+.bg{background:var(--red-lt);color:#B91C1C}
+.bf{background:var(--border);color:var(--txt-m)}
+.bp{background:var(--purple-lt);color:var(--purple)}
+.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.sl-{background:var(--green)}
+.sn-{background:var(--blue)}
+.sw-{background:var(--orange);animation:pulse 2s ease-in-out infinite}
+.sg-{background:var(--red);animation:pulse 1s ease-in-out infinite}
+.sf-{background:var(--border-md)}
+.ltbl{width:100%;border-collapse:collapse}
+.ltbl thead tr{background:var(--canvas);border-bottom:1px solid var(--border)}
+.ltbl th{padding:9px 16px;text-align:left;font-family:'DM Mono',monospace;font-size:10px;color:var(--txt-m);letter-spacing:.11em;font-weight:400}
+.ltbl td{padding:13px 16px;vertical-align:top;border-bottom:1px solid var(--border);font-size:12px}
+.ltbl tr:last-child td{border-bottom:none}
+.ltbl tr:hover td{background:#F8FAFC}
+.ltbl tr.gr td{background:#FFF9F9}
+.lname{font-weight:600;font-size:13px;color:var(--txt-1);margin-bottom:2px}
+.ldesc{font-size:11px;color:var(--txt-m)}
+.ldetail{color:var(--txt-2);line-height:1.55}
+.lnum{font-family:'DM Mono',monospace;font-size:12px;color:var(--txt-m)}
+.ag{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.ac{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 14px;transition:box-shadow 150ms,border-color 150ms}
+.ac:hover{box-shadow:0 2px 10px rgba(0,0,0,.07);border-color:var(--border-md)}
+.actop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.ai{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.aname{font-weight:600;font-size:12px;color:var(--txt-1);margin-bottom:2px}
+.asub{font-size:11px;color:var(--txt-m);line-height:1.4}
+.mg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.mc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.mi{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:10px}
+.mt{font-weight:600;font-size:13px;color:var(--txt-1);margin-bottom:4px}
+.ms{font-size:12px;color:var(--txt-2);line-height:1.6}
+.skgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-bottom:8px}
+.skrow{display:flex;align-items:center;gap:9px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;transition:border-color 120ms}
+.skrow:hover{border-color:#7DD3FC}
+.skname{flex:1;font-weight:500;font-size:12px;color:var(--txt-1)}
+.skmeta{font-family:'DM Mono',monospace;font-size:10px;color:var(--txt-m)}
+.slc{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.slcstep{flex:1;padding:14px 16px;border-right:1px solid var(--border)}
+.slcstep:last-child{border-right:none}
+.slcstep:nth-child(odd){background:var(--canvas)}
+.slctier{font-family:'DM Mono',monospace;font-size:10px;color:var(--txt-m);letter-spacing:.1em;margin-bottom:3px}
+.slcname{font-weight:600;font-size:13px;color:var(--txt-1);margin-bottom:2px}
+.slcsub{font-size:11px;color:var(--txt-2)}
+.pw{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px}
+.pr{display:flex;align-items:center;gap:13px;padding:7px 0;border-bottom:1px solid var(--border)}
+.pr:last-child{border-bottom:none}
+.pl{font-size:12px;font-weight:500;color:var(--txt-2);width:192px;flex-shrink:0}
+.pt{flex:1;height:5px;background:var(--canvas);border-radius:3px;overflow:hidden}
+.pf{height:100%;border-radius:3px}
+.pp{font-family:'DM Mono',monospace;font-size:11px;color:var(--txt-m);width:36px;text-align:right;flex-shrink:0}
+.gc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:7px}
+.gc:last-child{margin-bottom:0}
+.gc.crit{border-left:3px solid var(--red)}
+.gc.mod{border-left:3px solid var(--orange)}
+.gtitle{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.gname{font-weight:600;font-size:13px;color:var(--txt-1)}
+.gbody{font-size:12px;color:var(--txt-2);line-height:1.6}
+.vg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.vc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.vtop{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.vicon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.vlabel{font-weight:600;font-size:13px;color:var(--txt-1)}
+.vbody{font-size:12px;color:var(--txt-2);line-height:1.65}
+.footer{display:flex;justify-content:space-between;align-items:center;padding-top:20px;border-top:1px solid var(--border);margin-top:4px}
+.fbrand{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--txt-1);letter-spacing:.03em}
+.fbrand span{color:var(--teal)}
+.fmeta{font-family:'DM Mono',monospace;font-size:10px;color:var(--txt-m);margin-top:2px}
+.fr{text-align:right;font-family:'DM Mono',monospace;font-size:10px;color:var(--txt-m);line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ti"><span class="td" style="background:#10B981"></span> JARVIS <span class="v">LIVE · SOCKET MODE</span></span>
+    <span class="ti"><span class="td" style="background:#0EA5E9"></span> Command Center <span class="v">sasmaster-status.vercel.app</span></span>
+    <span class="ti"><span class="td" style="background:#8B5CF6"></span> Skills Active <span class="v">25 · 8,700+ LINES</span></span>
+    <span class="ti"><span class="td" style="background:#F59E0B"></span> S3 Bucket <span class="v">sasmaster-2026 · 862K PARENT KEYS</span></span>
+    <span class="ti"><span class="td" style="background:#10B981"></span> Portal v9 <span class="v">15/15 QA GREEN</span></span>
+    <span class="ti"><span class="td" style="background:#0EA5E9"></span> Model Routing <span class="v">OPUS 4.7 PLAN · SONNET 4.6 EXEC</span></span>
+    <span class="ti"><span class="td" style="background:#FB923C"></span> Layer 7 <span class="v">P0 IN-FLIGHT · cost-log.jsonl</span></span>
+    <span class="ti"><span class="td" style="background:#10B981"></span> Agents <span class="v">10 ACTIVE · 18 CRON JOBS</span></span>
+    <span class="ti"><span class="td" style="background:#10B981"></span> JARVIS <span class="v">LIVE · SOCKET MODE</span></span>
+    <span class="ti"><span class="td" style="background:#0EA5E9"></span> Command Center <span class="v">sasmaster-status.vercel.app</span></span>
+    <span class="ti"><span class="td" style="background:#8B5CF6"></span> Skills Active <span class="v">25 · 8,700+ LINES</span></span>
+    <span class="ti"><span class="td" style="background:#F59E0B"></span> S3 Bucket <span class="v">sasmaster-2026 · 862K PARENT KEYS</span></span>
+    <span class="ti"><span class="td" style="background:#10B981"></span> Portal v9 <span class="v">15/15 QA GREEN</span></span>
+    <span class="ti"><span class="td" style="background:#0EA5E9"></span> Model Routing <span class="v">OPUS 4.7 PLAN · SONNET 4.6 EXEC</span></span>
+    <span class="ti"><span class="td" style="background:#FB923C"></span> Layer 7 <span class="v">P0 IN-FLIGHT · cost-log.jsonl</span></span>
+    <span class="ti"><span class="td" style="background:#10B981"></span> Agents <span class="v">10 ACTIVE · 18 CRON JOBS</span></span>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="hdr">
+    <div>
+      <div class="hdr-logo">
+        <div class="logo-box"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <span class="eyebrow">SaSMaster · Intelligence Platform</span>
+      </div>
+      <div class="h1">Architecture <span>Audit</span></div>
+      <div class="hsub">Comprehensive spec vs reality · Bloomberg Terminal for Media · Built by Shiv Ashish</div>
+    </div>
+    <div class="hdr-r">
+      <div class="hdate">2026-04-28 · v1.0</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <span class="chip chip-g"><span class="cdot-g"></span>v9 Live · 15/15 QA</span>
+        <span class="chip chip-o"><span class="cdot-o"></span>L7 P0 In-Flight</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="kl">Active Agents</div><div class="kv" style="color:var(--teal)">10</div><div class="kd">↑ from 4</div></div>
+    <div class="kpi"><div class="kl">Claude Skills</div><div class="kv" style="color:var(--purple)">25</div><div class="kd">8,700+ lines</div></div>
+    <div class="kpi"><div class="kl">Parent Keys</div><div class="kv" style="color:var(--green)">862K</div><div class="kd">↑ 47% from 589K</div></div>
+    <div class="kpi"><div class="kl">TMDB Records</div><div class="kv" style="color:var(--orange)">1.18M</div><div class="kd">bulk complete</div></div>
+    <div class="kpi"><div class="kl">Cron Jobs</div><div class="kv" style="color:var(--blue)">18</div><div class="kd">↑ from 7</div></div>
+    <div class="kpi"><div class="kl">Portal QA</div><div class="kv" style="color:var(--green)">15/15</div><div class="kd">v9 all green</div></div>
+  </div>
+
+  <div class="section">
+    <div class="sl"><span class="sn">01</span> 7-Layer Architecture — Current State</div>
+    <div class="card">
+      <table class="ltbl">
+        <thead><tr>
+          <th style="width:30px">#</th><th>Layer</th><th>Current Reality</th><th style="text-align:right;padding-right:18px">State</th>
+        </tr></thead>
+        <tbody>
+          <tr class="gr">
+            <td class="lnum">7</td>
+            <td><div style="display:flex;align-items:flex-start;gap:8px"><span class="sdot sg-"></span><div><div class="lname" style="color:var(--red)">Transparency + Messaging Hub</div><div class="ldesc">Structured output · event bus · War Room real-time · S3 audit</div></div></div></td>
+            <td class="ldetail">cost-log.jsonl confirmed in-flight (v9 §09). War Room polls /status every 30s — not event-driven. JSONL build log + S3 audit trail not yet live. MCP server (6 tools) is the strongest upgrade path foundation. Every downstream layer waits on this.</td>
+            <td style="text-align:right;padding-right:18px"><span class="badge bg">P0 · IN-FLIGHT</span></td>
+          </tr>
+          <tr>
+            <td class="lnum">6</td>
+            <td><div style="display:flex;align-items:flex-start;gap:8px"><span class="sdot sw-"></span><div><div class="lname">Self-Learning Feedback Loop</div><div class="ldesc">3-tier SLC: T1 learnings → T2 LESSONS → T3 SKILL.md</div></div></div></td>
+            <td class="ldetail">Formalized with slc-taxonomy skill (117 lines). Fri 5:50PM cron promotes patterns ≥3× to permanent SKILL.md. Full cost/error feedback loop still blocked by L7 — can't auto-route without cost-log data.</td>
+            <td style="text-align:right;padding-right:18px"><span class="badge bw">PROGRESSING</span></td>
+          </tr>
+          <tr>
+            <td class="lnum">5</td>
+            <td><div style="display:flex;align-items:flex-start;gap:8px"><span class="sdot sl-"></span><div><div class="lname">Output Caching</div><div class="ldesc">S3 freshness gate before scraper runs</div></div></div></td>
+            <td class="ldetail">15-scraper inventory with per-source cadence locked. TMDB 15d, IMDB date-partitioned, paths LOCKED Apr 21. Freshness logic confirmed sufficient for current phase.</td>
+            <td style="text-align:right;padding-right:18px"><span class="badge bl">LIVE</span></td>
+          </tr>
+          <tr>
+            <td class="lnum">4</td>
+            <td><div style="display:flex;align-items:flex-start;gap:8px"><span class="sdot sf-"></span><div><div class="lname">Session Scoping</div><div class="ldesc">1 Opus plan → N scoped Sonnet sessions</div></div></div></td>
+            <td class="ldetail">Correctly parked as LAST. Subagent spawning already demonstrates the pattern at smaller scale. Do not implement before timeout hardening + Layer 7 are live.</td>
+            <td style="text-align:right;padding-right:18px"><span class="badge bf">CORRECTLY LAST</span></td>
+          </tr>
+          <tr>
+            <td class="lnum">3</td>
+            <td><div style="display:flex;align-items:flex-start;gap:8px"><span class="sdot sl-"></span><div><div class="lname">Context Hygiene</div><div class="ldesc">CLAUDE_MEMORY.md · sub-agents · Obsidian vault</div></div></div></td>
+            <td class="ldetail"><strong>Solved via a superior mechanism.</strong> CLAUDE_MEMORY.md compressed to key:value &lt;250 tokens. Memory System v2 distributes context across 4 sub-agents + 8-doc Obsidian vault. Spec said "cap at 2K" — achieved at &lt;250 with distributed architecture. Layer 3 exceeded its own spec.</td>
+            <td style="text-align:right;padding-right:18px"><span class="badge bl">SOLVED ✓</span></td>
+          </tr>
+          <tr>
+            <td class="lnum">2</td>
+            <td><div style="display:flex;align-items:flex-start;gap:8px"><span class="sdot sf-"></span><div><div class="lname">Prompt Caching</div><div class="ldesc">90% cheaper re-reads on stable docs</div></div></div></td>
+            <td class="ldetail">Correctly deferred. Prerequisite: cost-log.jsonl must be live first to measure impact. No action until L7 lands.</td>
+            <td style="text-align:right;padding-right:18px"><span class="badge bf">DEFERRED</span></td>
+          </tr>
+          <tr>
+            <td class="lnum">1</td>
+            <td><div style="display:flex;align-items:flex-start;gap:8px"><span class="sdot sl-"></span><div><div class="lname">Model Routing — 3 Tiers</div><div class="ldesc">Opus 4.7 plan · Sonnet 4.6 exec · Haiku in-flight</div></div></div></td>
+            <td class="ldetail">Live and confirmed. opusplan config verified in Claude Code. Subagent spawning uses the same routing logic. Haiku tier not yet added but Sonnet/Opus split is fully operational.</td>
+            <td style="text-align:right;padding-right:18px"><span class="badge bl">LIVE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sl"><span class="sn">02</span> Agent Fleet — 10 Agents · All Documented</div>
+    <div class="ag">
+      <div class="ac"><div class="actop"><div class="ai" style="background:var(--green-lt)">⚡</div><span class="badge bl">LIVE</span></div><div class="aname">JARVIS</div><div class="asub">Socket Mode · 24/7 · launchd · !build !task !status · 7AM + 2PM self-score</div></div>
+      <div class="ac"><div class="actop"><div class="ai" style="background:var(--teal-lt)">📡</div><span class="badge bl">LIVE</span></div><div class="aname">Media Intel Agent</div><div class="asub">Daily 6AM · 3-tier · 13 sources → #intel</div></div>
+      <div class="ac"><div class="actop"><div class="ai" style="background:var(--teal-lt)">🔬</div><span class="badge bl">OK</span></div><div class="aname">Tech Intel Agent</div><div class="asub">Fri 6PM · 14 sources · AI/ML/infra → #intel</div></div>
+      <div class="ac"><div class="actop"><div class="ai" style="background:var(--purple-lt)">🥄</div><span class="badge bl">LIVE</span></div><div class="aname">Dr. Scoop</div><div class="asub">SSE service · :3002 · claude-sonnet-4-6 · portal-v9 on-demand</div></div>
+      <div class="ac"><div class="actop"><div class="ai" style="background:var(--blue-lt)">📊</div><span class="badge bn">NEW</span></div><div class="aname">SEC EDGAR</div><div class="asub">Daily 6:30AM · 10 cos · XBRL revenue + YoY delta → #intel</div></div>
+      <div class="ac"><div class="actop"><div class="ai" style="background:var(--blue-lt)">📈</div><span class="badge bn">NEW</span></div><div class="aname">DoneLog Analyst</div><div class="asub">Daily 12PM · gap analysis · auto-injects tasks → #builds</div></div>
+      <div class="ac"><div class="actop"><div class="ai" style="background:var(--blue-lt)">📻</div><span class="badge bn">NEW</span></div><div class="aname">IAB Agent</div><div class="asub">Mon 7AM · 4 surfaces · !iab on-demand → #intel + Obsidian</div></div>
+      <div class="ac"><div class="actop"><div class="ai" style="background:var(--green-lt)">🧪</div><span class="badge bn">NEW</span></div><div class="aname">QA Agent</div><div class="asub">Post-build · 15 Playwright checks · blocks on 3+ failures</div></div>
+      <div class="ac"><div class="actop"><div class="ai" style="background:var(--green-lt)">🔁</div><span class="badge bl">LIVE</span></div><div class="aname">Async Build Loop</div><div class="asub">Cron 5AM · sasmaster-build.sh · git auto-commit · retry logic</div></div>
+      <div class="ac"><div class="actop"><div class="ai" style="background:var(--orange-lt)">✍️</div><span class="badge bw">ROUTING</span></div><div class="aname">LinkedIn Agent</div><div class="asub">Mon 8PM · article drafter · /invite pending → #content</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sl"><span class="sn">03</span> Memory System v2 — Major Architecture Upgrade</div>
+    <div class="mg">
+      <div class="mc" style="border-top:3px solid var(--teal)"><div style="margin-bottom:7px"><span class="badge bn">UPGRADED</span></div><div class="mi" style="background:var(--teal-lt)">🧠</div><div class="mt">CLAUDE_MEMORY.md · &lt;250 tokens</div><div class="ms">Compressed to key:value format. All critical values preserved: S3 paths, Slack IDs, channel IDs, phase statuses, cron schedule, security state. deploy-memory.sh already run. update-memory.sh auto-called after builds, deploys, schema changes, and magic moments.</div></div>
+      <div class="mc" style="border-top:3px solid var(--blue)"><div style="margin-bottom:7px"><span class="badge bn">NEW IN v2</span></div><div class="mi" style="background:var(--blue-lt)">🤖</div><div class="mt">4 Sub-Agents — domain context pre-loaded</div><div class="ms"><strong>data-modeler</strong> (Opus 4.7, read-only) — schema authority, Parent Key design, DuckDB. <strong>scraper-debugger</strong> (Sonnet 4.6) — triage for 12 scrapers + 4 RSG consumers. <strong>jarvis-ops</strong> (Sonnet 4.6) — JARVIS daemon, cron, Slack. <strong>qa-agent</strong> (Sonnet 4.6) — 15-check Playwright gate.</div></div>
+      <div class="mc" style="border-top:3px solid var(--orange)"><div style="margin-bottom:7px"><span class="badge bn">NEW IN v2</span></div><div class="mi" style="background:var(--orange-lt)">📓</div><div class="mt">Obsidian Vault · 8 documents · git initialized</div><div class="ms">ADR-001 (Parent Key) · ADR-002 (S3 paths) · parent-key-v1.md · parquet-specs.md · scraper-inventory.md · agent-fleet.md · phase-status.md · jarvis-runbook.md. Auto-synced via sync-obsidian.sh at end of every update-memory.sh run.</div></div>
+      <div class="mc" style="border-top:3px solid var(--purple)"><div style="margin-bottom:7px"><span class="badge bp">NEW IN v2</span></div><div class="mi" style="background:var(--purple-lt)">🔍</div><div class="mt">conversation_search hints · Claude.ai recovery</div><div class="ms">14 topic → keyword mappings: EIDR backfill, Parent Key schema, TMDB pipeline, War Room deploy, JARVIS setup, UI design system, Nielsen license, sub-agents, Obsidian vault, and more. Solves the 30-slot Claude.ai context window limitation without manual re-explanation.</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sl"><span class="sn">04</span> Skill Library — 25 Skills · 8,700+ Lines · Self-Evolving</div>
+    <div class="skgrid">
+      <div class="skrow"><span class="sdot sn-"></span><span class="skname">sasmaster-north-star</span><span class="skmeta">191 lines · Apr 23</span><span class="badge bn">NEW</span></div>
+      <div class="skrow"><span class="sdot sn-"></span><span class="skname">autonomous-ui-designer</span><span class="skmeta">293 lines · Apr 24</span><span class="badge bn">NEW</span></div>
+      <div class="skrow"><span class="sdot sn-"></span><span class="skname">portal-detailpage</span><span class="skmeta">366 lines · Apr 23</span><span class="badge bn">NEW</span></div>
+      <div class="skrow"><span class="sdot sn-"></span><span class="skname">slc-taxonomy</span><span class="skmeta">117 lines · Apr 23</span><span class="badge bn">NEW</span></div>
+      <div class="skrow"><span class="sdot sn-"></span><span class="skname">bash-scripts-macos · css-debugging · svg-animation · vite-react-production</span><span class="badge bn">NEW ×4</span></div>
+      <div class="skrow"><span class="sdot sl-"></span><span class="skname">media-domain · duckdb-parquet · scraper-engineer · s3-data-architect · jarvis-ops · qa-agent · programming-researcher · data-viz</span><span class="badge bl">LIVE</span></div>
+    </div>
+    <div class="slc">
+      <div class="slcstep"><div class="slctier">T1 · Raw capture</div><div class="slcname">capture-learnings.sh</div><div class="slcsub">#skill-worthy tags → learnings.md · post-build hook</div></div>
+      <div style="display:flex;align-items:center;padding:0 4px;color:var(--txt-m);font-size:20px">›</div>
+      <div class="slcstep"><div class="slctier">T2 · Quality gate</div><div class="slcname">Manual curation</div><div class="slcsub">Reviewed → LESSONS.md · human filter before promotion</div></div>
+      <div style="display:flex;align-items:center;padding:0 4px;color:var(--txt-m);font-size:20px">›</div>
+      <div class="slcstep"><div class="slctier">T3 · Fri 5:50PM cron</div><div class="slcname">skill-review.sh</div><div class="slcsub">Patterns ≥3× → permanent SKILL.md updates</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sl"><span class="sn">05</span> Platform Progress — Layer by Layer</div>
+    <div class="pw">
+      <div class="pr"><div class="pl">Data Infrastructure</div><div class="pt"><div class="pf" style="width:90%;background:var(--green)"></div></div><div class="pp">90%</div></div>
+      <div class="pr"><div class="pl">Memory System</div><div class="pt"><div class="pf" style="width:85%;background:var(--teal)"></div></div><div class="pp">85%</div></div>
+      <div class="pr"><div class="pl">Portal + QA Gate</div><div class="pt"><div class="pf" style="width:85%;background:var(--green)"></div></div><div class="pp">85%</div></div>
+      <div class="pr"><div class="pl">Agent Fleet + Autonomy</div><div class="pt"><div class="pf" style="width:80%;background:var(--blue)"></div></div><div class="pp">80%</div></div>
+      <div class="pr"><div class="pl">Skill Library + SLC Pipeline</div><div class="pt"><div class="pf" style="width:75%;background:var(--purple)"></div></div><div class="pp">75%</div></div>
+      <div class="pr"><div class="pl">Self-Learning (full loop)</div><div class="pt"><div class="pf" style="width:50%;background:var(--orange)"></div></div><div class="pp">50%</div></div>
+      <div class="pr"><div class="pl">Transparency + Audit Trail</div><div class="pt"><div class="pf" style="width:30%;background:var(--red)"></div></div><div class="pp">30%</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sl"><span class="sn">06</span> Remaining Gaps — Prioritized</div>
+    <div class="gc crit">
+      <div class="gtitle"><span class="sdot sg-"></span><span class="gname">P0 — cost-log.jsonl + JSONL structured build output</span><span class="badge bg">NEXT BUILD</span></div>
+      <div class="gbody">The single remaining architectural unlock. Confirmed in-flight (v9 §09 build loop). Once live: prompt caching (L2) can be measured, SLC cost feedback closes, War Room upgrades from 30s polling to event-driven. The MCP server's <code style="font-family:'DM Mono',monospace;color:var(--teal)">get_logs</code> + <code style="font-family:'DM Mono',monospace;color:var(--teal)">tail_build</code> tools are already waiting for this data. Every downstream compounding layer activates on this single delivery.</div>
+    </div>
+    <div class="gc mod">
+      <div class="gtitle"><span class="sdot sw-"></span><span class="gname">War Room real-time upgrade — event bus vs 30s polling</span><span class="badge bw">AFTER L7</span></div>
+      <div class="gbody">Currently polls /status every 30s. Post cost-log: upgrade to event-driven via MCP server + Express API. Infrastructure already exists — this becomes a War Room UI change, not a new backend build.</div>
+    </div>
+    <div class="gc mod">
+      <div class="gtitle"><span class="sdot sw-"></span><span class="gname">SLC loop full closure — automated cost + error feedback into TASKS.md</span><span class="badge bw">AFTER L7</span></div>
+      <div class="gbody">3-tier pipeline formalized and documented. Missing: failure path (root cause → auto-inject fix → JARVIS picks up) and cost feedback (expensive tasks flagged, routing refined). Both require cost-log. slc-taxonomy skill already documents what needs to happen.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sl"><span class="sn">07</span> Verdict</div>
+    <div class="vg">
+      <div class="vc" style="border-top:3px solid var(--green)"><div class="vtop"><div class="vicon" style="background:var(--green-lt)">✅</div><div class="vlabel">Production-grade on fundamentals</div></div><div class="vbody">862K parent keys, 1.18M TMDB records, 10 agents, 18 cron jobs, portal v9 at 15/15 QA, Memory System v2 with 4 sub-agents and Obsidian vault, 25 skills at 8,700+ lines. This is a real production system, not a prototype. The overnight build cycle materially changed the architecture assessment.</div></div>
+      <div class="vc" style="border-top:3px solid var(--blue)"><div class="vtop"><div class="vicon" style="background:var(--blue-lt)">⭐</div><div class="vlabel">Memory System v2 is the sleeper win</div></div><div class="vbody">Compressing CLAUDE_MEMORY.md to &lt;250 tokens, deploying 4 domain-specific sub-agents, and the conversation_search hints table solved Layer 3 via a superior mechanism. Spec said "cap at 2K tokens" — achieved at &lt;250 with distributed sub-agents. Architecture exceeded its own spec.</div></div>
+      <div class="vc" style="border-top:3px solid var(--red)"><div class="vtop"><div class="vicon" style="background:var(--red-lt)">🔑</div><div class="vlabel">One unlock remaining</div></div><div class="vbody">cost-log.jsonl is the final architectural unlock — already in the v9 build loop diagram, confirmed in-flight. Once live: prompt caching, SLC cost feedback, and War Room real-time all become execution tasks — not design problems. The architecture is sound. This is the last plumbing piece.</div></div>
+      <div class="vc" style="border-top:3px solid var(--purple)"><div class="vtop"><div class="vicon" style="background:var(--purple-lt)">♻️</div><div class="vlabel">Compounding has already started</div></div><div class="vbody">9 new skills since Apr 22, 3-tier SLC formalized with its own skill, DoneLog Analyst injecting tasks at 12PM daily — early signals of the compounding loop working. The system is beginning to observe and improve itself. Layer 7 turns this from early signal into a reliable autonomous engine.</div></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>
+      <div class="fbrand">SasMaster <span>Intelligence</span> Platform</div>
+      <div class="fmeta">Bloomberg Terminal for Media · Platform Assessment v1.0 · Built by Shiv Ashish</div>
+    </div>
+    <div class="fr">
+      <div>sasmaster-status.vercel.app</div>
+      <div>api.sasmaster.dev · 2026-04-28</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
