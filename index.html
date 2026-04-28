@@ -884,6 +884,15 @@ a{color:inherit}
         </div>
       </div>
 
+      <!-- 24-Hour Agent Timeline (Gantt) -->
+      <div class="section" id="ganttSection">
+        <div class="sec-hdr">
+          <span class="sec-ttl">24-Hour Agent Timeline</span>
+          <span style="font-size:9px;color:var(--text-3);margin-left:auto;font-family:'DM Mono',monospace">All times EDT · live crontab</span>
+        </div>
+        <div id="ganttChart" style="overflow-x:auto;padding-bottom:4px"></div>
+      </div>
+
       <!-- Agent mini-grid -->
       <div class="section">
         <div class="sec-hdr">
@@ -1298,24 +1307,7 @@ function hideFetchError() {
 // ══════════════════════════════════════════════════════════
 // POPULATE ALL SECTIONS
 // ══════════════════════════════════════════════════════════
-function populateAll(d) {
-  populateKPIs(d);
-  populateHeaderPills(d);
-  populateBuildTicker(d);
-  populateAlerts(d);
-  populateRunningNow(d);
-  populateHighQueue(d);
-  populateAgentMiniGrid(d);
-  populateActivityStream(d);
-  populateDoneToday(d);
-  populateAgentFullGrid(d);
-  populateScrapers(d);
-  populateS3Grid(d);
-  populateKanban(d);
-  populateSidebar(d);
-  populateTmdbTimeline(d);
-  updateBottomBar(d);
-}
+// populateAll defined below (with Gantt + Kanban extensions)
 
 // ── KPIs ──────────────────────────────────────────────────
 function populateKPIs(d) {
@@ -1495,21 +1487,51 @@ function populateRunningNow(d) {
 
 // ── High Priority Queue ───────────────────────────────────
 function populateHighQueue(d) {
-  const tasks = (d.tasks || []).filter(t => t.priority === 'HIGH').slice(0, 4);
-  const el = document.getElementById('highQueue');
-  if (!tasks.length) { el.innerHTML = '<div style="font-size:11px;color:var(--text-3);padding:8px 0">No HIGH priority tasks</div>'; return; }
-  el.innerHTML = tasks.map(t => {
-    const tagCls = t.tag === 'DATA' ? 't-data' : t.tag === 'AGENT' ? 't-agent' : t.tag === 'UI' ? 't-ui' : 't-infra';
-    const isBlocked = t.title && t.title.includes('BLOCKED');
-    return `<div class="q-item${isBlocked?' blocked':''}">
-      <div class="qi-r1"><span class="qtype ${tagCls}">${escHtml(t.tag||'TASK')}</span>${isBlocked?'<span class="q-blk">⛔ BLOCKED</span>':''}</div>
-      <div class="qi-txt">${escHtml((t.title||'').substring(0,80))}</div>
-      ${t.est ? `<div class="qi-meta">Est: ${escHtml(t.est)}</div>` : ''}
-      <div class="qi-acts">
-        ${t.jobId ? `<button class="btn-sm" onclick="triggerJob('${t.jobId}', this)">▶ Fire</button>` : ''}
+  // Use kanban.backlog (HIGH priority) + in-progress + blocked — the live TASKS.md data
+  const kb      = d.kanban || {};
+  const q       = d.queue  || {};
+  const backlog  = (kb.backlog || q.highItems || []).filter(t => t.priority === 'HIGH');
+  const wip      = kb.inProgress || [];
+  const blocked  = kb.blocked    || [];
+  const items    = [...wip, ...blocked, ...backlog].slice(0, 6);
+  const el       = document.getElementById('highQueue');
+  if (!items.length) { el.innerHTML = '<div style="font-size:11px;color:var(--text-3);padding:8px 0">No HIGH priority tasks</div>'; return; }
+  el.innerHTML = items.map(t => {
+    const tagCls  = {'DATA':'t-data','AGENT':'t-agent','UI':'t-ui','EDGAR':'t-infra','QA':'t-data'}[t.tag] || 't-infra';
+    const isBlocked = t.state === 'BLOCKED';
+    const isWip     = t.state === 'WIP';
+    return `<div class="q-item${isBlocked?' blocked':''}" style="cursor:pointer" onclick="openDiagDrawer(${JSON.stringify(t).replace(/"/g,'&quot;')}, _lastData)">
+      <div class="qi-r1">
+        <span class="qtype ${tagCls}">${escHtml(t.tag||'TASK')}</span>
+        ${isBlocked ? '<span class="q-blk">⛔ BLOCKED</span>' : ''}
+        ${isWip     ? '<span style="font-size:9px;background:#1e3a5f;color:#60a5fa;padding:1px 6px;border-radius:3px;font-weight:700">▶ WIP</span>' : ''}
+        <span style="margin-left:auto;font-size:9px;color:var(--text-3);font-family:\'DM Mono\',monospace">⌕ diagnose</span>
       </div>
+      <div class="qi-txt">${escHtml((t.text||t.full||'').substring(0,90))}</div>
+      ${t.blockReason ? `<div style="font-size:9px;color:var(--crit);margin-top:2px">${escHtml(t.blockReason)}</div>` : ''}
     </div>`;
   }).join('');
+}
+
+function populateAll(d) {
+  _lastData = d;
+  populateKPIs(d);
+  populateHeaderPills(d);
+  populateBuildTicker(d);
+  populateAlerts(d);
+  populateRunningNow(d);
+  renderGantt(d);
+  populateHighQueue(d);
+  populateAgentMiniGrid(d);
+  populateActivityStream(d);
+  populateDoneToday(d);
+  populateAgentFullGrid(d);
+  populateScrapers(d);
+  populateS3Grid(d);
+  populateKanban(d);
+  populateSidebar(d);
+  populateTmdbTimeline(d);
+  updateBottomBar(d);
 }
 
 // ── Agent Mini-Grid ───────────────────────────────────────
@@ -2444,6 +2466,279 @@ loadResources();
 renderCosts();
 
 // Token handled server-side via Vercel proxy — no client token needed
+
+// ══════════════════════════════════════════════════════════
+// GANTT CHART
+// ══════════════════════════════════════════════════════════
+
+const GANTT_COLORS = {
+  build:   '#6366f1', data:    '#10b981', intel:  '#8b5cf6',
+  agent:   '#3b82f6', weekly:  '#f59e0b', system: '#64748b',
+};
+
+function parseGanttHour(timeStr) {
+  // "12:00 AM" → 0, "02:00 AM" → 2, "06:30 AM" → 6.5, "06:00 PM" → 18
+  if (!timeStr || timeStr.includes('*')) return null;
+  const m = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!m) return null;
+  let h = parseInt(m[1]), min = parseInt(m[2]);
+  const pm = m[3].toUpperCase() === 'PM';
+  if (pm && h !== 12) h += 12;
+  if (!pm && h === 12) h = 0;
+  return h + min / 60;
+}
+
+function ganttCategory(name) {
+  const n = name.toLowerCase();
+  if (/build|briefing|visuals|archive|reaper|score/.test(n)) return 'build';
+  if (/tmdb|imdb|eidr|nielsen|edgar/.test(n)) return 'data';
+  if (/intel|iab|media/.test(n)) return 'intel';
+  if (/jarvis|jarv/.test(n)) return 'agent';
+  if (/linkedin|weekly|financial|review|skill/.test(n)) return 'weekly';
+  return 'system';
+}
+
+function renderGantt(d) {
+  const el = document.getElementById('ganttChart');
+  if (!el) return;
+  const cron   = d.cron || [];
+  const agents = d.agents || [];
+
+  // Build rows: JARVIS full bar + cron entries with parseable times
+  const rows = [];
+
+  // JARVIS always first — full 24h bar
+  rows.push({ name: 'JARVIS', hour: null, full: true, cat: 'agent',
+    status: (agents.find(a => a.name === 'JARVIS') || {}).status || 'healthy' });
+
+  // Cron entries
+  const seen = new Set();
+  cron.forEach(c => {
+    const h = parseGanttHour(c.time);
+    if (h === null) return;
+    const key = `${c.name}-${c.time}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    const label = c.name.replace(/_/g,' ').replace(/\d{1,2}(am|pm)\w*/gi,'').trim();
+    rows.push({ name: label, hour: h, full: false, cat: ganttCategory(c.name),
+      weekly: c.weekly, status: c.status, time: c.time });
+  });
+
+  // SVG-free pure CSS Gantt
+  const HOURS = Array.from({length: 24}, (_, i) => i);
+  const ROW_H = 22;
+  const LABEL_W = 148;
+  const COL_W = 30; // px per hour
+  const W = LABEL_W + COL_W * 24;
+
+  const header = `
+    <div style="display:flex;min-width:${W}px;border-bottom:1px solid var(--bdr);padding-bottom:4px;margin-bottom:2px">
+      <div style="width:${LABEL_W}px;flex-shrink:0"></div>
+      ${HOURS.map(h => `<div style="width:${COL_W}px;text-align:center;font-size:9px;font-family:'DM Mono',monospace;color:${h===0||h===6||h===12||h===18?'var(--pur)':'var(--text-3)'}">
+        ${h}
+      </div>`).join('')}
+    </div>`;
+
+  const rowsHtml = rows.map(row => {
+    const col   = GANTT_COLORS[row.cat] || '#64748b';
+    const alpha = row.status === 'done' ? '0.4' : '0.85';
+    let barHtml = '';
+    if (row.full) {
+      barHtml = `<div style="position:absolute;left:0;right:0;top:3px;height:${ROW_H-8}px;background:${col};opacity:${alpha};border-radius:3px;display:flex;align-items:center;justify-content:center">
+        <span style="font-size:9px;color:#fff;font-weight:600;letter-spacing:.04em">24/7 Socket Mode daemon</span>
+      </div>`;
+    } else if (row.hour !== null) {
+      const left = row.hour * COL_W;
+      const w    = Math.max(COL_W * 0.8, 38);
+      barHtml = `<div style="position:absolute;left:${left}px;top:3px;width:${w}px;height:${ROW_H-8}px;background:${col};opacity:${alpha};border-radius:3px;display:flex;align-items:center;justify-content:center">
+        <span style="font-size:8px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden">${row.time||''}</span>
+      </div>`;
+    }
+    const weeklyTag = row.weekly ? `<span style="font-size:7px;color:var(--warn);margin-left:4px">wkly</span>` : '';
+    return `<div style="display:flex;min-width:${W}px;height:${ROW_H}px;align-items:center;border-bottom:1px solid var(--bdr)22">
+      <div style="width:${LABEL_W}px;flex-shrink:0;font-size:10px;color:var(--text-2);padding-right:8px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(row.name)}${weeklyTag}</div>
+      <div style="flex:1;position:relative;height:${ROW_H}px">${barHtml}</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div style="min-width:${W}px">${header}${rowsHtml}</div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// DIAGNOSTIC DRAWER
+// ══════════════════════════════════════════════════════════
+
+let _diagTask = null;
+let _diagData = null;
+
+function matchTaskToLog(task) {
+  const t = ((task.text || '') + ' ' + (task.tag || '')).toLowerCase();
+  if (/tmdb.*(collection|network|compan|season|episode|backfill|delta|bulk)/.test(t)) return 'tmdb-load';
+  if (/tmdb|trending/.test(t)) return 'tmdb-agent';
+  if (/media.intel/.test(t)) return 'media-intel';
+  if (/edgar|financial/.test(t)) return 'sec-edgar';
+  if (/linkedin/.test(t)) return 'linkedin-agent';
+  if (/eidr/.test(t)) return 'tmdb-load';
+  if (/jarvis/.test(t)) return 'jarvis';
+  if (/iab/.test(t)) return 'iab-agent';
+  if (/tech.intel/.test(t)) return 'tech-intel';
+  return null;
+}
+
+function openDiagDrawer(task, d) {
+  _diagTask = task;
+  _diagData = d;
+
+  const drawer = document.getElementById('diagDrawer');
+  const priCol = task.priority === 'HIGH' ? 'var(--crit)' : task.priority === 'MED' ? 'var(--warn)' : 'var(--text-3)';
+  const tagCls = {'DATA':'t-data','AGENT':'t-agent','UI':'t-ui','QA':'t-data','EDGAR':'t-infra'}[task.tag] || 't-infra';
+
+  // Related S3 entry
+  const s3Entry = (d.s3_lake || []).find(s => {
+    const n = (s.name || '').toLowerCase();
+    const t = (task.text || '').toLowerCase();
+    return n.includes('tmdb') && t.includes('tmdb') ||
+           n.includes('imdb') && t.includes('imdb') ||
+           n.includes('eidr') && t.includes('eidr');
+  });
+
+  drawer.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--bdr);background:var(--bg)">
+      <span class="qtype ${tagCls}" style="font-size:10px">${escHtml(task.tag||'TASK')}</span>
+      <span style="font-size:11px;font-weight:700;color:${priCol}">${task.priority}</span>
+      <span style="font-size:10px;color:var(--text-3);font-family:'DM Mono',monospace;margin-left:auto">${task.id ? '^'+task.id : ''}</span>
+      <button onclick="closeDiagDrawer()" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:14px;padding:2px 6px">✕</button>
+    </div>
+    <div style="padding:12px 16px;border-bottom:1px solid var(--bdr)">
+      <div style="font-size:12px;color:var(--text-1);line-height:1.5;font-weight:500">${escHtml(task.text||task.full||'')}</div>
+      ${task.sprint ? `<div style="font-size:9px;color:var(--text-3);margin-top:4px;font-family:'DM Mono',monospace">sprint: ${escHtml(task.sprint)}</div>` : ''}
+      ${task.state === 'BLOCKED' ? `<div style="margin-top:8px;padding:6px 8px;background:#3f1f1f;border-radius:4px;font-size:10px;color:var(--crit)">⛔ BLOCKED: ${escHtml(task.blockReason||'reason unknown')}</div>` : ''}
+    </div>
+    ${s3Entry ? `<div style="padding:10px 16px;border-bottom:1px solid var(--bdr)">
+      <div style="font-size:9px;color:var(--text-3);margin-bottom:4px;letter-spacing:.06em">S3 STATUS</div>
+      <div style="display:flex;gap:12px;font-size:10px">
+        <span style="color:var(--text-2)">${escHtml(s3Entry.name)}</span>
+        <span style="color:var(--ok)">${escHtml(String(s3Entry.size_gb||0))} GB</span>
+        <span style="color:var(--text-3)">${escHtml(s3Entry.freshness||'unknown')}</span>
+      </div>
+    </div>` : ''}
+    <div style="padding:10px 16px;border-bottom:1px solid var(--bdr)">
+      <div style="font-size:9px;color:var(--text-3);margin-bottom:6px;letter-spacing:.06em">LOG TAIL</div>
+      <div id="diagLog" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-2);background:var(--bg2);border-radius:4px;padding:8px;max-height:160px;overflow-y:auto;line-height:1.5">
+        <span style="color:var(--text-3)">fetching…</span>
+      </div>
+    </div>
+    <div style="padding:10px 16px;border-bottom:1px solid var(--bdr)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:9px;color:var(--text-3);letter-spacing:.06em">AI DIAGNOSIS</span>
+        <button id="diagScoopBtn" onclick="diagCallScoop()" class="btn-sm" style="margin-left:auto;font-size:9px">⚡ Diagnose</button>
+      </div>
+      <div id="diagScoop" style="font-size:10px;color:var(--text-2);line-height:1.6;min-height:32px;padding:4px 0">
+        <span style="color:var(--text-3)">Click Diagnose for AI analysis</span>
+      </div>
+    </div>
+    <div style="padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap">
+      ${task.id && !task.id.startsWith('t') ? `
+        <button class="btn-sm" onclick="taskAction('start','${task.id}',this)">▶ Start</button>
+        <button class="btn-sm" style="color:var(--ok)" onclick="taskCompletePrompt('${task.id}',this)">✅ Done</button>
+        ${task.state === 'BLOCKED'
+          ? `<button class="btn-sm" onclick="taskAction('unblock','${task.id}',this)">🔓 Unblock</button>`
+          : `<button class="btn-sm" style="color:var(--crit)" onclick="taskBlockPrompt('${task.id}',this)">⛔ Block</button>`}
+      ` : ''}
+    </div>`;
+
+  drawer.classList.add('open');
+  diagFetchLog(task);
+}
+
+function closeDiagDrawer() {
+  document.getElementById('diagDrawer').classList.remove('open');
+}
+
+async function diagFetchLog(task) {
+  const logEl = document.getElementById('diagLog');
+  if (!logEl) return;
+  const agent = matchTaskToLog(task);
+  if (!agent) { logEl.textContent = 'No log source matched for this task type.'; return; }
+  try {
+    const r = await fetch(apiUrl(`/logs?agent=${encodeURIComponent(agent)}&lines=30`), { headers: authHeaders() });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    const lines = (data.content || '').split('\n').filter(Boolean);
+    logEl.innerHTML = lines.map(l => {
+      const col = /error|fail|fatal/i.test(l) ? 'var(--crit)' : /warn/i.test(l) ? 'var(--warn)' : /✅|complete|done/i.test(l) ? 'var(--ok)' : 'var(--text-2)';
+      return `<div style="color:${col}">${escHtml(l)}</div>`;
+    }).join('') || '<div style="color:var(--text-3)">No log output</div>';
+  } catch(e) {
+    logEl.textContent = 'Could not fetch log: ' + e.message;
+  }
+}
+
+async function diagCallScoop() {
+  const task  = _diagTask;
+  const logEl = document.getElementById('diagLog');
+  const out   = document.getElementById('diagScoop');
+  const btn   = document.getElementById('diagScoopBtn');
+  if (!task || !out) return;
+  btn.textContent = '…';
+  btn.disabled    = true;
+
+  const logContext = logEl ? logEl.innerText.slice(-800) : '';
+  const prompt = `Diagnose this SaSMaster task. Be brief and actionable (3-5 sentences max).
+
+Task: ${task.text}
+Priority: ${task.priority} | Tag: ${task.tag} | State: ${task.state}
+${task.state === 'BLOCKED' ? 'Blocked reason: ' + task.blockReason : ''}
+Recent log tail:
+${logContext || '(no log available)'}
+
+What is likely wrong and what should be done next?`;
+
+  try {
+    out.innerHTML = '<span style="color:var(--text-3)">Analyzing…</span>';
+    const r = await fetch(apiUrl('/api/scoop/chat'), {
+      method: 'POST',
+      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: prompt, context: 'ops-diagnosis' }),
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+
+    // SSE streaming
+    const reader = r.body.getReader();
+    const decoder = new TextDecoder();
+    out.textContent = '';
+    let buf = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const chunk = JSON.parse(line.slice(6));
+            if (chunk.text) out.textContent += chunk.text;
+          } catch {}
+        }
+      }
+    }
+  } catch(e) {
+    out.textContent = 'Diagnosis failed: ' + e.message;
+  } finally {
+    btn.textContent = '⚡ Diagnose';
+    btn.disabled    = false;
+  }
+}
+
 </script>
+
+<!-- Diagnostic Drawer -->
+<div id="diagDrawer" style="position:fixed;right:-480px;top:0;width:480px;height:100vh;background:var(--bg);border-left:1px solid var(--pbd);z-index:600;overflow-y:auto;transition:right .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column">
+</div>
+<style>
+#diagDrawer.open { right: 0 !important; }
+</style>
+
 </body>
 </html>
