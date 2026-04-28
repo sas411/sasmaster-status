@@ -3262,6 +3262,35 @@ async function telLoadBuilds() {
   } catch(e) {}
 }
 
+function telBuildSummary(entry, ev) {
+  const status = String(entry.status || '').toUpperCase();
+  const durS = parseInt(entry.duration_s || 0, 10);
+  const durStr = durS > 0 ? Math.floor(durS/60) + 'm ' + (durS%60) + 's' : null;
+  const fileCount = (entry.files_touched || []).length;
+  const skills = (entry.skills_loaded || []);
+  const taskName = String(entry.task_name || (ev && ev.agent_name) || 'Build');
+  const rc = entry.root_cause ? String(entry.root_cause).slice(0, 100) : null;
+  const parts = [];
+  if (status === 'COMPLETE') {
+    parts.push('Completed successfully');
+    if (durStr) parts.push('in ' + durStr);
+    if (fileCount > 0) parts.push(fileCount + ' file' + (fileCount > 1 ? 's' : '') + ' modified');
+    if (skills.length > 0) parts.push('skills: ' + skills.join(', '));
+  } else if (status === 'FAILED') {
+    parts.push('Build failed');
+    if (durStr) parts.push('after ' + durStr);
+    if (rc) parts.push('— ' + rc);
+  } else if (status === 'DEFERRED') {
+    parts.push('Deferred — task spec incomplete (missing required field)');
+  } else if (ev && ev.event_type) {
+    parts.push(String(ev.event_type).replace(/_/g, ' ').toLowerCase());
+    if (durStr) parts.push(durStr);
+  } else {
+    parts.push(taskName);
+  }
+  return parts.join(' · ');
+}
+
 function telRenderDetail(ev, build) {
   const el = document.getElementById('tel-detail');
   if (!el) return;
@@ -3274,8 +3303,10 @@ function telRenderDetail(ev, build) {
   const files = (entry.files_touched || []).join(', ') || '--';
   const logTxt = [(entry.decisions||[]).join('\n'), (entry.errors||[]).join('\n')].filter(Boolean).join('\n') || '(no log entries)';
   const isHeal = ev && String(ev.event_type||'').toUpperCase() === 'SELF_HEAL';
+  const summary = telBuildSummary(entry, ev);
   el.innerHTML =
     (isHeal ? '<div class="tel-heal-banner">🔧 Self-heal detected — root cause resolved automatically</div>' : '') +
+    '<div style="background:#F8FAFC;border:0.5px solid #E2E8F0;border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#1E293B;line-height:1.5">' + escHtml(summary) + '</div>' +
     '<div class="tel-detail-lbl">Task Name</div><div class="tel-detail-val">' + escHtml(String(entry.task_name || (ev&&ev.agent_name) || '--')) + '</div>' +
     '<div class="tel-detail-lbl">Task ID</div><div class="tel-detail-val" style="font-family:var(--mono);font-size:10px">' + escHtml(String(entry.task_id || (ev&&ev.task_id) || '--')) + '</div>' +
     '<div class="tel-detail-lbl">Status</div><div style="margin-bottom:8px"><span class="tel-status-chip ' + chipCls + '">' + status + '</span></div>' +
