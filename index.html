@@ -778,20 +778,20 @@ a{color:inherit}
     <div class="kpi-val" id="kpiS3">--</div>
     <div class="kpi-sub" id="kpiS3Sub">GB total</div>
   </div>
-  <div class="kpi-card" onclick="switchTab('data')">
-    <div class="kpi-lbl">IMDB ROWS</div>
-    <div class="kpi-val ok" id="kpiImdb">206.4M</div>
-    <div class="kpi-sub">in S3</div>
+  <div class="kpi-card" onclick="switchTab('queue')">
+    <div class="kpi-lbl">FOLLOW UP ITEMS</div>
+    <div class="kpi-val" id="kpiImdb">--</div>
+    <div class="kpi-sub" id="kpiImdbSub">needing attention</div>
   </div>
-  <div class="kpi-card" onclick="switchTab('data')">
-    <div class="kpi-lbl">PARENT KEYS</div>
-    <div class="kpi-val ok" id="kpiParent">--</div>
-    <div class="kpi-sub">matched titles</div>
+  <div class="kpi-card" onclick="switchTab('queue')">
+    <div class="kpi-lbl">READY TO RUN</div>
+    <div class="kpi-val" id="kpiParent">--</div>
+    <div class="kpi-sub" id="kpiParentSub">HIGH priority</div>
   </div>
-  <div class="kpi-card" onclick="switchTab('data')">
-    <div class="kpi-lbl">TMDB</div>
-    <div class="kpi-val warn" id="kpiTmdb">--%</div>
-    <div class="kpi-sub" id="kpiTmdbSub">loading</div>
+  <div class="kpi-card" onclick="switchTab('queue')">
+    <div class="kpi-lbl">DEPLOYED TODAY</div>
+    <div class="kpi-val" id="kpiTmdb">--</div>
+    <div class="kpi-sub" id="kpiTmdbSub">past 24 hours</div>
   </div>
 </div>
 
@@ -1325,13 +1325,24 @@ function populateKPIs(d) {
   const gb = k.s3_gb || 0;
   document.getElementById('kpiS3').textContent = gb.toFixed(1) + ' GB';
 
-  const pk = k.parent_key_rows || 0;
-  document.getElementById('kpiParent').textContent = pk > 1000000 ? (pk/1000000).toFixed(2) + 'M' : pk > 1000 ? Math.round(pk/1000) + 'K' : pk;
+  // Follow Up Items — REVIEW + BLOCKED tasks from TASKS.md (real kanban state)
+  const kb = d.kanban || {};
+  const followUp = (kb.counts?.review || 0) + (kb.counts?.blocked || 0);
+  document.getElementById('kpiImdb').textContent = followUp;
+  document.getElementById('kpiImdb').className = 'kpi-val ' + (followUp === 0 ? 'ok' : followUp <= 5 ? 'warn' : 'crit');
+  document.getElementById('kpiImdbSub').textContent = followUp === 0 ? 'all clear' : followUp + ' need attention';
 
-  const tmdbPct = tp.pct || tp.complete && tp.total ? Math.round((tp.complete/tp.total)*100) : 0;
-  document.getElementById('kpiTmdb').textContent = tmdbPct + '%';
-  document.getElementById('kpiTmdb').className = 'kpi-val ' + (tmdbPct >= 100 ? 'ok' : tmdbPct > 0 ? 'warn' : '');
-  document.getElementById('kpiTmdbSub').textContent = tp.phase || (tmdbPct >= 100 ? 'complete' : 'loading');
+  // Ready To Run — HIGH priority BACKLOG tasks from TASKS.md
+  const readyToRun = d.queue?.high || (d.queue?.highItems || []).length || 0;
+  document.getElementById('kpiParent').textContent = readyToRun;
+  document.getElementById('kpiParent').className = 'kpi-val ' + (readyToRun > 15 ? 'crit' : readyToRun > 8 ? 'warn' : 'ok');
+  document.getElementById('kpiParentSub').textContent = 'HIGH priority';
+
+  // Deployed Today — build events since midnight from daily JSONL log
+  const deployedToday = k.build_events_today || 0;
+  document.getElementById('kpiTmdb').textContent = deployedToday;
+  document.getElementById('kpiTmdb').className = 'kpi-val ' + (deployedToday > 0 ? 'ok' : '');
+  document.getElementById('kpiTmdbSub').textContent = deployedToday === 1 ? '1 item today' : deployedToday + ' items today';
 
   // Health score
   updateHealthScore(d);
