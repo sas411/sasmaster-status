@@ -178,7 +178,7 @@
       </div>
       <div class="sc-body">
         <div class="sc-row"><span class="sc-key">SOURCE</span><span class="sc-val"><code>api.themoviedb.org/3</code> + <code>files.tmdb.org/p/exports/</code></span></div>
-        <div class="sc-row"><span class="sc-key">SCHEDULE</span><span class="sc-val">On-demand (initial bulk); continuation chain via run-tmdb-continuation-chain.sh</span></div>
+        <div class="sc-row"><span class="sc-key">SCHEDULE</span><span class="sc-val">COMPLETE — 1.18M records landed Apr 24, 2026</span></div>
         <div class="sc-row"><span class="sc-key">OUTPUT</span><span class="sc-val"><code>tmdb_dev/movies/</code> · <code>tmdb_dev/tv_series/</code> · <code>tmdb_dev/people/</code></span></div>
         <div class="sc-row"><span class="sc-key">FORMAT</span><span class="sc-val">NDJSON raw (STANDARD_IA)</span></div>
         <div class="sc-row"><span class="sc-key">RATE</span><span class="sc-val">RATE_LIMIT_MS=25 → ~40 req/sec (TMDB cap ~50/sec)</span></div>
@@ -280,6 +280,24 @@ duckdb -c "SELECT COUNT(*) FROM read_ndjson('s3://sasmaster-2026/tmdb_dev/collec
       </div>
     </div>
 
+    <div class="scraper-card supp" style="border-top-color:var(--ok);">
+      <div class="sc-header">
+        <div class="sc-num" style="background:var(--ok-bg);color:var(--ok);">12</div>
+        <div>
+          <div class="sc-name">eidr-scraper</div>
+          <div class="sc-script">~/SaSMaster/scripts/load-eidr-to-s3.js</div>
+        </div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-row"><span class="sc-key">SOURCE</span><span class="sc-val">EIDR Registry API (eidr.org) + Gracenote delta (gracenoteview.com)</span></div>
+        <div class="sc-row"><span class="sc-key">STATUS</span><span class="sc-val" style="color:var(--ok);font-weight:700;">STAGED — enrich-imdb command ready; fires when Gracenote Query API auth activates</span></div>
+        <div class="sc-row"><span class="sc-key">OUTPUT</span><span class="sc-val"><code>s3://sasmaster-2026/eidr/</code> (staged)</span></div>
+        <div class="sc-row"><span class="sc-key">RECORDS</span><span class="sc-val">654K EIDR IDs across 3 runs · 386K movies + 42K TV staged for IMDB enrichment</span></div>
+        <div class="sc-row"><span class="sc-key">DEPENDS</span><span class="sc-val">Gracenote Query API auth activation; uses shiv.sehgal@u.nus.edu account for delta access</span></div>
+        <div class="sc-validation">aws s3 ls s3://sasmaster-2026/eidr/ --recursive | wc -l</div>
+      </div>
+    </div>
+
   </div>
 
   <!-- IMDB pipeline -->
@@ -372,7 +390,7 @@ duckdb -c "SELECT COUNT(*) FROM read_ndjson('s3://sasmaster-2026/tmdb_dev/collec
   </div>
 
   <div class="footer">
-    SaSMaster Scraper Background Knowledge v1 · Documented 2026-04-22 · Full spec in ~/SaSMaster/obsidian/02-Scrapers/
+    SaSMaster Scraper Background Knowledge v1 · Updated 2026-04-28 · Full spec in ~/SaSMaster/obsidian/02-Scrapers/
   </div>
 
 </div>

@@ -1285,7 +1285,7 @@ body::before {
       <div class="stat-label">Memory Layers</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-val" style="color:var(--teal)">24</div>
+      <div class="stat-val" style="color:var(--teal)">25</div>
       <div class="stat-label">Claude Skills</div>
     </div>
     <div class="stat-cell">
@@ -1692,6 +1692,12 @@ body::before {
             <div class="skill-type">Misc</div>
             <div class="skill-path">/user/</div>
           </div>
+          <div class="skill-row">
+            <div class="skill-dot active"></div>
+            <div class="skill-name">playwright-debugger</div>
+            <div class="skill-type">Engineering/QA</div>
+            <div class="skill-path">/user/playwright-debugger/ <span style="color:var(--green)">↑ Apr 28</span></div>
+          </div>
         </div>
       </div>
 
@@ -1902,13 +1908,76 @@ body::before {
           <div class="ac-meta">Cron Fri 5:50PM · LESSONS.md (T2) → promote → SKILL.md (T3)</div>
         </div>
       </div>
+
+      <div class="auto-card card-teal">
+        <div class="ac-top teal"></div>
+        <div class="ac-body">
+          <div class="ac-icon-row">
+            <div class="ac-icon teal">📡</div>
+            <div class="ac-status live">live</div>
+          </div>
+          <div class="ac-name">IAB Agent</div>
+          <div class="ac-desc">
+            Monday 7AM EDT + on-demand !iab. Four intelligence surfaces: IAB-ecosystem streaming news, NYC media events, academic research summaries, tech &amp; standards advances. Fires agents/iab-agent.js, posts to <code style="font-family:var(--font-mono);font-size:11px;color:var(--teal)">#intel</code>, commits to Obsidian vault.
+          </div>
+          <div class="ac-meta">Mon 7:00AM EDT · !iab on-demand · 4 surfaces · Obsidian vault</div>
+        </div>
+      </div>
+
+      <div class="auto-card card-green">
+        <div class="ac-top green"></div>
+        <div class="ac-body">
+          <div class="ac-icon-row">
+            <div class="ac-icon green">🧪</div>
+            <div class="ac-status live">live</div>
+          </div>
+          <div class="ac-name">QA Agent</div>
+          <div class="ac-desc">
+            Auto-fires post-build, on-demand via !qa [show_id]. Fifteen Playwright checks (headless Chromium) against live Vercel portal URL. Field-level PASS/FAIL for NETWORK, TYPE, WHERE TO WATCH, User Score, drill-down nav, ID format resolution. Posts report to <code style="font-family:var(--font-mono);font-size:11px;color:var(--green)">#builds</code>. Registry: qa-cases.json. Blocks build marking on 3+ failures.
+          </div>
+          <div class="ac-meta">Post-build auto-fire · !qa · 15 checks · qa-cases.json · blocks on 3+ failures</div>
+        </div>
+      </div>
+
+      <div class="auto-card card-lavender">
+        <div class="ac-top lavender"></div>
+        <div class="ac-body">
+          <div class="ac-icon-row">
+            <div class="ac-icon lavender">🥄</div>
+            <div class="ac-status live">live</div>
+          </div>
+          <div class="ac-name">Dr. Scoop</div>
+          <div class="ac-desc">
+            Live AI companion service. Persistent SSE endpoint at POST /api/scoop/chat on :3002. Model: claude-sonnet-4-6. Prompt in services/scoop/prompt.md. Embedded in portal-v9 as floating chat UI.
+          </div>
+          <div class="ac-meta">POST /api/scoop/chat · :3002 · claude-sonnet-4-6 · portal-v9</div>
+        </div>
+      </div>
     </div>
 
     <!-- Cron Schedule -->
     <div class="cron-panel fade-in">
       <div class="cron-header">
-        <div class="cron-title">Autonomous Cron Schedule</div>
+        <div class="cron-title">Autonomous Cron Schedule · 18 Jobs</div>
         <div class="cron-tz">EDT (America/New_York)</div>
+      </div>
+      <div class="cron-row" style="background:rgba(167,139,250,0.04);">
+        <div class="cron-time">00:00 daily</div>
+        <div class="cron-task">Nightly Build + TMDB trending<span>sasmaster-build.sh + spike detection</span></div>
+        <div class="cron-channel">#builds, #content</div>
+        <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">1st+16th</div>
+        <div class="cron-task">TMDB Delta Load<span>biweekly delta loader → S3 tmdb_dev/deltas</span></div>
+        <div class="cron-channel">S3 tmdb_dev/deltas</div>
+        <div class="cron-freq"><span class="freq-pill freq-weekly">Biweekly</span></div>
+      </div>
+      <div class="cron-row" style="background:rgba(34,211,238,0.03);">
+        <div class="cron-time">2:00 AM</div>
+        <div class="cron-task">TMDB Bulk Load<span>COMPLETE Apr 24 · 1.18M records</span></div>
+        <div class="cron-channel">S3 tmdb_dev</div>
+        <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
       </div>
       <div class="cron-row" style="background:rgba(167,139,250,0.04);">
         <div class="cron-time">5:00 AM</div>
@@ -1917,8 +1986,14 @@ body::before {
         <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
       </div>
       <div class="cron-row">
+        <div class="cron-time">5:00 AM</div>
+        <div class="cron-task">TMDB Daily Agent<span>trending + new content signals</span></div>
+        <div class="cron-channel">#intel</div>
+        <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
+      </div>
+      <div class="cron-row" style="background:rgba(167,139,250,0.04);">
         <div class="cron-time">5:02 AM</div>
-        <div class="cron-task">Visual Poster<span>daily-visuals.sh → board + arch PNGs</span></div>
+        <div class="cron-task">Daily Visuals<span>daily-visuals.sh → board + arch PNGs</span></div>
         <div class="cron-channel">#builds</div>
         <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
       </div>
@@ -1929,28 +2004,70 @@ body::before {
         <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
       </div>
       <div class="cron-row">
-        <div class="cron-time">7:00 AM</div>
-        <div class="cron-task">JARVIS Self-Score<span>TASKS.md review → auto-build if HIGH</span></div>
+        <div class="cron-time">6:05 AM</div>
+        <div class="cron-task">Morning Package<span>compiled morning briefing bundle</span></div>
         <div class="cron-channel">#builds</div>
         <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
       </div>
       <div class="cron-row" style="background:rgba(167,139,250,0.04);">
-        <div class="cron-time">2:00 PM</div>
-        <div class="cron-task">JARVIS Self-Score<span>Afternoon check + inject queued tasks</span></div>
+        <div class="cron-time">6:30 AM</div>
+        <div class="cron-task">SEC EDGAR Scraper<span>10 companies · XBRL revenue + YoY delta</span></div>
+        <div class="cron-channel">#intel</div>
+        <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">7:00 AM</div>
+        <div class="cron-task">JARVIS Score Queue AM<span>TASKS.md review → auto-build if HIGH</span></div>
+        <div class="cron-channel">#builds</div>
+        <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
+      </div>
+      <div class="cron-row" style="background:rgba(34,211,238,0.03);">
+        <div class="cron-time">7:00 AM · Mon</div>
+        <div class="cron-task">IAB Intelligence<span>4 surfaces · streaming · NYC · research · standards</span></div>
+        <div class="cron-channel">#intel</div>
+        <div class="cron-freq"><span class="freq-pill freq-weekly">Weekly</span></div>
+      </div>
+      <div class="cron-row" style="background:rgba(167,139,250,0.04);">
+        <div class="cron-time">12:00 PM</div>
+        <div class="cron-task">DoneLog Analyst<span>portal coverage gap analysis</span></div>
         <div class="cron-channel">#builds</div>
         <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
       </div>
       <div class="cron-row">
-        <div class="cron-time">Fri 5:50 PM</div>
-        <div class="cron-task">Skill Review<span>skill-review.sh → LESSONS.md (T2) → promote → SKILL.md (T3)</span></div>
-        <div class="cron-channel">local</div>
-        <div class="cron-freq"><span class="freq-pill freq-weekly">Weekly</span></div>
+        <div class="cron-time">2:00 PM</div>
+        <div class="cron-task">JARVIS Score Queue PM<span>Afternoon check + inject queued tasks</span></div>
+        <div class="cron-channel">#builds</div>
+        <div class="cron-freq"><span class="freq-pill freq-daily">Daily</span></div>
       </div>
       <div class="cron-row" style="background:rgba(34,211,238,0.03);">
+        <div class="cron-time">Fri 5:50 PM</div>
+        <div class="cron-task">Skill Review<span>skill-review.sh → T2 → T3 promotion</span></div>
+        <div class="cron-channel">internal</div>
+        <div class="cron-freq"><span class="freq-pill freq-weekly">Weekly</span></div>
+      </div>
+      <div class="cron-row">
         <div class="cron-time">Fri 6:00 PM</div>
         <div class="cron-task">Tech Intel Agent<span>14-source weekly tech scan</span></div>
         <div class="cron-channel">#intel</div>
         <div class="cron-freq"><span class="freq-pill freq-weekly">Weekly</span></div>
+      </div>
+      <div class="cron-row" style="background:rgba(167,139,250,0.04);">
+        <div class="cron-time">Sun 8:10 PM</div>
+        <div class="cron-task">Financial Analyst<span>weekly market + media finance digest</span></div>
+        <div class="cron-channel">#intel</div>
+        <div class="cron-freq"><span class="freq-pill freq-weekly">Weekly</span></div>
+      </div>
+      <div class="cron-row">
+        <div class="cron-time">Mon 8:00 PM</div>
+        <div class="cron-task">LinkedIn Agent<span>article drafter in Shiv's voice</span></div>
+        <div class="cron-channel">#content</div>
+        <div class="cron-freq"><span class="freq-pill freq-weekly">Weekly</span></div>
+      </div>
+      <div class="cron-row" style="background:rgba(34,211,238,0.03);">
+        <div class="cron-time">Post-build</div>
+        <div class="cron-task">QA Agent<span>15 Playwright checks · qa-cases.json · blocks on 3+ failures</span></div>
+        <div class="cron-channel">#builds</div>
+        <div class="cron-freq"><span class="freq-pill freq-weekly">Triggered</span></div>
       </div>
     </div>
 
@@ -2017,7 +2134,7 @@ body::before {
         <div style="text-align:center;padding:16px 24px;background:var(--bg-3);border-radius:10px;border:1px solid var(--teal-border)">
           <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Trigger Surface 2</div>
           <div style="font-family:var(--font-sub);font-size:15px;font-weight:600;color:var(--teal)">JARVIS Slack</div>
-          <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:4px">!build !task !briefing !status</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:4px">!build !task !briefing !status !iab !qa !qa-add</div>
         </div>
         <div style="text-align:center;padding:16px 24px;background:var(--bg-3);border-radius:10px;border:1px solid rgba(251,191,36,0.15)">
           <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">Backend</div>
@@ -2071,11 +2188,11 @@ body::before {
         <span>SaS</span><span>MaStEr</span>
       </div>
       <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:0.05em">
-        Bloomberg Terminal for Media · Intelligence Architecture v8
+        Bloomberg Terminal for Media · Intelligence Architecture v9
       </div>
     </div>
     <div class="footer-meta">
-      <p class="version">v8 · April 23, 2026</p>
+      <p class="version">v9 · April 28, 2026</p>
       <p>sasmaster-status.vercel.app</p>
       <p>api.sasmaster.dev · sas411/sasmaster</p>
       <p style="margin-top:8px;color:rgba(122,122,154,0.5)">CONFIDENTIAL · SHIV ASHISH</p>
@@ -2113,7 +2230,7 @@ function animateCounter(el, target, suffix='') {
 }
 
 const statVals = document.querySelectorAll('.stat-val');
-const statNumbers = [4, 24, 4, 11, 5];
+const statNumbers = [4, 25, 4, 11, 5];
 const statObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {

@@ -232,12 +232,11 @@
 <div class="page-header">
   <div class="eyebrow">SaSMaster · Infrastructure</div>
   <h1>Cron Schedule Visualizer</h1>
-  <div class="sub">18 jobs · daily + weekly + biweekly + every-5-min · sourced from live crontab</div>
+  <div class="sub">18 jobs · daily + weekly + biweekly + post-build · sourced from live crontab</div>
   <div class="badge-row">
     <span class="badge badge-ok"><span class="dot-live"></span>18 Live Jobs</span>
     <span class="badge badge-info">6 Categories</span>
     <span class="badge badge-warn">5AM–7AM peak window</span>
-    <span class="badge badge-lav">Every 5 min: Slack feed cache</span>
   </div>
 </div>
 
@@ -250,11 +249,11 @@
       <div class="stat-label">Total Jobs</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num" style="color:var(--ok);">13</div>
+      <div class="stat-num" style="color:var(--ok);">11</div>
       <div class="stat-label">Daily</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num" style="color:var(--info);">4</div>
+      <div class="stat-num" style="color:var(--info);">6</div>
       <div class="stat-label">Weekly</div>
     </div>
     <div class="stat-card">
@@ -262,8 +261,8 @@
       <div class="stat-label">Biweekly</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num" style="color:var(--c-util);">1</div>
-      <div class="stat-label">Every 5 min</div>
+      <div class="stat-num" style="color:var(--ok);">2</div>
+      <div class="stat-label">Post-Build</div>
     </div>
     <div class="stat-card">
       <div class="stat-num" style="color:var(--c-comms);">5AM–7AM</div>
@@ -419,6 +418,7 @@
       <div class="ds-body">
         <div class="ds-name">TMDB Bulk Load</div>
         <div class="ds-script">scripts/load-tmdb-to-s3.js all</div>
+        <span style="font-size:10px;color:var(--ok);font-weight:700;">✓ COMPLETE Apr 24</span>
         <span class="ds-channel" style="background:var(--c-data-bg);color:var(--c-data);border:1px solid var(--c-data-border);">S3</span>
         <span class="ds-freq">daily</span>
       </div>
@@ -502,6 +502,17 @@
       </div>
     </div>
 
+    <div class="ds-row" style="border-color:var(--c-intel-border);background:var(--c-intel-bg);">
+      <div class="ds-time" style="background:var(--c-intel);font-size:10px;">07:00<br><span style="opacity:.7;font-size:9px;">Mon only</span></div>
+      <div class="ds-body">
+        <div class="ds-name">IAB Intelligence</div>
+        <div class="ds-script">agents/iab-agent.js</div>
+        <span class="ds-channel" style="background:#D1FAE5;color:var(--c-intel);border:1px solid var(--c-intel-border);">#intel</span>
+        <span style="font-size:10px;color:var(--ink-400);">4 surfaces · streaming · NYC · research · standards</span>
+        <span class="ds-freq">weekly</span>
+      </div>
+    </div>
+
     <div style="display:flex;align-items:center;gap:8px;margin:10px 0 6px;padding:0 4px;">
       <span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-400);">▼ Midday / Afternoon</span>
       <span style="flex:1;height:1px;background:var(--lav-200);"></span>
@@ -529,18 +540,29 @@
     </div>
 
     <div style="display:flex;align-items:center;gap:8px;margin:10px 0 6px;padding:0 4px;">
-      <span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-400);">▼ Continuous</span>
+      <span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ok);">▼ Post-Build Triggered</span>
       <span style="flex:1;height:1px;background:var(--lav-200);"></span>
     </div>
 
-    <div class="ds-row" style="border-color:#E5E7EB;background:#F9FAFB;">
-      <div class="ds-time" style="background:var(--c-util);font-size:10px;">*/5 min</div>
+    <div class="ds-row" style="border-color:var(--c-intel-border);background:var(--c-intel-bg);">
+      <div class="ds-time" style="background:var(--c-intel);font-size:10px;">post-<br>build</div>
       <div class="ds-body">
-        <div class="ds-name">Slack Feed Cache</div>
-        <div class="ds-script">scripts/slack-feed-cache.js</div>
-        <span class="ds-channel" style="background:#F3F4F6;color:var(--c-util);border:1px solid #E5E7EB;">War Room</span>
-        <span style="font-size:10px;color:var(--ink-400);">288 runs/day · feeds War Room live Slack feed</span>
-        <span class="ds-freq">every 5 min</span>
+        <div class="ds-name">QA Agent</div>
+        <div class="ds-script">scripts/qa-agent.js</div>
+        <span class="ds-channel" style="background:var(--lav-100);color:var(--pur-700);">#builds</span>
+        <span style="font-size:10px;color:var(--ink-400);">15 Playwright checks · field-level PASS/FAIL · blocks on 3+ failures</span>
+        <span class="ds-freq">triggered</span>
+      </div>
+    </div>
+
+    <div class="ds-row" style="border-color:var(--c-build-border);background:var(--c-build-bg);">
+      <div class="ds-time" style="background:var(--c-build);font-size:10px;">post-<br>build</div>
+      <div class="ds-body">
+        <div class="ds-name">Cost Log Append</div>
+        <div class="ds-script">scripts/cost-logger.js</div>
+        <span class="ds-channel" style="background:var(--lav-100);color:var(--pur-700);">internal</span>
+        <span style="font-size:10px;color:var(--ink-400);">appends to cost-log.jsonl · token + model + task cost</span>
+        <span class="ds-freq">triggered</span>
       </div>
     </div>
 
@@ -560,6 +582,40 @@
       <div class="wg-day-label">SUN</div>
     </div>
 
+    <!-- 07:00 Mon IAB row -->
+    <div class="wg-row">
+      <div class="wg-time-label">07:00</div>
+      <div class="wg-cell has-job" style="background:var(--c-intel-bg);border-color:var(--c-intel-border);">
+        <div>
+          <div class="wg-job" style="color:var(--c-intel);">IAB Intel</div>
+          <div class="wg-job-sub" style="color:var(--c-intel);opacity:.7;">4 surfaces → #intel</div>
+        </div>
+      </div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+    </div>
+
+    <!-- 17:50 Fri Skill Review row -->
+    <div class="wg-row">
+      <div class="wg-time-label">17:50</div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell has-job" style="background:var(--c-build-bg);border-color:var(--c-build-border);">
+        <div>
+          <div class="wg-job" style="color:var(--c-build);">Skill Review</div>
+          <div class="wg-job-sub" style="color:var(--c-build);opacity:.7;">T2→T3 promotion</div>
+        </div>
+      </div>
+      <div class="wg-cell"></div>
+      <div class="wg-cell"></div>
+    </div>
+
     <!-- 18:00 row -->
     <div class="wg-row">
       <div class="wg-time-label">18:00</div>
@@ -577,7 +633,7 @@
       <div class="wg-cell"></div>
     </div>
 
-    <!-- 20:00 row -->
+    <!-- 20:00/20:10 row -->
     <div class="wg-row">
       <div class="wg-time-label">20:00</div>
       <div class="wg-cell has-job" style="background:var(--c-comms-bg);border-color:var(--c-comms-border);">
@@ -598,7 +654,7 @@
           </div>
           <div style="height:1px;background:var(--lav-200);width:100%;"></div>
           <div>
-            <div class="wg-job" style="color:var(--c-fin);font-size:9.5px;">Financial Analyst</div>
+            <div class="wg-job" style="color:var(--c-fin);font-size:9.5px;">Financial Analyst · 20:10</div>
           </div>
         </div>
       </div>
@@ -650,7 +706,7 @@
           <td style="font-weight:600;">TMDB Bulk Load</td>
           <td class="jt-script">scripts/load-tmdb-to-s3.js all</td>
           <td><span class="cat-pill" style="background:var(--c-data-bg);color:var(--c-data);">Data</span></td>
-          <td style="font-size:11px;color:var(--ink-500);">S3 tmdb_dev/</td>
+          <td style="font-size:11px;color:var(--ink-500);">S3 tmdb_dev/ · COMPLETE Apr 24</td>
         </tr>
         <tr>
           <td class="jt-cron">0 5 * * *</td>
@@ -716,6 +772,20 @@
           <td style="font-size:11px;color:var(--ink-500);">#builds · afternoon check</td>
         </tr>
         <tr>
+          <td class="jt-cron">0 7 * * 1</td>
+          <td style="font-weight:600;">IAB Intelligence Agent</td>
+          <td class="jt-script">agents/iab-agent.js</td>
+          <td><span class="cat-pill" style="background:var(--c-intel-bg);color:var(--c-intel);">Intel</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#intel · Mon 07:00 · 4 surfaces</td>
+        </tr>
+        <tr>
+          <td class="jt-cron">50 17 * * 5</td>
+          <td style="font-weight:600;">Skill Review (T2→T3)</td>
+          <td class="jt-script">scripts/skill-review.sh</td>
+          <td><span class="cat-pill" style="background:var(--c-build-bg);color:var(--c-build);">Build/Ops</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">internal · Fri 17:50 · promotes skills</td>
+        </tr>
+        <tr>
           <td class="jt-cron">0 18 * * 5</td>
           <td style="font-weight:600;">Tech Intel Agent</td>
           <td class="jt-script">scripts/agents/tech-intel-agent.js</td>
@@ -730,39 +800,32 @@
           <td style="font-size:11px;color:var(--ink-500);">#content · Mon 20:00</td>
         </tr>
         <tr>
-          <td class="jt-cron">0 20 * * 0</td>
-          <td style="font-weight:600;">Weekly Review Agent</td>
-          <td class="jt-script">agents/weekly-review-agent.js</td>
-          <td><span class="cat-pill" style="background:var(--c-intel-bg);color:var(--c-intel);">Intel</span></td>
-          <td style="font-size:11px;color:var(--ink-500);">Sun 20:00</td>
-        </tr>
-        <tr>
-          <td class="jt-cron">0 20 * * 0</td>
+          <td class="jt-cron">10 20 * * 0</td>
           <td style="font-weight:600;">Financial Analyst</td>
           <td class="jt-script">agents/financial-analyst.js</td>
           <td><span class="cat-pill" style="background:var(--c-fin-bg);color:var(--c-fin);">Finance</span></td>
-          <td style="font-size:11px;color:var(--ink-500);">Sun 20:00</td>
+          <td style="font-size:11px;color:var(--ink-500);">#intel · Sun 20:10</td>
         </tr>
         <tr>
-          <td class="jt-cron">*/5 * * * *</td>
-          <td style="font-weight:600;">Slack Feed Cache</td>
-          <td class="jt-script">scripts/slack-feed-cache.js</td>
-          <td><span class="cat-pill" style="background:#F9FAFB;color:var(--c-util);">Utility</span></td>
-          <td style="font-size:11px;color:var(--ink-500);">War Room live feed · 288×/day</td>
+          <td class="jt-cron">post-build</td>
+          <td style="font-weight:600;">QA Agent</td>
+          <td class="jt-script">scripts/qa-agent.js</td>
+          <td><span class="cat-pill" style="background:var(--c-intel-bg);color:var(--c-intel);">Intel</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">#builds · 15 Playwright checks</td>
         </tr>
-        <tr style="opacity:.45;">
-          <td class="jt-cron" style="text-decoration:line-through;">7 8 21 4 *</td>
-          <td style="font-weight:600;text-decoration:line-through;">Finish Future of TV</td>
-          <td class="jt-script" style="text-decoration:line-through;">agents/finish-future-of-tv.js</td>
-          <td><span class="cat-pill" style="background:#F3F4F6;color:#9CA3AF;">One-shot</span></td>
-          <td style="font-size:11px;color:var(--ink-400);">Fired 2026-04-21 — already ran</td>
+        <tr>
+          <td class="jt-cron">post-build</td>
+          <td style="font-weight:600;">Cost Log Append</td>
+          <td class="jt-script">scripts/cost-logger.js</td>
+          <td><span class="cat-pill" style="background:var(--c-build-bg);color:var(--c-build);">Build/Ops</span></td>
+          <td style="font-size:11px;color:var(--ink-500);">internal · cost-log.jsonl</td>
         </tr>
       </tbody>
     </table>
   </div>
 
   <div class="footer">
-    SaSMaster Cron Schedule Visualizer · Sourced from live crontab · Updated 2026-04-22 · Maintained by Claude Code
+    SaSMaster Cron Schedule Visualizer · Sourced from live crontab · Updated 2026-04-28 · Cleaned Apr 23: removed slack-feed-cache and finish-future-of-tv · Maintained by Claude Code
   </div>
 
 </div>

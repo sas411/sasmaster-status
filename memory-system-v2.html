@@ -303,7 +303,7 @@
   <h1>Distributed Memory — v2</h1>
   <div class="sub">CLAUDE_MEMORY.md compressed to key:value · 3 sub-agents deployed · Obsidian knowledge vault initialized · scraper background knowledge complete</div>
   <div class="badge-row">
-    <span class="badge badge-ok"><span class="dot-live"></span>Updated 2026-04-22</span>
+    <span class="badge badge-ok"><span class="dot-live"></span>Updated 2026-04-28</span>
     <span class="badge badge-info">3 Agents Live</span>
     <span class="badge badge-warn">Memory &lt;250 tokens</span>
     <span class="badge badge-lav">8-doc Obsidian Vault</span>
@@ -320,7 +320,7 @@
     <span class="sb-sep">·</span>
     <div class="sb-item"><strong>Vault:</strong> ~/SaSMaster/obsidian/ (8 docs, git init)</div>
     <span class="sb-sep">·</span>
-    <div class="sb-item"><strong>Last updated:</strong> 2026-04-22 10:35 EDT</div>
+    <div class="sb-item"><strong>Last updated:</strong> 2026-04-28 10:35 EDT</div>
   </div>
 
   <!-- Full system architecture -->
@@ -452,7 +452,7 @@
       <div class="agent-icon">🗄️</div>
       <div>
         <div class="agent-name">data-modeler.md</div>
-        <div class="agent-model">model: claude-opus-4-5 · read-only</div>
+        <div class="agent-model">model: claude-opus-4-7 · read-only</div>
       </div>
       <div class="agent-role">Schema authority. Reasons about Parent Key design, field specs, migration risk, DuckDB query patterns, TMDB↔IMDB entity resolution. Never writes implementation code — main session executes.</div>
       <span class="agent-scope">Schema · Migration · DuckDB</span>
@@ -462,20 +462,30 @@
       <div class="agent-icon">🔬</div>
       <div>
         <div class="agent-name">scraper-debugger.md</div>
-        <div class="agent-model">model: claude-sonnet-4-5 · execution-capable</div>
+        <div class="agent-model">model: claude-sonnet-4-6 · execution-capable</div>
       </div>
-      <div class="agent-role">Triage agent for all 11 direct scrapers + 4 RSG consumers. Full per-scraper context baked in: SOURCE, SCHEDULE, OUTPUT_PATH, RATE_LIMIT, KNOWN_FAILURES, VALIDATION commands.</div>
-      <span class="agent-scope">11 Scrapers · S3 · Triage</span>
+      <div class="agent-role">Triage agent for all 12 direct scrapers + 4 RSG consumers. Full per-scraper context baked in: SOURCE, SCHEDULE, OUTPUT_PATH, RATE_LIMIT, KNOWN_FAILURES, VALIDATION commands.</div>
+      <span class="agent-scope">12 Scrapers · S3 · Triage</span>
     </div>
 
     <div class="agent-card">
       <div class="agent-icon">⚙️</div>
       <div>
         <div class="agent-name">jarvis-ops.md</div>
-        <div class="agent-model">model: claude-sonnet-4-5 · execution-capable</div>
+        <div class="agent-model">model: claude-sonnet-4-6 · execution-capable</div>
       </div>
       <div class="agent-role">Expert in JARVIS Socket Mode daemon, async build loop, cron schedule, and Slack notification pipeline. Knows all channel IDs, commands, and launchd plist locations.</div>
       <span class="agent-scope">JARVIS · Cron · Slack</span>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-icon">🧪</div>
+      <div>
+        <div class="agent-name">qa-agent.md</div>
+        <div class="agent-model">model: claude-sonnet-4-6 · execution-capable</div>
+      </div>
+      <div class="agent-role">Post-build QA verification. Runs 15 Playwright checks (headless Chromium) against live Vercel portal URL. Field-level PASS/FAIL for NETWORK, TYPE, WHERE TO WATCH, User Score, drill-down nav, ID format. Registry in qa-cases.json. Blocks build marking on 3+ failures.</div>
+      <span class="agent-scope">QA · Playwright · qa-cases.json</span>
     </div>
 
   </div>
@@ -494,7 +504,7 @@
       <tbody>
         <tr>
           <td>ADR-001-parent-key-schema.md</td>
-          <td>Decision record: Parent Key v1 rationale, field specs, current state (589K rows), IP note</td>
+          <td>Decision record: Parent Key v1 rationale, field specs, current state (862K rows), IP note</td>
           <td>obsidian/00-ADRs/</td>
         </tr>
         <tr>
@@ -514,7 +524,7 @@
         </tr>
         <tr>
           <td>scraper-inventory.md</td>
-          <td>Full background knowledge for all 11 scrapers: SOURCE, SCHEDULE, RATE_LIMIT, KNOWN_FAILURES, VALIDATION</td>
+          <td>Full background knowledge for all 12 scrapers: SOURCE, SCHEDULE, RATE_LIMIT, KNOWN_FAILURES, VALIDATION</td>
           <td>obsidian/02-Scrapers/</td>
         </tr>
         <tr>
@@ -650,7 +660,7 @@
   </div>
 
   <div class="footer">
-    SaSMaster Distributed Memory System v2 · Updated 2026-04-22 · Maintained by Claude Code
+    SaSMaster Distributed Memory System v2 · Updated 2026-04-28 · Maintained by Claude Code
   </div>
 
 </div>

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-28T06:25:36.846Z",
+  "generated": "2026-04-28T09:00:00.363Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -11,221 +11,809 @@
     "highItems": [
       {
         "id": "t62",
-        "text": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + cre…",
+        "lineIndex": 62,
+        "text": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + creds already exist. Bulk loop over…",
         "full": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + creds already exist. Bulk loop over 589,814 matched IMDB tconsts resolving to EIDR IDs. Rate-limit (EIDR API throttles; target ≤5 rps). Output: new `parent_keys/v1b/YYYY-MM-DD/movies.parquet` with eidr_id column populated where match found. Match-rate baseline TBD (likely 60–85% for studio-released films). Skip TMDB fallback keys (tmdb_mov_*) as EIDR has no TMDB join surface.",
         "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
         "tag": "DATA",
-        "priority": "HIGH"
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t76",
-        "text": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass…",
-        "full": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass already confirmed 8,522 unique `belongs_to_collection.id` in movies NDJSON. Fetches `/collection/{id}?append=images`. Ready to run as soon as main loader settles or idles.",
+        "lineIndex": 76,
+        "text": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass already confirmed 8,522 unique …",
+        "full": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass already confirmed 8,522 unique `belongs_to_collection.id` in movies NDJSON. Fetches `/collection/?append=images`. Ready to run as soon as main loader settles or idles.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
-        "priority": "HIGH"
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t78",
-        "text": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series…",
-        "full": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series phase completes (DuckDB needs full tv_series NDJSON to extract unique network IDs). Fetches `/network/{id}?append=alternative_names,images`.",
+        "lineIndex": 78,
+        "text": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series phase completes (DuckDB needs f…",
+        "full": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series phase completes (DuckDB needs full tv_series NDJSON to extract unique network IDs). Fetches `/network/?append=alternative_names,images`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
-        "priority": "HIGH"
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t80",
-        "text": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_se…",
-        "full": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_series phase completes (DuckDB UNION over movies + tv_series production_companies). Fetches `/company/{id}?append=alternative_names,images`.",
+        "lineIndex": 80,
+        "text": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_series phase completes (DuckDB UNI…",
+        "full": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_series phase completes (DuckDB UNION over movies + tv_series production_companies). Fetches `/company/?append=alternative_names,images`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
-        "priority": "HIGH"
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t82",
-        "text": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_ser…",
-        "full": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_series phase completes (DuckDB UNNEST tv_series.seasons[] → (series_id, season_number) pairs). Fetches `/tv/{id}/season/{n}?append=external_ids,videos,images`.",
+        "lineIndex": 82,
+        "text": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_series phase completes (DuckDB UNNE…",
+        "full": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_series phase completes (DuckDB UNNEST tv_series.seasons[] → (series_id, season_number) pairs). Fetches `/tv//season/{n}?append=external_ids,videos,images`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
-        "priority": "HIGH"
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t84",
-        "text": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until…",
+        "lineIndex": 84,
+        "text": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until TV Seasons done. DuckDB UNNEST …",
         "full": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until TV Seasons done. DuckDB UNNEST seasons.episodes (~2M TMDB episodes across 300K series) + LEFT JOIN imdb/title_episode parquet (9.6M superset) to populate imdb_id. Saves ~2M would-be API calls.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
-        "priority": "HIGH"
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t86",
-        "text": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKE…",
+        "lineIndex": 86,
+        "text": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKED until main loader fully idle (…",
         "full": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKED until main loader fully idle (people phase complete) to avoid rate-limit contention. Sidecar-only: writes watch/providers+videos+reviews+images for the 1.18M pre-v2 movies to `tmdb_dev/movies_enrichment/YYYY-MM-DD/`. Never touches existing `tmdb_dev/movies/`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
         "tag": "DATA",
-        "priority": "HIGH"
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t102",
-        "text": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating anima…",
+        "lineIndex": 102,
+        "text": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating animation to homepage !task EXPLORE R…",
         "full": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating animation to homepage !task EXPLORE Research LinkedIn Writing Agent voice training approach",
         "sprint": "Done",
         "tag": "AGENT",
-        "priority": "HIGH"
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t112",
+        "lineIndex": 112,
         "text": "Execute MEDIA-INTEL-AGENT-MISSION.md — build daily 6AM Evan Shapiro media intel agent",
         "full": "Execute MEDIA-INTEL-AGENT-MISSION.md — build daily 6AM Evan Shapiro media intel agent",
         "sprint": "Done",
         "tag": "AGENT",
-        "priority": "HIGH"
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t114",
+        "lineIndex": 114,
         "text": "Execute TMDB-STATUS-INTEGRATION-MISSION.md — wire TMDB trends into status page + sm CLI",
         "full": "Execute TMDB-STATUS-INTEGRATION-MISSION.md — wire TMDB trends into status page + sm CLI",
         "sprint": "Done",
         "tag": "DATA",
-        "priority": "HIGH"
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t115",
+        "lineIndex": 115,
+        "text": "COMMAND API TRIGGER: tmdb-load — triggered 04/21/2026, 15:48 EST",
+        "full": "COMMAND API TRIGGER: tmdb-load — triggered 04/21/2026, 15:48 EST",
+        "sprint": "Done",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t116",
+        "lineIndex": 116,
+        "text": "COMMAND API TRIGGER: media-intel — triggered 04/21/2026, 16:12 EST",
+        "full": "COMMAND API TRIGGER: media-intel — triggered 04/21/2026, 16:12 EST",
+        "sprint": "Done",
+        "tag": "INFRA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t232",
+        "lineIndex": 232,
+        "text": "Fix TMDB pipeline blockage — identify tv_series blocker, unblock Collections/Networks/Companies loaders, get pipeline pa…",
+        "full": "Fix TMDB pipeline blockage — identify tv_series blocker, unblock Collections/Networks/Companies loaders, get pipeline past 40.5% #data *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t233",
+        "lineIndex": 233,
+        "text": "Refresh stale S3 datasets — IMDB 6d stale, parent_keys 6d stale, run refresh, validate 589K+ row count, update War Room …",
+        "full": "Refresh stale S3 datasets — IMDB 6d stale, parent_keys 6d stale, run refresh, validate 589K+ row count, update War Room freshness #data *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "EDGAR",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t234",
+        "lineIndex": 234,
+        "text": "Wire Weekly Review + IAB Intel + Financial Analyst agents — audit why NEVER run, fix root cause, test run each, confirm …",
+        "full": "Wire Weekly Review + IAB Intel + Financial Analyst agents — audit why NEVER run, fix root cause, test run each, confirm Slack output to correct channels #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "EDGAR",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t236",
+        "lineIndex": 236,
+        "text": "Fix War Room Kanban to live-read TASKS.md — currently rendering stale snapshot. Kanban HIGH/MED/EXPLORE columns should d…",
+        "full": "Fix War Room Kanban to live-read TASKS.md — currently rendering stale snapshot. Kanban HIGH/MED/EXPLORE columns should dynamically fetch and parse TASKS.md on every page load. DONE column should render the `## DONE` checked items `[x]` from TASKS.md. No more cached/static state. #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "QA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t237",
+        "lineIndex": 237,
+        "text": "Surface cost-log.jsonl in War Room — add Token Usage KPI card to War Room dashboard showing total tokens + estimated $ p…",
+        "full": "Surface cost-log.jsonl in War Room — add Token Usage KPI card to War Room dashboard showing total tokens + estimated $ per build cycle, model breakdown (Opus vs Sonnet), and per-task cost. Read from logs/cost-log.jsonl. This must be live before any heavy build cycles. #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "UI",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t238",
+        "lineIndex": 238,
+        "text": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions …",
+        "full": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions instead of one session per task. Specifically: agent-wiring tasks should run as one session, data pipeline tasks as one session. Reduces CLAUDE_MEMORY.md + TASKS.md context reload overhead per task. Document batching logic in runbook. #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t239",
+        "lineIndex": 239,
+        "text": "Harden build loop against API timeouts — add retry logic (3 attempts, exponential backoff) to all Claude API calls in sa…",
+        "full": "Harden build loop against API timeouts — add retry logic (3 attempts, exponential backoff) to all Claude API calls in sasmaster-build.sh and runner.py. Add timeout detection: if a task exceeds 10min with no token output, kill + requeue. Post timeout events to #sasmaster-builds with task name + duration. Log to logs/timeout-log.jsonl. This is P0 before any heavy build cycles. #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t240",
+        "lineIndex": 240,
+        "text": "Intelligent build loop sequencing — refactor sasmaster-build.sh to execute tasks in dependency order, not just top-to-bo…",
+        "full": "Intelligent build loop sequencing — refactor sasmaster-build.sh to execute tasks in dependency order, not just top-to-bottom. Priority sequence: (1) #infra tasks first — timeout hardening, token optimization, batching logic must complete before data tasks run. (2) #data tasks second. (3) #ui tasks last. Add a pre-flight check: if timeout hardening and cost-log are not confirmed live, hold all heavy #data tasks and post a warning to #sasmaster-builds. This is the gate before any heavy build cycles. #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       }
     ],
     "medItems": [
       {
         "id": "t12",
+        "lineIndex": 12,
         "text": "Build Ad Research portal stub (same pattern as Programming Research)",
         "full": "Build Ad Research portal stub (same pattern as Programming Research)",
         "sprint": "Sprint 2 — Architecture & UI",
         "tag": "UI",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t13",
+        "lineIndex": 13,
         "text": "Build Marketing Research portal stub",
         "full": "Build Marketing Research portal stub",
         "sprint": "Sprint 2 — Architecture & UI",
         "tag": "UI",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t14",
+        "lineIndex": 14,
         "text": "Build CPG Research portal stub",
         "full": "Build CPG Research portal stub",
         "sprint": "Sprint 2 — Architecture & UI",
         "tag": "UI",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t38",
-        "text": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant …",
+        "lineIndex": 38,
+        "text": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant already exists in v7 — wire the …",
         "full": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant already exists in v7 — wire the toggle to apply CSS class.",
         "sprint": "Sprint 2 — Design v7 Integration (PRIORITY)",
         "tag": "UI",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t40",
-        "text": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback po…",
+        "lineIndex": 40,
+        "text": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback points.",
         "full": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback points.",
         "sprint": "Sprint 2 — Design v7 Integration (PRIORITY)",
-        "tag": "UI",
-        "priority": "MED"
+        "tag": "INFRA",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t56",
-        "text": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasma…",
+        "lineIndex": 56,
+        "text": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 ED…",
         "full": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 EDT). Today blocked by JARVIS being down — either fix JARVIS first (above) or copy-paste the draft to LinkedIn manually and remove the entry from pending-approvals.json.",
         "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
         "tag": "AGENT",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t58",
-        "text": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest ar…",
+        "lineIndex": 58,
+        "text": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasma…",
         "full": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasmaster-status/ + append to resources.json (set latest:true, clear prior). Planned in the Resources section prototype but deferred for v1 ship.",
         "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
         "tag": "UI",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t64",
-        "text": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/ma…",
+        "lineIndex": 64,
+        "text": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTE…",
         "full": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTER_UPDATED.csv` (18GB) for movies/tv_series distinct counts, and `VIEWERSHIP_AMRLD_PROGRAM.csv` (9.8GB) for total telecasts. Add to ~/SaSMaster/scripts/s3-entity-counts.js as a separate runnable (takes ~60–120s). Cache in same JSON. Render in War Room S3 grid.",
         "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
         "tag": "EDGAR",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t66",
+        "lineIndex": 66,
+        "text": "Entity counts for EIDR / opus / gracenote / fyi / shiv_curated. Each is flat xlsx/csv. Parse row counts (movies vs tv_se…",
+        "full": "Entity counts for EIDR / opus / gracenote / fyi / shiv_curated. Each is flat xlsx/csv. Parse row counts (movies vs tv_series where discoverable from filename or schema). Add to s3-entity-counts.js with one block per dataset. Low data volume → seconds per run.",
+        "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
+        "tag": "EDGAR",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t88",
+        "lineIndex": 88,
+        "text": "Timezone normalization — War Room ticker + agent last_run display currently mix UTC/EDT. Normalize all relative times to…",
+        "full": "Timezone normalization — War Room ticker + agent last_run display currently mix UTC/EDT. Normalize all relative times to America/New_York on render. Single util function in `index.html`.",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "tag": "AGENT",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t113",
+        "lineIndex": 113,
+        "text": "Write DONE-LOG-ANALYST-MISSION.md — daily agent reads DONE_LOG.md, identifies portal gaps, injects fill tasks",
+        "full": "Write DONE-LOG-ANALYST-MISSION.md — daily agent reads DONE_LOG.md, identifies portal gaps, injects fill tasks",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t127",
+        "lineIndex": 127,
+        "text": "JARVIS vault-sync — wire JARVIS !vault-sync command (or daily cron) to call Claude Code and update stale ~/SaSMaster/obs…",
+        "full": "JARVIS vault-sync — wire JARVIS !vault-sync command (or daily cron) to call Claude Code and update stale ~/SaSMaster/obsidian/ files against current project state. Option 3 from 2026-04-22 Obsidian vault session. Until then, vault is managed on-demand by Claude Code (option 1).",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t235",
+        "lineIndex": 235,
+        "text": "Add !research command to JARVIS — topic-agnostic synthesis pipeline, accepts !research [topic], posts output to #intel #…",
+        "full": "Add !research command to JARVIS — topic-agnostic synthesis pipeline, accepts !research [topic], posts output to #intel #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       }
     ],
-    "exploreItems": []
+    "exploreItems": [],
+    "wipItems": [],
+    "blockedItems": [],
+    "reviewItems": []
   },
   "kanban": {
     "backlog": [
       {
+        "id": "t62",
+        "lineIndex": 62,
+        "text": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + creds already exist. Bulk loop over…",
+        "full": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + creds already exist. Bulk loop over 589,814 matched IMDB tconsts resolving to EIDR IDs. Rate-limit (EIDR API throttles; target ≤5 rps). Output: new `parent_keys/v1b/YYYY-MM-DD/movies.parquet` with eidr_id column populated where match found. Match-rate baseline TBD (likely 60–85% for studio-released films). Skip TMDB fallback keys (tmdb_mov_*) as EIDR has no TMDB join surface.",
+        "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t76",
+        "lineIndex": 76,
+        "text": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass already confirmed 8,522 unique …",
+        "full": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass already confirmed 8,522 unique `belongs_to_collection.id` in movies NDJSON. Fetches `/collection/?append=images`. Ready to run as soon as main loader settles or idles.",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t78",
+        "lineIndex": 78,
+        "text": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series phase completes (DuckDB needs f…",
+        "full": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series phase completes (DuckDB needs full tv_series NDJSON to extract unique network IDs). Fetches `/network/?append=alternative_names,images`.",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t80",
+        "lineIndex": 80,
+        "text": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_series phase completes (DuckDB UNI…",
+        "full": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_series phase completes (DuckDB UNION over movies + tv_series production_companies). Fetches `/company/?append=alternative_names,images`.",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t82",
+        "lineIndex": 82,
+        "text": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_series phase completes (DuckDB UNNE…",
+        "full": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_series phase completes (DuckDB UNNEST tv_series.seasons[] → (series_id, season_number) pairs). Fetches `/tv//season/{n}?append=external_ids,videos,images`.",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t84",
+        "lineIndex": 84,
+        "text": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until TV Seasons done. DuckDB UNNEST …",
+        "full": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until TV Seasons done. DuckDB UNNEST seasons.episodes (~2M TMDB episodes across 300K series) + LEFT JOIN imdb/title_episode parquet (9.6M superset) to populate imdb_id. Saves ~2M would-be API calls.",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t86",
+        "lineIndex": 86,
+        "text": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKED until main loader fully idle (…",
+        "full": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKED until main loader fully idle (people phase complete) to avoid rate-limit contention. Sidecar-only: writes watch/providers+videos+reviews+images for the 1.18M pre-v2 movies to `tmdb_dev/movies_enrichment/YYYY-MM-DD/`. Never touches existing `tmdb_dev/movies/`.",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t102",
+        "lineIndex": 102,
+        "text": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating animation to homepage !task EXPLORE R…",
+        "full": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating animation to homepage !task EXPLORE Research LinkedIn Writing Agent voice training approach",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t112",
+        "lineIndex": 112,
+        "text": "Execute MEDIA-INTEL-AGENT-MISSION.md — build daily 6AM Evan Shapiro media intel agent",
+        "full": "Execute MEDIA-INTEL-AGENT-MISSION.md — build daily 6AM Evan Shapiro media intel agent",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t114",
+        "lineIndex": 114,
+        "text": "Execute TMDB-STATUS-INTEGRATION-MISSION.md — wire TMDB trends into status page + sm CLI",
+        "full": "Execute TMDB-STATUS-INTEGRATION-MISSION.md — wire TMDB trends into status page + sm CLI",
+        "sprint": "Done",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t115",
+        "lineIndex": 115,
+        "text": "COMMAND API TRIGGER: tmdb-load — triggered 04/21/2026, 15:48 EST",
+        "full": "COMMAND API TRIGGER: tmdb-load — triggered 04/21/2026, 15:48 EST",
+        "sprint": "Done",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t116",
+        "lineIndex": 116,
+        "text": "COMMAND API TRIGGER: media-intel — triggered 04/21/2026, 16:12 EST",
+        "full": "COMMAND API TRIGGER: media-intel — triggered 04/21/2026, 16:12 EST",
+        "sprint": "Done",
+        "tag": "INFRA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t232",
+        "lineIndex": 232,
+        "text": "Fix TMDB pipeline blockage — identify tv_series blocker, unblock Collections/Networks/Companies loaders, get pipeline pa…",
+        "full": "Fix TMDB pipeline blockage — identify tv_series blocker, unblock Collections/Networks/Companies loaders, get pipeline past 40.5% #data *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t233",
+        "lineIndex": 233,
+        "text": "Refresh stale S3 datasets — IMDB 6d stale, parent_keys 6d stale, run refresh, validate 589K+ row count, update War Room …",
+        "full": "Refresh stale S3 datasets — IMDB 6d stale, parent_keys 6d stale, run refresh, validate 589K+ row count, update War Room freshness #data *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "EDGAR",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t234",
+        "lineIndex": 234,
+        "text": "Wire Weekly Review + IAB Intel + Financial Analyst agents — audit why NEVER run, fix root cause, test run each, confirm …",
+        "full": "Wire Weekly Review + IAB Intel + Financial Analyst agents — audit why NEVER run, fix root cause, test run each, confirm Slack output to correct channels #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "EDGAR",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t236",
+        "lineIndex": 236,
+        "text": "Fix War Room Kanban to live-read TASKS.md — currently rendering stale snapshot. Kanban HIGH/MED/EXPLORE columns should d…",
+        "full": "Fix War Room Kanban to live-read TASKS.md — currently rendering stale snapshot. Kanban HIGH/MED/EXPLORE columns should dynamically fetch and parse TASKS.md on every page load. DONE column should render the `## DONE` checked items `[x]` from TASKS.md. No more cached/static state. #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "QA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t237",
+        "lineIndex": 237,
+        "text": "Surface cost-log.jsonl in War Room — add Token Usage KPI card to War Room dashboard showing total tokens + estimated $ p…",
+        "full": "Surface cost-log.jsonl in War Room — add Token Usage KPI card to War Room dashboard showing total tokens + estimated $ per build cycle, model breakdown (Opus vs Sonnet), and per-task cost. Read from logs/cost-log.jsonl. This must be live before any heavy build cycles. #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "UI",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t238",
+        "lineIndex": 238,
+        "text": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions …",
+        "full": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions instead of one session per task. Specifically: agent-wiring tasks should run as one session, data pipeline tasks as one session. Reduces CLAUDE_MEMORY.md + TASKS.md context reload overhead per task. Document batching logic in runbook. #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t239",
+        "lineIndex": 239,
+        "text": "Harden build loop against API timeouts — add retry logic (3 attempts, exponential backoff) to all Claude API calls in sa…",
+        "full": "Harden build loop against API timeouts — add retry logic (3 attempts, exponential backoff) to all Claude API calls in sasmaster-build.sh and runner.py. Add timeout detection: if a task exceeds 10min with no token output, kill + requeue. Post timeout events to #sasmaster-builds with task name + duration. Log to logs/timeout-log.jsonl. This is P0 before any heavy build cycles. #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t240",
+        "lineIndex": 240,
+        "text": "Intelligent build loop sequencing — refactor sasmaster-build.sh to execute tasks in dependency order, not just top-to-bo…",
+        "full": "Intelligent build loop sequencing — refactor sasmaster-build.sh to execute tasks in dependency order, not just top-to-bottom. Priority sequence: (1) #infra tasks first — timeout hardening, token optimization, batching logic must complete before data tasks run. (2) #data tasks second. (3) #ui tasks last. Add a pre-flight check: if timeout hardening and cost-log are not confirmed live, hold all heavy #data tasks and post a warning to #sasmaster-builds. This is the gate before any heavy build cycles. #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
         "id": "t12",
+        "lineIndex": 12,
         "text": "Build Ad Research portal stub (same pattern as Programming Research)",
         "full": "Build Ad Research portal stub (same pattern as Programming Research)",
         "sprint": "Sprint 2 — Architecture & UI",
         "tag": "UI",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t13",
+        "lineIndex": 13,
         "text": "Build Marketing Research portal stub",
         "full": "Build Marketing Research portal stub",
         "sprint": "Sprint 2 — Architecture & UI",
         "tag": "UI",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t14",
+        "lineIndex": 14,
         "text": "Build CPG Research portal stub",
         "full": "Build CPG Research portal stub",
         "sprint": "Sprint 2 — Architecture & UI",
         "tag": "UI",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t38",
-        "text": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant …",
+        "lineIndex": 38,
+        "text": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant already exists in v7 — wire the …",
         "full": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant already exists in v7 — wire the toggle to apply CSS class.",
         "sprint": "Sprint 2 — Design v7 Integration (PRIORITY)",
         "tag": "UI",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t40",
-        "text": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback po…",
+        "lineIndex": 40,
+        "text": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback points.",
         "full": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback points.",
         "sprint": "Sprint 2 — Design v7 Integration (PRIORITY)",
-        "tag": "UI",
-        "priority": "MED"
+        "tag": "INFRA",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t56",
-        "text": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasma…",
+        "lineIndex": 56,
+        "text": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 ED…",
         "full": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 EDT). Today blocked by JARVIS being down — either fix JARVIS first (above) or copy-paste the draft to LinkedIn manually and remove the entry from pending-approvals.json.",
         "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
         "tag": "AGENT",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t58",
-        "text": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest ar…",
+        "lineIndex": 58,
+        "text": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasma…",
         "full": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasmaster-status/ + append to resources.json (set latest:true, clear prior). Planned in the Resources section prototype but deferred for v1 ship.",
         "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
         "tag": "UI",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       },
       {
         "id": "t64",
-        "text": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/ma…",
+        "lineIndex": 64,
+        "text": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTE…",
         "full": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTER_UPDATED.csv` (18GB) for movies/tv_series distinct counts, and `VIEWERSHIP_AMRLD_PROGRAM.csv` (9.8GB) for total telecasts. Add to ~/SaSMaster/scripts/s3-entity-counts.js as a separate runnable (takes ~60–120s). Cache in same JSON. Render in War Room S3 grid.",
         "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
         "tag": "EDGAR",
-        "priority": "MED"
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t66",
+        "lineIndex": 66,
+        "text": "Entity counts for EIDR / opus / gracenote / fyi / shiv_curated. Each is flat xlsx/csv. Parse row counts (movies vs tv_se…",
+        "full": "Entity counts for EIDR / opus / gracenote / fyi / shiv_curated. Each is flat xlsx/csv. Parse row counts (movies vs tv_series where discoverable from filename or schema). Add to s3-entity-counts.js with one block per dataset. Low data volume → seconds per run.",
+        "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
+        "tag": "EDGAR",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t88",
+        "lineIndex": 88,
+        "text": "Timezone normalization — War Room ticker + agent last_run display currently mix UTC/EDT. Normalize all relative times to…",
+        "full": "Timezone normalization — War Room ticker + agent last_run display currently mix UTC/EDT. Normalize all relative times to America/New_York on render. Single util function in `index.html`.",
+        "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
+        "tag": "AGENT",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t113",
+        "lineIndex": 113,
+        "text": "Write DONE-LOG-ANALYST-MISSION.md — daily agent reads DONE_LOG.md, identifies portal gaps, injects fill tasks",
+        "full": "Write DONE-LOG-ANALYST-MISSION.md — daily agent reads DONE_LOG.md, identifies portal gaps, injects fill tasks",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t127",
+        "lineIndex": 127,
+        "text": "JARVIS vault-sync — wire JARVIS !vault-sync command (or daily cron) to call Claude Code and update stale ~/SaSMaster/obs…",
+        "full": "JARVIS vault-sync — wire JARVIS !vault-sync command (or daily cron) to call Claude Code and update stale ~/SaSMaster/obsidian/ files against current project state. Option 3 from 2026-04-22 Obsidian vault session. Until then, vault is managed on-demand by Claude Code (option 1).",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t235",
+        "lineIndex": 235,
+        "text": "Add !research command to JARVIS — topic-agnostic synthesis pipeline, accepts !research [topic], posts output to #intel #…",
+        "full": "Add !research command to JARVIS — topic-agnostic synthesis pipeline, accepts !research [topic], posts output to #intel #infra *Sent using* Claude",
+        "sprint": "Done",
+        "tag": "AGENT",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
       }
     ],
     "inProgress": [],
+    "blocked": [],
     "review": [
       {
         "id": "review-0",
@@ -253,6 +841,160 @@
         "tag": "PENDING",
         "priority": "REVIEW",
         "approvalId": "wbr_mogjv39d"
+      },
+      {
+        "id": "qa-portal-tabs",
+        "checkId": "portal-tabs",
+        "buildId": "portal-v9-smoke-1777251446",
+        "text": "All 5 portal tabs present (Programming, Advertising, Marketing, CPG, Exchange)",
+        "fixDesc": "Check .nav-portal-btn elements — ensure all 5 are rendered in #nav-portals.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-ticker-items",
+        "checkId": "ticker-items",
+        "buildId": "portal-v9-smoke-1777251446",
+        "text": "Ticker contains at least 8 market signal items",
+        "fixDesc": "Check .ticker-item count — at least 8 must be in the DOM.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-theme-switch",
+        "checkId": "theme-switch",
+        "buildId": "portal-v9-smoke-1777251446",
+        "text": "Clicking theme toggle changes data-theme attribute on <html>",
+        "fixDesc": "Clicking #theme-toggle must change html[data-theme]. Check applyTheme().",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-no-js-errors",
+        "checkId": "no-js-errors",
+        "buildId": "portal-v9-smoke-1777251446",
+        "text": "Page loads with zero uncaught JavaScript errors",
+        "fixDesc": "Fix all uncaught JS errors in the portal. Check console for details.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-no-js-errors",
+        "checkId": "no-js-errors",
+        "buildId": "portal-v9-final-1777251495",
+        "text": "Page loads with zero uncaught JavaScript errors",
+        "fixDesc": "Fix all uncaught JS errors in the portal. Check console for details.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-portal-tabs",
+        "checkId": "portal-tabs",
+        "buildId": "v9-definitive-1777302880",
+        "text": "All 5 portal tabs present (Programming, Advertising, Marketing, CPG, Exchange)",
+        "fixDesc": "Check .nav-portal-btn elements — ensure all 5 are rendered in #nav-portals.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-ticker-items",
+        "checkId": "ticker-items",
+        "buildId": "v9-definitive-1777302880",
+        "text": "Ticker contains at least 8 market signal items",
+        "fixDesc": "Check .ticker-item count — at least 8 must be in the DOM.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-intro-screen",
+        "checkId": "intro-screen",
+        "buildId": "v9-definitive-1777302880",
+        "text": "Intro/cinematic screen element exists in DOM",
+        "fixDesc": "#intro-screen must exist in DOM even after dismissal.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-drilldown-view",
+        "checkId": "drilldown-view",
+        "buildId": "v9-definitive-1777302880",
+        "text": "Drilldown view container exists in DOM",
+        "fixDesc": "#drilldown-view must exist in DOM at all times.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-theme-switch",
+        "checkId": "theme-switch",
+        "buildId": "v9-definitive-1777302880",
+        "text": "Clicking theme toggle changes data-theme attribute on <html>",
+        "fixDesc": "Clicking #theme-toggle must change html[data-theme]. Check applyTheme().",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-no-js-errors",
+        "checkId": "no-js-errors",
+        "buildId": "v9-definitive-1777302880",
+        "text": "Page loads with zero uncaught JavaScript errors",
+        "fixDesc": "Fix all uncaught JS errors in the portal. Check console for details.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-no-js-errors",
+        "checkId": "no-js-errors",
+        "buildId": "war-room-test-1777359839",
+        "text": "Page loads with zero uncaught JavaScript errors",
+        "fixDesc": "Fix all uncaught JS errors in the portal. Check console for details.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-error-banner-hidden",
+        "checkId": "error-banner-hidden",
+        "buildId": "war-room-final-1777359883",
+        "text": "Fetch-error banner is hidden on fresh page load (no duplicate display: in inline style)",
+        "fixDesc": "Check #fetchBanner inline style for duplicate display: properties — a later display:flex overrides display:none. Remove the duplicate.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-error-banner-hidden",
+        "checkId": "error-banner-hidden",
+        "buildId": "war-room-final2-1777359933",
+        "text": "Fetch-error banner is hidden on fresh page load (no duplicate display: in inline style)",
+        "fixDesc": "Check #fetchBanner inline style for duplicate display: properties — a later display:flex overrides display:none. Remove the duplicate.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
       }
     ],
     "done": [
@@ -280,7 +1022,198 @@
         "tag": "DONE",
         "priority": "DONE"
       }
-    ]
+    ],
+    "qaDrafts": [
+      {
+        "id": "qa-portal-tabs",
+        "checkId": "portal-tabs",
+        "buildId": "portal-v9-smoke-1777251446",
+        "text": "All 5 portal tabs present (Programming, Advertising, Marketing, CPG, Exchange)",
+        "fixDesc": "Check .nav-portal-btn elements — ensure all 5 are rendered in #nav-portals.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-ticker-items",
+        "checkId": "ticker-items",
+        "buildId": "portal-v9-smoke-1777251446",
+        "text": "Ticker contains at least 8 market signal items",
+        "fixDesc": "Check .ticker-item count — at least 8 must be in the DOM.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-theme-switch",
+        "checkId": "theme-switch",
+        "buildId": "portal-v9-smoke-1777251446",
+        "text": "Clicking theme toggle changes data-theme attribute on <html>",
+        "fixDesc": "Clicking #theme-toggle must change html[data-theme]. Check applyTheme().",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-no-js-errors",
+        "checkId": "no-js-errors",
+        "buildId": "portal-v9-smoke-1777251446",
+        "text": "Page loads with zero uncaught JavaScript errors",
+        "fixDesc": "Fix all uncaught JS errors in the portal. Check console for details.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-no-js-errors",
+        "checkId": "no-js-errors",
+        "buildId": "portal-v9-final-1777251495",
+        "text": "Page loads with zero uncaught JavaScript errors",
+        "fixDesc": "Fix all uncaught JS errors in the portal. Check console for details.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-portal-tabs",
+        "checkId": "portal-tabs",
+        "buildId": "v9-definitive-1777302880",
+        "text": "All 5 portal tabs present (Programming, Advertising, Marketing, CPG, Exchange)",
+        "fixDesc": "Check .nav-portal-btn elements — ensure all 5 are rendered in #nav-portals.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-ticker-items",
+        "checkId": "ticker-items",
+        "buildId": "v9-definitive-1777302880",
+        "text": "Ticker contains at least 8 market signal items",
+        "fixDesc": "Check .ticker-item count — at least 8 must be in the DOM.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-intro-screen",
+        "checkId": "intro-screen",
+        "buildId": "v9-definitive-1777302880",
+        "text": "Intro/cinematic screen element exists in DOM",
+        "fixDesc": "#intro-screen must exist in DOM even after dismissal.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-drilldown-view",
+        "checkId": "drilldown-view",
+        "buildId": "v9-definitive-1777302880",
+        "text": "Drilldown view container exists in DOM",
+        "fixDesc": "#drilldown-view must exist in DOM at all times.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-theme-switch",
+        "checkId": "theme-switch",
+        "buildId": "v9-definitive-1777302880",
+        "text": "Clicking theme toggle changes data-theme attribute on <html>",
+        "fixDesc": "Clicking #theme-toggle must change html[data-theme]. Check applyTheme().",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-no-js-errors",
+        "checkId": "no-js-errors",
+        "buildId": "v9-definitive-1777302880",
+        "text": "Page loads with zero uncaught JavaScript errors",
+        "fixDesc": "Fix all uncaught JS errors in the portal. Check console for details.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-no-js-errors",
+        "checkId": "no-js-errors",
+        "buildId": "war-room-test-1777359839",
+        "text": "Page loads with zero uncaught JavaScript errors",
+        "fixDesc": "Fix all uncaught JS errors in the portal. Check console for details.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-error-banner-hidden",
+        "checkId": "error-banner-hidden",
+        "buildId": "war-room-final-1777359883",
+        "text": "Fetch-error banner is hidden on fresh page load (no duplicate display: in inline style)",
+        "fixDesc": "Check #fetchBanner inline style for duplicate display: properties — a later display:flex overrides display:none. Remove the duplicate.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      },
+      {
+        "id": "qa-error-banner-hidden",
+        "checkId": "error-banner-hidden",
+        "buildId": "war-room-final2-1777359933",
+        "text": "Fetch-error banner is hidden on fresh page load (no duplicate display: in inline style)",
+        "fixDesc": "Check #fetchBanner inline style for duplicate display: properties — a later display:flex overrides display:none. Remove the duplicate.",
+        "tag": "QA",
+        "state": "REVIEW",
+        "priority": "HIGH",
+        "sprint": "QA Drafts"
+      }
+    ],
+    "memoryPending": [
+      "Fill SLACK_ALLOWED_USER_ID in .env (Slack > Profile > More > Copy member ID)",
+      "EIDR auth activation → trigger enrich against staged S3 IDs",
+      "JARVIS restart (post War Room v3)",
+      "Nielsen entity counts",
+      "LinkedIn agent approval (draft mo9mqkhy)",
+      "TV Parent Keys pass (post TMDB bulk)",
+      "Re-add git origin + force-push main",
+      "Rotate SASMASTER_SLACK_WEBHOOK"
+    ],
+    "phaseStatus": {
+      "phase_1": {
+        "status": "LIVE",
+        "desc": "TMDB+IMDB scrapers+Parent Key resolver"
+      },
+      "phase_1b": {
+        "status": "IN_PROGRESS",
+        "desc": "EIDR backfill (auth gate pending)"
+      },
+      "phase_2a": {
+        "status": "NEXT",
+        "desc": "RSG API snapshots"
+      },
+      "phase_2b": {
+        "status": "FUTURE",
+        "desc": "Direct Nielsen post-license"
+      }
+    },
+    "counts": {
+      "backlog": 33,
+      "inProgress": 0,
+      "blocked": 0,
+      "review": 17,
+      "qaDrafts": 14
+    }
   },
   "heatmap": {
     "2026-04-23": 2,
@@ -461,10 +1394,10 @@
       "name": "TMDB bulk loader",
       "phase": "1",
       "status": "running",
-      "pct": 47,
-      "row_count": 2191000,
+      "pct": 49.9,
+      "row_count": 2328000,
       "total": 4663055,
-      "last_run": "2026-04-28T06:24:39.115Z",
+      "last_run": "2026-04-28T08:59:42.235Z",
       "s3_path": "s3://sasmaster-2026/tmdb_dev/"
     },
     {
@@ -639,8 +1572,8 @@
       "size_gb": 5.9,
       "object_count": 1211,
       "last_updated": "2026-04-22T06:07:08.000Z",
-      "fresh": true,
-      "age_hours": 4,
+      "fresh": false,
+      "age_hours": null,
       "entities": {
         "movies": 1184031,
         "tv_series": 20000,
@@ -659,7 +1592,7 @@
       "object_count": 7,
       "last_updated": "2026-04-21T23:00:01.000Z",
       "fresh": false,
-      "age_hours": 151.4,
+      "age_hours": null,
       "entities": {
         "movies": 743825,
         "tv_series": 298238,
@@ -678,7 +1611,7 @@
       "object_count": 7,
       "last_updated": "2026-04-20T22:06:38.000Z",
       "fresh": false,
-      "age_hours": 176.3,
+      "age_hours": null,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -697,7 +1630,7 @@
       "object_count": 1,
       "last_updated": "2026-04-21T23:04:10.000Z",
       "fresh": false,
-      "age_hours": 151.4,
+      "age_hours": null,
       "entities": {
         "movies": 861878,
         "tv_series": null,
@@ -716,7 +1649,7 @@
       "object_count": 29,
       "last_updated": "2026-04-22T05:51:32.000Z",
       "fresh": false,
-      "age_hours": 142.7,
+      "age_hours": null,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -735,7 +1668,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:47:11.000Z",
       "fresh": false,
-      "age_hours": 147.6,
+      "age_hours": null,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -754,7 +1687,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:38:36.000Z",
       "fresh": false,
-      "age_hours": 147.8,
+      "age_hours": null,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -773,7 +1706,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T04:42:21.000Z",
       "fresh": false,
-      "age_hours": 145.7,
+      "age_hours": null,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -792,7 +1725,7 @@
       "object_count": 9,
       "last_updated": "2026-04-22T01:11:20.000Z",
       "fresh": false,
-      "age_hours": 142.5,
+      "age_hours": null,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -811,7 +1744,7 @@
       "object_count": 5,
       "last_updated": "2026-04-22T01:13:31.000Z",
       "fresh": false,
-      "age_hours": 149.2,
+      "age_hours": null,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -829,8 +1762,8 @@
       "size_gb": 0,
       "object_count": 2,
       "last_updated": "2026-04-22T06:07:09.000Z",
-      "fresh": true,
-      "age_hours": 4,
+      "fresh": false,
+      "age_hours": null,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -848,7 +1781,7 @@
     "scrapers_total": 22,
     "s3_gb": 85.4,
     "parent_key_rows": 861878,
-    "tasks_open": 18,
+    "tasks_open": 33,
     "build_events_today": 0,
     "model_routing": "haiku+sonnet+opus",
     "haiku_pct_today": 0,
@@ -889,8 +1822,8 @@
     },
     {
       "type": "pipeline",
-      "text": "TMDB bulk 47.0% — 2191K / 4663K titles → s3://sasmaster-2026/tmdb_dev/",
-      "ts": "2026-04-28T06:24:39.115Z"
+      "text": "TMDB bulk 49.9% — 2328K / 4663K titles → s3://sasmaster-2026/tmdb_dev/",
+      "ts": "2026-04-28T08:59:42.235Z"
     }
   ],
   "cron": [
@@ -919,6 +1852,14 @@
       "status": "pending"
     },
     {
+      "time": "*:*/5",
+      "name": "generate status.js",
+      "command": "cd /Users/shivashish/sasmaster-status && /opt/homebrew/opt/node@20/bin/node generate-status.js >> /Users/shivashish/SaSMaster/logs/generate-status.log 2>&1",
+      "channel": "—",
+      "weekly": false,
+      "status": "pending"
+    },
+    {
       "time": "2:00 AM",
       "name": "load tmdb to s3.js",
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/load-tmdb-to-s3.js all >> /Users/shivashish/SaSMaster/logs/tmdb-load.log 2>&1",
@@ -940,7 +1881,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/tmdb-daily-agent.js >> /Users/shivashish/SaSMaster/logs/tmdb-agent.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "5:02 AM",
@@ -1057,6 +1998,146 @@
   ],
   "tasks": [
     {
+      "title": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + creds already exist. Bulk loop over…",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "DATA",
+      "est": "—"
+    },
+    {
+      "title": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass already confirmed 8,522 unique …",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "DATA",
+      "est": "—"
+    },
+    {
+      "title": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series phase completes (DuckDB needs f…",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "DATA",
+      "est": "—"
+    },
+    {
+      "title": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_series phase completes (DuckDB UNI…",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "DATA",
+      "est": "—"
+    },
+    {
+      "title": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_series phase completes (DuckDB UNNE…",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "DATA",
+      "est": "—"
+    },
+    {
+      "title": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until TV Seasons done. DuckDB UNNEST …",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "DATA",
+      "est": "—"
+    },
+    {
+      "title": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKED until main loader fully idle (…",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "DATA",
+      "est": "—"
+    },
+    {
+      "title": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating animation to homepage !task EXPLORE R…",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "AGENT",
+      "est": "—"
+    },
+    {
+      "title": "Execute MEDIA-INTEL-AGENT-MISSION.md — build daily 6AM Evan Shapiro media intel agent",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "AGENT",
+      "est": "—"
+    },
+    {
+      "title": "Execute TMDB-STATUS-INTEGRATION-MISSION.md — wire TMDB trends into status page + sm CLI",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "DATA",
+      "est": "—"
+    },
+    {
+      "title": "COMMAND API TRIGGER: tmdb-load — triggered 04/21/2026, 15:48 EST",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "DATA",
+      "est": "—"
+    },
+    {
+      "title": "COMMAND API TRIGGER: media-intel — triggered 04/21/2026, 16:12 EST",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "INFRA",
+      "est": "—"
+    },
+    {
+      "title": "Fix TMDB pipeline blockage — identify tv_series blocker, unblock Collections/Networks/Companies loaders, get pipeline pa…",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "DATA",
+      "est": "—"
+    },
+    {
+      "title": "Refresh stale S3 datasets — IMDB 6d stale, parent_keys 6d stale, run refresh, validate 589K+ row count, update War Room …",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "EDGAR",
+      "est": "—"
+    },
+    {
+      "title": "Wire Weekly Review + IAB Intel + Financial Analyst agents — audit why NEVER run, fix root cause, test run each, confirm …",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "EDGAR",
+      "est": "—"
+    },
+    {
+      "title": "Fix War Room Kanban to live-read TASKS.md — currently rendering stale snapshot. Kanban HIGH/MED/EXPLORE columns should d…",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "Surface cost-log.jsonl in War Room — add Token Usage KPI card to War Room dashboard showing total tokens + estimated $ p…",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "UI",
+      "est": "—"
+    },
+    {
+      "title": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions …",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "AGENT",
+      "est": "—"
+    },
+    {
+      "title": "Harden build loop against API timeouts — add retry logic (3 attempts, exponential backoff) to all Claude API calls in sa…",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "AGENT",
+      "est": "—"
+    },
+    {
+      "title": "Intelligent build loop sequencing — refactor sasmaster-build.sh to execute tasks in dependency order, not just top-to-bo…",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "AGENT",
+      "est": "—"
+    },
+    {
       "title": "Build Ad Research portal stub (same pattern as Programming Research)",
       "status": "BACKLOG",
       "priority": "MED",
@@ -1078,38 +2159,73 @@
       "est": "—"
     },
     {
-      "title": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant …",
+      "title": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant already exists in v7 — wire the …",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "UI",
       "est": "—"
     },
     {
-      "title": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback po…",
+      "title": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback points.",
       "status": "BACKLOG",
       "priority": "MED",
-      "tag": "UI",
+      "tag": "INFRA",
       "est": "—"
     },
     {
-      "title": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasma…",
+      "title": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 ED…",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "AGENT",
       "est": "—"
     },
     {
-      "title": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest ar…",
+      "title": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasma…",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "UI",
       "est": "—"
     },
     {
-      "title": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/ma…",
+      "title": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTE…",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "EDGAR",
+      "est": "—"
+    },
+    {
+      "title": "Entity counts for EIDR / opus / gracenote / fyi / shiv_curated. Each is flat xlsx/csv. Parse row counts (movies vs tv_se…",
+      "status": "BACKLOG",
+      "priority": "MED",
+      "tag": "EDGAR",
+      "est": "—"
+    },
+    {
+      "title": "Timezone normalization — War Room ticker + agent last_run display currently mix UTC/EDT. Normalize all relative times to…",
+      "status": "BACKLOG",
+      "priority": "MED",
+      "tag": "AGENT",
+      "est": "—"
+    },
+    {
+      "title": "Write DONE-LOG-ANALYST-MISSION.md — daily agent reads DONE_LOG.md, identifies portal gaps, injects fill tasks",
+      "status": "BACKLOG",
+      "priority": "MED",
+      "tag": "AGENT",
+      "est": "—"
+    },
+    {
+      "title": "JARVIS vault-sync — wire JARVIS !vault-sync command (or daily cron) to call Claude Code and update stale ~/SaSMaster/obs…",
+      "status": "BACKLOG",
+      "priority": "MED",
+      "tag": "AGENT",
+      "est": "—"
+    },
+    {
+      "title": "Add !research command to JARVIS — topic-agnostic synthesis pipeline, accepts !research [topic], posts output to #intel #…",
+      "status": "BACKLOG",
+      "priority": "MED",
+      "tag": "AGENT",
       "est": "—"
     },
     {
@@ -1131,6 +2247,104 @@
       "status": "REVIEW",
       "priority": "REVIEW",
       "tag": "PENDING",
+      "est": "—"
+    },
+    {
+      "title": "All 5 portal tabs present (Programming, Advertising, Marketing, CPG, Exchange)",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "Ticker contains at least 8 market signal items",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "Clicking theme toggle changes data-theme attribute on <html>",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "Page loads with zero uncaught JavaScript errors",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "Page loads with zero uncaught JavaScript errors",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "All 5 portal tabs present (Programming, Advertising, Marketing, CPG, Exchange)",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "Ticker contains at least 8 market signal items",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "Intro/cinematic screen element exists in DOM",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "Drilldown view container exists in DOM",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "Clicking theme toggle changes data-theme attribute on <html>",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "Page loads with zero uncaught JavaScript errors",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "Page loads with zero uncaught JavaScript errors",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "Fetch-error banner is hidden on fresh page load (no duplicate display: in inline style)",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
+      "est": "—"
+    },
+    {
+      "title": "Fetch-error banner is hidden on fresh page load (no duplicate display: in inline style)",
+      "status": "REVIEW",
+      "priority": "HIGH",
+      "tag": "QA",
       "est": "—"
     },
     {
@@ -1246,16 +2460,16 @@
         "text": "✍️ Starting LinkedIn Writing Agent..."
       },
       {
-        "ts": "Apr 24",
-        "text": "📺 Posted digest (1380 chars) to #sasmaster-intel"
+        "ts": "5:00 AM",
+        "text": "📺 Starting TMDB Daily Agent — 12 endpoints"
+      },
+      {
+        "ts": "5:00 AM",
+        "text": "📺 Starting TMDB Daily Agent — 12 endpoints"
       },
       {
         "ts": "Apr 24",
         "text": "📺 Posted digest (1380 chars) to #sasmaster-intel"
-      },
-      {
-        "ts": "Apr 24",
-        "text": "📺 TV Series/Top Rated — 20 items"
       },
       {
         "ts": "Apr 26",

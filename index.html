@@ -355,7 +355,7 @@ a{color:inherit}
 .kb-count{font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;font-family:var(--mono);background:var(--surface);border:1px solid var(--border)}
 .kb-items{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px}
 .kb-items::-webkit-scrollbar{width:4px}.kb-items::-webkit-scrollbar-thumb{background:var(--border)}
-.kb-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px;border-left:3px solid transparent;cursor:pointer;transition:all .15s}
+.kb-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px;border-left:3px solid transparent;cursor:grab;transition:all .15s}
 .kb-card:hover{box-shadow:var(--shadow)}
 .kb-card.high{border-left-color:var(--crit)}.kb-card.med{border-left-color:var(--warn)}.kb-card.done-card{border-left-color:var(--ok)}.kb-card.blocked-card{background:var(--crit-bg);border-left-color:var(--crit)}
 .kb-card-top{display:flex;align-items:center;gap:4px;margin-bottom:5px;flex-wrap:wrap}
@@ -722,7 +722,10 @@ a{color:inherit}
   .diag-panel{width:calc(100vw - 24px)}
 }
 
+.kb-sortable-ghost{opacity:.35;background:rgba(96,165,250,.15);border:1px dashed #60a5fa !important}
+.kb-sortable-chosen{cursor:grabbing !important;box-shadow:0 4px 16px rgba(0,0,0,.4) !important}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 </head>
 <body>
 
@@ -997,23 +1000,23 @@ a{color:inherit}
       <div class="kanban-board" id="kanbanView" style="grid-template-columns:repeat(5,1fr)">
         <div class="kb-col">
           <div class="kb-header"><span class="kb-title" style="color:var(--text-2)">BACKLOG</span><span class="kb-count" id="kbCountBacklog">--</span></div>
-          <div class="kb-items" id="kbBacklog" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
+          <div class="kb-items" id="kbBacklog" data-kbcol="backlog" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
         </div>
         <div class="kb-col">
           <div class="kb-header"><span class="kb-title" style="color:#60a5fa">IN PROGRESS</span><span class="kb-count" id="kbCountWip">--</span></div>
-          <div class="kb-items" id="kbWip" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
+          <div class="kb-items" id="kbWip" data-kbcol="wip" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
         </div>
         <div class="kb-col">
           <div class="kb-header"><span class="kb-title" style="color:var(--crit)">BLOCKED</span><span class="kb-count" id="kbCountBlocked">--</span></div>
-          <div class="kb-items" id="kbBlocked" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
+          <div class="kb-items" id="kbBlocked" data-kbcol="blocked" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
         </div>
         <div class="kb-col">
           <div class="kb-header"><span class="kb-title" style="color:var(--warn)">REVIEW</span><span class="kb-count" id="kbCountReview">--</span></div>
-          <div class="kb-items" id="kbReview" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
+          <div class="kb-items" id="kbReview" data-kbcol="review" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
         </div>
         <div class="kb-col">
           <div class="kb-header"><span class="kb-title" style="color:var(--ok)">DONE</span><span class="kb-count" id="kbCountDone">--</span></div>
-          <div class="kb-items" id="kbDone" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
+          <div class="kb-items" id="kbDone" data-kbcol="done" style="max-height:calc(100vh - 380px);overflow-y:auto"></div>
         </div>
       </div>
       <div class="list-view" id="listView" style="display:none">
@@ -1767,6 +1770,7 @@ function populateKanban(d) {
   document.getElementById('kbBlocked').innerHTML  = renderKbCards(blocked,    'blocked-card',  'blocked');
   document.getElementById('kbReview').innerHTML   = renderKbCards(review,     'review-card',   'review');
   document.getElementById('kbDone').innerHTML     = renderKbCards(done,       'done-card',     'done');
+  initSortable();
 }
 
 function renderPhaseStrip(phases) {
@@ -1815,7 +1819,7 @@ function renderKbCard(it, cls, column) {
   const tagCls = {'DATA':'t-data','AGENT':'t-agent','UI':'t-ui','QA':'t-data','EDGAR':'t-infra'}[it.tag] || 't-infra';
   const priCol = it.priority === 'HIGH' ? 'var(--crit)' : it.priority === 'MED' ? 'var(--warn)' : 'var(--text-3)';
   const isQA   = it.tag === 'QA' || (it.id||'').startsWith('qa-');
-  const hasId  = it.id && !it.id.startsWith('t') && !it.id.startsWith('done') && !it.id.startsWith('review') && !it.id.startsWith('qa-');
+  const hasId  = !!(it.id && !it.id.startsWith('done') && !it.id.startsWith('qa-')) || !!it.approvalId;
 
   // Action buttons based on column
   let actions = '';
@@ -1828,7 +1832,7 @@ function renderKbCard(it, cls, column) {
       : `<button class="btn-sm" style="color:var(--ok)" onclick="taskCompletePrompt('${it.id}',this)">✅ Done</button>`;
   }
 
-  return `<div class="kb-card ${cls}" data-type="${(it.tag||'').toLowerCase()}" data-id="${it.id||''}" style="${!f?'display:none':''}">
+  return `<div class="kb-card ${cls}" data-type="${(it.tag||'').toLowerCase()}" data-id="${it.id||''}" data-approval-id="${it.approvalId||''}" data-col="${column}" style="${!f?'display:none':''}">
     <div class="kb-card-top">
       <span style="width:3px;height:100%;background:${priCol};border-radius:2px;position:absolute;left:0;top:0"></span>
       <span class="qtype ${tagCls}">${escHtml(it.tag||'?')}</span>
@@ -1856,6 +1860,81 @@ async function taskAction(action, id, btn) {
     btn.textContent = '✗';
     setTimeout(() => { btn.disabled = false; btn.textContent = action; }, 2000);
   }
+}
+
+// ── Kanban drag-and-drop (SortableJS) ─────────────────────────
+const KB_DRAG_ACTIONS = {
+  'backlog→wip':    'start',
+  'wip→review':     'review',
+  'wip→blocked':    'block',
+  'wip→done':       'complete',
+  'blocked→wip':    'unblock',
+  'blocked→review': 'review',
+  'review→done':    'complete',
+  'review→wip':     'start',
+  'review→blocked': 'block',
+};
+
+let _kbSortables = [];
+
+function initSortable() {
+  _kbSortables.forEach(s => s.destroy());
+  _kbSortables = [];
+
+  const colIds = {
+    kbBacklog: 'backlog', kbWip: 'wip',
+    kbBlocked: 'blocked', kbReview: 'review', kbDone: 'done',
+  };
+
+  Object.entries(colIds).forEach(([elId, colName]) => {
+    const el = document.getElementById(elId);
+    if (!el || typeof Sortable === 'undefined') return;
+
+    _kbSortables.push(new Sortable(el, {
+      group:      'kanban',
+      animation:  150,
+      ghostClass: 'kb-sortable-ghost',
+      chosenClass:'kb-sortable-chosen',
+      filter:     '.btn-sm',
+      preventOnFilter: false,
+      onEnd: async (evt) => {
+        if (evt.from === evt.to) return;
+        const card       = evt.item;
+        const taskId     = card.dataset.id;
+        const approvalId = card.dataset.approvalId;
+        const srcCol     = colIds[evt.from.id];
+        const destCol    = colIds[evt.to.id];
+        const action     = KB_DRAG_ACTIONS[`${srcCol}→${destCol}`];
+
+        if (!action) {
+          evt.from.insertBefore(card, evt.from.children[evt.oldIndex] || null);
+          return;
+        }
+
+        if (approvalId && action === 'complete') {
+          await fetch(apiUrl(`/approvals/${approvalId}/dismiss`), {
+            method: 'POST', headers: authHeaders(), body: JSON.stringify({}),
+          });
+        } else if (action === 'block') {
+          const reason = prompt('Block reason:');
+          if (!reason) { evt.from.insertBefore(card, evt.from.children[evt.oldIndex] || null); return; }
+          await fetch(apiUrl(`/tasks/${taskId}/block`), {
+            method: 'POST', headers: authHeaders(), body: JSON.stringify({ reason }),
+          });
+        } else if (action === 'complete') {
+          const notes = prompt('Completion notes (optional):') || '';
+          await fetch(apiUrl(`/tasks/${taskId}/complete`), {
+            method: 'POST', headers: authHeaders(), body: JSON.stringify({ notes }),
+          });
+        } else {
+          await fetch(apiUrl(`/tasks/${taskId}/${action}`), {
+            method: 'POST', headers: authHeaders(), body: JSON.stringify({}),
+          });
+        }
+        await loadStatus();
+      },
+    }));
+  });
 }
 
 async function taskBlockPrompt(id, btn) {

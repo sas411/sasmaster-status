@@ -221,7 +221,7 @@
   <h1>🧠 Skill Inventory — v1</h1>
   <div class="sub">Claude Code personal skill library · synced across claude.ai + local · self-evolving via post-build capture</div>
   <div class="badge-row">
-    <span class="badge badge-live"><span class="dot"></span>24 Skills Active</span>
+    <span class="badge badge-live"><span class="dot"></span>25 Skills Active</span>
     <span class="badge badge-pur">10 SaSMaster Domain</span>
     <span class="badge badge-info">7 Engineering</span>
     <span class="badge badge-amber">Friday Auto-Review Cron</span>
@@ -236,7 +236,7 @@
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>24</strong><span>Synced Both</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>8,608</strong><span>Lines of Knowledge</span></div>
+    <div class="sb-item"><strong>8,700+</strong><span>Lines of Knowledge</span></div>
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>10</strong><span>SaSMaster Domain</span></div>
     <div class="sb-sep"></div>
@@ -248,10 +248,10 @@
   <!-- ── Filter ── -->
   <div class="sec-title">Skills</div>
   <div class="filter-row">
-    <button class="filter-btn active" onclick="filterSkills('all',this)">All (24)</button>
+    <button class="filter-btn active" onclick="filterSkills('all',this)">All (25)</button>
     <button class="filter-btn" onclick="filterSkills('sasmaster',this)">SaSMaster Domain (10)</button>
     <button class="filter-btn" onclick="filterSkills('research',this)">Research (1)</button>
-    <button class="filter-btn" onclick="filterSkills('engineering',this)">Engineering (7)</button>
+    <button class="filter-btn" onclick="filterSkills('engineering',this)">Engineering (8)</button>
     <button class="filter-btn" onclick="filterSkills('emba',this)">EMBA / Academia (2)</button>
     <button class="filter-btn" onclick="filterSkills('consulting',this)">Consulting (1)</button>
     <button class="filter-btn" onclick="filterSkills('personal',this)">Personal (2)</button>
@@ -872,6 +872,31 @@
       </div>
     </div>
 
+    <div class="skill-card cat-engineering" data-cat="engineering">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">playwright-debugger</span>
+          <span class="sc-cat">Engineering</span>
+        </div>
+        <div class="sc-desc">Structured Playwright debugging for UI interactions. 3-step protocol: DOM audit (page.evaluate computed style) → ancestor walk (overflow/pointer intercept) → real mouse simulation. Drag-and-drop specialist with 6-layer contract checklist. Collapses 3-iteration debug loops into 1 by front-loading the right diagnostic queries.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">drag not working</span>
+          <span class="trigger-tag">Playwright debug</span>
+          <span class="trigger-tag">dragstart firing</span>
+          <span class="trigger-tag">user-select</span>
+          <span class="trigger-tag">overflow ancestor</span>
+          <span class="trigger-tag">mouse simulation</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">278 lines</span><span>Added Apr 28, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
   </div><!-- /skill-grid -->
 
   <!-- ── Evolution Pipeline ── -->
@@ -892,7 +917,7 @@
         <div class="pf-step">
           <div class="pf-icon">📅</div>
           <div class="pf-label">Friday Review Cron</div>
-          <div class="pf-detail">Every Friday at 5:50PM, <code>skill-review.sh</code> loops all 24 skills, runs Claude on each with recent TASKS.md completions + CLAUDE_MEMORY.md context, and edits <code>SKILL.md</code> with new patterns. Pairs with 6PM Tech Intel.</div>
+          <div class="pf-detail">Every Friday at 5:50PM, <code>skill-review.sh</code> loops all 25 skills, runs Claude on each with recent TASKS.md completions + CLAUDE_MEMORY.md context, and edits <code>SKILL.md</code> with new patterns. Pairs with 6PM Tech Intel.</div>
           <div class="pf-code">50 17 * * 5</div>
         </div>
 
@@ -939,18 +964,19 @@
         <tr><td class="skill-name-cell">programming-researcher</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(8,145,178,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Research</span></td><td class="desc-cell">Senior TV/streaming analyst — 3-layer framework, RSG ML ensemble (MAE 0.283), %GSHR/%SCH Index, PID migration, binary optimization, Nielsen/Gracenote decode</td><td class="lines-cell">2,293</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">autonomous-ui-designer</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">SaSMaster cinematic UI engine — tokens, component library, chart language, build patterns. !build UI authority. Loads tokens.md before writing HTML.</td><td class="lines-cell">293</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">portal-detailpage</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">portal-v8 DetailPage drill-down — dp-* CSS, TMDB wiring, hero/glass/score-ring, right panel, cast/providers/similar routing</td><td class="lines-cell">366</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
-        <tr><td class="skill-name-cell">qa-agent</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Autonomous QA verifier — post-build Playwright checks, META tab fields, drill-down nav, ID format, anti-self-certification gate</td><td class="lines-cell">343</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">qa-agent</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Autonomous QA verifier — post-build Playwright checks, META tab fields, drill-down nav, ID format, anti-self-certification gate</td><td class="lines-cell">419</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">slc-taxonomy</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">SLC self-learning pipeline — #skill-worthy tagging, capture-learnings.sh→learnings.md, skill-review.sh Friday promotion, validator rules</td><td class="lines-cell">117</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">bash-scripts-macos</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">macOS bash pitfalls — bash 3.2 vs 5.x, GNU/BSD tool divergence, POSIX regex, cron env traps; always use /opt/homebrew/bin/bash</td><td class="lines-cell">156</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">css-debugging</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">portal-v8 CSS diagnosis via Playwright — flex/grid collapse, overflow clipping, min-width:0, getComputedStyle, dev≠prod</td><td class="lines-cell">120</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">svg-animation</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">Inline SVG score rings / gauge arcs — circumference math, stroke-dashoffset keyframes, Framer Motion v11 crash fix, cx/cy/r CSS geometry</td><td class="lines-cell">143</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">vite-react-production</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">Vite+Rollup prod failures — Rollup const TDZ reorder, Framer Motion v11 circular dep (pin v10.18.0), blank-screen debug, npm run build rule</td><td class="lines-cell">96</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">playwright-debugger</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">3-step Playwright protocol — DOM audit → ancestor walk → mouse simulation. Drag-and-drop 6-layer contract. Collapses debug loops into 1 call.</td><td class="lines-cell">278</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
       </tbody>
     </table>
   </div>
 
   <div style="text-align:center;margin-top:32px;font-size:11px;color:var(--ink-400);">
-    SaSMaster Intelligence Platform · Skill Inventory v1 · Updated Apr 24, 2026 · 24 skills · 8,608 lines
+    SaSMaster Intelligence Platform · Skill Inventory v1 · Updated Apr 28, 2026 · 25 skills · 8,700+ lines
   </div>
 
 </div><!-- /canvas -->

@@ -150,7 +150,7 @@
   </div>
   <div style="text-align:right;flex-shrink:0;margin-left:32px;margin-top:8px;">
     <div class="mono" style="font-size:10px;color:var(--text-dim);margin-bottom:6px;">GENERATED</div>
-    <div class="mono" style="font-size:13px;color:var(--text-secondary);">2026-04-27</div>
+    <div class="mono" style="font-size:13px;color:var(--text-secondary);">2026-04-28</div>
     <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
       <span class="badge badge-p0">P0 IN QUEUE</span>
       <span class="badge badge-flight">BUILD ACTIVE</span>
@@ -231,15 +231,13 @@
       <div style="display:flex;align-items:center;gap:8px;"><span class="dot-flight"></span><span class="text-sec" style="font-size:12px;">cost-log.jsonl — being built (in-flight)</span></div>
     </div>
   </div>
-  <div class="card" style="border-color:rgba(239,68,68,0.35);background:var(--red-dim);">
-    <div class="display text-red" style="font-size:13px;letter-spacing:0.05em;margin-bottom:10px;">What Is Invisible — The Gap</div>
+  <div class="card" style="border-color:rgba(16,185,129,0.35);background:var(--green-dim);">
+    <div class="display text-green" style="font-size:13px;letter-spacing:0.05em;margin-bottom:10px;">Visibility Gaps — Resolved</div>
     <div style="display:flex;flex-direction:column;gap:6px;">
-      <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--red-alert);font-size:14px;">✗</span><span class="text-sec" style="font-size:12px;">Claude Code decisions mid-build</span></div>
-      <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--red-alert);font-size:14px;">✗</span><span class="text-sec" style="font-size:12px;">Errors and root causes in execution</span></div>
-      <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--red-alert);font-size:14px;">✗</span><span class="text-sec" style="font-size:12px;">Files written, code decisions, skips</span></div>
-      <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--red-alert);font-size:14px;">✗</span><span class="text-sec" style="font-size:12px;">Per-task token cost breakdown</span></div>
-      <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--red-alert);font-size:14px;">✗</span><span class="text-sec" style="font-size:12px;">Lessons extracted from each build</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--green-signal);font-size:14px;">✓</span><span class="text-sec" style="font-size:12px;">Errors and root causes in execution — L7 LIVE</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--green-signal);font-size:14px;">✓</span><span class="text-sec" style="font-size:12px;">Lessons extracted from each build — L6 LIVE</span></div>
     </div>
+    <div style="margin-top:10px;padding:8px;background:var(--bg-elevated);border-radius:4px;font-size:11px;color:var(--text-secondary);">Resolved by logs/build-YYYY-MM-DD-HH.jsonl pipeline (L7 LIVE Apr 28). Remaining: extracted lessons auto-injection (L6 LIVE Apr 28).</div>
   </div>
 </div>
 
@@ -297,23 +295,23 @@
         <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary);">Structured output contract, event bus, War Room real-time, Slack alerts, S3 audit</td>
         <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--red-alert);">P0 unlock</td>
         <td style="padding:12px 16px;font-size:12px;color:var(--green-signal);">Zero</td>
-        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-p0">P0 FIRED</span></td>
+        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-live">✅ LIVE</span></td>
       </tr>
       <tr style="border-top:1px solid var(--border);background:rgba(167,139,250,0.02);">
         <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">6</td>
-        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-future"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Self-Learning Feedback Loop</span></div></td>
+        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-live"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Self-Learning Feedback Loop</span></div></td>
         <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary);">DoneLog → skill files, failures → auto-requeue, cost feedback, performance trending</td>
         <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);">Compounding</td>
         <td style="padding:12px 16px;font-size:12px;color:var(--green-signal);">Low</td>
-        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-future">FUTURE</span></td>
+        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-live">✅ LIVE</span></td>
       </tr>
       <tr style="border-top:1px solid var(--border);">
         <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">5</td>
-        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-flight"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Output Caching</span></div></td>
+        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-live"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Output Caching</span></div></td>
         <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary);">S3 freshness gate before every scraper run — skip if data &lt;24h, log cache hit</td>
         <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green-signal);">~20% eliminated</td>
         <td style="padding:12px 16px;font-size:12px;color:var(--green-signal);">Zero</td>
-        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-flight">IN-FLIGHT</span></td>
+        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-live">✅ LIVE</span></td>
       </tr>
       <tr style="border-top:1px solid var(--border);background:rgba(167,139,250,0.02);">
         <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">4</td>
@@ -321,23 +319,23 @@
         <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary);">1 Opus plan → N scoped Sonnet sessions. Do NOT implement before timeout hardening live.</td>
         <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green-signal);">~50% per cycle</td>
         <td style="padding:12px 16px;font-size:12px;color:var(--red-alert);">Highest</td>
-        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-future">FUTURE — LAST</span></td>
+        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-future">⏸ DEFERRED</span></td>
       </tr>
       <tr style="border-top:1px solid var(--border);">
         <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">3</td>
-        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-future"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Context Hygiene</span></div></td>
+        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-live"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Context Hygiene</span></div></td>
         <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary);">Cap CLAUDE_MEMORY.md at 2K tokens. Archive DONE weekly. Lazy-load skills per task.</td>
         <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green-signal);">~30% per session</td>
         <td style="padding:12px 16px;font-size:12px;color:var(--green-signal);">Zero</td>
-        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-future">FUTURE</span></td>
+        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-live">✅ LIVE</span></td>
       </tr>
       <tr style="border-top:1px solid var(--border);background:rgba(167,139,250,0.02);">
         <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">2</td>
-        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-future"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Prompt Caching</span></div></td>
+        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-flight"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Prompt Caching</span></div></td>
         <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary);">Cache stable docs (CLAUDE_MEMORY + skills) — 90% cheaper on re-reads. After cost-log live.</td>
         <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green-signal);">~90% on docs</td>
         <td style="padding:12px 16px;font-size:12px;color:var(--gold);">Medium</td>
-        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-future">FUTURE</span></td>
+        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-flight">🟡 ON HOLD — 2026-05-12</span></td>
       </tr>
       <tr style="border-top:1px solid var(--border);">
         <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">1</td>
@@ -423,31 +421,11 @@
 
 <!-- ── IMPLEMENTATION ROADMAP ─────────────────────────── -->
 <div class="mb-8"><span class="section-label">Implementation Roadmap — Sequenced by Risk + Dependency</span></div>
-<div style="display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr;gap:0;margin-bottom:40px;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
-  <div style="padding:16px;background:var(--red-dim);border-right:1px solid rgba(239,68,68,0.2);">
-    <div class="mono text-red" style="font-size:10px;margin-bottom:8px;">P0 — NOW</div>
-    <div style="font-weight:600;font-size:13px;color:var(--text-primary);margin-bottom:4px;">Layer 7</div>
-    <div class="text-sec" style="font-size:11px;line-height:1.6;">Transparency hub<br>Zero API risk<br>Unlocks everything</div>
-  </div>
-  <div style="padding:16px;background:var(--bg-surface);border-right:1px solid var(--border);">
-    <div class="mono text-gold" style="font-size:10px;margin-bottom:8px;">THEN</div>
-    <div style="font-weight:600;font-size:13px;color:var(--text-primary);margin-bottom:4px;">Layers 3 + 5</div>
-    <div class="text-sec" style="font-size:11px;line-height:1.6;">Context hygiene<br>Output caching<br>Zero API risk</div>
-  </div>
-  <div style="padding:16px;background:var(--bg-surface);border-right:1px solid var(--border);">
-    <div class="mono text-gold" style="font-size:10px;margin-bottom:8px;">THEN</div>
-    <div style="font-weight:600;font-size:13px;color:var(--text-primary);margin-bottom:4px;">Layer 1 + 6</div>
-    <div class="text-sec" style="font-size:11px;line-height:1.6;">Haiku routing<br>Self-learning<br>Low risk</div>
-  </div>
-  <div style="padding:16px;background:var(--bg-surface);border-right:1px solid var(--border);">
-    <div class="mono text-gold" style="font-size:10px;margin-bottom:8px;">THEN</div>
-    <div style="font-weight:600;font-size:13px;color:var(--text-primary);margin-bottom:4px;">Layer 2</div>
-    <div class="text-sec" style="font-size:11px;line-height:1.6;">Prompt caching<br>After cost-log live<br>Medium risk</div>
-  </div>
-  <div style="padding:16px;background:var(--gold-dim);">
-    <div class="mono text-gold" style="font-size:10px;margin-bottom:8px;">LAST</div>
-    <div style="font-weight:600;font-size:13px;color:var(--text-primary);margin-bottom:4px;">Layer 4</div>
-    <div class="text-sec" style="font-size:11px;line-height:1.6;">Session scoping<br>After timeouts<br>Highest risk</div>
+<div style="padding:20px;background:var(--bg-surface);border-radius:8px;border:1px solid var(--border);margin-bottom:40px;">
+  <div class="text-sec" style="font-size:13px;line-height:2.0;">
+    <span style="color:var(--green-signal);font-weight:600;">✅ DONE (Apr 28): L7, L5, L3, L1, L6 — all live</span><br>
+    <span style="color:var(--gold);font-weight:600;">🟡 ON HOLD: L2 (prompt caching) — revisit 2026-05-12</span><br>
+    <span style="color:var(--text-dim);font-weight:600;">⏸ DEFERRED: L4 (session scoping) — highest API risk, no date set</span>
   </div>
 </div>
 

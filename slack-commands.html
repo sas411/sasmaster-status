@@ -222,7 +222,7 @@
 <div class="page-header">
   <div class="eyebrow">SaSMaster · JARVIS</div>
   <h1><span class="jarvis-tag">JARVIS v4</span> Slack Command Reference</h1>
-  <div class="sub">Socket Mode daemon · scripts/jarvis.js · launchd: com.sasmaster.jarvis · 12 commands live</div>
+  <div class="sub">Socket Mode daemon · scripts/jarvis.js · launchd: com.sasmaster.jarvis · 15 commands live</div>
   <div class="badge-row">
     <span class="badge badge-live"><span class="dot-live"></span>All Commands Live</span>
     <span class="badge badge-info">Socket Mode · Always-On</span>
@@ -459,6 +459,31 @@
       </div>
     </div>
 
+    <div class="cmd-card intel-card">
+      <div class="cc-header">
+        <div class="cc-emoji">📡</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!iab</span>
+            <span class="cc-channel">#intel</span>
+          </div>
+          <div class="cc-desc">On-demand IAB intelligence briefing across 4 surfaces. Fires <code>agents/iab-agent.js</code> immediately. Normally runs Mon 7AM via cron.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="detail-row"><span class="detail-key">Fires</span><span class="detail-val"><code>agents/iab-agent.js</code></span></div>
+        <div class="detail-row"><span class="detail-key">Surfaces</span><span class="detail-val">Streaming news · NYC events · Research summaries · Tech &amp; standards advances</span></div>
+        <div class="detail-row"><span class="detail-key">Normally</span><span class="detail-val">Cron: Monday 7:00AM → #intel · Obsidian vault commit</span></div>
+        <div class="response-preview" style="margin-top:12px;">
+          <div class="rp-label">Slack response</div>
+          <div class="rp-text">
+            <span class="rp-info">📡 Firing IAB intelligence briefing...</span><br>
+            <span class="rp-muted">4 surfaces · streaming · NYC · research · standards</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="cmd-card content-card">
       <div class="cc-header">
         <div class="cc-emoji">✍️</div>
@@ -603,6 +628,71 @@
 
   </div>
 
+  <!-- QA Commands -->
+  <div class="sec-title">QA Commands</div>
+
+  <div style="background:#F0FDF4;border:1.5px solid #A7F3D0;border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:11.5px;color:#065F46;line-height:1.7;">
+    <strong>Portal QA gate:</strong> Every build auto-fires <code>!qa</code>. If 3+ checks fail, build is marked <strong>BLOCKED</strong> and task cannot be marked done. Use <code>!qa-add</code> to register new shows in the test registry.
+  </div>
+
+  <div class="cmd-grid">
+
+    <div class="cmd-card queue-card" style="border-top-color:var(--ok);">
+      <div class="cc-header">
+        <div class="cc-emoji">🧪</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!qa</span>
+            <span style="font-size:11px;color:var(--ink-400);">[show_id]</span>
+            <span class="cc-channel">#builds</span>
+          </div>
+          <div class="cc-desc">Runs 15-check Playwright QA suite against live portal URL. Omit show_id to run full <code>qa-cases.json</code> registry.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="detail-row"><span class="detail-key">Fires</span><span class="detail-val"><code>scripts/qa-agent.js</code> (headless Chromium)</span></div>
+        <div class="detail-row"><span class="detail-key">Checks</span><span class="detail-val">NETWORK · TYPE · WHERE TO WATCH · User Score · drill-down nav · ID format (raw / tmdb_tv_ / tmdb_mov_)</span></div>
+        <div class="detail-row"><span class="detail-key">Example</span><span class="detail-val"><code>!qa tmdb_tv_94997</code> — tests single show · <code>!qa</code> — full suite</span></div>
+        <div class="response-preview" style="margin-top:12px;">
+          <div class="rp-label">Slack response</div>
+          <div class="rp-text">
+            <span class="rp-ok">🟢 QA PASS — 5/5 cases · portal-v9 · [timestamp]</span><br>
+            <span class="rp-muted">case_001 House of Dragon ✅ · case_002 Stranger Things ✅</span><br>
+            <span class="rp-warn">🔴 BUILD BLOCKED — 3+ failures detected</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card queue-card" style="border-top-color:var(--ok);">
+      <div class="cc-header">
+        <div class="cc-emoji">➕</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!qa-add</span>
+            <span style="font-size:11px;color:var(--ink-700);font-style:italic;">&lt;id&gt; &lt;label&gt; &lt;type&gt;</span>
+            <span class="cc-channel">#builds</span>
+          </div>
+          <div class="cc-desc">Register a new show in the QA test registry (<code>qa-cases.json</code>). Appends validated entry and posts confirmation.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="detail-row"><span class="detail-key">Arguments</span><span class="detail-val"><code>&lt;url_param&gt;</code> (e.g. <code>tmdb_tv_94997</code>) · <code>&lt;label&gt;</code> (quoted) · <code>&lt;type&gt;</code> tv|movie</span></div>
+        <div class="detail-row"><span class="detail-key">Example</span><span class="detail-val"><code>!qa-add tmdb_tv_94997 "House of the Dragon" tv</code></span></div>
+        <div class="detail-row"><span class="detail-key">Appends to</span><span class="detail-val"><code>~/SaSMaster/qa-cases.json</code> with timestamp and added_reason</span></div>
+        <div class="response-preview" style="margin-top:12px;">
+          <div class="rp-label">Slack response</div>
+          <div class="rp-text">
+            <span class="rp-ok">✅ QA case registered — [timestamp]</span><br>
+            <span class="rp-muted">> case_006 · House of the Dragon (tmdb_tv_94997) · tv</span><br>
+            <span class="rp-muted">Run !qa to verify.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
   <!-- Status command -->
   <div class="sec-title">Status Command</div>
   <div style="max-width:680px;margin-bottom:40px;">
@@ -690,6 +780,8 @@
               <span class="slack-cmd" style="border-color:rgba(99,102,241,0.5);color:#A5B4FC;">!build-auto</span>
               <span class="slack-cmd" style="border-color:rgba(99,102,241,0.5);color:#A5B4FC;">!build-auto-status</span>
               <span class="slack-cmd" style="border-color:rgba(99,102,241,0.5);color:#A5B4FC;">!build-auto-kill</span>
+              <span class="slack-cmd">!qa</span>
+              <span class="slack-cmd">!qa-add</span>
             </div>
           </td>
           <td style="font-size:11px;color:var(--ink-500);">Daily 5AM briefing · 5:02AM visuals · 7AM + 2PM JARVIS self-score</td>
@@ -701,9 +793,10 @@
             <div class="ch-cmds">
               <span class="slack-cmd">!tech</span>
               <span class="slack-cmd">!finance</span>
+              <span class="slack-cmd">!iab</span>
             </div>
           </td>
-          <td style="font-size:11px;color:var(--ink-500);">Daily 6AM Media Intel (13 sources) · Friday 6PM Tech Intel (14 sources)</td>
+          <td style="font-size:11px;color:var(--ink-500);">Daily 6AM Media Intel (13 sources) · Friday 6PM Tech Intel (14 sources) · Monday 7AM IAB Intel (4 surfaces) · Sunday 20:10 Financial Analyst</td>
         </tr>
         <tr>
           <td><span class="ch-name">#content</span></td>
@@ -755,7 +848,7 @@
   </div>
 
   <div class="footer">
-    SaSMaster JARVIS Slack Command Reference · Updated 2026-04-23 · 12 commands · Maintained by Claude Code
+    SaSMaster JARVIS Slack Command Reference · Updated 2026-04-28 · 15 commands · Maintained by Claude Code
   </div>
 
 </div>
