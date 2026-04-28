@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster Strategy v3 Final</title>
+<style>
+  :root {
+    --base: #0A0A0F;
+    --surface: #1A1A2E;
+    --elevated: #16213E;
+    --purple: #7C3AED;
+    --teal: #06B6D4;
+    --text-1: #F1F5F9;
+    --text-2: #94A3B8;
+    --text-3: #475569;
+    --green: #10B981;
+    --amber: #F59E0B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--base);
+    color: var(--text-1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
+    padding: 0 0 64px;
+  }
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #0d0d1f 0%, #1a0a3e 50%, #0a1a2e 100%);
+    border-bottom: 1px solid rgba(124,58,237,0.3);
+    padding: 48px 48px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(124,58,237,0.2);
+    border: 1px solid rgba(124,58,237,0.4);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+    color: #A78BFA;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: 32px; font-weight: 700;
+    background: linear-gradient(135deg, #F1F5F9, #A78BFA);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .hero-sub {
+    font-size: 16px; color: var(--text-2);
+    margin-bottom: 24px;
+  }
+  .hero-meta {
+    display: flex; gap: 24px; flex-wrap: wrap;
+    font-size: 12px; color: var(--text-3);
+  }
+  .hero-meta span { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
+  /* Layout */
+  .content { max-width: 900px; margin: 0 auto; padding: 40px 48px; }
+  /* Section */
+  .section { margin-bottom: 48px; }
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 12px; margin-bottom: 24px;
+  }
+  .section-num {
+    background: linear-gradient(135deg, var(--purple), var(--teal));
+    color: white; font-size: 11px; font-weight: 700;
+    width: 24px; height: 24px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-title { font-size: 18px; font-weight: 600; color: var(--text-1); }
+  /* Table */
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px; margin: 16px 0 24px;
+  }
+  th {
+    background: rgba(255,255,255,0.04);
+    padding: 10px 14px; text-align: left;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+    color: var(--text-3); text-transform: uppercase;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  td {
+    padding: 10px 14px; color: var(--text-2);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--text-1); font-weight: 500; }
+  /* Portal cards */
+  .portal-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin: 16px 0 24px;
+  }
+  .portal-card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 16px;
+  }
+  .portal-card:hover { border-color: rgba(124,58,237,0.3); }
+  .portal-name {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--teal); margin-bottom: 4px;
+  }
+  .portal-desc { font-size: 12px; color: var(--text-2); }
+  /* Experience items */
+  .exp-item {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-left: 3px solid var(--purple);
+    border-radius: 8px; padding: 16px 20px;
+    margin-bottom: 10px;
+  }
+  .exp-title { font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
+  .exp-desc { font-size: 13px; color: var(--text-2); }
+  /* Color tokens */
+  .token-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 16px 0 24px; }
+  .token-swatch { border-radius: 8px; overflow: hidden; }
+  .swatch-color { height: 40px; }
+  .swatch-label { padding: 8px; font-size: 11px; color: var(--text-3); font-family: monospace; }
+  /* Metrics bar */
+  .metrics { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0 24px; }
+  .metric {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 16px 20px;
+    flex: 1; min-width: 140px;
+  }
+  .metric-val { font-size: 22px; font-weight: 700; color: var(--text-1); font-variant-numeric: tabular-nums; }
+  .metric-label { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+  /* North star */
+  .north-star {
+    background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(6,182,212,0.1));
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 12px; padding: 28px 32px;
+    text-align: center;
+  }
+  .north-star-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--teal); margin-bottom: 12px; }
+  .north-star-text { font-size: 20px; font-weight: 600; color: var(--text-1); line-height: 1.4; }
+  /* Agent table */
+  .agent-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+    background: rgba(124,58,237,0.2); color: #A78BFA;
+  }
+  /* Code */
+  code {
+    font-family: 'SF Mono', 'Fira Mono', monospace;
+    font-size: 12px;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px; border-radius: 4px;
+    color: var(--teal);
+  }
+  p { color: var(--text-2); margin-bottom: 12px; }
+  /* Roadmap */
+  .roadmap-phase {
+    border-left: 2px solid rgba(255,255,255,0.1);
+    padding-left: 20px; margin-bottom: 24px;
+    position: relative;
+  }
+  .roadmap-phase::before {
+    content: '';
+    position: absolute; left: -5px; top: 3px;
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .roadmap-phase.live::before { background: var(--green); }
+  .roadmap-phase.next::before { background: var(--amber); }
+  .roadmap-phase.later::before { background: var(--text-3); }
+  .phase-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+  .phase-label.live { color: var(--green); }
+  .phase-label.next { color: var(--amber); }
+  .phase-label.later { color: var(--text-3); }
+  .phase-items { list-style: none; }
+  .phase-items li { font-size: 13px; color: var(--text-2); padding: 3px 0; }
+  .phase-items li::before { content: '→ '; color: var(--text-3); }
+  /* Competitive */
+  .comp-item {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 16px 20px; margin-bottom: 8px;
+  }
+  .comp-name { font-size: 13px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
+  .comp-desc { font-size: 12px; color: var(--text-2); }
+  /* Download CTA */
+  .cta-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(10,10,15,0.95); backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 12px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .cta-label { font-size: 12px; color: var(--text-3); }
+  .btn-dl {
+    background: linear-gradient(135deg, var(--purple), #5B21B6);
+    color: white; border: none; border-radius: 8px;
+    padding: 8px 20px; font-size: 13px; font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-dl:hover { opacity: 0.9; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    STRATEGY DOCUMENT · v3 FINAL
+  </div>
+  <h1>SaSMaster Strategy &amp; Competitive Brief</h1>
+  <div class="hero-sub">UI/UX Design Bible · Autonomous Agent System · M&amp;E Data Framework</div>
+  <div class="hero-meta">
+    <span>2026-04-28</span>
+    <span>Version 3.0-final</span>
+    <span>Status: Canonical</span>
+    <span>Generated by Claude.ai</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- Section 1: Vision -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div class="section-title">Platform Vision</div>
+    </div>
+    <p>SaSMaster is the Bloomberg Terminal for media — a single intelligent pane of glass for buyers, sellers, and analysts operating in the modern media economy. One platform, one login, one view across audience data, content metadata, rights availability, deal flow, and AI-driven intelligence.</p>
+    <p>The <strong style="color:#F1F5F9">Parent Key</strong> — our proprietary unified content identifier bridging IMDB tconst, TMDB ID, and EIDR — is the core technical moat. No competitor has this.</p>
+
+    <div class="metrics">
+      <div class="metric"><div class="metric-val">206.4M</div><div class="metric-label">IMDB Rows</div></div>
+      <div class="metric"><div class="metric-val">1.18M</div><div class="metric-label">TMDB Titles</div></div>
+      <div class="metric"><div class="metric-val">654K</div><div class="metric-label">EIDR IDs Staged</div></div>
+      <div class="metric"><div class="metric-val">68.4%</div><div class="metric-label">Parent Key Match</div></div>
+      <div class="metric"><div class="metric-val">10</div><div class="metric-label">Autonomous Agents</div></div>
+    </div>
+  </div>
+
+  <!-- Section 2: Five Portals -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div class="section-title">The Five Portals</div>
+    </div>
+    <div class="portal-grid">
+      <div class="portal-card">
+        <div class="portal-name">CONTENT</div>
+        <div class="portal-desc">Programming analysts · What to acquire or renew? · TMDB + IMDB + Nielsen + Parent Key</div>
+      </div>
+      <div class="portal-card">
+        <div class="portal-name">ADVERTISING</div>
+        <div class="portal-desc">Media buyers · Where to place a campaign? · Nielsen C3/C7 ratings + demo breakdowns</div>
+      </div>
+      <div class="portal-card">
+        <div class="portal-name">MARKETING</div>
+        <div class="portal-desc">Brand strategists · Who is my audience? · Viewership × consumer profile</div>
+      </div>
+      <div class="portal-card">
+        <div class="portal-name">CPG RESEARCH</div>
+        <div class="portal-desc">CPG brands · What content indexes best for my brand? · Purchase × viewership correlation</div>
+      </div>
+      <div class="portal-card" style="grid-column: 1 / -1;">
+        <div class="portal-name">THE EXCHANGE</div>
+        <div class="portal-desc">Rights holders · What's available and at what price? · Rights matrix + deal comp database + EIDR registry</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: Five Signature Experiences -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div class="section-title">Five Signature Experiences</div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-title">Hero Hiker</div>
+      <div class="exp-desc">Full-viewport cinematic title browser. TMDB poster as hero. Horizontal scroll. Hover reveals metadata overlay. Click expands to Program Drill-Down. Apple TV+ × Netflix editorial × Bloomberg density.</div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-title">Dr. Scoop — AI Companion</div>
+      <div class="exp-desc">Floating panel (bottom-right). Media insider voice — direct, analytically grounded, occasionally wry. <code>claude-sonnet-4-6</code> · SSE stream · POST <code>/api/scoop/chat</code> · Prompt caching enabled for strategy context.</div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-title">Data Viz Suite</div>
+      <div class="exp-desc">Ratings timelines (C3/C7 trend by episode), audience composition wheels (demo radial), rights availability matrix (title × territory × window), content performance scatter (audience × sentiment × cost), DMA heat maps.</div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-title">Program Drill-Down</div>
+      <div class="exp-desc">All SaSMaster data on one title. Six tabs: Identity (all IDs) → Audience (Nielsen history) → Content (cast, crew, genres) → Rights (territory map) → Intelligence (Dr. Scoop) → Comparables (related titles). Sub-second load via DuckDB.</div>
+    </div>
+    <div class="exp-item">
+      <div class="exp-title">Metadata Booklet</div>
+      <div class="exp-desc">Printable one-pager for any title. Parent Key IDs, core metadata grid, audience summary, availability status, Dr. Scoop analysis. Output: screen HTML, PDF export, PNG thumbnail. Replaces the manual "compile a fact sheet" workflow.</div>
+    </div>
+  </div>
+
+  <!-- Section 4: UI/UX Design System -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div class="section-title">UI/UX Design System</div>
+    </div>
+    <p>Cinematic aesthetic. Dark by default. Poster art as first-class data. Bloomberg analytical density × Apple TV+ editorial beauty.</p>
+    <div class="token-grid">
+      <div class="token-swatch">
+        <div class="swatch-color" style="background:#7C3AED"></div>
+        <div class="swatch-label">--brand-purple<br>#7C3AED</div>
+      </div>
+      <div class="token-swatch">
+        <div class="swatch-color" style="background:#06B6D4"></div>
+        <div class="swatch-label">--brand-teal<br>#06B6D4</div>
+      </div>
+      <div class="token-swatch">
+        <div class="swatch-color" style="background:#0A0A0F; border:1px solid rgba(255,255,255,0.1)"></div>
+        <div class="swatch-label">--surface-base<br>#0A0A0F</div>
+      </div>
+      <div class="token-swatch">
+        <div class="swatch-color" style="background:#1A1A2E"></div>
+        <div class="swatch-label">--surface-card<br>#1A1A2E</div>
+      </div>
+    </div>
+    <p><strong style="color:#F1F5F9">Design rules:</strong> Single-bar headers. Fill real estate. Dark bars. Smooth animation (Framer Motion, purposeful only). Vertical centering. Sidebar scope for drill-down. Dynamic canvas height. Expand buttons. Edge label flip on interaction.</p>
+  </div>
+
+  <!-- Section 5: Agent Fleet -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div class="section-title">Autonomous Agent Fleet</div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Agent</th><th>Role</th><th>Schedule</th><th>Output</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>TMDB Daily</td><td>Trending + new releases</td><td>5 AM daily</td><td>S3 TMDB layer</td></tr>
+        <tr><td>TMDB Trending</td><td>Real-time signals</td><td>6 AM daily</td><td>Trending cache</td></tr>
+        <tr><td>Financial Analyst</td><td>54-company SEC EDGAR tracker</td><td>Sun 8 PM</td><td>financial_data.json</td></tr>
+        <tr><td>IAB Agent</td><td>Industry news + events + research</td><td>Mon 7 AM</td><td>#intel Slack</td></tr>
+        <tr><td>EIDR Agent</td><td>EIDR registry enrichment</td><td>On trigger</td><td>S3 EIDR layer</td></tr>
+        <tr><td>QA Agent</td><td>15-check Puppeteer validation</td><td>Post-build</td><td>QA report → Slack</td></tr>
+        <tr><td>LinkedIn Agent</td><td>Content publishing</td><td>Manual/trigger</td><td>LinkedIn post</td></tr>
+        <tr><td>SQL Agent</td><td>DuckDB natural-language query</td><td>!query command</td><td>Result → Slack</td></tr>
+        <tr><td>Debug Agent</td><td>System triage + log analysis</td><td>On trigger</td><td>Debug report</td></tr>
+        <tr><td>DoneLog Analyst</td><td>Build output analysis + feedback</td><td>Post-build</td><td>FEEDBACK.md</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Section 6: Competitive -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div class="section-title">Competitive Positioning</div>
+    </div>
+    <div class="comp-item">
+      <div class="comp-name">vs. Gracenote / TMS</div>
+      <div class="comp-desc">Deepest program guide data but no audience intelligence, no rights layer, no AI. SaSMaster wraps Gracenote data with intelligence layers Gracenote can't provide.</div>
+    </div>
+    <div class="comp-item">
+      <div class="comp-name">vs. Nielsen ONE</div>
+      <div class="comp-desc">Owns the measurement currency but internal-facing UI, enterprise-only pricing. SaSMaster democratizes Nielsen data within a licensed framework.</div>
+    </div>
+    <div class="comp-item">
+      <div class="comp-name">vs. Parrot Analytics</div>
+      <div class="comp-desc">Demand analytics but no operational data (rights, deals, schedules). Research tool, not workflow tool. SaSMaster is both.</div>
+    </div>
+    <div class="comp-item">
+      <div class="comp-name">vs. Canvs AI / sentiment tools</div>
+      <div class="comp-desc">Narrow scope — social sentiment only. Dr. Scoop delivers broader intelligence: audience + rights + competitive context + financial performance.</div>
+    </div>
+    <p style="margin-top:16px"><strong style="color:#F1F5F9">Our wedge:</strong> The Parent Key. No competitor has a unified content identifier spanning IMDB + TMDB + EIDR. This bridge puts SaSMaster at the center of a data graph that others can't replicate without years of matching work.</p>
+  </div>
+
+  <!-- Section 7: Roadmap -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div class="section-title">Roadmap</div>
+    </div>
+    <div class="roadmap-phase live">
+      <div class="phase-label live">NOW — 2026-Q2 (LIVE)</div>
+      <ul class="phase-items">
+        <li>IMDB 206.4M rows in S3</li>
+        <li>TMDB 1.18M titles complete</li>
+        <li>Dr. Scoop AI companion live</li>
+        <li>Portal v9 — 12 sections, 20 verified TMDB IDs, 15/15 QA green</li>
+        <li>War Room v5 — all actions live, serverless proxy</li>
+        <li>10-agent fleet with full cron coverage</li>
+        <li>EIDR enrichment in progress (654K IDs staged)</li>
+      </ul>
+    </div>
+    <div class="roadmap-phase next">
+      <div class="phase-label next">NEXT — 2026-Q3</div>
+      <ul class="phase-items">
+        <li>Nielsen direct license → audience data layer live</li>
+        <li>Gracenote delta → program guide completion</li>
+        <li>EIDR Query API → 85%+ Parent Key match rate</li>
+        <li>The Exchange portal → rights marketplace MVP</li>
+        <li>Financial Intelligence promoted to full portal</li>
+        <li>Portal v10 → Exchange + Nielsen overlay on Drill-Down</li>
+      </ul>
+    </div>
+    <div class="roadmap-phase later">
+      <div class="phase-label later">LATER — 2026-Q4</div>
+      <ul class="phase-items">
+        <li>Multi-user access (analyst seat licenses)</li>
+        <li>API access tier (enterprise clients)</li>
+        <li>Deal flow module → rights transaction tracking</li>
+        <li>Mobile companion app → Dr. Scoop on the go</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- North Star -->
+  <div class="north-star">
+    <div class="north-star-label">⭐ NORTH STAR METRIC</div>
+    <div class="north-star-text">Parent Key coverage at 95%+ across IMDB × TMDB × EIDR</div>
+    <p style="margin-top:12px;font-size:13px;color:#94A3B8">When we reach 95% match coverage, SaSMaster has the most comprehensive media content identity graph in existence — outside of the studios themselves.</p>
+  </div>
+
+</div>
+
+<div class="cta-bar">
+  <div class="cta-label">SaSMaster Strategy v3 Final · 2026-04-28 · Canonical</div>
+  <button class="btn-dl" onclick="window.open('/resources/SaSMaster_Strategy_v3_Final.md','_blank')">Download .md</button>
+</div>
+
+</body>
+</html>
