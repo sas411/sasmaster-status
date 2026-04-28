@@ -2544,63 +2544,66 @@ function renderGantt(d) {
   });
 
   const HOURS   = Array.from({ length: 24 }, (_, i) => i);
-  const LABEL_W = 136;
-  const COL_W   = 28;
-  const ROW_H   = 26;
-  const PILL_W  = 46;
-  const W       = LABEL_W + COL_W * 24;
+  const LABEL_W = 130;  // px, fixed label column
+  const ROW_H   = 28;
+  const PILL_W  = 48;   // px, pill width
 
-  // Header: hour ticks
+  // Header: fluid tick columns (flex:1 each fills full width)
   const ticksHtml = HOURS.map(h => {
     const major = h === 0 || h === 6 || h === 12 || h === 18;
-    return `<div style="width:${COL_W}px;flex-shrink:0;text-align:center;font-size:9px;
+    return `<div style="flex:1;text-align:center;font-size:9px;
       font-family:'DM Mono',monospace;
       color:${major ? 'var(--pur)' : 'var(--text-3)'};
-      font-weight:${major ? '700' : '400'}">${h}</div>`;
+      font-weight:${major ? '700' : '400'};
+      border-left:1px solid var(--bdr)${major ? 'cc' : '33'}">${h}</div>`;
   }).join('');
 
-  // JARVIS header note — shown above ticks, not as a full row
   const jarvisAgent = agents.find(a => a.name === 'JARVIS');
   const jarvisBadge = jarvisAgent?.status === 'healthy'
-    ? `<span style="color:#22c55e;font-size:9px">● 24/7 Socket Mode daemon</span>`
-    : `<span style="color:var(--crit);font-size:9px">⚠ JARVIS offline</span>`;
+    ? `<span style="color:#22c55e">● 24/7 daemon</span>`
+    : `<span style="color:var(--crit)">⚠ offline</span>`;
 
   const header = `
-    <div style="display:flex;align-items:center;min-width:${W}px;padding:4px 0 2px;border-bottom:1px solid var(--bdr);margin-bottom:2px">
-      <div style="width:${LABEL_W}px;flex-shrink:0;font-size:9px;color:var(--text-3);padding-right:8px;text-align:right;font-family:'DM Mono',monospace">
-        JARVIS ${jarvisBadge}
+    <div style="display:flex;align-items:center;width:100%;padding:3px 0;border-bottom:1px solid var(--bdr);margin-bottom:1px">
+      <div style="width:${LABEL_W}px;flex-shrink:0;font-size:9px;color:var(--text-3);
+        padding-right:10px;text-align:right;font-family:'DM Mono',monospace;line-height:1.3">
+        JARVIS<br>${jarvisBadge}
       </div>
-      ${ticksHtml}
+      <div style="flex:1;display:flex">${ticksHtml}</div>
     </div>`;
 
-  // Render each agent row
+  // Render rows — pill position uses % of timeline width
   const rowsHtml = rows.map(row => {
-    const col  = GANTT_COLORS[row.cat] || '#64748b';
-    const dim  = row.status === 'done' ? '55' : 'dd';
-    const faded = row.weekly ? '99' : 'dd';
+    const col = GANTT_COLORS[row.cat] || '#64748b';
+    const dim = row.status === 'done' ? '66' : 'ee';
 
     let pill = '';
     if (row.hour !== null) {
-      // Center pill on the hour mark
-      const left = Math.round(row.hour * COL_W - PILL_W / 2);
-      const label = row.schedule.replace(':00','').replace(' AM',' AM').replace(' PM',' PM');
-      pill = `<div style="position:absolute;left:${left}px;top:4px;width:${PILL_W}px;height:${ROW_H - 10}px;
+      const pct  = (row.hour / 24) * 100;
+      const half = PILL_W / 2;
+      const label = row.schedule.replace(' AM',' AM').replace(' PM',' PM');
+      pill = `<div style="position:absolute;
+        left:calc(${pct}% - ${half}px);
+        top:4px;width:${PILL_W}px;height:${ROW_H - 10}px;
         background:${col}${dim};border-radius:4px;
-        display:flex;align-items:center;justify-content:center">
-        <span style="font-size:8px;color:#fff;font-weight:600;letter-spacing:.02em;white-space:nowrap">${escHtml(label)}</span>
+        display:flex;align-items:center;justify-content:center;z-index:1">
+        <span style="font-size:8px;color:#fff;font-weight:700;
+          letter-spacing:.02em;white-space:nowrap">${escHtml(label)}</span>
       </div>`;
     }
 
-    // Faint vertical guide lines at major hours
+    // Vertical guides at 0 6 12 18 — percentage positioned
     const guides = [0, 6, 12, 18].map(h =>
-      `<div style="position:absolute;left:${h * COL_W}px;top:0;bottom:0;width:1px;background:var(--bdr);opacity:0.4"></div>`
+      `<div style="position:absolute;left:${(h/24)*100}%;top:0;bottom:0;
+        width:1px;background:var(--bdr);opacity:0.5"></div>`
     ).join('');
 
     const weeklyDot = row.weekly
-      ? `<span style="font-size:7px;color:var(--warn);margin-left:3px;vertical-align:middle">wkly</span>`
+      ? `<span style="font-size:7px;color:var(--warn);margin-left:3px">wkly</span>`
       : '';
 
-    return `<div style="display:flex;min-width:${W}px;height:${ROW_H}px;align-items:center;border-bottom:1px solid var(--bdr)18">
+    return `<div style="display:flex;width:100%;height:${ROW_H}px;align-items:center;
+      border-bottom:1px solid var(--bdr)18">
       <div style="width:${LABEL_W}px;flex-shrink:0;font-size:10px;
         color:${row.weekly ? 'var(--text-3)' : 'var(--text-2)'};
         padding-right:10px;text-align:right;
@@ -2611,7 +2614,7 @@ function renderGantt(d) {
     </div>`;
   }).join('');
 
-  el.innerHTML = `<div style="min-width:${W}px">${header}${rowsHtml}</div>`;
+  el.innerHTML = `<div style="width:100%">${header}${rowsHtml}</div>`;
 }
 
 // ══════════════════════════════════════════════════════════
