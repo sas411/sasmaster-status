@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-28T17:05:35.538Z",
+  "generated": "2026-04-28T20:11:16.672Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -10,8 +10,8 @@
     "med": 17,
     "highItems": [
       {
-        "id": "t62",
-        "lineIndex": 62,
+        "id": "t68",
+        "lineIndex": 68,
         "text": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + creds already exist. Bulk loop over…",
         "full": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + creds already exist. Bulk loop over 589,814 matched IMDB tconsts resolving to EIDR IDs. Rate-limit (EIDR API throttles; target ≤5 rps). Output: new `parent_keys/v1b/YYYY-MM-DD/movies.parquet` with eidr_id column populated where match found. Match-rate baseline TBD (likely 60–85% for studio-released films). Skip TMDB fallback keys (tmdb_mov_*) as EIDR has no TMDB join surface.",
         "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
@@ -22,8 +22,8 @@
         "meta": {}
       },
       {
-        "id": "t76",
-        "lineIndex": 76,
+        "id": "t82",
+        "lineIndex": 82,
         "text": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass already confirmed 8,522 unique …",
         "full": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass already confirmed 8,522 unique `belongs_to_collection.id` in movies NDJSON. Fetches `/collection/?append=images`. Ready to run as soon as main loader settles or idles.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -34,8 +34,8 @@
         "meta": {}
       },
       {
-        "id": "t78",
-        "lineIndex": 78,
+        "id": "t84",
+        "lineIndex": 84,
         "text": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series phase completes (DuckDB needs f…",
         "full": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series phase completes (DuckDB needs full tv_series NDJSON to extract unique network IDs). Fetches `/network/?append=alternative_names,images`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -46,8 +46,8 @@
         "meta": {}
       },
       {
-        "id": "t80",
-        "lineIndex": 80,
+        "id": "t86",
+        "lineIndex": 86,
         "text": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_series phase completes (DuckDB UNI…",
         "full": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_series phase completes (DuckDB UNION over movies + tv_series production_companies). Fetches `/company/?append=alternative_names,images`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -58,8 +58,8 @@
         "meta": {}
       },
       {
-        "id": "t82",
-        "lineIndex": 82,
+        "id": "t88",
+        "lineIndex": 88,
         "text": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_series phase completes (DuckDB UNNE…",
         "full": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_series phase completes (DuckDB UNNEST tv_series.seasons[] → (series_id, season_number) pairs). Fetches `/tv//season/{n}?append=external_ids,videos,images`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -70,8 +70,8 @@
         "meta": {}
       },
       {
-        "id": "t84",
-        "lineIndex": 84,
+        "id": "t90",
+        "lineIndex": 90,
         "text": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until TV Seasons done. DuckDB UNNEST …",
         "full": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until TV Seasons done. DuckDB UNNEST seasons.episodes (~2M TMDB episodes across 300K series) + LEFT JOIN imdb/title_episode parquet (9.6M superset) to populate imdb_id. Saves ~2M would-be API calls.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -82,8 +82,8 @@
         "meta": {}
       },
       {
-        "id": "t86",
-        "lineIndex": 86,
+        "id": "t92",
+        "lineIndex": 92,
         "text": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKED until main loader fully idle (…",
         "full": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKED until main loader fully idle (people phase complete) to avoid rate-limit contention. Sidecar-only: writes watch/providers+videos+reviews+images for the 1.18M pre-v2 movies to `tmdb_dev/movies_enrichment/YYYY-MM-DD/`. Never touches existing `tmdb_dev/movies/`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -94,8 +94,8 @@
         "meta": {}
       },
       {
-        "id": "t102",
-        "lineIndex": 102,
+        "id": "t108",
+        "lineIndex": 108,
         "text": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating animation to homepage !task EXPLORE R…",
         "full": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating animation to homepage !task EXPLORE Research LinkedIn Writing Agent voice training approach",
         "sprint": "Done",
@@ -106,8 +106,8 @@
         "meta": {}
       },
       {
-        "id": "t112",
-        "lineIndex": 112,
+        "id": "t118",
+        "lineIndex": 118,
         "text": "Execute MEDIA-INTEL-AGENT-MISSION.md — build daily 6AM Evan Shapiro media intel agent",
         "full": "Execute MEDIA-INTEL-AGENT-MISSION.md — build daily 6AM Evan Shapiro media intel agent",
         "sprint": "Done",
@@ -118,8 +118,8 @@
         "meta": {}
       },
       {
-        "id": "t114",
-        "lineIndex": 114,
+        "id": "t120",
+        "lineIndex": 120,
         "text": "Execute TMDB-STATUS-INTEGRATION-MISSION.md — wire TMDB trends into status page + sm CLI",
         "full": "Execute TMDB-STATUS-INTEGRATION-MISSION.md — wire TMDB trends into status page + sm CLI",
         "sprint": "Done",
@@ -130,8 +130,8 @@
         "meta": {}
       },
       {
-        "id": "t115",
-        "lineIndex": 115,
+        "id": "t121",
+        "lineIndex": 121,
         "text": "COMMAND API TRIGGER: tmdb-load — triggered 04/21/2026, 15:48 EST",
         "full": "COMMAND API TRIGGER: tmdb-load — triggered 04/21/2026, 15:48 EST",
         "sprint": "Done",
@@ -142,8 +142,8 @@
         "meta": {}
       },
       {
-        "id": "t116",
-        "lineIndex": 116,
+        "id": "t122",
+        "lineIndex": 122,
         "text": "COMMAND API TRIGGER: media-intel — triggered 04/21/2026, 16:12 EST",
         "full": "COMMAND API TRIGGER: media-intel — triggered 04/21/2026, 16:12 EST",
         "sprint": "Done",
@@ -156,8 +156,8 @@
     ],
     "medItems": [
       {
-        "id": "t12",
-        "lineIndex": 12,
+        "id": "t18",
+        "lineIndex": 18,
         "text": "Build Ad Research portal stub (same pattern as Programming Research)",
         "full": "Build Ad Research portal stub (same pattern as Programming Research)",
         "sprint": "Sprint 2 — Architecture & UI",
@@ -168,8 +168,8 @@
         "meta": {}
       },
       {
-        "id": "t13",
-        "lineIndex": 13,
+        "id": "t19",
+        "lineIndex": 19,
         "text": "Build Marketing Research portal stub",
         "full": "Build Marketing Research portal stub",
         "sprint": "Sprint 2 — Architecture & UI",
@@ -180,8 +180,8 @@
         "meta": {}
       },
       {
-        "id": "t14",
-        "lineIndex": 14,
+        "id": "t20",
+        "lineIndex": 20,
         "text": "Build CPG Research portal stub",
         "full": "Build CPG Research portal stub",
         "sprint": "Sprint 2 — Architecture & UI",
@@ -192,8 +192,8 @@
         "meta": {}
       },
       {
-        "id": "t38",
-        "lineIndex": 38,
+        "id": "t44",
+        "lineIndex": 44,
         "text": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant already exists in v7 — wire the …",
         "full": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant already exists in v7 — wire the toggle to apply CSS class.",
         "sprint": "Sprint 2 — Design v7 Integration (PRIORITY)",
@@ -204,8 +204,8 @@
         "meta": {}
       },
       {
-        "id": "t40",
-        "lineIndex": 40,
+        "id": "t46",
+        "lineIndex": 46,
         "text": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback points.",
         "full": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback points.",
         "sprint": "Sprint 2 — Design v7 Integration (PRIORITY)",
@@ -216,8 +216,8 @@
         "meta": {}
       },
       {
-        "id": "t56",
-        "lineIndex": 56,
+        "id": "t62",
+        "lineIndex": 62,
         "text": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 ED…",
         "full": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 EDT). Today blocked by JARVIS being down — either fix JARVIS first (above) or copy-paste the draft to LinkedIn manually and remove the entry from pending-approvals.json.",
         "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
@@ -228,8 +228,8 @@
         "meta": {}
       },
       {
-        "id": "t58",
-        "lineIndex": 58,
+        "id": "t64",
+        "lineIndex": 64,
         "text": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasma…",
         "full": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasmaster-status/ + append to resources.json (set latest:true, clear prior). Planned in the Resources section prototype but deferred for v1 ship.",
         "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
@@ -240,8 +240,8 @@
         "meta": {}
       },
       {
-        "id": "t64",
-        "lineIndex": 64,
+        "id": "t70",
+        "lineIndex": 70,
         "text": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTE…",
         "full": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTER_UPDATED.csv` (18GB) for movies/tv_series distinct counts, and `VIEWERSHIP_AMRLD_PROGRAM.csv` (9.8GB) for total telecasts. Add to ~/SaSMaster/scripts/s3-entity-counts.js as a separate runnable (takes ~60–120s). Cache in same JSON. Render in War Room S3 grid.",
         "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
@@ -252,8 +252,8 @@
         "meta": {}
       },
       {
-        "id": "t66",
-        "lineIndex": 66,
+        "id": "t72",
+        "lineIndex": 72,
         "text": "Entity counts for EIDR / opus / gracenote / fyi / shiv_curated. Each is flat xlsx/csv. Parse row counts (movies vs tv_se…",
         "full": "Entity counts for EIDR / opus / gracenote / fyi / shiv_curated. Each is flat xlsx/csv. Parse row counts (movies vs tv_series where discoverable from filename or schema). Add to s3-entity-counts.js with one block per dataset. Low data volume → seconds per run.",
         "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
@@ -264,8 +264,8 @@
         "meta": {}
       },
       {
-        "id": "t88",
-        "lineIndex": 88,
+        "id": "t94",
+        "lineIndex": 94,
         "text": "Timezone normalization — War Room ticker + agent last_run display currently mix UTC/EDT. Normalize all relative times to…",
         "full": "Timezone normalization — War Room ticker + agent last_run display currently mix UTC/EDT. Normalize all relative times to America/New_York on render. Single util function in `index.html`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -276,8 +276,8 @@
         "meta": {}
       },
       {
-        "id": "t113",
-        "lineIndex": 113,
+        "id": "t119",
+        "lineIndex": 119,
         "text": "Write DONE-LOG-ANALYST-MISSION.md — daily agent reads DONE_LOG.md, identifies portal gaps, injects fill tasks",
         "full": "Write DONE-LOG-ANALYST-MISSION.md — daily agent reads DONE_LOG.md, identifies portal gaps, injects fill tasks",
         "sprint": "Done",
@@ -288,8 +288,8 @@
         "meta": {}
       },
       {
-        "id": "t127",
-        "lineIndex": 127,
+        "id": "t133",
+        "lineIndex": 133,
         "text": "JARVIS vault-sync — wire JARVIS !vault-sync command (or daily cron) to call Claude Code and update stale ~/SaSMaster/obs…",
         "full": "JARVIS vault-sync — wire JARVIS !vault-sync command (or daily cron) to call Claude Code and update stale ~/SaSMaster/obsidian/ files against current project state. Option 3 from 2026-04-22 Obsidian vault session. Until then, vault is managed on-demand by Claude Code (option 1).",
         "sprint": "Done",
@@ -300,8 +300,8 @@
         "meta": {}
       },
       {
-        "id": "t235",
-        "lineIndex": 235,
+        "id": "t241",
+        "lineIndex": 241,
         "text": "Add !research command to JARVIS — topic-agnostic synthesis pipeline, accepts !research [topic], posts output to #intel #…",
         "full": "Add !research command to JARVIS — topic-agnostic synthesis pipeline, accepts !research [topic], posts output to #intel #infra *Sent using* Claude",
         "sprint": "Done",
@@ -312,8 +312,8 @@
         "meta": {}
       },
       {
-        "id": "t238",
-        "lineIndex": 238,
+        "id": "t244",
+        "lineIndex": 244,
         "text": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions …",
         "full": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions instead of one session per task. Specifically: agent-wiring tasks should run as one session, data pipeline tasks as one session. Reduces CLAUDE_MEMORY.md + TASKS.md context reload overhead per task. Document batching logic in runbook. #infra *Sent using* Claude",
         "sprint": "Done",
@@ -324,8 +324,8 @@
         "meta": {}
       },
       {
-        "id": "t240",
-        "lineIndex": 240,
+        "id": "t246",
+        "lineIndex": 246,
         "text": "Intelligent build loop sequencing — priority ordering (#infra → #data → #ui) now handled by this session's execution ord…",
         "full": "Intelligent build loop sequencing — priority ordering (#infra → #data → #ui) now handled by this session's execution order; formal pre-flight gate in build script deferred. #infra",
         "sprint": "Done",
@@ -336,8 +336,8 @@
         "meta": {}
       },
       {
-        "id": "t269",
-        "lineIndex": 269,
+        "id": "t275",
+        "lineIndex": 275,
         "text": "War Room Visual Export — upgrade to server-side screenshot via /api/screenshot.js Vercel serverless function using @spar…",
         "full": "War Room Visual Export — upgrade to server-side screenshot via /api/screenshot.js Vercel serverless function using @sparticuz/chromium + puppeteer-core. Current client-side window.open approach works but briefly flashes a popup. Server-side gives silent, pixel-perfect PNG capture. Requires: add @sparticuz/chromium + puppeteer-core to sasmaster-status package.json, create api/screenshot.js, update downloadVisual() in index.html to POST  to /api/screenshot and receive PNG blob. QA check: downloaded PNG > 100KB, background dark, no white/blank output. #infra",
         "sprint": "Done",
@@ -348,8 +348,8 @@
         "meta": {}
       },
       {
-        "id": "t273",
-        "lineIndex": 273,
+        "id": "t279",
+        "lineIndex": 279,
         "text": "Wire CLAUDE_CODE_OAUTH_TOKEN verification into update-memory.sh — on every run, check that CLAUDE_CODE_OAUTH_TOKEN is pr…",
         "full": "Wire CLAUDE_CODE_OAUTH_TOKEN verification into update-memory.sh — on every run, check that CLAUDE_CODE_OAUTH_TOKEN is present in ~/SaSMaster/.env (grep -c returns 1). If missing, post warning to #sasmaster-builds and abort memory update. Token lives in keychain service \"Claude Code-credentials\" — extract with: security find-generic-password -s \"Claude Code-credentials\" -w. Token rotates on Claude Code re-auth; silent cron failures (5-line log, exit 1, no Claude output) are the symptom. #infra",
         "sprint": "Post-Card A follow-up (added 2026-04-28)",
@@ -368,8 +368,8 @@
   "kanban": {
     "backlog": [
       {
-        "id": "t62",
-        "lineIndex": 62,
+        "id": "t68",
+        "lineIndex": 68,
         "text": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + creds already exist. Bulk loop over…",
         "full": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + creds already exist. Bulk loop over 589,814 matched IMDB tconsts resolving to EIDR IDs. Rate-limit (EIDR API throttles; target ≤5 rps). Output: new `parent_keys/v1b/YYYY-MM-DD/movies.parquet` with eidr_id column populated where match found. Match-rate baseline TBD (likely 60–85% for studio-released films). Skip TMDB fallback keys (tmdb_mov_*) as EIDR has no TMDB join surface.",
         "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
@@ -380,8 +380,8 @@
         "meta": {}
       },
       {
-        "id": "t76",
-        "lineIndex": 76,
+        "id": "t82",
+        "lineIndex": 82,
         "text": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass already confirmed 8,522 unique …",
         "full": "TMDB Collections loader — job `tmdb-collections` · ~8.5K calls · ~5 min. DuckDB pre-pass already confirmed 8,522 unique `belongs_to_collection.id` in movies NDJSON. Fetches `/collection/?append=images`. Ready to run as soon as main loader settles or idles.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -392,8 +392,8 @@
         "meta": {}
       },
       {
-        "id": "t78",
-        "lineIndex": 78,
+        "id": "t84",
+        "lineIndex": 84,
         "text": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series phase completes (DuckDB needs f…",
         "full": "TMDB Networks loader — job `tmdb-networks` · ~5K calls · ~3 min. BLOCKED until tv_series phase completes (DuckDB needs full tv_series NDJSON to extract unique network IDs). Fetches `/network/?append=alternative_names,images`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -404,8 +404,8 @@
         "meta": {}
       },
       {
-        "id": "t80",
-        "lineIndex": 80,
+        "id": "t86",
+        "lineIndex": 86,
         "text": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_series phase completes (DuckDB UNI…",
         "full": "TMDB Companies loader — job `tmdb-companies` · ~50K calls · ~25 min. BLOCKED until tv_series phase completes (DuckDB UNION over movies + tv_series production_companies). Fetches `/company/?append=alternative_names,images`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -416,8 +416,8 @@
         "meta": {}
       },
       {
-        "id": "t82",
-        "lineIndex": 82,
+        "id": "t88",
+        "lineIndex": 88,
         "text": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_series phase completes (DuckDB UNNE…",
         "full": "TMDB TV Seasons loader — job `tmdb-tv-seasons` · ~700K calls · ~5h. BLOCKED until tv_series phase completes (DuckDB UNNEST tv_series.seasons[] → (series_id, season_number) pairs). Fetches `/tv//season/{n}?append=external_ids,videos,images`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -428,8 +428,8 @@
         "meta": {}
       },
       {
-        "id": "t84",
-        "lineIndex": 84,
+        "id": "t90",
+        "lineIndex": 90,
         "text": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until TV Seasons done. DuckDB UNNEST …",
         "full": "TMDB TV Episodes flatten — job `tmdb-tv-episodes` · 0 TMDB calls · ~3 min. BLOCKED until TV Seasons done. DuckDB UNNEST seasons.episodes (~2M TMDB episodes across 300K series) + LEFT JOIN imdb/title_episode parquet (9.6M superset) to populate imdb_id. Saves ~2M would-be API calls.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -440,8 +440,8 @@
         "meta": {}
       },
       {
-        "id": "t86",
-        "lineIndex": 86,
+        "id": "t92",
+        "lineIndex": 92,
         "text": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKED until main loader fully idle (…",
         "full": "TMDB Movie Enrichment backfill — job `tmdb-movie-backfill` · ~1.18M calls · ~10h. BLOCKED until main loader fully idle (people phase complete) to avoid rate-limit contention. Sidecar-only: writes watch/providers+videos+reviews+images for the 1.18M pre-v2 movies to `tmdb_dev/movies_enrichment/YYYY-MM-DD/`. Never touches existing `tmdb_dev/movies/`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -452,8 +452,8 @@
         "meta": {}
       },
       {
-        "id": "t102",
-        "lineIndex": 102,
+        "id": "t108",
+        "lineIndex": 108,
         "text": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating animation to homepage !task EXPLORE R…",
         "full": "Wire the Programming Research portal filter pills !task MED Add Dr. Scoop floating animation to homepage !task EXPLORE Research LinkedIn Writing Agent voice training approach",
         "sprint": "Done",
@@ -464,8 +464,8 @@
         "meta": {}
       },
       {
-        "id": "t112",
-        "lineIndex": 112,
+        "id": "t118",
+        "lineIndex": 118,
         "text": "Execute MEDIA-INTEL-AGENT-MISSION.md — build daily 6AM Evan Shapiro media intel agent",
         "full": "Execute MEDIA-INTEL-AGENT-MISSION.md — build daily 6AM Evan Shapiro media intel agent",
         "sprint": "Done",
@@ -476,8 +476,8 @@
         "meta": {}
       },
       {
-        "id": "t114",
-        "lineIndex": 114,
+        "id": "t120",
+        "lineIndex": 120,
         "text": "Execute TMDB-STATUS-INTEGRATION-MISSION.md — wire TMDB trends into status page + sm CLI",
         "full": "Execute TMDB-STATUS-INTEGRATION-MISSION.md — wire TMDB trends into status page + sm CLI",
         "sprint": "Done",
@@ -488,8 +488,8 @@
         "meta": {}
       },
       {
-        "id": "t115",
-        "lineIndex": 115,
+        "id": "t121",
+        "lineIndex": 121,
         "text": "COMMAND API TRIGGER: tmdb-load — triggered 04/21/2026, 15:48 EST",
         "full": "COMMAND API TRIGGER: tmdb-load — triggered 04/21/2026, 15:48 EST",
         "sprint": "Done",
@@ -500,8 +500,8 @@
         "meta": {}
       },
       {
-        "id": "t116",
-        "lineIndex": 116,
+        "id": "t122",
+        "lineIndex": 122,
         "text": "COMMAND API TRIGGER: media-intel — triggered 04/21/2026, 16:12 EST",
         "full": "COMMAND API TRIGGER: media-intel — triggered 04/21/2026, 16:12 EST",
         "sprint": "Done",
@@ -512,8 +512,8 @@
         "meta": {}
       },
       {
-        "id": "t12",
-        "lineIndex": 12,
+        "id": "t18",
+        "lineIndex": 18,
         "text": "Build Ad Research portal stub (same pattern as Programming Research)",
         "full": "Build Ad Research portal stub (same pattern as Programming Research)",
         "sprint": "Sprint 2 — Architecture & UI",
@@ -524,8 +524,8 @@
         "meta": {}
       },
       {
-        "id": "t13",
-        "lineIndex": 13,
+        "id": "t19",
+        "lineIndex": 19,
         "text": "Build Marketing Research portal stub",
         "full": "Build Marketing Research portal stub",
         "sprint": "Sprint 2 — Architecture & UI",
@@ -536,8 +536,8 @@
         "meta": {}
       },
       {
-        "id": "t14",
-        "lineIndex": 14,
+        "id": "t20",
+        "lineIndex": 20,
         "text": "Build CPG Research portal stub",
         "full": "Build CPG Research portal stub",
         "sprint": "Sprint 2 — Architecture & UI",
@@ -548,8 +548,8 @@
         "meta": {}
       },
       {
-        "id": "t38",
-        "lineIndex": 38,
+        "id": "t44",
+        "lineIndex": 44,
         "text": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant already exists in v7 — wire the …",
         "full": "Implement theme switcher (top-right): Editorial / Paper / Blueprint. Each theme variant already exists in v7 — wire the toggle to apply CSS class.",
         "sprint": "Sprint 2 — Design v7 Integration (PRIORITY)",
@@ -560,8 +560,8 @@
         "meta": {}
       },
       {
-        "id": "t40",
-        "lineIndex": 40,
+        "id": "t46",
+        "lineIndex": 46,
         "text": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback points.",
         "full": "Keep src_v5_snapshot/ and src_v7_snapshot/ untouched — never overwrite these rollback points.",
         "sprint": "Sprint 2 — Design v7 Integration (PRIORITY)",
@@ -572,8 +572,8 @@
         "meta": {}
       },
       {
-        "id": "t56",
-        "lineIndex": 56,
+        "id": "t62",
+        "lineIndex": 62,
         "text": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 ED…",
         "full": "Approve or discard pending LinkedIn draft mo9mqkhy (\"the future of tv\", posted to #sasmaster-content 2026-04-22 01:46 EDT). Today blocked by JARVIS being down — either fix JARVIS first (above) or copy-paste the draft to LinkedIn manually and remove the entry from pending-approvals.json.",
         "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
@@ -584,8 +584,8 @@
         "meta": {}
       },
       {
-        "id": "t58",
-        "lineIndex": 58,
+        "id": "t64",
+        "lineIndex": 64,
         "text": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasma…",
         "full": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture HTML/PNG into ~/sasmaster-status/ + append to resources.json (set latest:true, clear prior). Planned in the Resources section prototype but deferred for v1 ship.",
         "sprint": "Sprint 4 — War Room & Agent Fleet hygiene (added 2026-04-22 01:52)",
@@ -596,8 +596,8 @@
         "meta": {}
       },
       {
-        "id": "t64",
-        "lineIndex": 64,
+        "id": "t70",
+        "lineIndex": 70,
         "text": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTE…",
         "full": "Nielsen entity counts (movies / tv series / telecasts). Big job: DuckDB over `Nielsen/march_2026/LAAPP_PROD/MIT_GN_MASTER_UPDATED.csv` (18GB) for movies/tv_series distinct counts, and `VIEWERSHIP_AMRLD_PROGRAM.csv` (9.8GB) for total telecasts. Add to ~/SaSMaster/scripts/s3-entity-counts.js as a separate runnable (takes ~60–120s). Cache in same JSON. Render in War Room S3 grid.",
         "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
@@ -608,8 +608,8 @@
         "meta": {}
       },
       {
-        "id": "t66",
-        "lineIndex": 66,
+        "id": "t72",
+        "lineIndex": 72,
         "text": "Entity counts for EIDR / opus / gracenote / fyi / shiv_curated. Each is flat xlsx/csv. Parse row counts (movies vs tv_se…",
         "full": "Entity counts for EIDR / opus / gracenote / fyi / shiv_curated. Each is flat xlsx/csv. Parse row counts (movies vs tv_series where discoverable from filename or schema). Add to s3-entity-counts.js with one block per dataset. Low data volume → seconds per run.",
         "sprint": "Sprint 5 — S3 Data Lake & Phase 1b completion (added 2026-04-22 05:00)",
@@ -620,8 +620,8 @@
         "meta": {}
       },
       {
-        "id": "t88",
-        "lineIndex": 88,
+        "id": "t94",
+        "lineIndex": 94,
         "text": "Timezone normalization — War Room ticker + agent last_run display currently mix UTC/EDT. Normalize all relative times to…",
         "full": "Timezone normalization — War Room ticker + agent last_run display currently mix UTC/EDT. Normalize all relative times to America/New_York on render. Single util function in `index.html`.",
         "sprint": "Sprint 6 — TMDB full-ingest continuation chain (autonomous, armed 2026-04-22 06:28)",
@@ -632,8 +632,8 @@
         "meta": {}
       },
       {
-        "id": "t113",
-        "lineIndex": 113,
+        "id": "t119",
+        "lineIndex": 119,
         "text": "Write DONE-LOG-ANALYST-MISSION.md — daily agent reads DONE_LOG.md, identifies portal gaps, injects fill tasks",
         "full": "Write DONE-LOG-ANALYST-MISSION.md — daily agent reads DONE_LOG.md, identifies portal gaps, injects fill tasks",
         "sprint": "Done",
@@ -644,8 +644,8 @@
         "meta": {}
       },
       {
-        "id": "t127",
-        "lineIndex": 127,
+        "id": "t133",
+        "lineIndex": 133,
         "text": "JARVIS vault-sync — wire JARVIS !vault-sync command (or daily cron) to call Claude Code and update stale ~/SaSMaster/obs…",
         "full": "JARVIS vault-sync — wire JARVIS !vault-sync command (or daily cron) to call Claude Code and update stale ~/SaSMaster/obsidian/ files against current project state. Option 3 from 2026-04-22 Obsidian vault session. Until then, vault is managed on-demand by Claude Code (option 1).",
         "sprint": "Done",
@@ -656,8 +656,8 @@
         "meta": {}
       },
       {
-        "id": "t235",
-        "lineIndex": 235,
+        "id": "t241",
+        "lineIndex": 241,
         "text": "Add !research command to JARVIS — topic-agnostic synthesis pipeline, accepts !research [topic], posts output to #intel #…",
         "full": "Add !research command to JARVIS — topic-agnostic synthesis pipeline, accepts !research [topic], posts output to #intel #infra *Sent using* Claude",
         "sprint": "Done",
@@ -668,8 +668,8 @@
         "meta": {}
       },
       {
-        "id": "t238",
-        "lineIndex": 238,
+        "id": "t244",
+        "lineIndex": 244,
         "text": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions …",
         "full": "Batch similar tasks in build loop — refactor sasmaster-build.sh to group related tasks into single Claude Code sessions instead of one session per task. Specifically: agent-wiring tasks should run as one session, data pipeline tasks as one session. Reduces CLAUDE_MEMORY.md + TASKS.md context reload overhead per task. Document batching logic in runbook. #infra *Sent using* Claude",
         "sprint": "Done",
@@ -680,8 +680,8 @@
         "meta": {}
       },
       {
-        "id": "t240",
-        "lineIndex": 240,
+        "id": "t246",
+        "lineIndex": 246,
         "text": "Intelligent build loop sequencing — priority ordering (#infra → #data → #ui) now handled by this session's execution ord…",
         "full": "Intelligent build loop sequencing — priority ordering (#infra → #data → #ui) now handled by this session's execution order; formal pre-flight gate in build script deferred. #infra",
         "sprint": "Done",
@@ -692,8 +692,8 @@
         "meta": {}
       },
       {
-        "id": "t269",
-        "lineIndex": 269,
+        "id": "t275",
+        "lineIndex": 275,
         "text": "War Room Visual Export — upgrade to server-side screenshot via /api/screenshot.js Vercel serverless function using @spar…",
         "full": "War Room Visual Export — upgrade to server-side screenshot via /api/screenshot.js Vercel serverless function using @sparticuz/chromium + puppeteer-core. Current client-side window.open approach works but briefly flashes a popup. Server-side gives silent, pixel-perfect PNG capture. Requires: add @sparticuz/chromium + puppeteer-core to sasmaster-status package.json, create api/screenshot.js, update downloadVisual() in index.html to POST  to /api/screenshot and receive PNG blob. QA check: downloaded PNG > 100KB, background dark, no white/blank output. #infra",
         "sprint": "Done",
@@ -704,8 +704,8 @@
         "meta": {}
       },
       {
-        "id": "t273",
-        "lineIndex": 273,
+        "id": "t279",
+        "lineIndex": 279,
         "text": "Wire CLAUDE_CODE_OAUTH_TOKEN verification into update-memory.sh — on every run, check that CLAUDE_CODE_OAUTH_TOKEN is pr…",
         "full": "Wire CLAUDE_CODE_OAUTH_TOKEN verification into update-memory.sh — on every run, check that CLAUDE_CODE_OAUTH_TOKEN is present in ~/SaSMaster/.env (grep -c returns 1). If missing, post warning to #sasmaster-builds and abort memory update. Token lives in keychain service \"Claude Code-credentials\" — extract with: security find-generic-password -s \"Claude Code-credentials\" -w. Token rotates on Claude Code re-auth; silent cron failures (5-line log, exit 1, no Claude output) are the symptom. #infra",
         "sprint": "Post-Card A follow-up (added 2026-04-28)",
@@ -1101,7 +1101,7 @@
     }
   },
   "heatmap": {
-    "2026-04-28": 2,
+    "2026-04-28": 3,
     "2026-04-23": 2,
     "2026-04-22": 6,
     "2026-04-21": 7,
@@ -1119,7 +1119,7 @@
       "channel": "24/7 daemon",
       "jobId": null,
       "lastRun": null,
-      "lastOutput": "_Root cause documented in commit:_ 2026-04-28 7AM cron failure — keychain inacce",
+      "lastOutput": "Good work today. System is fully observable. :large_purple_circle: *Sent using* ",
       "status": "healthy"
     },
     {
@@ -1286,10 +1286,10 @@
       "name": "TMDB bulk loader",
       "phase": "1",
       "status": "running",
-      "pct": 59.5,
-      "row_count": 2775000,
+      "pct": 62.7,
+      "row_count": 2922000,
       "total": 4663055,
-      "last_run": "2026-04-28T17:04:14.656Z",
+      "last_run": "2026-04-28T20:10:06.024Z",
       "s3_path": "s3://sasmaster-2026/tmdb_dev/"
     },
     {
@@ -1484,7 +1484,7 @@
       "object_count": 7,
       "last_updated": "2026-04-21T23:00:01.000Z",
       "fresh": false,
-      "age_hours": 162.1,
+      "age_hours": 165.2,
       "entities": {
         "movies": 743825,
         "tv_series": 298238,
@@ -1503,7 +1503,7 @@
       "object_count": 7,
       "last_updated": "2026-04-20T22:06:38.000Z",
       "fresh": true,
-      "age_hours": 5.6,
+      "age_hours": 8.7,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1522,7 +1522,7 @@
       "object_count": 1,
       "last_updated": "2026-04-21T23:04:10.000Z",
       "fresh": false,
-      "age_hours": 162,
+      "age_hours": 165.1,
       "entities": {
         "movies": 861878,
         "tv_series": null,
@@ -1541,7 +1541,7 @@
       "object_count": 29,
       "last_updated": "2026-04-22T05:51:32.000Z",
       "fresh": false,
-      "age_hours": 153.3,
+      "age_hours": 156.4,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1560,7 +1560,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:47:11.000Z",
       "fresh": false,
-      "age_hours": 158.3,
+      "age_hours": 161.4,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1579,7 +1579,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:38:36.000Z",
       "fresh": false,
-      "age_hours": 158.4,
+      "age_hours": 161.5,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1598,7 +1598,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T04:42:21.000Z",
       "fresh": false,
-      "age_hours": 156.4,
+      "age_hours": 159.5,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1617,7 +1617,7 @@
       "object_count": 9,
       "last_updated": "2026-04-22T01:11:20.000Z",
       "fresh": false,
-      "age_hours": 153.2,
+      "age_hours": 156.3,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1636,7 +1636,7 @@
       "object_count": 5,
       "last_updated": "2026-04-22T01:13:31.000Z",
       "fresh": false,
-      "age_hours": 159.9,
+      "age_hours": 163,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1733,8 +1733,8 @@
     },
     {
       "type": "pipeline",
-      "text": "TMDB bulk 59.5% — 2775K / 4663K titles → s3://sasmaster-2026/tmdb_dev/",
-      "ts": "2026-04-28T17:04:14.656Z"
+      "text": "TMDB bulk 62.7% — 2922K / 4663K titles → s3://sasmaster-2026/tmdb_dev/",
+      "ts": "2026-04-28T20:10:06.024Z"
     }
   ],
   "cron": [
