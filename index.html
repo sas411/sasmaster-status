@@ -2498,66 +2498,116 @@ function ganttCategory(name) {
   return 'system';
 }
 
+function agentScheduleToHour(schedule) {
+  if (!schedule) return null;
+  const s = schedule.toLowerCase();
+  if (s.includes('daemon') || s.includes('24/7')) return 'always';
+  // "6am daily" / "6:30 am daily" / "monday 8pm" / "friday 6pm" / "sunday 8:10pm"
+  const m = s.match(/(\d+)(?::(\d+))?\s*(am|pm)/);
+  if (!m) return null;
+  let h = parseInt(m[1]), min = parseInt(m[2] || '0');
+  if (m[3] === 'pm' && h !== 12) h += 12;
+  if (m[3] === 'am' && h === 12) h = 0;
+  return h + min / 60;
+}
+
 function renderGantt(d) {
   const el = document.getElementById('ganttChart');
   if (!el) return;
-  const cron   = d.cron || [];
+
   const agents = d.agents || [];
+  const cron   = d.cron   || [];
 
-  // Build rows: JARVIS full bar + cron entries with parseable times
-  const rows = [];
+  // Curated row list — agents array is source of truth for names/schedules
+  // Supplement with a few cron-only entries the agent list doesn't cover
+  const CURATED = [
+    { name: 'Nightly Build',       schedule: '12:00 AM', cat: 'build',  weekly: false },
+    { name: 'TMDB Bulk → S3',      schedule: '2:00 AM',  cat: 'data',   weekly: false },
+    { name: 'Daily Briefing',      schedule: '5:00 AM',  cat: 'build',  weekly: false },
+    { name: 'Daily Visuals',       schedule: '5:02 AM',  cat: 'build',  weekly: false },
+    { name: 'TMDB Daily',          schedule: '5:00 AM',  cat: 'data',   weekly: false },
+    { name: 'Media Intel',         schedule: '6:00 AM',  cat: 'intel',  weekly: false },
+    { name: 'SEC EDGAR',           schedule: '6:30 AM',  cat: 'intel',  weekly: false },
+    { name: 'IAB Intel',           schedule: '7:00 AM',  cat: 'intel',  weekly: true  },
+    { name: 'DoneLog Analyst',     schedule: '12:00 PM', cat: 'build',  weekly: false },
+    { name: 'Tech Intel',          schedule: '6:00 PM',  cat: 'intel',  weekly: true  },
+    { name: 'LinkedIn Agent',      schedule: '8:00 PM',  cat: 'weekly', weekly: true  },
+    { name: 'Financial Analyst',   schedule: '8:10 PM',  cat: 'weekly', weekly: true  },
+  ];
 
-  // JARVIS always first — full 24h bar
-  rows.push({ name: 'JARVIS', hour: null, full: true, cat: 'agent',
-    status: (agents.find(a => a.name === 'JARVIS') || {}).status || 'healthy' });
-
-  // Cron entries
-  const seen = new Set();
-  cron.forEach(c => {
-    const h = parseGanttHour(c.time);
-    if (h === null) return;
-    const key = `${c.name}-${c.time}`;
-    if (seen.has(key)) return;
-    seen.add(key);
-    const label = c.name.replace(/_/g,' ').replace(/\d{1,2}(am|pm)\w*/gi,'').trim();
-    rows.push({ name: label, hour: h, full: false, cat: ganttCategory(c.name),
-      weekly: c.weekly, status: c.status, time: c.time });
+  // Enrich status from agents array
+  const rows = CURATED.map(r => {
+    const agent = agents.find(a => a.name === r.name);
+    const status = agent?.status || 'healthy';
+    const hour   = agentScheduleToHour(r.schedule);
+    return { ...r, hour, status };
   });
 
-  // SVG-free pure CSS Gantt
-  const HOURS = Array.from({length: 24}, (_, i) => i);
-  const ROW_H = 22;
-  const LABEL_W = 148;
-  const COL_W = 30; // px per hour
-  const W = LABEL_W + COL_W * 24;
+  const HOURS   = Array.from({ length: 24 }, (_, i) => i);
+  const LABEL_W = 136;
+  const COL_W   = 28;
+  const ROW_H   = 26;
+  const PILL_W  = 46;
+  const W       = LABEL_W + COL_W * 24;
+
+  // Header: hour ticks
+  const ticksHtml = HOURS.map(h => {
+    const major = h === 0 || h === 6 || h === 12 || h === 18;
+    return `<div style="width:${COL_W}px;flex-shrink:0;text-align:center;font-size:9px;
+      font-family:'DM Mono',monospace;
+      color:${major ? 'var(--pur)' : 'var(--text-3)'};
+      font-weight:${major ? '700' : '400'}">${h}</div>`;
+  }).join('');
+
+  // JARVIS header note — shown above ticks, not as a full row
+  const jarvisAgent = agents.find(a => a.name === 'JARVIS');
+  const jarvisBadge = jarvisAgent?.status === 'healthy'
+    ? `<span style="color:#22c55e;font-size:9px">● 24/7 Socket Mode daemon</span>`
+    : `<span style="color:var(--crit);font-size:9px">⚠ JARVIS offline</span>`;
 
   const header = `
-    <div style="display:flex;min-width:${W}px;border-bottom:1px solid var(--bdr);padding-bottom:4px;margin-bottom:2px">
-      <div style="width:${LABEL_W}px;flex-shrink:0"></div>
-      ${HOURS.map(h => `<div style="width:${COL_W}px;text-align:center;font-size:9px;font-family:'DM Mono',monospace;color:${h===0||h===6||h===12||h===18?'var(--pur)':'var(--text-3)'}">
-        ${h}
-      </div>`).join('')}
+    <div style="display:flex;align-items:center;min-width:${W}px;padding:4px 0 2px;border-bottom:1px solid var(--bdr);margin-bottom:2px">
+      <div style="width:${LABEL_W}px;flex-shrink:0;font-size:9px;color:var(--text-3);padding-right:8px;text-align:right;font-family:'DM Mono',monospace">
+        JARVIS ${jarvisBadge}
+      </div>
+      ${ticksHtml}
     </div>`;
 
+  // Render each agent row
   const rowsHtml = rows.map(row => {
-    const col   = GANTT_COLORS[row.cat] || '#64748b';
-    const alpha = row.status === 'done' ? '0.4' : '0.85';
-    let barHtml = '';
-    if (row.full) {
-      barHtml = `<div style="position:absolute;left:0;right:0;top:3px;height:${ROW_H-8}px;background:${col};opacity:${alpha};border-radius:3px;display:flex;align-items:center;justify-content:center">
-        <span style="font-size:9px;color:#fff;font-weight:600;letter-spacing:.04em">24/7 Socket Mode daemon</span>
-      </div>`;
-    } else if (row.hour !== null) {
-      const left = row.hour * COL_W;
-      const w    = Math.max(COL_W * 0.8, 38);
-      barHtml = `<div style="position:absolute;left:${left}px;top:3px;width:${w}px;height:${ROW_H-8}px;background:${col};opacity:${alpha};border-radius:3px;display:flex;align-items:center;justify-content:center">
-        <span style="font-size:8px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden">${row.time||''}</span>
+    const col  = GANTT_COLORS[row.cat] || '#64748b';
+    const dim  = row.status === 'done' ? '55' : 'dd';
+    const faded = row.weekly ? '99' : 'dd';
+
+    let pill = '';
+    if (row.hour !== null) {
+      // Center pill on the hour mark
+      const left = Math.round(row.hour * COL_W - PILL_W / 2);
+      const label = row.schedule.replace(':00','').replace(' AM',' AM').replace(' PM',' PM');
+      pill = `<div style="position:absolute;left:${left}px;top:4px;width:${PILL_W}px;height:${ROW_H - 10}px;
+        background:${col}${dim};border-radius:4px;
+        display:flex;align-items:center;justify-content:center">
+        <span style="font-size:8px;color:#fff;font-weight:600;letter-spacing:.02em;white-space:nowrap">${escHtml(label)}</span>
       </div>`;
     }
-    const weeklyTag = row.weekly ? `<span style="font-size:7px;color:var(--warn);margin-left:4px">wkly</span>` : '';
-    return `<div style="display:flex;min-width:${W}px;height:${ROW_H}px;align-items:center;border-bottom:1px solid var(--bdr)22">
-      <div style="width:${LABEL_W}px;flex-shrink:0;font-size:10px;color:var(--text-2);padding-right:8px;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(row.name)}${weeklyTag}</div>
-      <div style="flex:1;position:relative;height:${ROW_H}px">${barHtml}</div>
+
+    // Faint vertical guide lines at major hours
+    const guides = [0, 6, 12, 18].map(h =>
+      `<div style="position:absolute;left:${h * COL_W}px;top:0;bottom:0;width:1px;background:var(--bdr);opacity:0.4"></div>`
+    ).join('');
+
+    const weeklyDot = row.weekly
+      ? `<span style="font-size:7px;color:var(--warn);margin-left:3px;vertical-align:middle">wkly</span>`
+      : '';
+
+    return `<div style="display:flex;min-width:${W}px;height:${ROW_H}px;align-items:center;border-bottom:1px solid var(--bdr)18">
+      <div style="width:${LABEL_W}px;flex-shrink:0;font-size:10px;
+        color:${row.weekly ? 'var(--text-3)' : 'var(--text-2)'};
+        padding-right:10px;text-align:right;
+        overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        ${escHtml(row.name)}${weeklyDot}
+      </div>
+      <div style="flex:1;position:relative;height:${ROW_H}px">${guides}${pill}</div>
     </div>`;
   }).join('');
 
