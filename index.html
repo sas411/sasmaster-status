@@ -726,6 +726,7 @@ a{color:inherit}
 .kb-sortable-chosen{cursor:grabbing !important;box-shadow:0 4px 16px rgba(0,0,0,.4) !important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -2085,6 +2086,7 @@ function renderResources(items) {
       <div class="res-desc">${escHtml(r.subtitle || r.description || '')}</div>
       <div class="res-acts">
         ${hasView ? `<button class="btn-view" onclick="openResource('${escAttr(hasView.url||'')}')">View</button>` : ''}
+        ${hasView && hasView.type === 'html' ? `<button class="btn-dl" onclick="downloadVisual('${escAttr(hasView.url||'')}','${escAttr(r.title||'')}')">📷 Visual</button>` : ''}
         ${hasDl ? `<button class="btn-dl" onclick="window.open('${escAttr(hasDl.url||'')}','_blank')">Download</button>` : ''}
         ${updated ? `<span class="res-updated">${updated}</span>` : ''}
       </div>
@@ -2094,6 +2096,40 @@ function renderResources(items) {
 
 function openResource(url) {
   if (url) window.open(url, '_blank');
+}
+
+async function downloadVisual(url, title) {
+  const btn = event.currentTarget;
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳'; btn.disabled = true;
+  try {
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:1400px;height:900px;border:none;opacity:0;pointer-events:none';
+    document.body.appendChild(iframe);
+    await new Promise((resolve, reject) => {
+      iframe.onload = resolve;
+      iframe.onerror = reject;
+      iframe.src = url;
+      setTimeout(reject, 15000);
+    });
+    await new Promise(r => setTimeout(r, 800));
+    const canvas = await html2canvas(iframe.contentDocument.body, {
+      width: 1400, height: 900, scale: 1,
+      useCORS: true, allowTaint: true,
+      backgroundColor: '#0F0F1A'
+    });
+    document.body.removeChild(iframe);
+    const link = document.createElement('a');
+    link.download = (title || 'visual').replace(/[^a-z0-9]/gi, '-').toLowerCase() + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    btn.innerHTML = '✓ Saved';
+    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+  } catch(e) {
+    btn.innerHTML = '✗ Error';
+    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+    console.error('downloadVisual failed', e);
+  }
 }
 
 function filterRes(f, btn) {
