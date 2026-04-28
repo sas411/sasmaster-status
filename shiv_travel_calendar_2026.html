@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiv's 2026 Travel Calendar — UCLA-NUS EMBA</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; padding: 32px; min-height: 100vh; }
+  h1 { font-size: 22px; font-weight: 500; color: #fff; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+
+  .flag-box { background: #1a1212; border-left: 3px solid #E24B4A; border-radius: 0 8px 8px 0; padding: 10px 14px; margin-bottom: 20px; font-size: 12px; color: #bbb; }
+  .flag-box strong { color: #fff; font-weight: 500; }
+
+  .summary { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 20px; }
+  .sum-card { border-radius: 8px; padding: 10px 12px; border: 0.5px solid rgba(255,255,255,0.08); }
+  .sc-city { font-size: 12px; font-weight: 500; }
+  .sc-date { font-size: 10px; margin-top: 2px; opacity: 0.85; }
+  .sc-tag  { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.55; margin-top: 3px; }
+
+  .pill-sg { background: #0d2e4a; } .pill-sg .sc-city { color: #85B7EB; } .pill-sg .sc-date { color: #85B7EB; }
+  .pill-sg2 { background: #102040; } .pill-sg2 .sc-city { color: #5DCAA5; } .pill-sg2 .sc-date { color: #5DCAA5; }
+  .pill-la { background: #2d1a06; } .pill-la .sc-city { color: #EF9F27; } .pill-la .sc-date { color: #EF9F27; }
+  .pill-au { background: #2a0f05; } .pill-au .sc-city { color: #F0997B; } .pill-au .sc-date { color: #F0997B; }
+  .pill-tk { background: #1a1040; } .pill-tk .sc-city { color: #AFA9EC; } .pill-tk .sc-date { color: #AFA9EC; }
+  .pill-on { background: #0f1f0f; } .pill-on .sc-city { color: #97C459; } .pill-on .sc-date { color: #97C459; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #888; }
+  .leg-dot { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
+
+  .cal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .month-card { background: #161616; border: 0.5px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; }
+  .month-name { font-size: 10px; font-weight: 500; color: #666; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .day-label { font-size: 8px; color: #444; text-align: center; padding: 1px 0; font-weight: 500; }
+  .day { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #555; border-radius: 2px; }
+  .sg1     { background: #185FA5; color: #B5D4F4 !important; font-weight: 500; }
+  .sg2     { background: #0F6E56; color: #9FE1CB !important; font-weight: 500; }
+  .online-nус { background: #0c2a3d; color: #378ADD !important; font-weight: 500; }
+  .online-ucla { background: #1a2e0a; color: #97C459 !important; font-weight: 500; }
+  .la      { background: #854F0B; color: #FAC775 !important; font-weight: 500; }
+  .au-zoom { background: #4a1c0a; color: #F0997B !important; font-weight: 500; }
+  .au-in   { background: #993C1D; color: #F5C4B3 !important; font-weight: 500; }
+  .tk      { background: #533AB7; color: #CECBF6 !important; font-weight: 500; }
+  .online-tk { background: #26215C; color: #AFA9EC !important; font-weight: 500; }
+
+  footer { margin-top: 24px; font-size: 11px; color: #444; text-align: center; }
+</style>
+</head>
+<body>
+
+<h1>Shiv's 2026 Travel Calendar</h1>
+<p class="sub">UCLA-NUS Global Executive MBA — Intake 22 · Last updated April 27, 2026</p>
+
+<div class="flag-box">
+  <strong>Note:</strong> June 14–19 requires a <strong>return trip to Singapore</strong> for the in-between segment. Jul 24–25 online UCLA Core conflicts with Australia IBR Zoom 1 (Jul 25) — arrangements flagged with Programs Office.
+</div>
+
+<div class="summary">
+  <div class="sum-card pill-sg">
+    <div class="sc-city">Singapore ×1</div>
+    <div class="sc-date">May 7–19</div>
+    <div class="sc-tag">Segment 1 · arrive May 4</div>
+  </div>
+  <div class="sum-card pill-sg2">
+    <div class="sc-city">Singapore ×2</div>
+    <div class="sc-date">Jun 14–19</div>
+    <div class="sc-tag">In-between segment</div>
+  </div>
+  <div class="sum-card pill-la">
+    <div class="sc-city">Los Angeles</div>
+    <div class="sc-date">Aug 9–20</div>
+    <div class="sc-tag">Segment 2 · 9 days required</div>
+  </div>
+  <div class="sum-card pill-au">
+    <div class="sc-city">Australia IBR</div>
+    <div class="sc-date">Sep 6–12</div>
+    <div class="sc-tag">Sydney & Newcastle · $3,800</div>
+  </div>
+  <div class="sum-card pill-tk">
+    <div class="sc-city">Tokyo</div>
+    <div class="sc-date">Nov 10–13</div>
+    <div class="sc-tag">Segment 4 elective</div>
+  </div>
+  <div class="sum-card pill-on">
+    <div class="sc-city">Online sessions</div>
+    <div class="sc-date">Mar · Apr · Jul · Aug · Sep · Oct</div>
+    <div class="sc-tag">Pre/post + finals</div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#185FA5;"></div>Singapore Seg 1 (May)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#0F6E56;"></div>Singapore in-between (Jun)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#0c2a3d; border:1px solid #378ADD;"></div>NUS online</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#1a2e0a; border:1px solid #639922;"></div>UCLA online</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#854F0B;"></div>Los Angeles (Aug)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#4a1c0a; border:1px solid #F0997B;"></div>Australia Zoom</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#993C1D;"></div>Australia in-country (Sep)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#533AB7;"></div>Tokyo (Nov)</div>
+</div>
+
+<div class="cal-grid" id="calendars"></div>
+
+<footer>Generated by SaSMaster · Claude.ai · shiv_travel_calendar_2026.html</footer>
+
+<script>
+const months = [
+  { name:'January',   start:4, days:31 },
+  { name:'February',  start:0, days:28 },
+  { name:'March',     start:0, days:31 },
+  { name:'April',     start:3, days:30 },
+  { name:'May',       start:5, days:31 },
+  { name:'June',      start:1, days:30 },
+  { name:'July',      start:3, days:31 },
+  { name:'August',    start:6, days:31 },
+  { name:'September', start:2, days:30 },
+  { name:'October',   start:5, days:31 },
+  { name:'November',  start:1, days:30 },
+  { name:'December',  start:3, days:31 },
+];
+
+function getCls(m, d) {
+  if (m==='March' && (d===14||d===28)) return 'online-nус';
+  if (m==='April' && (d===11||d===18||d===25)) return 'online-nус';
+  if (m==='May' && d>=4 && d<=19) return 'sg1';
+  if (m==='June' && d>=14 && d<=19) return 'sg2';
+  if (m==='July' && (d===24||d===25)) return 'online-ucla';
+  if (m==='August' && d>=9 && d<=20) return 'la';
+  if (m==='August' && d===23) return 'au-zoom';
+  if (m==='August' && d===28) return 'online-ucla';
+  if (m==='September' && d===4) return 'online-ucla';
+  if (m==='September' && d>=6 && d<=12) return 'au-in';
+  if (m==='September' && d===18) return 'online-ucla';
+  if (m==='October' && d===4) return 'au-zoom';
+  if (m==='October' && d===10) return 'online-tk';
+  if (m==='November' && d>=10 && d<=13) return 'tk';
+  return '';
+}
+
+const container = document.getElementById('calendars');
+const dlabels = ['S','M','T','W','T','F','S'];
+
+months.forEach(m => {
+  const card = document.createElement('div');
+  card.className = 'month-card';
+  const lbl = document.createElement('div');
+  lbl.className = 'month-name';
+  lbl.textContent = m.name + ' 2026';
+  card.appendChild(lbl);
+  const grid = document.createElement('div');
+  grid.className = 'days-grid';
+  dlabels.forEach(l => {
+    const dl = document.createElement('div');
+    dl.className = 'day-label';
+    dl.textContent = l;
+    grid.appendChild(dl);
+  });
+  for (let i=0;i<m.start;i++) {
+    const e = document.createElement('div'); e.className='day'; grid.appendChild(e);
+  }
+  for (let d=1;d<=m.days;d++) {
+    const cell = document.createElement('div');
+    const cls = getCls(m.name, d);
+    cell.className = 'day' + (cls?' '+cls:'');
+    cell.textContent = d;
+    grid.appendChild(cell);
+  }
+  card.appendChild(grid);
+  container.appendChild(card);
+});
+</script>
+</body>
+</html>
