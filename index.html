@@ -383,6 +383,10 @@ a{color:inherit}
 .res-desc{font-size:11px;color:var(--text-2);line-height:1.45;margin-bottom:10px}
 .res-acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .res-updated{font-size:10px;color:var(--text-3);margin-left:auto;font-family:var(--mono)}
+.res-star{position:absolute;top:10px;right:10px;background:none;border:none;font-size:16px;cursor:pointer;color:#CBD5E1;line-height:1;padding:2px;border-radius:4px;transition:color .15s,transform .15s;z-index:1}
+.res-star:hover{color:#F59E0B;transform:scale(1.2)}
+.res-star.starred{color:#F59E0B}
+.res-card{position:relative}
 
 /* TELEMETRY TAB */
 .tel-kpi{flex:1;background:#fff;border:0.5px solid #E2E8F0;border-radius:10px;padding:10px 12px}
@@ -1142,9 +1146,11 @@ a{color:inherit}
     <div class="tab-panel" id="tab-resources">
       <div class="res-filters">
         <button class="res-f active" onclick="filterRes('all',this)">All</button>
+        <button class="res-f" onclick="filterRes('starred',this)" id="res-f-starred">★ Starred</button>
         <button class="res-f" onclick="filterRes('architecture',this)">Architecture</button>
         <button class="res-f" onclick="filterRes('infrastructure',this)">Infrastructure</button>
         <button class="res-f" onclick="filterRes('overview',this)">Overview</button>
+        <button class="res-f" onclick="filterRes('strategy',this)">Strategy</button>
       </div>
       <div class="res-grid" id="resGrid"></div>
     </div>
@@ -1495,6 +1501,7 @@ let _qFilter = 'all';
 let _qView = 'kanban';
 let _actFilter = 'all';
 let _resFilter = 'all';
+let _starredRes = new Set(JSON.parse(localStorage.getItem('sm_starred_resources') || '[]'));
 let _costFilter = 'all';
 let _logAgentName = '';
 let _logJobId = '';
@@ -2361,7 +2368,19 @@ async function loadResources() {
 }
 
 function renderResources(items) {
-  const filtered = _resFilter === 'all' ? items : items.filter(r => (r.category||'').toLowerCase() === _resFilter.toLowerCase());
+  let filtered;
+  if (_resFilter === 'starred') {
+    filtered = items.filter(r => _starredRes.has(r.id));
+  } else if (_resFilter === 'all') {
+    filtered = items;
+  } else {
+    filtered = items.filter(r => (r.category||'').toLowerCase() === _resFilter.toLowerCase());
+  }
+
+  // Update Starred pill count badge
+  const starBtn = document.getElementById('res-f-starred');
+  if (starBtn) starBtn.textContent = _starredRes.size ? `★ Starred (${_starredRes.size})` : '★ Starred';
+
   const catMap = {
     'architecture': 'cat-arch', 'ARCHITECTURE': 'cat-arch',
     'infrastructure': 'cat-infra', 'INFRASTRUCTURE': 'cat-infra',
@@ -2374,7 +2393,9 @@ function renderResources(items) {
     const hasView = files.find(f => f.primary || f.label === 'View');
     const hasDl = files.find(f => f.type === 'pdf' || f.label === 'Download');
     const updated = r.date || '';
+    const isStarred = _starredRes.has(r.id);
     return `<div class="res-card" data-cat="${cat.toLowerCase()}">
+      <button class="res-star${isStarred ? ' starred' : ''}" onclick="toggleStar('${escAttr(r.id||'')}',event)" title="${isStarred ? 'Remove from starred' : 'Star this document'}">${isStarred ? '★' : '☆'}</button>
       <div class="res-card-top">
         <div class="res-icon">📄</div>
         <div>
@@ -2395,6 +2416,17 @@ function renderResources(items) {
 
 function openResource(url) {
   if (url) window.open(url, '_blank');
+}
+
+function toggleStar(id, event) {
+  event.stopPropagation();
+  if (_starredRes.has(id)) {
+    _starredRes.delete(id);
+  } else {
+    _starredRes.add(id);
+  }
+  localStorage.setItem('sm_starred_resources', JSON.stringify([..._starredRes]));
+  if (_lastData || true) loadResources();
 }
 
 async function downloadVisual(url, title) {
@@ -2458,7 +2490,7 @@ function filterRes(f, btn) {
   _resFilter = f;
   document.querySelectorAll('.res-f').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  if (_lastData || true) loadResources();
+  loadResources();
 }
 
 // ── Bottom Bar ────────────────────────────────────────────
