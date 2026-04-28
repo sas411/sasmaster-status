@@ -466,11 +466,11 @@ function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
 
 // ── Build events (Layer 7 audit trail) ───────────────────────────────────────
 // Reads today's build-YYYY-MM-DD.jsonl written by runner.py.
-// Returns structured events for the recent_activity feed.
+// Returns structured events for the recent_activity feed, plus haiku_pct.
 function getBuildEvents() {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   const file = path.join(SASMASTER, 'logs', `build-${today}.jsonl`);
-  if (!fs.existsSync(file)) return { events: [], count: 0 };
+  if (!fs.existsSync(file)) return { events: [], count: 0, haiku_pct: 0 };
 
   try {
     const lines = fs.readFileSync(file, 'utf8')
@@ -507,8 +507,15 @@ function getBuildEvents() {
       };
     });
 
-    return { events, count: lines.filter(e => e.kind !== 'run_summary').length };
-  } catch { return { events: [], count: 0 }; }
+    // Count model_tier values for haiku_pct KPI
+    const featureLines = lines.filter(e => e.kind !== 'run_summary' && e.model_tier);
+    const haikuCount   = featureLines.filter(e => e.model_tier === 'haiku').length;
+    const haiku_pct    = featureLines.length > 0
+      ? Math.round((haikuCount / featureLines.length) * 100)
+      : 0;
+
+    return { events, count: lines.filter(e => e.kind !== 'run_summary').length, haiku_pct };
+  } catch { return { events: [], count: 0, haiku_pct: 0 }; }
 }
 
 // ── Build performance trends (last 7 days) ────────────────────────────────────
@@ -595,7 +602,7 @@ function getBuildTrends() {
 }
 
 // ── KPIs (derived) ───────────────────────────────────────────────────────────
-function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount) {
+function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haikuPctToday) {
   const agents_running = agents.filter(a => a.status === 'healthy' || a.status === 'routing').length;
   const scrapers_live  = scrapers.filter(s => s.status === 'live').length;
   const s3_gb = s3_lake.reduce((sum, b) => sum + (b.size_gb || 0), 0);
@@ -611,6 +618,8 @@ function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount) {
     parent_key_rows: pkRows,
     tasks_open,
     build_events_today: buildEventsCount || 0,
+    model_routing: 'haiku+sonnet+opus',
+    haiku_pct_today: haikuPctToday ?? 0,
   };
 }
 
@@ -815,7 +824,7 @@ const cronJobsRaw   = parseCrontab();
 const cron          = enrichCronStatus(cronJobsRaw, agents);
 
 // Layer 7: build audit trail events
-const { events: buildEventsToday, count: buildEventsCount } = getBuildEvents();
+const { events: buildEventsToday, count: buildEventsCount, haiku_pct: haikuPctToday } = getBuildEvents();
 
 // Layer 6: performance trends (last 7 days)
 const buildTrends = getBuildTrends();
@@ -862,7 +871,7 @@ const status = {
   scrapers,
   s3_lake,
   kpis:                (() => {
-    const kpis = buildKPIs(agents, scrapers, s3_lake, tasks, parentKeyScraper, buildEventsCount);
+    const kpis = buildKPIs(agents, scrapers, s3_lake, tasks, parentKeyScraper, buildEventsCount, haikuPctToday);
     kpis.builds_7d       = buildTrends?.builds_7d   || 0;
     kpis.error_rate_7d   = buildTrends?.error_rate   || 0;
     return kpis;
