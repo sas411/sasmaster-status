@@ -2189,7 +2189,11 @@ document.addEventListener('click', e => {
 // ══════════════════════════════════════════════════════════
 // SETTINGS
 // ══════════════════════════════════════════════════════════
-function openSettings() { document.getElementById('settingsModal').classList.add('open'); }
+function openSettings() {
+  const tf = document.getElementById('settingsToken');
+  if (tf) tf.value = getToken();
+  document.getElementById('settingsModal').classList.add('open');
+}
 function closeSettings() { document.getElementById('settingsModal').classList.remove('open'); }
 function saveSettings() {
   const hw = parseInt(document.getElementById('thr-hw').value) || 80;
