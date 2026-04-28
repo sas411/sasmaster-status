@@ -2102,33 +2102,56 @@ async function downloadVisual(url, title) {
   const btn = event.currentTarget;
   const orig = btn.innerHTML;
   btn.innerHTML = '⏳'; btn.disabled = true;
+  let w = null;
   try {
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:1400px;height:900px;border:none;opacity:0;pointer-events:none';
-    document.body.appendChild(iframe);
+    // Open in real browser window — full asset/font loading, no iframe restrictions
+    w = window.open(url, '_blank', 'width=1400,height=900,menubar=no,toolbar=no,location=no,scrollbars=yes');
+    if (!w) throw new Error('Popup blocked — allow popups for this site');
+    // Wait for page to fully render
     await new Promise((resolve, reject) => {
-      iframe.onload = resolve;
-      iframe.onerror = reject;
-      iframe.src = url;
-      setTimeout(reject, 15000);
+      const deadline = setTimeout(() => reject(new Error('page load timeout')), 18000);
+      const poll = () => {
+        if (w.closed) { clearTimeout(deadline); reject(new Error('window closed')); return; }
+        if (w.document && w.document.readyState === 'complete') { clearTimeout(deadline); resolve(); }
+        else setTimeout(poll, 150);
+      };
+      setTimeout(poll, 300);
     });
-    await new Promise(r => setTimeout(r, 800));
-    const canvas = await html2canvas(iframe.contentDocument.body, {
-      width: 1400, height: 900, scale: 1,
-      useCORS: true, allowTaint: true,
-      backgroundColor: '#0F0F1A'
+    // Settle time for fonts + CSS transitions
+    await new Promise(r => setTimeout(r, 1400));
+    // Inject html2canvas into the target window so it runs in full page context
+    await new Promise((resolve, reject) => {
+      const s = w.document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('html2canvas CDN load failed'));
+      w.document.head.appendChild(s);
     });
-    document.body.removeChild(iframe);
+    const root = w.document.documentElement;
+    const canvas = await w.html2canvas(root, {
+      width: w.innerWidth,
+      height: root.scrollHeight,
+      scrollX: 0, scrollY: 0,
+      scale: 1.5,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: null,
+      logging: false,
+      windowWidth: w.innerWidth,
+      windowHeight: root.scrollHeight,
+    });
+    w.close(); w = null;
     const link = document.createElement('a');
     link.download = (title || 'visual').replace(/[^a-z0-9]/gi, '-').toLowerCase() + '.png';
-    link.href = canvas.toDataURL('image/png');
+    link.href = canvas.toDataURL('image/png', 0.95);
     link.click();
-    btn.innerHTML = '✓ Saved';
-    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+    btn.innerHTML = '✓ Saved'; btn.disabled = false;
+    setTimeout(() => { btn.innerHTML = orig; }, 2500);
   } catch(e) {
-    btn.innerHTML = '✗ Error';
-    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
-    console.error('downloadVisual failed', e);
+    if (w && !w.closed) w.close();
+    btn.innerHTML = '✗ Error'; btn.disabled = false;
+    setTimeout(() => { btn.innerHTML = orig; }, 3000);
+    console.error('downloadVisual', e.message);
   }
 }
 
