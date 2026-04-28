@@ -99,7 +99,7 @@ a{color:inherit}
 @keyframes tickerscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
 /* KPI STRIP */
-.kpi-strip{background:linear-gradient(135deg,#FAFAFA 0%,#F5F3FF 50%,#EFF6FF 100%);border-bottom:1px solid var(--border);padding:8px 16px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;flex-shrink:0}
+.kpi-strip{background:linear-gradient(135deg,#FAFAFA 0%,#F5F3FF 50%,#EFF6FF 100%);border-bottom:1px solid var(--border);padding:8px 16px;display:grid;grid-template-columns:repeat(6,1fr);gap:8px;flex-shrink:0}
 .kpi-card{padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);background:rgba(255,255,255,.85);backdrop-filter:blur(4px);cursor:pointer;transition:border-color .15s,box-shadow .15s}
 .kpi-card:hover{border-color:var(--acc-bd);box-shadow:var(--shadow)}
 .kpi-lbl{font-size:8px;font-family:var(--mono);color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
@@ -685,7 +685,7 @@ a{color:inherit}
 }
 @media(max-width:1024px){
   .kpi-strip{grid-template-columns:repeat(3,1fr)}
-  .kpi-card:nth-child(4),.kpi-card:nth-child(5){display:none}
+  .kpi-card:nth-child(4),.kpi-card:nth-child(5),.kpi-card:nth-child(6){display:none}
   .agent-full-grid{grid-template-columns:1fr 1fr}
   .two-col{grid-template-columns:1fr}
   .zpanel+.zpanel{border-left:none;border-top:1px solid var(--border)}
@@ -694,7 +694,7 @@ a{color:inherit}
   :root{--sbw:0px}
   .sidebar{display:none}
   .kpi-strip{grid-template-columns:1fr 1fr;padding:6px 12px}
-  .kpi-card:nth-child(3),.kpi-card:nth-child(4),.kpi-card:nth-child(5){display:none}
+  .kpi-card:nth-child(3),.kpi-card:nth-child(4),.kpi-card:nth-child(5),.kpi-card:nth-child(6){display:none}
   .kpi-val{font-size:16px}
   .header{padding:0 10px;gap:6px}
   .pills{display:none}
@@ -796,6 +796,11 @@ a{color:inherit}
     <div class="kpi-lbl">DEPLOYED TODAY</div>
     <div class="kpi-val" id="kpiTmdb">--</div>
     <div class="kpi-sub" id="kpiTmdbSub">past 24 hours</div>
+  </div>
+  <div class="kpi-card" onclick="switchTab('costs')">
+    <div class="kpi-lbl">BUILD COST</div>
+    <div class="kpi-val" id="kpiCost">--</div>
+    <div class="kpi-sub" id="kpiCostSub">loading...</div>
   </div>
 </div>
 
@@ -1285,6 +1290,9 @@ async function loadStatus() {
       const label = src.label || r.headers.get('X-Status-Source') || 'live';
       document.title = label === 'live' ? 'War Room' : `War Room [${label}]`;
       populateAll(d);
+      // Kick off live data fetches in parallel (don't block status render)
+      loadKanbanLive();
+      loadCostKPI();
       scheduleRefresh();
       return;
     } catch (_) {
@@ -1295,8 +1303,54 @@ async function loadStatus() {
   scheduleRefresh();
 }
 
+// Live kanban fetch — replaces stale status.json kanban with fresh TASKS.md parse
+async function loadKanbanLive() {
+  try {
+    const r = await fetch(apiUrl('/tasks/kanban') + '&t=' + Date.now());
+    if (!r.ok) return;
+    const kb = await r.json();
+    populateKanban(_lastData || {}, kb);
+    // Update HIGH count KPI from live data
+    const highEl = document.getElementById('kpiParent');
+    if (highEl) {
+      highEl.textContent = kb.counts?.high ?? '--';
+      highEl.className = 'kpi-val ' + ((kb.counts?.high || 0) > 15 ? 'crit' : (kb.counts?.high || 0) > 8 ? 'warn' : 'ok');
+      const sub = document.getElementById('kpiParentSub');
+      if (sub) sub.textContent = 'HIGH (live)';
+    }
+    // Update bottom bar HIGH/MED counts
+    const bbHigh = document.getElementById('bbHigh');
+    const bbMed  = document.getElementById('bbMed');
+    if (bbHigh) bbHigh.textContent = kb.counts?.high ?? '--';
+    if (bbMed)  bbMed.textContent  = kb.counts?.med  ?? '--';
+  } catch (_) { /* silently fall back to status.json kanban */ }
+}
+
+// Cost KPI fetch — reads cost-log.jsonl via command-api
+async function loadCostKPI() {
+  try {
+    const r = await fetch(apiUrl('/cost-log') + '&t=' + Date.now());
+    if (!r.ok) return;
+    const data = await r.json();
+    const s = data.summary || {};
+    const costEl = document.getElementById('kpiCost');
+    const subEl  = document.getElementById('kpiCostSub');
+    if (costEl) {
+      const usd = (s.total_cost_usd || 0).toFixed(2);
+      costEl.textContent = '$' + usd;
+      costEl.className = 'kpi-val ok';
+    }
+    if (subEl) {
+      const breakdown = Object.entries(s.model_breakdown || {})
+        .map(([m, c]) => m.replace('claude-','').replace('-4-6','') + ' $' + (c as number).toFixed(2))
+        .join(' · ') || (s.entry_count + ' entries');
+      subEl.textContent = breakdown;
+    }
+  } catch (_) { /* leave as -- */ }
+}
+
 function scheduleRefresh() {
-  setTimeout(loadStatus, 60000);
+  setTimeout(loadStatus, 30000);
 }
 
 function showFetchError(msg) {
@@ -1743,8 +1797,9 @@ function populateS3Grid(d) {
 }
 
 // ── Kanban ────────────────────────────────────────────────
-function populateKanban(d) {
-  const kb = d.kanban || {};
+function populateKanban(d, liveKanban) {
+  // liveKanban from /tasks/kanban takes priority over stale status.json kanban
+  const kb = liveKanban || d.kanban || {};
   const q  = d.queue  || {};
 
   // Phase strip
@@ -2613,6 +2668,40 @@ function relTime(iso) {
 loadStatus();
 loadResources();
 renderCosts();
+
+// ── SSE event bus — real-time War Room card refresh ──────────────────
+// Connects directly to api.sasmaster.dev (Cloudflare Tunnel) — NOT via
+// the Vercel serverless proxy which has a 30s function timeout.
+// Falls back to 30s polling (scheduleRefresh) automatically on disconnect.
+let _sse = null;
+let _sseRetries = 0;
+
+function initSSE() {
+  if (typeof EventSource === 'undefined') return; // old browsers
+  if (_sse) { _sse.close(); _sse = null; }
+  try {
+    _sse = new EventSource('https://api.sasmaster.dev/api/events/stream');
+    _sse.onopen = () => { _sseRetries = 0; };
+    _sse.onmessage = (e) => {
+      try {
+        const ev = JSON.parse(e.data);
+        if (ev.event_type === 'BUILD_COMPLETE' || ev.event_type === 'AGENT_COMPLETE') {
+          loadKanbanLive();
+          loadCostKPI();
+        }
+      } catch (_) {}
+    };
+    _sse.onerror = () => {
+      if (_sse) { _sse.close(); _sse = null; }
+      // Exponential backoff capped at 30s — matches polling fallback interval
+      const delay = Math.min(30000, 1000 * Math.pow(2, _sseRetries));
+      _sseRetries = Math.min(_sseRetries + 1, 5);
+      setTimeout(initSSE, delay);
+    };
+  } catch (_) { /* SSE not available — polling continues */ }
+}
+
+initSSE();
 
 // Token handled server-side via Vercel proxy — no client token needed
 
