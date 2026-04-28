@@ -520,6 +520,58 @@ a{color:inherit}
 .form-select{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r2);font-family:var(--sans);font-size:12px;outline:none;background:var(--surface)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
+/* ══ Financial Intel Tab ══════════════════════════════════════════ */
+.fin-summary-bar{display:flex;gap:0;background:#1E293B;border-bottom:1px solid #334155;flex-shrink:0}
+.fin-kpi{display:flex;flex-direction:column;padding:10px 20px;border-right:1px solid #334155;flex:1;min-width:0}
+.fin-kpi-lbl{font-size:8px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#64748B;font-family:var(--mono);margin-bottom:2px}
+.fin-kpi-val{font-family:var(--display);font-size:20px;color:#F1F5F9;letter-spacing:.3px;line-height:1}
+.fin-kpi-sub{font-size:9px;color:#475569;margin-top:2px;font-family:var(--mono)}
+.fin-filters{display:flex;gap:5px;padding:8px 14px;background:#F8FAFC;border-bottom:1px solid #E2E8F0;overflow-x:auto;flex-shrink:0}
+.fin-pill{padding:4px 12px;border-radius:14px;font-size:10px;font-weight:700;letter-spacing:.4px;cursor:pointer;border:1.5px solid #CBD5E1;background:#fff;color:#475569;white-space:nowrap;transition:all .15s}
+.fin-pill.active{background:#0EA5E9;border-color:#0EA5E9;color:#fff}
+.fin-pill:hover:not(.active){background:#F0F9FF;border-color:#7DD3FC}
+.fin-wrap{flex:1;overflow:auto;min-height:0}
+.fin-tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.fin-tbl thead{background:#F8FAFC;position:sticky;top:0;z-index:5}
+.fin-tbl th{padding:8px 10px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#64748B;border-bottom:2px solid #E2E8F0;white-space:nowrap}
+.fin-tbl td{padding:8px 10px;border-bottom:1px solid #F1F5F9;vertical-align:middle;white-space:nowrap}
+.fin-tbl tr:hover td{background:#F8FAFC;cursor:pointer}
+.fin-tbl tr.expanded td{background:#EFF6FF}
+.fin-cell-green{color:#059669;font-weight:700}
+.fin-cell-amber{color:#D97706;font-weight:700}
+.fin-cell-red{color:#DC2626;font-weight:700}
+.fin-cell-neutral{color:#475569}
+.fin-badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:5px;font-size:9.5px;font-weight:700;letter-spacing:.3px;font-family:var(--mono)}
+.fin-badge-critical{background:#FEE2E2;color:#DC2626}
+.fin-badge-high{background:#FEF3C7;color:#B45309}
+.fin-badge-strategic{background:#DBEAFE;color:#1D4ED8}
+.fin-badge-efficient{background:#D1FAE5;color:#065F46}
+.fin-badge-intel{background:#F1F5F9;color:#475569}
+.fin-co-name{font-weight:700;color:#0F172A}
+.fin-co-ticker{font-size:9px;color:#94A3B8;font-family:var(--mono);margin-left:4px}
+.fin-src-badge{font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;font-family:var(--mono);margin-left:4px}
+.fin-src-sec{background:#DBEAFE;color:#1D4ED8}
+.fin-src-intl{background:#FEF3C7;color:#92400E}
+.fin-src-alt{background:#F1F5F9;color:#64748B}
+.fin-strategy{font-size:10px;color:#64748B;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fin-detail{display:none;background:#F8FAFC;border-bottom:2px solid #E2E8F0}
+.fin-detail.open{display:table-row}
+.fin-detail-inner{padding:16px 20px}
+.fin-tier{margin-bottom:16px}
+.fin-tier-hdr{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:4px 10px;border-radius:4px;display:inline-flex;align-items:center;gap:6px;margin-bottom:8px}
+.fin-metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fin-metric-card{background:#fff;border:1px solid #E2E8F0;border-radius:6px;padding:10px 12px}
+.fin-metric-lbl{font-size:9.5px;font-weight:700;color:#374151;margin-bottom:2px}
+.fin-metric-val{font-family:var(--mono);font-size:14px;font-weight:700;color:#0F172A}
+.fin-metric-sub{font-size:9px;color:#9CA3AF;margin-top:1px}
+.fin-trend-tbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}
+.fin-trend-tbl th{padding:4px 8px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#94A3B8;border-bottom:1px solid #E2E8F0}
+.fin-trend-tbl td{padding:5px 8px;border-bottom:1px solid #F1F5F9;font-family:var(--mono);font-size:11px}
+.fin-est-tag{font-size:8px;background:#FEF3C7;color:#92400E;padding:1px 5px;border-radius:3px;font-weight:700;margin-left:4px}
+.fin-empty{text-align:center;padding:40px;color:#94A3B8;font-size:13px}
+.fin-export-btn{margin-left:auto;padding:5px 14px;background:#0EA5E9;color:#fff;border:none;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.4px;cursor:pointer;font-family:var(--mono);transition:all .15s}
+.fin-export-btn:hover{background:#0284C7}
+
 /* Dr. Scoop FAB */
 .scoop-fab-wrap{position:fixed;bottom:calc(var(--bh) + 14px);right:18px;z-index:450;display:flex;flex-direction:column;align-items:center;gap:4px}
 .scoop-fab{width:56px;height:56px;border-radius:50%;background:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;overflow:hidden;padding:0;box-shadow:0 0 0 3px rgba(139,92,246,.35),0 0 0 6px rgba(139,92,246,.12),0 4px 16px rgba(0,0,0,.15);animation:scooppulse 3s infinite}
@@ -915,7 +967,8 @@ a{color:inherit}
       <button class="tab-btn" onclick="switchTab('queue')" data-tab="queue">📋 QUEUE <span class="tbadge" id="tabQueueBadge">11</span></button>
       <button class="tab-btn" onclick="switchTab('resources')" data-tab="resources">📚 RESOURCES</button>
       <button class="tab-btn" onclick="switchTab('costs')" data-tab="costs">💰 COSTS</button>
-      <button class="tab-btn" onclick="switchTab('telemetry')" data-tab="telemetry">📡 TELEMETRY <span class="tbadge" style="background:#7C3AED;color:#fff">NEW</span></button>
+      <button class="tab-btn" onclick="switchTab('telemetry')" data-tab="telemetry">📡 TELEMETRY</button>
+      <button class="tab-btn" onclick="switchTab('financial')" data-tab="financial">💹 FINANCIAL INTEL <span class="tbadge" style="background:#10B981;color:#fff">NEW</span></button>
     </div>
 
     <!-- ═══════════════════════════════════════════════════
@@ -1182,6 +1235,82 @@ a{color:inherit}
 
     </div><!-- /3-col body -->
     </div><!-- /tab-telemetry -->
+
+    <!-- ═══ FINANCIAL INTEL TAB ══════════════════════════════════ -->
+    <div class="tab-panel" id="tab-financial">
+
+      <!-- SUMMARY BAR -->
+      <div class="fin-summary-bar">
+        <div class="fin-kpi">
+          <div class="fin-kpi-lbl">COMPANIES TRACKED</div>
+          <div class="fin-kpi-val" id="fin-total">54</div>
+          <div class="fin-kpi-sub">9 categories</div>
+        </div>
+        <div class="fin-kpi">
+          <div class="fin-kpi-lbl">SEC COVERAGE</div>
+          <div class="fin-kpi-val" id="fin-sec-cov">37</div>
+          <div class="fin-kpi-sub">direct EDGAR</div>
+        </div>
+        <div class="fin-kpi">
+          <div class="fin-kpi-lbl">LAST REFRESH</div>
+          <div class="fin-kpi-val" id="fin-refresh" style="font-size:13px;padding-top:4px">—</div>
+          <div class="fin-kpi-sub">EDGAR + alt sources</div>
+        </div>
+        <div class="fin-kpi">
+          <div class="fin-kpi-lbl">NEXT REFRESH</div>
+          <div class="fin-kpi-val" style="font-size:13px;padding-top:4px">5:00 AM ET</div>
+          <div class="fin-kpi-sub">daily cron</div>
+        </div>
+        <div class="fin-kpi" style="border-right:none">
+          <div class="fin-kpi-lbl">CRITICAL / HIGH</div>
+          <div class="fin-kpi-val" id="fin-alert-count">—</div>
+          <div class="fin-kpi-sub">SM Priority</div>
+        </div>
+        <div class="fin-kpi" style="border-right:none;justify-content:center;align-items:center;flex-direction:row;gap:8px">
+          <button class="fin-export-btn" onclick="finRebuildDoc()">↻ Rebuild Strategy Doc</button>
+        </div>
+      </div>
+
+      <!-- CATEGORY FILTER PILLS -->
+      <div class="fin-filters" id="fin-filters">
+        <button class="fin-pill active" onclick="finFilter('all',this)">All</button>
+        <button class="fin-pill" onclick="finFilter('CORE_STREAMING',this)">Core Streaming</button>
+        <button class="fin-pill" onclick="finFilter('MEGA_PLATFORMS',this)">Mega Platforms</button>
+        <button class="fin-pill" onclick="finFilter('SPORTS_RIGHTS',this)">Sports Rights</button>
+        <button class="fin-pill" onclick="finFilter('AD_TECH_AGENCIES',this)">Ad Tech</button>
+        <button class="fin-pill" onclick="finFilter('MUSIC_AUDIO',this)">Music & Audio</button>
+        <button class="fin-pill" onclick="finFilter('GAMING',this)">Gaming</button>
+        <button class="fin-pill" onclick="finFilter('DEVICE_CTV',this)">Device & CTV</button>
+        <button class="fin-pill" onclick="finFilter('INTERNATIONAL',this)">International</button>
+        <button class="fin-pill" onclick="finFilter('TELECOM',this)">Telecom</button>
+      </div>
+
+      <!-- MAIN TABLE -->
+      <div class="fin-wrap" id="fin-wrap">
+        <div class="fin-empty" id="fin-loading">⏳ Loading financial data…</div>
+        <table class="fin-tbl" id="fin-tbl" style="display:none">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Category</th>
+              <th>Revenue $B</th>
+              <th>Rev YoY%</th>
+              <th>Op Margin%</th>
+              <th>Ad Revenue $B</th>
+              <th>Ad YoY%</th>
+              <th>Net Debt/EBITDA</th>
+              <th>Debt/Cap%</th>
+              <th>Content ROI</th>
+              <th>Content Spd%</th>
+              <th>SM Priority</th>
+              <th>Strategy Note</th>
+            </tr>
+          </thead>
+          <tbody id="fin-tbody"></tbody>
+        </table>
+      </div>
+
+    </div><!-- /tab-financial -->
 
   </div><!-- /content-area -->
 </div><!-- /app-body -->
@@ -2661,6 +2790,7 @@ function switchTab(tabId) {
   if (tabId === 'resources') loadResources();
   if (tabId === 'queue') loadQueue();
   if (tabId === 'costs') renderCosts();
+  if (tabId === 'financial') loadFinancial();
 }
 
 function toggleSidebar() {
@@ -3511,6 +3641,237 @@ function telRenderCostChart(entries) {
 
   setTimeout(connectTelSSE, 3000);
 })();
+
+// ══════════════════════════════════════════════════════════
+// FINANCIAL INTEL TAB
+// ══════════════════════════════════════════════════════════
+(function() {
+
+function _fmt(val, pre, suf) {
+  if (val == null || val === undefined) return '—';
+  const n = Number(val);
+  if (isNaN(n)) return '—';
+  return (pre||'') + n.toFixed(1) + (suf||'');
+}
+function _fmtPct(val) {
+  if (val == null || val === undefined) return '—';
+  const n = Number(val);
+  if (isNaN(n)) return '—';
+  return (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
+}
+
+const CAT_LABELS = {
+  CORE_STREAMING:'Core Streaming', MEGA_PLATFORMS:'Mega Platforms',
+  SPORTS_RIGHTS:'Sports Rights',   AD_TECH_AGENCIES:'Ad Tech',
+  MUSIC_AUDIO:'Music & Audio',     GAMING:'Gaming',
+  DEVICE_CTV:'Device & CTV',       INTERNATIONAL:'International',
+  TELECOM:'Telecom'
+};
+
+const SEED_DATA = {
+  meta:{ built_at:'', total:54, sec_coverage:37, intl_coverage:9, alt_coverage:8, fetch_errors:[] },
+  companies:[
+    { id:'WBD',  name:'WBD',     category:'CORE_STREAMING',  ticker:'WBD',   src:'SEC', estimated:false, priority:'Critical',  priority_css:'critical', sm_score:0.82, strategy_note:'High leverage post-merger; Max growing but linear declining fast', cells:{ revenue:{val:41.3,color:'neutral'}, revenue_yoy:{val:-5,color:'red'}, op_margin:{val:8.1,color:'red'}, ad_revenue:{val:9.2,color:'neutral'}, ad_rev_yoy:{val:-12,color:'red'}, net_debt_ebitda:{val:7.8,color:'red'}, debt_cap:{val:61,color:'red'}, content_roi:{val:1.9,color:'amber'}, content_spend_pct:{val:55,color:'red'} } },
+    { id:'NFLX', name:'Netflix', category:'CORE_STREAMING',  ticker:'NFLX',  src:'SEC', estimated:false, priority:'Strategic', priority_css:'strategic',sm_score:0.42, strategy_note:'Profitable streaming leader; ad tier scaling', cells:{ revenue:{val:36.8,color:'neutral'}, revenue_yoy:{val:16,color:'green'}, op_margin:{val:26.7,color:'green'}, ad_revenue:{val:1.8,color:'neutral'}, ad_rev_yoy:{val:null,color:'neutral'}, net_debt_ebitda:{val:1.6,color:'green'}, debt_cap:{val:31,color:'green'}, content_roi:{val:2.3,color:'amber'}, content_spend_pct:{val:32,color:'amber'} } },
+    { id:'FOX',  name:'Fox',     category:'CORE_STREAMING',  ticker:'FOX',   src:'SEC', estimated:false, priority:'Efficient', priority_css:'efficient',sm_score:0.18, strategy_note:'Linear-first; Tubi growing; Fox News dominance; low debt', cells:{ revenue:{val:14.7,color:'neutral'}, revenue_yoy:{val:2,color:'amber'}, op_margin:{val:18.2,color:'amber'}, ad_revenue:{val:8.1,color:'neutral'}, ad_rev_yoy:{val:-3,color:'amber'}, net_debt_ebitda:{val:1.1,color:'green'}, debt_cap:{val:28,color:'green'}, content_roi:{val:4.1,color:'green'}, content_spend_pct:{val:28,color:'green'} } },
+    { id:'DIS',  name:'Disney',  category:'CORE_STREAMING',  ticker:'DIS',   src:'SEC', estimated:false, priority:'High',     priority_css:'high',     sm_score:0.61, strategy_note:'DTC inflecting; ESPN bundle thesis critical for FY25', cells:{ revenue:{val:91.4,color:'neutral'}, revenue_yoy:{val:3,color:'amber'}, op_margin:{val:12.1,color:'amber'}, ad_revenue:{val:5.4,color:'neutral'}, ad_rev_yoy:{val:-8,color:'red'}, net_debt_ebitda:{val:3.2,color:'amber'}, debt_cap:{val:42,color:'amber'}, content_roi:{val:2.1,color:'amber'}, content_spend_pct:{val:42,color:'amber'} } },
+    { id:'PARA', name:'Paramount',category:'CORE_STREAMING', ticker:'PARA',  src:'SEC', estimated:false, priority:'Critical', priority_css:'critical', sm_score:0.79, strategy_note:'Skydance merger; streaming losses narrowing; Pluto TV ad pivot', cells:{ revenue:{val:29.0,color:'neutral'}, revenue_yoy:{val:-4,color:'red'}, op_margin:{val:4.2,color:'red'}, ad_revenue:{val:10.4,color:'neutral'}, ad_rev_yoy:{val:-14,color:'red'}, net_debt_ebitda:{val:5.1,color:'red'}, debt_cap:{val:52,color:'amber'}, content_roi:{val:1.6,color:'amber'}, content_spend_pct:{val:48,color:'amber'} } },
+    { id:'GOOGL',name:'Alphabet', category:'MEGA_PLATFORMS', ticker:'GOOGL', src:'SEC', estimated:false, priority:'Efficient',priority_css:'efficient',sm_score:0.12, strategy_note:'Search + YouTube dual ad engine; AI spending escalation', cells:{ revenue:{val:350.0,color:'neutral'}, revenue_yoy:{val:9,color:'green'}, op_margin:{val:31.6,color:'green'}, ad_revenue:{val:264.0,color:'neutral'}, ad_rev_yoy:{val:9,color:'green'}, net_debt_ebitda:{val:null,color:'neutral'}, debt_cap:{val:8,color:'green'}, content_roi:{val:null,color:'neutral'}, content_spend_pct:{val:null,color:'neutral'} } },
+    { id:'META', name:'Meta',     category:'MEGA_PLATFORMS', ticker:'META',  src:'SEC', estimated:false, priority:'Efficient',priority_css:'efficient',sm_score:0.10, strategy_note:'Social ad leader; Reels monetizing; AI infra spend', cells:{ revenue:{val:165.0,color:'neutral'}, revenue_yoy:{val:22,color:'green'}, op_margin:{val:41.0,color:'green'}, ad_revenue:{val:161.0,color:'neutral'}, ad_rev_yoy:{val:22,color:'green'}, net_debt_ebitda:{val:null,color:'neutral'}, debt_cap:{val:5,color:'green'}, content_roi:{val:null,color:'neutral'}, content_spend_pct:{val:null,color:'neutral'} } },
+    { id:'TTD',  name:'Trade Desk',category:'AD_TECH_AGENCIES',ticker:'TTD', src:'SEC', estimated:false, priority:'Strategic',priority_css:'strategic',sm_score:0.28, strategy_note:'Programmatic CTV leader; Kokai AI platform; OpenPath direct', cells:{ revenue:{val:2.4,color:'neutral'}, revenue_yoy:{val:26,color:'green'}, op_margin:{val:14.2,color:'amber'}, ad_revenue:{val:null,color:'neutral'}, ad_rev_yoy:{val:null,color:'neutral'}, net_debt_ebitda:{val:null,color:'neutral'}, debt_cap:{val:12,color:'green'}, content_roi:{val:null,color:'neutral'}, content_spend_pct:{val:null,color:'neutral'} } },
+    { id:'SPOT', name:'Spotify',  category:'MUSIC_AUDIO',    ticker:'SPOT',  src:'SEC', estimated:false, priority:'Strategic',priority_css:'strategic',sm_score:0.31, strategy_note:'Approaching profitability; ARPU growing; podcast pivot back', cells:{ revenue:{val:16.0,color:'neutral'}, revenue_yoy:{val:19,color:'green'}, op_margin:{val:7.2,color:'red'}, ad_revenue:{val:2.1,color:'neutral'}, ad_rev_yoy:{val:12,color:'green'}, net_debt_ebitda:{val:0.8,color:'green'}, debt_cap:{val:18,color:'green'}, content_roi:{val:null,color:'neutral'}, content_spend_pct:{val:null,color:'neutral'} } },
+    { id:'ROKU', name:'Roku',     category:'DEVICE_CTV',     ticker:'ROKU',  src:'SEC', estimated:false, priority:'High',     priority_css:'high',     sm_score:0.58, strategy_note:'OS platform monetization; OneView DSP; ad rev per hour growing', cells:{ revenue:{val:4.1,color:'neutral'}, revenue_yoy:{val:19,color:'green'}, op_margin:{val:-5.2,color:'red'}, ad_revenue:{val:3.6,color:'neutral'}, ad_rev_yoy:{val:21,color:'green'}, net_debt_ebitda:{val:null,color:'neutral'}, debt_cap:{val:15,color:'green'}, content_roi:{val:null,color:'neutral'}, content_spend_pct:{val:null,color:'neutral'} } },
+    { id:'CHTR', name:'Charter',  category:'TELECOM',        ticker:'CHTR',  src:'SEC', estimated:false, priority:'High',     priority_css:'high',     sm_score:0.63, strategy_note:'Broadband + cable sub bleed; streaming aggregation play', cells:{ revenue:{val:55.1,color:'neutral'}, revenue_yoy:{val:-2,color:'red'}, op_margin:{val:21.3,color:'green'}, ad_revenue:{val:1.8,color:'neutral'}, ad_rev_yoy:{val:-6,color:'red'}, net_debt_ebitda:{val:4.8,color:'red'}, debt_cap:{val:71,color:'red'}, content_roi:{val:null,color:'neutral'}, content_spend_pct:{val:null,color:'neutral'} } },
+    { id:'AMCX', name:'AMC Nets', category:'CORE_STREAMING', ticker:'AMCX',  src:'SEC', estimated:false, priority:'Critical', priority_css:'critical', sm_score:0.88, strategy_note:'Most stressed; cord-cutting hammering; licensing key revenue', cells:{ revenue:{val:2.6,color:'neutral'}, revenue_yoy:{val:-12,color:'red'}, op_margin:{val:6.1,color:'red'}, ad_revenue:{val:0.9,color:'neutral'}, ad_rev_yoy:{val:-18,color:'red'}, net_debt_ebitda:{val:6.9,color:'red'}, debt_cap:{val:74,color:'red'}, content_roi:{val:1.2,color:'red'}, content_spend_pct:{val:44,color:'amber'} } },
+  ]
+};
+
+let _finData    = null;
+let _finFilter  = 'all';
+let _finExpanded = null;
+
+window.loadFinancial = async function() {
+  if (_finData) { finRender(); return; }
+  try {
+    const r = await fetch('/api/financial_data.json?t=' + Date.now());
+    if (r.ok) {
+      _finData = await r.json();
+    } else {
+      _finData = SEED_DATA;
+      _finData.meta.built_at = '';
+    }
+  } catch(e) {
+    _finData = SEED_DATA;
+    _finData.meta.built_at = '';
+  }
+  finRender();
+};
+
+function finRender() {
+  const meta = _finData.meta || {};
+  const cos  = _finData.companies || [];
+
+  // Summary bar
+  document.getElementById('fin-total').textContent    = meta.total || cos.length;
+  document.getElementById('fin-sec-cov').textContent  = (meta.sec_coverage || 37) + '/54';
+  document.getElementById('fin-refresh').textContent  = meta.built_at
+    ? new Date(meta.built_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})
+    : 'Seed data (5AM refresh)';
+  const critH = cos.filter(c => c.priority==='Critical'||c.priority==='High').length;
+  document.getElementById('fin-alert-count').textContent = critH;
+
+  finRenderTable(cos);
+}
+
+function finRenderTable(all) {
+  const cos = _finFilter === 'all' ? all : all.filter(c => c.category === _finFilter);
+  const tbody = document.getElementById('fin-tbody');
+  const tbl   = document.getElementById('fin-tbl');
+  const ldr   = document.getElementById('fin-loading');
+  if (!cos.length) { ldr.style.display=''; ldr.textContent='No data for this filter.'; tbl.style.display='none'; return; }
+  ldr.style.display = 'none';
+  tbl.style.display = '';
+
+  tbody.innerHTML = cos.map(c => {
+    const cells = c.cells || {};
+    const srcBadge = `<span class="fin-src-badge fin-src-${(c.src||'alt').toLowerCase().replace('_adr','')}">${c.src||'ALT'}</span>`;
+    const estTag   = c.estimated ? `<span class="fin-est-tag">EST</span>` : '';
+
+    return `
+    <tr onclick="finToggleDetail('${c.id}')" id="fin-row-${c.id}">
+      <td>
+        <span class="fin-co-name">${c.name}</span>
+        <span class="fin-co-ticker">${c.ticker||''}</span>
+        ${srcBadge}${estTag}
+      </td>
+      <td style="font-size:10px;color:#64748B">${CAT_LABELS[c.category]||c.category||'—'}</td>
+      <td class="fin-cell-neutral">${_fmt(cells.revenue?.val,'$','B')}</td>
+      <td class="fin-cell-${cells.revenue_yoy?.color||'neutral'}">${_fmtPct(cells.revenue_yoy?.val)}</td>
+      <td class="fin-cell-${cells.op_margin?.color||'neutral'}">${_fmt(cells.op_margin?.val,'','%')}</td>
+      <td class="fin-cell-neutral">${_fmt(cells.ad_revenue?.val,'$','B')}</td>
+      <td class="fin-cell-${cells.ad_rev_yoy?.color||'neutral'}">${_fmtPct(cells.ad_rev_yoy?.val)}</td>
+      <td class="fin-cell-${cells.net_debt_ebitda?.color||'neutral'}">${_fmt(cells.net_debt_ebitda?.val,'','x')}</td>
+      <td class="fin-cell-${cells.debt_cap?.color||'neutral'}">${_fmt(cells.debt_cap?.val,'','%')}</td>
+      <td class="fin-cell-${cells.content_roi?.color||'neutral'}">${_fmt(cells.content_roi?.val,'','x')}</td>
+      <td class="fin-cell-${cells.content_spend_pct?.color||'neutral'}">${_fmt(cells.content_spend_pct?.val,'','%')}</td>
+      <td><span class="fin-badge fin-badge-${(c.priority_css||'intel').toLowerCase()}">${c.priority||'Intel-Only'}</span></td>
+      <td class="fin-strategy" title="${c.strategy_note||''}">${c.strategy_note||'—'}</td>
+    </tr>
+    <tr class="fin-detail" id="fin-detail-${c.id}">
+      <td colspan="13"><div class="fin-detail-inner" id="fin-detail-body-${c.id}"></div></td>
+    </tr>`;
+  }).join('');
+}
+
+window.finToggleDetail = function(id) {
+  const row = document.getElementById('fin-detail-' + id);
+  if (!row) return;
+  const isOpen = row.classList.contains('open');
+
+  // Close any open one
+  document.querySelectorAll('.fin-detail.open').forEach(r => {
+    r.classList.remove('open');
+    const rid = r.id.replace('fin-detail-','');
+    const tr = document.getElementById('fin-row-'+rid);
+    if (tr) tr.classList.remove('expanded');
+  });
+
+  if (!isOpen) {
+    row.classList.add('open');
+    const tr = document.getElementById('fin-row-'+id);
+    if (tr) tr.classList.add('expanded');
+    finRenderDetail(id, row);
+  }
+};
+
+function finRenderDetail(id, row) {
+  const body = document.getElementById('fin-detail-body-' + id);
+  if (!body || body.innerHTML.trim()) return;
+  const co = (_finData.companies||[]).find(c => c.id === id);
+  if (!co) return;
+
+  const years = co.years || {};
+  const yrs = ['2022','2023','2024'].filter(y => years[y]);
+
+  const trendRows = [
+    ['Revenue $B',       y => _fmt(years[y]?.revenue,'$','B')],
+    ['Operating Income', y => _fmt(years[y]?.operating_income,'$','B')],
+    ['Op Margin %',      y => _fmt(years[y]?.operating_margin,'','%')],
+    ['FCF $B',           y => _fmt(years[y]?.free_cash_flow,'$','B')],
+    ['Net Debt $B',      y => _fmt(years[y]?.net_debt,'$','B')],
+    ['Net Debt/EBITDA',  y => _fmt(years[y]?.net_debt_ebitda,'','x')],
+    ['Ad Revenue $B',    y => _fmt(years[y]?.ad_revenue,'$','B')],
+    ['Content ROI',      y => _fmt(years[y]?.content_roi,'','x')],
+  ].filter(([,fn]) => yrs.some(y => fn(y) !== '—'));
+
+  const trendHtml = yrs.length ? `
+    <div class="fin-tier" style="margin-top:0">
+      <div class="fin-tier-hdr" style="background:#F0F9FF;color:#0369A1">📈 MULTI-YEAR TREND (FY2022–2024)</div>
+      <table class="fin-trend-tbl">
+        <thead><tr><th>Metric</th>${yrs.map(y=>`<th>${y}</th>`).join('')}</tr></thead>
+        <tbody>${trendRows.map(([lbl,fn]) =>
+          `<tr><td style="color:#374151;font-size:10.5px">${lbl}</td>${yrs.map(y=>`<td>${fn(y)}</td>`).join('')}</tr>`
+        ).join('')}</tbody>
+      </table>
+    </div>` : '';
+
+  const compHtml = co.components ? `
+    <div class="fin-tier">
+      <div class="fin-tier-hdr" style="background:#FDF4FF;color:#7C3AED">⚙ SM PRIORITY SCORE BREAKDOWN — ${co.sm_score?.toFixed(3)||'N/A'}</div>
+      <div class="fin-metrics-grid" style="grid-template-columns:repeat(4,1fr)">
+        ${[
+          ['Leverage Stress', co.components.leverage_stress, '×0.35'],
+          ['Ad Rev Decline',  co.components.ad_rev_decline,  '×0.30'],
+          ['Content Δ',       co.components.content_licensing_delta, '×0.20'],
+          ['Mkt Cap Pressure',co.components.market_cap_pressure, '×0.15'],
+        ].map(([l,v,w]) => `
+          <div class="fin-metric-card">
+            <div class="fin-metric-lbl">${l}</div>
+            <div class="fin-metric-val" style="font-size:18px">${v!=null?v.toFixed(3):'—'}</div>
+            <div class="fin-metric-sub">weight ${w}</div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  body.innerHTML = `
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <strong style="font-size:14px">${co.name}</strong>
+      <span style="font-family:var(--mono);font-size:11px;color:#64748B">${co.ticker||'PRIVATE'}</span>
+      <span class="fin-badge fin-badge-${(co.priority_css||'intel').toLowerCase()}">${co.priority}</span>
+      ${co.estimated?'<span class="fin-est-tag">ESTIMATED</span>':''}
+      <span style="font-size:10px;color:#94A3B8;margin-left:auto">Source: ${co.src||'ALT'} · Confidence: ${co.confidence||'unknown'}</span>
+    </div>
+    ${trendHtml}
+    ${compHtml}
+    <div class="fin-tier">
+      <div class="fin-tier-hdr" style="background:#F0FDF4;color:#065F46">📋 STRATEGY NOTE</div>
+      <p style="font-size:12px;color:#374151;margin:0">${co.strategy_note||'No note available.'}</p>
+    </div>`;
+}
+
+window.finFilter = function(cat, btn) {
+  _finFilter  = cat;
+  _finExpanded = null;
+  document.querySelectorAll('.fin-pill').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (_finData) finRenderTable(_finData.companies||[]);
+};
+
+window.finRebuildDoc = function() {
+  const btn = document.querySelector('.fin-export-btn');
+  if (btn) { btn.textContent = '⏳ Rebuilding…'; btn.disabled=true; }
+  fetch('/api/trigger_financial_build', {method:'POST'})
+    .catch(() => {})
+    .finally(() => {
+      setTimeout(() => {
+        if (btn) { btn.textContent='↻ Rebuild Strategy Doc'; btn.disabled=false; }
+        _finData = null;
+        loadFinancial();
+      }, 3000);
+    });
+};
+
+})(); // end Financial Intel IIFE
 
 </script>
 
