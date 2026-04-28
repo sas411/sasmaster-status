@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — Platform Architecture Brief</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-base: #0a0a0f;
+    --bg-surface: #12121a;
+    --bg-elevated: #1a1a2e;
+    --bg-panel: #0d0d16;
+    --lavender: #a78bfa;
+    --teal-bright: #22d3ee;
+    --gold: #f59e0b;
+    --red-alert: #ef4444;
+    --green-signal: #10b981;
+    --text-primary: #f8f8ff;
+    --text-secondary: #94a3b8;
+    --text-dim: #4b5563;
+    --border: rgba(167,139,250,0.10);
+    --border-active: rgba(167,139,250,0.35);
+    --lav-dim: rgba(167,139,250,0.10);
+    --teal-dim: rgba(34,211,238,0.10);
+    --gold-dim: rgba(245,158,11,0.10);
+    --red-dim: rgba(239,68,68,0.12);
+    --green-dim: rgba(16,185,129,0.10);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 40px 48px 64px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  @keyframes shimmer {
+    0% { background-position: -400% center; }
+    100% { background-position: 400% center; }
+  }
+  @keyframes pulse-red {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.0); }
+    50% { box-shadow: 0 0 0 6px rgba(239,68,68,0.15); }
+  }
+  @keyframes dot-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .gold-shimmer {
+    background: linear-gradient(90deg, #b8962e, #f5e084, #d4af37, #f5e084, #b8962e);
+    background-size: 400% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+  }
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .card-elevated {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-active);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .dot-live { width: 7px; height: 7px; border-radius: 50%; background: var(--green-signal); display: inline-block; flex-shrink: 0; }
+  .dot-flight { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); display: inline-block; animation: dot-pulse 2s ease-in-out infinite; flex-shrink: 0; }
+  .dot-future { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); display: inline-block; flex-shrink: 0; }
+  .dot-p0 { width: 7px; height: 7px; border-radius: 50%; background: var(--red-alert); display: inline-block; animation: dot-pulse 1s ease-in-out infinite; flex-shrink: 0; }
+  .badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    letter-spacing: 0.08em;
+  }
+  .badge-p0 { background: var(--red-dim); color: var(--red-alert); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-live { background: var(--green-dim); color: var(--green-signal); border: 1px solid rgba(16,185,129,0.25); }
+  .badge-flight { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(245,158,11,0.25); }
+  .badge-future { background: rgba(75,85,99,0.15); color: var(--text-dim); border: 1px solid rgba(75,85,99,0.2); }
+  .mono { font-family: 'Share Tech Mono', monospace; }
+  .display { font-family: 'Bebas Neue', sans-serif; }
+  .text-gold { color: var(--gold); }
+  .text-lav { color: var(--lavender); }
+  .text-teal { color: var(--teal-bright); }
+  .text-red { color: var(--red-alert); }
+  .text-green { color: var(--green-signal); }
+  .text-dim { color: var(--text-dim); }
+  .text-sec { color: var(--text-secondary); }
+  .mb-8 { margin-bottom: 8px; }
+  .mb-12 { margin-bottom: 12px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mb-24 { margin-bottom: 24px; }
+  .mb-32 { margin-bottom: 32px; }
+  .mb-40 { margin-bottom: 40px; }
+  .flow-pill {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+  .flow-pill-lav { background: var(--lav-dim); border-color: rgba(167,139,250,0.25); color: var(--lavender); }
+  .flow-pill-red { background: var(--red-dim); border-color: rgba(239,68,68,0.3); color: var(--red-alert); }
+  .flow-pill-gold { background: var(--gold-dim); border-color: rgba(245,158,11,0.25); color: var(--gold); }
+  .flow-pill-teal { background: var(--teal-dim); border-color: rgba(34,211,238,0.25); color: var(--teal-bright); }
+  .flow-pill-green { background: var(--green-dim); border-color: rgba(16,185,129,0.25); color: var(--green-signal); }
+  .arrow-sep { color: var(--text-dim); font-family: 'Share Tech Mono', monospace; font-size: 12px; padding: 0 4px; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────── -->
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+  <div>
+    <div class="display" style="font-size:13px;letter-spacing:0.3em;color:var(--text-dim);margin-bottom:4px;">SASMASTER INTELLIGENCE PLATFORM</div>
+    <div class="display gold-shimmer" style="font-size:52px;line-height:1;margin-bottom:6px;">Platform Architecture Brief</div>
+    <div class="display" style="font-size:22px;letter-spacing:0.1em;color:var(--lavender);">Transparency · Self-Learning · Autonomous Operation</div>
+  </div>
+  <div style="text-align:right;flex-shrink:0;margin-left:32px;margin-top:8px;">
+    <div class="mono" style="font-size:10px;color:var(--text-dim);margin-bottom:6px;">GENERATED</div>
+    <div class="mono" style="font-size:13px;color:var(--text-secondary);">2026-04-27</div>
+    <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+      <span class="badge badge-p0">P0 IN QUEUE</span>
+      <span class="badge badge-flight">BUILD ACTIVE</span>
+    </div>
+  </div>
+</div>
+<div style="height:1px;background:linear-gradient(90deg,var(--gold),var(--lavender),transparent);margin-bottom:40px;"></div>
+
+<!-- ── P0 — TRANSPARENCY HUB ─────────────────────────── -->
+<div class="mb-8"><span class="section-label">P0 — Platform Transparency + Messaging Hub</span></div>
+
+<div style="background:var(--bg-surface);border:1px solid rgba(239,68,68,0.35);border-left:4px solid var(--red-alert);border-radius:8px;padding:24px;margin-bottom:16px;animation:pulse-red 3s ease-in-out infinite;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+        <span class="dot-p0"></span>
+        <span class="display" style="font-size:22px;color:var(--red-alert);">The Black Box Problem</span>
+        <span class="badge badge-p0">Priority Zero — Fired to JARVIS</span>
+      </div>
+      <div class="text-sec" style="font-size:13px;">Claude Code executes autonomously with zero structured output. Every decision, error, lesson, and cost is invisible — lost when the terminal session ends. You cannot trust autonomous operation at scale without full visibility.</div>
+    </div>
+  </div>
+
+  <div class="grid-3 mb-16">
+    <div class="card">
+      <div class="display text-lav" style="font-size:15px;margin-bottom:8px;letter-spacing:0.05em;">Structured Output Contract</div>
+      <div class="text-sec" style="font-size:12px;line-height:1.7;margin-bottom:10px;">Every build writes <span class="mono text-teal">logs/build-YYYY-MM-DD-HH.jsonl</span> — task name, decisions, files touched, errors, token cost. Max 5KB per entry. No raw terminal stdout. Ever.</div>
+      <div style="padding:8px 10px;background:var(--bg-elevated);border-radius:4px;border-left:2px solid var(--teal-bright);">
+        <div class="mono text-teal" style="font-size:10px;margin-bottom:2px;">S3 COST IMPACT</div>
+        <div class="mono text-green" style="font-size:13px;">&lt; $0.01 / month</div>
+        <div class="text-dim" style="font-size:11px;">~7MB/month — essentially zero</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="display text-lav" style="font-size:15px;margin-bottom:8px;letter-spacing:0.05em;">Event Bus</div>
+      <div class="text-sec" style="font-size:12px;line-height:1.7;margin-bottom:10px;">All surfaces — Claude Code, JARVIS, scrapers, agents — emit structured events to a shared log. War Room consumes in real-time. Replaces stale snapshot architecture permanently.</div>
+      <div style="padding:8px 10px;background:var(--bg-elevated);border-radius:4px;border-left:2px solid var(--lavender);">
+        <div class="mono text-lav" style="font-size:10px;margin-bottom:4px;">EVENT SCHEMA</div>
+        <div class="mono text-sec" style="font-size:10px;line-height:1.8;">{ timestamp, source,<br>event_type, task_id,<br>status, payload }</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="display text-lav" style="font-size:15px;margin-bottom:8px;letter-spacing:0.05em;">Messaging Hub</div>
+      <div class="text-sec" style="font-size:12px;line-height:1.7;margin-bottom:10px;">Three surfaces, three purposes. Slack = key moments only (start, complete, errors). War Room = full command center (real-time). S3 = permanent audit trail (queryable).</div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="display:flex;align-items:center;gap:6px;"><span class="mono text-gold" style="font-size:10px;width:80px;">SLACK</span><span class="text-sec" style="font-size:11px;">Alerts + key moments only</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span class="mono text-lav" style="font-size:10px;width:80px;">WAR ROOM</span><span class="text-sec" style="font-size:11px;">Full real-time command center</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span class="mono text-teal" style="font-size:10px;width:80px;">S3 AUDIT</span><span class="text-sec" style="font-size:11px;">Permanent queryable trail</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-bottom:10px;">Data Flow</div>
+  <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
+    <span class="flow-pill">Claude Code</span>
+    <span class="arrow-sep">→</span>
+    <span class="flow-pill-red">Structured Output</span>
+    <span class="arrow-sep">→</span>
+    <span class="flow-pill">Event Bus</span>
+    <span class="arrow-sep">→</span>
+    <span class="flow-pill-lav">War Room real-time</span>
+    <span class="arrow-sep">+</span>
+    <span class="flow-pill-gold">Slack alerts</span>
+    <span class="arrow-sep">+</span>
+    <span class="flow-pill-teal">S3 audit trail</span>
+    <span class="arrow-sep">→</span>
+    <span class="flow-pill-green">Self-learning loop</span>
+  </div>
+</div>
+
+<!-- ── CURRENT VISIBILITY GAP ─────────────────────────── -->
+<div class="grid-2 mb-40">
+  <div class="card" style="border-color:rgba(239,68,68,0.2);">
+    <div class="display text-red" style="font-size:13px;letter-spacing:0.05em;margin-bottom:10px;">What You Can See Today</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="display:flex;align-items:center;gap:8px;"><span class="dot-live"></span><span class="text-sec" style="font-size:12px;">Slack #builds — task injected, build started</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><span class="dot-live"></span><span class="text-sec" style="font-size:12px;">War Room — agent health, pipeline %, KPIs</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><span class="dot-flight"></span><span class="text-sec" style="font-size:12px;">cost-log.jsonl — being built (in-flight)</span></div>
+    </div>
+  </div>
+  <div class="card" style="border-color:rgba(239,68,68,0.35);background:var(--red-dim);">
+    <div class="display text-red" style="font-size:13px;letter-spacing:0.05em;margin-bottom:10px;">What Is Invisible — The Gap</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--red-alert);font-size:14px;">✗</span><span class="text-sec" style="font-size:12px;">Claude Code decisions mid-build</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--red-alert);font-size:14px;">✗</span><span class="text-sec" style="font-size:12px;">Errors and root causes in execution</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--red-alert);font-size:14px;">✗</span><span class="text-sec" style="font-size:12px;">Files written, code decisions, skips</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--red-alert);font-size:14px;">✗</span><span class="text-sec" style="font-size:12px;">Per-task token cost breakdown</span></div>
+      <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--red-alert);font-size:14px;">✗</span><span class="text-sec" style="font-size:12px;">Lessons extracted from each build</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SELF-LEARNING FEEDBACK LOOP ───────────────────── -->
+<div class="mb-8"><span class="section-label">Layer 6 — Self-Learning Feedback Loop</span></div>
+<div class="card-elevated mb-40" style="border-color:rgba(245,158,11,0.25);border-left:4px solid var(--gold);">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <span class="dot-future"></span>
+        <span class="display text-gold" style="font-size:18px;letter-spacing:0.05em;">System Learns From Every Build</span>
+        <span class="badge badge-future">Future Sprint</span>
+      </div>
+      <div class="text-sec" style="font-size:12px;">Depends on Layer 7 (transparency) being live first — you cannot learn from what you cannot see.</div>
+    </div>
+  </div>
+  <div class="grid-2" style="gap:10px;">
+    <div style="padding:14px;background:var(--bg-panel);border-radius:6px;border-left:2px solid var(--green-signal);">
+      <div class="display text-green" style="font-size:13px;letter-spacing:0.05em;margin-bottom:6px;">Success Path</div>
+      <div class="text-sec" style="font-size:12px;line-height:1.7;">Task completes → DoneLog Analyst extracts lessons → auto-appends to relevant skill file → next build uses improved context → system compounds knowledge</div>
+    </div>
+    <div style="padding:14px;background:var(--bg-panel);border-radius:6px;border-left:2px solid var(--red-alert);">
+      <div class="display text-red" style="font-size:13px;letter-spacing:0.05em;margin-bottom:6px;">Failure Path</div>
+      <div class="text-sec" style="font-size:12px;line-height:1.7;">Task fails → root cause extracted from structured log → fix task auto-injected into TASKS.md → JARVIS picks up on next build cycle → self-healing loop closes</div>
+    </div>
+    <div style="padding:14px;background:var(--bg-panel);border-radius:6px;border-left:2px solid var(--gold);">
+      <div class="display text-gold" style="font-size:13px;letter-spacing:0.05em;margin-bottom:6px;">Cost Feedback</div>
+      <div class="text-sec" style="font-size:12px;line-height:1.7;">cost-log feeds into task prioritization — expensive tasks flagged, cheaper alternatives surfaced, model routing decisions refined over time based on actual cost data</div>
+    </div>
+    <div style="padding:14px;background:var(--bg-panel);border-radius:6px;border-left:2px solid var(--lavender);">
+      <div class="display text-lav" style="font-size:13px;letter-spacing:0.05em;margin-bottom:6px;">Performance Trending</div>
+      <div class="text-sec" style="font-size:12px;line-height:1.7;">Weekly War Room card: is the system getting faster, cheaper, more autonomous? Trend lines on build time, cost/task, error rate, agent health. Visibility into compounding returns.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 7-LAYER ARCHITECTURE ───────────────────────────── -->
+<div class="mb-8"><span class="section-label">Complete 7-Layer Token Optimization + Platform Architecture</span></div>
+<div class="card mb-40" style="padding:0;overflow:hidden;">
+  <table style="width:100%;border-collapse:collapse;">
+    <thead>
+      <tr style="background:var(--bg-panel);">
+        <th style="padding:10px 16px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:0.12em;font-weight:400;width:32px;">#</th>
+        <th style="padding:10px 16px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:0.12em;font-weight:400;">Layer</th>
+        <th style="padding:10px 16px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:0.12em;font-weight:400;">Purpose</th>
+        <th style="padding:10px 16px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:0.12em;font-weight:400;">Impact</th>
+        <th style="padding:10px 16px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:0.12em;font-weight:400;">API Risk</th>
+        <th style="padding:10px 16px;text-align:right;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:0.12em;font-weight:400;">State</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-top:1px solid var(--border);">
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">7</td>
+        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-p0"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--red-alert);">Transparency + Messaging Hub</span></div></td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary);">Structured output contract, event bus, War Room real-time, Slack alerts, S3 audit</td>
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--red-alert);">P0 unlock</td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--green-signal);">Zero</td>
+        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-p0">P0 FIRED</span></td>
+      </tr>
+      <tr style="border-top:1px solid var(--border);background:rgba(167,139,250,0.02);">
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">6</td>
+        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-future"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Self-Learning Feedback Loop</span></div></td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary);">DoneLog → skill files, failures → auto-requeue, cost feedback, performance trending</td>
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);">Compounding</td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--green-signal);">Low</td>
+        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-future">FUTURE</span></td>
+      </tr>
+      <tr style="border-top:1px solid var(--border);">
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">5</td>
+        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-flight"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Output Caching</span></div></td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary);">S3 freshness gate before every scraper run — skip if data &lt;24h, log cache hit</td>
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green-signal);">~20% eliminated</td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--green-signal);">Zero</td>
+        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-flight">IN-FLIGHT</span></td>
+      </tr>
+      <tr style="border-top:1px solid var(--border);background:rgba(167,139,250,0.02);">
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">4</td>
+        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-future"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Session Scoping</span><span class="mono" style="font-size:10px;color:var(--red-alert);margin-left:4px;">⚠ highest API strain</span></div></td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary);">1 Opus plan → N scoped Sonnet sessions. Do NOT implement before timeout hardening live.</td>
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green-signal);">~50% per cycle</td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--red-alert);">Highest</td>
+        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-future">FUTURE — LAST</span></td>
+      </tr>
+      <tr style="border-top:1px solid var(--border);">
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">3</td>
+        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-future"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Context Hygiene</span></div></td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary);">Cap CLAUDE_MEMORY.md at 2K tokens. Archive DONE weekly. Lazy-load skills per task.</td>
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green-signal);">~30% per session</td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--green-signal);">Zero</td>
+        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-future">FUTURE</span></td>
+      </tr>
+      <tr style="border-top:1px solid var(--border);background:rgba(167,139,250,0.02);">
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">2</td>
+        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-future"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Prompt Caching</span></div></td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary);">Cache stable docs (CLAUDE_MEMORY + skills) — 90% cheaper on re-reads. After cost-log live.</td>
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green-signal);">~90% on docs</td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--gold);">Medium</td>
+        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-future">FUTURE</span></td>
+      </tr>
+      <tr style="border-top:1px solid var(--border);">
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">1</td>
+        <td style="padding:12px 16px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot-live"></span><span style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;color:var(--text-primary);">Model Routing — 3 Tiers</span></div></td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--text-secondary);">Haiku (ops) · Sonnet (execution, live) · Opus (planning, live). Haiku in-flight.</td>
+        <td style="padding:12px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green-signal);">~60% routing cost</td>
+        <td style="padding:12px 16px;font-size:12px;color:var(--green-signal);">Low</td>
+        <td style="padding:12px 16px;text-align:right;"><span class="badge badge-live">SONNET/OPUS LIVE</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── CAPABILITY COVERAGE ───────────────────────────── -->
+<div class="mb-8"><span class="section-label">Capability Coverage Matrix</span></div>
+<div class="grid-5 mb-40">
+  <div class="card" style="border-top:2px solid var(--lavender);">
+    <div class="display text-lav" style="font-size:13px;letter-spacing:0.05em;margin-bottom:12px;">Memory</div>
+    <div style="display:flex;flex-direction:column;gap:7px;">
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-live"></span><span class="text-sec" style="font-size:11px;">CLAUDE_MEMORY.md</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-live"></span><span class="text-sec" style="font-size:11px;">Obsidian vault</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-flight"></span><span class="text-sec" style="font-size:11px;">cost-log surfaced</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-future"></span><span class="text-sec" style="font-size:11px;">RAG over vault</span></div>
+    </div>
+    <div style="margin-top:10px;padding:6px 8px;background:var(--gold-dim);border-radius:4px;">
+      <div class="mono text-gold" style="font-size:10px;">CEILING</div>
+      <div class="text-sec" style="font-size:10px;margin-top:2px;">Flat file won't scale forever</div>
+    </div>
+  </div>
+  <div class="card" style="border-top:2px solid var(--teal-bright);">
+    <div class="display text-teal" style="font-size:13px;letter-spacing:0.05em;margin-bottom:12px;">Compute</div>
+    <div style="display:flex;flex-direction:column;gap:7px;">
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-live"></span><span class="text-sec" style="font-size:11px;">JARVIS routing</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-flight"></span><span class="text-sec" style="font-size:11px;">Task batching</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-flight"></span><span class="text-sec" style="font-size:11px;">Infra→data seq.</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-future"></span><span class="text-sec" style="font-size:11px;">Cloud (Lambda/EC2)</span></div>
+    </div>
+    <div style="margin-top:10px;padding:6px 8px;background:var(--red-dim);border-radius:4px;">
+      <div class="mono text-red" style="font-size:10px;">REAL CEILING</div>
+      <div class="text-sec" style="font-size:10px;margin-top:2px;">Single MacBook limits parallelism</div>
+    </div>
+  </div>
+  <div class="card" style="border-top:2px solid var(--green-signal);">
+    <div class="display text-green" style="font-size:13px;letter-spacing:0.05em;margin-bottom:12px;">Autonomy</div>
+    <div style="display:flex;flex-direction:column;gap:7px;">
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-live"></span><span class="text-sec" style="font-size:11px;">JARVIS + cron</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-flight"></span><span class="text-sec" style="font-size:11px;">Timeout hardening</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-flight"></span><span class="text-sec" style="font-size:11px;">Pre-flight gate</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-future"></span><span class="text-sec" style="font-size:11px;">Self-healing + budget cap</span></div>
+    </div>
+    <div style="margin-top:10px;padding:6px 8px;background:var(--green-dim);border-radius:4px;">
+      <div class="mono text-green" style="font-size:10px;">STRONG</div>
+      <div class="text-sec" style="font-size:10px;margin-top:2px;">Foundation building tonight</div>
+    </div>
+  </div>
+  <div class="card" style="border-top:2px solid var(--gold);">
+    <div class="display text-gold" style="font-size:13px;letter-spacing:0.05em;margin-bottom:12px;">Self-Learning</div>
+    <div style="display:flex;flex-direction:column;gap:7px;">
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-live"></span><span class="text-sec" style="font-size:11px;">DoneLog Analyst</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-live"></span><span class="text-sec" style="font-size:11px;">Obsidian lessons</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-future"></span><span class="text-sec" style="font-size:11px;">Auto-skill append</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-future"></span><span class="text-sec" style="font-size:11px;">Performance trending</span></div>
+    </div>
+    <div style="margin-top:10px;padding:6px 8px;background:var(--gold-dim);border-radius:4px;">
+      <div class="mono text-gold" style="font-size:10px;">BLOCKED BY</div>
+      <div class="text-sec" style="font-size:10px;margin-top:2px;">Layer 7 must land first</div>
+    </div>
+  </div>
+  <div class="card" style="border-top:2px solid var(--red-alert);">
+    <div class="display text-red" style="font-size:13px;letter-spacing:0.05em;margin-bottom:12px;">Transparency</div>
+    <div style="display:flex;flex-direction:column;gap:7px;">
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-p0"></span><span class="text-sec" style="font-size:11px;">Structured output</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-p0"></span><span class="text-sec" style="font-size:11px;">Event bus</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-p0"></span><span class="text-sec" style="font-size:11px;">Messaging hub</span></div>
+      <div style="display:flex;align-items:center;gap:6px;"><span class="dot-p0"></span><span class="text-sec" style="font-size:11px;">S3 audit trail</span></div>
+    </div>
+    <div style="margin-top:10px;padding:6px 8px;background:var(--red-dim);border-radius:4px;">
+      <div class="mono text-red" style="font-size:10px;">P0 — UNLOCKS ALL</div>
+      <div class="text-sec" style="font-size:10px;margin-top:2px;">Every layer depends on this</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── IMPLEMENTATION ROADMAP ─────────────────────────── -->
+<div class="mb-8"><span class="section-label">Implementation Roadmap — Sequenced by Risk + Dependency</span></div>
+<div style="display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr;gap:0;margin-bottom:40px;border-radius:8px;overflow:hidden;border:1px solid var(--border);">
+  <div style="padding:16px;background:var(--red-dim);border-right:1px solid rgba(239,68,68,0.2);">
+    <div class="mono text-red" style="font-size:10px;margin-bottom:8px;">P0 — NOW</div>
+    <div style="font-weight:600;font-size:13px;color:var(--text-primary);margin-bottom:4px;">Layer 7</div>
+    <div class="text-sec" style="font-size:11px;line-height:1.6;">Transparency hub<br>Zero API risk<br>Unlocks everything</div>
+  </div>
+  <div style="padding:16px;background:var(--bg-surface);border-right:1px solid var(--border);">
+    <div class="mono text-gold" style="font-size:10px;margin-bottom:8px;">THEN</div>
+    <div style="font-weight:600;font-size:13px;color:var(--text-primary);margin-bottom:4px;">Layers 3 + 5</div>
+    <div class="text-sec" style="font-size:11px;line-height:1.6;">Context hygiene<br>Output caching<br>Zero API risk</div>
+  </div>
+  <div style="padding:16px;background:var(--bg-surface);border-right:1px solid var(--border);">
+    <div class="mono text-gold" style="font-size:10px;margin-bottom:8px;">THEN</div>
+    <div style="font-weight:600;font-size:13px;color:var(--text-primary);margin-bottom:4px;">Layer 1 + 6</div>
+    <div class="text-sec" style="font-size:11px;line-height:1.6;">Haiku routing<br>Self-learning<br>Low risk</div>
+  </div>
+  <div style="padding:16px;background:var(--bg-surface);border-right:1px solid var(--border);">
+    <div class="mono text-gold" style="font-size:10px;margin-bottom:8px;">THEN</div>
+    <div style="font-weight:600;font-size:13px;color:var(--text-primary);margin-bottom:4px;">Layer 2</div>
+    <div class="text-sec" style="font-size:11px;line-height:1.6;">Prompt caching<br>After cost-log live<br>Medium risk</div>
+  </div>
+  <div style="padding:16px;background:var(--gold-dim);">
+    <div class="mono text-gold" style="font-size:10px;margin-bottom:8px;">LAST</div>
+    <div style="font-weight:600;font-size:13px;color:var(--text-primary);margin-bottom:4px;">Layer 4</div>
+    <div class="text-sec" style="font-size:11px;line-height:1.6;">Session scoping<br>After timeouts<br>Highest risk</div>
+  </div>
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────────────── -->
+<div style="height:1px;background:linear-gradient(90deg,transparent,var(--lavender),var(--gold),transparent);margin-bottom:20px;"></div>
+<div style="display:flex;justify-content:space-between;align-items:center;">
+  <div>
+    <div class="display gold-shimmer" style="font-size:18px;">SaSMaster Intelligence Platform</div>
+    <div class="mono text-dim" style="font-size:10px;margin-top:2px;">Bloomberg Terminal for Media — Built by Shiv Ashish</div>
+  </div>
+  <div style="text-align:right;">
+    <div class="mono text-dim" style="font-size:10px;">sasmaster-status.vercel.app</div>
+    <div class="mono" style="font-size:10px;color:var(--lavender);margin-top:2px;">api.sasmaster.dev · C0ATABZAH39</div>
+  </div>
+</div>
+
+</body>
+</html>
