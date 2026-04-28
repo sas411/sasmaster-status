@@ -1342,7 +1342,7 @@ async function loadCostKPI() {
     }
     if (subEl) {
       const breakdown = Object.entries(s.model_breakdown || {})
-        .map(([m, c]) => m.replace('claude-','').replace('-4-6','') + ' $' + (c as number).toFixed(2))
+        .map(([m, c]) => m.replace('claude-','').replace('-4-6','') + ' $' + Number(c).toFixed(2))
         .join(' · ') || (s.entry_count + ' entries');
       subEl.textContent = breakdown;
     }
@@ -2670,38 +2670,40 @@ loadResources();
 renderCosts();
 
 // ── SSE event bus — real-time War Room card refresh ──────────────────
-// Connects directly to api.sasmaster.dev (Cloudflare Tunnel) — NOT via
-// the Vercel serverless proxy which has a 30s function timeout.
-// Falls back to 30s polling (scheduleRefresh) automatically on disconnect.
+// Initialised 2s after page load so the primary /status poll fires first.
+// Connects directly to api.sasmaster.dev — NOT via Vercel serverless proxy
+// (30s function timeout kills persistent SSE connections).
+// Falls back to 30s polling (scheduleRefresh) automatically on any error.
 let _sse = null;
 let _sseRetries = 0;
 
 function initSSE() {
-  if (typeof EventSource === 'undefined') return; // old browsers
-  if (_sse) { _sse.close(); _sse = null; }
+  if (typeof EventSource === 'undefined') return;
+  if (_sse) { try { _sse.close(); } catch(e) {} _sse = null; }
   try {
     _sse = new EventSource('https://api.sasmaster.dev/api/events/stream');
-    _sse.onopen = () => { _sseRetries = 0; };
-    _sse.onmessage = (e) => {
+    _sse.onopen = function() { _sseRetries = 0; };
+    _sse.onmessage = function(e) {
       try {
         const ev = JSON.parse(e.data);
         if (ev.event_type === 'BUILD_COMPLETE' || ev.event_type === 'AGENT_COMPLETE') {
           loadKanbanLive();
           loadCostKPI();
         }
-      } catch (_) {}
+      } catch(err) {}
     };
-    _sse.onerror = () => {
-      if (_sse) { _sse.close(); _sse = null; }
-      // Exponential backoff capped at 30s — matches polling fallback interval
+    _sse.onerror = function() {
+      try { if (_sse) _sse.close(); } catch(e) {}
+      _sse = null;
       const delay = Math.min(30000, 1000 * Math.pow(2, _sseRetries));
       _sseRetries = Math.min(_sseRetries + 1, 5);
       setTimeout(initSSE, delay);
     };
-  } catch (_) { /* SSE not available — polling continues */ }
+  } catch(e) { /* SSE unavailable — 30s polling continues */ }
 }
 
-initSSE();
+// Delay SSE init 2s so primary loadStatus() poll completes first
+setTimeout(initSSE, 2000);
 
 // Token handled server-side via Vercel proxy — no client token needed
 
