@@ -2095,41 +2095,46 @@
   .aa-cron-item strong { color:var(--teal-bright); }
 
 
-  /* ══════ LOGO TILES ══════ */
-  .logo-tile {
-    padding:14px 10px; min-height:80px; display:flex; align-items:center;
+  /* ══════ LOGO TILES — Simple Icons + inline SVG ══════ */
+  .si-tile {
+    padding:16px 12px; min-height:80px; display:flex; align-items:center;
     justify-content:center; position:relative; cursor:default;
+    transition:background 250ms var(--ease-cinematic);
   }
-  .logo-tile img {
-    width:auto; max-width:120px; height:44px; object-fit:contain; display:block;
-    filter:grayscale(1) brightness(3) opacity(0.55);
-    transition:filter 350ms var(--ease-cinematic), transform 300ms var(--ease-cinematic);
+  /* Simple Icons img: white SVG → brand color on hover */
+  .si-tile img {
+    width:90px; height:42px; object-fit:contain; display:block;
+    opacity:0.55; filter:brightness(2);
+    transition:opacity 300ms var(--ease-cinematic), transform 300ms var(--ease-cinematic), filter 300ms var(--ease-cinematic);
   }
-  .logo-tile:hover img {
-    filter:grayscale(0) brightness(1) opacity(1);
+  .si-tile:hover img {
+    opacity:1; filter:brightness(1);
     transform:scale(1.1);
   }
-  /* styled monogram fallback — shown when img fails */
-  .logo-mono {
-    display:none; flex-direction:column; align-items:center; gap:4px;
-    transition:all 300ms var(--ease-cinematic);
+  /* Inline SVG logos: white at rest via color property → brand color on hover */
+  .si-tile svg {
+    width:120px; height:48px; display:block;
+    color:rgba(255,255,255,0.55);
+    transition:color 300ms var(--ease-cinematic), transform 300ms var(--ease-cinematic), opacity 300ms;
   }
-  .lm-letter {
-    width:36px; height:36px; border-radius:4px;
-    background:var(--bc,var(--lavender)); opacity:0.7;
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Bebas Neue',sans-serif; font-size:20px; color:white;
-    transition:opacity 300ms;
+  .si-tile:hover svg {
+    color:var(--bc, var(--lavender));
+    transform:scale(1.06);
+    opacity:1;
   }
-  .lm-name {
-    font-family:'Share Tech Mono',monospace; font-size:7px; color:rgba(255,255,255,0.35);
-    letter-spacing:0.1em; text-align:center; max-width:90px;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  .si-tile:hover { background:var(--bg-elevated); }
+  .si-tile:hover::after {
+    content:''; position:absolute; inset:0;
+    border:1px solid color-mix(in srgb, var(--bc,var(--lavender)) 40%, transparent);
+    pointer-events:none;
   }
-  .logo-tile:hover .logo-mono .lm-letter { opacity:1; }
-  .logo-tile:hover .logo-mono .lm-name { color:rgba(255,255,255,0.7); }
-  .logo-tile:hover { background:var(--bg-elevated); }
-  .logo-tile:hover::after { content:''; position:absolute; inset:0; border:1px solid rgba(167,139,250,0.25); pointer-events:none; border-radius:0; }
+  /* Simple Icons that load white: show with slight brightness on dark bg */
+  .si-tile img[src*="simpleicons"] {
+    filter:invert(0) brightness(10) opacity(0.5);
+  }
+  .si-tile:hover img[src*="simpleicons"] {
+    filter:none;
+  }
 
   /* ══════ DIAGRAM CARD VISUALS ══════ */
   .diagram-ph { height:180px; padding:0; border:none; margin:0; background:var(--bg-panel); overflow:hidden; position:relative; }
@@ -2424,467 +2429,104 @@
       <div class="lw-sub">Fortune 500 media partnerships across cable, broadcast, streaming, sports, and consumer products.</div>
     </div>
     <div class="logo-wall-grid logo-wall-stagger">
-      <div class="logo-tile" title="ViacomCBS">
-        <img 
-          src="https://logo.clearbit.com/paramountglobal.com"
-          alt="ViacomCBS"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#0057A8;" data-name="ViacomCBS">
-          <span class="lm-letter">V</span>
-          <span class="lm-name">ViacomCBS</span>
-        </div>
+      <div class="logo-tile si-tile" title="ViacomCBS" style="--bc:#0057A8;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><text x="4" y="34" font-family="Arial Black,sans-serif" font-size="24" font-weight="900" fill="currentColor" letter-spacing="-1">VIACOM</text><rect x="4" y="38" width="85" height="2" fill="currentColor" opacity="0.5"/><text x="4" y="52" font-family="Arial Black,sans-serif" font-size="16" font-weight="900" fill="currentColor" opacity="0.7">CBS</text></svg>
       </div>
-      <div class="logo-tile" title="ProSiebenSat.1">
-        <img 
-          src="https://logo.clearbit.com/prosiebensat1.com"
-          alt="ProSiebenSat.1"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#E30613;" data-name="ProSiebenSat.1">
-          <span class="lm-letter">P</span>
-          <span class="lm-name">ProSiebenSat.1</span>
-        </div>
+      <div class="logo-tile si-tile" title="ProSiebenSat.1" style="--bc:#E30613;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><polygon points="8,10 20,28 8,46" fill="currentColor"/><text x="26" y="24" font-family="Arial Black,sans-serif" font-size="14" font-weight="900" fill="currentColor">ProSieben</text><text x="26" y="42" font-family="Arial,sans-serif" font-size="11" fill="currentColor" opacity="0.7">Sat.1 Media SE</text></svg>
       </div>
-      <div class="logo-tile" title="Sky">
-        <img 
-          src="https://logo.clearbit.com/sky.com"
-          alt="Sky"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#7B2FBE;" data-name="Sky">
-          <span class="lm-letter">S</span>
-          <span class="lm-name">Sky</span>
-        </div>
+      <div class="logo-tile si-tile" title="Sky" style="--bc:#0072C9;">
+        <img src="https://cdn.simpleicons.org/sky/ffffff" alt="Sky" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="Warner Media">
-        <img 
-          src="https://logo.clearbit.com/warnermedia.com"
-          alt="Warner Media"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#003087;" data-name="Warner Media">
-          <span class="lm-letter">W</span>
-          <span class="lm-name">Warner Media</span>
-        </div>
+      <div class="logo-tile si-tile" title="Warner Media" style="--bc:#003087;">
+        <img src="https://cdn.simpleicons.org/warnerbros/ffffff" alt="Warner Media" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="Discovery">
-        <img 
-          src="https://logo.clearbit.com/discovery.com"
-          alt="Discovery"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#00B4C8;" data-name="Discovery">
-          <span class="lm-letter">D</span>
-          <span class="lm-name">Discovery</span>
-        </div>
+      <div class="logo-tile si-tile" title="Discovery" style="--bc:#00B4C8;">
+        <img src="https://cdn.simpleicons.org/discovery/ffffff" alt="Discovery" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="Star">
-        <img 
-          src="https://logo.clearbit.com/hotstar.com"
-          alt="Star"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#F5A623;" data-name="Star">
-          <span class="lm-letter">S</span>
-          <span class="lm-name">Star</span>
-        </div>
+      <div class="logo-tile si-tile" title="Star" style="--bc:#F5A623;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><polygon points="44,6 50,22 68,22 54,32 60,48 44,38 28,48 34,32 20,22 38,22" fill="currentColor"/><text x="74" y="36" font-family="Arial Black,sans-serif" font-size="22" font-weight="900" fill="currentColor">Star</text></svg>
       </div>
-      <div class="logo-tile" title="NBCUniversal">
-        <img 
-          src="https://logo.clearbit.com/nbcuniversal.com"
-          alt="NBCUniversal"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#E03C31;" data-name="NBCUniversal">
-          <span class="lm-letter">N</span>
-          <span class="lm-name">NBCUniversal</span>
-        </div>
+      <div class="logo-tile si-tile" title="NBCUniversal" style="--bc:#000000;">
+        <img src="https://cdn.simpleicons.org/nbcuniversal/ffffff" alt="NBCUniversal" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="NBA">
-        <img 
-          src="https://logo.clearbit.com/nba.com"
-          alt="NBA"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#1D428A;" data-name="NBA">
-          <span class="lm-letter">N</span>
-          <span class="lm-name">NBA</span>
-        </div>
+      <div class="logo-tile si-tile" title="NBA" style="--bc:#1D428A;">
+        <img src="https://cdn.simpleicons.org/nba/ffffff" alt="NBA" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="Nickelodeon">
-        <img 
-          src="https://logo.clearbit.com/nick.com"
-          alt="Nickelodeon"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#FF6600;" data-name="Nickelodeon">
-          <span class="lm-letter">N</span>
-          <span class="lm-name">Nickelodeon</span>
-        </div>
+      <div class="logo-tile si-tile" title="Nickelodeon" style="--bc:#FF6600;">
+        <img src="https://cdn.simpleicons.org/nickelodeon/ffffff" alt="Nickelodeon" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="MTV">
-        <img 
-          src="https://logo.clearbit.com/mtv.com"
-          alt="MTV"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#000000;" data-name="MTV">
-          <span class="lm-letter">M</span>
-          <span class="lm-name">MTV</span>
-        </div>
+      <div class="logo-tile si-tile" title="MTV" style="--bc:#000000;">
+        <img src="https://cdn.simpleicons.org/mtv/ffffff" alt="MTV" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="Apple TV+">
-        <img 
-          src="https://logo.clearbit.com/tv.apple.com"
-          alt="Apple TV+"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#1d1d1f;" data-name="Apple TV+">
-          <span class="lm-letter">A</span>
-          <span class="lm-name">Apple TV+</span>
-        </div>
+      <div class="logo-tile si-tile" title="Apple TV+" style="--bc:#000000;">
+        <img src="https://cdn.simpleicons.org/appletv/ffffff" alt="Apple TV+" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="Univision">
-        <img 
-          src="https://logo.clearbit.com/univision.com"
-          alt="Univision"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#003087;" data-name="Univision">
-          <span class="lm-letter">U</span>
-          <span class="lm-name">Univision</span>
-        </div>
+      <div class="logo-tile si-tile" title="Univision" style="--bc:#003087;">
+        <img src="https://cdn.simpleicons.org/univision/ffffff" alt="Univision" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="Turner">
-        <img 
-          src="https://logo.clearbit.com/turner.com"
-          alt="Turner"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#000000;" data-name="Turner">
-          <span class="lm-letter">T</span>
-          <span class="lm-name">Turner</span>
-        </div>
+      <div class="logo-tile si-tile" title="Turner" style="--bc:#000000;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><text x="4" y="44" font-family="Georgia,serif" font-size="38" font-weight="700" font-style="italic" fill="currentColor">turner</text></svg>
       </div>
-      <div class="logo-tile" title="discovery+">
-        <img 
-          src="https://logo.clearbit.com/discoveryplus.com"
-          alt="discovery+"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#0073CF;" data-name="discovery+">
-          <span class="lm-letter">D</span>
-          <span class="lm-name">discovery+</span>
-        </div>
+      <div class="logo-tile si-tile" title="discovery+" style="--bc:#0073CF;">
+        <img src="https://cdn.simpleicons.org/discoveryplus/ffffff" alt="discovery+" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="Disney+ Hotstar">
-        <img 
-          src="https://logo.clearbit.com/hotstar.com"
-          alt="Disney+ Hotstar"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#1B74E4;" data-name="Disney+ Hotstar">
-          <span class="lm-letter">D</span>
-          <span class="lm-name">Disney+ Hotstar</span>
-        </div>
+      <div class="logo-tile si-tile" title="Disney+ Hotstar" style="--bc:#113CCF;">
+        <img src="https://cdn.simpleicons.org/disneyplus/ffffff" alt="Disney+ Hotstar" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="Mattel">
-        <img 
-          src="https://logo.clearbit.com/mattel.com"
-          alt="Mattel"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#E31837;" data-name="Mattel">
-          <span class="lm-letter">M</span>
-          <span class="lm-name">Mattel</span>
-        </div>
+      <div class="logo-tile si-tile" title="Mattel" style="--bc:#E31837;">
+        <img src="https://cdn.simpleicons.org/mattel/ffffff" alt="Mattel" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="NHL">
-        <img 
-          src="https://logo.clearbit.com/nhl.com"
-          alt="NHL"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#000000;" data-name="NHL">
-          <span class="lm-letter">N</span>
-          <span class="lm-name">NHL</span>
-        </div>
+      <div class="logo-tile si-tile" title="NHL" style="--bc:#000000;">
+        <img src="https://cdn.simpleicons.org/nhl/ffffff" alt="NHL" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="BET">
-        <img 
-          src="https://logo.clearbit.com/bet.com"
-          alt="BET"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#000000;" data-name="BET">
-          <span class="lm-letter">B</span>
-          <span class="lm-name">BET</span>
-        </div>
+      <div class="logo-tile si-tile" title="BET" style="--bc:#000000;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><text x="4" y="46" font-family="Arial Black,sans-serif" font-size="48" font-weight="900" fill="currentColor" letter-spacing="-2">BET</text><text x="106" y="40" font-size="22" fill="currentColor">★</text></svg>
       </div>
-      <div class="logo-tile" title="Corus">
-        <img 
-          src="https://logo.clearbit.com/corusent.com"
-          alt="Corus"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#00A651;" data-name="Corus">
-          <span class="lm-letter">C</span>
-          <span class="lm-name">Corus</span>
-        </div>
+      <div class="logo-tile si-tile" title="Corus" style="--bc:#00A651;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><text x="4" y="42" font-family="Arial Black,sans-serif" font-size="34" font-weight="900" fill="currentColor">Corus</text><circle cx="112" cy="34" r="8" fill="currentColor"/></svg>
       </div>
-      <div class="logo-tile" title="Prende TV">
-        <img 
-          src="https://logo.clearbit.com/prendetv.com"
-          alt="Prende TV"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#003087;" data-name="Prende TV">
-          <span class="lm-letter">P</span>
-          <span class="lm-name">Prende TV</span>
-        </div>
+      <div class="logo-tile si-tile" title="Prende TV" style="--bc:#003087;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><text x="4" y="28" font-family="Arial Black,sans-serif" font-size="22" font-weight="900" fill="currentColor">PRENDE</text><rect x="4" y="31" width="84" height="2.5" fill="currentColor" opacity="0.5"/><text x="4" y="50" font-family="Arial Black,sans-serif" font-size="20" font-weight="900" fill="currentColor">TV</text></svg>
       </div>
-      <div class="logo-tile" title="HBO Max">
-        <img 
-          src="https://logo.clearbit.com/max.com"
-          alt="HBO Max"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#5C1B8A;" data-name="HBO Max">
-          <span class="lm-letter">H</span>
-          <span class="lm-name">HBO Max</span>
-        </div>
+      <div class="logo-tile si-tile" title="HBO Max" style="--bc:#5C1B8A;">
+        <img src="https://cdn.simpleicons.org/hbo/ffffff" alt="HBO Max" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="Eurosport">
-        <img 
-          src="https://logo.clearbit.com/eurosport.com"
-          alt="Eurosport"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#003087;" data-name="Eurosport">
-          <span class="lm-letter">E</span>
-          <span class="lm-name">Eurosport</span>
-        </div>
+      <div class="logo-tile si-tile" title="Eurosport" style="--bc:#003087;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><text x="4" y="20" font-family="Arial Black,sans-serif" font-size="11" font-weight="900" fill="currentColor">≤ EUROSPORT</text><rect x="4" y="24" width="130" height="3" fill="currentColor" opacity="0.6"/><text x="4" y="40" font-family="Arial,sans-serif" font-size="10" fill="currentColor" opacity="0.6">A Discovery Company</text></svg>
       </div>
-      <div class="logo-tile" title="AMC Networks">
-        <img 
-          src="https://logo.clearbit.com/amcnetworks.com"
-          alt="AMC Networks"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#000000;" data-name="AMC Networks">
-          <span class="lm-letter">A</span>
-          <span class="lm-name">AMC Networks</span>
-        </div>
+      <div class="logo-tile si-tile" title="AMC Networks" style="--bc:#000000;">
+        <img src="https://cdn.simpleicons.org/amcnetworks/ffffff" alt="AMC Networks" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="A+E Networks">
-        <img 
-          src="https://logo.clearbit.com/aenetworks.com"
-          alt="A+E Networks"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#000000;" data-name="A+E Networks">
-          <span class="lm-letter">A</span>
-          <span class="lm-name">A+E Networks</span>
-        </div>
+      <div class="logo-tile si-tile" title="A+E Networks" style="--bc:#000000;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><text x="4" y="38" font-family="Arial Black,sans-serif" font-size="32" font-weight="900" fill="currentColor">A+E</text><rect x="4" y="42" width="76" height="2" fill="currentColor" opacity="0.5"/><text x="4" y="54" font-family="Arial,sans-serif" font-size="10" font-weight="600" fill="currentColor" opacity="0.7">NETWORKS</text></svg>
       </div>
-      <div class="logo-tile" title="NFL">
-        <img 
-          src="https://logo.clearbit.com/nfl.com"
-          alt="NFL"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#013369;" data-name="NFL">
-          <span class="lm-letter">N</span>
-          <span class="lm-name">NFL</span>
-        </div>
+      <div class="logo-tile si-tile" title="NFL" style="--bc:#013369;">
+        <img src="https://cdn.simpleicons.org/nfl/ffffff" alt="NFL" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="Comedy Central">
-        <img 
-          src="https://logo.clearbit.com/comedycentral.com"
-          alt="Comedy Central"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#FFDE00;" data-name="Comedy Central">
-          <span class="lm-letter">C</span>
-          <span class="lm-name">Comedy Central</span>
-        </div>
+      <div class="logo-tile si-tile" title="Comedy Central" style="--bc:#FFDE00;">
+        <img src="https://cdn.simpleicons.org/comedycentral/ffffff" alt="Comedy Central" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="Rogers">
-        <img 
-          src="https://logo.clearbit.com/rogers.com"
-          alt="Rogers"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#DA291C;" data-name="Rogers">
-          <span class="lm-letter">R</span>
-          <span class="lm-name">Rogers</span>
-        </div>
+      <div class="logo-tile si-tile" title="Rogers" style="--bc:#DA291C;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><circle cx="22" cy="28" r="5" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="22" cy="28" r="12" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="22" cy="28" r="20" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.5"/><text x="48" y="36" font-family="Arial Black,sans-serif" font-size="22" font-weight="900" fill="currentColor">ROGERS.</text></svg>
       </div>
-      <div class="logo-tile" title="Televisa">
-        <img 
-          src="https://logo.clearbit.com/televisa.com"
-          alt="Televisa"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#F7941D;" data-name="Televisa">
-          <span class="lm-letter">T</span>
-          <span class="lm-name">Televisa</span>
-        </div>
+      <div class="logo-tile si-tile" title="Televisa" style="--bc:#F7941D;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><circle cx="26" cy="28" r="22" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="26" cy="28" r="14" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="26" cy="28" r="6" fill="none" stroke="currentColor" stroke-width="2"/><text x="54" y="36" font-family="Arial,sans-serif" font-size="20" font-weight="600" fill="currentColor">Televisa</text></svg>
       </div>
-      <div class="logo-tile" title="Lionsgate">
-        <img 
-          src="https://logo.clearbit.com/lionsgate.com"
-          alt="Lionsgate"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#000000;" data-name="Lionsgate">
-          <span class="lm-letter">L</span>
-          <span class="lm-name">Lionsgate</span>
-        </div>
+      <div class="logo-tile si-tile" title="Lionsgate" style="--bc:#000000;">
+        <img src="https://cdn.simpleicons.org/lionsgate/ffffff" alt="Lionsgate" width="80" height="40" loading="lazy"/>
       </div>
-      <div class="logo-tile" title="Cosmote TV">
-        <img 
-          src="https://logo.clearbit.com/cosmote.gr"
-          alt="Cosmote TV"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#0066CC;" data-name="Cosmote TV">
-          <span class="lm-letter">C</span>
-          <span class="lm-name">Cosmote TV</span>
-        </div>
+      <div class="logo-tile si-tile" title="Cosmote TV" style="--bc:#0066CC;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><circle cx="26" cy="28" r="20" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M14,18 Q26,10 38,18 Q26,36 14,18Z" fill="currentColor" opacity="0.4"/><text x="52" y="24" font-family="Arial Black,sans-serif" font-size="13" font-weight="900" fill="currentColor">COSMOTE</text><text x="52" y="42" font-family="Arial Black,sans-serif" font-size="18" font-weight="900" fill="currentColor">TV</text></svg>
       </div>
-      <div class="logo-tile" title="Astro">
-        <img 
-          src="https://logo.clearbit.com/astro.com.my"
-          alt="Astro"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#FF1493;" data-name="Astro">
-          <span class="lm-letter">A</span>
-          <span class="lm-name">Astro</span>
-        </div>
+      <div class="logo-tile si-tile" title="Astro" style="--bc:#FF1493;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><text x="6" y="44" font-family="Arial,sans-serif" font-size="38" font-weight="600" fill="currentColor" letter-spacing="-1">astro</text><circle cx="124" cy="16" r="7" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="124" cy="16" r="2" fill="currentColor"/></svg>
       </div>
-      <div class="logo-tile" title="Sesame Workshop">
-        <img 
-          src="https://logo.clearbit.com/sesamestreet.org"
-          alt="Sesame Workshop"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#E31837;" data-name="Sesame Workshop">
-          <span class="lm-letter">S</span>
-          <span class="lm-name">Sesame Workshop</span>
-        </div>
+      <div class="logo-tile si-tile" title="Sesame Workshop" style="--bc:#E31837;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56"><rect x="2" y="4" width="44" height="48" rx="4" fill="currentColor" opacity="0.2"/><text x="10" y="38" font-family="Arial Black,sans-serif" font-size="28" font-weight="900" fill="currentColor">S</text><text x="52" y="24" font-family="Arial Black,sans-serif" font-size="13" font-weight="900" fill="currentColor">SESAME</text><rect x="52" y="27" width="84" height="2" fill="currentColor" opacity="0.4"/><text x="52" y="42" font-family="Arial Black,sans-serif" font-size="12" font-weight="900" fill="currentColor">WORKSHOP</text></svg>
       </div>
-      <div class="logo-tile" title="MLB">
-        <img 
-          src="https://logo.clearbit.com/mlb.com"
-          alt="MLB"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          crossorigin="anonymous"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        />
-        <div class="logo-mono" style="--bc:#002D72;" data-name="MLB">
-          <span class="lm-letter">M</span>
-          <span class="lm-name">MLB</span>
-        </div>
+      <div class="logo-tile si-tile" title="MLB" style="--bc:#002D72;">
+        <img src="https://cdn.simpleicons.org/mlb/ffffff" alt="MLB" width="80" height="40" loading="lazy"/>
       </div>
     </div>
   </div>
