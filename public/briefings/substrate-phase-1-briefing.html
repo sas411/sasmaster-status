@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Substrate Layer — Phase 1 Briefing · SaSMaster War Room</title>
+<meta name="description" content="Executive briefing: constitution-governed UI substrate layer added to the SaSMaster autonomous self-learning agentic platform.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --canvas: #F0F4F8;
+  --surface: #FFFFFF;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
+  --teal: #0EA5E9;
+  --blue: #3B82F6;
+  --green: #10B981;
+  --red: #EF4444;
+  --orange: #FB923C;
+  --purple: #7C3AED;
+  --ticker-dark: #1E293B;
+  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-data: 'DM Mono', 'SF Mono', Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--canvas);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+/* Ticker bar */
+.ticker {
+  background: var(--ticker-dark);
+  color: #E2E8F0;
+  font-family: var(--font-data);
+  font-size: 12px;
+  padding: 10px 24px;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.ticker-item { display: inline-flex; gap: 8px; align-items: center; }
+.ticker-label { color: #94A3B8; }
+.ticker-value { color: #F1F5F9; font-weight: 500; }
+.ticker-pulse {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+.header-left h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.header-eyebrow {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--purple);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 8px;
+  font-weight: 500;
+}
+.header-sub {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #047857;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-family: var(--font-data);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.status-pill.in-flight {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1D4ED8;
+}
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s ease-in-out infinite;
+}
+.header-meta {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+/* Section labels */
+.section-label {
+  font-family: var(--font-data);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 16px;
+}
+.section { margin-bottom: 40px; }
+
+/* Metric strip */
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+.metric-label {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px;
+}
+.metric-value {
+  font-family: var(--font-data);
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1;
+}
+.metric-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 6px 0 0;
+}
+
+/* Architecture stack */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.layer {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+.layer-info { display: flex; flex-direction: column; gap: 4px; }
+.layer-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+.layer-sub {
+  font-family: var(--font-data);
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.layer-tag {
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.layer.new {
+  border: 2px solid var(--purple);
+  background: linear-gradient(180deg, rgba(124, 58, 237, 0.04) 0%, rgba(124, 58, 237, 0.02) 100%);
+}
+.layer.new .layer-title { color: var(--purple); font-weight: 600; }
+.layer.new .layer-sub { color: #5B21B6; }
+.new-pill {
+  background: var(--purple);
+  color: white;
+  font-family: var(--font-data);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+/* Feature grid */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+.feature-num {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--teal);
+  font-weight: 500;
+  margin: 0 0 6px;
+  letter-spacing: 0.05em;
+}
+.feature-title {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 0 8px;
+  color: var(--text-primary);
+}
+.feature-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* Roadmap */
+.roadmap {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.phase {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  position: relative;
+}
+.phase.active {
+  border: 2px solid var(--teal);
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.05) 0%, rgba(14, 165, 233, 0.02) 100%);
+}
+.phase-status {
+  font-family: var(--font-data);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  margin: 0 0 4px;
+}
+.phase.active .phase-status { color: var(--teal); }
+.phase-name {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 4px 0 8px;
+  color: var(--text-primary);
+}
+.phase.active .phase-name { color: #0369A1; }
+.phase-content {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Strategic frame */
+.frame {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--teal);
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin-top: 32px;
+}
+.frame-eyebrow {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--teal);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 12px;
+  font-weight: 500;
+}
+.frame p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  margin: 0 0 14px;
+}
+.frame p:last-child { margin-bottom: 0; }
+.frame strong { font-weight: 600; }
+
+/* Footer */
+.footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+.footer a { color: var(--teal); text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+
+@media (max-width: 768px) {
+  .metric-strip, .feature-grid, .roadmap { grid-template-columns: 1fr; }
+  .header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .header-right { align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<div class="ticker">
+  <div class="ticker-item"><span class="ticker-pulse"></span><span class="ticker-label">PHASE</span><span class="ticker-value">1A.1 HARVEST</span></div>
+  <div class="ticker-item"><span class="ticker-label">SOURCES</span><span class="ticker-value">6 / 6 VERIFIED</span></div>
+  <div class="ticker-item"><span class="ticker-label">CONSTITUTION DRIFT</span><span class="ticker-value">2 BLOCKING · 5 WATCH</span></div>
+  <div class="ticker-item"><span class="ticker-label">COMMIT</span><span class="ticker-value">ba28420</span></div>
+  <div class="ticker-item"><span class="ticker-label">NEXT GATE</span><span class="ticker-value">!CANON × 6</span></div>
+</div>
+
+<div class="container">
+
+  <header class="header">
+    <div class="header-left">
+      <p class="header-eyebrow">Executive Briefing · UI Substrate Phase 1</p>
+      <h1>Substrate layer added.</h1>
+      <p class="header-sub">Constitution-governed design system industrializes Moat #5 — Cinematic UI as Category Signal.</p>
+    </div>
+    <div class="header-right">
+      <span class="status-pill in-flight"><span class="status-dot"></span>Phase 1 in flight</span>
+      <span class="header-meta">Apr 29 2026 · ETA 8–10d</span>
+    </div>
+  </header>
+
+  <!-- Metric strip -->
+  <section class="section">
+    <div class="metric-strip">
+      <div class="metric-card">
+        <p class="metric-label">Layer added</p>
+        <p class="metric-value">1</p>
+        <p class="metric-sub">Substrate, between Strategy and Intelligence</p>
+      </div>
+      <div class="metric-card">
+        <p class="metric-label">Sources harvesting</p>
+        <p class="metric-value">6</p>
+        <p class="metric-sub">3 portals · War Room · 2 Claude design refs</p>
+      </div>
+      <div class="metric-card">
+        <p class="metric-label">Theme namespaces</p>
+        <p class="metric-value">3</p>
+        <p class="metric-sub">Portal · War Room · Scoop-Clean</p>
+      </div>
+      <div class="metric-card">
+        <p class="metric-label">New primitives</p>
+        <p class="metric-value">4</p>
+        <p class="metric-sub">!ready · !canon · !approve · !reject</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture stack -->
+  <section class="section">
+    <p class="section-label">Architecture stack</p>
+    <div class="stack">
+      <div class="layer">
+        <div class="layer-info">
+          <p class="layer-title">Strategy &amp; constitution</p>
+          <p class="layer-sub">North star · governance · design law</p>
+        </div>
+        <span class="layer-tag">Layer 0</span>
+      </div>
+
+      <div class="layer new">
+        <div class="layer-info">
+          <p class="layer-title">Substrate layer</p>
+          <p class="layer-sub">Tokens · components · signature experiences · Shadow DOM Dr. Scoop</p>
+        </div>
+        <span class="new-pill">Phase 1</span>
+      </div>
+
+      <div class="layer">
+        <div class="layer-info">
+          <p class="layer-title">Intelligence</p>
+          <p class="layer-sub">JARVIS · 6 specialized agents · Dr. Scoop GenAI companion</p>
+        </div>
+        <span class="layer-tag">Layer 2</span>
+      </div>
+
+      <div class="layer">
+        <div class="layer-info">
+          <p class="layer-title">Data &amp; signal</p>
+          <p class="layer-sub">Parent Key · S3 Parquet (206M+ rows) · DuckDB compute</p>
+        </div>
+        <span class="layer-tag">Layer 1</span>
+      </div>
+
+      <div class="layer">
+        <div class="layer-info">
+          <p class="layer-title">Self-learning loops</p>
+          <p class="layer-sub">cost-log audit · lessons-feedback agent · market-signal monitoring</p>
+        </div>
+        <span class="layer-tag">Continuous</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature set -->
+  <section class="section">
+    <p class="section-label">Phase 1 feature set</p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <p class="feature-num">01</p>
+        <p class="feature-title">Constitution governance</p>
+        <p class="feature-desc">Strategy v3 §5.3 enshrined as design law. When source drift conflicts with constitution, constitution wins. Every component traces back to spec.</p>
+      </div>
+      <div class="feature-card">
+        <p class="feature-num">02</p>
+        <p class="feature-title">Multi-source harvest</p>
+        <p class="feature-desc">Three Vercel deploys, War Room, two Claude design references feed canonical decisions. Best-of-breed architectural pattern.</p>
+      </div>
+      <div class="feature-card">
+        <p class="feature-num">03</p>
+        <p class="feature-title">Canonical decision matrix</p>
+        <p class="feature-desc">One-page visual matrix surfaces all candidates side-by-side. Human picks per item via !canon. Six decisions in one sitting.</p>
+      </div>
+      <div class="feature-card">
+        <p class="feature-num">04</p>
+        <p class="feature-title">Dr. Scoop signature experience pilot</p>
+        <p class="feature-desc">Five animation states isolated via Shadow DOM custom element. Validates motion token system end-to-end before rollout.</p>
+      </div>
+      <div class="feature-card">
+        <p class="feature-num">05</p>
+        <p class="feature-title">Three-theme token system</p>
+        <p class="feature-desc">Portal (cinematic dark), War Room (operational light), Scoop-Clean (editorial output surface). Same vars, theme-divergent values.</p>
+      </div>
+      <div class="feature-card">
+        <p class="feature-num">06</p>
+        <p class="feature-title">qa-agent gating</p>
+        <p class="feature-desc">Every migration step gated by automated Playwright QA. Builds fail past two-pixel diff. Eliminates false-positive completions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roadmap -->
+  <section class="section">
+    <p class="section-label">Roadmap — design system as living asset</p>
+    <div class="roadmap">
+      <div class="phase active">
+        <p class="phase-status">In flight · Apr–May 2026</p>
+        <p class="phase-name">Phase 1 — Substrate</p>
+        <p class="phase-content">Tokens · 5 components · Dr. Scoop SE · qa baseline · canonical-source migration</p>
+      </div>
+      <div class="phase">
+        <p class="phase-status">Q3 2026</p>
+        <p class="phase-name">Phase 2 — Motion</p>
+        <p class="phase-content">Hero / Hiker landscape · chart animations across 3 viz modes · drill-down cinematic expand · render budgets in CI</p>
+      </div>
+      <div class="phase">
+        <p class="phase-status">Q4 2026</p>
+        <p class="phase-name">Phase 3 — Component scale</p>
+        <p class="phase-content">Metadata Booklet 3D page-turn · React component wrappers · qa-agent merge gate · perf telemetry surfaced</p>
+      </div>
+      <div class="phase">
+        <p class="phase-status">2027+</p>
+        <p class="phase-name">Phase 4 — Marketplace</p>
+        <p class="phase-content">Exchange portal UI · multi-currency international viz · CPG vertical · agent-rendered pitch decks</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Strategic frame -->
+  <section class="frame">
+    <p class="frame-eyebrow">Why this matters</p>
+    <p>The headline: a substrate layer was added between Strategy and Intelligence. Without it, every UI surface — portal-v8, v10, sasmaster-portal, War Room — was hand-coded one-off, and Moat #5 (Cinematic UI as Category Signal) lived as a hand-craft instead of an industrialized asset. Phase 1 closes that gap. The Substrate Layer translates Strategy §5.3 into reusable primitives that every agent in the Intelligence layer can render through deterministically.</p>
+    <p>The structural difference: <strong>decision-gate primitives turn Slack into the platform's control plane.</strong> !ready, !canon, !approve, !reject scope tightly to the four moments where human judgment beats agentic autonomy: prerequisite confirmation, canonical selection, audit sign-off, revision routing. Everywhere else, autonomous-coder runs unsupervised. This is the architecture pattern that scales — minimal human intervention, maximum agentic execution, deterministic decision gates.</p>
+    <p>What's next: <strong>the design system is now a living asset.</strong> Each phase formalizes more of the constitution into reusable substrate. By the time the Exchange is ready for buyers and sellers, the UI substrate underneath it will already be production-grade. Phase 1 doesn't just close the current gap — it compounds the cinematic UI moat over time.</p>
+  </section>
+
+  <footer class="footer">
+    <span>SaSMaster · UI Substrate Phase 1 · task-2026-04-29-ui-substrate-phase-1</span>
+    <span><a href="https://sasmaster-status.vercel.app/">sasmaster-status.vercel.app</a> · CONFIDENTIAL</span>
+  </footer>
+
+</div>
+
+</body>
+</html>
