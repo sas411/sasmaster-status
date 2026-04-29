@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — Canonical Selection Matrix · Phase 1A.2</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --canvas: #0D1117;
+    --canvas-deep: #0A0E1A;
+    --surface: #141820;
+    --surface-elevated: #1C2333;
+    --border: #2D3748;
+    --teal: #0EA5E9;
+    --teal-dim: rgba(14,165,233,0.12);
+    --cobalt: #3B82F6;
+    --green: #10B981;
+    --amber: #FB923C;
+    --red: #EF4444;
+    --violet: #7C3AED;
+    --text: #fff;
+    --text-muted: rgba(255,255,255,0.5);
+    --text-dim: rgba(255,255,255,0.3);
+    --display: 'Bebas Neue', sans-serif;
+    --ui: 'Barlow Condensed', sans-serif;
+    --mono: 'Share Tech Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--canvas-deep); color: var(--text); font-family: var(--ui); font-size: 13px; }
+  body { min-height: 100vh; padding: 0 0 60px; }
+
+  /* ── Header ── */
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .page-title { font-family: var(--display); font-size: 28px; letter-spacing: .1em; color: var(--teal); }
+  .page-sub { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: .15em; margin-top: 3px; }
+  .phase-badge { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.4); color: var(--red); font-family: var(--mono); font-size: 9px; letter-spacing: .15em; padding: 4px 10px; border-radius: 4px; }
+
+  /* ── Legend ── */
+  .legend-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .legend-title { font-family: var(--mono); font-size: 9px; color: var(--text-muted); letter-spacing: .15em; text-transform: uppercase; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; }
+  .badge { display: inline-block; padding: 2px 7px; border-radius: 3px; font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: .08em; }
+  .badge-high  { background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.4); color: var(--green); }
+  .badge-med   { background: rgba(251,146,60,.15); border: 1px solid rgba(251,146,60,.4); color: var(--amber); }
+  .badge-low   { background: rgba(239,68,68,.15);  border: 1px solid rgba(239,68,68,.4);  color: var(--red); }
+  .badge-na    { background: rgba(255,255,255,.06); border: 1px solid var(--border); color: var(--text-dim); }
+  .badge-hc    { background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.3); color: var(--cobalt); }
+
+  /* ── Main grid ── */
+  .matrix-wrap { padding: 24px 32px; overflow-x: auto; }
+  .matrix-table { width: 100%; min-width: 1200px; border-collapse: separate; border-spacing: 0; }
+
+  /* Column headers */
+  .matrix-table thead th {
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+    text-align: left;
+    white-space: nowrap;
+  }
+  .matrix-table thead th.col-component {
+    color: var(--teal);
+    font-size: 10px;
+    width: 140px;
+  }
+  .source-col-header { display: flex; flex-direction: column; gap: 2px; }
+  .source-col-url { font-size: 8px; color: var(--text-dim); font-family: var(--mono); letter-spacing: .05em; }
+
+  /* Row headers */
+  .row-label {
+    padding: 16px 12px;
+    vertical-align: top;
+    width: 140px;
+  }
+  .component-name {
+    font-family: var(--display);
+    font-size: 18px;
+    letter-spacing: .08em;
+    color: var(--teal);
+    margin-bottom: 4px;
+  }
+  .component-desc {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  /* Data cells */
+  .matrix-table tbody tr { border-bottom: 1px solid var(--border); }
+  .matrix-table tbody tr:hover td { background: rgba(255,255,255,.02); }
+  .cell {
+    padding: 12px;
+    vertical-align: top;
+    border-left: 1px solid var(--border);
+    min-width: 170px;
+    max-width: 220px;
+  }
+  .cell-empty {
+    padding: 12px;
+    vertical-align: middle;
+    text-align: center;
+    border-left: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 18px;
+    opacity: .4;
+  }
+
+  /* Cell internals */
+  .cell-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+  .cell-source { font-family: var(--mono); font-size: 9px; color: var(--text-muted); letter-spacing: .1em; }
+  .cell-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
+  .cell-notes { font-family: var(--ui); font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+  .cell-notes strong { color: var(--text); }
+  .cell-notes ul { margin: 4px 0 0 12px; }
+  .cell-notes li { margin-bottom: 2px; }
+
+  /* Highlight colors per fit level */
+  .fit-high .cell-source  { color: rgba(16,185,129,.8); }
+  .fit-med  .cell-source  { color: rgba(251,146,60,.8); }
+  .fit-low  .cell-source  { color: rgba(239,68,68,.7); }
+
+  /* Star: top-pick indicator */
+  .star-pick {
+    display: inline-block;
+    color: var(--teal);
+    font-size: 12px;
+    margin-left: 4px;
+  }
+
+  /* ── Canon command reference ── */
+  .canon-section {
+    margin: 32px 32px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .canon-header {
+    background: var(--surface-elevated);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 18px;
+    font-family: var(--display);
+    font-size: 18px;
+    letter-spacing: .1em;
+    color: var(--teal);
+  }
+  .canon-body { padding: 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .canon-item { }
+  .canon-item-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .canon-code {
+    background: var(--canvas-deep);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--text-muted);
+  }
+  .canon-code .cmd { color: var(--teal); }
+  .canon-code .arg { color: var(--amber); }
+  .canon-code .opt { color: var(--cobalt); }
+  .canon-code .comment { color: var(--text-dim); font-size: 9px; }
+
+  .gate-note {
+    margin: 24px 32px 0;
+    background: rgba(239,68,68,.08);
+    border: 1px solid rgba(239,68,68,.25);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: rgba(239,68,68,.9);
+    letter-spacing: .05em;
+    line-height: 1.7;
+  }
+  .gate-note strong { color: var(--red); }
+
+  .footer {
+    margin: 32px 32px 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-brand { font-family: var(--display); font-size: 16px; letter-spacing: .15em; color: var(--text-dim); }
+  .footer-meta { font-family: var(--mono); font-size: 9px; color: var(--text-dim); letter-spacing: .15em; }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div class="page-header">
+  <div>
+    <div class="page-title">CANONICAL SELECTION MATRIX</div>
+    <div class="page-sub">Phase 1A.2 · UI Substrate · 6 Components · 6 Sources · 2026-04-29</div>
+  </div>
+  <div style="flex:1"></div>
+  <div class="phase-badge">🔴 HARD GATE — ALL 6 DECISIONS REQUIRED</div>
+</div>
+
+<!-- ── Legend ── -->
+<div class="legend-bar">
+  <span class="legend-title">Legend:</span>
+  <div class="legend-item"><span class="badge badge-high">HIGH</span> Constitution fit — colors/fonts/tokens match §5.3</div>
+  <div class="legend-item"><span class="badge badge-med">MED</span> Partial fit — some drift</div>
+  <div class="legend-item"><span class="badge badge-low">LOW</span> Significant drift from constitution</div>
+  <div class="legend-item"><span class="badge badge-na">N/A</span> Not present in source</div>
+  <div class="legend-item"><span class="badge badge-hc">HC:N</span> Hardcoded value count</div>
+  <div class="legend-item" style="color:var(--teal); font-family:var(--mono); font-size:10px;">★ Top pick candidate</div>
+</div>
+
+<!-- ── Matrix ── -->
+<div class="matrix-wrap">
+<table class="matrix-table">
+<thead>
+  <tr>
+    <th class="col-component">Component</th>
+    <th>
+      <div class="source-col-header">
+        <span>portal-v10</span>
+        <span class="source-col-url">portal-v10-pi.vercel.app</span>
+      </div>
+    </th>
+    <th>
+      <div class="source-col-header">
+        <span>portal-v9</span>
+        <span class="source-col-url">sasmaster-portal.vercel.app</span>
+      </div>
+    </th>
+    <th>
+      <div class="source-col-header">
+        <span>portal-v8</span>
+        <span class="source-col-url">portal-v8-pi.vercel.app</span>
+      </div>
+    </th>
+    <th>
+      <div class="source-col-header">
+        <span>War Room</span>
+        <span class="source-col-url">sasmaster-status.vercel.app</span>
+      </div>
+    </th>
+    <th>
+      <div class="source-col-header">
+        <span>Claude Dark</span>
+        <span class="source-col-url">references/claude-design/dark</span>
+      </div>
+    </th>
+    <th>
+      <div class="source-col-header">
+        <span>Claude Light</span>
+        <span class="source-col-url">references/claude-design/light</span>
+      </div>
+    </th>
+  </tr>
+</thead>
+<tbody>
+
+<!-- ══ KPI-CARD ══ -->
+<tr>
+  <td class="row-label">
+    <div class="component-name">KPI-CARD</div>
+    <div class="component-desc">label · value · delta<br>sparkline slot · star</div>
+  </td>
+
+  <td class="cell fit-high">
+    <div class="cell-header">
+      <span class="cell-source">portal-v10 ★</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-high">HIGH</span>
+      <span class="badge badge-hc">HC:7</span>
+    </div>
+    <div class="cell-notes">
+      <strong>Full anatomy:</strong> label + metric + delta + sparkline + star bookmark.
+      <ul>
+        <li>✅ All fonts via CSS vars</li>
+        <li>✅ Teal/green/red/amber semantic</li>
+        <li>⚠️ #4A5568 muted text (3×)</li>
+        <li>⚠️ Sizes hardcoded (32px, 36px)</li>
+      </ul>
+    </div>
+  </td>
+
+  <td class="cell fit-med">
+    <div class="cell-header">
+      <span class="cell-source">portal-v9</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-med">MED</span>
+      <span class="badge badge-hc">HC:5</span>
+    </div>
+    <div class="cell-notes">
+      Featured card with purple accent (should be teal). Has <code>[data-theme]</code> architecture — best multi-theme skeleton.
+      <ul>
+        <li>✅ data-theme system</li>
+        <li>❌ Purple drift on featured</li>
+      </ul>
+    </div>
+  </td>
+
+  <td class="cell fit-low">
+    <div class="cell-header">
+      <span class="cell-source">portal-v8</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-low">LOW</span>
+      <span class="badge badge-hc">HC:12+</span>
+    </div>
+    <div class="cell-notes">
+      Cards inside MetricStrip — not standalone. Gold primary, off-spec surface colors. Animated SVG cards are IP reference for motion quality.
+    </div>
+  </td>
+
+  <td class="cell fit-med">
+    <div class="cell-header">
+      <span class="cell-source">War Room</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-med">MED</span>
+      <span class="badge badge-hc">HC:6</span>
+    </div>
+    <div class="cell-notes">
+      Best CSS var structure. label + value only — no delta, no sparkline. Status hex colors drifted (#16A34A vs #10B981).
+    </div>
+  </td>
+
+  <td class="cell-empty">—</td>
+  <td class="cell-empty">—</td>
+</tr>
+
+<!-- ══ METRIC-STRIP ══ -->
+<tr>
+  <td class="row-label">
+    <div class="component-name">METRIC-STRIP</div>
+    <div class="component-desc">4–6 KPI cards<br>horizontal row<br>consistent gutter</div>
+  </td>
+
+  <td class="cell fit-high">
+    <div class="cell-header">
+      <span class="cell-source">portal-v10</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-high">HIGH</span>
+      <span class="badge badge-hc">HC:7</span>
+    </div>
+    <div class="cell-notes">
+      kpi-grid g6 — simple CSS grid of 6 kpi-cards. Constitutional fonts/colors. No animation, no drag-scroll.
+    </div>
+  </td>
+
+  <td class="cell fit-high">
+    <div class="cell-header">
+      <span class="cell-source">portal-v9</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-high">HIGH</span>
+      <span class="badge badge-hc">HC:5</span>
+    </div>
+    <div class="cell-notes">
+      Same as v10 grid. data-theme support makes it most portable.
+    </div>
+  </td>
+
+  <td class="cell fit-low">
+    <div class="cell-header">
+      <span class="cell-source">portal-v8 ★</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-low">LOW</span>
+      <span class="badge badge-hc">HC:15+</span>
+    </div>
+    <div class="cell-notes">
+      <strong>Most sophisticated implementation.</strong> 9 animated specialized cards: liquid fill, clock ring, speedometers, demo rings. Drag-to-scroll. Fixed 112px height.
+      <ul>
+        <li>✅ Animation quality — IP reference</li>
+        <li>❌ Gold era colors, off-spec surface</li>
+        <li>❌ React only, fixed-width columns</li>
+      </ul>
+    </div>
+  </td>
+
+  <td class="cell fit-med">
+    <div class="cell-header">
+      <span class="cell-source">War Room ★</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-med">MED</span>
+      <span class="badge badge-hc">HC:4</span>
+    </div>
+    <div class="cell-notes">
+      kpi-strip — best CSS var architecture. 6-col grid, click-to-navigate. No animation but cleanest tokenizable structure.
+      <ul>
+        <li>✅ Best CSS var system</li>
+        <li>✅ Semantic status classes</li>
+      </ul>
+    </div>
+  </td>
+
+  <td class="cell-empty">—</td>
+  <td class="cell-empty">—</td>
+</tr>
+
+<!-- ══ RANKING-TABLE ══ -->
+<tr>
+  <td class="row-label">
+    <div class="component-name">RANKING-TABLE</div>
+    <div class="component-desc">rank · title · delta<br>sortable · click-drill<br>signal badge</div>
+  </td>
+
+  <td class="cell fit-high">
+    <div class="cell-header">
+      <span class="cell-source">portal-v10</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-high">HIGH</span>
+      <span class="badge badge-hc">HC:10</span>
+    </div>
+    <div class="cell-notes">
+      <strong>Poster cards, not a table.</strong> Horizontal scroll strip. Rank number in Bebas Neue. Click opens drill-down. Left accent bar per show. No sort.
+    </div>
+  </td>
+
+  <td class="cell fit-high">
+    <div class="cell-header">
+      <span class="cell-source">portal-v9</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-high">HIGH</span>
+      <span class="badge badge-hc">HC:8</span>
+    </div>
+    <div class="cell-notes">
+      toppers-grid — 5-column poster card grid. Similar to v10, better data-theme support.
+    </div>
+  </td>
+
+  <td class="cell-empty">—</td>
+
+  <td class="cell fit-med">
+    <div class="cell-header">
+      <span class="cell-source">War Room</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-med">MED</span>
+      <span class="badge badge-hc">HC:5</span>
+    </div>
+    <div class="cell-notes">
+      cost-table — best table CSS structure. Sticky header, row hover, badge pattern. Wrong domain (costs not rankings). No rank column, no delta.
+    </div>
+  </td>
+
+  <td class="cell-empty">—</td>
+
+  <td class="cell fit-med">
+    <div class="cell-header">
+      <span class="cell-source">Claude Light ★</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-med">MED</span>
+      <span class="badge badge-hc">HC:20+</span>
+    </div>
+    <div class="cell-notes">
+      <strong>Best table schema.</strong> 8 columns: #, Title, Network, Audience, Rating, WoW Δ, Genre, Signal. Signal badge (BREAKOUT/CLIMB/STABLE). All inline styles — wrong fonts.
+      <ul>
+        <li>✅ Column schema is canonical spec</li>
+        <li>✅ #0EA5E9, #10B981 teal/green correct</li>
+        <li>❌ Inter/Space Grotesk fonts</li>
+        <li>❌ Zero CSS classes</li>
+      </ul>
+    </div>
+  </td>
+</tr>
+
+<!-- ══ DRILL-DOWN-OVERLAY ══ -->
+<tr>
+  <td class="row-label">
+    <div class="component-name">DRILL-DOWN-OVERLAY</div>
+    <div class="component-desc">modal/sheet<br>cinematic expand<br>SE4 shell</div>
+  </td>
+
+  <td class="cell fit-high">
+    <div class="cell-header">
+      <span class="cell-source">portal-v10 ★</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-high">HIGH</span>
+      <span class="badge badge-hc">HC:12</span>
+    </div>
+    <div class="cell-notes">
+      <strong>Full SE4 shell.</strong> Full-viewport fixed. Hero image + Ken Burns. Identity panel: Bebas Neue 64px title. 5 data tabs. Backdrop blur + vignette. `dropIn` animation.
+      <ul>
+        <li>✅ Constitutional fonts all via vars</li>
+        <li>✅ Ken Burns 20s animation</li>
+        <li>✅ var(--ease-out-expo) motion token</li>
+      </ul>
+    </div>
+  </td>
+
+  <td class="cell fit-high">
+    <div class="cell-header">
+      <span class="cell-source">portal-v9</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-high">HIGH</span>
+      <span class="badge badge-hc">HC:10</span>
+    </div>
+    <div class="cell-notes">
+      Similar to v10. Has booklet overlay (#booklet-overlay) — additional SE5 shell present. data-theme support.
+    </div>
+  </td>
+
+  <td class="cell fit-med">
+    <div class="cell-header">
+      <span class="cell-source">portal-v8</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-med">MED</span>
+      <span class="badge badge-hc">N/A</span>
+    </div>
+    <div class="cell-notes">
+      DetailPage.jsx — React component. Similar cinematic intent. Purple/gold era colors. React only.
+    </div>
+  </td>
+
+  <td class="cell fit-med">
+    <div class="cell-header">
+      <span class="cell-source">War Room</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-med">MED</span>
+      <span class="badge badge-hc">HC:7</span>
+    </div>
+    <div class="cell-notes">
+      modal-overlay — centered dialog pattern. NOT cinematic expand. Good for data modals. rgba(0,0,0,.25) backdrop only.
+    </div>
+  </td>
+
+  <td class="cell-empty">—</td>
+  <td class="cell-empty">—</td>
+</tr>
+
+<!-- ══ CHART-WRAPPER ══ -->
+<tr>
+  <td class="row-label">
+    <div class="component-name">CHART-WRAPPER</div>
+    <div class="component-desc">header · canvas · legend<br>footnote · scoop slot<br>fixed dimensions</div>
+  </td>
+
+  <td class="cell fit-high">
+    <div class="cell-header">
+      <span class="cell-source">portal-v10 ★</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-high">HIGH</span>
+      <span class="badge badge-hc">HC:10</span>
+    </div>
+    <div class="cell-notes">
+      chart-box — best full anatomy: section-title + section-sub + genre-pills (legend) + chart-canvas-wrap (280px) + scoop-comments sidebar.
+      <ul>
+        <li>✅ Dr. Scoop sidebar built into layout</li>
+        <li>✅ Constitutional fonts via vars</li>
+        <li>⚠️ #4A5568 / #94A3B8 muted text</li>
+      </ul>
+    </div>
+  </td>
+
+  <td class="cell fit-high">
+    <div class="cell-header">
+      <span class="cell-source">portal-v9</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-high">HIGH</span>
+      <span class="badge badge-hc">HC:8</span>
+    </div>
+    <div class="cell-notes">
+      Similar to v10. data-theme theming for light/dark chart variants is well-structured.
+    </div>
+  </td>
+
+  <td class="cell fit-low">
+    <div class="cell-header">
+      <span class="cell-source">portal-v8</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-low">LOW</span>
+      <span class="badge badge-hc">N/A</span>
+    </div>
+    <div class="cell-notes">
+      Charts scattered in portal CSS files — no dedicated wrapper component. Gold era colors.
+    </div>
+  </td>
+
+  <td class="cell fit-med">
+    <div class="cell-header">
+      <span class="cell-source">War Room</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-med">MED</span>
+      <span class="badge badge-hc">N/A</span>
+    </div>
+    <div class="cell-notes">
+      Gantt chart div + tel-chart bar chart. No wrapper component — inline divs. Good CSS var context for building from.
+    </div>
+  </td>
+
+  <td class="cell-empty">—</td>
+  <td class="cell-empty">—</td>
+</tr>
+
+<!-- ══ DR. SCOOP ══ -->
+<tr>
+  <td class="row-label">
+    <div class="component-name">DR. SCOOP SE</div>
+    <div class="component-desc">5 animation states<br>floating companion<br>Shadow DOM pilot</div>
+  </td>
+
+  <td class="cell fit-high">
+    <div class="cell-header">
+      <span class="cell-source">portal-v10 ★</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-high">HIGH</span>
+      <span class="badge badge-hc">HC:11</span>
+    </div>
+    <div class="cell-notes">
+      <strong>3/5 states.</strong> Teal idle ✅ · Amber alert ✅ · Expanded panel ✅. Full chat panel: Bebas Neue title, Share Tech Mono input, teal send button. var(--ease-out-expo).
+      <ul>
+        <li>❌ Missing: Listening, Processing</li>
+        <li>❌ No Shadow DOM</li>
+      </ul>
+    </div>
+  </td>
+
+  <td class="cell fit-high">
+    <div class="cell-header">
+      <span class="cell-source">portal-v9</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-high">HIGH</span>
+      <span class="badge badge-hc">HC:10</span>
+    </div>
+    <div class="cell-notes">
+      Similar to v10. 3/5 states. data-theme support is additional value. Essentially same component.
+    </div>
+  </td>
+
+  <td class="cell fit-med">
+    <div class="cell-header">
+      <span class="cell-source">portal-v8 ★</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-med">MED</span>
+      <span class="badge badge-hc">HC:14</span>
+    </div>
+    <div class="cell-notes">
+      <strong>Best UX architecture.</strong> 2/5 states (idle float + expanded). Mobile bottom sheet, drag-to-reposition, suggestion chips, hint bubble. Purple/gold era colors.
+      <ul>
+        <li>✅ Mobile sheet + drag — best UX</li>
+        <li>✅ Suggestion chips</li>
+        <li>❌ Purple primary, wrong idle color</li>
+        <li>❌ Missing 3 animation states</li>
+      </ul>
+    </div>
+  </td>
+
+  <td class="cell fit-low">
+    <div class="cell-header">
+      <span class="cell-source">War Room</span>
+    </div>
+    <div class="cell-badges">
+      <span class="badge badge-low">LOW</span>
+      <span class="badge badge-hc">HC:8</span>
+    </div>
+    <div class="cell-notes">
+      FAB only — 1/5 states. Purple pulse ring (wrong color). PNG avatar asset is authentic brand character. Opens generic dialog, not chat panel.
+      <ul>
+        <li>✅ Has real Dr. Scoop PNG avatar</li>
+        <li>❌ 1/5 states, wrong color</li>
+      </ul>
+    </div>
+  </td>
+
+  <td class="cell-empty">—</td>
+  <td class="cell-empty">—</td>
+</tr>
+
+</tbody>
+</table>
+</div>
+
+<!-- ── Gate note ── -->
+<div class="gate-note">
+  🔴 <strong>PHASE 1A.2 HARD GATE:</strong> All 6 canonical decisions required before Phase 1B (tokens.css) can begin.
+  Build resumes when all 6 <code>!canon</code> commands have been received and logged to
+  <code>references/constitution/canonicals.json</code>.
+</div>
+
+<!-- ── Canon command reference ── -->
+<div class="canon-section">
+  <div class="canon-header">!CANON COMMAND REFERENCE</div>
+  <div class="canon-body">
+
+    <div class="canon-item">
+      <div class="canon-item-title">Single source wins</div>
+      <div class="canon-code">
+        <span class="cmd">!canon</span> <span class="arg">kpi-card</span> <span class="opt">v10</span><br>
+        <span class="cmd">!canon</span> <span class="arg">metric-strip</span> <span class="opt">v8</span><br>
+        <span class="cmd">!canon</span> <span class="arg">ranking-table</span> <span class="opt">v10</span><br>
+        <span class="cmd">!canon</span> <span class="arg">drill-down-overlay</span> <span class="opt">v10</span><br>
+        <span class="cmd">!canon</span> <span class="arg">chart-wrapper</span> <span class="opt">v10</span><br>
+        <span class="cmd">!canon</span> <span class="arg">dr-scoop</span> <span class="opt">v10</span>
+      </div>
+    </div>
+
+    <div class="canon-item">
+      <div class="canon-item-title">Hybrid (specify markup + style source)</div>
+      <div class="canon-code">
+        <span class="cmd">!canon</span> <span class="arg">kpi-card</span> <span class="opt">hybrid v10-markup war-room-css</span><br>
+        <span class="cmd">!canon</span> <span class="arg">metric-strip</span> <span class="opt">hybrid v8-animation war-room-structure</span><br>
+        <span class="cmd">!canon</span> <span class="arg">ranking-table</span> <span class="opt">hybrid claude-light-schema war-room-css</span><br>
+        <span class="cmd">!canon</span> <span class="arg">drill-down-overlay</span> <span class="opt">hybrid v10-shell war-room-modal</span><br>
+        <span class="cmd">!canon</span> <span class="arg">dr-scoop</span> <span class="opt">hybrid v10-tokens v8-ux</span>
+      </div>
+    </div>
+
+    <div class="canon-item">
+      <div class="canon-item-title">Build from constitution / defer</div>
+      <div class="canon-code">
+        <span class="cmd">!canon</span> <span class="arg">ranking-table</span> <span class="opt">constitution</span><br>
+        <span class="comment">← no source wins; build from §5.3 spec only</span><br><br>
+        <span class="cmd">!canon</span> <span class="arg">chart-wrapper</span> <span class="opt">defer</span><br>
+        <span class="comment">← skip for now; revisit in Phase 2</span><br><br>
+        <span class="comment">All 6 items required before build resumes:</span><br>
+        <span class="comment">kpi-card · metric-strip · ranking-table</span><br>
+        <span class="comment">drill-down-overlay · chart-wrapper · dr-scoop</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Footer ── -->
+<div class="footer">
+  <div class="footer-brand">SASMASTER · UI SUBSTRATE PHASE 1</div>
+  <div class="footer-meta">GENERATED 2026-04-29 · PHASE 1A.1 HARVEST COMPLETE · AWAITING CANONICAL DECISIONS</div>
+</div>
+
+</body>
+</html>
