@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster · Intelligence Architecture [Light]</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas: #F0F4F8;
+  --surface: #FFFFFF;
+  --surface2: #F8FAFC;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --text-primary: #1E293B;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --teal: #0EA5E9;
+  --teal-bg: rgba(14,165,233,0.08);
+  --teal-border: rgba(14,165,233,0.25);
+  --blue: #3B82F6;
+  --blue-bg: rgba(59,130,246,0.08);
+  --green: #10B981;
+  --green-bg: rgba(16,185,129,0.08);
+  --green-border: rgba(16,185,129,0.2);
+  --red: #EF4444;
+  --red-bg: rgba(239,68,68,0.08);
+  --orange: #FB923C;
+  --orange-bg: rgba(251,146,60,0.08);
+  --purple: #7C3AED;
+  --purple-bg: rgba(124,58,237,0.08);
+  --purple-border: rgba(124,58,237,0.2);
+  --dark-bar: #1E293B;
+  --dark-bar2: #243249;
+  --dark-text: #F1F5F9;
+  --dark-muted: #94A3B8;
+  --dark-teal: #38BDF8;
+  --dark-gold: #FCD34D;
+  --dark-purple: #C4B5FD;
+  --dark-green: #34D399;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--canvas);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+.mono { font-family: 'DM Mono', monospace; }
+.display { font-family: 'Bebas Neue', sans-serif; }
+
+/* ── Status ticker (dark bar) ── */
+.ticker-bar {
+  background: var(--dark-bar);
+  overflow: hidden;
+  padding: 10px 0;
+  white-space: nowrap;
+}
+.ticker-inner { display: inline-block; animation: ticker 40s linear infinite; }
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.ticker-item { display: inline-flex; align-items: center; gap: 8px; margin-right: 48px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dark-muted); }
+.ticker-item .dot { width: 5px; height: 5px; border-radius: 50%; }
+.ticker-item .dot.green { background: var(--dark-green); }
+.ticker-item .dot.teal  { background: var(--dark-teal); }
+.ticker-item .dot.purple { background: var(--dark-purple); }
+.ticker-item .dot.gold  { background: var(--dark-gold); }
+.ticker-item .val { color: var(--dark-text); }
+
+/* ── Wrapper ── */
+.wrapper { max-width: 1280px; margin: 0 auto; padding: 0 48px; }
+
+/* ── Hero ── */
+.hero {
+  background: var(--dark-bar);
+  padding: 64px 48px 48px;
+  text-align: center;
+}
+.hero-eyebrow { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.25em; color: var(--dark-teal); text-transform: uppercase; margin-bottom: 16px; }
+.hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(56px, 8vw, 100px); line-height: 0.95; letter-spacing: 0.02em; margin-bottom: 20px; }
+.hero-title .line1 { display: block; color: var(--dark-text); }
+.hero-title .line2 { display: block; color: var(--dark-teal); }
+.hero-subtitle { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 300; color: var(--dark-muted); max-width: 560px; margin: 0 auto 32px; line-height: 1.7; }
+.hero-badges { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.hero-badge { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em; padding: 5px 12px; border-radius: 4px; text-transform: uppercase; }
+.badge-teal   { background: var(--teal-bg); border: 1px solid var(--teal-border); color: var(--teal); }
+.badge-green  { background: var(--green-bg); border: 1px solid var(--green-border); color: var(--green); }
+.badge-purple { background: var(--purple-bg); border: 1px solid var(--purple-border); color: var(--purple); }
+.badge-blue   { background: var(--blue-bg); border: 1px solid rgba(59,130,246,0.25); color: var(--blue); }
+
+/* ── Stat strip ── */
+.stat-strip { display: flex; gap: 2px; margin: 0; }
+.stat-cell { flex: 1; background: var(--surface); border-right: 1px solid var(--border); padding: 20px; text-align: center; }
+.stat-cell:last-child { border-right: none; }
+.stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 40px; line-height: 1; margin-bottom: 4px; }
+.stat-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; }
+
+/* ── Divider ── */
+.divider { height: 1px; background: var(--border); }
+
+/* ── Sections ── */
+.section { padding: 72px 0; }
+.section-num { font-family: 'Bebas Neue', sans-serif; font-size: 100px; color: rgba(14,165,233,0.06); line-height: 1; position: absolute; top: -16px; left: -8px; pointer-events: none; user-select: none; }
+.section-header { margin-bottom: 48px; position: relative; }
+.section-label-line { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.25em; color: var(--teal); text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+.section-label-line::after { content: ''; width: 60px; height: 1px; background: var(--teal-border); }
+.section-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(38px, 5vw, 64px); letter-spacing: 0.02em; line-height: 0.95; color: var(--text-primary); margin-bottom: 14px; }
+.section-desc { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 300; color: var(--text-secondary); max-width: 580px; line-height: 1.7; }
+
+/* ── Memory grid ── */
+.memory-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 2px; background: var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 32px; }
+.memory-card { background: var(--surface); padding: 28px; position: relative; transition: background 0.2s; }
+.memory-card:hover { background: var(--surface2); }
+.mem-icon { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--purple); opacity: 0.35; margin-bottom: 12px; line-height: 1; }
+.mem-title { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.mem-file { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--teal); margin-bottom: 12px; }
+.mem-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 16px; }
+.mem-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.mem-tag { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 3px; border: 1px solid var(--purple-border); color: var(--purple); background: var(--purple-bg); }
+.mem-tag.teal { border-color: var(--teal-border); color: var(--teal); background: var(--teal-bg); }
+.mem-tag.gold { border-color: rgba(251,146,60,0.25); color: var(--orange); background: var(--orange-bg); }
+.code-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; margin-top: 12px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-secondary); line-height: 1.8; }
+.code-block .kw { color: var(--purple); }
+.code-block .fn { color: var(--teal); }
+.code-block .str { color: var(--orange); }
+.code-block .cm { color: var(--text-muted); }
+
+/* ── Memory flow ── */
+.memory-flow { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px; border-top: 2px solid var(--teal); }
+.flow-title { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.18em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 24px; }
+.flow-diagram { display: flex; align-items: center; gap: 0; overflow-x: auto; padding-bottom: 4px; }
+.flow-node { flex-shrink: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; text-align: center; min-width: 120px; }
+.flow-node.teal-node { border-color: var(--teal-border); background: var(--teal-bg); }
+.flow-node.gold-node { border-color: rgba(251,146,60,0.25); background: var(--orange-bg); }
+.fn-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 3px; }
+.fn-name { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
+.fn-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--teal); margin-top: 2px; }
+.flow-arrow { flex-shrink: 0; width: 36px; display: flex; align-items: center; justify-content: center; }
+.flow-arrow::after { content: '›'; color: var(--teal); font-size: 20px; }
+
+/* ── Skills layout ── */
+.skills-layout { display: grid; grid-template-columns: 1fr 380px; gap: 32px; align-items: start; }
+.skill-cat-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: var(--text-muted); text-transform: uppercase; padding: 10px 16px; }
+.skill-row { display: flex; align-items: center; gap: 14px; padding: 10px 16px; background: var(--surface); border-radius: 6px; border: 1px solid transparent; margin-bottom: 2px; transition: border-color 0.2s, background 0.2s; }
+.skill-row:hover { border-color: var(--border-strong); background: var(--surface2); }
+.skill-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.skill-dot.active  { background: var(--green); }
+.skill-dot.purple  { background: var(--purple); }
+.skill-dot.teal    { background: var(--teal); }
+.skill-dot.gold    { background: var(--orange); }
+.skill-name { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-primary); flex: 1; }
+.skill-type { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
+.skill-path { font-size: 10px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+
+/* ── Compute panel ── */
+.compute-panel { background: var(--surface); border: 1px solid var(--teal-border); border-radius: 12px; overflow: hidden; position: sticky; top: 32px; }
+.compute-panel-top { height: 2px; background: linear-gradient(90deg, var(--teal), var(--purple)); }
+.compute-header { padding: 18px 22px 14px; border-bottom: 1px solid var(--border); }
+.compute-title { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; color: var(--teal); text-transform: uppercase; margin-bottom: 3px; }
+.compute-sub { font-size: 12px; color: var(--text-muted); }
+.compute-steps { padding: 18px 22px; display: flex; flex-direction: column; gap: 0; }
+.cstep { display: flex; gap: 14px; padding: 10px 0; position: relative; }
+.cstep:not(:last-child)::after { content: ''; position: absolute; left: 13px; top: 42px; bottom: 0; width: 1px; background: var(--border); }
+.cstep-num { width: 27px; height: 27px; border-radius: 50%; background: var(--purple-bg); border: 1px solid var(--purple-border); display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--purple); flex-shrink: 0; position: relative; z-index: 1; }
+.cstep-name { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+.cstep-detail { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
+.cstep-detail code { color: var(--teal); background: var(--teal-bg); padding: 1px 3px; border-radius: 2px; }
+.model-router { margin: 14px 22px; background: var(--surface2); border: 1px solid rgba(251,146,60,0.2); border-radius: 8px; padding: 12px 14px; }
+.mr-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: var(--orange); text-transform: uppercase; margin-bottom: 8px; }
+.mr-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; }
+.mr-mode { font-size: 12px; color: var(--text-secondary); }
+.mr-model { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 7px; border-radius: 3px; }
+.mr-opus   { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+.mr-sonnet { background: var(--teal-bg); color: var(--teal); border: 1px solid var(--teal-border); }
+
+/* ── Agent cards ── */
+.auto-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 48px; }
+.auto-card { background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s; }
+.auto-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.10); }
+.ac-top { height: 3px; }
+.ac-top.purple { background: var(--purple); }
+.ac-top.teal   { background: var(--teal); }
+.ac-top.orange { background: var(--orange); }
+.ac-top.green  { background: var(--green); }
+.ac-top.blue   { background: var(--blue); }
+.ac-body { padding: 22px; }
+.ac-icon-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.ac-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.ac-icon.purple { background: var(--purple-bg); }
+.ac-icon.teal   { background: var(--teal-bg); }
+.ac-icon.orange { background: var(--orange-bg); }
+.ac-icon.green  { background: var(--green-bg); }
+.ac-icon.blue   { background: var(--blue-bg); }
+.ac-status { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; }
+.ac-status.live    { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.ac-status.active  { background: var(--teal-bg); color: var(--teal); border: 1px solid var(--teal-border); }
+.ac-status.pending { background: var(--orange-bg); color: var(--orange); border: 1px solid rgba(251,146,60,0.2); }
+.ac-name { font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+.ac-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 12px; }
+.ac-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); }
+
+/* ── Self-learning loop ── */
+.loop-nodes { display: flex; justify-content: space-between; align-items: center; gap: 0; position: relative; padding: 16px 0; }
+.loop-nodes::before { content: ''; position: absolute; top: 50%; left: 60px; right: 60px; height: 1px; background: linear-gradient(90deg, var(--purple-border), var(--teal-border), rgba(251,146,60,0.2), var(--teal-border), var(--purple-border)); transform: translateY(-50%); }
+.loop-node { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; z-index: 1; }
+.ln-circle { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-align: center; transition: transform 0.2s; cursor: default; }
+.ln-circle:hover { transform: scale(1.08); }
+.ln-c1 { background: var(--purple-bg); border: 2px solid var(--purple); color: var(--purple); }
+.ln-c2 { background: var(--teal-bg); border: 2px solid var(--teal); color: var(--teal); }
+.ln-c3 { background: var(--orange-bg); border: 2px solid var(--orange); color: var(--orange); width: 78px; height: 78px; font-size: 11px; }
+.ln-c4 { background: var(--green-bg); border: 2px solid var(--green); color: var(--green); }
+.ln-c5 { background: var(--blue-bg); border: 2px solid var(--blue); color: var(--blue); }
+.ln-label { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-primary); text-align: center; line-height: 1.3; }
+.ln-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); text-align: center; }
+
+/* ── Cron table ── */
+.cron-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.cron-panel-top { height: 2px; background: linear-gradient(90deg, var(--purple), var(--orange), var(--teal)); }
+.cron-header { padding: 18px 28px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.cron-title { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.18em; color: var(--purple); text-transform: uppercase; }
+.cron-tz { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); }
+.cron-row { display: grid; grid-template-columns: 80px 1fr 110px 90px; gap: 0; align-items: center; padding: 12px 28px; border-bottom: 1px solid var(--border); }
+.cron-row:last-child { border-bottom: none; }
+.cron-row:hover { background: var(--surface2); }
+.cron-time { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--teal); font-weight: 500; }
+.cron-task { font-size: 13px; color: var(--text-primary); }
+.cron-task span { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); display: block; }
+.cron-channel { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); }
+.freq-pill { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 3px; letter-spacing: 0.05em; }
+.freq-daily   { background: var(--purple-bg); border: 1px solid var(--purple-border); color: var(--purple); }
+.freq-weekly  { background: var(--teal-bg); border: 1px solid var(--teal-border); color: var(--teal); }
+.freq-realtime { background: var(--green-bg); border: 1px solid var(--green-border); color: var(--green); }
+
+/* ── Footer ── */
+.footer { padding: 48px 0 32px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.05em; color: var(--text-primary); }
+.footer-meta { text-align: right; }
+.footer-meta p { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; }
+</style>
+</head>
+<body>
+
+<!-- Status Ticker -->
+<div class="ticker-bar" role="marquee">
+  <div class="ticker-inner">
+    <span class="ticker-item"><span class="dot green"></span> JARVIS <span class="val">LIVE · SOCKET MODE</span></span>
+    <span class="ticker-item"><span class="dot teal"></span> Command Center <span class="val">sasmaster-status.vercel.app</span></span>
+    <span class="ticker-item"><span class="dot purple"></span> Skills Installed <span class="val">24 ACTIVE</span></span>
+    <span class="ticker-item"><span class="dot gold"></span> S3 Bucket <span class="val">sasmaster-2026 · 589K+ PARENT KEYS</span></span>
+    <span class="ticker-item"><span class="dot green"></span> Media Intel Agent <span class="val">DAILY 6AM · 13 SOURCES</span></span>
+    <span class="ticker-item"><span class="dot teal"></span> Build Loop <span class="val">CRON 5AM · AUTO-COMMIT</span></span>
+    <span class="ticker-item"><span class="dot purple"></span> Model Routing <span class="val">OPUS 4.7 PLAN · SONNET 4.6 EXEC</span></span>
+    <span class="ticker-item"><span class="dot gold"></span> Cloudflare Tunnel <span class="val">api.sasmaster.dev → ACTIVE</span></span>
+    <span class="ticker-item"><span class="dot green"></span> JARVIS <span class="val">LIVE · SOCKET MODE</span></span>
+    <span class="ticker-item"><span class="dot teal"></span> Command Center <span class="val">sasmaster-status.vercel.app</span></span>
+    <span class="ticker-item"><span class="dot purple"></span> Skills Installed <span class="val">24 ACTIVE</span></span>
+    <span class="ticker-item"><span class="dot gold"></span> S3 Bucket <span class="val">sasmaster-2026 · 589K+ PARENT KEYS</span></span>
+    <span class="ticker-item"><span class="dot green"></span> Media Intel Agent <span class="val">DAILY 6AM · 13 SOURCES</span></span>
+    <span class="ticker-item"><span class="dot teal"></span> Build Loop <span class="val">CRON 5AM · AUTO-COMMIT</span></span>
+    <span class="ticker-item"><span class="dot purple"></span> Model Routing <span class="val">OPUS 4.7 PLAN · SONNET 4.6 EXEC</span></span>
+    <span class="ticker-item"><span class="dot gold"></span> Cloudflare Tunnel <span class="val">api.sasmaster.dev → ACTIVE</span></span>
+  </div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-eyebrow">SaSMaster Intelligence Architecture · April 2026</div>
+  <h1 class="hero-title">
+    <span class="line1">HOW THE</span>
+    <span class="line2">MACHINE THINKS</span>
+  </h1>
+  <p class="hero-subtitle">Distributed memory, agentic compute operations, and the self-learning loop that makes SaSMaster autonomous.</p>
+  <div class="hero-badges">
+    <span class="hero-badge badge-purple">Distributed Memory</span>
+    <span class="hero-badge badge-teal">24 Claude Skills</span>
+    <span class="hero-badge badge-blue">Agentic Compute</span>
+    <span class="hero-badge badge-green">Self-Learning Loop</span>
+  </div>
+</div>
+
+<!-- Stat strip -->
+<div class="stat-strip">
+  <div class="stat-cell"><div class="stat-val" style="color:var(--purple)">4</div><div class="stat-label">Memory Layers</div></div>
+  <div class="stat-cell"><div class="stat-val" style="color:var(--teal)">24</div><div class="stat-label">Claude Skills</div></div>
+  <div class="stat-cell"><div class="stat-val" style="color:var(--orange)">6</div><div class="stat-label">Active Agents</div></div>
+  <div class="stat-cell"><div class="stat-val" style="color:var(--green)">11</div><div class="stat-label">Live Scrapers</div></div>
+  <div class="stat-cell"><div class="stat-val" style="color:var(--blue)">18</div><div class="stat-label">Cron Jobs</div></div>
+  <div class="stat-cell"><div class="stat-val" style="color:var(--text-primary)">589K+</div><div class="stat-label">Parent Keys</div></div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── SECTION 1 · MEMORY ── -->
+<section class="section">
+  <div class="wrapper">
+    <div class="section-header" style="position:relative;">
+      <div class="section-num" aria-hidden="true">01</div>
+      <div class="section-label-line">Layer 1</div>
+      <h2 class="section-title">DISTRIBUTED<br>MEMORY</h2>
+      <p class="section-desc">SaSMaster operates across four interlocking memory systems — each serving a distinct timescale and purpose. Claude.ai Memories, <code class="mono" style="color:var(--teal);font-size:13px">CLAUDE_MEMORY.md</code>, and <code class="mono" style="color:var(--teal);font-size:13px">TASKS.md</code> are live. The Obsidian vault mirrors operational state for human-readable handover.</p>
+    </div>
+
+    <div class="memory-grid">
+      <div class="memory-card">
+        <div class="mem-icon">✦</div>
+        <div class="mem-title">Claude.ai Memories</div>
+        <div class="mem-file">auto-generated · claude.ai</div>
+        <div class="mem-desc">Persistent semantic memories derived from every conversation. Captures Shiv's working style, project context, sprint priorities, product vision, and long-term strategic context. Injected automatically into every new session.</div>
+        <div class="mem-tags">
+          <span class="mem-tag">Strategy Layer</span>
+          <span class="mem-tag">Auto-Updated</span>
+          <span class="mem-tag teal">Cross-Session</span>
+          <span class="mem-tag gold">Semantic</span>
+        </div>
+        <div class="code-block">
+          <span class="cm"># What it holds</span><br>
+          <span class="kw">→</span> SaSMaster system state<br>
+          <span class="kw">→</span> Sprint priorities &amp; blockers<br>
+          <span class="kw">→</span> Design tokens &amp; canonical files<br>
+          <span class="kw">→</span> Division of labor rules
+        </div>
+      </div>
+
+      <div class="memory-card" style="border-top:2px solid var(--teal);">
+        <div class="mem-icon" style="color:var(--teal)">▤</div>
+        <div class="mem-title">CLAUDE_MEMORY.md</div>
+        <div class="mem-file">~/SaSMaster/CLAUDE_MEMORY.md</div>
+        <div class="mem-desc">The operational ground truth for Claude Code sessions. Loaded as the very first command in every terminal session — before any code is written. Contains architecture state, S3 paths, known issues, recent builds, and what's live vs planned.</div>
+        <div class="mem-tags">
+          <span class="mem-tag teal">Execution Layer</span>
+          <span class="mem-tag teal">File-Based</span>
+          <span class="mem-tag">Per-Session Load</span>
+          <span class="mem-tag gold">Always Current</span>
+        </div>
+        <div class="code-block">
+          <span class="cm"># Sections</span><br>
+          <span class="fn">Current Sprint</span> — active priorities<br>
+          <span class="fn">Architecture State</span> — live vs planned<br>
+          <span class="fn">Recent Wins</span> — last 7 days<br>
+          <span class="fn">Known Issues</span> — bugs / blockers<br>
+          <span class="fn">S3 State</span> — latest data dates
+        </div>
+      </div>
+
+      <div class="memory-card">
+        <div class="mem-icon" style="color:var(--orange)">☰</div>
+        <div class="mem-title">TASKS.md</div>
+        <div class="mem-file">~/SaSMaster/TASKS.md</div>
+        <div class="mem-desc">The self-scoring task queue. JARVIS checks this at 7AM and 2PM EDT — if HIGH-priority items exist, it automatically fires a build. Tasks flow from JARVIS commands, Claude.ai sessions, and async build outputs.</div>
+        <div class="mem-tags">
+          <span class="mem-tag gold">Task Queue</span>
+          <span class="mem-tag gold">Self-Scoring</span>
+          <span class="mem-tag teal">JARVIS Trigger</span>
+          <span class="mem-tag">7AM + 2PM</span>
+        </div>
+        <div class="code-block">
+          <span class="cm"># Schema</span><br>
+          <span class="kw">## HIGH</span><br>
+          - [ ] [2026-04-23] Task <span class="str">#tag</span><br>
+          <span class="kw">## MED / DONE</span><br>
+          - [x] [2026-04-23] Completed
+        </div>
+      </div>
+
+      <div class="memory-card" style="position:relative;">
+        <div style="position:absolute;top:12px;right:12px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px;background:var(--orange-bg);border:1px solid rgba(251,146,60,0.25);color:var(--orange)">Task Queued</div>
+        <div class="mem-icon" style="color:var(--blue);opacity:0.4">◈</div>
+        <div class="mem-title">Obsidian Vault</div>
+        <div class="mem-file">~/SaSMaster/obsidian/</div>
+        <div class="mem-desc">Structured human-readable mirror of CLAUDE_MEMORY.md. Six section files with YAML frontmatter, wikilinks for graph continuity, and ADR documents for architecture decisions. Synced via sync-obsidian.sh.</div>
+        <div class="mem-tags">
+          <span class="mem-tag" style="border-color:var(--blue-bg);color:var(--blue);background:var(--blue-bg)">Human Readable</span>
+          <span class="mem-tag" style="border-color:var(--blue-bg);color:var(--blue);background:var(--blue-bg)">Auto-Synced</span>
+          <span class="mem-tag gold">Handover Layer</span>
+          <span class="mem-tag teal">Graph View</span>
+        </div>
+        <div class="code-block">
+          <span class="cm"># Vault structure</span><br>
+          <span class="fn">00-ADRs/</span>     ← arch decisions<br>
+          <span class="fn">01-Schema/</span>   ← S3 state + specs<br>
+          <span class="fn">03-Agents/</span>   ← agent fleet<br>
+          <span class="fn">04-Roadmap/</span>  ← sprint + phases<br>
+          <span class="fn">05-Ops/</span>      ← JARVIS runbook
+        </div>
+      </div>
+    </div>
+
+    <!-- Memory flow -->
+    <div class="memory-flow">
+      <div class="flow-title">Memory Update, S3 State Tracking &amp; Obsidian Sync Flow</div>
+      <div class="flow-diagram">
+        <div class="flow-node"><div class="fn-label">trigger</div><div class="fn-name">Claude.ai<br>Session</div><div class="fn-sub">Strategy layer</div></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node teal-node"><div class="fn-label">script</div><div class="fn-name">update-memory.sh</div><div class="fn-sub">writes to disk</div></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node"><div class="fn-label">file</div><div class="fn-name">CLAUDE_MEMORY.md</div><div class="fn-sub">~/SaSMaster/</div></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node gold-node"><div class="fn-label">session start</div><div class="fn-name">Claude Code<br>cat memory</div><div class="fn-sub">first command</div></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node teal-node"><div class="fn-label">execution</div><div class="fn-name">Build Loop<br>+ Scrapers</div><div class="fn-sub">code &amp; data</div></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node"><div class="fn-label">notify</div><div class="fn-name">JARVIS → #builds</div><div class="fn-sub">Slack routing</div></div>
+        <div class="flow-arrow"></div>
+        <div class="flow-node gold-node"><div class="fn-label">review</div><div class="fn-name">War Room<br>Dashboard</div><div class="fn-sub">vercel.app</div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;">
+        <div style="background:var(--surface2);border:1px solid var(--teal-border);border-radius:10px;padding:18px 22px;">
+          <div class="mono" style="font-size:10px;letter-spacing:0.15em;color:var(--teal);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block;"></span>S3 State — Tracked Inside CLAUDE_MEMORY.md</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+            <div style="flex:1;min-width:80px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 10px;">
+              <div class="mono" style="font-size:10px;color:var(--text-muted);margin-bottom:3px">TMDB</div>
+              <div class="mono" style="font-size:11px;color:var(--teal)">tmdb_dev/</div>
+              <div class="mono" style="font-size:10px;color:var(--text-muted);margin-top:2px">15d cadence</div>
+            </div>
+            <div style="flex:1;min-width:80px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 10px;">
+              <div class="mono" style="font-size:10px;color:var(--text-muted);margin-bottom:3px">IMDB</div>
+              <div class="mono" style="font-size:11px;color:var(--teal)">imdb/&lt;ds&gt;/</div>
+              <div class="mono" style="font-size:10px;color:var(--text-muted);margin-top:2px">YYYY-MM-DD</div>
+            </div>
+            <div style="flex:1;min-width:80px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 10px;">
+              <div class="mono" style="font-size:10px;color:var(--text-muted);margin-bottom:3px">Parent Keys</div>
+              <div class="mono" style="font-size:12px;color:var(--orange);font-weight:500">589K+</div>
+              <div class="mono" style="font-size:10px;color:var(--text-muted);margin-top:2px">parent_keys/v1/</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.6">S3 is the <em>data lake</em>, not a memory store. The S3 State section inside CLAUDE_MEMORY.md tracks last successful landing date per dataset — so every session knows exactly what's in the bucket without querying S3 live.</div>
+        </div>
+
+        <div style="background:var(--surface2);border:1px solid rgba(59,130,246,0.25);border-radius:10px;padding:18px 22px;position:relative;">
+          <div style="position:absolute;top:12px;right:12px;" class="mono" style="font-size:9px;"><span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;padding:2px 7px;border-radius:3px;background:var(--orange-bg);border:1px solid rgba(251,146,60,0.25);color:var(--orange);text-transform:uppercase;">Task Queued</span></div>
+          <div class="mono" style="font-size:10px;letter-spacing:0.15em;color:var(--blue);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--blue);opacity:0.6;display:inline-block;"></span>Obsidian Sync — Via sync-obsidian.sh</div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);"><span class="mono" style="color:var(--text-muted)">Current Sprint</span><span class="mono" style="color:var(--blue);font-size:11px;">04-Roadmap/current-sprint.md</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);"><span class="mono" style="color:var(--text-muted)">Architecture State</span><span class="mono" style="color:var(--blue);font-size:11px;">04-Roadmap/phase-status.md</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);"><span class="mono" style="color:var(--text-muted)">S3 State</span><span class="mono" style="color:var(--blue);font-size:11px;">01-Schema/s3-state.md</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;"><span class="mono" style="color:var(--text-muted)">ADRs</span><span class="mono" style="color:var(--text-muted);font-size:11px;">00-ADRs/ ← manual only</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── SECTION 2 · SKILLS & COMPUTE ── -->
+<section class="section">
+  <div class="wrapper">
+    <div class="section-header" style="position:relative;">
+      <div class="section-num" aria-hidden="true">02</div>
+      <div class="section-label-line">Layer 2</div>
+      <h2 class="section-title">SKILLS &amp;<br>COMPUTE OPS</h2>
+      <p class="section-desc">Claude Skills are domain-specific instruction sets that agents read before executing any task. They encode best practices, constraints, and environment-specific knowledge — preventing the system from re-learning what already works.</p>
+    </div>
+
+    <div class="skills-layout">
+      <div>
+        <div class="skill-cat-label">Installed Skill Catalog</div>
+        <div class="skill-cat-label" style="padding-top:16px;">Public Skills · /mnt/skills/public/</div>
+        <div class="skill-row"><div class="skill-dot purple"></div><div class="skill-name">frontend-design</div><div class="skill-type">UI</div><div class="skill-path">/public/frontend-design/</div></div>
+        <div class="skill-row"><div class="skill-dot purple"></div><div class="skill-name">docx · pdf · pptx · xlsx</div><div class="skill-type">Doc</div><div class="skill-path">/public/</div></div>
+        <div class="skill-row"><div class="skill-dot purple"></div><div class="skill-name">product-self-knowledge</div><div class="skill-type">System</div><div class="skill-path">/public/product-self-knowledge/</div></div>
+        <div class="skill-row"><div class="skill-dot purple"></div><div class="skill-name">file-reading · pdf-reading</div><div class="skill-type">IO</div><div class="skill-path">/public/</div></div>
+
+        <div class="skill-cat-label" style="padding-top:16px;">User Skills · /mnt/skills/user/ · Auto-Captured</div>
+        <div class="skill-row"><div class="skill-dot active"></div><div class="skill-name">jarvis-ops</div><div class="skill-type">Ops</div><div class="skill-path">/user/jarvis-ops/</div></div>
+        <div class="skill-row"><div class="skill-dot active"></div><div class="skill-name">fullstack-architect</div><div class="skill-type">Core</div><div class="skill-path">/user/fullstack-architect/</div></div>
+        <div class="skill-row"><div class="skill-dot active"></div><div class="skill-name">uiux-mastery</div><div class="skill-type">Design</div><div class="skill-path">/user/uiux-mastery/</div></div>
+        <div class="skill-row"><div class="skill-dot teal"></div><div class="skill-name">scraper-engineer</div><div class="skill-type">Data</div><div class="skill-path">/user/scraper-engineer/</div></div>
+        <div class="skill-row"><div class="skill-dot teal"></div><div class="skill-name">duckdb-parquet</div><div class="skill-type">Data</div><div class="skill-path">/user/duckdb-parquet/</div></div>
+        <div class="skill-row"><div class="skill-dot teal"></div><div class="skill-name">s3-data-architect</div><div class="skill-type">Infra</div><div class="skill-path">/user/s3-data-architect/</div></div>
+        <div class="skill-row"><div class="skill-dot gold"></div><div class="skill-name">media-domain</div><div class="skill-type">Domain</div><div class="skill-path">/user/media-domain/</div></div>
+        <div class="skill-row"><div class="skill-dot gold"></div><div class="skill-name">programming-researcher</div><div class="skill-type">Analytics</div><div class="skill-path">/user/programming-researcher/ <span style="color:var(--green)">↑ Apr 22</span></div></div>
+        <div class="skill-row"><div class="skill-dot gold"></div><div class="skill-name">data-viz</div><div class="skill-type">Viz</div><div class="skill-path">/user/data-viz/ <span style="color:var(--green)">↑ Apr 22</span></div></div>
+        <div class="skill-row"><div class="skill-dot active"></div><div class="skill-name">qa-agent</div><div class="skill-type">QA</div><div class="skill-path">/user/qa-agent/</div></div>
+        <div class="skill-row"><div class="skill-dot purple"></div><div class="skill-name">math-mastery · emba-analyst</div><div class="skill-type">EMBA</div><div class="skill-path">/user/</div></div>
+        <div class="skill-row"><div class="skill-dot purple"></div><div class="skill-name">sow-consultant · linkedin-thought-leader</div><div class="skill-type">Biz</div><div class="skill-path">/user/</div></div>
+        <div class="skill-row"><div class="skill-dot active"></div><div class="skill-name">playwright-debugger</div><div class="skill-type">Engineering/QA</div><div class="skill-path">/user/playwright-debugger/ <span style="color:var(--green)">↑ Apr 28</span></div></div>
+      </div>
+
+      <!-- Compute Panel -->
+      <div class="compute-panel">
+        <div class="compute-panel-top"></div>
+        <div class="compute-header">
+          <div class="compute-title">Agentic Compute Pipeline</div>
+          <div class="compute-sub">How skills power agent execution</div>
+        </div>
+        <div class="compute-steps">
+          <div class="cstep"><div class="cstep-num">1</div><div class="cstep-body"><div class="cstep-name">Task Received</div><div class="cstep-detail">Via <code>!build</code>, cron, or inject-task.sh.<br>JARVIS parses TASKS.md priority.</div></div></div>
+          <div class="cstep"><div class="cstep-num">2</div><div class="cstep-body"><div class="cstep-name">Memory Loaded</div><div class="cstep-detail"><code>cat CLAUDE_MEMORY.md</code> first.<br>Session grounded in current state.</div></div></div>
+          <div class="cstep"><div class="cstep-num">3</div><div class="cstep-body"><div class="cstep-name">Skills Read</div><div class="cstep-detail">Agent reads all relevant SKILL.md<br>files before writing any code.</div></div></div>
+          <div class="cstep"><div class="cstep-num">4</div><div class="cstep-body"><div class="cstep-name">Model Routed</div><div class="cstep-detail">Planning → <code>Opus 4.7</code><br>Execution → <code>Sonnet 4.6</code></div></div></div>
+          <div class="cstep"><div class="cstep-num">5</div><div class="cstep-body"><div class="cstep-name">Code Executed</div><div class="cstep-detail">sasmaster-build.sh runs.<br>Git auto-commit on success.</div></div></div>
+          <div class="cstep"><div class="cstep-num">6</div><div class="cstep-body"><div class="cstep-name">Slack Notified</div><div class="cstep-detail">Results → <code>#builds</code> | Intel → <code>#intel</code></div></div></div>
+        </div>
+        <div class="model-router">
+          <div class="mr-label">Model Router</div>
+          <div class="mr-row"><span class="mr-mode">Planning Mode</span><span class="mr-model mr-opus">claude-opus-4.7</span></div>
+          <div class="mr-row"><span class="mr-mode">Execution Mode</span><span class="mr-model mr-sonnet">claude-sonnet-4.6</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── SECTION 3 · AUTONOMOUS & SELF-LEARNING ── -->
+<section class="section">
+  <div class="wrapper">
+    <div class="section-header" style="position:relative;">
+      <div class="section-num" aria-hidden="true">03</div>
+      <div class="section-label-line">Layer 3</div>
+      <h2 class="section-title">AUTONOMOUS &amp;<br>SELF-LEARNING</h2>
+      <p class="section-desc">The system doesn't just execute — it observes its own outputs, captures successful patterns as new skills, and improves with every build cycle. JARVIS's self-scoring queue closes the loop from task to learning.</p>
+    </div>
+
+    <div class="auto-grid">
+      <div class="auto-card"><div class="ac-top purple"></div><div class="ac-body">
+        <div class="ac-icon-row"><div class="ac-icon purple">⚡</div><div class="ac-status live">live</div></div>
+        <div class="ac-name">JARVIS</div>
+        <div class="ac-desc">Socket Mode Slack bot + orchestration brain. Listens 24/7 for <code class="mono" style="color:var(--purple);font-size:11px">!build</code>, <code class="mono" style="color:var(--purple);font-size:11px">!task</code>, <code class="mono" style="color:var(--purple);font-size:11px">!status</code>. Self-scores TASKS.md at 7AM + 2PM, auto-fires build when HIGH items detected.</div>
+        <div class="ac-meta">com.sasmaster.jarvis · launchd · auto-restart</div>
+      </div></div>
+
+      <div class="auto-card"><div class="ac-top teal"></div><div class="ac-body">
+        <div class="ac-icon-row"><div class="ac-icon teal">📡</div><div class="ac-status live">live</div></div>
+        <div class="ac-name">Media Intel Agent</div>
+        <div class="ac-desc">3-tier, 13-source daily intelligence sweep. Scans streaming, linear, M&amp;A, and audience trends at 6AM EDT. Posts structured briefings to <code class="mono" style="color:var(--teal);font-size:11px">#intel</code> via Slack webhook.</div>
+        <div class="ac-meta">Daily 6:00AM EDT · 13 sources · auto-post</div>
+      </div></div>
+
+      <div class="auto-card"><div class="ac-top orange"></div><div class="ac-body">
+        <div class="ac-icon-row"><div class="ac-icon orange">🔬</div><div class="ac-status active">active</div></div>
+        <div class="ac-name">Tech Intel Agent</div>
+        <div class="ac-desc">Weekly technology intelligence sweep across 14 curated sources. Surfaces AI/ML breakthroughs, platform shifts, and infrastructure trends relevant to SaSMaster's roadmap.</div>
+        <div class="ac-meta">Weekly · Friday 6:00PM EDT · 14 sources</div>
+      </div></div>
+
+      <div class="auto-card"><div class="ac-top green"></div><div class="ac-body">
+        <div class="ac-icon-row"><div class="ac-icon green">🔁</div><div class="ac-status live">live</div></div>
+        <div class="ac-name">Async Build Loop</div>
+        <div class="ac-desc">The execution engine. Runs <code class="mono" style="color:var(--green);font-size:11px">sasmaster-build.sh</code> via cron at 5AM and on-demand via JARVIS. Git auto-commits every successful build. Failed builds retry once then escalate to Slack.</div>
+        <div class="ac-meta">Cron 5:00AM EDT · git auto-commit · retry logic</div>
+      </div></div>
+
+      <div class="auto-card"><div class="ac-top blue"></div><div class="ac-body">
+        <div class="ac-icon-row"><div class="ac-icon blue">🧠</div><div class="ac-status live">live</div></div>
+        <div class="ac-name">capture-learnings.sh</div>
+        <div class="ac-desc">Post-build hook that watches for <code class="mono" style="color:var(--blue);font-size:11px">#skill-worthy</code> tags in completed TASKS.md entries. Appends successful patterns to learnings.md automatically — the raw feed for skill evolution.</div>
+        <div class="ac-meta">Post-build hook · #skill-worthy → learnings.md</div>
+      </div></div>
+
+      <div class="auto-card"><div class="ac-top purple"></div><div class="ac-body">
+        <div class="ac-icon-row"><div class="ac-icon purple">🎓</div><div class="ac-status active">active</div></div>
+        <div class="ac-name">skill-review.sh</div>
+        <div class="ac-desc">Friday 5:50PM cron reviews curated lessons in LESSONS.md (Tier 2) and promotes patterns referenced ≥3x into permanent SKILL.md updates (Tier 3). One-offs flagged for manual review.</div>
+        <div class="ac-meta">Cron Fri 5:50PM · LESSONS.md (T2) → SKILL.md (T3)</div>
+      </div></div>
+    </div>
+
+    <!-- Self-Learning Loop -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:40px;border-top:2px solid var(--teal);">
+      <div class="flow-title">The Self-Learning 3-Tier Feedback Loop</div>
+      <div class="loop-nodes">
+        <div class="loop-node">
+          <div class="ln-circle ln-c1">TASK<br>DONE</div>
+          <div class="ln-label">Task<br>Completes</div>
+          <div class="ln-sub">TASKS.md #skill-worthy</div>
+        </div>
+        <div class="loop-node">
+          <div class="ln-circle ln-c2">T1<br>CAPTURE</div>
+          <div class="ln-label">capture-learnings<br>.sh</div>
+          <div class="ln-sub">learnings.md append</div>
+        </div>
+        <div class="loop-node">
+          <div class="ln-circle ln-c3">T2<br>CURATE</div>
+          <div class="ln-label">LESSONS.md<br>Quality Gate</div>
+          <div class="ln-sub">Agent curates patterns</div>
+        </div>
+        <div class="loop-node">
+          <div class="ln-circle ln-c4">T3<br>PROMOTE</div>
+          <div class="ln-label">skill-review.sh<br>Fri 5:50PM</div>
+          <div class="ln-sub">≥3x → SKILL.md</div>
+        </div>
+        <div class="loop-node">
+          <div class="ln-circle ln-c5">NEXT<br>BUILD</div>
+          <div class="ln-label">Improved<br>Context</div>
+          <div class="ln-sub">System compounds</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cron Schedule -->
+    <div style="margin-top:32px;">
+      <div class="section-label-line" style="margin-bottom:16px;">Live Cron Schedule</div>
+      <div class="cron-panel">
+        <div class="cron-panel-top"></div>
+        <div class="cron-header">
+          <div class="cron-title">SaSMaster Autonomous Schedule</div>
+          <div class="cron-tz">America/New_York (EDT)</div>
+        </div>
+        <div class="cron-row"><div class="cron-time">05:00</div><div class="cron-task">Build Loop — sasmaster-build.sh<span>via JARVIS + git auto-commit</span></div><div class="cron-channel">#builds</div><div style="text-align:right;"><span class="freq-pill freq-daily">Daily</span></div></div>
+        <div class="cron-row"><div class="cron-time">06:00</div><div class="cron-task">Media Intel Agent — 13 sources<span>streaming, linear, M&amp;A, audience</span></div><div class="cron-channel">#intel</div><div style="text-align:right;"><span class="freq-pill freq-daily">Daily</span></div></div>
+        <div class="cron-row"><div class="cron-time">07:00</div><div class="cron-task">JARVIS Self-Score + IAB Intel<span>Mon only: IAB news/events/research/standards</span></div><div class="cron-channel">#intel</div><div style="text-align:right;"><span class="freq-pill freq-daily">Daily + Mon</span></div></div>
+        <div class="cron-row"><div class="cron-time">12:00</div><div class="cron-task">DoneLog Analyst<span>reads DONE_LOG.md, surfaces lessons</span></div><div class="cron-channel">#builds</div><div style="text-align:right;"><span class="freq-pill freq-daily">Daily</span></div></div>
+        <div class="cron-row"><div class="cron-time">14:00</div><div class="cron-task">JARVIS Self-Score (2nd pass)<span>afternoon priority check</span></div><div class="cron-channel">#builds</div><div style="text-align:right;"><span class="freq-pill freq-daily">Daily</span></div></div>
+        <div class="cron-row"><div class="cron-time">17:50</div><div class="cron-task">skill-review.sh — Tier 3 promotion<span>Friday only: LESSONS.md → SKILL.md</span></div><div class="cron-channel">#builds</div><div style="text-align:right;"><span class="freq-pill freq-weekly">Fri</span></div></div>
+        <div class="cron-row"><div class="cron-time">18:00</div><div class="cron-task">Tech Intel Agent — 14 sources<span>Friday only: AI/ML, infrastructure, platform</span></div><div class="cron-channel">#intel</div><div style="text-align:right;"><span class="freq-pill freq-weekly">Fri</span></div></div>
+        <div class="cron-row"><div class="cron-time">20:10</div><div class="cron-task">Financial Analyst Agent<span>Sunday only: RSG v11 universe, EDGAR signals</span></div><div class="cron-channel">#intel</div><div style="text-align:right;"><span class="freq-pill freq-weekly">Sun</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Footer -->
+<div class="wrapper">
+  <div class="footer">
+    <div>
+      <div class="footer-logo">SaSMaster Intelligence Platform</div>
+      <p class="mono" style="font-size:10px;color:var(--text-muted);margin-top:2px;">Bloomberg Terminal for Media — Built by Shiv Ashish</p>
+    </div>
+    <div class="footer-meta">
+      <p>sasmaster-status.vercel.app</p>
+      <p style="color:var(--teal);margin-top:2px;">api.sasmaster.dev · C0ATABZAH39</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

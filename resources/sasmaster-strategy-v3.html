@@ -3,448 +3,399 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SaSMaster Strategy v3 Final</title>
+<title>SaSMaster — Strategy & Competitive Positioning v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --base: #0A0A0F;
-    --surface: #1A1A2E;
-    --elevated: #16213E;
-    --purple: #7C3AED;
-    --teal: #06B6D4;
-    --text-1: #F1F5F9;
-    --text-2: #94A3B8;
-    --text-3: #475569;
-    --green: #10B981;
-    --amber: #F59E0B;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--base);
-    color: var(--text-1);
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-    font-size: 14px;
-    line-height: 1.65;
-    padding: 0 0 64px;
-  }
-  /* Hero */
-  .hero {
-    background: linear-gradient(135deg, #0d0d1f 0%, #1a0a3e 50%, #0a1a2e 100%);
-    border-bottom: 1px solid rgba(124,58,237,0.3);
-    padding: 48px 48px 40px;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: -80px; right: -80px;
-    width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .hero-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(124,58,237,0.2);
-    border: 1px solid rgba(124,58,237,0.4);
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
-    color: #A78BFA;
-    margin-bottom: 20px;
-  }
-  .hero h1 {
-    font-size: 32px; font-weight: 700;
-    background: linear-gradient(135deg, #F1F5F9, #A78BFA);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1.2;
-    margin-bottom: 12px;
-  }
-  .hero-sub {
-    font-size: 16px; color: var(--text-2);
-    margin-bottom: 24px;
-  }
-  .hero-meta {
-    display: flex; gap: 24px; flex-wrap: wrap;
-    font-size: 12px; color: var(--text-3);
-  }
-  .hero-meta span { display: flex; align-items: center; gap: 6px; }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); display: inline-block; }
-  /* Layout */
-  .content { max-width: 900px; margin: 0 auto; padding: 40px 48px; }
-  /* Section */
-  .section { margin-bottom: 48px; }
-  .section-header {
-    display: flex; align-items: center; gap: 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    padding-bottom: 12px; margin-bottom: 24px;
-  }
-  .section-num {
-    background: linear-gradient(135deg, var(--purple), var(--teal));
-    color: white; font-size: 11px; font-weight: 700;
-    width: 24px; height: 24px; border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .section-title { font-size: 18px; font-weight: 600; color: var(--text-1); }
-  /* Table */
-  table {
-    width: 100%; border-collapse: collapse;
-    font-size: 13px; margin: 16px 0 24px;
-  }
-  th {
-    background: rgba(255,255,255,0.04);
-    padding: 10px 14px; text-align: left;
-    font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
-    color: var(--text-3); text-transform: uppercase;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  td {
-    padding: 10px 14px; color: var(--text-2);
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  tr:last-child td { border-bottom: none; }
-  td:first-child { color: var(--text-1); font-weight: 500; }
-  /* Portal cards */
-  .portal-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 12px; margin: 16px 0 24px;
-  }
-  .portal-card {
-    background: var(--surface);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 10px; padding: 16px;
-  }
-  .portal-card:hover { border-color: rgba(124,58,237,0.3); }
-  .portal-name {
-    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
-    color: var(--teal); margin-bottom: 4px;
-  }
-  .portal-desc { font-size: 12px; color: var(--text-2); }
-  /* Experience items */
-  .exp-item {
-    background: var(--surface);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-left: 3px solid var(--purple);
-    border-radius: 8px; padding: 16px 20px;
-    margin-bottom: 10px;
-  }
-  .exp-title { font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
-  .exp-desc { font-size: 13px; color: var(--text-2); }
-  /* Color tokens */
-  .token-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 16px 0 24px; }
-  .token-swatch { border-radius: 8px; overflow: hidden; }
-  .swatch-color { height: 40px; }
-  .swatch-label { padding: 8px; font-size: 11px; color: var(--text-3); font-family: monospace; }
-  /* Metrics bar */
-  .metrics { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0 24px; }
-  .metric {
-    background: var(--surface);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 10px; padding: 16px 20px;
-    flex: 1; min-width: 140px;
-  }
-  .metric-val { font-size: 22px; font-weight: 700; color: var(--text-1); font-variant-numeric: tabular-nums; }
-  .metric-label { font-size: 11px; color: var(--text-3); margin-top: 4px; }
-  /* North star */
-  .north-star {
-    background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(6,182,212,0.1));
-    border: 1px solid rgba(124,58,237,0.3);
-    border-radius: 12px; padding: 28px 32px;
-    text-align: center;
-  }
-  .north-star-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--teal); margin-bottom: 12px; }
-  .north-star-text { font-size: 20px; font-weight: 600; color: var(--text-1); line-height: 1.4; }
-  /* Agent table */
-  .agent-badge {
-    display: inline-block; padding: 2px 8px; border-radius: 4px;
-    font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
-    background: rgba(124,58,237,0.2); color: #A78BFA;
-  }
-  /* Code */
-  code {
-    font-family: 'SF Mono', 'Fira Mono', monospace;
-    font-size: 12px;
-    background: rgba(255,255,255,0.06);
-    padding: 2px 6px; border-radius: 4px;
-    color: var(--teal);
-  }
-  p { color: var(--text-2); margin-bottom: 12px; }
-  /* Roadmap */
-  .roadmap-phase {
-    border-left: 2px solid rgba(255,255,255,0.1);
-    padding-left: 20px; margin-bottom: 24px;
-    position: relative;
-  }
-  .roadmap-phase::before {
-    content: '';
-    position: absolute; left: -5px; top: 3px;
-    width: 8px; height: 8px; border-radius: 50%;
-  }
-  .roadmap-phase.live::before { background: var(--green); }
-  .roadmap-phase.next::before { background: var(--amber); }
-  .roadmap-phase.later::before { background: var(--text-3); }
-  .phase-label {
-    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
-    margin-bottom: 10px;
-  }
-  .phase-label.live { color: var(--green); }
-  .phase-label.next { color: var(--amber); }
-  .phase-label.later { color: var(--text-3); }
-  .phase-items { list-style: none; }
-  .phase-items li { font-size: 13px; color: var(--text-2); padding: 3px 0; }
-  .phase-items li::before { content: '→ '; color: var(--text-3); }
-  /* Competitive */
-  .comp-item {
-    background: var(--surface);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 8px; padding: 16px 20px; margin-bottom: 8px;
-  }
-  .comp-name { font-size: 13px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
-  .comp-desc { font-size: 12px; color: var(--text-2); }
-  /* Download CTA */
-  .cta-bar {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: rgba(10,10,15,0.95); backdrop-filter: blur(12px);
-    border-top: 1px solid rgba(255,255,255,0.08);
-    padding: 12px 48px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .cta-label { font-size: 12px; color: var(--text-3); }
-  .btn-dl {
-    background: linear-gradient(135deg, var(--purple), #5B21B6);
-    color: white; border: none; border-radius: 8px;
-    padding: 8px 20px; font-size: 13px; font-weight: 600;
-    cursor: pointer;
-  }
-  .btn-dl:hover { opacity: 0.9; }
+:root {
+  --canvas: #F0F4F8;
+  --surface: #FFFFFF;
+  --surface2: #F8FAFC;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --text-primary: #1E293B;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --teal: #0EA5E9;
+  --teal-bg: rgba(14,165,233,0.08);
+  --teal-border: rgba(14,165,233,0.25);
+  --blue: #3B82F6;
+  --blue-bg: rgba(59,130,246,0.08);
+  --green: #10B981;
+  --green-bg: rgba(16,185,129,0.08);
+  --green-border: rgba(16,185,129,0.2);
+  --red: #EF4444;
+  --red-bg: rgba(239,68,68,0.08);
+  --orange: #FB923C;
+  --orange-bg: rgba(251,146,60,0.08);
+  --purple: #7C3AED;
+  --purple-bg: rgba(124,58,237,0.08);
+  --purple-border: rgba(124,58,237,0.2);
+  --dark-bar: #1E293B;
+  --dark-text: #F1F5F9;
+  --dark-muted: #94A3B8;
+  --dark-teal: #38BDF8;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--canvas); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6; }
+.mono { font-family: 'DM Mono', monospace; }
+.display { font-family: 'Bebas Neue', sans-serif; }
+.wrapper { max-width: 1200px; margin: 0 auto; padding: 0 48px; }
+
+.hero-bar { background: var(--dark-bar); padding: 56px 48px 48px; position: relative; overflow: hidden; }
+.hero-bar::before { content: 'SASMASTER'; position: absolute; top: -20px; left: -10px; font-family: 'Bebas Neue', sans-serif; font-size: 220px; color: rgba(255,255,255,0.02); pointer-events: none; user-select: none; line-height: 1; }
+.hero-eyebrow { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.25em; color: var(--dark-teal); text-transform: uppercase; margin-bottom: 16px; }
+.hero-headline { font-family: 'Bebas Neue', sans-serif; font-size: clamp(52px, 7vw, 96px); line-height: 0.92; letter-spacing: 0.02em; color: var(--dark-text); margin-bottom: 20px; }
+.hero-sub { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 300; color: var(--dark-muted); max-width: 600px; line-height: 1.7; margin-bottom: 28px; }
+.confidential-pill { display: inline-block; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; padding: 5px 14px; border-radius: 4px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.35); color: #FCA5A5; margin-bottom: 20px; }
+.hero-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dark-muted); }
+
+.sec-num { font-family: 'Bebas Neue', sans-serif; font-size: 72px; line-height: 1; color: var(--teal); margin-bottom: 4px; display: block; }
+.section { padding: 64px 0; }
+.section-divider { height: 1px; background: var(--border); }
+.section-header { margin-bottom: 40px; }
+.section-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.22em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.section-title { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 0.04em; color: var(--text-primary); margin-bottom: 12px; }
+.section-body { font-size: 15px; color: var(--text-secondary); line-height: 1.75; max-width: 760px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.card-teal { border-top: 2px solid var(--teal); }
+.card-blue { border-top: 2px solid var(--blue); }
+.card-green { border-top: 2px solid var(--green); }
+.card-orange { border-top: 2px solid var(--orange); }
+.card-purple { border-top: 2px solid var(--purple); }
+.card-red { border-top: 2px solid var(--red); }
+
+.pullquote { background: var(--teal-bg); border-left: 4px solid var(--teal); border-radius: 0 8px 8px 0; padding: 20px 24px; margin: 24px 0; font-size: 16px; color: var(--text-primary); font-style: italic; line-height: 1.7; }
+.pullquote strong { font-style: normal; color: var(--teal); font-weight: 600; }
+
+.x-in-sand { background: var(--dark-bar); border-radius: 10px; padding: 28px 32px; margin: 28px 0; color: var(--dark-muted); font-size: 15px; line-height: 1.75; font-style: italic; position: relative; }
+.x-in-sand::before { content: '\201C'; font-family: 'Bebas Neue', sans-serif; font-size: 80px; color: rgba(56,189,248,0.15); position: absolute; top: -8px; left: 20px; line-height: 1; }
+.x-in-sand strong { color: var(--dark-teal); font-style: normal; }
+
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { padding: 10px 16px; text-align: left; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 0.12em; font-weight: 500; background: var(--surface2); border-bottom: 2px solid var(--border); }
+.data-table td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:nth-child(even) td { background: var(--surface2); }
+.data-table td:first-child { font-weight: 600; color: var(--text-primary); }
+.data-table td:nth-child(2) { color: var(--text-secondary); }
+
+.moat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.moat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.moat-num { font-family: 'Bebas Neue', sans-serif; font-size: 48px; line-height: 1; color: var(--teal); opacity: 0.4; margin-bottom: 4px; }
+.moat-title { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+.moat-body { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before { content: ''; position: absolute; left: 8px; top: 12px; bottom: 12px; width: 2px; background: linear-gradient(180deg, var(--teal), var(--blue), var(--purple)); }
+.phase { position: relative; margin-bottom: 32px; }
+.phase::before { content: ''; position: absolute; left: -27px; top: 8px; width: 12px; height: 12px; border-radius: 50%; background: var(--teal); border: 2px solid var(--surface); box-shadow: 0 0 0 2px var(--teal); }
+.phase:nth-child(2)::before { background: var(--blue); box-shadow: 0 0 0 2px var(--blue); }
+.phase:nth-child(3)::before { background: var(--purple); box-shadow: 0 0 0 2px var(--purple); }
+.phase-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: var(--teal); text-transform: uppercase; margin-bottom: 4px; }
+.phase:nth-child(2) .phase-label { color: var(--blue); }
+.phase:nth-child(3) .phase-label { color: var(--purple); }
+.phase-title { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+.phase-body { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+
+.layer-stack { display: flex; flex-direction: column; gap: 2px; }
+.layer { display: flex; align-items: center; gap: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; }
+.layer-num { font-family: 'Bebas Neue', sans-serif; font-size: 32px; width: 40px; flex-shrink: 0; line-height: 1; }
+.layer-title { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+.layer-body { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.layer-badge { font-family: 'DM Mono', monospace; font-size: 9px; padding: 2px 8px; border-radius: 3px; letter-spacing: 0.08em; flex-shrink: 0; white-space: nowrap; }
+.badge-live { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.badge-phase3 { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+.badge-future { background: var(--teal-bg); color: var(--teal); border: 1px solid var(--teal-border); }
+
+.sig-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.sig-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+.sig-num { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--teal); opacity: 0.5; line-height: 1; margin-bottom: 4px; }
+.sig-title { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+.sig-body { font-size: 12px; color: var(--text-secondary); line-height: 1.65; }
+
+.agent-table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.agent-table { width: 100%; border-collapse: collapse; }
+.agent-table th { padding: 10px 20px; text-align: left; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 0.12em; background: var(--surface2); border-bottom: 1px solid var(--border); }
+.agent-table td { padding: 14px 20px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.agent-table tr:last-child td { border-bottom: none; }
+.agent-name { font-family: 'DM Mono', monospace; font-weight: 600; color: var(--purple); font-size: 12px; }
+
+.output-list { display: flex; flex-direction: column; gap: 14px; }
+.output-item { display: flex; gap: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+.output-num { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--teal); opacity: 0.5; line-height: 1; flex-shrink: 0; width: 36px; }
+.output-title { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+.output-body { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+
+.pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.pricing-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; }
+.pricing-card.featured { border-color: var(--teal-border); background: var(--teal-bg); }
+.price-tier { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+.price-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--text-primary); line-height: 1.1; margin-bottom: 6px; }
+.pricing-card.featured .price-val { color: var(--teal); }
+.price-scope { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+.sam-total { background: var(--dark-bar); border-radius: 8px; padding: 16px 20px; margin-top: 14px; }
+.sam-total-val { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--dark-teal); }
+.sam-total-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dark-muted); }
+
+.footer { background: var(--dark-bar); padding: 32px 48px; display: flex; justify-content: space-between; align-items: center; }
+.footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--dark-text); }
+.footer-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dark-muted); text-align: right; }
 </style>
 </head>
 <body>
 
-<div class="hero">
-  <div class="hero-badge">
-    <span class="dot"></span>
-    STRATEGY DOCUMENT · v3 FINAL
-  </div>
-  <h1>SaSMaster Strategy &amp; Competitive Brief</h1>
-  <div class="hero-sub">UI/UX Design Bible · Autonomous Agent System · M&amp;E Data Framework</div>
-  <div class="hero-meta">
-    <span>2026-04-28</span>
-    <span>Version 3.0-final</span>
-    <span>Status: Canonical</span>
-    <span>Generated by Claude.ai</span>
+<div class="hero-bar">
+  <div class="wrapper" style="padding-top:0;padding-bottom:0;">
+    <div class="hero-eyebrow">SaSMaster · Strategy &amp; Competitive Positioning v3</div>
+    <div class="confidential-pill">&#9888; CONFIDENTIAL — INTERNAL USE ONLY</div>
+    <div class="hero-headline">THE BLOOMBERG<br>TERMINAL FOR MEDIA</div>
+    <div class="hero-sub">Strategy, Competitive Positioning &amp; Path to Market Leadership. The AI Decision-Making Platform for media companies — the first unified intelligence layer across Content, Advertising, and Marketing optimization.</div>
+    <div class="hero-meta">Version 1.0 &nbsp;|&nbsp; April 2026 &nbsp;|&nbsp; Prepared by Shiv Ashish &nbsp;|&nbsp; CONFIDENTIAL</div>
   </div>
 </div>
 
-<div class="content">
-
-  <!-- Section 1: Vision -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-num">1</div>
-      <div class="section-title">Platform Vision</div>
-    </div>
-    <p>SaSMaster is the Bloomberg Terminal for media — a single intelligent pane of glass for buyers, sellers, and analysts operating in the modern media economy. One platform, one login, one view across audience data, content metadata, rights availability, deal flow, and AI-driven intelligence.</p>
-    <p>The <strong style="color:#F1F5F9">Parent Key</strong> — our proprietary unified content identifier bridging IMDB tconst, TMDB ID, and EIDR — is the core technical moat. No competitor has this.</p>
-
-    <div class="metrics">
-      <div class="metric"><div class="metric-val">206.4M</div><div class="metric-label">IMDB Rows</div></div>
-      <div class="metric"><div class="metric-val">1.18M</div><div class="metric-label">TMDB Titles</div></div>
-      <div class="metric"><div class="metric-val">654K</div><div class="metric-label">EIDR IDs Staged</div></div>
-      <div class="metric"><div class="metric-val">68.4%</div><div class="metric-label">Parent Key Match</div></div>
-      <div class="metric"><div class="metric-val">10</div><div class="metric-label">Autonomous Agents</div></div>
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">01</span>
+    <div class="section-label">Executive Summary</div>
+    <div class="section-title">THE OPPORTUNITY, THE PLATFORM, AND THE PATH TO DOMINANCE</div>
+  </div>
+  <div class="pullquote"><strong>SaSMaster is an AI Decision-Making Platform for media companies</strong> — the first unified intelligence layer that crosses Content, Advertising, and Marketing optimization in a single agentic, self-learning system. The north star: Bloomberg Terminal for Media.</div>
+  <p class="section-body" style="margin-bottom:24px;">The global media industry is fragmenting at an accelerating pace. SaSMaster ingests 206M+ content records, applies supervised ML and generative AI, and outputs asset-level revenue optimization plans across all three inventory classes. The platform is live in its foundational architecture as of April 2026, with full production infrastructure: Parent Key Parquet data layer in S3, JARVIS autonomous orchestration daemon, Dr. Scoop GenAI companion, six sub-agents, and a cinematic UI portal.</p>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;">
+    <div class="card card-teal" style="text-align:center;"><div class="display" style="font-size:36px;color:var(--teal)">206M+</div><div class="mono" style="font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;">IMDB Records</div></div>
+    <div class="card card-blue" style="text-align:center;"><div class="display" style="font-size:36px;color:var(--blue)">589K+</div><div class="mono" style="font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;">Parent Keys</div></div>
+    <div class="card card-green" style="text-align:center;"><div class="display" style="font-size:36px;color:var(--green)">6</div><div class="mono" style="font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;">Domain Agents</div></div>
+    <div class="card card-purple" style="text-align:center;"><div class="display" style="font-size:36px;color:var(--purple)">$3.3B</div><div class="mono" style="font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;">SAM (US+UK+CA)</div></div>
+  </div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:22px;">
+    <div class="mono" style="font-size:11px;letter-spacing:0.12em;color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;">Strategic Imperatives</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:var(--teal);font-size:16px;flex-shrink:0;">&#8594;</span><span style="font-size:13px;color:var(--text-secondary);">Establish gold standard for AI-native media intelligence within 24 months</span></div>
+      <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:var(--teal);font-size:16px;flex-shrink:0;">&#8594;</span><span style="font-size:13px;color:var(--text-secondary);">Displace point-solution competitors through full-stack integration and agentic automation</span></div>
+      <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:var(--teal);font-size:16px;flex-shrink:0;">&#8594;</span><span style="font-size:13px;color:var(--text-secondary);">Build the first buyer-seller exchange layer with AI-negotiation capability in media</span></div>
+      <div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:var(--teal);font-size:16px;flex-shrink:0;">&#8594;</span><span style="font-size:13px;color:var(--text-secondary);">Leverage clean IP (SAS-MASTER Parent Key, MM-Asset-ID, Data Orchestration Layer) as defensible moat</span></div>
     </div>
   </div>
+</div>
+</div>
 
-  <!-- Section 2: Five Portals -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-num">2</div>
-      <div class="section-title">The Five Portals</div>
-    </div>
-    <div class="portal-grid">
-      <div class="portal-card">
-        <div class="portal-name">CONTENT</div>
-        <div class="portal-desc">Programming analysts · What to acquire or renew? · TMDB + IMDB + Nielsen + Parent Key</div>
-      </div>
-      <div class="portal-card">
-        <div class="portal-name">ADVERTISING</div>
-        <div class="portal-desc">Media buyers · Where to place a campaign? · Nielsen C3/C7 ratings + demo breakdowns</div>
-      </div>
-      <div class="portal-card">
-        <div class="portal-name">MARKETING</div>
-        <div class="portal-desc">Brand strategists · Who is my audience? · Viewership × consumer profile</div>
-      </div>
-      <div class="portal-card">
-        <div class="portal-name">CPG RESEARCH</div>
-        <div class="portal-desc">CPG brands · What content indexes best for my brand? · Purchase × viewership correlation</div>
-      </div>
-      <div class="portal-card" style="grid-column: 1 / -1;">
-        <div class="portal-name">THE EXCHANGE</div>
-        <div class="portal-desc">Rights holders · What's available and at what price? · Rights matrix + deal comp database + EIDR registry</div>
-      </div>
-    </div>
+<div class="section-divider"></div>
+
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">02</span>
+    <div class="section-label">Vision, Mission &amp; North Star</div>
+    <div class="section-title">WHAT WE ARE BUILDING AND WHY IT MATTERS</div>
   </div>
-
-  <!-- Section 3: Five Signature Experiences -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-num">3</div>
-      <div class="section-title">Five Signature Experiences</div>
-    </div>
-    <div class="exp-item">
-      <div class="exp-title">Hero Hiker</div>
-      <div class="exp-desc">Full-viewport cinematic title browser. TMDB poster as hero. Horizontal scroll. Hover reveals metadata overlay. Click expands to Program Drill-Down. Apple TV+ × Netflix editorial × Bloomberg density.</div>
-    </div>
-    <div class="exp-item">
-      <div class="exp-title">Dr. Scoop — AI Companion</div>
-      <div class="exp-desc">Floating panel (bottom-right). Media insider voice — direct, analytically grounded, occasionally wry. <code>claude-sonnet-4-6</code> · SSE stream · POST <code>/api/scoop/chat</code> · Prompt caching enabled for strategy context.</div>
-    </div>
-    <div class="exp-item">
-      <div class="exp-title">Data Viz Suite</div>
-      <div class="exp-desc">Ratings timelines (C3/C7 trend by episode), audience composition wheels (demo radial), rights availability matrix (title × territory × window), content performance scatter (audience × sentiment × cost), DMA heat maps.</div>
-    </div>
-    <div class="exp-item">
-      <div class="exp-title">Program Drill-Down</div>
-      <div class="exp-desc">All SaSMaster data on one title. Six tabs: Identity (all IDs) → Audience (Nielsen history) → Content (cast, crew, genres) → Rights (territory map) → Intelligence (Dr. Scoop) → Comparables (related titles). Sub-second load via DuckDB.</div>
-    </div>
-    <div class="exp-item">
-      <div class="exp-title">Metadata Booklet</div>
-      <div class="exp-desc">Printable one-pager for any title. Parent Key IDs, core metadata grid, audience summary, availability status, Dr. Scoop analysis. Output: screen HTML, PDF export, PNG thumbnail. Replaces the manual "compile a fact sheet" workflow.</div>
-    </div>
+  <div class="x-in-sand"><strong>The X in the Sand:</strong> A media executive opens SaSMaster at 8am. Dr. Scoop surfaces that their drama slate is hemorrhaging P25-54 women to a competitor's SVOD exclusive. Within one session: an optimized programming schedule is generated, a targeted marketing brief is drafted, ad inventory is re-priced, and a content acquisition negotiation is simulated in The Exchange. <strong>No analyst. No committee. One platform. One decision.</strong></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px;">
+    <div class="card card-teal"><div class="mono" style="font-size:10px;letter-spacing:0.15em;color:var(--teal);text-transform:uppercase;margin-bottom:10px;">Vision</div><div style="font-size:14px;color:var(--text-primary);line-height:1.65;font-style:italic;">"A world where every media decision — from content acquisition to ad pricing to marketing spend — is made with AI-grade intelligence, in real time, on a single platform."</div></div>
+    <div class="card card-blue"><div class="mono" style="font-size:10px;letter-spacing:0.15em;color:var(--blue);text-transform:uppercase;margin-bottom:10px;">Mission</div><div style="font-size:14px;color:var(--text-secondary);line-height:1.65;">Decode data for radical insights to drive content, audiences, and revenue. Translate the industry's most complex, fragmented data environment into clear, executable decisions for the humans who run media companies.</div></div>
+    <div class="card card-purple"><div class="mono" style="font-size:10px;letter-spacing:0.15em;color:var(--purple);text-transform:uppercase;margin-bottom:10px;">North Star</div><div style="font-size:14px;color:var(--text-secondary);line-height:1.65;">The Bloomberg Terminal for Media — the operating layer of the industry. The platform through which programmers, ad sales leaders, and marketing strategists think, plan, and act. Expensive, proprietary, deeply embedded, and irreplaceable once adopted.</div></div>
   </div>
+</div>
+</div>
 
-  <!-- Section 4: UI/UX Design System -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-num">4</div>
-      <div class="section-title">UI/UX Design System</div>
-    </div>
-    <p>Cinematic aesthetic. Dark by default. Poster art as first-class data. Bloomberg analytical density × Apple TV+ editorial beauty.</p>
-    <div class="token-grid">
-      <div class="token-swatch">
-        <div class="swatch-color" style="background:#7C3AED"></div>
-        <div class="swatch-label">--brand-purple<br>#7C3AED</div>
-      </div>
-      <div class="token-swatch">
-        <div class="swatch-color" style="background:#06B6D4"></div>
-        <div class="swatch-label">--brand-teal<br>#06B6D4</div>
-      </div>
-      <div class="token-swatch">
-        <div class="swatch-color" style="background:#0A0A0F; border:1px solid rgba(255,255,255,0.1)"></div>
-        <div class="swatch-label">--surface-base<br>#0A0A0F</div>
-      </div>
-      <div class="token-swatch">
-        <div class="swatch-color" style="background:#1A1A2E"></div>
-        <div class="swatch-label">--surface-card<br>#1A1A2E</div>
-      </div>
-    </div>
-    <p><strong style="color:#F1F5F9">Design rules:</strong> Single-bar headers. Fill real estate. Dark bars. Smooth animation (Framer Motion, purposeful only). Vertical centering. Sidebar scope for drill-down. Dynamic canvas height. Expand buttons. Edge label flip on interaction.</p>
+<div class="section-divider"></div>
+
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">03</span>
+    <div class="section-label">Market Analysis &amp; Opportunity</div>
+    <div class="section-title">SIZE, STRUCTURE, AND THE FORCES RESHAPING THE INDUSTRY</div>
   </div>
-
-  <!-- Section 5: Agent Fleet -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-num">5</div>
-      <div class="section-title">Autonomous Agent Fleet</div>
-    </div>
-    <table>
-      <thead>
-        <tr><th>Agent</th><th>Role</th><th>Schedule</th><th>Output</th></tr>
-      </thead>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px;">
+    <div class="card" style="text-align:center;"><div class="display" style="font-size:32px;color:var(--teal)">$700B+</div><div class="mono" style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">Global M&amp;E Market</div></div>
+    <div class="card" style="text-align:center;"><div class="display" style="font-size:32px;color:var(--blue)">$25B+</div><div class="mono" style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">CTV Programmatic 2025</div></div>
+    <div class="card" style="text-align:center;"><div class="display" style="font-size:32px;color:var(--green)">$4B+</div><div class="mono" style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">AI-Native Segment 2028</div></div>
+    <div class="card" style="text-align:center;"><div class="display" style="font-size:32px;color:var(--orange)">16%</div><div class="mono" style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">Research Analytics CAGR</div></div>
+  </div>
+  <div class="section-label" style="margin-bottom:16px;">4 Structural Forces Driving Demand</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:32px;">
+    <div class="card card-teal"><div class="mono" style="font-size:10px;letter-spacing:0.12em;color:var(--teal);text-transform:uppercase;margin-bottom:8px;">Audience Fragmentation</div><div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">Linear TV down 30%+ over 5 years. Audiences distribute across SVOD, AVOD, FAST, and social video. SaSMaster's Audience Signal Intelligence layer provides the cross-platform intelligence no single-source tool can replicate.</div></div>
+    <div class="card card-orange"><div class="mono" style="font-size:10px;letter-spacing:0.12em;color:var(--orange);text-transform:uppercase;margin-bottom:8px;">The Measurement Crisis</div><div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">Nielsen under sustained challenge from VideoAmp, iSpot.tv, Comscore, and others. Most significant measurement transition in 50 years. SaSMaster's architecture can ingest and normalize signals from multiple sources — its core design advantage.</div></div>
+    <div class="card card-purple"><div class="mono" style="font-size:10px;letter-spacing:0.12em;color:var(--purple);text-transform:uppercase;margin-bottom:8px;">AI Disruption</div><div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">Generative AI has fundamentally altered the economics of data analysis. Tasks requiring teams of analysts can now be automated at scale. AI-native platforms that adopt earliest establish durable competitive advantages.</div></div>
+    <div class="card card-blue"><div class="mono" style="font-size:10px;letter-spacing:0.12em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;">Consolidation Pressure</div><div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">Industry consolidations compressing margins and forcing efficiency. Surviving companies need AI leverage. An agentic platform that automates intelligence generation is not a luxury — it is a structural necessity for the next generation of media operations.</div></div>
+  </div>
+  <div class="section-label" style="margin-bottom:16px;">Competitive Landscape — 6 Categories</div>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table class="data-table">
+      <thead><tr><th>Competitive Category</th><th>Gap SaSMaster Fills</th></tr></thead>
       <tbody>
-        <tr><td>TMDB Daily</td><td>Trending + new releases</td><td>5 AM daily</td><td>S3 TMDB layer</td></tr>
-        <tr><td>TMDB Trending</td><td>Real-time signals</td><td>6 AM daily</td><td>Trending cache</td></tr>
-        <tr><td>Financial Analyst</td><td>54-company SEC EDGAR tracker</td><td>Sun 8 PM</td><td>financial_data.json</td></tr>
-        <tr><td>IAB Agent</td><td>Industry news + events + research</td><td>Mon 7 AM</td><td>#intel Slack</td></tr>
-        <tr><td>EIDR Agent</td><td>EIDR registry enrichment</td><td>On trigger</td><td>S3 EIDR layer</td></tr>
-        <tr><td>QA Agent</td><td>15-check Puppeteer validation</td><td>Post-build</td><td>QA report → Slack</td></tr>
-        <tr><td>LinkedIn Agent</td><td>Content publishing</td><td>Manual/trigger</td><td>LinkedIn post</td></tr>
-        <tr><td>SQL Agent</td><td>DuckDB natural-language query</td><td>!query command</td><td>Result → Slack</td></tr>
-        <tr><td>Debug Agent</td><td>System triage + log analysis</td><td>On trigger</td><td>Debug report</td></tr>
-        <tr><td>DoneLog Analyst</td><td>Build output analysis + feedback</td><td>Post-build</td><td>FEEDBACK.md</td></tr>
+        <tr><td>Measurement (Nielsen, Gracenote, VideoAmp)</td><td>Report what happened. Panel-based, delayed, single-source. No decision support. SaSMaster ingests their output as a signal layer — it transcends measurement.</td></tr>
+        <tr><td>DMPs (LiveRamp, The Trade Desk, Lotame)</td><td>Enable audience targeting for advertising. Blind to content and marketing inventory. No integrated optimization across all three inventory classes.</td></tr>
+        <tr><td>Audience Analytics (L5M, Star Media, techedge, Parrot)</td><td>Point solutions within audience intelligence. No full-stack decision layer, no agentic automation, no Exchange. Strong in specific verticals, not integrated.</td></tr>
+        <tr><td>BI &amp; Data Analytics (Tableau, MicroStrategy, Looker)</td><td>General-purpose BI applied to media. No domain-specific models, no ML optimization. Require significant analyst resources to produce insights.</td></tr>
+        <tr><td>AI Column (Claude, OpenAI, AWS, Akkio)</td><td>General-purpose AI infrastructure. Not media-domain-trained, not integrated with media data sources, not optimized for content-to-audience fitting or revenue optimization.</td></tr>
+        <tr><td>Consultants (McKinsey, Accenture, Magid)</td><td>High-cost, low-frequency, human-capital-intensive. Cannot operate at the speed or scale of an AI-native platform. Serve as a distribution channel, not a competitor.</td></tr>
       </tbody>
     </table>
   </div>
-
-  <!-- Section 6: Competitive -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-num">6</div>
-      <div class="section-title">Competitive Positioning</div>
-    </div>
-    <div class="comp-item">
-      <div class="comp-name">vs. Gracenote / TMS</div>
-      <div class="comp-desc">Deepest program guide data but no audience intelligence, no rights layer, no AI. SaSMaster wraps Gracenote data with intelligence layers Gracenote can't provide.</div>
-    </div>
-    <div class="comp-item">
-      <div class="comp-name">vs. Nielsen ONE</div>
-      <div class="comp-desc">Owns the measurement currency but internal-facing UI, enterprise-only pricing. SaSMaster democratizes Nielsen data within a licensed framework.</div>
-    </div>
-    <div class="comp-item">
-      <div class="comp-name">vs. Parrot Analytics</div>
-      <div class="comp-desc">Demand analytics but no operational data (rights, deals, schedules). Research tool, not workflow tool. SaSMaster is both.</div>
-    </div>
-    <div class="comp-item">
-      <div class="comp-name">vs. Canvs AI / sentiment tools</div>
-      <div class="comp-desc">Narrow scope — social sentiment only. Dr. Scoop delivers broader intelligence: audience + rights + competitive context + financial performance.</div>
-    </div>
-    <p style="margin-top:16px"><strong style="color:#F1F5F9">Our wedge:</strong> The Parent Key. No competitor has a unified content identifier spanning IMDB + TMDB + EIDR. This bridge puts SaSMaster at the center of a data graph that others can't replicate without years of matching work.</p>
-  </div>
-
-  <!-- Section 7: Roadmap -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-num">7</div>
-      <div class="section-title">Roadmap</div>
-    </div>
-    <div class="roadmap-phase live">
-      <div class="phase-label live">NOW — 2026-Q2 (LIVE)</div>
-      <ul class="phase-items">
-        <li>IMDB 206.4M rows in S3</li>
-        <li>TMDB 1.18M titles complete</li>
-        <li>Dr. Scoop AI companion live</li>
-        <li>Portal v9 — 12 sections, 20 verified TMDB IDs, 15/15 QA green</li>
-        <li>War Room v5 — all actions live, serverless proxy</li>
-        <li>10-agent fleet with full cron coverage</li>
-        <li>EIDR enrichment in progress (654K IDs staged)</li>
-      </ul>
-    </div>
-    <div class="roadmap-phase next">
-      <div class="phase-label next">NEXT — 2026-Q3</div>
-      <ul class="phase-items">
-        <li>Nielsen direct license → audience data layer live</li>
-        <li>Gracenote delta → program guide completion</li>
-        <li>EIDR Query API → 85%+ Parent Key match rate</li>
-        <li>The Exchange portal → rights marketplace MVP</li>
-        <li>Financial Intelligence promoted to full portal</li>
-        <li>Portal v10 → Exchange + Nielsen overlay on Drill-Down</li>
-      </ul>
-    </div>
-    <div class="roadmap-phase later">
-      <div class="phase-label later">LATER — 2026-Q4</div>
-      <ul class="phase-items">
-        <li>Multi-user access (analyst seat licenses)</li>
-        <li>API access tier (enterprise clients)</li>
-        <li>Deal flow module → rights transaction tracking</li>
-        <li>Mobile companion app → Dr. Scoop on the go</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- North Star -->
-  <div class="north-star">
-    <div class="north-star-label">⭐ NORTH STAR METRIC</div>
-    <div class="north-star-text">Parent Key coverage at 95%+ across IMDB × TMDB × EIDR</div>
-    <p style="margin-top:12px;font-size:13px;color:#94A3B8">When we reach 95% match coverage, SaSMaster has the most comprehensive media content identity graph in existence — outside of the studios themselves.</p>
-  </div>
-
+  <div class="pullquote" style="margin-top:16px;">The white space: <strong>No competitor crosses Content + Advertising + Marketing optimization in a single agentic intelligence layer with a self-learning architecture and a marketplace layer.</strong> This is the uncontested territory SaSMaster is designed to own.</div>
+</div>
 </div>
 
-<div class="cta-bar">
-  <div class="cta-label">SaSMaster Strategy v3 Final · 2026-04-28 · Canonical</div>
-  <button class="btn-dl" onclick="window.open('/resources/SaSMaster_Strategy_v3_Final.md','_blank')">Download .md</button>
+<div class="section-divider"></div>
+
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">04</span>
+    <div class="section-label">Strategic Positioning</div>
+    <div class="section-title">THE 6-MOAT FRAMEWORK — WHY THIS CANNOT BE FAST-FOLLOWED</div>
+  </div>
+  <div class="moat-grid" style="margin-bottom:36px;">
+    <div class="moat-card"><div class="moat-num">1</div><div class="moat-title">Proprietary IP with Clean Ownership</div><div class="moat-body">The SAS-MASTER Parent Key, MM-Asset-ID algorithm, and Data Orchestration Layer were built from 2018–2024. Never productized, never customer-facing under RSG. Clean, unencumbered IP. A competitor attempting to replicate this would require years of work and access to the same proprietary data relationships — most of which are not available at any price.</div></div>
+    <div class="moat-card"><div class="moat-num">2</div><div class="moat-title">Architecture Philosophy: Agentic vs. Dashboard</div><div class="moat-body">Every major competitor is built on a dashboard paradigm: data in, reports out, analysts interpret. SaSMaster's architecture is fundamentally different. JARVIS orchestrates six specialized sub-agents in an autonomous loop. Dr. Scoop surfaces insights without being asked. The ML engine updates through supervised learning on its own output logs. This is a different theory of what a media intelligence platform is.</div></div>
+    <div class="moat-card"><div class="moat-num">3</div><div class="moat-title">Full-Stack vs. Point Solution</div><div class="moat-body">L5M, Star Media, and techedge each operate within a defined vertical. SaSMaster is the only platform integrating Content intelligence, Advertising optimization, and Marketing planning in a single system. Cross-inventory optimization — generating a revenue plan that coordinates programming, ad pricing, and marketing spend simultaneously — is structurally impossible for point solutions to replicate.</div></div>
+    <div class="moat-card"><div class="moat-num">4</div><div class="moat-title">Domain Depth as Embedded Advantage</div><div class="moat-body">Fifteen years operating at the executive level inside RSG Media — serving Paramount, A+E Networks, BET, Lionsgate, Rogers, Univision, and JioStar — is embedded in every model architecture decision, every data source selection, every insight surface, and every UI element. Not reproducible by an AI startup or a BI vendor.</div></div>
+    <div class="moat-card"><div class="moat-num">5</div><div class="moat-title">Cinematic UI as Category Signal</div><div class="moat-body">TMDB-powered visual intelligence is not cosmetic differentiation. When a programming executive sees their content slate as a film-poster-quality intelligence surface rather than a spreadsheet, the cognitive relationship with data changes. This UX philosophy — that the tool's aesthetic should reflect the gravity of what media companies actually do — is a category signal that competitors cannot replicate by adding better charts.</div></div>
+    <div class="moat-card"><div class="moat-num">6</div><div class="moat-title">The Exchange as Network Effect</div><div class="moat-body">Once the Exchange layer is live, SaSMaster transitions from a SaaS product to a marketplace. Every buyer and seller who joins increases the value for every other participant — the network effect that makes Bloomberg Terminal irreplaceable. No point-solution competitor can build this without the intelligence layer underneath it.</div></div>
+  </div>
+  <div class="section-label" style="margin-bottom:20px;">3-Phase Displacement Strategy</div>
+  <div class="timeline">
+    <div class="phase"><div class="phase-label">Months 1–12</div><div class="phase-title">Phase 1 — Win the Early Adopter Network</div><div class="phase-body">Target mid-tier cable networks and emerging SVOD platforms with $50M–$500M in annual ad revenue. Analytically sophisticated teams frustrated by point-solution stack. The pitch is not a product demo — it is a strategic briefing that repositions their current tool landscape as the problem and SaSMaster as the new operating system. Target accounts: independent cable networks, regional broadcast groups, FAST channel operators, emerging SVOD platforms.</div></div>
+    <div class="phase"><div class="phase-label">Months 6–18</div><div class="phase-title">Phase 2 — Credentialing and Case Study Construction</div><div class="phase-body">Bloomberg Terminal was not adopted because of marketing — it was adopted because traders who used it had demonstrably better information than those who did not. SaSMaster's go-to-market in this phase is built around measurable outcomes: audience lift, yield improvement. These case studies become the displacement engine — when one network's competitor sees the performance gap, the conversation shifts from "should we consider this" to "how quickly can we get access."</div></div>
+    <div class="phase"><div class="phase-label">Months 12–30</div><div class="phase-title">Phase 3 — Enterprise Expansion and Exchange Seeding</div><div class="phase-body">With credentialed outcomes, the enterprise sales motion opens. Major broadcast networks, major studios, and large SVOD platforms become accessible. Simultaneously, the Exchange layer is introduced — initially as a private marketplace with a curated set of buyers and sellers, then progressively opened. As The Exchange gains liquidity, SaSMaster becomes structurally embedded in the industry's transactional infrastructure.</div></div>
+  </div>
+</div>
+</div>
+
+<div class="section-divider"></div>
+
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">05</span>
+    <div class="section-label">Product Strategy</div>
+    <div class="section-title">THREE LAYERS + FIVE SIGNATURE EXPERIENCES</div>
+  </div>
+  <div class="section-label" style="margin-bottom:14px;">Platform Architecture — 3 Layers</div>
+  <div class="layer-stack" style="margin-bottom:36px;">
+    <div class="layer"><div class="layer-num" style="color:var(--teal)">1</div><div style="flex:1;"><div class="layer-title">Data &amp; Signal Foundation</div><div class="layer-body">Parent Key Parquet architecture in S3. 206M+ IMDB records, TMDB metadata, Gracenote program IDs, EIDR identifiers. The SAS-MASTER Parent Key resolves the fundamental problem of media data: same content, different ID in every system. S3 paths canonical. DuckDB compute operational.</div></div><span class="layer-badge badge-live">&#10003; LIVE · Phase 1</span></div>
+    <div class="layer"><div class="layer-num" style="color:var(--blue)">2</div><div style="flex:1;"><div class="layer-title">Intelligence &amp; Decision Layer</div><div class="layer-body">JARVIS orchestrates six specialized sub-agents. Dr. Scoop (claude-sonnet-4-6) is the primary user interface for natural-language intelligence queries. ML Engine runs supervised learning for audience forecasting and content performance prediction. War Room dashboard provides Layer 6/7 telemetry.</div></div><span class="layer-badge badge-live">&#10003; LIVE · Phase 2</span></div>
+    <div class="layer"><div class="layer-num" style="color:var(--purple)">3</div><div style="flex:1;"><div class="layer-title">Revenue Optimization Engine</div><div class="layer-body">Asset-Level Revenue Optimization Plan across all three inventory classes simultaneously. Content optimization, advertising yield management, marketing spend allocation. The Intelligent Inventory Management function — coordinated optimization across Content + Advertising + Marketing that no point-solution competitor can replicate.</div></div><span class="layer-badge badge-phase3">Phase 3 · Q4 2026</span></div>
+    <div class="layer"><div class="layer-num" style="color:var(--orange)">&#8734;</div><div style="flex:1;"><div class="layer-title">The Exchange — Two-Sided Marketplace</div><div class="layer-body">AI-simulated negotiation models allow sellers to stress-test deal structures. Transaction layer introduces subscription + transaction fee revenue model. Network effects make the platform irreplaceable once liquidity reaches critical mass. The Exchange is why SaSMaster is not a SaaS product — it is a market infrastructure.</div></div><span class="layer-badge badge-future">Phase 4 · Q3 2027</span></div>
+  </div>
+  <div class="section-label" style="margin-bottom:14px;">UI/UX Design System — 5 Signature Experiences</div>
+  <div class="sig-grid">
+    <div class="sig-card card-teal"><div class="sig-num">01</div><div class="sig-title">The Hero Hiker &amp; Animated Landscape</div><div class="sig-body">Full-viewport hero with layered mountain silhouettes in parallax, atmospheric depth haze, and a lone hiker silhouetted against the horizon. A psychological transition from inbox to expansive, strategic, forward-looking mode. 3–5 depth planes, 60fps, reduced-motion fallback.</div></div>
+    <div class="sig-card card-blue"><div class="sig-num">02</div><div class="sig-title">Dr. Scoop — The Floating AI Companion</div><div class="sig-body">Always-present intelligence interface anchored to the bottom-right corner. Not a chatbot modal — a persistent presence. Proactive insight surfacing with amber pulse notification. Memory-aware: per-user DuckDB session memory across visits. Powered by claude-sonnet-4-6 with SSE streaming.</div></div>
+    <div class="sig-card card-green"><div class="sig-num">03</div><div class="sig-title">Data Visualizations &amp; Chart Animations</div><div class="sig-body">Every chart animated on entry — data builds into the visual rather than appearing instantaneously. Semantic color encoding: green = above benchmark, amber/red = below. Bar charts grow from axis. Line charts draw left-to-right with trailing glow on most recent data point.</div></div>
+    <div class="sig-card card-orange"><div class="sig-num">04</div><div class="sig-title">Program Drill-Down Navigation</div><div class="sig-body">Triggered from any content item across any portal. Cinematic 300ms ease-out expand over blurred backdrop — user never loses spatial context. TMDB hero image at full panel width. OVERVIEW → AUDIENCE → CONTENT tab cascade with 80ms staggered animation per element.</div></div>
+    <div class="sig-card card-purple"><div class="sig-num">05</div><div class="sig-title">Metadata Booklet Pagination</div><div class="sig-body">Paginated booklet overlay with 3D CSS curl physics page turn. Stacked-card depth metaphor. Each page = one metadata dimension (Language, Territories, Device Rights, Distribution Channels). Exportable as a formatted PDF bearing SaSMaster's visual signature.</div></div>
+    <div class="sig-card" style="border-top:2px solid var(--text-muted);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:28px;background:var(--surface2);"><div class="display" style="font-size:28px;color:var(--text-muted);margin-bottom:10px;">Design Principle</div><div style="font-size:13px;color:var(--text-secondary);line-height:1.7;font-style:italic;">"Every experience in SaSMaster should feel like it was built by people who genuinely understand media — not engineered by a software company that happened to add media data. The UI is not a skin. It is a statement of category."</div></div>
+  </div>
+</div>
+</div>
+
+<div class="section-divider"></div>
+
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">06</span>
+    <div class="section-label">Autonomous Agent System</div>
+    <div class="section-title">6 DOMAIN-SPECIALIZED AGENTS + 5 OUTPUT TYPES + SELF-LEARNING ARCHITECTURE</div>
+  </div>
+  <div class="agent-table-wrap" style="margin-bottom:32px;">
+    <table class="agent-table">
+      <thead><tr><th>Agent</th><th>Media Intelligence Specialization</th></tr></thead>
+      <tbody>
+        <tr><td><span class="agent-name">data-modeler</span></td><td>Understands media data schemas at the content, audience, and rights layer. Knows how Nielsen AMRLD person-level data relates to TMDB content metadata through the Parent Key. Designs data pipelines that preserve semantic relationships between content performance, audience composition, and rights availability.</td></tr>
+        <tr><td><span class="agent-name">scraper-debugger</span></td><td>Knows which data sources are structurally reliable, which are fragile, and which require rate limiting at scale. Understands the difference between a Nielsen GRP and a Nielsen impression at the ingestion layer — flags when data from different measurement sources is being conflated before it reaches the intelligence layer.</td></tr>
+        <tr><td><span class="agent-name">jarvis-ops</span></td><td>The operational coordinator: schedules builds, manages task sequencing, routes outputs to the right consumer. Knows which tasks are time-critical (upfront research, live ratings, breaking competitive news) vs. can-be-batched (weekly trend analysis, quarterly content valuation reports).</td></tr>
+        <tr><td><span class="agent-name">qa-agent</span></td><td>Validates intelligence outputs against known industry benchmarks before they surface to users. If an audience index calculation produces a result outside the expected range for a network of that size and genre, the qa-agent flags it before Dr. Scoop presents it as a finding. No false signal reaches the user without a confidence marker.</td></tr>
+        <tr><td><span class="agent-name">autonomous-coder</span></td><td>Builds and deploys new visualization modules, data adapters, and portal features autonomously, from a task specification. Writes the implementation, runs tests, and pushes to the production branch. Human review for edge cases, not the routine build cycle.</td></tr>
+        <tr><td><span class="agent-name">lessons-feedback</span></td><td>The learning engine. Reads cost-log.jsonl audit trail and user interaction patterns to identify where the intelligence layer produced sub-optimal outputs. Proposes and implements refinements to agent prompts, model weights, and data pipeline logic. Every session makes the system measurably smarter.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="section-label" style="margin-bottom:16px;">5 Autonomous Output Capabilities</div>
+  <div class="output-list" style="margin-bottom:36px;">
+    <div class="output-item"><div class="output-num">1</div><div><div class="output-title">Insight Commentary &amp; Factoid Briefings</div><div class="output-body">Dr. Scoop surfaces intelligence in two formats: structured insight commentary (full analytical narrative with recommendation and reasoning) and factoid briefings (micro-intelligence delivered proactively when the agent detects the user is looking at a screen where a specific data point would be immediately relevant). The factoid takes 4 seconds to read. The decision it enables took 4 hours of analysis to produce.</div></div></div>
+    <div class="output-item"><div class="output-num">2</div><div><div class="output-title">Data Visualizations &amp; Animated Intelligence Reports</div><div class="output-body">Autonomous visualization engine generates chart-ready intelligence outputs — media-domain-specific visualizations built to the SaSMaster cinematic design system. Audience reach curves, daypart competitive heat maps, content performance waterfalls, rights window Gantt charts. The autonomous output is indistinguishable from the hand-crafted one. This is by design.</div></div></div>
+    <div class="output-item"><div class="output-num">3</div><div><div class="output-title">PowerPoint Intelligence Decks</div><div class="output-body">SaSMaster autonomously generates executive-ready PowerPoint presentations — programming performance briefs, competitive landscape decks, content acquisition recommendations. Structured argument with premise, supporting evidence, implications, and recommended action. Arrives ready to present to a programming committee or board — not ready to be redesigned.</div></div></div>
+    <div class="output-item"><div class="output-num">4</div><div><div class="output-title">Licensing &amp; Acquisition Plans</div><div class="output-body">Synthesizes four data layers — content performance history, rights metadata, financial modeling, and audience signal intelligence — into a structured acquisition recommendation. Target content ranked by audience fit score, rights window analysis, financial modeling under conservative and optimistic scenarios, competitive intelligence on which other buyers are likely in the market, and a negotiation strategy brief.</div></div></div>
+    <div class="output-item"><div class="output-num">5</div><div><div class="output-title">Autonomous Task Execution &amp; Self-Initiated Actions</div><div class="output-body">The highest-order capability: identify a needed action, determine how to execute it, carry it out, and report the result without human initiation at any step. The scraper-debugger detects malformed records, diagnoses the schema shift, patches ingestion logic, validates the fix against historical records, and posts a resolution notice to the War Room — all before a human has noticed the issue.</div></div></div>
+  </div>
+  <div class="section-label" style="margin-bottom:14px;">Self-Learning Feedback Architecture — 3 Simultaneous Loops</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+    <div class="card card-teal"><div class="mono" style="font-size:10px;letter-spacing:0.12em;color:var(--teal);text-transform:uppercase;margin-bottom:8px;">Loop 1 — Audit-Driven</div><div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">Every agent action logged in cost-log.jsonl (13 fields). lessons-feedback reads each build cycle, identifies patterns in low-confidence or high-cost outputs, proposes prompt refinements. System compounds knowledge with every build.</div></div>
+    <div class="card card-blue"><div class="mono" style="font-size:10px;letter-spacing:0.12em;color:var(--blue);text-transform:uppercase;margin-bottom:8px;">Loop 2 — User-Interaction</div><div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">Every Dr. Scoop engagement — accepted recommendations, dismissed insights, drill-downs, explicit ratings — teaches the agent which insights resonate with which user profiles. Dr. Scoop's surfacing becomes calibrated to each organization's decision-making style.</div></div>
+    <div class="card card-purple"><div class="mono" style="font-size:10px;letter-spacing:0.12em;color:var(--purple);text-transform:uppercase;margin-bottom:8px;">Loop 3 — Market-Signal</div><div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">Scrapers continuously monitor the external data environment — content announcements, ratings releases, competitive programming moves, acquisition announcements. When a market signal is detected relevant to a portfolio, the system automatically re-runs affected intelligence modules.</div></div>
+  </div>
+</div>
+</div>
+
+<div class="section-divider"></div>
+
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">07</span>
+    <div class="section-label">Financial Model &amp; Pricing</div>
+    <div class="section-title">TAM, SAM, AND BLOOMBERG-MODEL PRICING ARCHITECTURE</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
+    <div>
+      <div class="section-label" style="margin-bottom:14px;">SAM — US, UK &amp; Canada</div>
+      <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px;">
+        <table class="data-table">
+          <thead><tr><th>Segment</th><th>US</th><th>UK</th><th>CA</th><th style="color:var(--teal)">Total</th></tr></thead>
+          <tbody>
+            <tr><td>Network Group</td><td>$287.5M</td><td>$600.6M</td><td>$249.4M</td><td style="font-weight:700;color:var(--teal)">$1,137.5M</td></tr>
+            <tr><td>MVPD</td><td>$453.1M</td><td>$192.5M</td><td>—</td><td style="font-weight:700;color:var(--teal)">$645.6M</td></tr>
+            <tr><td>Syndicator/Publisher</td><td>$475.6M</td><td>—</td><td>—</td><td style="font-weight:700;color:var(--teal)">$475.6M</td></tr>
+            <tr><td>OTT / SVOD</td><td>$248.1M</td><td>$15.0M</td><td>$4.4M</td><td style="font-weight:700;color:var(--teal)">$267.5M</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="sam-total"><div class="mono" style="font-size:10px;letter-spacing:0.15em;color:var(--dark-muted);text-transform:uppercase;margin-bottom:4px;">Total SAM</div><div class="sam-total-val">$3.3 Billion</div><div class="sam-total-label">US + UK + Canada · Growing to $4.1B by 2025 at 3% CAGR</div></div>
+    </div>
+    <div>
+      <div class="section-label" style="margin-bottom:14px;">5-Year Growth Projections</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="card" style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:600;font-size:13px;">Year 1 — 2026</div><div class="mono" style="font-size:10px;color:var(--text-muted)">3–5 clients · Intelligence tier focus · 2 anchor case studies</div></div><div class="mono" style="color:var(--teal);font-size:13px;font-weight:600;">$400K–$800K ARR</div></div>
+        <div class="card" style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:600;font-size:13px;">Year 2 — 2027</div><div class="mono" style="font-size:10px;color:var(--text-muted)">10–15 clients · First Optimization enterprise · Exchange beta</div></div><div class="mono" style="color:var(--teal);font-size:13px;font-weight:600;">$2M–$4M ARR</div></div>
+        <div class="card" style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:600;font-size:13px;">Year 3 — 2028</div><div class="mono" style="font-size:10px;color:var(--text-muted)">25–40 clients · Exchange live · API revenue line active</div></div><div class="mono" style="color:var(--blue);font-size:13px;font-weight:600;">$8M–$15M ARR</div></div>
+        <div class="card" style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:600;font-size:13px;">Year 4 — 2029</div><div class="mono" style="font-size:10px;color:var(--text-muted)">50–75 clients · Exchange effects visible · India/EU expansion</div></div><div class="mono" style="color:var(--purple);font-size:13px;font-weight:600;">$18M–$30M ARR</div></div>
+        <div class="card" style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--purple-border);"><div><div style="font-weight:600;font-size:13px;">Year 5 — 2030</div><div class="mono" style="font-size:10px;color:var(--text-muted)">80–120 clients · Exchange 20%+ of revenue</div></div><div class="mono" style="color:var(--purple);font-size:13px;font-weight:600;">$35M–$60M ARR</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="section-label" style="margin-bottom:14px;">Pricing Architecture — Bloomberg Terminal Model</div>
+  <div class="pricing-grid">
+    <div class="pricing-card"><div class="price-tier">Intelligence</div><div class="price-val">$75K–$150K<span class="mono" style="font-size:14px;color:var(--text-muted)">/yr</span></div><div class="price-scope">Dr. Scoop access, Content &amp; Audience intelligence portals, standard reporting, up to 5 users</div></div>
+    <div class="pricing-card featured"><div class="price-tier">Optimization (Core)</div><div class="price-val">$200K–$400K<span class="mono" style="font-size:14px;color:var(--text-muted)">/yr</span></div><div class="price-scope">Full platform, Revenue Optimization Engine, all five portals, ML model access, JARVIS integration, up to 20 users</div></div>
+    <div class="pricing-card"><div class="price-tier">Enterprise</div><div class="price-val">$500K+<span class="mono" style="font-size:14px;color:var(--text-muted)">/yr</span></div><div class="price-scope">Full platform, custom model training, white-glove onboarding, Exchange priority access, unlimited users</div></div>
+    <div class="pricing-card"><div class="price-tier">Exchange</div><div class="price-val">0.25–0.5%<span class="mono" style="font-size:14px;color:var(--text-muted)"> txn</span></div><div class="price-scope">Applied to all transactions executed through the Exchange marketplace. Subscription tier required for access.</div></div>
+  </div>
+</div>
+</div>
+
+<div class="section-divider"></div>
+
+<div class="section" style="padding-bottom:0;">
+<div class="wrapper">
+  <div class="x-in-sand"><strong>Closing Principle:</strong> The media industry does not need another dashboard. It needs an intelligence layer that thinks at the speed of the market, learns from every decision, and acts on behalf of the human who cannot process everything at once. SaSMaster is that layer. <strong>The Bloomberg Terminal analogy is not aspiration — it is the engineering specification.</strong> The foundation is live. The IP is clean. The architecture is differentiated. The market conditions are optimal. The path to gold standard is clear.</div>
+  <div style="text-align:center;padding:32px 0 48px;">
+    <div class="display" style="font-size:28px;color:var(--text-primary);margin-bottom:6px;">Decode data for radical insights.</div>
+    <div class="display" style="font-size:28px;color:var(--teal);">Drive content, audiences, and revenue.</div>
+  </div>
+</div>
+</div>
+
+<div class="footer">
+  <div><div class="footer-logo">SaSMaster Intelligence Platform</div><div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--dark-muted);margin-top:4px;">Bloomberg Terminal for Media — Built by Shiv Ashish</div></div>
+  <div class="footer-meta"><p>Version 1.0 | April 2026 | CONFIDENTIAL</p><p style="color:var(--dark-teal);margin-top:2px;">sasmaster-status.vercel.app</p></div>
 </div>
 
 </body>
