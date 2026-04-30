@@ -2735,21 +2735,22 @@
 
 
   /* ══════ NATIVE P&L CHART ══════ */
-  .plc-wrap { background:var(--bg-surface); border:1px solid var(--border); border-radius:6px; padding:20px 20px 16px; margin-bottom:20px; }
-  .plc-header { margin-bottom:16px; }
-  .plc-title { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--text-primary); letter-spacing:0.04em; margin-bottom:3px; }
-  .plc-subtitle { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); letter-spacing:0.15em; }
-  .plc-subtitle .gold-hl { color:var(--gold); font-weight:bold; }
-  .plc-charts { display:flex; gap:16px; align-items:flex-start; }
-  .plc-bar-wrap { flex:1; overflow-x:auto; }
-  .plc-bar-svg { display:block; }
-  .plc-legend { display:flex; gap:16px; margin-top:10px; flex-wrap:wrap; }
-  .plc-legend-item { display:flex; align-items:center; gap:6px; font-family:'Share Tech Mono',monospace; font-size:8px; color:rgba(255,255,255,0.4); letter-spacing:0.12em; }
-  .plc-legend-dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
-  .plc-contracts { margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.05); }
-  .plc-contracts-title { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--lavender); letter-spacing:0.2em; margin-bottom:10px; }
-  .plc-contract-line { font-family:'Barlow Condensed',sans-serif; font-size:12px; color:var(--text-secondary); line-height:1.6; padding:2px 0; }
+  .plc-wrap { background:var(--bg-surface); border:1px solid var(--border); border-radius:6px; padding:14px 16px 12px; margin-bottom:16px; }
+  .plc-header { margin-bottom:10px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; }
+  .plc-title { font-family:'Bebas Neue',sans-serif; font-size:17px; color:var(--text-primary); letter-spacing:0.04em; white-space:nowrap; }
+  .plc-subtitle { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--text-dim); letter-spacing:0.12em; }
+  .plc-subtitle .gold-hl { color:var(--gold); }
+  .plc-charts { display:flex; gap:12px; align-items:center; }
+  .plc-bar-wrap { flex:1; min-width:0; overflow-x:auto; }
+  .plc-bar-svg { display:block; width:100%; height:auto; }
+  .plc-legend { display:flex; gap:12px; margin-top:6px; }
+  .plc-legend-item { display:flex; align-items:center; gap:5px; font-family:'Share Tech Mono',monospace; font-size:7px; color:rgba(255,255,255,0.35); letter-spacing:0.1em; }
+  .plc-legend-dot { width:8px; height:8px; border-radius:1px; flex-shrink:0; }
+  .plc-contracts { margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.04); display:grid; grid-template-columns:1fr 1fr; gap:2px 24px; }
+  .plc-contracts-title { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--lavender); letter-spacing:0.2em; margin-bottom:6px; grid-column:1/-1; }
+  .plc-contract-line { font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--text-secondary); line-height:1.5; }
   .plc-contract-line .cl-hl { color:var(--gold); font-weight:600; }
+  .plc-contract-growth { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--teal-bright); margin-top:4px; grid-column:1/-1; letter-spacing:0.1em; }
 
 </style>
 </head>
@@ -3247,38 +3248,38 @@
     <div class="plc-wrap reveal-fade">
       <div class="plc-header">
         <div class="plc-title">Audience Revenues vs. Costs (2018–2025)</div>
-        <div class="plc-subtitle">2025 Revenues: $1.8M &nbsp;·&nbsp; 2025 Costs: $1.617M &nbsp;·&nbsp; <span class="gold-hl">Profit Margin: 13.2%</span></div>
+        <div class="plc-subtitle">Rev $1.8M &nbsp;·&nbsp; Cost $1.617M &nbsp;·&nbsp; <span class="gold-hl">Margin: 13.2%</span></div>
       </div>
       <div class="plc-charts">
         <div class="plc-bar-wrap">
-          <svg class="plc-bar-svg" viewBox="0 0 580 202" width="580" height="202" xmlns="http://www.w3.org/2000/svg">
-            <rect width="580" height="202" fill="transparent"/>
-            <line x1="44" y1="137.5" x2="570" y2="137.5" stroke="rgba(255,255,255,0.06)" stroke-width="1"/><text x="40" y="141.5" text-anchor="end" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(255,255,255,0.3)">$1.5M</text><line x1="44" y1="95.0" x2="570" y2="95.0" stroke="rgba(255,255,255,0.06)" stroke-width="1"/><text x="40" y="99.0" text-anchor="end" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(255,255,255,0.3)">$3.0M</text><line x1="44" y1="52.5" x2="570" y2="52.5" stroke="rgba(255,255,255,0.06)" stroke-width="1"/><text x="40" y="56.5" text-anchor="end" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(255,255,255,0.3)">$4.5M</text><line x1="44" y1="10.0" x2="570" y2="10.0" stroke="rgba(255,255,255,0.06)" stroke-width="1"/><text x="40" y="14.0" text-anchor="end" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(255,255,255,0.3)">$6.0M</text>
-            <rect x="44" y="52.5" width="24" height="127.5" fill="rgba(167,139,250,0.85)" rx="2"><title>$4.5M Revenue</title></rect><rect x="74" y="95.0" width="24" height="85.0" fill="rgba(34,211,238,0.75)" rx="2"><title>$3.0M Cost</title></rect><text x="71.0" y="192" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="rgba(255,255,255,0.4)">2018</text><rect x="110" y="49.7" width="24" height="130.3" fill="rgba(167,139,250,0.85)" rx="2"><title>$4.6M Revenue</title></rect><rect x="140" y="99.2" width="24" height="80.8" fill="rgba(34,211,238,0.75)" rx="2"><title>$2.85M Cost</title></rect><text x="137.0" y="192" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="rgba(255,255,255,0.4)">2019</text><rect x="176" y="52.5" width="24" height="127.5" fill="rgba(167,139,250,0.85)" rx="2"><title>$4.5M Revenue</title></rect><rect x="206" y="126.2" width="24" height="53.8" fill="rgba(34,211,238,0.75)" rx="2"><title>$1.9M Cost</title></rect><text x="203.0" y="192" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="rgba(255,255,255,0.4)">2020</text><rect x="242" y="75.2" width="24" height="104.8" fill="rgba(167,139,250,0.85)" rx="2"><title>$3.7M Revenue</title></rect><rect x="272" y="103.5" width="24" height="76.5" fill="rgba(34,211,238,0.75)" rx="2"><title>$2.7M Cost</title></rect><text x="269.0" y="192" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="rgba(255,255,255,0.4)">2021</text><rect x="308" y="55.3" width="24" height="124.7" fill="rgba(167,139,250,0.85)" rx="2"><title>$4.4M Revenue</title></rect><rect x="338" y="102.1" width="24" height="77.9" fill="rgba(34,211,238,0.75)" rx="2"><title>$2.75M Cost</title></rect><text x="335.0" y="192" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="rgba(255,255,255,0.4)">2022</text><rect x="374" y="61.0" width="24" height="119.0" fill="rgba(167,139,250,0.85)" rx="2"><title>$4.2M Revenue</title></rect><rect x="404" y="114.8" width="24" height="65.2" fill="rgba(34,211,238,0.75)" rx="2"><title>$2.3M Cost</title></rect><text x="401.0" y="192" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="rgba(255,255,255,0.4)">2023</text><rect x="440" y="120.5" width="24" height="59.5" fill="rgba(167,139,250,0.85)" rx="2"><title>$2.1M Revenue</title></rect><rect x="470" y="117.7" width="24" height="62.3" fill="rgba(34,211,238,0.75)" rx="2"><title>$2.2M Cost</title></rect><text x="467.0" y="192" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="rgba(255,255,255,0.4)">2024</text><rect x="506" y="129.0" width="24" height="51.0" fill="rgba(167,139,250,0.85)" rx="2"><title>$1.8M Revenue</title></rect><rect x="536" y="134.2" width="24" height="45.8" fill="rgba(34,211,238,0.75)" rx="2"><title>$1.617M Cost</title></rect><text x="533.0" y="192" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="rgba(255,255,255,0.4)">2025</text>
-            <line x1="44" y1="10" x2="44" y2="180" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-            <line x1="44" y1="180" x2="570" y2="180" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-          </svg>
+          <svg class="plc-bar-svg" viewBox="0 0 460 138" xmlns="http://www.w3.org/2000/svg">
+          <rect width="460" height="138" fill="transparent"/>
+          <line x1="36" y1="85.0" x2="454" y2="85.0" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="3 3"/><text x="32" y="88.0" text-anchor="end" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,255,255,0.25)">$1.5M</text><line x1="36" y1="52.0" x2="454" y2="52.0" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="3 3"/><text x="32" y="55.0" text-anchor="end" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,255,255,0.25)">$3.0M</text><line x1="36" y1="19.0" x2="454" y2="19.0" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="3 3"/><text x="32" y="22.0" text-anchor="end" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,255,255,0.25)">$4.5M</text>
+          <rect x="36" y="19.0" width="20" height="99.0" fill="rgba(167,139,250,0.82)" rx="2"><title>2018 Revenue: $4.5M</title></rect><rect x="60" y="52.0" width="20" height="66.0" fill="rgba(34,211,238,0.72)" rx="2"><title>2018 Cost: $3.0M</title></rect><text x="58.0" y="130" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7.5" fill="rgba(255,255,255,0.35)">2018</text><rect x="88" y="16.8" width="20" height="101.2" fill="rgba(167,139,250,0.82)" rx="2"><title>2019 Revenue: $4.6M</title></rect><rect x="112" y="55.3" width="20" height="62.7" fill="rgba(34,211,238,0.72)" rx="2"><title>2019 Cost: $2.85M</title></rect><text x="110.0" y="130" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7.5" fill="rgba(255,255,255,0.35)">2019</text><rect x="140" y="19.0" width="20" height="99.0" fill="rgba(167,139,250,0.82)" rx="2"><title>2020 Revenue: $4.5M</title></rect><rect x="164" y="76.2" width="20" height="41.8" fill="rgba(34,211,238,0.72)" rx="2"><title>2020 Cost: $1.9M</title></rect><text x="162.0" y="130" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7.5" fill="rgba(255,255,255,0.35)">2020</text><rect x="192" y="36.6" width="20" height="81.4" fill="rgba(167,139,250,0.82)" rx="2"><title>2021 Revenue: $3.7M</title></rect><rect x="216" y="58.6" width="20" height="59.4" fill="rgba(34,211,238,0.72)" rx="2"><title>2021 Cost: $2.7M</title></rect><text x="214.0" y="130" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7.5" fill="rgba(255,255,255,0.35)">2021</text><rect x="244" y="21.2" width="20" height="96.8" fill="rgba(167,139,250,0.82)" rx="2"><title>2022 Revenue: $4.4M</title></rect><rect x="268" y="57.5" width="20" height="60.5" fill="rgba(34,211,238,0.72)" rx="2"><title>2022 Cost: $2.75M</title></rect><text x="266.0" y="130" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7.5" fill="rgba(255,255,255,0.35)">2022</text><rect x="296" y="25.6" width="20" height="92.4" fill="rgba(167,139,250,0.82)" rx="2"><title>2023 Revenue: $4.2M</title></rect><rect x="320" y="67.4" width="20" height="50.6" fill="rgba(34,211,238,0.72)" rx="2"><title>2023 Cost: $2.3M</title></rect><text x="318.0" y="130" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7.5" fill="rgba(255,255,255,0.35)">2023</text><rect x="348" y="71.8" width="20" height="46.2" fill="rgba(167,139,250,0.82)" rx="2"><title>2024 Revenue: $2.1M</title></rect><rect x="372" y="69.6" width="20" height="48.4" fill="rgba(34,211,238,0.72)" rx="2"><title>2024 Cost: $2.2M</title></rect><text x="370.0" y="130" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7.5" fill="rgba(255,255,255,0.35)">2024</text><rect x="400" y="78.4" width="20" height="39.6" fill="rgba(167,139,250,0.82)" rx="2"><title>2025 Revenue: $1.8M</title></rect><rect x="424" y="82.4" width="20" height="35.6" fill="rgba(34,211,238,0.72)" rx="2"><title>2025 Cost: $1.617M</title></rect><text x="422.0" y="130" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7.5" fill="rgba(255,255,255,0.35)">2025</text>
+          <line x1="36" y1="8" x2="36" y2="118" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+          <line x1="36" y1="118" x2="456" y2="118" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        </svg>
           <div class="plc-legend">
-            <div class="plc-legend-item"><div class="plc-legend-dot" style="background:rgba(167,139,250,0.85);"></div>Audience Revenues</div>
-            <div class="plc-legend-item"><div class="plc-legend-dot" style="background:rgba(34,211,238,0.75);"></div>Audience Costs</div>
+            <div class="plc-legend-item"><div class="plc-legend-dot" style="background:rgba(167,139,250,0.82);"></div>Audience Revenues</div>
+            <div class="plc-legend-item"><div class="plc-legend-dot" style="background:rgba(34,211,238,0.72);"></div>Audience Costs</div>
           </div>
         </div>
-        <svg viewBox="0 0 140 185" width="140" height="185" xmlns="http://www.w3.org/2000/svg">
-  <text x="70" y="12" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(167,139,250,0.7)" letter-spacing="1">2025 BREAKDOWN</text>
-  <circle cx="70" cy="70" r="52" fill="none" stroke="#a78bfa" stroke-width="18" stroke-dasharray="241.8 84.9" stroke-dashoffset="-0.0" opacity="0.9"><title>Subscription: 74%</title></circle><circle cx="70" cy="70" r="52" fill="none" stroke="#22d3ee" stroke-width="18" stroke-dasharray="49.0 277.7" stroke-dashoffset="-241.8" opacity="0.9"><title>Implementation: 15%</title></circle><circle cx="70" cy="70" r="52" fill="none" stroke="#f59e0b" stroke-width="18" stroke-dasharray="22.9 303.9" stroke-dashoffset="-290.8" opacity="0.9"><title>Professional Services: 7%</title></circle><circle cx="70" cy="70" r="52" fill="none" stroke="#c084fc" stroke-width="18" stroke-dasharray="13.1 313.7" stroke-dashoffset="-313.7" opacity="0.9"><title>Maintenance: 4%</title></circle>
-  <circle cx="70" cy="70" r="32" fill="#0d0d16"/>
-  <text x="70" y="66" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="14" fill="#f59e0b">13.2%</text>
-  <text x="70" y="80" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,255,255,0.4)">MARGIN</text>
-  <rect x="4" y="142" width="8" height="8" rx="1" fill="#a78bfa" opacity="0.9"/><text x="16" y="149" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,255,255,0.5)">Subscription 74%</text><rect x="74" y="142" width="8" height="8" rx="1" fill="#22d3ee" opacity="0.9"/><text x="86" y="149" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,255,255,0.5)">Implementation 15%</text><rect x="4" y="156" width="8" height="8" rx="1" fill="#f59e0b" opacity="0.9"/><text x="16" y="163" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,255,255,0.5)">Professional Services 7%</text><rect x="74" y="156" width="8" height="8" rx="1" fill="#c084fc" opacity="0.9"/><text x="86" y="163" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,255,255,0.5)">Maintenance 4%</text>
+        <svg viewBox="0 0 124 132" width="124" height="132" style="flex-shrink:0" xmlns="http://www.w3.org/2000/svg">
+  <text x="62" y="9" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(167,139,250,0.6)" letter-spacing="1">2025 BREAKDOWN</text>
+  <circle cx="52" cy="52" r="38" fill="none" stroke="#a78bfa" stroke-width="14" stroke-dasharray="176.7 62.1" stroke-dashoffset="-0.0" opacity="0.9"/><circle cx="52" cy="52" r="38" fill="none" stroke="#22d3ee" stroke-width="14" stroke-dasharray="35.8 202.9" stroke-dashoffset="-176.7" opacity="0.9"/><circle cx="52" cy="52" r="38" fill="none" stroke="#f59e0b" stroke-width="14" stroke-dasharray="16.7 222.0" stroke-dashoffset="-212.5" opacity="0.9"/><circle cx="52" cy="52" r="38" fill="none" stroke="#c084fc" stroke-width="14" stroke-dasharray="9.6 229.2" stroke-dashoffset="-229.2" opacity="0.9"/>
+  <circle cx="52" cy="52" r="24" fill="#0d0d16"/>
+  <text x="52" y="50" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="13" fill="#f59e0b">13.2%</text>
+  <text x="52" y="61" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="rgba(255,255,255,0.35)">MARGIN</text>
+  <rect x="4" y="103" width="7" height="7" rx="1" fill="#a78bfa" opacity="0.9"/><text x="14" y="109" font-family="Share Tech Mono,monospace" font-size="6.5" fill="rgba(255,255,255,0.4)">Subscription 74%</text><rect x="64" y="103" width="7" height="7" rx="1" fill="#22d3ee" opacity="0.9"/><text x="74" y="109" font-family="Share Tech Mono,monospace" font-size="6.5" fill="rgba(255,255,255,0.4)">Implementation 15%</text><rect x="4" y="115" width="7" height="7" rx="1" fill="#f59e0b" opacity="0.9"/><text x="14" y="121" font-family="Share Tech Mono,monospace" font-size="6.5" fill="rgba(255,255,255,0.4)">Prof. Services 7%</text><rect x="64" y="115" width="7" height="7" rx="1" fill="#c084fc" opacity="0.9"/><text x="74" y="121" font-family="Share Tech Mono,monospace" font-size="6.5" fill="rgba(255,255,255,0.4)">Maintenance 4%</text>
 </svg>
       </div>
       <div class="plc-contracts">
-        <div class="plc-contracts-title">// LONG-TERM RENEWALS — STABLE ARR FOUNDATION</div>
-        <div class="plc-contract-line"><span class="cl-hl">BET Scoop</span> — 3-Year Deal · Executed Feb 4, 2025 · Good Thru Dec 31, 2027</div>
-        <div class="plc-contract-line"><span class="cl-hl">Paramount Prophet</span> — 3-Year Deal · Executed Oct 6, 2023 · +1-Year Option</div>
-        <div class="plc-contract-line"><span class="cl-hl">A+E C360</span> — 4-Year Deal · Executed June 2023 · Good Thru June 2027</div>
-        <div class="plc-contract-line"><span class="cl-hl">Smart Insights GenAI</span> — First GenAI Deal with BET · New Growth Driver</div>
-        <div class="plc-contract-line" style="margin-top:4px;color:var(--teal-bright);font-size:11px;">Analytics As A Service: 10% YoY Growth</div>
+        <div class="plc-contracts-title">// LONG-TERM RENEWALS — STABLE ARR</div>
+        <div class="plc-contract-line"><span class="cl-hl">BET Scoop</span> — 3-Yr · Feb 2025 → Dec 2027</div>
+        <div class="plc-contract-line"><span class="cl-hl">Paramount Prophet</span> — 3-Yr · Oct 2023 +1yr</div>
+        <div class="plc-contract-line"><span class="cl-hl">A+E C360</span> — 4-Yr · June 2023 → June 2027</div>
+        <div class="plc-contract-line"><span class="cl-hl">Smart Insights GenAI</span> — BET · New Growth Driver</div>
+        <div class="plc-contract-growth">Analytics As A Service: 10% YoY Growth</div>
       </div>
     </div>
 
