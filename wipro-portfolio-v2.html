@@ -2563,125 +2563,107 @@
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 0;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
     overflow: hidden;
-    margin-bottom: 28px;
-    position: relative;
+    margin-bottom: 24px;
+    min-height: 280px;
   }
-  @media(max-width:900px){.fdp-diagram{grid-template-columns:repeat(4,1fr); grid-template-rows:auto auto;}}
+  @media(max-width:900px){.fdp-diagram{grid-template-columns:repeat(4,1fr);}}
 
   .fdp-col {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    border-right: 1px solid rgba(255,255,255,0.06);
+    border-right: 1px solid rgba(255,255,255,0.07);
     position: relative;
     overflow: hidden;
-    transition: all 250ms var(--ease-cinematic);
+    transition: all 300ms var(--ease-cinematic);
   }
   .fdp-col:last-child { border-right: none; }
-  .fdp-col:hover { filter: brightness(1.15); z-index: 2; }
+  .fdp-col:hover { filter: brightness(1.12); z-index: 2; box-shadow: inset 0 0 40px rgba(255,255,255,0.05); }
 
-  /* column gradient backgrounds matching original */
   .fdp-col.col-sources {
-    background: linear-gradient(160deg, rgba(30,20,60,0.95) 0%, rgba(20,10,40,0.98) 100%);
+    background: linear-gradient(180deg, rgba(40,20,80,0.95) 0%, rgba(25,10,55,1) 100%);
     border-top: 3px solid var(--lavender);
   }
   .fdp-col.col-etl1 {
-    background: linear-gradient(160deg, rgba(16,60,40,0.85) 0%, rgba(0,100,60,0.7) 100%);
+    background: linear-gradient(180deg, rgba(5,60,35,0.95) 0%, rgba(0,40,20,1) 100%);
     border-top: 3px solid #10b981;
   }
   .fdp-col.col-etl2 {
-    background: linear-gradient(160deg, rgba(0,80,100,0.8) 0%, rgba(0,120,140,0.7) 100%);
+    background: linear-gradient(180deg, rgba(0,70,80,0.95) 0%, rgba(0,50,60,1) 100%);
     border-top: 3px solid var(--teal-bright);
   }
   .fdp-col.col-data {
-    background: linear-gradient(160deg, rgba(60,20,100,0.85) 0%, rgba(80,30,120,0.8) 100%);
-    border-top: 3px solid var(--lavender);
+    background: linear-gradient(180deg, rgba(55,15,100,0.95) 0%, rgba(40,10,80,1) 100%);
+    border-top: 3px solid var(--lav-2);
   }
   .fdp-col.col-compute {
-    background: linear-gradient(160deg, rgba(100,20,40,0.85) 0%, rgba(140,30,50,0.75) 100%);
+    background: linear-gradient(180deg, rgba(90,15,30,0.95) 0%, rgba(70,10,20,1) 100%);
     border-top: 3px solid #ef4444;
   }
   .fdp-col.col-api {
-    background: linear-gradient(160deg, rgba(20,40,100,0.85) 0%, rgba(30,60,140,0.8) 100%);
+    background: linear-gradient(180deg, rgba(10,30,90,0.95) 0%, rgba(5,20,70,1) 100%);
     border-top: 3px solid #60a5fa;
   }
   .fdp-col.col-users {
-    background: linear-gradient(160deg, rgba(20,20,40,0.9) 0%, rgba(30,30,60,0.85) 100%);
-    border-top: 3px solid rgba(255,255,255,0.3);
+    background: linear-gradient(180deg, rgba(15,15,35,0.95) 0%, rgba(10,10,25,1) 100%);
+    border-top: 3px solid rgba(255,255,255,0.25);
   }
 
   .fdp-col-body {
-    padding: 16px 10px;
+    padding: 20px 10px 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 16px;
     flex: 1;
-    width: 100%;
   }
   .fdp-icon {
-    width: 52px;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 64px; height: 64px;
+    display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
+    filter: drop-shadow(0 0 10px currentColor);
   }
   .fdp-icon svg { width: 100%; height: 100%; }
   .fdp-items {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    width: 100%;
+    display: flex; flex-direction: column; gap: 6px; width: 100%;
   }
   .fdp-item {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 8px;
-    color: rgba(255,255,255,0.55);
-    letter-spacing: 0.08em;
+    font-size: 8.5px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.06em;
     text-align: center;
-    padding: 3px 4px;
-    border-radius: 2px;
-    background: rgba(255,255,255,0.04);
-    line-height: 1.3;
-    transition: color 200ms, background 200ms;
+    line-height: 1.4;
+    transition: color 200ms;
+    padding: 2px 0;
   }
-  .fdp-col:hover .fdp-item { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.08); }
-
-  /* flow arrow between cols */
-  .fdp-arrow {
-    position: absolute;
-    top: 50%;
-    right: -10px;
-    transform: translateY(-50%);
-    z-index: 3;
-    color: rgba(255,255,255,0.3);
-    font-size: 14px;
-    pointer-events: none;
+  .fdp-item::before {
+    content: '—';
+    margin-right: 4px;
+    opacity: 0.3;
   }
+  .fdp-col:hover .fdp-item { color: rgba(255,255,255,0.8); }
 
   .fdp-col-footer {
-    width: 100%;
-    padding: 8px 6px;
-    background: rgba(0,0,0,0.3);
+    padding: 10px 8px 12px;
+    background: rgba(0,0,0,0.4);
     border-top: 1px solid rgba(255,255,255,0.06);
     text-align: center;
   }
   .fdp-col-num {
     font-family: 'Share Tech Mono', monospace;
     font-size: 8px;
-    color: rgba(255,255,255,0.3);
-    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.2em;
     display: block;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
   }
   .fdp-col-label {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.08em;
+    font-size: 13px;
+    letter-spacing: 0.1em;
     line-height: 1.1;
     display: block;
   }
@@ -2691,9 +2673,8 @@
   .col-data   .fdp-col-label  { color: var(--lav-2); }
   .col-compute .fdp-col-label { color: #ef4444; }
   .col-api    .fdp-col-label  { color: #60a5fa; }
-  .col-users  .fdp-col-label  { color: rgba(255,255,255,0.7); }
+  .col-users  .fdp-col-label  { color: rgba(255,255,255,0.6); }
 
-  /* connecting particles between stages */
   .fdp-connectors {
     display: flex;
     align-items: center;
@@ -3554,28 +3535,30 @@
   <!-- Fast Data Platform Visual Diagram -->
   <div class="fdp-diagram reveal-stagger">
 
-    <!-- Col 1: Sources -->
     <div class="fdp-col col-sources">
       <div class="fdp-col-body">
-        <div class="fdp-icon"><svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="6" y="6" width="18" height="14" rx="2" stroke="rgba(167,139,250,0.7)" stroke-width="1.5" fill="rgba(167,139,250,0.08)"/>
-  <rect x="6" y="24" width="18" height="14" rx="2" stroke="rgba(167,139,250,0.5)" stroke-width="1.5" fill="rgba(167,139,250,0.06)"/>
-  <rect x="6" y="14" width="3" height="3" rx="0.5" fill="rgba(167,139,250,0.6)"/>
-  <rect x="6" y="32" width="3" height="3" rx="0.5" fill="rgba(167,139,250,0.4)"/>
-  <circle cx="40" cy="14" r="7" stroke="rgba(167,139,250,0.7)" stroke-width="1.5" fill="none"/>
-  <text x="40" y="19" text-anchor="middle" font-size="8" fill="rgba(167,139,250,0.9)" font-family="Arial">N</text>
-  <circle cx="40" cy="34" r="7" stroke="rgba(34,211,238,0.6)" stroke-width="1.5" fill="none"/>
-  <text x="40" y="39" text-anchor="middle" font-size="7" fill="rgba(34,211,238,0.8)" font-family="Arial">G</text>
-  <line x1="24" y1="13" x2="33" y2="14" stroke="rgba(167,139,250,0.4)" stroke-width="1" stroke-dasharray="2 2"/>
-  <line x1="24" y1="31" x2="33" y2="34" stroke="rgba(34,211,238,0.4)" stroke-width="1" stroke-dasharray="2 2"/>
+        <div class="fdp-icon" style="color:var(--lavender);"><svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="8" y="6" width="22" height="16" rx="2" stroke="rgba(167,139,250,0.75)" stroke-width="1.5" fill="rgba(167,139,250,0.1)"/>
+  <rect x="4" y="11" width="22" height="16" rx="2" stroke="rgba(167,139,250,0.5)" stroke-width="1.5" fill="rgba(167,139,250,0.07)"/>
+  <text x="15" y="21" text-anchor="middle" font-size="8" fill="rgba(167,139,250,0.9)" font-family="Arial Bold">N</text>
+  <rect x="34" y="6" width="22" height="16" rx="2" stroke="rgba(34,211,238,0.7)" stroke-width="1.5" fill="rgba(34,211,238,0.08)"/>
+  <rect x="30" y="11" width="22" height="16" rx="2" stroke="rgba(34,211,238,0.5)" stroke-width="1.5" fill="rgba(34,211,238,0.05)"/>
+  <text x="41" y="21" text-anchor="middle" font-size="8" fill="rgba(34,211,238,0.9)" font-family="Arial Bold">G</text>
+  <g transform="translate(16,36)">
+    <rect x="0" y="0" width="10" height="8" rx="1" fill="rgba(167,139,250,0.4)"/>
+    <rect x="4" y="2" width="5" height="5" rx="1" fill="rgba(167,139,250,0.2)"/>
+    <rect x="12" y="0" width="6" height="8" rx="1" fill="rgba(34,211,238,0.3)"/>
+    <rect x="20" y="2" width="6" height="6" rx="3" fill="rgba(167,139,250,0.25)"/>
+  </g>
+  <path d="M8 46 Q32 52 56 46" stroke="rgba(167,139,250,0.3)" stroke-width="1" fill="none" stroke-dasharray="3 2"/>
 </svg></div>
         <div class="fdp-items">
-          <span class="fdp-item">Nielsen DNS</span>
-          <span class="fdp-item">Gracenote</span>
-          <span class="fdp-item">VideoAmp</span>
-          <span class="fdp-item">Comscore</span>
-          <span class="fdp-item">iSpotTV</span>
-          <span class="fdp-item">User Panels</span>
+          <div class="fdp-item">Nielsen DNS</div>
+          <div class="fdp-item">Gracenote</div>
+          <div class="fdp-item">VideoAmp</div>
+          <div class="fdp-item">Comscore</div>
+          <div class="fdp-item">iSpotTV</div>
+          <div class="fdp-item">User Panels</div>
         </div>
       </div>
       <div class="fdp-col-footer">
@@ -3584,20 +3567,21 @@
       </div>
     </div>
 
-    <!-- Col 2: ETL 1 -->
     <div class="fdp-col col-etl1">
       <div class="fdp-col-body">
-        <div class="fdp-icon"><svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <ellipse cx="26" cy="16" rx="14" ry="6" stroke="#10b981" stroke-width="1.5" fill="rgba(16,185,129,0.1)"/>
-  <path d="M12 16 L12 30 Q12 36 26 36 Q40 36 40 30 L40 16" stroke="#10b981" stroke-width="1.5" fill="rgba(16,185,129,0.06)"/>
-  <ellipse cx="26" cy="30" rx="14" ry="6" stroke="#10b981" stroke-width="1.5" fill="rgba(16,185,129,0.1)"/>
-  <line x1="18" y1="23" x2="34" y2="23" stroke="rgba(16,185,129,0.5)" stroke-width="1" stroke-dasharray="3 2"/>
-  <line x1="20" y1="27" x2="32" y2="27" stroke="rgba(16,185,129,0.4)" stroke-width="1" stroke-dasharray="3 2"/>
+        <div class="fdp-icon" style="color:#10b981;"><svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="32" cy="18" rx="18" ry="7" stroke="#10b981" stroke-width="1.5" fill="rgba(16,185,129,0.1)"/>
+  <path d="M14 18 L14 36 Q14 44 32 44 Q50 44 50 36 L50 18" stroke="#10b981" stroke-width="1.5" fill="rgba(16,185,129,0.06)"/>
+  <ellipse cx="32" cy="36" rx="18" ry="7" stroke="#10b981" stroke-width="1.5" fill="rgba(16,185,129,0.12)"/>
+  <line x1="22" y1="27" x2="42" y2="27" stroke="rgba(16,185,129,0.4)" stroke-width="1" stroke-dasharray="3 2"/>
+  <line x1="24" y1="32" x2="40" y2="32" stroke="rgba(16,185,129,0.3)" stroke-width="1" stroke-dasharray="3 2"/>
+  <path d="M32 44 L32 56" stroke="rgba(16,185,129,0.4)" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <circle cx="32" cy="58" r="2" fill="#10b981" opacity="0.6"/>
 </svg></div>
         <div class="fdp-items">
-          <span class="fdp-item">Fuzzy Matching</span>
-          <span class="fdp-item">Real-Time Audit</span>
-          <span class="fdp-item">Entity Resolution</span>
+          <div class="fdp-item">Fuzzy Matching</div>
+          <div class="fdp-item">Real-Time Audit</div>
+          <div class="fdp-item">Entity Resolution</div>
         </div>
       </div>
       <div class="fdp-col-footer">
@@ -3606,21 +3590,23 @@
       </div>
     </div>
 
-    <!-- Col 3: ETL 2 -->
     <div class="fdp-col col-etl2">
       <div class="fdp-col-body">
-        <div class="fdp-icon"><svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10 38 L20 14 L26 26 L32 18 L42 38" stroke="var(--teal-bright)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <circle cx="20" cy="14" r="3" fill="var(--teal-bright)" opacity="0.7"/>
-  <circle cx="26" cy="26" r="3" fill="var(--teal-bright)" opacity="0.5"/>
-  <circle cx="32" cy="18" r="3" fill="var(--teal-bright)" opacity="0.7"/>
-  <path d="M10 42 L42 42" stroke="rgba(34,211,238,0.3)" stroke-width="1"/>
+        <div class="fdp-icon" style="color:var(--teal-bright);"><svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polyline points="10,48 18,16 26,32 36,20 44,30 54,14" stroke="var(--teal-bright)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <polygon points="10,48 18,16 26,32 36,20 44,30 54,14 54,48" fill="rgba(34,211,238,0.06)" stroke="none"/>
+  <circle cx="18" cy="16" r="3" fill="var(--teal-bright)" opacity="0.9"/>
+  <circle cx="26" cy="32" r="3" fill="var(--teal-bright)" opacity="0.6"/>
+  <circle cx="36" cy="20" r="3" fill="var(--teal-bright)" opacity="0.8"/>
+  <circle cx="44" cy="30" r="3" fill="var(--teal-bright)" opacity="0.7"/>
+  <circle cx="54" cy="14" r="3" fill="var(--teal-bright)" opacity="0.9"/>
+  <line x1="10" y1="52" x2="54" y2="52" stroke="rgba(34,211,238,0.2)" stroke-width="1"/>
 </svg></div>
         <div class="fdp-items">
-          <span class="fdp-item">Transform</span>
-          <span class="fdp-item">Enrich</span>
-          <span class="fdp-item">Validate</span>
-          <span class="fdp-item">Parent Key</span>
+          <div class="fdp-item">Transform</div>
+          <div class="fdp-item">Enrich</div>
+          <div class="fdp-item">Validate</div>
+          <div class="fdp-item">Parent Key</div>
         </div>
       </div>
       <div class="fdp-col-footer">
@@ -3629,30 +3615,22 @@
       </div>
     </div>
 
-    <!-- Col 4: Data Layer -->
     <div class="fdp-col col-data">
       <div class="fdp-col-body">
-        <div class="fdp-icon" style="flex-direction:column;gap:6px;height:auto;">
-          <svg viewBox="0 0 40 28" width="40" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M20 4 C10 4 4 8 4 10 C4 14 10 18 20 18 C30 18 36 14 36 10 C36 8 30 4 20 4" stroke="var(--lav-2)" stroke-width="1.5" fill="rgba(167,139,250,0.1)"/>
-  <path d="M4 10 L4 18 C4 22 10 26 20 26 C30 26 36 22 36 18 L36 10" stroke="var(--lav-2)" stroke-width="1.5" fill="rgba(167,139,250,0.06)"/>
-  <path d="M10 8 Q20 14 30 8" stroke="rgba(167,139,250,0.3)" stroke-width="1" fill="none"/>
-</svg>
-          <span style="font-family:Share Tech Mono,monospace;font-size:7px;color:rgba(167,139,250,0.5);letter-spacing:0.1em;">WAREHOUSE</span>
-          <svg viewBox="0 0 40 28" width="40" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="4" y="4" width="32" height="22" rx="3" stroke="var(--lav-2)" stroke-width="1.5" fill="rgba(167,139,250,0.08)"/>
-  <rect x="4" y="8" width="32" height="2" fill="rgba(167,139,250,0.15)"/>
-  <rect x="4" y="12" width="32" height="2" fill="rgba(167,139,250,0.12)"/>
-  <rect x="4" y="16" width="32" height="2" fill="rgba(167,139,250,0.1)"/>
-  <text x="20" y="24" text-anchor="middle" font-size="6" fill="rgba(167,139,250,0.7)" font-family="Share Tech Mono,monospace">101001</text>
-</svg>
-          <span style="font-family:Share Tech Mono,monospace;font-size:7px;color:rgba(167,139,250,0.4);letter-spacing:0.1em;">DATA LAKE</span>
-        </div>
-        <div class="fdp-items" style="margin-top:4px;">
-          <span class="fdp-item">S3 · Parquet</span>
-          <span class="fdp-item">Snowflake</span>
-          <span class="fdp-item">Databricks</span>
-          <span class="fdp-item">DuckDB</span>
+        <div class="fdp-icon" style="color:var(--lav-2);"><svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 10 C12 10 18 6 32 6 C46 6 52 10 52 10 C52 10 52 16 52 20 C52 24 46 28 32 28 C18 28 12 24 12 20 C12 16 12 10 12 10Z" stroke="var(--lav-2)" stroke-width="1.5" fill="rgba(196,181,253,0.1)"/>
+  <path d="M12 20 L12 26 C12 30 18 34 32 34 C46 34 52 30 52 26 L52 20" stroke="var(--lav-2)" stroke-width="1.5" fill="rgba(196,181,253,0.06)"/>
+  <rect x="20" y="38" width="24" height="18" rx="3" stroke="var(--lav-2)" stroke-width="1.5" fill="rgba(196,181,253,0.08)" opacity="0.8"/>
+  <text x="32" y="50" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(196,181,253,0.7)">101010</text>
+  <path d="M32 34 L32 38" stroke="var(--lav-2)" stroke-width="1" opacity="0.5"/>
+</svg></div>
+        <div class="fdp-items">
+          <div class="fdp-item">Data Warehouse</div>
+          <div class="fdp-item">Data Lake</div>
+          <div class="fdp-item">S3 · Parquet</div>
+          <div class="fdp-item">Snowflake</div>
+          <div class="fdp-item">Databricks</div>
+          <div class="fdp-item">DuckDB</div>
         </div>
       </div>
       <div class="fdp-col-footer">
@@ -3661,23 +3639,25 @@
       </div>
     </div>
 
-    <!-- Col 5: Compute -->
     <div class="fdp-col col-compute">
       <div class="fdp-col-body">
-        <div class="fdp-icon"><svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="26" cy="20" r="12" stroke="#ef4444" stroke-width="1.5" fill="rgba(239,68,68,0.08)"/>
-  <path d="M20 16 C22 12 30 12 32 16 C34 20 32 24 28 24 L24 24 C20 24 18 20 20 16" stroke="#ef4444" stroke-width="1.2" fill="none"/>
-  <line x1="24" y1="24" x2="24" y2="30" stroke="rgba(239,68,68,0.5)" stroke-width="1"/>
-  <line x1="28" y1="24" x2="28" y2="30" stroke="rgba(239,68,68,0.5)" stroke-width="1"/>
-  <path d="M20 30 C20 30 24 28 26 30 C28 32 32 30 32 30" stroke="#ef4444" stroke-width="1.2" fill="none" opacity="0.6"/>
-  <circle cx="20" cy="40" r="6" stroke="#ef4444" stroke-width="1" fill="rgba(239,68,68,0.06)" opacity="0.7"/>
-  <path d="M17 38 L20 40 L23 38 M17 42 L20 40 L23 42" stroke="#ef4444" stroke-width="1" opacity="0.7"/>
+        <div class="fdp-icon" style="color:#ef4444;"><svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="32" cy="22" r="14" stroke="#ef4444" stroke-width="1.5" fill="rgba(239,68,68,0.08)"/>
+  <path d="M24 18 C26 12 38 12 40 18 C42 22 40 26 36 26 L28 26 C24 26 22 22 24 18" stroke="#ef4444" stroke-width="1.2" fill="rgba(239,68,68,0.1)"/>
+  <line x1="28" y1="26" x2="26" y2="34" stroke="rgba(239,68,68,0.5)" stroke-width="1.2"/>
+  <line x1="36" y1="26" x2="38" y2="34" stroke="rgba(239,68,68,0.5)" stroke-width="1.2"/>
+  <ellipse cx="32" cy="36" rx="8" ry="3" stroke="#ef4444" stroke-width="1" fill="rgba(239,68,68,0.06)" opacity="0.7"/>
+  <circle cx="20" cy="50" r="7" stroke="#ef4444" stroke-width="1" fill="rgba(239,68,68,0.06)" opacity="0.6"/>
+  <path d="M17 47 L20 50 L23 47 M17 53 L20 50 L23 53" stroke="#ef4444" stroke-width="1.2" opacity="0.7"/>
+  <circle cx="44" cy="50" r="7" stroke="#ef4444" stroke-width="1" fill="rgba(239,68,68,0.06)" opacity="0.5"/>
+  <line x1="41" y1="47" x2="47" y2="53" stroke="#ef4444" stroke-width="1" opacity="0.6"/>
+  <line x1="47" y1="47" x2="41" y2="53" stroke="#ef4444" stroke-width="1" opacity="0.6"/>
 </svg></div>
         <div class="fdp-items">
-          <span class="fdp-item">Heavy Compute</span>
-          <span class="fdp-item">Light Compute</span>
-          <span class="fdp-item">ML Modeling</span>
-          <span class="fdp-item">MIP Optimize</span>
+          <div class="fdp-item">Heavy Compute</div>
+          <div class="fdp-item">Light Compute</div>
+          <div class="fdp-item">ML Modeling</div>
+          <div class="fdp-item">MIP Optimize</div>
         </div>
       </div>
       <div class="fdp-col-footer">
@@ -3686,25 +3666,26 @@
       </div>
     </div>
 
-    <!-- Col 6: API -->
     <div class="fdp-col col-api">
       <div class="fdp-col-body">
-        <div class="fdp-icon"><svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="26" cy="26" r="14" stroke="#60a5fa" stroke-width="1.5" fill="rgba(96,165,250,0.08)"/>
-  <path d="M20 26 C20 22 22 20 26 20 C30 20 32 22 32 26 C32 30 30 32 26 32 C22 32 20 30 20 26" fill="rgba(96,165,250,0.12)" stroke="#60a5fa" stroke-width="1.2"/>
-  <text x="26" y="29" text-anchor="middle" font-size="7" font-weight="700" fill="#60a5fa" font-family="Arial">API</text>
-  <circle cx="26" cy="10" r="3" stroke="#60a5fa" stroke-width="1" fill="none" opacity="0.6"/>
-  <circle cx="42" cy="26" r="3" stroke="#60a5fa" stroke-width="1" fill="none" opacity="0.6"/>
-  <circle cx="26" cy="42" r="3" stroke="#60a5fa" stroke-width="1" fill="none" opacity="0.5"/>
-  <line x1="26" y1="13" x2="26" y2="20" stroke="rgba(96,165,250,0.4)" stroke-width="1"/>
-  <line x1="39" y1="26" x2="32" y2="26" stroke="rgba(96,165,250,0.4)" stroke-width="1"/>
-  <line x1="26" y1="32" x2="26" y2="39" stroke="rgba(96,165,250,0.4)" stroke-width="1"/>
+        <div class="fdp-icon" style="color:#60a5fa;"><svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="32" cy="32" r="18" stroke="#60a5fa" stroke-width="1.5" fill="rgba(96,165,250,0.07)"/>
+  <path d="M20 32 C20 24 24 20 32 20 C40 20 44 24 44 32 C44 40 40 44 32 44 C24 44 20 40 20 32" stroke="#60a5fa" stroke-width="1.2" fill="rgba(96,165,250,0.1)"/>
+  <text x="32" y="36" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="10" font-weight="900" fill="#60a5fa">API</text>
+  <circle cx="32" cy="10" r="4" stroke="#60a5fa" stroke-width="1" fill="rgba(96,165,250,0.12)" opacity="0.7"/>
+  <circle cx="54" cy="32" r="4" stroke="#60a5fa" stroke-width="1" fill="rgba(96,165,250,0.12)" opacity="0.7"/>
+  <circle cx="32" cy="54" r="4" stroke="#60a5fa" stroke-width="1" fill="rgba(96,165,250,0.12)" opacity="0.5"/>
+  <circle cx="10" cy="32" r="4" stroke="#60a5fa" stroke-width="1" fill="rgba(96,165,250,0.12)" opacity="0.6"/>
+  <line x1="32" y1="14" x2="32" y2="20" stroke="rgba(96,165,250,0.4)" stroke-width="1"/>
+  <line x1="50" y1="32" x2="44" y2="32" stroke="rgba(96,165,250,0.4)" stroke-width="1"/>
+  <line x1="32" y1="44" x2="32" y2="50" stroke="rgba(96,165,250,0.4)" stroke-width="1"/>
+  <line x1="14" y1="32" x2="20" y2="32" stroke="rgba(96,165,250,0.4)" stroke-width="1"/>
 </svg></div>
         <div class="fdp-items">
-          <span class="fdp-item">REST</span>
-          <span class="fdp-item">GraphQL</span>
-          <span class="fdp-item">Streaming</span>
-          <span class="fdp-item">Snowflake Mkt</span>
+          <div class="fdp-item">REST</div>
+          <div class="fdp-item">GraphQL</div>
+          <div class="fdp-item">Streaming</div>
+          <div class="fdp-item">Snowflake Mkt</div>
         </div>
       </div>
       <div class="fdp-col-footer">
@@ -3713,22 +3694,21 @@
       </div>
     </div>
 
-    <!-- Col 7: Users -->
     <div class="fdp-col col-users">
       <div class="fdp-col-body">
-        <div class="fdp-icon"><svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="20" cy="18" r="7" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="rgba(255,255,255,0.05)"/>
-  <path d="M10 36 C10 28 14 24 20 24 C26 24 30 28 30 36" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/>
-  <line x1="36" y1="22" x2="44" y2="22" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
-  <line x1="36" y1="28" x2="44" y2="28" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
-  <line x1="36" y1="34" x2="44" y2="34" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
-  <rect x="34" y="16" width="12" height="24" rx="2" stroke="rgba(255,255,255,0.25)" stroke-width="1" fill="none"/>
+        <div class="fdp-icon" style="color:rgba(255,255,255,0.5);"><svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="22" cy="18" r="9" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="rgba(255,255,255,0.05)"/>
+  <path d="M8 44 C8 34 14 28 22 28 C30 28 36 34 36 44" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/>
+  <circle cx="46" cy="20" r="7" stroke="rgba(255,255,255,0.3)" stroke-width="1" fill="rgba(255,255,255,0.03)"/>
+  <path d="M36 44 C36 36 40 32 46 32 C52 32 56 36 56 44" stroke="rgba(255,255,255,0.3)" stroke-width="1" fill="none"/>
+  <line x1="40" y1="50" x2="56" y2="50" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+  <rect x="38" y="46" width="20" height="12" rx="2" stroke="rgba(255,255,255,0.2)" stroke-width="1" fill="none"/>
 </svg></div>
         <div class="fdp-items">
-          <span class="fdp-item">Analysts</span>
-          <span class="fdp-item">Researchers</span>
-          <span class="fdp-item">Data Scientists</span>
-          <span class="fdp-item">Executives</span>
+          <div class="fdp-item">Analysts</div>
+          <div class="fdp-item">Researchers</div>
+          <div class="fdp-item">Data Scientists</div>
+          <div class="fdp-item">Executives</div>
         </div>
       </div>
       <div class="fdp-col-footer">
