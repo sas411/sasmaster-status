@@ -2147,6 +2147,110 @@
   .dflow { animation:diag-flow 2.5s linear infinite; }
   .dnode { animation:diag-node-in 0.4s var(--ease-cinematic) both; }
 
+
+  /* ══════ HERO EXPERTISE PANEL ══════ */
+  #hero {
+    display: grid !important;
+    grid-template-columns: 1fr 360px;
+    gap: 0 64px;
+    align-items: center;
+    flex-direction: unset !important;
+    justify-content: unset !important;
+  }
+  .hero-left { display: flex; flex-direction: column; justify-content: center; }
+  .hero-right {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-self: center;
+  }
+  @media (max-width: 1100px) {
+    #hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+  }
+  .exp-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--lavender);
+    letter-spacing: 0.28em;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .exp-label::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--lavender);
+    flex-shrink: 0;
+  }
+  .exp-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid rgba(167,139,250,0.08);
+    cursor: default;
+    transition: all 250ms var(--ease-cinematic);
+    position: relative;
+  }
+  .exp-item:first-of-type { border-top: 1px solid rgba(167,139,250,0.08); }
+  .exp-item::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    width: 3px;
+    height: 0;
+    background: var(--lavender);
+    border-radius: 2px;
+    transition: height 250ms var(--ease-cinematic);
+  }
+  .exp-item:hover::before { height: 100%; }
+  .exp-item:hover { padding-left: 8px; }
+  .exp-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    flex-shrink: 0;
+    width: 20px;
+    transition: color 250ms;
+  }
+  .exp-item:hover .exp-num { color: var(--lavender); }
+  .exp-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    transition: color 250ms;
+  }
+  .exp-item:hover .exp-name { color: var(--text-primary); }
+  .exp-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(167,139,250,0.3);
+    flex-shrink: 0;
+    margin-left: auto;
+    transition: background 250ms, box-shadow 250ms;
+  }
+  .exp-item:hover .exp-dot {
+    background: var(--lavender);
+    box-shadow: 0 0 8px rgba(167,139,250,0.6);
+  }
+  .exp-footer {
+    margin-top: 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    line-height: 1.8;
+    padding-top: 16px;
+    border-top: 1px solid rgba(167,139,250,0.06);
+  }
+
 </style>
 </head>
 <body>
@@ -2277,48 +2381,94 @@
 
 <!-- ============ HERO ============ -->
 <section id="hero">
-  <div class="hero-tag">EXECUTIVE PORTFOLIO · 2026</div>
 
-  <h1 class="hero-name">SHIV ASHISH<br>SEHGAL</h1>
+  <!-- Left column: existing hero content -->
+  <div class="hero-left">
+    <div class="hero-tag">EXECUTIVE PORTFOLIO · 2026</div>
 
-  <p class="hero-tagline">
-    Fifteen years architecting <span class="strong">AI-driven systems</span> for the world's largest media companies.
-    <br><br>
-    <span class="em">Award-winning Senior Media Executive</span> specializing in <span class="strong">AI Decision-Making</span> — decoding M&amp;E data into radical insights across content, advertising, and marketing inventories.
-  </p>
+    <h1 class="hero-name">SHIV ASHISH<br>SEHGAL</h1>
 
-  <div class="hero-meta-row">
-    <div class="hero-meta-item">
-      <span class="k">EDUCATION</span>
-      <span class="v">UCLA-NUS Global EMBA · Intake 22</span>
+    <p class="hero-tagline">
+      Fifteen years architecting <span class="strong">AI-driven systems</span> for the world's largest media companies.
+      <br><br>
+      <span class="em">Award-winning Senior Media Executive</span> specializing in <span class="strong">AI Decision-Making</span> — decoding M&amp;E data into radical insights across content, advertising, and marketing inventories.
+    </p>
+
+    <div class="hero-meta-row">
+      <div class="hero-meta-item">
+        <span class="k">EDUCATION</span>
+        <span class="v">UCLA-NUS Global EMBA · Intake 22</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="k">FORMER</span>
+        <span class="v">CPO · EVP · Audience Analytics</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="k">CAREER</span>
+        <span class="v">RSG Media · Naviga · Rightsline</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="k">BASED</span>
+        <span class="v">New York City</span>
+      </div>
     </div>
-    <div class="hero-meta-item">
-      <span class="k">FORMER</span>
-      <span class="v">CPO · EVP · Audience Analytics</span>
+
+    <!-- Hero stat anchor strip -->
+    <div class="hero-stat-strip reveal-fade">
+      <span class="hss-item">$50M+ DIRECT REVENUE</span>
+      <span class="hss-item">15+ YEARS</span>
+      <span class="hss-item">FORTUNE 500 MEDIA</span>
+      <span class="hss-item">3× AWARD WINNER</span>
+      <span class="hss-item">HBR PUBLISHED</span>
     </div>
-    <div class="hero-meta-item">
-      <span class="k">CAREER</span>
-      <span class="v">RSG Media · Naviga · Rightsline</span>
-    </div>
-    <div class="hero-meta-item">
-      <span class="k">BASED</span>
-      <span class="v">New York City</span>
+
+    <div class="scroll-cue">
+      <span>SCROLL</span>
+      <div class="line"></div>
     </div>
   </div>
 
-  <!-- Hero stat anchor strip -->
-  <div class="hero-stat-strip reveal-fade">
-    <span class="hss-item">$50M+ DIRECT REVENUE</span>
-    <span class="hss-item">15+ YEARS</span>
-    <span class="hss-item">FORTUNE 500 MEDIA</span>
-    <span class="hss-item">3× AWARD WINNER</span>
-    <span class="hss-item">HBR PUBLISHED</span>
+  <!-- Right column: areas of expertise -->
+  <div class="hero-right reveal-fade">
+    <div class="exp-label">// AREAS OF EXPERTISE</div>
+
+    <div class="exp-item">
+      <span class="exp-num">01</span>
+      <span class="exp-name">Rights Management</span>
+      <span class="exp-dot"></span>
+    </div>
+    <div class="exp-item">
+      <span class="exp-num">02</span>
+      <span class="exp-name">Royalties Management</span>
+      <span class="exp-dot"></span>
+    </div>
+    <div class="exp-item">
+      <span class="exp-num">03</span>
+      <span class="exp-name">Programming Research</span>
+      <span class="exp-dot"></span>
+    </div>
+    <div class="exp-item">
+      <span class="exp-num">04</span>
+      <span class="exp-name">Ad Sales</span>
+      <span class="exp-dot"></span>
+    </div>
+    <div class="exp-item">
+      <span class="exp-num">05</span>
+      <span class="exp-name">Marketing Research</span>
+      <span class="exp-dot"></span>
+    </div>
+    <div class="exp-item">
+      <span class="exp-num">06</span>
+      <span class="exp-name">Supervised Machine Learning<br>&amp; AI Systems</span>
+      <span class="exp-dot"></span>
+    </div>
+
+    <div class="exp-footer">
+      WIPRO · MEDIA ANALYTICS PRACTICE<br>
+      ENTERPRISE AI · M&amp;E DATA INFRASTRUCTURE
+    </div>
   </div>
 
-  <div class="scroll-cue">
-    <span>SCROLL</span>
-    <div class="line"></div>
-  </div>
 </section>
 
 <!-- ============ THE OPERATOR ============ -->
