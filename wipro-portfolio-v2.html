@@ -2458,6 +2458,103 @@
     .context-block { animation:none !important; }
   }
 
+
+  /* ══════ §06 INTELLIGENCE ARCHITECTURE ══════ */
+  .ia-intro { font-family:'Barlow Condensed',sans-serif; font-size:clamp(16px,2vw,20px); color:var(--text-secondary); font-weight:300; max-width:700px; margin-bottom:8px; line-height:1.5; }
+  .ia-headline { font-family:'Bebas Neue',sans-serif; font-size:clamp(28px,4vw,52px); color:var(--text-primary); letter-spacing:0.04em; margin-bottom:32px; }
+  .ia-headline span { color:var(--lavender); }
+
+  /* KPI strip */
+  .ia-kpi-strip { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:48px; }
+  .ia-kpi {
+    background:var(--bg-elevated); border:1px solid var(--border);
+    border-top:2px solid var(--lavender); border-radius:3px;
+    padding:12px 16px; flex:1; min-width:100px; text-align:center;
+    transition:all 200ms var(--ease-cinematic);
+  }
+  .ia-kpi:nth-child(2){border-top-color:var(--teal-bright);}
+  .ia-kpi:nth-child(3){border-top-color:var(--gold);}
+  .ia-kpi:nth-child(4){border-top-color:var(--green-signal);}
+  .ia-kpi:nth-child(5){border-top-color:var(--lavender);}
+  .ia-kpi:nth-child(6){border-top-color:var(--teal-bright);}
+  .ia-kpi:hover { border-color:var(--border-active); transform:translateY(-2px); }
+  .ia-kpi-val { font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--lavender); display:block; }
+  .ia-kpi:nth-child(2) .ia-kpi-val{color:var(--teal-bright);}
+  .ia-kpi:nth-child(3) .ia-kpi-val{color:var(--gold);}
+  .ia-kpi:nth-child(4) .ia-kpi-val{color:var(--green-signal);}
+  .ia-kpi-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--text-dim); letter-spacing:0.15em; display:block; margin-top:2px; }
+
+  /* Layer label */
+  .ia-layer-label {
+    display:flex; align-items:center; gap:16px; margin-bottom:20px;
+    font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--lavender); letter-spacing:0.25em;
+  }
+  .ia-layer-label::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,var(--border-active),transparent); }
+  .ia-layer-num { font-family:'Bebas Neue',sans-serif; font-size:32px; color:rgba(167,139,250,0.2); letter-spacing:0.04em; }
+
+  /* Memory cards grid */
+  .ia-cards { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:32px; }
+  @media(max-width:900px){.ia-cards{grid-template-columns:1fr;}}
+  .ia-card {
+    background:var(--bg-surface); border:1px solid var(--border);
+    border-top:3px solid var(--lavender); border-radius:6px;
+    padding:22px; position:relative; overflow:hidden;
+    transition:all 250ms var(--ease-cinematic);
+  }
+  .ia-card:nth-child(2){border-top-color:var(--teal-bright);}
+  .ia-card:nth-child(3){border-top-color:rgba(96,165,250,0.8);}
+  .ia-card:nth-child(4){border-top-color:var(--gold);}
+  .ia-card:hover { border-color:var(--border-active); box-shadow:0 16px 40px rgba(0,0,0,0.4),0 0 20px rgba(167,139,250,0.1); transform:translateY(-3px); }
+  .ia-card-icon { font-size:20px; margin-bottom:10px; display:block; color:var(--lavender); }
+  .ia-card:nth-child(2) .ia-card-icon{color:var(--teal-bright);}
+  .ia-card:nth-child(3) .ia-card-icon{color:rgba(96,165,250,0.9);}
+  .ia-card:nth-child(4) .ia-card-icon{color:var(--gold);}
+  .ia-card-title { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--text-primary); margin-bottom:2px; letter-spacing:0.04em; }
+  .ia-card-path { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); letter-spacing:0.12em; margin-bottom:12px; }
+  .ia-card-desc { font-family:'Barlow Condensed',sans-serif; font-size:13px; color:var(--text-secondary); line-height:1.5; margin-bottom:14px; }
+  .ia-card-tags { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:14px; }
+  .ia-card-tag { font-family:'Share Tech Mono',monospace; font-size:8px; padding:2px 7px; background:var(--lav-dim); border:1px solid rgba(167,139,250,0.2); border-radius:2px; color:var(--lav-2); }
+  .ia-card:nth-child(2) .ia-card-tag{background:rgba(34,211,238,0.08);border-color:rgba(34,211,238,0.2);color:var(--teal-bright);}
+  .ia-card:nth-child(3) .ia-card-tag{background:rgba(96,165,250,0.08);border-color:rgba(96,165,250,0.2);color:rgba(147,197,253,0.9);}
+  .ia-card:nth-child(4) .ia-card-tag{background:var(--gold-dim);border-color:rgba(245,158,11,0.2);color:var(--gold);}
+  .ia-card-code { background:var(--bg-panel); border:1px solid rgba(255,255,255,0.04); border-radius:3px; padding:10px 12px; font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-secondary); line-height:1.8; }
+  .ia-card-code .hl { color:var(--lavender); }
+  .ia-card:nth-child(2) .ia-card-code .hl{color:var(--teal-bright);}
+  .ia-card:nth-child(4) .ia-card-code .hl{color:var(--gold);}
+
+  /* Flow diagram */
+  .ia-flow-label { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); letter-spacing:0.2em; margin-bottom:16px; }
+  .ia-flow { display:flex; align-items:stretch; gap:0; margin-bottom:28px; overflow-x:auto; padding-bottom:4px; }
+  .ia-flow-step {
+    background:var(--bg-surface); border:1px solid var(--border);
+    border-top:2px solid var(--lavender); border-radius:3px; padding:12px 14px;
+    min-width:110px; flex:1; position:relative;
+  }
+  .ia-flow-step:not(:last-child){ border-right:none; border-radius:3px 0 0 3px; }
+  .ia-flow-step+.ia-flow-step{ border-radius:0; }
+  .ia-flow-step:last-child{ border-radius:0 3px 3px 0; }
+  .ia-flow-step:nth-child(odd){border-top-color:var(--lavender);}
+  .ia-flow-step:nth-child(even){border-top-color:var(--teal-bright);}
+  .ia-flow-trigger { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--text-dim); letter-spacing:0.15em; margin-bottom:6px; display:block; }
+  .ia-flow-name { font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:2px; }
+  .ia-flow-sub { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--text-dim); letter-spacing:0.1em; }
+
+  /* S3 + Obsidian panels */
+  .ia-panels { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:32px; }
+  @media(max-width:800px){.ia-panels{grid-template-columns:1fr;}}
+  .ia-panel { background:var(--bg-panel); border:1px solid var(--border); border-radius:4px; padding:18px 20px; }
+  .ia-panel-label { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--lavender); letter-spacing:0.2em; margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  .ia-panel-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:10px; }
+  .ia-panel-cell { display:flex; flex-direction:column; gap:3px; }
+  .ia-panel-key { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--teal-bright); letter-spacing:0.12em; }
+  .ia-panel-path { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--text-dim); }
+  .ia-panel-val { font-family:'Bebas Neue',sans-serif; font-size:18px; color:var(--lavender); }
+  .ia-panel-note { font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--text-dim); font-style:italic; line-height:1.5; margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.04); }
+  .ia-obs-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .ia-obs-row:last-child{border-bottom:none;}
+  .ia-obs-key { font-family:'Barlow Condensed',sans-serif; font-size:13px; color:var(--text-secondary); }
+  .ia-obs-val { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--teal-bright); letter-spacing:0.1em; }
+
 </style>
 </head>
 <body>
@@ -3598,27 +3695,11 @@
       </div>
     </div>
     <div class="diagram-card">
-      <div class="diagram-ph"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 130" class="diag-svg"><rect width="300" height="130" fill="#0a0a0f"/><circle cx="150" cy="65" r="28" fill="#12121a" stroke="#22d3ee" stroke-width="2"/><text x="150" y="62" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7" fill="#22d3ee">ORCHESTR</text><text x="150" y="74" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7" fill="#22d3ee">ATOR</text><line x1="150" y1="65" x2="150" y2="20" stroke="#22d3ee" stroke-width="1" opacity="0.3" stroke-dasharray="4 3" class="dflow"/><rect x="126" y="10" width="48" height="20" rx="3" fill="#1a1a2e" stroke="#22d3ee" stroke-width="1" class="dnode" style="animation-delay:0.0s"/><text x="150" y="24" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#22d3ee">User</text><line x1="150" y1="65" x2="232" y2="46" stroke="#22d3ee" stroke-width="1" opacity="0.3" stroke-dasharray="4 3" class="dflow"/><rect x="208" y="36" width="48" height="20" rx="3" fill="#1a1a2e" stroke="#22d3ee" stroke-width="1" class="dnode" style="animation-delay:0.1s"/><text x="232" y="50" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#22d3ee">Research</text><line x1="150" y1="65" x2="216" y2="95" stroke="#22d3ee" stroke-width="1" opacity="0.3" stroke-dasharray="4 3" class="dflow"/><rect x="192" y="85" width="48" height="20" rx="3" fill="#1a1a2e" stroke="#22d3ee" stroke-width="1" class="dnode" style="animation-delay:0.2s"/><text x="216" y="99" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#22d3ee">Data</text><line x1="150" y1="65" x2="122" y2="107" stroke="#22d3ee" stroke-width="1" opacity="0.3" stroke-dasharray="4 3" class="dflow"/><rect x="98" y="97" width="48" height="20" rx="3" fill="#1a1a2e" stroke="#22d3ee" stroke-width="1" class="dnode" style="animation-delay:0.30000000000000004s"/><text x="122" y="111" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#22d3ee">Insight</text><line x1="150" y1="65" x2="60" y2="69" stroke="#22d3ee" stroke-width="1" opacity="0.3" stroke-dasharray="4 3" class="dflow"/><rect x="36" y="59" width="48" height="20" rx="3" fill="#1a1a2e" stroke="#22d3ee" stroke-width="1" class="dnode" style="animation-delay:0.4s"/><text x="60" y="73" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#22d3ee">Narrate</text><line x1="150" y1="65" x2="104" y2="26" stroke="#22d3ee" stroke-width="1" opacity="0.3" stroke-dasharray="4 3" class="dflow"/><rect x="80" y="16" width="48" height="20" rx="3" fill="#1a1a2e" stroke="#22d3ee" stroke-width="1" class="dnode" style="animation-delay:0.5s"/><text x="104" y="30" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#22d3ee">Output</text></svg></div>
+      <div class="diagram-ph"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 130" class="diag-svg"><rect width="300" height="130" fill="#0a0a0f"/><circle cx="150" cy="65" r="28" fill="#12121a" stroke="#22d3ee" stroke-width="2"/><text x="150" y="62" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7" fill="#22d3ee">ORCHESTR</text><text x="150" y="74" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7" fill="#22d3ee">ATOR</text><line x1="150" y1="65" x2="150" y2="20" stroke="#22d3ee" stroke-width="1" opacity="0.3" stroke-dasharray="4 3" class="dflow"/><rect x="126" y="10" width="48" height="20" rx="3" fill="#1a1a2e" stroke="#22d3ee" stroke-width="1" class="dnode" style="animation-delay:0.0s"/><text x="150" y="24" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#22d3ee">User</text><line x1="150" y1="65" x2="232" y2="46" stroke="#22d3ee" stroke-width="1" opacity="0.3" stroke-dasharray="4 3" class="dflow"/><rect x="208" y="36" width="48" height="20" rx="3" fill="#1a1a2e" stroke="#22d3ee" stroke-width="1" class="dnode" style="animation-delay:0.1s"/><text x="232" y="50" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#22d3ee">Research</text><line x1="150" y1="65" x2="216" y2="95" stroke="#22d3ee" stroke-width="1" opacity="0.3" stroke-dasharray="4 3" class="dflow"/><rect x="192" y="85" width="48" height="20" rx="3" fill="#1a1a2e" stroke="#22d3ee" stroke-width="1" class="dnode" style="animation-delay:0.2s"/><text x="216" y="99" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#22d3ee">Data</text><line x1="150" y1="65" x2="122" y2="107" stroke="#22d3ee" stroke-width="1" opacity="0.3" stroke-dasharray="4 3" class="dflow"/><rect x="98" y="97" width="48" height="20" rx="3" fill="#1a1a2e" stroke="#22d3ee" stroke-width="1" class="dnode" style="animation-delay:0.30000000000000004s"/><text x="122" y="111" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#22d3ee">Insight</text><line x1="150" y1="65" x2="60" y2="69" stroke="#22d3ee" stroke-width="1" opacity="0.3" stroke-dasharray="4 3" class="dflow"/><rect x="36" y="59" width="48" height="20" rx="3" fill="#1a1a2e" stroke="#22d3ee" stroke-width="1" class="dnode" style="animation-delay:0.4s"/><text x="60" y="73" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#22d3ee">Narrate</text><line x1="150" y1="65" x2="60" y2="69" stroke="#22d3ee" stroke-width="1" opacity="0.3"/></svg></div>
       <div class="diagram-meta">
         <div class="diagram-title">Smart Insights 2.0</div>
         <div class="diagram-caption">Multi-agent GenAI · BET anchor · Conversational executive intelligence</div>
         <span class="diagram-id">DIAG-006 · 2024</span>
-      </div>
-    </div>
-    <div class="diagram-card">
-      <div class="diagram-ph"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 130" class="diag-svg"><rect width="300" height="130" fill="#0a0a0f"/><rect x="8" y="10" width="284" height="18" rx="2" fill="#12121a" stroke="#a78bfa" stroke-width="1" opacity="0.8" class="dnode" style="animation-delay:0.0s"/><rect x="8" y="10" width="3" height="18" fill="#a78bfa"/><text x="18" y="22" font-family="Share Tech Mono,monospace" font-size="7" fill="#a78bfa" letter-spacing="0.5">INPUT</text><text x="130" y="22" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,255,255,0.45)">Contract PDFs · 6 markets · Rights & royalties</text><path d="M150,28 L150,32" stroke="#a78bfa" stroke-width="1" opacity="0.4" stroke-dasharray="2 2" class="dflow"/><rect x="8" y="32" width="284" height="18" rx="2" fill="#12121a" stroke="#22d3ee" stroke-width="1" opacity="0.8" class="dnode" style="animation-delay:0.1s"/><rect x="8" y="32" width="3" height="18" fill="#22d3ee"/><text x="18" y="44" font-family="Share Tech Mono,monospace" font-size="7" fill="#22d3ee" letter-spacing="0.5">LLM+RAG</text><text x="130" y="44" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,255,255,0.45)">Clause extraction · Rights parsing · Validation</text><path d="M150,50 L150,54" stroke="#22d3ee" stroke-width="1" opacity="0.4" stroke-dasharray="2 2" class="dflow"/><rect x="8" y="54" width="284" height="18" rx="2" fill="#12121a" stroke="#f59e0b" stroke-width="1" opacity="0.8" class="dnode" style="animation-delay:0.2s"/><rect x="8" y="54" width="3" height="18" fill="#f59e0b"/><text x="18" y="66" font-family="Share Tech Mono,monospace" font-size="7" fill="#f59e0b" letter-spacing="0.5">SUPERVISED</text><text x="130" y="66" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,255,255,0.45)">3-phase human review · Training data curation</text><path d="M150,72 L150,76" stroke="#f59e0b" stroke-width="1" opacity="0.4" stroke-dasharray="2 2" class="dflow"/><rect x="8" y="76" width="284" height="18" rx="2" fill="#12121a" stroke="#10b981" stroke-width="1" opacity="0.8" class="dnode" style="animation-delay:0.30000000000000004s"/><rect x="8" y="76" width="3" height="18" fill="#10b981"/><text x="18" y="88" font-family="Share Tech Mono,monospace" font-size="7" fill="#10b981" letter-spacing="0.5">OUTPUT</text><text x="130" y="88" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,255,255,0.45)">Structured rights intelligence · API delivery</text><path d="M150,94 L150,98" stroke="#10b981" stroke-width="1" opacity="0.4" stroke-dasharray="2 2" class="dflow"/><rect x="8" y="98" width="284" height="18" rx="2" fill="#12121a" stroke="#ef4444" stroke-width="1" opacity="0.8" class="dnode" style="animation-delay:0.4s"/><rect x="8" y="98" width="3" height="18" fill="#ef4444"/><text x="18" y="110" font-family="Share Tech Mono,monospace" font-size="7" fill="#ef4444" letter-spacing="0.5">MARKETS</text><text x="130" y="110" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,255,255,0.45)">APAC · Canada · Germany · India · US · UK</text></svg></div>
-      <div class="diagram-meta">
-        <div class="diagram-title">iCon Contract Intelligence</div>
-        <div class="diagram-caption">LLM + RAG · Rights extraction · Production GenAI · 6 global markets</div>
-        <span class="diagram-id">DIAG-007 · 2023</span>
-      </div>
-    </div>
-    <div class="diagram-card">
-      <div class="diagram-ph"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 130" class="diag-svg"><rect width="300" height="130" fill="#0a0a0f"/><rect x="8" y="10" width="90" height="50" rx="3" fill="#12121a" stroke="#22d3ee" stroke-width="1" opacity="0.7" class="dnode" style="animation-delay:0.0s"/><rect x="8" y="10" width="90" height="3" rx="1" fill="#22d3ee"/><text x="53" y="36" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="18" fill="#22d3ee">206M+</text><text x="53" y="52" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="rgba(255,255,255,0.4)">IMDB ROWS</text><rect x="106" y="10" width="90" height="50" rx="3" fill="#12121a" stroke="#22d3ee" stroke-width="1" opacity="0.7" class="dnode" style="animation-delay:0.1s"/><rect x="106" y="10" width="90" height="3" rx="1" fill="#22d3ee"/><text x="151" y="36" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="18" fill="#22d3ee">11</text><text x="151" y="52" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="rgba(255,255,255,0.4)">SCRAPERS</text><rect x="204" y="10" width="90" height="50" rx="3" fill="#12121a" stroke="#f59e0b" stroke-width="1" opacity="0.7" class="dnode" style="animation-delay:0.2s"/><rect x="204" y="10" width="90" height="3" rx="1" fill="#f59e0b"/><text x="249" y="36" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="18" fill="#f59e0b">10</text><text x="249" y="52" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="rgba(255,255,255,0.4)">AGENTS</text><rect x="8" y="68" width="90" height="50" rx="3" fill="#12121a" stroke="#10b981" stroke-width="1" opacity="0.7" class="dnode" style="animation-delay:0.30000000000000004s"/><rect x="8" y="68" width="90" height="3" rx="1" fill="#10b981"/><text x="53" y="94" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="18" fill="#10b981">1</text><text x="53" y="110" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="rgba(255,255,255,0.4)">S3 BUCKET</text><rect x="106" y="68" width="90" height="50" rx="3" fill="#12121a" stroke="#22d3ee" stroke-width="1" opacity="0.7" class="dnode" style="animation-delay:0.4s"/><rect x="106" y="68" width="90" height="3" rx="1" fill="#22d3ee"/><text x="151" y="94" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="18" fill="#22d3ee">18</text><text x="151" y="110" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="rgba(255,255,255,0.4)">CRON JOBS</text><rect x="204" y="68" width="90" height="50" rx="3" fill="#12121a" stroke="#22d3ee" stroke-width="1" opacity="0.7" class="dnode" style="animation-delay:0.5s"/><rect x="204" y="68" width="90" height="3" rx="1" fill="#22d3ee"/><text x="249" y="94" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="18" fill="#22d3ee">24/7</text><text x="249" y="110" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="rgba(255,255,255,0.4)">UPTIME</text></svg></div>
-      <div class="diagram-meta">
-        <div class="diagram-title">SaSMaster War Room</div>
-        <div class="diagram-caption">AI Decision Platform for media · 206M+ rows · live production system</div>
-        <span class="diagram-id">DIAG-008 · 2025</span>
       </div>
     </div>
   </div>
@@ -3631,138 +3712,193 @@
     <span class="section-divider"></span>
   </div>
 
-  <p class="future-intro reveal-fade">The <strong>AI Decision-Making Platform for media.</strong> Built in production. Not a pitch deck — a live system processing <strong>206M+ rows</strong> of global content intelligence, right now.</p>
+  <div class="ia-intro reveal-fade">The AI operating system behind the briefing.</div>
+  <div class="ia-headline reveal-fade">HOW THE <span>MACHINE THINKS</span></div>
 
-  <div class="kpi-strip reveal-stagger">
-    <div class="kpi-block"><span class="kpi-number" data-count-to="206" data-count-suffix="M+">206M+</span><span class="kpi-unit">ROWS</span><span class="kpi-label">IMDB Corpus</span></div>
-    <div class="kpi-block kb-teal"><span class="kpi-number" data-count-to="11">11</span><span class="kpi-unit">ACTIVE</span><span class="kpi-label">Scrapers</span></div>
-    <div class="kpi-block kb-gold"><span class="kpi-number" data-count-to="6">6</span><span class="kpi-unit">LIVE</span><span class="kpi-label">AI Agents</span></div>
-    <div class="kpi-block"><span class="kpi-number" data-count-to="4">4</span><span class="kpi-unit">RSG API</span><span class="kpi-label">Consumers</span></div>
-    <div class="kpi-block kb-teal"><span class="kpi-number">24/7</span><span class="kpi-unit">UPTIME</span><span class="kpi-label">JARVIS Daemon</span></div>
+  <div class="ia-kpi-strip reveal-stagger">
+    <div class="ia-kpi"><span class="ia-kpi-val">4</span><span class="ia-kpi-lbl">MEMORY LAYERS</span></div>
+    <div class="ia-kpi"><span class="ia-kpi-val">24</span><span class="ia-kpi-lbl">CLAUDE SKILLS</span></div>
+    <div class="ia-kpi"><span class="ia-kpi-val">6</span><span class="ia-kpi-lbl">ACTIVE AGENTS</span></div>
+    <div class="ia-kpi"><span class="ia-kpi-val">11</span><span class="ia-kpi-lbl">LIVE SCRAPERS</span></div>
+    <div class="ia-kpi"><span class="ia-kpi-val">18</span><span class="ia-kpi-lbl">CRON JOBS</span></div>
+    <div class="ia-kpi"><span class="ia-kpi-val">589K+</span><span class="ia-kpi-lbl">PARENT KEYS</span></div>
   </div>
 
-  <div class="pillars-grid reveal-stagger">
-    <div class="pillar-card">
-      <span class="pillar-icon">◈</span><div class="pillar-name">CONTENT</div><div class="pillar-sub">// INTELLIGENCE</div>
-      <div class="pillar-items">
-        <div class="pillar-item">206M+ IMDB titles, people &amp; credits</div>
-        <div class="pillar-item">TMDB entity enrichment at scale</div>
-        <div class="pillar-item"><strong>Parent Key</strong> cross-source resolution</div>
-        <div class="pillar-item">Gracenote schedule matching</div>
-        <div class="pillar-item">EIDR rights ID pipeline (654K IDs)</div>
+  <div class="ia-layer-label reveal-fade">
+    <span class="ia-layer-num">01</span>
+    LAYER 1 · DISTRIBUTED MEMORY
+  </div>
+
+  <div class="ia-cards reveal-stagger">
+
+    <div class="ia-card">
+      <span class="ia-card-icon">✦</span>
+      <div class="ia-card-title">Claude.ai Memories</div>
+      <div class="ia-card-path">auto-generated · claude.ai</div>
+      <div class="ia-card-desc">Persistent semantic memories derived from every conversation. Captures working style, project context, sprint priorities, and long-term strategic context. Injected automatically into every new session.</div>
+      <div class="ia-card-tags">
+        <span class="ia-card-tag">Strategy Layer</span>
+        <span class="ia-card-tag">Auto-Updated</span>
+        <span class="ia-card-tag">Cross-Session</span>
+        <span class="ia-card-tag">Semantic</span>
+      </div>
+      <div class="ia-card-code">
+        → SaSMaster system state<br>
+        → Sprint priorities &amp; blockers<br>
+        → Design tokens &amp; canonical files<br>
+        → Division of labor rules
       </div>
     </div>
-    <div class="pillar-card pl-teal">
-      <span class="pillar-icon">◉</span><div class="pillar-name">ADVERTISING</div><div class="pillar-sub">// OPTIMIZATION</div>
-      <div class="pillar-items">
-        <div class="pillar-item">Inventory yield optimization signals</div>
-        <div class="pillar-item">Audience index cross-platform</div>
-        <div class="pillar-item"><strong>DMA-level</strong> profile targeting</div>
-        <div class="pillar-item">PID three-state retention modeling</div>
-        <div class="pillar-item">Real-time campaign intelligence</div>
+
+    <div class="ia-card">
+      <span class="ia-card-icon">▤</span>
+      <div class="ia-card-title">CLAUDE_MEMORY.md</div>
+      <div class="ia-card-path">~/SaSMaster/CLAUDE_MEMORY.md</div>
+      <div class="ia-card-desc">Operational ground truth for Claude Code sessions. Loaded as the very first command in every terminal session — before any code is written. Contains architecture state, S3 paths, known issues, recent builds.</div>
+      <div class="ia-card-tags">
+        <span class="ia-card-tag">Execution Layer</span>
+        <span class="ia-card-tag">File-Based</span>
+        <span class="ia-card-tag">Per-Session Load</span>
+        <span class="ia-card-tag">Always Current</span>
+      </div>
+      <div class="ia-card-code">
+        <span class="hl">Current Sprint</span> — active priorities<br>
+        <span class="hl">Architecture State</span> — live vs planned<br>
+        <span class="hl">Recent Wins</span> — last 7 days<br>
+        <span class="hl">S3 State</span> — latest data dates
       </div>
     </div>
-    <div class="pillar-card pl-gold">
-      <span class="pillar-icon">◇</span><div class="pillar-name">MARKETING</div><div class="pillar-sub">// INSIGHTS</div>
-      <div class="pillar-items">
-        <div class="pillar-item">Dr. Scoop GenAI companion (live)</div>
-        <div class="pillar-item">War Room observability dashboard</div>
-        <div class="pillar-item"><strong>JARVIS</strong> autonomous Slack intelligence</div>
-        <div class="pillar-item">IAB trends &amp; standards monitoring</div>
-        <div class="pillar-item">Executive briefing automation</div>
+
+    <div class="ia-card">
+      <span class="ia-card-icon">☰</span>
+      <div class="ia-card-title">TASKS.md</div>
+      <div class="ia-card-path">~/SaSMaster/TASKS.md</div>
+      <div class="ia-card-desc">Self-scoring task queue. JARVIS checks at 7AM and 2PM EDT — if HIGH-priority items exist, it automatically fires a build. Tasks flow from JARVIS commands, Claude.ai sessions, and async build outputs.</div>
+      <div class="ia-card-tags">
+        <span class="ia-card-tag">Task Queue</span>
+        <span class="ia-card-tag">Self-Scoring</span>
+        <span class="ia-card-tag">JARVIS Trigger</span>
+        <span class="ia-card-tag">7AM + 2PM</span>
+      </div>
+      <div class="ia-card-code">
+        ## HIGH<br>
+        - [ ] [2026-04-30] Task #tag<br>
+        ## MED / DONE<br>
+        - [x] [2026-04-30] Completed
+      </div>
+    </div>
+
+    <div class="ia-card">
+      <span class="ia-card-icon">◈</span>
+      <div class="ia-card-title">Obsidian Vault</div>
+      <div class="ia-card-path">~/SaSMaster/obsidian/</div>
+      <div class="ia-card-desc">Structured human-readable mirror of CLAUDE_MEMORY.md. Six section files with YAML frontmatter, wikilinks for graph continuity, and ADR documents for architecture decisions. Synced via sync-obsidian.sh.</div>
+      <div class="ia-card-tags">
+        <span class="ia-card-tag">Human Readable</span>
+        <span class="ia-card-tag">Auto-Synced</span>
+        <span class="ia-card-tag">Handover Layer</span>
+        <span class="ia-card-tag">Graph View</span>
+      </div>
+      <div class="ia-card-code">
+        <span class="hl">00-ADRs/</span> ← arch decisions<br>
+        <span class="hl">01-Schema/</span> ← S3 state + specs<br>
+        <span class="hl">03-Agents/</span> ← agent fleet<br>
+        <span class="hl">04-Roadmap/</span> ← sprint + phases
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Memory update flow -->
+  <div class="ia-flow-label reveal-fade">// MEMORY UPDATE · S3 STATE TRACKING &amp; OBSIDIAN SYNC FLOW</div>
+  <div class="ia-flow reveal-stagger">
+    <div class="ia-flow-step">
+      <span class="ia-flow-trigger">TRIGGER</span>
+      <div class="ia-flow-name">Claude.ai Session</div>
+      <div class="ia-flow-sub">Strategy layer</div>
+    </div>
+    <div class="ia-flow-step">
+      <span class="ia-flow-trigger">SCRIPT</span>
+      <div class="ia-flow-name">update-memory.sh</div>
+      <div class="ia-flow-sub">writes to disk</div>
+    </div>
+    <div class="ia-flow-step">
+      <span class="ia-flow-trigger">FILE</span>
+      <div class="ia-flow-name">CLAUDE_MEMORY.md</div>
+      <div class="ia-flow-sub">~/SaSMaster/</div>
+    </div>
+    <div class="ia-flow-step">
+      <span class="ia-flow-trigger">SESSION START</span>
+      <div class="ia-flow-name">Claude Code</div>
+      <div class="ia-flow-sub">cat memory · first cmd</div>
+    </div>
+    <div class="ia-flow-step">
+      <span class="ia-flow-trigger">EXECUTION</span>
+      <div class="ia-flow-name">Build Loop + Scrapers</div>
+      <div class="ia-flow-sub">code &amp; data</div>
+    </div>
+    <div class="ia-flow-step">
+      <span class="ia-flow-trigger">NOTIFY</span>
+      <div class="ia-flow-name">JARVIS → #builds</div>
+      <div class="ia-flow-sub">Slack routing</div>
+    </div>
+    <div class="ia-flow-step">
+      <span class="ia-flow-trigger">REVIEW</span>
+      <div class="ia-flow-name">War Room Dashboard</div>
+      <div class="ia-flow-sub">vercel.app</div>
+    </div>
+  </div>
+
+  <!-- S3 State + Obsidian Sync panels -->
+  <div class="ia-panels reveal-stagger">
+    <div class="ia-panel">
+      <div class="ia-panel-label">// S3 STATE — TRACKED INSIDE CLAUDE_MEMORY.MD</div>
+      <div class="ia-panel-row">
+        <div class="ia-panel-cell">
+          <span class="ia-panel-key">TMDB</span>
+          <span class="ia-panel-path">tmdb_dev/</span>
+          <span class="ia-panel-path">15d cadence</span>
+        </div>
+        <div class="ia-panel-cell">
+          <span class="ia-panel-key">IMDB</span>
+          <span class="ia-panel-path">imdb/&lt;ds&gt;/</span>
+          <span class="ia-panel-path">YYYY-MM-DD</span>
+        </div>
+        <div class="ia-panel-cell">
+          <span class="ia-panel-key">PARENT KEYS</span>
+          <span class="ia-panel-val">589K+</span>
+          <span class="ia-panel-path">parent_keys/v1/</span>
+        </div>
+      </div>
+      <div class="ia-panel-note">S3 is the data lake, not a memory store. CLAUDE_MEMORY.md tracks last successful landing date per dataset — every session knows exactly what's in the bucket without querying S3 live.</div>
+    </div>
+    <div class="ia-panel">
+      <div class="ia-panel-label">// OBSIDIAN SYNC — VIA SYNC-OBSIDIAN.SH</div>
+      <div class="ia-obs-row">
+        <span class="ia-obs-key">Current Sprint</span>
+        <span class="ia-obs-val">04-Roadmap/current-sprint.md</span>
+      </div>
+      <div class="ia-obs-row">
+        <span class="ia-obs-key">Architecture State</span>
+        <span class="ia-obs-val">04-Roadmap/phase-status.md</span>
+      </div>
+      <div class="ia-obs-row">
+        <span class="ia-obs-key">S3 State</span>
+        <span class="ia-obs-val">01-Schema/s3-state.md</span>
+      </div>
+      <div class="ia-obs-row">
+        <span class="ia-obs-key">ADRs</span>
+        <span class="ia-obs-val">00-ADRs/ ← manual only</span>
       </div>
     </div>
   </div>
 
-  <!-- marquee stack chips -->
-  <div class="marquee-wrap">
-    <div class="marquee-track"><span class="sb-chip sc-lav">DuckDB</span><span class="sb-chip sc-teal">S3 + Parquet</span><span class="sb-chip sc-gold">JARVIS Daemon</span><span class="sb-chip sc-lav">Claude SDK</span><span class="sb-chip sc-teal">Dr. Scoop GenAI</span><span class="sb-chip sc-gold">Vercel Edge</span><span class="sb-chip sc-lav">Nielsen AMRLD</span><span class="sb-chip sc-teal">Gracenote</span><span class="sb-chip sc-gold">TMDB API</span><span class="sb-chip sc-lav">Snowflake</span><span class="sb-chip sc-teal">Databricks</span><span class="sb-chip sc-gold">AWS Bedrock</span><span class="sb-chip sc-lav">Gurobi</span><span class="sb-chip sc-teal">CPLEX</span><span class="sb-chip sc-gold">DuckDB</span><span class="sb-chip sc-lav">S3 + Parquet</span><span class="sb-chip sc-teal">JARVIS Daemon</span><span class="sb-chip sc-gold">Claude SDK</span><span class="sb-chip sc-lav">Dr. Scoop GenAI</span><span class="sb-chip sc-teal">Vercel Edge</span><span class="sb-chip sc-gold">Nielsen AMRLD</span><span class="sb-chip sc-lav">Gracenote</span><span class="sb-chip sc-teal">TMDB API</span></div>
-  </div>
-
-  <div class="fs-signature reveal-fade">FROM DRIVING CHANGE TO DESIGNING IT.</div>
-
-  <div class="reveal-fade">
+  <!-- CTA -->
+  <div class="reveal-fade" style="margin-top:8px;">
     <a href="https://sasmaster-status.vercel.app" target="_blank" class="future-cta">
       VIEW WAR ROOM <span class="fc-arrow">→</span>
     </a>
     <span class="fs-cta-sub">Live production system — observe in real time.</span>
-  </div>
-
-  <!-- ═══════ AGENTIC ARCHITECTURE ═══════ -->
-  <div class="agentic-arch reveal-up">
-    <div class="aa-header">// AGENTIC ARCHITECTURE · SASMASTER v9</div>
-    <div class="aa-title">AUTONOMOUS AI OPERATING SYSTEM</div>
-    <div class="aa-sub">A <strong>self-directing build &amp; intelligence platform</strong> running 24/7 on MacBook Pro M1 Max — 10 agents, 18 scheduled jobs, zero manual ops. Claude SDK orchestrating strategy to execution.</div>
-
-    <div class="aa-control-plane reveal-stagger">
-      <div class="aa-cp-col">
-        <div class="aa-cp-title">HUMAN LAYER</div>
-        <div class="aa-cp-items">
-          <div class="aa-cp-item"><strong>Shiv</strong> — Strategy &amp; Final Approver</div>
-          <div class="aa-cp-item">Sets vision via CLAUDE.md</div>
-          <div class="aa-cp-item">Approves HIGH-priority via !approve</div>
-          <div class="aa-cp-item">Reviews DONE_LOG + FEEDBACK</div>
-          <div class="aa-cp-item">Claude.ai — Design, UI, Planning</div>
-        </div>
-      </div>
-      <div class="aa-cp-col teal-col">
-        <div class="aa-cp-title">AUTONOMOUS SERVER</div>
-        <div class="aa-cp-items">
-          <div class="aa-cp-item"><strong>MacBook Pro M1 Max</strong></div>
-          <div class="aa-cp-item">JARVIS daemon (Socket Mode)</div>
-          <div class="aa-cp-item">18 scheduled cron jobs</div>
-          <div class="aa-cp-item">Express Command API (:3002)</div>
-          <div class="aa-cp-item">MCP Server (6 tools)</div>
-          <div class="aa-cp-item">QA Agent (15-check Playwright)</div>
-          <div class="aa-cp-item">Claude Code Sonnet 4.6</div>
-        </div>
-      </div>
-      <div class="aa-cp-col gold-col">
-        <div class="aa-cp-title">CLOUD INFRA</div>
-        <div class="aa-cp-items">
-          <div class="aa-cp-item"><strong>AWS S3</strong> — sasmaster-2026 bucket</div>
-          <div class="aa-cp-item">Cloudflare Tunnel + DNS</div>
-          <div class="aa-cp-item">Vercel — War Room + Portal</div>
-          <div class="aa-cp-item">Anthropic API (Opus / Sonnet)</div>
-          <div class="aa-cp-item">TMDB · IMDB · SEC EDGAR</div>
-          <div class="aa-cp-item">Snowflake + Databricks bridge</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Agent fleet -->
-    <div class="aa-header" style="margin-top:24px;">// 10-AGENT FLEET · 24/7 OPERATIONS</div>
-    <div class="aa-agents reveal-stagger">
-      <div class="aa-agent"><span class="aa-agent-name">JARVIS</span><span class="aa-agent-sched">24/7 daemon</span></div>
-      <div class="aa-agent"><span class="aa-agent-name">MEDIA INTEL</span><span class="aa-agent-sched">Daily 6:00 AM</span></div>
-      <div class="aa-agent"><span class="aa-agent-name">TECH INTEL</span><span class="aa-agent-sched">Friday 6:00 PM</span></div>
-      <div class="aa-agent"><span class="aa-agent-name">LINKEDIN</span><span class="aa-agent-sched">Monday 8:00 PM</span></div>
-      <div class="aa-agent"><span class="aa-agent-name">TMDB TRENDING</span><span class="aa-agent-sched">Nightly 00:00</span></div>
-      <div class="aa-agent"><span class="aa-agent-name">SEC EDGAR</span><span class="aa-agent-sched">Daily 6:30 AM</span></div>
-      <div class="aa-agent"><span class="aa-agent-name">DR. SCOOP</span><span class="aa-agent-sched">On-demand SSE</span></div>
-      <div class="aa-agent"><span class="aa-agent-name">DONELOG ANALYST</span><span class="aa-agent-sched">Post-build</span></div>
-      <div class="aa-agent"><span class="aa-agent-name">IAB AGENT</span><span class="aa-agent-sched">Monday 7:00 AM</span></div>
-      <div class="aa-agent"><span class="aa-agent-name">QA AGENT</span><span class="aa-agent-sched">Post-build auto</span></div>
-    </div>
-
-    <!-- cron strip -->
-    <div class="aa-cron-strip reveal-fade">
-      <span class="aa-cron-item"><strong>00:00</strong> TMDB Nightly</span>
-      <span class="aa-cron-item"><strong>05:00</strong> Daily Briefing</span>
-      <span class="aa-cron-item"><strong>06:00</strong> Media Intel</span>
-      <span class="aa-cron-item"><strong>06:30</strong> SEC EDGAR</span>
-      <span class="aa-cron-item"><strong>07:00</strong> IAB (Mon)</span>
-      <span class="aa-cron-item"><strong>12:00</strong> DoneLog</span>
-      <span class="aa-cron-item"><strong>14:00</strong> JARVIS Check</span>
-      <span class="aa-cron-item"><strong>17:50</strong> Skill Review (Fri)</span>
-      <span class="aa-cron-item"><strong>18:00</strong> Tech Intel (Fri)</span>
-      <span class="aa-cron-item"><strong>20:00</strong> LinkedIn (Mon)</span>
-      <span class="aa-cron-item"><strong>20:10</strong> Fin Analyst (Sun)</span>
-    </div>
-
-    <div style="margin-top:16px; font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); letter-spacing:0.15em; text-align:center; border-top:1px solid var(--border); padding-top:12px;">
-      SELF-DIRECTED LOOP · CLAUDE.md → TASKS.md → build.sh → DONE_LOG.md → FEEDBACK.md → SLACK · sasmaster.dev
-    </div>
   </div>
 
 </section>
