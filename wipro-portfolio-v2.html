@@ -2555,6 +2555,171 @@
   .ia-obs-key { font-family:'Barlow Condensed',sans-serif; font-size:13px; color:var(--text-secondary); }
   .ia-obs-val { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--teal-bright); letter-spacing:0.1em; }
 
+
+  /* ══════ FAST DATA PLATFORM VISUAL DIAGRAM ══════ */
+  .fdp-diagram {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 28px;
+    position: relative;
+  }
+  @media(max-width:900px){.fdp-diagram{grid-template-columns:repeat(4,1fr); grid-template-rows:auto auto;}}
+
+  .fdp-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    overflow: hidden;
+    transition: all 250ms var(--ease-cinematic);
+  }
+  .fdp-col:last-child { border-right: none; }
+  .fdp-col:hover { filter: brightness(1.15); z-index: 2; }
+
+  /* column gradient backgrounds matching original */
+  .fdp-col.col-sources {
+    background: linear-gradient(160deg, rgba(30,20,60,0.95) 0%, rgba(20,10,40,0.98) 100%);
+    border-top: 3px solid var(--lavender);
+  }
+  .fdp-col.col-etl1 {
+    background: linear-gradient(160deg, rgba(16,60,40,0.85) 0%, rgba(0,100,60,0.7) 100%);
+    border-top: 3px solid #10b981;
+  }
+  .fdp-col.col-etl2 {
+    background: linear-gradient(160deg, rgba(0,80,100,0.8) 0%, rgba(0,120,140,0.7) 100%);
+    border-top: 3px solid var(--teal-bright);
+  }
+  .fdp-col.col-data {
+    background: linear-gradient(160deg, rgba(60,20,100,0.85) 0%, rgba(80,30,120,0.8) 100%);
+    border-top: 3px solid var(--lavender);
+  }
+  .fdp-col.col-compute {
+    background: linear-gradient(160deg, rgba(100,20,40,0.85) 0%, rgba(140,30,50,0.75) 100%);
+    border-top: 3px solid #ef4444;
+  }
+  .fdp-col.col-api {
+    background: linear-gradient(160deg, rgba(20,40,100,0.85) 0%, rgba(30,60,140,0.8) 100%);
+    border-top: 3px solid #60a5fa;
+  }
+  .fdp-col.col-users {
+    background: linear-gradient(160deg, rgba(20,20,40,0.9) 0%, rgba(30,30,60,0.85) 100%);
+    border-top: 3px solid rgba(255,255,255,0.3);
+  }
+
+  .fdp-col-body {
+    padding: 16px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    width: 100%;
+  }
+  .fdp-icon {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .fdp-icon svg { width: 100%; height: 100%; }
+  .fdp-items {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+  }
+  .fdp-item {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8px;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.08em;
+    text-align: center;
+    padding: 3px 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.04);
+    line-height: 1.3;
+    transition: color 200ms, background 200ms;
+  }
+  .fdp-col:hover .fdp-item { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.08); }
+
+  /* flow arrow between cols */
+  .fdp-arrow {
+    position: absolute;
+    top: 50%;
+    right: -10px;
+    transform: translateY(-50%);
+    z-index: 3;
+    color: rgba(255,255,255,0.3);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  .fdp-col-footer {
+    width: 100%;
+    padding: 8px 6px;
+    background: rgba(0,0,0,0.3);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    text-align: center;
+  }
+  .fdp-col-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.15em;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .fdp-col-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+    display: block;
+  }
+  .col-sources .fdp-col-label  { color: var(--lavender); }
+  .col-etl1   .fdp-col-label  { color: #10b981; }
+  .col-etl2   .fdp-col-label  { color: var(--teal-bright); }
+  .col-data   .fdp-col-label  { color: var(--lav-2); }
+  .col-compute .fdp-col-label { color: #ef4444; }
+  .col-api    .fdp-col-label  { color: #60a5fa; }
+  .col-users  .fdp-col-label  { color: rgba(255,255,255,0.7); }
+
+  /* connecting particles between stages */
+  .fdp-connectors {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 12px 0;
+    position: relative;
+    height: 20px;
+  }
+  .fdp-particle-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--lavender), var(--teal-bright), transparent);
+    position: relative;
+    overflow: hidden;
+  }
+  .fdp-particle-line::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -30%;
+    width: 30%;
+    height: 3px;
+    background: var(--lavender);
+    border-radius: 2px;
+    animation: particle-flow 2s linear infinite;
+  }
+
 </style>
 </head>
 <body>
@@ -3311,83 +3476,195 @@
   </svg>
 
   <!-- 8-KPI grid -->
-  <div class="kpi-4x2 reveal-stagger">
-    <div class="kpi-cell">
-      <span class="kv" data-count-to="100" data-count-suffix="K" data-count-dur="1000">100K</span>
-      <span class="kl">Households · person-level panel</span>
-      <span class="ks">NIELSEN AMRLD DIRECT</span>
+
+  <!-- Fast Data Platform Visual Diagram -->
+  <div class="fdp-diagram reveal-stagger">
+
+    <!-- Col 1: Sources -->
+    <div class="fdp-col col-sources">
+      <div class="fdp-col-body">
+        <div class="fdp-icon"><svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="6" y="6" width="18" height="14" rx="2" stroke="rgba(167,139,250,0.7)" stroke-width="1.5" fill="rgba(167,139,250,0.08)"/>
+  <rect x="6" y="24" width="18" height="14" rx="2" stroke="rgba(167,139,250,0.5)" stroke-width="1.5" fill="rgba(167,139,250,0.06)"/>
+  <rect x="6" y="14" width="3" height="3" rx="0.5" fill="rgba(167,139,250,0.6)"/>
+  <rect x="6" y="32" width="3" height="3" rx="0.5" fill="rgba(167,139,250,0.4)"/>
+  <circle cx="40" cy="14" r="7" stroke="rgba(167,139,250,0.7)" stroke-width="1.5" fill="none"/>
+  <text x="40" y="19" text-anchor="middle" font-size="8" fill="rgba(167,139,250,0.9)" font-family="Arial">N</text>
+  <circle cx="40" cy="34" r="7" stroke="rgba(34,211,238,0.6)" stroke-width="1.5" fill="none"/>
+  <text x="40" y="39" text-anchor="middle" font-size="7" fill="rgba(34,211,238,0.8)" font-family="Arial">G</text>
+  <line x1="24" y1="13" x2="33" y2="14" stroke="rgba(167,139,250,0.4)" stroke-width="1" stroke-dasharray="2 2"/>
+  <line x1="24" y1="31" x2="33" y2="34" stroke="rgba(34,211,238,0.4)" stroke-width="1" stroke-dasharray="2 2"/>
+</svg></div>
+        <div class="fdp-items">
+          <span class="fdp-item">Nielsen DNS</span>
+          <span class="fdp-item">Gracenote</span>
+          <span class="fdp-item">VideoAmp</span>
+          <span class="fdp-item">Comscore</span>
+          <span class="fdp-item">iSpotTV</span>
+          <span class="fdp-item">User Panels</span>
+        </div>
+      </div>
+      <div class="fdp-col-footer">
+        <span class="fdp-col-num">01</span>
+        <span class="fdp-col-label">1ST &amp; 3RD<br>PARTY DATA</span>
+      </div>
     </div>
-    <div class="kpi-cell">
-      <span class="kv" data-count-to="1000" data-count-suffix="+" data-count-dur="1100">1000+</span>
-      <span class="kl">Concurrent users supported</span>
-      <span class="ks">PEAK PRODUCTION LOAD</span>
+
+    <!-- Col 2: ETL 1 -->
+    <div class="fdp-col col-etl1">
+      <div class="fdp-col-body">
+        <div class="fdp-icon"><svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="26" cy="16" rx="14" ry="6" stroke="#10b981" stroke-width="1.5" fill="rgba(16,185,129,0.1)"/>
+  <path d="M12 16 L12 30 Q12 36 26 36 Q40 36 40 30 L40 16" stroke="#10b981" stroke-width="1.5" fill="rgba(16,185,129,0.06)"/>
+  <ellipse cx="26" cy="30" rx="14" ry="6" stroke="#10b981" stroke-width="1.5" fill="rgba(16,185,129,0.1)"/>
+  <line x1="18" y1="23" x2="34" y2="23" stroke="rgba(16,185,129,0.5)" stroke-width="1" stroke-dasharray="3 2"/>
+  <line x1="20" y1="27" x2="32" y2="27" stroke="rgba(16,185,129,0.4)" stroke-width="1" stroke-dasharray="3 2"/>
+</svg></div>
+        <div class="fdp-items">
+          <span class="fdp-item">Fuzzy Matching</span>
+          <span class="fdp-item">Real-Time Audit</span>
+          <span class="fdp-item">Entity Resolution</span>
+        </div>
+      </div>
+      <div class="fdp-col-footer">
+        <span class="fdp-col-num">02</span>
+        <span class="fdp-col-label">ETL<br>LAYER 1</span>
+      </div>
     </div>
-    <div class="kpi-cell">
-      <span class="kv" data-count-to="206" data-count-suffix="M+" data-count-dur="1200">206M+</span>
-      <span class="kl">IMDB rows in production</span>
-      <span class="ks">SASMASTER PHASE 1</span>
+
+    <!-- Col 3: ETL 2 -->
+    <div class="fdp-col col-etl2">
+      <div class="fdp-col-body">
+        <div class="fdp-icon"><svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10 38 L20 14 L26 26 L32 18 L42 38" stroke="var(--teal-bright)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="20" cy="14" r="3" fill="var(--teal-bright)" opacity="0.7"/>
+  <circle cx="26" cy="26" r="3" fill="var(--teal-bright)" opacity="0.5"/>
+  <circle cx="32" cy="18" r="3" fill="var(--teal-bright)" opacity="0.7"/>
+  <path d="M10 42 L42 42" stroke="rgba(34,211,238,0.3)" stroke-width="1"/>
+</svg></div>
+        <div class="fdp-items">
+          <span class="fdp-item">Transform</span>
+          <span class="fdp-item">Enrich</span>
+          <span class="fdp-item">Validate</span>
+          <span class="fdp-item">Parent Key</span>
+        </div>
+      </div>
+      <div class="fdp-col-footer">
+        <span class="fdp-col-num">03</span>
+        <span class="fdp-col-label">ETL<br>LAYER 2</span>
+      </div>
     </div>
-    <div class="kpi-cell">
-      <span class="kv" data-count-to="4" data-count-prefix="$" data-count-suffix="M ARR" data-count-dur="900">$4M ARR</span>
-      <span class="kl">Analytics business line</span>
-      <span class="ks">BUILT FROM $40K INITIAL INVEST.</span>
+
+    <!-- Col 4: Data Layer -->
+    <div class="fdp-col col-data">
+      <div class="fdp-col-body">
+        <div class="fdp-icon" style="flex-direction:column;gap:6px;height:auto;">
+          <svg viewBox="0 0 40 28" width="40" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20 4 C10 4 4 8 4 10 C4 14 10 18 20 18 C30 18 36 14 36 10 C36 8 30 4 20 4" stroke="var(--lav-2)" stroke-width="1.5" fill="rgba(167,139,250,0.1)"/>
+  <path d="M4 10 L4 18 C4 22 10 26 20 26 C30 26 36 22 36 18 L36 10" stroke="var(--lav-2)" stroke-width="1.5" fill="rgba(167,139,250,0.06)"/>
+  <path d="M10 8 Q20 14 30 8" stroke="rgba(167,139,250,0.3)" stroke-width="1" fill="none"/>
+</svg>
+          <span style="font-family:Share Tech Mono,monospace;font-size:7px;color:rgba(167,139,250,0.5);letter-spacing:0.1em;">WAREHOUSE</span>
+          <svg viewBox="0 0 40 28" width="40" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="4" y="4" width="32" height="22" rx="3" stroke="var(--lav-2)" stroke-width="1.5" fill="rgba(167,139,250,0.08)"/>
+  <rect x="4" y="8" width="32" height="2" fill="rgba(167,139,250,0.15)"/>
+  <rect x="4" y="12" width="32" height="2" fill="rgba(167,139,250,0.12)"/>
+  <rect x="4" y="16" width="32" height="2" fill="rgba(167,139,250,0.1)"/>
+  <text x="20" y="24" text-anchor="middle" font-size="6" fill="rgba(167,139,250,0.7)" font-family="Share Tech Mono,monospace">101001</text>
+</svg>
+          <span style="font-family:Share Tech Mono,monospace;font-size:7px;color:rgba(167,139,250,0.4);letter-spacing:0.1em;">DATA LAKE</span>
+        </div>
+        <div class="fdp-items" style="margin-top:4px;">
+          <span class="fdp-item">S3 · Parquet</span>
+          <span class="fdp-item">Snowflake</span>
+          <span class="fdp-item">Databricks</span>
+          <span class="fdp-item">DuckDB</span>
+        </div>
+      </div>
+      <div class="fdp-col-footer">
+        <span class="fdp-col-num">04</span>
+        <span class="fdp-col-label">DATA<br>LAYER</span>
+      </div>
     </div>
-    <div class="kpi-cell">
-      <span class="kv" data-count-to="250" data-count-prefix="$" data-count-suffix="K" data-count-dur="900">$250K</span>
-      <span class="kl">Annual savings · tech debt elimination</span>
-      <span class="ks">MICROSERVICES MIGRATION</span>
+
+    <!-- Col 5: Compute -->
+    <div class="fdp-col col-compute">
+      <div class="fdp-col-body">
+        <div class="fdp-icon"><svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="26" cy="20" r="12" stroke="#ef4444" stroke-width="1.5" fill="rgba(239,68,68,0.08)"/>
+  <path d="M20 16 C22 12 30 12 32 16 C34 20 32 24 28 24 L24 24 C20 24 18 20 20 16" stroke="#ef4444" stroke-width="1.2" fill="none"/>
+  <line x1="24" y1="24" x2="24" y2="30" stroke="rgba(239,68,68,0.5)" stroke-width="1"/>
+  <line x1="28" y1="24" x2="28" y2="30" stroke="rgba(239,68,68,0.5)" stroke-width="1"/>
+  <path d="M20 30 C20 30 24 28 26 30 C28 32 32 30 32 30" stroke="#ef4444" stroke-width="1.2" fill="none" opacity="0.6"/>
+  <circle cx="20" cy="40" r="6" stroke="#ef4444" stroke-width="1" fill="rgba(239,68,68,0.06)" opacity="0.7"/>
+  <path d="M17 38 L20 40 L23 38 M17 42 L20 40 L23 42" stroke="#ef4444" stroke-width="1" opacity="0.7"/>
+</svg></div>
+        <div class="fdp-items">
+          <span class="fdp-item">Heavy Compute</span>
+          <span class="fdp-item">Light Compute</span>
+          <span class="fdp-item">ML Modeling</span>
+          <span class="fdp-item">MIP Optimize</span>
+        </div>
+      </div>
+      <div class="fdp-col-footer">
+        <span class="fdp-col-num">05</span>
+        <span class="fdp-col-label">COMPUTE<br>LAYER</span>
+      </div>
     </div>
-    <div class="kpi-cell">
-      <span class="kv" data-count-to="15" data-count-suffix="+" data-count-dur="800">15+</span>
-      <span class="kl">Years media data domain expertise</span>
-      <span class="ks">2007 → PRESENT</span>
+
+    <!-- Col 6: API -->
+    <div class="fdp-col col-api">
+      <div class="fdp-col-body">
+        <div class="fdp-icon"><svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="26" cy="26" r="14" stroke="#60a5fa" stroke-width="1.5" fill="rgba(96,165,250,0.08)"/>
+  <path d="M20 26 C20 22 22 20 26 20 C30 20 32 22 32 26 C32 30 30 32 26 32 C22 32 20 30 20 26" fill="rgba(96,165,250,0.12)" stroke="#60a5fa" stroke-width="1.2"/>
+  <text x="26" y="29" text-anchor="middle" font-size="7" font-weight="700" fill="#60a5fa" font-family="Arial">API</text>
+  <circle cx="26" cy="10" r="3" stroke="#60a5fa" stroke-width="1" fill="none" opacity="0.6"/>
+  <circle cx="42" cy="26" r="3" stroke="#60a5fa" stroke-width="1" fill="none" opacity="0.6"/>
+  <circle cx="26" cy="42" r="3" stroke="#60a5fa" stroke-width="1" fill="none" opacity="0.5"/>
+  <line x1="26" y1="13" x2="26" y2="20" stroke="rgba(96,165,250,0.4)" stroke-width="1"/>
+  <line x1="39" y1="26" x2="32" y2="26" stroke="rgba(96,165,250,0.4)" stroke-width="1"/>
+  <line x1="26" y1="32" x2="26" y2="39" stroke="rgba(96,165,250,0.4)" stroke-width="1"/>
+</svg></div>
+        <div class="fdp-items">
+          <span class="fdp-item">REST</span>
+          <span class="fdp-item">GraphQL</span>
+          <span class="fdp-item">Streaming</span>
+          <span class="fdp-item">Snowflake Mkt</span>
+        </div>
+      </div>
+      <div class="fdp-col-footer">
+        <span class="fdp-col-num">06</span>
+        <span class="fdp-col-label">API<br>LAYER</span>
+      </div>
     </div>
-    <div class="kpi-cell">
-      <span class="kv" data-count-to="6" data-count-dur="700">0</span>
-      <span class="kl">Years consecutive profitability</span>
-      <span class="ks">2018–2024 UNBROKEN</span>
+
+    <!-- Col 7: Users -->
+    <div class="fdp-col col-users">
+      <div class="fdp-col-body">
+        <div class="fdp-icon"><svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="20" cy="18" r="7" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="rgba(255,255,255,0.05)"/>
+  <path d="M10 36 C10 28 14 24 20 24 C26 24 30 28 30 36" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/>
+  <line x1="36" y1="22" x2="44" y2="22" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+  <line x1="36" y1="28" x2="44" y2="28" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+  <line x1="36" y1="34" x2="44" y2="34" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+  <rect x="34" y="16" width="12" height="24" rx="2" stroke="rgba(255,255,255,0.25)" stroke-width="1" fill="none"/>
+</svg></div>
+        <div class="fdp-items">
+          <span class="fdp-item">Analysts</span>
+          <span class="fdp-item">Researchers</span>
+          <span class="fdp-item">Data Scientists</span>
+          <span class="fdp-item">Executives</span>
+        </div>
+      </div>
+      <div class="fdp-col-footer">
+        <span class="fdp-col-num">07</span>
+        <span class="fdp-col-label">USERS</span>
+      </div>
     </div>
-    <div class="kpi-cell">
-      <span class="kv" data-count-to="40" data-count-suffix="%" data-count-dur="900">0%</span>
-      <span class="kl">Infrastructure cost reduction</span>
-      <span class="ks">MODULAR MICROSERVICES ARCH</span>
-    </div>
+
   </div>
 
-  <!-- multi-currency + tech strips -->
-  <div class="currency-strips reveal-up">
-    <div class="currency-row">
-      <span class="cr-label">MEASUREMENT</span>
-      <span class="cr-chip">NIELSEN AMRLD</span>
-      <span class="cr-chip">GRACENOTE</span>
-      <span class="cr-chip">VIDEOAMP</span>
-      <span class="cr-chip">COMSCORE</span>
-      <span class="cr-chip">ISPOTTV</span>
-      <span class="cr-chip">NPOWER</span>
-      <span class="cr-chip">LAKE5</span>
-      <span class="cr-chip">STARMEDIA</span>
-      <span class="cr-chip">TECHEDGE</span>
-    </div>
-    <div class="currency-row">
-      <span class="cr-label">PLATFORMS</span>
-      <span class="cr-chip">NIELSEN PLATFORMS</span>
-      <span class="cr-chip">BARB</span>
-      <span class="cr-chip">KANTAR</span>
-      <span class="cr-chip">ACR / SAMBA</span>
-      <span class="cr-chip">SET-TOP BOX</span>
-    </div>
-    <div class="currency-row">
-      <span class="cr-label">TECH STACK</span>
-      <span class="cr-chip">SNOWFLAKE</span>
-      <span class="cr-chip">DATABRICKS</span>
-      <span class="cr-chip">GUROBI</span>
-      <span class="cr-chip">CPLEX</span>
-      <span class="cr-chip">AWS BEDROCK</span>
-      <span class="cr-chip">DUCKDB</span>
-      <span class="cr-chip">PARQUET</span>
-      <span class="cr-chip">S3</span>
-    </div>
-  </div>
 
 </section>
 
