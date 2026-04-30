@@ -2251,6 +2251,213 @@
     border-top: 1px solid rgba(167,139,250,0.06);
   }
 
+
+  /* ══════════ §00 REFINEMENT ══════════ */
+
+  /* EDIT 1+2: Bio paragraphs */
+  .hero-bio {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    line-height: 1.5;
+    font-weight: 400;
+    color: rgba(255,255,255,0.94);
+    max-width: 720px;
+    margin-bottom: 18px;
+  }
+  .bio-em { color: var(--lavender); font-weight: 600; }
+
+  /* EDIT 4: Stat strip */
+  .stat-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: stretch;
+    margin: 32px 0 40px 0;
+  }
+  .stat-anchor {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    padding: 12px 20px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, rgba(244,201,93,0.12) 0%, rgba(244,201,93,0.04) 100%);
+    border: 1px solid rgba(244,201,93,0.35);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: box-shadow 300ms var(--ease-cinematic);
+  }
+  .stat-anchor.anim-done { opacity: 1; transform: none; }
+  @keyframes anchor-glow {
+    0%   { box-shadow: 0 0 0 rgba(244,201,93,0); }
+    40%  { box-shadow: 0 0 28px rgba(244,201,93,0.5); }
+    100% { box-shadow: 0 0 8px rgba(244,201,93,0.15); }
+  }
+  .stat-anchor.glow-active { animation: anchor-glow 1200ms var(--ease-cinematic) forwards; }
+  .stat-anchor-label {
+    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: rgba(244,201,93,0.7);
+    margin-top: 4px;
+  }
+  .stat-supporting {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: rgba(244,201,93,0.85);
+    letter-spacing: 1.2px;
+    padding: 14px 16px;
+    border: 1px solid rgba(244,201,93,0.18);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  .stat-supporting.anim-done { opacity: 1; transform: none; }
+
+  /* EDIT 5: Expertise rail */
+  .exp-rail-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--lavender);
+    letter-spacing: 0.28em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .exp-rail-label::before { content:''; width:24px; height:1px; background:var(--lavender); flex-shrink:0; }
+  .expertise-rail { display: flex; flex-direction: column; gap: 0; margin-bottom: 24px; }
+  .expertise-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 0 14px 12px;
+    border-bottom: 1px solid rgba(167,139,250,0.08);
+    border-left: 3px solid transparent;
+    transition: border-left-color 250ms var(--ease-cinematic),
+                background 250ms var(--ease-cinematic),
+                padding-left 250ms var(--ease-cinematic);
+    cursor: default;
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  .expertise-item:first-child { border-top: 1px solid rgba(167,139,250,0.08); }
+  .expertise-item.item-visible { opacity: 1; transform: none; transition: opacity 400ms var(--ease-cinematic), transform 400ms var(--ease-cinematic), border-left-color 250ms, background 250ms, padding-left 250ms; }
+  .expertise-item.scanner-active {
+    border-left-color: var(--gold);
+    background: rgba(244,201,93,0.04);
+    padding-left: 16px;
+  }
+  .expertise-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    flex-shrink: 0;
+    padding-top: 3px;
+    transition: color 250ms;
+  }
+  .expertise-item.scanner-active .expertise-num { color: var(--gold); }
+  .expertise-body { display: flex; flex-direction: column; gap: 4px; }
+  .expertise-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+    transition: color 250ms, letter-spacing 250ms;
+  }
+  .expertise-item.scanner-active .expertise-label { color: var(--text-primary); letter-spacing: 0.06em; }
+  .expertise-detail {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    line-height: 1.5;
+    transition: color 250ms;
+  }
+  .expertise-item.scanner-active .expertise-detail { color: rgba(244,201,93,0.6); }
+
+  /* EDIT 6: Context block */
+  .context-block {
+    padding: 16px 18px;
+    border: 1px solid rgba(167,139,250,0.15);
+    border-top: 2px solid var(--lavender);
+    border-radius: 4px;
+    background: rgba(167,139,250,0.04);
+    animation: context-pulse 4s ease-in-out infinite;
+  }
+  @keyframes context-pulse {
+    0%, 100% { border-top-color: rgba(167,139,250,0.5); }
+    50%       { border-top-color: rgba(167,139,250,1); }
+  }
+  .context-eyebrow {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    margin-bottom: 6px;
+  }
+  .context-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--lavender);
+    letter-spacing: 0.08em;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .context-practice {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .context-meta {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    line-height: 1.8;
+  }
+
+  /* EDIT 9: Meta grid */
+  .hero-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0 32px;
+    margin: 32px 0 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(167,139,250,0.12);
+  }
+  @media (max-width: 900px) { .hero-meta-grid { grid-template-columns: repeat(2,1fr); gap: 16px 24px; } }
+  .hero-meta-cell { display: flex; flex-direction: column; gap: 4px; }
+  .hmc-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+  }
+  .hmc-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    color: var(--text-primary);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+
+  /* reduced-motion: all animations off */
+  @media (prefers-reduced-motion: reduce) {
+    .stat-anchor, .stat-supporting { opacity:1 !important; transform:none !important; transition:none !important; }
+    .stat-anchor.glow-active { animation:none !important; }
+    .expertise-item { opacity:1 !important; transform:none !important; transition:none !important; }
+    .context-block { animation:none !important; }
+  }
+
 </style>
 </head>
 <body>
@@ -2382,44 +2589,55 @@
 <!-- ============ HERO ============ -->
 <section id="hero">
 
-  <!-- Left column: existing hero content -->
+  <!-- Left column -->
   <div class="hero-left">
-    <div class="hero-tag">EXECUTIVE PORTFOLIO · 2026</div>
 
+    <!-- EDIT 8: eyebrow -->
+    <div class="hero-tag">EXECUTIVE BRIEFING · 2026</div>
+
+    <!-- NAME -->
     <h1 class="hero-name">SHIV ASHISH<br>SEHGAL</h1>
 
-    <p class="hero-tagline">
-      Fifteen years architecting <span class="strong">AI-driven systems</span> for the world's largest media companies.
-      <br><br>
-      <span class="em">Award-winning Senior Media Executive</span> specializing in <span class="strong">AI Decision-Making</span> — decoding M&amp;E data into radical insights across content, advertising, and marketing inventories.
-    </p>
-
-    <div class="hero-meta-row">
-      <div class="hero-meta-item">
-        <span class="k">EDUCATION</span>
-        <span class="v">UCLA-NUS Global EMBA · Intake 22</span>
+    <!-- EDIT 3+4: stat strip ABOVE bio -->
+    <div class="stat-strip">
+      <div class="stat-anchor">
+        $50M+
+        <span class="stat-anchor-label">DIRECT REVENUE CONTRIBUTION</span>
       </div>
-      <div class="hero-meta-item">
-        <span class="k">FORMER</span>
-        <span class="v">CPO · EVP · Audience Analytics</span>
-      </div>
-      <div class="hero-meta-item">
-        <span class="k">CAREER</span>
-        <span class="v">RSG Media · Naviga · Rightsline</span>
-      </div>
-      <div class="hero-meta-item">
-        <span class="k">BASED</span>
-        <span class="v">New York City</span>
-      </div>
+      <div class="stat-supporting">15+ YEARS</div>
+      <div class="stat-supporting">FORTUNE 500 MEDIA</div>
+      <div class="stat-supporting">3× AWARD WINNER</div>
+      <div class="stat-supporting">HBR PUBLISHED</div>
     </div>
 
-    <!-- Hero stat anchor strip -->
-    <div class="hero-stat-strip reveal-fade">
-      <span class="hss-item">$50M+ DIRECT REVENUE</span>
-      <span class="hss-item">15+ YEARS</span>
-      <span class="hss-item">FORTUNE 500 MEDIA</span>
-      <span class="hss-item">3× AWARD WINNER</span>
-      <span class="hss-item">HBR PUBLISHED</span>
+    <!-- EDIT 1: bio para 1 -->
+    <p class="hero-bio">
+      Fifteen years architecting <span class="bio-em">AI-driven audience analytics and rights management platforms</span> for the world's largest media companies.
+    </p>
+
+    <!-- EDIT 2: bio para 2 -->
+    <p class="hero-bio">
+      <span class="bio-em">Award-winning media technology executive</span> — decoding M&amp;E data into radical insights across content, advertising, and marketing inventories at enterprise scale.
+    </p>
+
+    <!-- EDIT 9: meta strip -->
+    <div class="hero-meta-grid">
+      <div class="hero-meta-cell">
+        <span class="hmc-label">EDUCATION</span>
+        <span class="hmc-value">UCLA-NUS Global EMBA · Intake 22</span>
+      </div>
+      <div class="hero-meta-cell">
+        <span class="hmc-label">FORMER</span>
+        <span class="hmc-value">CPO · EVP · Audience Analytics</span>
+      </div>
+      <div class="hero-meta-cell">
+        <span class="hmc-label">CAREER</span>
+        <span class="hmc-value">RSG Media · Naviga · Rightsline</span>
+      </div>
+      <div class="hero-meta-cell">
+        <span class="hmc-label">BASED</span>
+        <span class="hmc-value">New York City</span>
+      </div>
     </div>
 
     <div class="scroll-cue">
@@ -2428,44 +2646,47 @@
     </div>
   </div>
 
-  <!-- Right column: areas of expertise -->
-  <div class="hero-right reveal-fade">
-    <div class="exp-label">// AREAS OF EXPERTISE</div>
+  <!-- Right column: EDIT 5 — 4-pillar expertise rail -->
+  <div class="hero-right">
+    <div class="exp-rail-label">// AREAS OF EXPERTISE</div>
 
-    <div class="exp-item">
-      <span class="exp-num">01</span>
-      <span class="exp-name">Rights Management</span>
-      <span class="exp-dot"></span>
-    </div>
-    <div class="exp-item">
-      <span class="exp-num">02</span>
-      <span class="exp-name">Royalties Management</span>
-      <span class="exp-dot"></span>
-    </div>
-    <div class="exp-item">
-      <span class="exp-num">03</span>
-      <span class="exp-name">Programming Research</span>
-      <span class="exp-dot"></span>
-    </div>
-    <div class="exp-item">
-      <span class="exp-num">04</span>
-      <span class="exp-name">Ad Sales</span>
-      <span class="exp-dot"></span>
-    </div>
-    <div class="exp-item">
-      <span class="exp-num">05</span>
-      <span class="exp-name">Marketing Research</span>
-      <span class="exp-dot"></span>
-    </div>
-    <div class="exp-item">
-      <span class="exp-num">06</span>
-      <span class="exp-name">Supervised Machine Learning<br>&amp; AI Systems</span>
-      <span class="exp-dot"></span>
+    <div class="expertise-rail">
+      <div class="expertise-item">
+        <span class="expertise-num">01</span>
+        <div class="expertise-body">
+          <span class="expertise-label">Media Data Infrastructure</span>
+          <div class="expertise-detail">Nielsen · Gracenote · VideoAmp · Comscore · iSpotTV</div>
+        </div>
+      </div>
+      <div class="expertise-item">
+        <span class="expertise-num">02</span>
+        <div class="expertise-body">
+          <span class="expertise-label">Audience Analytics &amp; Insights</span>
+          <div class="expertise-detail">Programming Research · Cross-Platform · Person-Level Panel</div>
+        </div>
+      </div>
+      <div class="expertise-item">
+        <span class="expertise-num">03</span>
+        <div class="expertise-body">
+          <span class="expertise-label">Forecasting &amp; Optimization Models</span>
+          <div class="expertise-detail">Supervised ML · MIP · Gurobi · CPLEX</div>
+        </div>
+      </div>
+      <div class="expertise-item">
+        <span class="expertise-num">04</span>
+        <div class="expertise-body">
+          <span class="expertise-label">Generative AI Business Lines</span>
+          <div class="expertise-detail">Multi-Agent · LLM · RAG · Production at Scale</div>
+        </div>
+      </div>
     </div>
 
-    <div class="exp-footer">
-      WIPRO · MEDIA ANALYTICS PRACTICE<br>
-      ENTERPRISE AI · M&amp;E DATA INFRASTRUCTURE
+    <!-- EDIT 6: WIPRO context block -->
+    <div class="context-block">
+      <div class="context-eyebrow">// PREPARED FOR</div>
+      <div class="context-name">WIPRO</div>
+      <div class="context-practice">Media Analytics Practice</div>
+      <div class="context-meta">Enterprise AI · M&amp;E Data Infrastructure<br>April 30 · 2026</div>
     </div>
   </div>
 
@@ -3696,6 +3917,64 @@
     });
   }, { threshold: 0.5 });
   kpiNumbers.forEach(n => kpiObserver.observe(n));
+
+
+  // ══════ §00 ANIMATIONS (EDIT 7 + EDIT 5 scanner) ══════
+  function animateStatStrip() {
+    if (APP_STATE.reducedMotion) {
+      document.querySelectorAll('.stat-anchor,.stat-supporting').forEach(el => el.classList.add('anim-done'));
+      return;
+    }
+    const chips = document.querySelectorAll('.stat-anchor, .stat-supporting');
+    chips.forEach((chip, i) => {
+      setTimeout(() => {
+        chip.style.transition = 'opacity 600ms cubic-bezier(.22,.61,.36,1), transform 600ms cubic-bezier(.22,.61,.36,1)';
+        chip.classList.add('anim-done');
+        if (i === chips.length - 1) {
+          setTimeout(() => {
+            document.querySelector('.stat-anchor')?.classList.add('glow-active');
+          }, 700);
+        }
+      }, 400 + i * 80);
+    });
+  }
+
+  function initExpertiseScanner() {
+    const items = document.querySelectorAll('.expertise-item');
+    if (!items.length) return;
+    if (APP_STATE.reducedMotion) {
+      items.forEach(el => el.classList.add('item-visible'));
+      return;
+    }
+    // Stagger entrance: 100ms per item
+    items.forEach((item, i) => {
+      setTimeout(() => {
+        item.classList.add('item-visible');
+        // Start scanner after last item is visible
+        if (i === items.length - 1) {
+          setTimeout(startScanner, 300);
+        }
+      }, i * 100);
+    });
+
+    let current = 0;
+    function startScanner() {
+      items[current].classList.add('scanner-active');
+      setInterval(() => {
+        items[current].classList.remove('scanner-active');
+        current = (current + 1) % items.length;
+        items[current].classList.add('scanner-active');
+      }, 1800);
+    }
+  }
+
+  // Boot §00 animations after fonts ready
+  window.addEventListener('load', () => {
+    document.fonts.ready.then(() => {
+      animateStatStrip();
+      initExpertiseScanner();
+    });
+  });
 
 </script>
 
