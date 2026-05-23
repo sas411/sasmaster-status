@@ -832,6 +832,10 @@ a{color:inherit}
 
 .kb-sortable-ghost{opacity:.35;background:rgba(96,165,250,.15);border:1px dashed #60a5fa !important}
 .kb-sortable-chosen{cursor:grabbing !important;box-shadow:0 4px 16px rgba(0,0,0,.4) !important}
+.mem-pill{color:#a78bfa;padding:1px 7px;border-radius:3px;background:#1e1a2e;font-weight:600}
+.mem-pill.hot-green{color:#10b981;background:#0a1f15}
+.mem-pill.hot-yellow{color:#f59e0b;background:#1a1508}
+.mem-pill.hot-red{color:#ef4444;background:#1f0a0a}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -964,6 +968,18 @@ a{color:inherit}
 
   <!-- CONTENT AREA -->
   <div class="content-area">
+    <!-- Memory Layer Status Strip — fetches /api/memory/status every 5 min -->
+    <div id="memoryLayerStrip" style="display:flex;align-items:center;gap:8px;padding:4px 16px;background:#0d0a1a;border-bottom:1px solid #2a1f4a;font-family:'DM Mono',monospace;font-size:10px;">
+      <span style="color:#7c3aed;font-weight:700;letter-spacing:.05em">MEMORY</span>
+      <span id="mlHot" class="mem-pill">HOT —</span>
+      <span style="color:#3b2d6e">·</span>
+      <span id="mlWarm" class="mem-pill">WARM —</span>
+      <span style="color:#3b2d6e">·</span>
+      <span id="mlCold" class="mem-pill">COLD —</span>
+      <span style="color:#3b2d6e">·</span>
+      <span id="mlS3" class="mem-pill">S3 —</span>
+      <span id="mlTs" style="margin-left:auto;color:#3b2d6e;font-size:9px"></span>
+    </div>
     <div class="tab-nav">
       <button class="tab-btn active" onclick="switchTab('ops')" data-tab="ops">⚙ OPS</button>
       <button class="tab-btn" onclick="switchTab('agents')" data-tab="agents">🤖 AGENTS</button>
@@ -3952,6 +3968,55 @@ window.finRebuildDoc = function() {
 };
 
 })(); // end Financial Intel IIFE
+
+// ── Memory Layer Status Strip ─────────────────────────────────────────────────
+(function() {
+  const API = 'https://api.sasmaster.dev/api/memory/status';
+
+  function renderMemoryStrip(data) {
+    const hotEl  = document.getElementById('mlHot');
+    const warmEl = document.getElementById('mlWarm');
+    const coldEl = document.getElementById('mlCold');
+    const s3El   = document.getElementById('mlS3');
+    const tsEl   = document.getElementById('mlTs');
+    if (!hotEl) return;
+
+    const used  = data.hot?.slots_used ?? '—';
+    const total = data.hot?.slots_total ?? 30;
+    hotEl.textContent = `HOT [${used}/${total}]`;
+    hotEl.className = 'mem-pill';
+    if (typeof used === 'number') {
+      if (used <= 25) hotEl.classList.add('hot-green');
+      else if (used <= 28) hotEl.classList.add('hot-yellow');
+      else hotEl.classList.add('hot-red');
+    }
+
+    const sha = data.warm?.sha ? data.warm.sha.slice(0, 7) : '—';
+    warmEl.textContent = `WARM [${sha}]`;
+
+    const coldN = data.cold?.obsidian_entries ?? '—';
+    coldEl.textContent = `COLD [${coldN}]`;
+
+    const s3N = data.archive?.s3_objects ?? '—';
+    s3El.textContent = `S3 [${s3N}]`;
+
+    if (tsEl && data.ts) {
+      const d = new Date(data.ts);
+      tsEl.textContent = 'updated ' + d.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', hour12:false}) + ' EDT';
+    }
+  }
+
+  async function fetchMemoryStatus() {
+    try {
+      const r = await fetch(API);
+      if (!r.ok) return;
+      renderMemoryStrip(await r.json());
+    } catch {}
+  }
+
+  fetchMemoryStatus();
+  setInterval(fetchMemoryStatus, 5 * 60 * 1000);
+})();
 
 </script>
 
