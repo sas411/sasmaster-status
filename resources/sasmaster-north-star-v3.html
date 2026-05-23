@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — North Star v3 · Operator Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas: #F0F4F8;
+  --surface: #FFFFFF;
+  --surface2: #F8FAFC;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --text-primary: #1E293B;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --teal: #0EA5E9;
+  --teal-bg: rgba(14,165,233,0.08);
+  --teal-border: rgba(14,165,233,0.25);
+  --blue: #3B82F6;
+  --blue-bg: rgba(59,130,246,0.08);
+  --green: #10B981;
+  --green-bg: rgba(16,185,129,0.08);
+  --green-border: rgba(16,185,129,0.2);
+  --red: #EF4444;
+  --red-bg: rgba(239,68,68,0.08);
+  --orange: #FB923C;
+  --orange-bg: rgba(251,146,60,0.08);
+  --purple: #7C3AED;
+  --purple-bg: rgba(124,58,237,0.08);
+  --purple-border: rgba(124,58,237,0.2);
+  --dark-bar: #1E293B;
+  --dark-text: #F1F5F9;
+  --dark-muted: #94A3B8;
+  --dark-teal: #38BDF8;
+  --gold: #F59E0B;
+  --gold-bg: rgba(245,158,11,0.08);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--canvas); color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6; }
+.mono { font-family: 'DM Mono', monospace; }
+.display { font-family: 'Bebas Neue', sans-serif; }
+.wrapper { max-width: 1200px; margin: 0 auto; padding: 0 48px; }
+
+.hero-bar { background: var(--dark-bar); padding: 56px 48px 48px; position: relative; overflow: hidden; }
+.hero-bar::before { content: 'NORTH STAR'; position: absolute; top: -20px; left: -10px; font-family: 'Bebas Neue', sans-serif; font-size: 180px; color: rgba(255,255,255,0.02); pointer-events: none; user-select: none; line-height: 1; }
+.hero-eyebrow { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.25em; color: var(--dark-teal); text-transform: uppercase; margin-bottom: 16px; }
+.hero-headline { font-family: 'Bebas Neue', sans-serif; font-size: clamp(52px, 7vw, 96px); line-height: 0.92; letter-spacing: 0.02em; color: var(--dark-text); margin-bottom: 20px; }
+.hero-sub { font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 300; color: var(--dark-muted); max-width: 680px; line-height: 1.7; margin-bottom: 28px; }
+.hero-pill { display: inline-block; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; padding: 5px 14px; border-radius: 4px; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.35); color: #FDE68A; margin-bottom: 20px; margin-right: 8px; }
+.hero-pill.new { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.35); color: #6EE7B7; }
+.hero-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dark-muted); }
+
+.section { padding: 64px 0; }
+.section-divider { height: 1px; background: var(--border); }
+.section-header { margin-bottom: 40px; }
+.sec-num { font-family: 'Bebas Neue', sans-serif; font-size: 72px; line-height: 1; color: var(--teal); margin-bottom: 4px; display: block; }
+.section-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.22em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.section-title { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 0.04em; color: var(--text-primary); margin-bottom: 12px; }
+.section-body { font-size: 15px; color: var(--text-secondary); line-height: 1.75; max-width: 760px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.card-teal { border-top: 2px solid var(--teal); }
+.card-blue { border-top: 2px solid var(--blue); }
+.card-green { border-top: 2px solid var(--green); }
+.card-orange { border-top: 2px solid var(--orange); }
+.card-purple { border-top: 2px solid var(--purple); }
+.card-gold { border-top: 2px solid var(--gold); }
+
+.pullquote { background: var(--teal-bg); border-left: 4px solid var(--teal); border-radius: 0 8px 8px 0; padding: 20px 24px; margin: 24px 0; font-size: 16px; color: var(--text-primary); font-style: italic; line-height: 1.7; }
+.pullquote strong { font-style: normal; color: var(--teal); font-weight: 600; }
+
+.one-sentence { background: var(--dark-bar); border-radius: 10px; padding: 28px 32px; margin: 28px 0; color: var(--dark-muted); font-size: 18px; line-height: 1.75; position: relative; }
+.one-sentence::before { content: '\201C'; font-family: 'Bebas Neue', sans-serif; font-size: 80px; color: rgba(56,189,248,0.15); position: absolute; top: -8px; left: 20px; line-height: 1; }
+.one-sentence strong { color: var(--dark-teal); font-style: normal; }
+
+.pillar-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 32px; }
+.pillar-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; }
+.pillar-num { font-family: 'Bebas Neue', sans-serif; font-size: 52px; line-height: 1; margin-bottom: 8px; }
+.pillar-name { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+.pillar-rule { font-size: 11px; color: var(--text-muted); line-height: 1.5; font-style: italic; }
+
+.layer-stack { display: flex; flex-direction: column; gap: 3px; }
+.layer { display: flex; align-items: flex-start; gap: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; }
+.layer:hover { border-color: var(--border-strong); }
+.layer-num { font-family: 'Bebas Neue', sans-serif; font-size: 32px; width: 40px; flex-shrink: 0; line-height: 1; color: var(--teal); opacity: 0.5; }
+.layer-content { flex: 1; }
+.layer-title { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+.layer-subtitle { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; margin-bottom: 6px; }
+.layer-body { font-size: 12px; color: var(--text-secondary); line-height: 1.65; }
+.layer-core { font-size: 11px; color: var(--text-muted); line-height: 1.55; margin-top: 6px; }
+.layer-core strong { color: var(--teal); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.flywheel { background: var(--dark-bar); border-radius: 12px; padding: 36px 40px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin: 28px 0; }
+.flywheel-side { }
+.flywheel-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--dark-teal); text-transform: uppercase; margin-bottom: 10px; }
+.flywheel-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--dark-text); margin-bottom: 8px; }
+.flywheel-body { font-size: 13px; color: var(--dark-muted); line-height: 1.7; }
+.flywheel-arrow { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--dark-teal); text-align: center; line-height: 1; }
+.flywheel-moat { grid-column: 1 / -1; text-align: center; margin-top: 12px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); font-family: 'DM Mono', monospace; font-size: 12px; color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; }
+
+.service-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.service-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px; }
+.service-num { font-family: 'Bebas Neue', sans-serif; font-size: 48px; line-height: 1; opacity: 0.3; margin-bottom: 4px; }
+.service-name { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+.service-tag { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; padding: 3px 8px; border-radius: 3px; display: inline-block; margin-bottom: 10px; }
+.service-body { font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
+
+.skill-section { margin-bottom: 24px; }
+.skill-section-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.skill-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.skill-chip { font-family: 'DM Mono', monospace; font-size: 11px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; color: var(--text-secondary); }
+.skill-chip.user { border-color: var(--purple-border); color: var(--purple); background: var(--purple-bg); }
+.skill-chip.example { border-color: var(--teal-border); color: var(--teal); background: var(--teal-bg); }
+
+.target-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.target-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px; }
+.target-type { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+.target-name { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+.target-buyers { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+.target-examples { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+.tech-principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.tech-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px; }
+.tech-icon { font-size: 24px; margin-bottom: 12px; }
+.tech-title { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+.tech-body { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+
+.sasmaster-test { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.test-header { background: var(--dark-bar); padding: 16px 24px; }
+.test-header-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--dark-teal); text-transform: uppercase; margin-bottom: 4px; }
+.test-header-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--dark-text); }
+.test-items { padding: 20px 24px; display: flex; flex-direction: column; gap: 12px; }
+.test-item { display: flex; align-items: flex-start; gap: 16px; padding: 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; }
+.test-pillar-tag { font-family: 'DM Mono', monospace; font-size: 9px; padding: 3px 8px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; letter-spacing: 0.08em; }
+.test-q { font-size: 13px; color: var(--text-primary); font-weight: 500; line-height: 1.5; }
+
+.footer { background: var(--dark-bar); padding: 32px 48px; display: flex; justify-content: space-between; align-items: center; }
+.footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--dark-text); }
+.footer-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dark-muted); text-align: right; }
+</style>
+</head>
+<body>
+
+<div class="hero-bar">
+  <div class="wrapper" style="padding-top:0;padding-bottom:0;">
+    <div class="hero-eyebrow">SaSMaster · North Star v3 · Operator Reference</div>
+    <div class="hero-pill new">&#9679; MAY 23 2026</div>
+    <div class="hero-pill">SUPERSEDES BIG VISION</div>
+    <div class="hero-headline">PUT AUDIENCES<br>IN CONTROL</div>
+    <div class="hero-sub">The mission: power the global media economy through GenAI Synthetic Avatars that turn personal preference into the industry's truest signal of demand. The Bloomberg Terminal for Media, rebuilt from first principles.</div>
+    <div class="hero-meta">North Star v3 &nbsp;|&nbsp; May 23 2026 &nbsp;|&nbsp; Operator-Ready &nbsp;|&nbsp; Confidential</div>
+  </div>
+</div>
+
+<!-- SECTION 1: MISSION + VISION -->
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">01</span>
+    <div class="section-label">Mission &amp; Vision</div>
+    <div class="section-title">WHAT WE ARE AND WHERE WE ARE GOING</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;">
+    <div class="card card-teal">
+      <div class="mono" style="font-size:10px;letter-spacing:0.18em;color:var(--teal);text-transform:uppercase;margin-bottom:12px;">The Mission</div>
+      <div style="font-size:15px;color:var(--text-primary);line-height:1.75;">Put audiences in control. Power the global media economy on their terms — through GenAI Synthetic Avatars that turn personal preference into the industry's truest signal of demand.</div>
+    </div>
+    <div class="card card-purple">
+      <div class="mono" style="font-size:10px;letter-spacing:0.18em;color:var(--purple);text-transform:uppercase;margin-bottom:12px;">The Vision (2035)</div>
+      <div style="font-size:14px;color:var(--text-secondary);line-height:1.75;">The SaSMaster Terminal is where every consequential decision in content, advertising, and marketing happens. The Global Synthetic Audience Panel is the industry's universal currency. The Content Exchange routes the $300T licensing economy on consent-grounded rails.</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;">
+    <div class="card" style="text-align:center;"><div class="display" style="font-size:32px;color:var(--teal)">$300T</div><div class="mono" style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">Content Licensing TAM</div></div>
+    <div class="card" style="text-align:center;"><div class="display" style="font-size:32px;color:var(--purple)">$279B</div><div class="mono" style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">Annual Content Exchange</div></div>
+    <div class="card" style="text-align:center;"><div class="display" style="font-size:32px;color:var(--blue)">719</div><div class="mono" style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">Distributors / $65.8B US Rights</div></div>
+    <div class="card" style="text-align:center;"><div class="display" style="font-size:32px;color:var(--green)">500+</div><div class="mono" style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;">Originals/Year (2×2010)</div></div>
+  </div>
+  <div class="one-sentence"><strong>SaSMaster is a system that remembers what it learns, acts on its own but in the open, and grows sharper every month — or it's not SaSMaster.</strong></div>
+</div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- SECTION 2: SYNTHETIC AVATAR USP -->
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">02</span>
+    <div class="section-label">The GenAI Avatar — Unique Selling Point</div>
+    <div class="section-title">A NEW CATEGORY. NOT A FEATURE.</div>
+  </div>
+  <div class="pullquote"><strong>The industry requires a Global Synthetic Audience Panel.</strong> There is no global audience and consumer dataset. SaSMaster introduces a GenAI-powered Audience Avatar — a dynamic, individually trained synthetic representation of a viewer's content preferences, behavioral patterns, and affinities. Built from consented signals, enriched through a proprietary B2C panel.</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px;">
+    <div class="card card-teal">
+      <div class="mono" style="font-size:10px;letter-spacing:0.15em;color:var(--teal);text-transform:uppercase;margin-bottom:10px;">For Media Companies</div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">Audience intelligence at granularity traditional panel measurement cannot reach — decoded at the title, genre, daypart, and platform level, globally.</div>
+    </div>
+    <div class="card card-blue">
+      <div class="mono" style="font-size:10px;letter-spacing:0.15em;color:var(--blue);text-transform:uppercase;margin-bottom:10px;">For Advertisers</div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">True hyper-targeting — not against a demographic bucket, but against a living, dynamic representation of real preference. The Avatar is the target. Not the person.</div>
+    </div>
+    <div class="card card-purple">
+      <div class="mono" style="font-size:10px;letter-spacing:0.15em;color:var(--purple);text-transform:uppercase;margin-bottom:10px;">The Consumer Shield</div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">The Avatar is a synthetic proxy the consumer owns and controls. Audit, approve, restrict, revoke. Privacy-safe, consent-grounded. First globally uniform synthetic audience dataset.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- SECTION 3: B2C→B2B FLYWHEEL + 4 SERVICE LINES -->
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">03</span>
+    <div class="section-label">Business Model</div>
+    <div class="section-title">THE FLYWHEEL AND THE FOUR SERVICE LINES</div>
+  </div>
+  <div class="flywheel">
+    <div class="flywheel-side">
+      <div class="flywheel-label">B2C</div>
+      <div class="flywheel-title">CONSUMER APP</div>
+      <div class="flywheel-body">Likewise/Carousel-style experience. Builds Global Synthetic Audience Panel through GenAI Avatars enriched with demographic, content, book, and music affinities. Every new consumer makes the panel more valuable.</div>
+    </div>
+    <div class="flywheel-arrow">⟶</div>
+    <div class="flywheel-side">
+      <div class="flywheel-label">B2B</div>
+      <div class="flywheel-title">ENTERPRISE PLATFORM</div>
+      <div class="flywheel-body">Consumer demand signals power B2B research, programming strategy, and cross-border content licensing. Onboarded via Shiv's existing research network. Every enterprise contract funds richer consumer experiences.</div>
+    </div>
+    <div class="flywheel-moat">The Flywheel Is The Moat — B2C Powers B2B · B2B Funds B2C</div>
+  </div>
+  <div class="service-grid">
+    <div class="service-card">
+      <div class="service-num" style="color:var(--teal)">01</div>
+      <div class="service-name">Data Analytics</div>
+      <span class="service-tag" style="background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-border);">RECURRING REVENUE</span>
+      <div class="service-body">Self-service portals delivering audience, content, and competitive intelligence. Programming Research Portal, Advertising Research Portal, Marketing Research Platform. The front door and recurring revenue engine.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-num" style="color:var(--blue)">02</div>
+      <div class="service-name">Research-as-a-Service</div>
+      <span class="service-tag" style="background:var(--blue-bg);color:var(--blue);border:1px solid rgba(59,130,246,0.25);">HIGH MARGIN</span>
+      <div class="service-body">Custom strategic research executed by SaSMaster analysts and Dr. Scoop. Bespoke insights for content acquisition, programming strategy, and audience development. Relationship-driven, anchors enterprise accounts.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-num" style="color:var(--purple)">03</div>
+      <div class="service-name">Data Science-aaS</div>
+      <span class="service-tag" style="background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border);">IP ANCHOR</span>
+      <div class="service-body">Embedded ML optimization and mathematical modeling. Promo scheduling, ad inventory optimization, audience forecasting. Productized from 15 years of M&amp;E ML/MIP work including INFORMS RM&amp;P and FICO Decisions Award IP.</div>
+    </div>
+    <div class="service-card">
+      <div class="service-num" style="color:var(--gold)">04</div>
+      <div class="service-name">GenAI-as-a-Service</div>
+      <span class="service-tag" style="background:var(--gold-bg);color:var(--gold);border:1px solid rgba(245,158,11,0.25);">FUTURE GROWTH</span>
+      <div class="service-body">Custom GenAI deployments leveraging multi-agent architecture, RAG pipelines, and Synthetic Avatar infrastructure. The platform's R&amp;D becomes the client's competitive advantage.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- SECTION 4: TECHNOLOGY PRINCIPLES -->
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">04</span>
+    <div class="section-label">Technology Principles</div>
+    <div class="section-title">CLAUDE-NATIVE. DISTRIBUTED. COMPOUNDING.</div>
+  </div>
+  <div class="pullquote"><strong>SaSMaster is a Claude-Native, Distributed Compute and Memory Agentic AI System.</strong> Not AI as a feature layer — AI as the operating system of the business itself.</div>
+  <div class="tech-principles">
+    <div class="tech-card card-teal">
+      <div class="mono" style="font-size:10px;letter-spacing:0.18em;color:var(--teal);text-transform:uppercase;margin-bottom:12px;">Distributed Memory</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Context Is Never Lost</div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">A four-layer memory system — hot session state, warm operational files, cold knowledge vault, archived intelligence — ensures every agent operates with full institutional knowledge of what has been built, decided, and learned.</div>
+    </div>
+    <div class="tech-card card-purple">
+      <div class="mono" style="font-size:10px;letter-spacing:0.18em;color:var(--purple);text-transform:uppercase;margin-bottom:12px;">Agentic Execution</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Six Specialized Sub-Agents</div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">Data modeling, scraping, operations, QA, autonomous coding, and feedback loops. Model-routed for cost and capability: plans in Opus, executes in Sonnet, validates continuously — without waiting for manual instruction.</div>
+    </div>
+    <div class="tech-card card-gold">
+      <div class="mono" style="font-size:10px;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;margin-bottom:12px;">Compounding Intelligence</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Gets Better at Building Itself</div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">Lessons are captured, patterns are encoded, and the knowledge base grows with every session — creating a compounding advantage that widens over time. The platform does not just respond to commands; it understands objectives.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- SECTION 5: 5 OPERATING PILLARS -->
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">05</span>
+    <div class="section-label">Operating Philosophy — Five Pillars</div>
+    <div class="section-title">THE SOUL OF SASMASTER. IN PRIORITY ORDER.</div>
+  </div>
+  <div class="pullquote">Earlier pillars constrain later ones. A "learning" pillar-5 feature that violates pillar-3 transparency is <strong>rejected</strong>.</div>
+  <div class="pillar-grid">
+    <div class="pillar-card card-teal">
+      <div class="pillar-num" style="color:var(--teal)">1</div>
+      <div class="pillar-name">Distributed Memory</div>
+      <div class="pillar-rule">"Context persists across sessions, agents, surfaces"</div>
+    </div>
+    <div class="pillar-card card-blue">
+      <div class="pillar-num" style="color:var(--blue)">2</div>
+      <div class="pillar-name">Self-Learning</div>
+      <div class="pillar-rule">"Captures its own successful patterns and reuses them"</div>
+    </div>
+    <div class="pillar-card card-green">
+      <div class="pillar-num" style="color:var(--green)">3</div>
+      <div class="pillar-name">Autonomous with Transparency</div>
+      <div class="pillar-rule">"Work happens without Shiv, but nothing is opaque"</div>
+    </div>
+    <div class="pillar-card card-orange">
+      <div class="pillar-num" style="color:var(--orange)">4</div>
+      <div class="pillar-name">Effective with Purpose</div>
+      <div class="pillar-rule">"Every loop, agent, and skill has a measurable output"</div>
+    </div>
+    <div class="pillar-card card-purple">
+      <div class="pillar-num" style="color:var(--purple)">5</div>
+      <div class="pillar-name">Learning over Time</div>
+      <div class="pillar-rule">"More capable this month than last month"</div>
+    </div>
+  </div>
+  <div class="sasmaster-test">
+    <div class="test-header">
+      <div class="test-header-label">Before Building Anything New</div>
+      <div class="test-header-title">THE SASMASTER TEST — 5 QUESTIONS</div>
+    </div>
+    <div class="test-items">
+      <div class="test-item">
+        <span class="test-pillar-tag" style="background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-border);">P1 MEMORY</span>
+        <div class="test-q">Does this persist context that would otherwise be re-learned?</div>
+      </div>
+      <div class="test-item">
+        <span class="test-pillar-tag" style="background:var(--blue-bg);color:var(--blue);border:1px solid rgba(59,130,246,0.25);">P2 LEARNING</span>
+        <div class="test-q">Does this create reusable capability, not just one-shot output?</div>
+      </div>
+      <div class="test-item">
+        <span class="test-pillar-tag" style="background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);">P3 TRANSPARENCY</span>
+        <div class="test-q">Can Shiv inspect what it's doing without asking someone?</div>
+      </div>
+      <div class="test-item">
+        <span class="test-pillar-tag" style="background:var(--orange-bg);color:var(--orange);border:1px solid rgba(251,146,60,0.25);">P4 PURPOSE</span>
+        <div class="test-q">Is there a named consumer for this output?</div>
+      </div>
+      <div class="test-item">
+        <span class="test-pillar-tag" style="background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border);">P5 GROWTH</span>
+        <div class="test-q">Will the system be more capable after this ships than before?</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- SECTION 6: 12 KEY LAYERS -->
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">06</span>
+    <div class="section-label">Platform Architecture — 12 Key Layers</div>
+    <div class="section-title">MASTERY ACROSS ALL LAYERS IS THE MOAT</div>
+  </div>
+  <div class="layer-stack">
+    <div class="layer">
+      <div class="layer-num">01</div>
+      <div class="layer-content">
+        <div class="layer-title">Data Layer</div>
+        <div class="layer-subtitle">DATA BUILDING · SCRAPING · FUSION · MANAGEMENT · ORCHESTRATION</div>
+        <div class="layer-body">11 direct scrapers + 4 RSG API snapshot consumers. TMDB, IMDB, Nielsen, Gracenote, JustWatch, SEC EDGAR. Raw ingestion to S3, NDJSON-to-Parquet, Parent Key resolution, EIDR backfill, schema evolution. DuckDB compute engine.</div>
+        <div class="layer-core"><strong>Core:</strong> Async scraping (aiohttp/httpx), S3 path discipline, Parquet/ZSTD, partition pruning, MM-Asset-ID entity matching</div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">02</div>
+      <div class="layer-content">
+        <div class="layer-title">API Layer</div>
+        <div class="layer-subtitle">ENDPOINT DESIGN · DATA TRANSPORT · SERVICE CONTRACTS</div>
+        <div class="layer-body">Connective tissue of the platform. Every capability API-mediated — Dr. Scoop queries to War Room telemetry to the Content Exchange. Cloudflare Tunnel routes external traffic to localhost securely.</div>
+        <div class="layer-core"><strong>Core:</strong> RESTful design, route architecture, auth (token/MFA), rate limiting, SSE for real-time streams, Cloudflare Tunnel mgmt</div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">03</div>
+      <div class="layer-content">
+        <div class="layer-title">Business Application Layer</div>
+        <div class="layer-subtitle">END-USER INTERACTION · SELF-SERVICE ANALYTICS · PORTAL ARCHITECTURE</div>
+        <div class="layer-body">Five portal surfaces — CONTENT / ADVERTISING / MARKETING / CPG / EXCHANGE — each tailored to a distinct user workflow. Dr. Scoop persistent GenAI companion across all surfaces.</div>
+        <div class="layer-core"><strong>Core:</strong> React/HTML portal arch, single APP_STATE object, window-load init, responsive breakpoints, Dr. Scoop integration, localStorage UUID</div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">04</div>
+      <div class="layer-content">
+        <div class="layer-title">Business Visualization Layer</div>
+        <div class="layer-subtitle">DATA VISUALIZATION · ANIMATED VISUALS · SASMASTER CINEMATIC STYLE</div>
+        <div class="layer-body">Complex data made visceral. SaSMaster cinematic dark aesthetic. Design tokens: #0a0a0f base, #a78bfa lavender, #22d3ee teal, #f59e0b gold. Font stack: Bebas Neue / Barlow Condensed / Share Tech Mono.</div>
+        <div class="layer-core"><strong>Core:</strong> amCharts5 (Sankey, stream, chord), nivo (line, bump), G2Plot (polar heatmap, gauge), D3, Chart.js, cinematic cubic-bezier motion</div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">05</div>
+      <div class="layer-content">
+        <div class="layer-title">Modelling Layer</div>
+        <div class="layer-subtitle">MATHEMATICAL OPTIMIZATION · ML/AI EMBEDDING · STATISTICAL FORECASTING</div>
+        <div class="layer-body">Prophet™ forecasting, AdVant™ ad optimization, SoV Index/Reciprocal Affinity methodology. IP from INFORMS RM&amp;P Practice Award and FICO Decisions Award. Embedded as native product features.</div>
+        <div class="layer-core"><strong>Core:</strong> Supervised ML audience forecasting, MIP optimization (Gurobi/CPLEX/FICO), GenAI multi-agent orchestration (Bedrock/Anthropic), RAG pipelines</div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">06</div>
+      <div class="layer-content">
+        <div class="layer-title">QA &amp; Certification Layer</div>
+        <div class="layer-subtitle">VALIDATION · ANOMALY DETECTION · PRE-DEPLOYMENT CERTIFICATION</div>
+        <div class="layer-body">The platform's immune system. Every build cycle closes with QA agent review. No self-certification. QA agent verifies rendering, data integrity, API response correctness, ID format resolution, and cross-show navigation.</div>
+        <div class="layer-core"><strong>Core:</strong> Pre-deployment checklists, detail page rendering, META tab verification, drill-down navigation, ID format resolution, Playwright debugging, SLC 3-tier feedback loop</div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">07</div>
+      <div class="layer-content">
+        <div class="layer-title">Autonomous Execution Layer</div>
+        <div class="layer-subtitle">AGENTIC BUILD LOOPS · REMOTE TRIGGERING · TASK ORCHESTRATION</div>
+        <div class="layer-body">The platform that builds itself. JARVIS (Socket Mode daemon) is the orchestration hub. iPhone Shortcuts enable remote triggering from anywhere. !build, !task, !briefing, !status commands from Slack C0ATABZAH39.</div>
+        <div class="layer-core"><strong>Core:</strong> TASKS.md schema, JARVIS command routing, sub-agent coordination, cost-log.jsonl (13-field schema), launchd daemon mgmt, git auto-commit</div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">08</div>
+      <div class="layer-content">
+        <div class="layer-title">Learn &amp; Feedback Layer</div>
+        <div class="layer-subtitle">LESSONS CAPTURE · PATTERN ENCODING · COMPOUNDING INTELLIGENCE</div>
+        <div class="layer-body">Every build cycle, fix, and failure is an input to the platform's growing institutional knowledge. Promoted to the Knowledge Bank (208+ entries, 8 domains). The platform does not repeat the same mistake twice.</div>
+        <div class="layer-core"><strong>Core:</strong> SLC feedback loop (lessons-feedback sub-agent), DONE_LOG, KB entry creation (WHY/FEELS/BUILD/WORKS/KNOW/SAY/SELL/MADE), nightly CI sync to S3, hot-memory hygiene</div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">09</div>
+      <div class="layer-content">
+        <div class="layer-title">Build Skill Layer</div>
+        <div class="layer-subtitle">INSTALLED SKILLS · CLAUDE CODE SKILL ROUTING · CAPABILITY RECALL</div>
+        <div class="layer-body">Before any build task, the relevant SKILL.md is loaded. Skills are mandatory first reads that collapse iteration cycles and eliminate known failure modes. Skills are not optional scaffolding.</div>
+        <div class="layer-core"><strong>Core:</strong> Public / User / Examples skill tiers; trigger conditions in every skill description; skill-review.sh Friday 5:50PM; capture-learnings.sh post-build hook</div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">10</div>
+      <div class="layer-content">
+        <div class="layer-title">Media SME Layer</div>
+        <div class="layer-subtitle">DOMAIN INTELLIGENCE · INDUSTRY FLUENCY · AUDIENCE ANALYTICS EXPERTISE</div>
+        <div class="layer-body">15+ years of domain IP: Nielsen AMRLD person-level panel methodology, Gracenote-Nielsen matching, SoV Index / Reciprocal Affinity, cross-platform audience fusion. Baked in — not bolted on.</div>
+        <div class="layer-core"><strong>Core:</strong> Nielsen ratings terminology, TMDB/IMDB schema quirks, EIDR identifiers, C3/HUT/GRP/Daypart/TSV metrics (PRIM), the full M&amp;E taxonomy</div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">11</div>
+      <div class="layer-content">
+        <div class="layer-title">JARVIS — Platform Executor</div>
+        <div class="layer-subtitle">COMMAND CENTER · DAEMON MANAGEMENT · LIVE OPERATIONS</div>
+        <div class="layer-body">JARVIS is the operational heartbeat. Socket Mode daemon (com.sasmaster.jarvis via launchd). Receives commands, routes tasks, executes builds, maintains War Room live status at sasmaster-status.vercel.app.</div>
+        <div class="layer-core"><strong>Core:</strong> Socket Mode handling, TASKS.md auto-write on !task, Slack routing (C0ATABZAH39), Cloudflare Tunnel (api.sasmaster.dev→localhost:3002), cron schedule mgmt</div>
+      </div>
+    </div>
+    <div class="layer">
+      <div class="layer-num">12</div>
+      <div class="layer-content">
+        <div class="layer-title">Financial Intelligence Layer</div>
+        <div class="layer-subtitle">COMPANY PERFORMANCE · MARKET INTELLIGENCE · SEC &amp; EARNINGS ANALYTICS</div>
+        <div class="layer-body">Tracks 54 media, tech, and advertising companies in real time. SEC EDGAR filings, earnings reports, revenue trends, market signals. Powers War Room Financial Intel tab and feeds the Content Exchange strategy.</div>
+        <div class="layer-core"><strong>Core:</strong> SEC EDGAR cron ingestion (5:05AM daily), revenue/EBITDA trend analysis, company benchmarking, M&amp;A and licensing signal extraction</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- SECTION 7: SKILLS REFERENCE -->
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">07</span>
+    <div class="section-label">Full Skill Set Reference</div>
+    <div class="section-title">THE OPERATIVE PLAYBOOK — LOAD BEFORE BUILDING</div>
+  </div>
+  <div class="skill-section">
+    <div class="skill-section-label">Public Skills</div>
+    <div class="skill-chips">
+      <span class="skill-chip">docx</span>
+      <span class="skill-chip">pdf</span>
+      <span class="skill-chip">pptx</span>
+      <span class="skill-chip">xlsx</span>
+      <span class="skill-chip">frontend-design</span>
+      <span class="skill-chip">file-reading</span>
+      <span class="skill-chip">pdf-reading</span>
+      <span class="skill-chip">product-self-knowledge</span>
+    </div>
+  </div>
+  <div class="skill-section">
+    <div class="skill-section-label">User Skills</div>
+    <div class="skill-chips">
+      <span class="skill-chip user">fullstack-architect</span>
+      <span class="skill-chip user">uiux-mastery</span>
+      <span class="skill-chip user">autonomous-ui-designer</span>
+      <span class="skill-chip user">no-fingerprints</span>
+      <span class="skill-chip user">math-mastery</span>
+      <span class="skill-chip user">ableton-sme</span>
+      <span class="skill-chip user">duckdb-parquet</span>
+      <span class="skill-chip user">scraper-engineer</span>
+      <span class="skill-chip user">s3-data-architect</span>
+      <span class="skill-chip user">media-domain</span>
+      <span class="skill-chip user">jarvis-ops</span>
+      <span class="skill-chip user">data-viz</span>
+      <span class="skill-chip user">programming-researcher</span>
+      <span class="skill-chip user">emba-analyst</span>
+      <span class="skill-chip user">shiv-executive-profile</span>
+      <span class="skill-chip user">sow-consultant</span>
+      <span class="skill-chip user">linkedin-thought-leader</span>
+      <span class="skill-chip user">qa-agent</span>
+      <span class="skill-chip user">playwright-debugger</span>
+      <span class="skill-chip user">sasmaster-north-star</span>
+    </div>
+  </div>
+  <div class="skill-section">
+    <div class="skill-section-label">Example Skills</div>
+    <div class="skill-chips">
+      <span class="skill-chip example">doc-coauthoring</span>
+      <span class="skill-chip example">web-artifacts-builder</span>
+      <span class="skill-chip example">skill-creator</span>
+      <span class="skill-chip example">theme-factory</span>
+      <span class="skill-chip example">mcp-builder</span>
+      <span class="skill-chip example">brand-guidelines</span>
+      <span class="skill-chip example">slack-gif-creator</span>
+      <span class="skill-chip example">algorithmic-art</span>
+      <span class="skill-chip example">canvas-design</span>
+      <span class="skill-chip example">internal-comms</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- SECTION 8: TARGET CUSTOMERS -->
+<div class="section">
+<div class="wrapper">
+  <div class="section-header">
+    <span class="sec-num">08</span>
+    <div class="section-label">Target Customers</div>
+    <div class="section-title">ALL WORLDWIDE CONTENT CREATORS, DISTRIBUTORS, ADVERTISERS, MARKETERS</div>
+  </div>
+  <div style="margin-bottom:24px;">
+    <div class="mono" style="font-size:11px;letter-spacing:0.15em;color:var(--text-muted);text-transform:uppercase;margin-bottom:16px;">B2B — The Intelligence Buyers</div>
+    <div class="target-grid">
+      <div class="target-card card-teal">
+        <div class="target-type">Networks &amp; Studios</div>
+        <div class="target-name">Programming, Marketing &amp; Audience Strategy</div>
+        <div class="target-buyers">SVP Programming Research · Chief Research Officer · SVP Marketing Analytics</div>
+        <div class="target-examples">NBCUniversal, Paramount, A&amp;E Networks, Disney, Warner Bros. Discovery, Lionsgate, BBC, JioStar, Globo</div>
+      </div>
+      <div class="target-card card-blue">
+        <div class="target-type">Streaming Platforms</div>
+        <div class="target-name">Content Acquisition, Programming, Subscriber Intelligence</div>
+        <div class="target-buyers">VP Programming · VP Content Strategy · Chief Programming Officer</div>
+        <div class="target-examples">Netflix, Disney+, Max, Hulu, Peacock, Paramount+, ZEE5, Hotstar</div>
+      </div>
+      <div class="target-card card-purple">
+        <div class="target-type">Distributors &amp; MVPDs</div>
+        <div class="target-name">Programming Research &amp; Competitive Intelligence</div>
+        <div class="target-buyers">VP Programming · Head of Research · SVP Strategy</div>
+        <div class="target-examples">Comcast, Charter, DirecTV, Rogers, Bell, Liberty Global</div>
+      </div>
+      <div class="target-card card-orange">
+        <div class="target-type">Advertisers</div>
+        <div class="target-name">Precision Targeting Beyond Demographic Buckets</div>
+        <div class="target-buyers">Chief Marketing Officer · VP Media Strategy · Head of Brand Analytics</div>
+        <div class="target-examples">P&amp;G, Unilever, AT&amp;T, Top 100 national advertisers</div>
+      </div>
+      <div class="target-card" style="border-top:2px solid var(--green)">
+        <div class="target-type">Media Agencies</div>
+        <div class="target-name">Audience Strategy, Investment &amp; Planning</div>
+        <div class="target-buyers">Chief Investment Officer · Head of Audience Strategy · VP Planning</div>
+        <div class="target-examples">GroupM, Omnicom Media Group, IPG Mediabrands, Publicis, Horizon Media</div>
+      </div>
+      <div class="target-card" style="border-top:2px solid var(--gold)">
+        <div class="target-type">Cross-Border Content Buyers</div>
+        <div class="target-name">International Acquisition — The $300T Content Exchange</div>
+        <div class="target-buyers">Head of Acquisitions · Chief Programming Officer · SVP Content Licensing</div>
+        <div class="target-examples">RTL Group, Mediaset, ProSieben, JioStar, ZEE, Globo, MultiChoice</div>
+      </div>
+    </div>
+  </div>
+  <div style="background:var(--dark-bar);border-radius:10px;padding:28px 32px;">
+    <div class="mono" style="font-size:10px;letter-spacing:0.2em;color:var(--dark-teal);text-transform:uppercase;margin-bottom:12px;">B2C — The Audience Panel</div>
+    <div style="font-size:15px;color:var(--dark-text);font-weight:600;margin-bottom:8px;">Content-passionate consumers globally</div>
+    <div style="font-size:14px;color:var(--dark-muted);line-height:1.75;">Consumers who want their preferences to count, their data to be protected, and the ability to shape what the industry creates next. The B2C app powers the Synthetic Audience Panel that fuels all B2B intelligence upstream. Onboarding path: Likewise/Carousel-style discovery experience leading to Synthetic Agent + GenAI Avatar setup.</div>
+  </div>
+</div>
+</div>
+
+<div class="footer">
+  <div class="footer-logo">SaSMaster</div>
+  <div class="footer-meta">
+    North Star v3 &nbsp;|&nbsp; Operator Reference &nbsp;|&nbsp; May 23 2026<br>
+    Supersedes: Big Vision (hot-slot #17, retired 2026-05-23)<br>
+    Canonical MD: ~/SaSMaster/outputs/SaSMaster_North_Star_v3.md
+  </div>
+</div>
+
+</body>
+</html>
