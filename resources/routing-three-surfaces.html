@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Three Surfaces — Routing Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #F0F4F8;
+    color: #1E293B;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 40px 24px;
+    min-height: 100vh;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+  .breadcrumb { font-family: 'DM Mono', monospace; font-size: 11px; color: #94A3B8; letter-spacing: .04em; margin-bottom: 10px; }
+  h1 { font-size: 22px; font-weight: 600; color: #0F172A; margin-bottom: 6px; }
+  .subtitle { font-size: 13px; color: #64748B; margin-bottom: 28px; }
+  .section-label {
+    font-size: 11px; font-weight: 500; color: #64748B;
+    letter-spacing: .06em; text-transform: uppercase;
+    margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 0.5px solid #E2E8F0;
+  }
+
+  /* Surface cards grid */
+  .surfaces-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 32px; }
+  .surface-card {
+    background: #fff; border: 0.5px solid #E2E8F0;
+    border-radius: 12px; overflow: hidden;
+  }
+  .surface-header {
+    padding: 12px 16px 10px;
+    border-bottom: 0.5px solid #F1F5F9;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .surface-name { font-size: 14px; font-weight: 600; }
+  .surface-tag { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 10px; }
+  .tag-blue { background: #E0F2FE; color: #0369A1; }
+  .tag-green { background: #D1FAE5; color: #065F46; }
+  .tag-amber { background: #FEF3C7; color: #92400E; }
+  .rule-row {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 6px 16px; border-bottom: 0.5px solid #F8FAFC;
+    font-size: 12px; color: #334155;
+  }
+  .rule-row:last-child { border-bottom: none; }
+  .pill {
+    display: inline-block; padding: 1px 7px;
+    border-radius: 10px; font-size: 10px; font-weight: 500;
+    white-space: nowrap; flex-shrink: 0; margin-top: 1px;
+  }
+  .p-use { background: #D1FAE5; color: #065F46; }
+  .p-never { background: #FEE2E2; color: #991B1B; }
+  .p-avoid { background: #FEF3C7; color: #92400E; }
+
+  /* Decision matrix table */
+  .matrix-card {
+    background: #fff; border: 0.5px solid #E2E8F0;
+    border-radius: 12px; overflow: hidden; margin-bottom: 32px;
+  }
+  .matrix-header {
+    display: grid; grid-template-columns: 1fr 90px 90px 90px;
+    padding: 9px 16px; font-size: 11px; font-weight: 500;
+    color: #94A3B8; font-family: 'DM Mono', monospace;
+    background: #F8FAFC; border-bottom: 0.5px solid #E2E8F0;
+  }
+  .matrix-header span:not(:first-child) { text-align: center; }
+  .matrix-row {
+    display: grid; grid-template-columns: 1fr 90px 90px 90px;
+    padding: 8px 16px; font-size: 13px; color: #334155;
+    border-bottom: 0.5px solid #F8FAFC; align-items: center;
+  }
+  .matrix-row:last-child { border-bottom: none; }
+  .matrix-row:hover { background: #FAFBFC; }
+  .check { text-align: center; font-size: 15px; }
+  .check-yes { color: #10B981; }
+  .check-no { color: #E2E8F0; }
+  .matrix-group { padding: 6px 16px 2px; font-size: 10px; font-weight: 500; color: #94A3B8; letter-spacing: .05em; text-transform: uppercase; background: #F8FAFC; border-bottom: 0.5px solid #F1F5F9; border-top: 0.5px solid #F1F5F9; }
+
+  /* Token cost section */
+  .token-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 32px; }
+  .token-card { background: #fff; border: 0.5px solid #E2E8F0; border-radius: 12px; overflow: hidden; }
+  .token-header { padding: 11px 16px 9px; border-bottom: 0.5px solid #F1F5F9; font-size: 13px; font-weight: 500; color: #0F172A; }
+  .token-row {
+    display: grid; grid-template-columns: 140px 1fr 60px;
+    gap: 10px; padding: 8px 16px; align-items: center;
+    border-bottom: 0.5px solid #F8FAFC; font-size: 12px;
+  }
+  .token-row:last-child { border-bottom: none; }
+  .token-label { color: #334155; }
+  .bar-wrap { height: 6px; background: #F1F5F9; border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+  .token-note { font-family: 'DM Mono', monospace; font-size: 10px; color: #94A3B8; text-align: right; }
+
+  /* Parallel section */
+  .parallel-card { background: #fff; border: 0.5px solid #E2E8F0; border-radius: 12px; overflow: hidden; margin-bottom: 32px; }
+  .par-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 16px; border-bottom: 0.5px solid #F8FAFC;
+    font-size: 13px; color: #334155;
+  }
+  .par-row:last-child { border-bottom: none; }
+
+  /* Rules section */
+  .rules-card { background: #fff; border: 0.5px solid #E2E8F0; border-radius: 12px; overflow: hidden; margin-bottom: 32px; }
+  .rules-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 16px; border-bottom: 0.5px solid #F8FAFC;
+    font-size: 13px; color: #334155;
+  }
+  .rules-row:last-child { border-bottom: none; }
+  .rule-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #EFF6FF; color: #1D4ED8;
+    font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+
+  /* Operator box */
+  .operator-box {
+    background: #F8FAFC; border: 0.5px solid #E2E8F0;
+    border-left: 3px solid #0EA5E9;
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 32px;
+  }
+  .operator-box .ob-title { font-size: 11px; font-weight: 500; color: #0369A1; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 8px; font-family: 'DM Mono', monospace; }
+  .operator-box p { font-size: 13px; color: #475569; }
+  code { font-family: 'DM Mono', monospace; font-size: 11px; background: #F1F5F9; padding: 1px 5px; border-radius: 4px; color: #334155; }
+
+  /* Footer */
+  .footer { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 0.5px solid #E2E8F0; }
+  .footer-left { font-family: 'DM Mono', monospace; font-size: 11px; color: #94A3B8; }
+
+  @media (max-width: 680px) {
+    .surfaces-grid { grid-template-columns: 1fr; }
+    .token-grid { grid-template-columns: 1fr; }
+    .matrix-header, .matrix-row { grid-template-columns: 1fr 70px 70px 70px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="breadcrumb">War Room / Platform / Routing Guide</div>
+  <h1>Three surfaces — when to use what</h1>
+  <p class="subtitle">Routing decisions for Claude.ai, Claude Code, and JARVIS queue. Covers token optimization, bulk batching, and parallel execution rules.</p>
+
+  <!-- 01 Surface definitions -->
+  <div class="section-label">01 — Surface definitions</div>
+  <div class="surfaces-grid">
+
+    <div class="surface-card">
+      <div class="surface-header">
+        <span class="surface-name" style="color:#0369A1">Claude.ai</span>
+        <span class="surface-tag tag-blue">Strategy</span>
+      </div>
+      <div class="rule-row"><span class="pill p-use">USE</span>Architecture + design decisions</div>
+      <div class="rule-row"><span class="pill p-use">USE</span>Generating task cards + specs</div>
+      <div class="rule-row"><span class="pill p-use">USE</span>Reviewing screenshots + docs</div>
+      <div class="rule-row"><span class="pill p-use">USE</span>Writing: LinkedIn, SOWs, briefs</div>
+      <div class="rule-row"><span class="pill p-use">USE</span>Needs human approval before run</div>
+      <div class="rule-row"><span class="pill p-never">NEVER</span>Execute builds or run code</div>
+      <div class="rule-row"><span class="pill p-never">NEVER</span>Auto-fire to Slack uninvited</div>
+    </div>
+
+    <div class="surface-card">
+      <div class="surface-header">
+        <span class="surface-name" style="color:#065F46">Claude Code</span>
+        <span class="surface-tag tag-green">Execution</span>
+      </div>
+      <div class="rule-row"><span class="pill p-use">USE</span>Confirmed task card ready to run</div>
+      <div class="rule-row"><span class="pill p-use">USE</span>Bash, git, file ops needed</div>
+      <div class="rule-row"><span class="pill p-use">USE</span>1–3 tasks needing oversight</div>
+      <div class="rule-row"><span class="pill p-use">USE</span>Live debug with fast feedback</div>
+      <div class="rule-row"><span class="pill p-use">USE</span>Sub-agents within a session</div>
+      <div class="rule-row"><span class="pill p-avoid">AVOID</span>4+ unrelated tasks (use queue)</div>
+      <div class="rule-row"><span class="pill p-avoid">AVOID</span>Overnight or unattended runs</div>
+    </div>
+
+    <div class="surface-card">
+      <div class="surface-header">
+        <span class="surface-name" style="color:#92400E">JARVIS queue</span>
+        <span class="surface-tag tag-amber">Async</span>
+      </div>
+      <div class="rule-row"><span class="pill p-use">USE</span>4+ tasks that run unattended</div>
+      <div class="rule-row"><span class="pill p-use">USE</span>Overnight + scheduled builds</div>
+      <div class="rule-row"><span class="pill p-use">USE</span>Recurring: scrapers, nightly sync</div>
+      <div class="rule-row"><span class="pill p-use">USE</span>Parallel independent workstreams</div>
+      <div class="rule-row"><span class="pill p-use">USE</span>Token budget is a concern</div>
+      <div class="rule-row"><span class="pill p-avoid">AVOID</span>Tasks needing mid-run decisions</div>
+      <div class="rule-row"><span class="pill p-avoid">AVOID</span>Tasks with unknown dependencies</div>
+    </div>
+  </div>
+
+  <!-- 02 Decision matrix -->
+  <div class="section-label">02 — Decision matrix by task type</div>
+  <div class="matrix-card">
+    <div class="matrix-header">
+      <span>Task type</span>
+      <span>Claude.ai</span>
+      <span>CC</span>
+      <span>JARVIS</span>
+    </div>
+    <div class="matrix-group">Planning + creation</div>
+    <div class="matrix-row"><span>Architecture / design decision</span><span class="check check-yes">✓</span><span class="check check-no">–</span><span class="check check-no">–</span></div>
+    <div class="matrix-row"><span>Write task cards + specs</span><span class="check check-yes">✓</span><span class="check check-no">–</span><span class="check check-no">–</span></div>
+    <div class="matrix-row"><span>LinkedIn / SOW / writing</span><span class="check check-yes">✓</span><span class="check check-no">–</span><span class="check check-no">–</span></div>
+    <div class="matrix-row"><span>Review screenshot or output</span><span class="check check-yes">✓</span><span class="check check-no">–</span><span class="check check-no">–</span></div>
+    <div class="matrix-group">Interactive execution</div>
+    <div class="matrix-row"><span>Single focused build (1–2 tasks)</span><span class="check check-no">–</span><span class="check check-yes">✓</span><span class="check check-no">–</span></div>
+    <div class="matrix-row"><span>Live debug with bash feedback</span><span class="check check-no">–</span><span class="check check-yes">✓</span><span class="check check-no">–</span></div>
+    <div class="matrix-row"><span>Deploy + QA verify same session</span><span class="check check-no">–</span><span class="check check-yes">✓</span><span class="check check-no">–</span></div>
+    <div class="matrix-group">Async + bulk</div>
+    <div class="matrix-row"><span>4+ independent build tasks</span><span class="check check-no">–</span><span class="check check-no">–</span><span class="check check-yes">✓</span></div>
+    <div class="matrix-row"><span>Nightly / scheduled jobs</span><span class="check check-no">–</span><span class="check check-no">–</span><span class="check check-yes">✓</span></div>
+    <div class="matrix-row"><span>Scraper runs / data ingestion</span><span class="check check-no">–</span><span class="check check-no">–</span><span class="check check-yes">✓</span></div>
+    <div class="matrix-row"><span>Parallel agent workstreams</span><span class="check check-no">–</span><span class="check check-no">–</span><span class="check check-yes">✓</span></div>
+    <div class="matrix-row"><span>Health checks / monitoring</span><span class="check check-no">–</span><span class="check check-no">–</span><span class="check check-yes">✓</span></div>
+  </div>
+
+  <!-- 03 Token cost -->
+  <div class="section-label">03 — Token cost by surface + model</div>
+  <div class="token-grid">
+    <div class="token-card">
+      <div class="token-header">Relative cost per unit of work</div>
+      <div class="token-row">
+        <span class="token-label">Claude.ai Opus</span>
+        <div class="bar-wrap"><div class="bar-fill" style="width:100%;background:#EF4444"></div></div>
+        <span class="token-note">5× Sonnet</span>
+      </div>
+      <div class="token-row">
+        <span class="token-label">Claude.ai Sonnet</span>
+        <div class="bar-wrap"><div class="bar-fill" style="width:60%;background:#3B82F6"></div></div>
+        <span class="token-note">baseline</span>
+      </div>
+      <div class="token-row">
+        <span class="token-label">Claude Code Sonnet</span>
+        <div class="bar-wrap"><div class="bar-fill" style="width:60%;background:#3B82F6"></div></div>
+        <span class="token-note">+ tool calls</span>
+      </div>
+      <div class="token-row">
+        <span class="token-label">JARVIS + Haiku sub-agents</span>
+        <div class="bar-wrap"><div class="bar-fill" style="width:10%;background:#10B981"></div></div>
+        <span class="token-note">~10× cheaper</span>
+      </div>
+      <div class="token-row">
+        <span class="token-label">JARVIS trigger only</span>
+        <div class="bar-wrap"><div class="bar-fill" style="width:3%;background:#10B981"></div></div>
+        <span class="token-note">near zero</span>
+      </div>
+    </div>
+    <div class="token-card">
+      <div class="token-header">5 token optimization rules</div>
+      <div class="rules-row"><span class="rule-num">1</span>Never run execution work in Claude.ai — you pay Sonnet prices for Haiku work</div>
+      <div class="rules-row"><span class="rule-num">2</span>Batch task cards in one session — 5 cards at once, not 5 separate sessions</div>
+      <div class="rules-row"><span class="rule-num">3</span>JARVIS queue for bulk = minimal context per task, cheaper per unit</div>
+      <div class="rules-row"><span class="rule-num">4</span>Haiku sub-agents for scraping, QA, data transforms — same output at 10× less cost</div>
+      <div class="rules-row"><span class="rule-num">5</span>Opus only for architecture decisions — most tasks don't need it</div>
+    </div>
+  </div>
+
+  <!-- 04 Parallelism -->
+  <div class="section-label">04 — Parallelism rules</div>
+  <div class="parallel-card">
+    <div class="par-row"><span class="pill p-use" style="flex-shrink:0">PARALLEL</span>Tasks share no files or state — e.g. RESEARCH-PORTAL-001 + LINKEDIN-001 can run simultaneously</div>
+    <div class="par-row"><span class="pill p-use" style="flex-shrink:0">PARALLEL</span>Sub-agents in Claude Code operating on separate data sources — <code>scraper-debugger</code> + <code>qa-agent</code></div>
+    <div class="par-row"><span class="pill p-use" style="flex-shrink:0">PARALLEL</span>Same token cost, half the wall clock — always worth it for independent tasks</div>
+    <div class="par-row"><span class="pill p-never" style="flex-shrink:0">SERIAL</span>Task B reads output of Task A — never parallelize dependent tasks</div>
+    <div class="par-row"><span class="pill p-never" style="flex-shrink:0">SERIAL</span>Both tasks write to <code>TASKS.md</code> or <code>index.html</code> — last-write-wins = data corruption</div>
+    <div class="par-row"><span class="pill p-never" style="flex-shrink:0">SERIAL</span>Deploy gates — e.g. <code>JARVIS-BATCH-001</code> must ship before <code>RESEARCH-PORTAL-001 Ph2</code> starts</div>
+  </div>
+
+  <!-- Operator note -->
+  <div class="operator-box">
+    <div class="ob-title">Parallel status — May 2026</div>
+    <p>True parallel execution (AGENT-PARALLEL-001) is not yet built. Current parallel = two independent Claude Code sessions running simultaneously on separate workstreams. No shared file writes. Once AGENT-PARALLEL-001 ships, JARVIS will orchestrate multiple sub-agents concurrently via the <code>POST /jobs/parallel</code> endpoint.</p>
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">SaSMaster War Room · Platform Docs · routing-three-surfaces</div>
+    <div class="footer-left" style="color:#CBD5E1">Updated May 24 2026</div>
+  </div>
+
+</div>
+</body>
+</html>
