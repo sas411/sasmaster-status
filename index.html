@@ -410,6 +410,8 @@ a{color:inherit}
 .tel-event-name{flex:1;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tel-filter-btn{font-size:9px;padding:2px 8px;border-radius:10px;border:1px solid #E2E8F0;background:#fff;color:#64748B;cursor:pointer;font-weight:600}
 .tel-filter-btn.active{background:#EFF6FF;color:#0EA5E9;border-color:#BAE6FD}
+.tel-mode-btn{font-size:8px;padding:2px 7px;border-radius:3px;border:1px solid #E2E8F0;background:#fff;color:#64748B;cursor:pointer;font-weight:700;letter-spacing:.5px}
+.tel-mode-btn.active{background:#0EA5E9;color:#fff;border-color:#0EA5E9}
 .tel-status-chip{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700}
 .tel-chip-complete{background:#D1FAE5;color:#10B981}
 .tel-chip-failed{background:#FEE2E2;color:#EF4444}
@@ -1211,11 +1213,10 @@ a{color:inherit}
 
     <!-- KPI ROW -->
     <div id="tel-kpi-row" style="display:flex;gap:10px;padding:12px 16px;background:#F0F4F8;border-bottom:1px solid #E2E8F0;flex-shrink:0">
-      <div class="tel-kpi"><div class="tel-kpi-lbl">BUILDS TODAY</div><div class="tel-kpi-val" id="tel-kpi-builds">--</div><div class="tel-kpi-sub">completed</div></div>
-      <div class="tel-kpi"><div class="tel-kpi-lbl">ERROR RATE</div><div class="tel-kpi-val" id="tel-kpi-errrate">--</div><div class="tel-kpi-sub">failed / total</div></div>
-      <div class="tel-kpi"><div class="tel-kpi-lbl">AVG DURATION</div><div class="tel-kpi-val" id="tel-kpi-dur">--</div><div class="tel-kpi-sub">per build</div></div>
-      <div class="tel-kpi"><div class="tel-kpi-lbl">EVENTS LOGGED</div><div class="tel-kpi-val" id="tel-kpi-events">--</div><div class="tel-kpi-sub">all time</div></div>
-      <div class="tel-kpi"><div class="tel-kpi-lbl">COST TODAY</div><div class="tel-kpi-val" id="tel-kpi-cost">--</div><div class="tel-kpi-sub">build pipeline</div></div>
+      <div class="tel-kpi"><div class="tel-kpi-lbl">EVENTS TODAY</div><div class="tel-kpi-val" id="tel-kpi-events-today">--</div><div class="tel-kpi-sub">all layers</div></div>
+      <div class="tel-kpi"><div class="tel-kpi-lbl">ACTIVE TRACES</div><div class="tel-kpi-val" id="tel-kpi-active-traces">--</div><div class="tel-kpi-sub">last 2h</div></div>
+      <div class="tel-kpi"><div class="tel-kpi-lbl">ALERTS 24H</div><div class="tel-kpi-val" id="tel-kpi-alerts-24h">--</div><div class="tel-kpi-sub">open + resolved</div></div>
+      <div class="tel-kpi"><div class="tel-kpi-lbl">AVG PHASE TIME</div><div class="tel-kpi-val" id="tel-kpi-avg-phase">--</div><div class="tel-kpi-sub">cron cycle</div></div>
     </div>
 
     <!-- 3-COLUMN BODY -->
@@ -1223,13 +1224,16 @@ a{color:inherit}
 
       <!-- LEFT: Event Stream + Alert Strip -->
       <div style="width:340px;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0">
-        <div class="tel-sec-hdr"><span class="tel-dot" style="background:#0EA5E9"></span>OBSERVABILITY — Live Events</div>
+        <div class="tel-sec-hdr"><span class="tel-dot" style="background:#0EA5E9"></span>OBSERVABILITY — Live Events<div style="margin-left:auto;display:flex;gap:2px"><button id="tel-mode-feed" class="tel-mode-btn active" onclick="telSetMode('feed',this)">FEED</button><button id="tel-mode-traces" class="tel-mode-btn" onclick="telSetMode('traces',this)">TRACES</button></div></div>
         <div id="tel-filters" style="display:flex;gap:4px;padding:6px 10px;border-bottom:1px solid #E2E8F0;flex-wrap:wrap;flex-shrink:0">
           <button class="tel-filter-btn active" onclick="telSetFilter('all',this)">All</button>
-          <button class="tel-filter-btn" onclick="telSetFilter('build',this)">Build</button>
-          <button class="tel-filter-btn" onclick="telSetFilter('agent',this)">Agent</button>
-          <button class="tel-filter-btn" onclick="telSetFilter('scraper',this)">Scraper</button>
-          <button class="tel-filter-btn" onclick="telSetFilter('errors',this)">Errors</button>
+          <button class="tel-filter-btn" onclick="telSetFilter('trigger',this)">Trigger</button>
+          <button class="tel-filter-btn" onclick="telSetFilter('execution',this)">Execution</button>
+          <button class="tel-filter-btn" onclick="telSetFilter('data',this)">Data</button>
+          <button class="tel-filter-btn" onclick="telSetFilter('storage',this)">Storage</button>
+          <button class="tel-filter-btn" onclick="telSetFilter('presentation',this)">Present</button>
+          <button class="tel-filter-btn" onclick="telSetFilter('crit',this)" style="color:#EF4444">CRIT</button>
+          <button class="tel-filter-btn" onclick="telSetFilter('warn',this)" style="color:#F97316">WARN</button>
         </div>
         <div id="tel-event-list" style="flex:1;overflow-y:auto;font-size:11px"></div>
         <div class="tel-sec-hdr" style="border-top:1px solid #E2E8F0"><span class="tel-dot" style="background:#EF4444"></span>ALERTING</div>
@@ -1240,8 +1244,9 @@ a{color:inherit}
       <div style="flex:1;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;overflow:hidden;min-width:0">
         <div class="tel-sec-hdr"><span class="tel-dot" style="background:#7C3AED"></span>INTELLIGENT DEBUGGING — Build Detail</div>
         <div id="tel-detail" style="flex:1;overflow-y:auto;padding:12px 14px;font-size:12px"></div>
+        <div id="tel-scoop-diag" style="display:none;padding:10px 14px;background:#1E1B4B;font-size:11px;color:#C4B5FD;line-height:1.6;max-height:130px;overflow-y:auto;flex-shrink:0"></div>
         <div style="padding:9px 12px;background:#7C3AED;display:flex;align-items:center;gap:8px;flex-shrink:0">
-          <span id="tel-scoop-q" style="flex:1;font-size:11px;color:rgba(255,255,255,.85);font-style:italic">Select a build event to get AI analysis</span>
+          <span id="tel-scoop-q" style="flex:1;font-size:11px;color:rgba(255,255,255,.85);font-style:italic">Select a CRIT event for AI diagnosis</span>
           <button onclick="telAskScoop()" style="padding:4px 10px;background:#fff;color:#7C3AED;border:none;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer">Ask Dr. Scoop</button>
         </div>
       </div>
@@ -2979,7 +2984,7 @@ function initSSE() {
     _sse.onmessage = function(e) {
       try {
         const ev = JSON.parse(e.data);
-        if (ev.event_type === 'BUILD_COMPLETE' || ev.event_type === 'AGENT_COMPLETE') {
+        if (ev.event_type === 'cron_completed' || ev.event_type === 'deploy_completed') {
           loadKanbanLive();
           loadCostKPI();
         }
@@ -3327,15 +3332,17 @@ What is likely wrong and what should be done next?`;
 // ═══════════════════════════════════════════════════════════
 
 let _telEvents  = [];
-let _telBuilds  = [];
-let _telFixes   = [];
-let _telFilter  = 'all';
+let _telBuilds   = [];
+let _telFixes    = [];
+let _telAlerts   = [];
+let _telFilter   = 'all';
+let _telMode     = 'feed';
 let _telSelected = null;
 
 // Load all telemetry data (called on tab switch)
 async function loadTelemetryData() {
-  await Promise.all([telLoadEvents(), telLoadBuilds(), telLoadFixes(), telLoadCostKPIs()]);
-  telUpdateKPIs();
+  await Promise.all([telLoadEvents(), telLoadBuilds(), telLoadFixes(), telLoadAlerts(), telUpdateKPIs()]);
+  telRenderCostChartLazy();
 }
 
 // ── Events ────────────────────────────────────────────────
@@ -3350,15 +3357,14 @@ async function telLoadEvents() {
   } catch(e) {}
 }
 
-function telBadgeCls(et) {
-  const t = String(et).toUpperCase();
-  if (t === 'BUILD_START' || t === 'BUILD_COMPLETE') return 'tel-eb tel-eb-build';
-  if (t === 'AGENT_START' || t === 'AGENT_COMPLETE') return 'tel-eb tel-eb-agent';
-  if (t.includes('FAIL') || t.includes('ERROR'))     return 'tel-eb tel-eb-fail';
-  if (t === 'QA_PASS')      return 'tel-eb tel-eb-pass';
-  if (t.includes('SCRAPER')) return 'tel-eb tel-eb-scraper';
-  if (t === 'SELF_HEAL')    return 'tel-eb tel-eb-heal';
-  return 'tel-eb tel-eb-def';
+const _LAYER_COLORS = { trigger:'#7C3AED', execution:'#0369A1', data:'#0F766E', storage:'#B45309', presentation:'#1D4ED8' };
+function telLayerBadge(layer) {
+  const col = _LAYER_COLORS[layer] || '#64748B';
+  return '<span class="tel-eb" style="background:' + col + ';color:#fff;text-transform:uppercase;letter-spacing:.3px">' + escHtml(String(layer || 'unk')) + '</span>';
+}
+function telSevDot(sev) {
+  const col = sev === 'crit' ? '#EF4444' : sev === 'warn' ? '#F97316' : '#94A3B8';
+  return '<span style="width:6px;height:6px;border-radius:50%;background:' + col + ';display:inline-block;flex-shrink:0"></span>';
 }
 
 function telFmtTs(ts) {
@@ -3369,36 +3375,76 @@ function telFmtTs(ts) {
 
 function telPassesFilter(ev) {
   if (_telFilter === 'all') return true;
-  const t = String(ev.event_type || '').toLowerCase();
-  if (_telFilter === 'build')   return t.includes('build');
-  if (_telFilter === 'agent')   return t.includes('agent');
-  if (_telFilter === 'scraper') return t.includes('scraper');
-  if (_telFilter === 'errors')  return t.includes('fail') || t.includes('error');
-  return true;
+  if (_telFilter === 'crit' || _telFilter === 'warn' || _telFilter === 'info') return ev.severity === _telFilter;
+  return (ev.layer || '') === _telFilter;
 }
 
 function telRenderEvents() {
   const el = document.getElementById('tel-event-list');
   if (!el) return;
+  if (_telMode === 'traces') { telRenderTraces(); return; }
   const filtered = _telEvents.filter(telPassesFilter);
   if (!filtered.length) {
-    el.innerHTML = '<div class="tel-empty">Waiting for Layer 7 data — events will appear here once the event bus fires</div>';
+    el.innerHTML = '<div class="tel-empty">No events — check that emit-event.sh is firing and events.jsonl exists</div>';
     return;
   }
-  el.innerHTML = filtered.map((ev, i) => {
+  el.innerHTML = filtered.map(ev => {
     const realIdx = _telEvents.indexOf(ev);
     const isSel = _telSelected === ev;
-    return '<div class="tel-event-row' + (isSel ? ' sel' : '') + '" onclick="telSelectEvent(' + realIdx + ')">' +
-      '<span class="tel-event-ts">' + telFmtTs(ev.timestamp) + '</span>' +
-      '<span class="' + telBadgeCls(ev.event_type) + '">' + escHtml(String(ev.event_type || 'EVENT')) + '</span>' +
-      '<span class="tel-event-name">' + escHtml(String(ev.agent_name || ev.source || '')) + '</span>' +
+    return '<div class="tel-event-row' + (isSel ? ' sel' : '') + '" onclick="telSelectEvent(' + realIdx + ')" style="display:flex;align-items:center;gap:5px;padding:5px 8px">' +
+      telSevDot(ev.severity) +
+      '<span class="tel-event-ts" style="font-size:9px;color:#94A3B8;flex-shrink:0">' + telFmtTs(ev.ts || ev.timestamp) + '</span>' +
+      telLayerBadge(ev.layer) +
+      '<span class="tel-event-name" style="font-size:10px;color:#334155;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml(String(ev.event_type || 'event')) + '</span>' +
     '</div>';
   }).join('');
 }
 
+function telRenderTraces() {
+  const el = document.getElementById('tel-event-list');
+  if (!el) return;
+  const byTrace = {};
+  for (const ev of _telEvents) {
+    const tid = ev.trace_id || 'no-trace';
+    if (!byTrace[tid]) byTrace[tid] = [];
+    byTrace[tid].push(ev);
+  }
+  const sorted = Object.entries(byTrace).sort((a, b) => {
+    return new Date(b[1][0].ts || 0).getTime() - new Date(a[1][0].ts || 0).getTime();
+  });
+  if (!sorted.length) { el.innerHTML = '<div class="tel-empty">No traces yet</div>'; return; }
+  el.innerHTML = sorted.slice(0, 30).map(([tid, evts]) => {
+    const layers = [...new Set(evts.map(e => e.layer))];
+    const hasCrit = evts.some(e => e.severity === 'crit');
+    return '<div style="padding:6px 8px;border-bottom:1px solid #F1F5F9;cursor:pointer" onclick="telShowTrace(\'' + escAttr(String(tid)) + '\')">' +
+      '<div style="display:flex;align-items:center;gap:4px;margin-bottom:2px">' +
+        '<span style="width:6px;height:6px;border-radius:50%;background:' + (hasCrit ? '#EF4444' : '#94A3B8') + ';flex-shrink:0"></span>' +
+        '<span style="font-family:var(--mono);font-size:9px;color:#64748B;flex:1;overflow:hidden;text-overflow:ellipsis">' + escHtml(String(tid).slice(0, 28)) + '</span>' +
+        '<span style="font-size:9px;color:#94A3B8">' + telFmtTs(evts[0].ts) + '</span>' +
+      '</div>' +
+      '<div style="font-size:10px;color:#475569">' + evts.length + ' events · ' +
+        layers.map(l => '<span style="background:' + (_LAYER_COLORS[l] || '#64748B') + ';color:#fff;padding:0 3px;border-radius:2px;font-size:8px">' + l + '</span>').join(' ') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+window.telShowTrace = function(tid) {
+  const evts = _telEvents.filter(e => e.trace_id === tid);
+  if (!evts.length) return;
+  telSelectEvent(_telEvents.indexOf(evts[0]));
+};
+
 function telSetFilter(f, btn) {
   _telFilter = f;
   document.querySelectorAll('.tel-filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  telRenderEvents();
+}
+
+function telSetMode(mode, btn) {
+  _telMode = mode;
+  document.querySelectorAll('.tel-mode-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   telRenderEvents();
 }
@@ -3414,27 +3460,33 @@ function telSelectEvent(idx) {
 }
 
 // ── Alerts ────────────────────────────────────────────────
+async function telLoadAlerts() {
+  try {
+    const r = await fetch('https://api.sasmaster.dev/api/alerts?resolved=false&t=' + Date.now());
+    if (!r.ok) return;
+    const d = await r.json();
+    _telAlerts = d.alerts || [];
+    telRenderAlerts();
+  } catch(e) {}
+}
+
 function telRenderAlerts() {
   const el = document.getElementById('tel-alert-strip');
   if (!el) return;
   const now = Date.now();
-  const cutoff = now - 2 * 60 * 60 * 1000;
-  const alerts = _telEvents.filter(ev => {
-    const t = String(ev.event_type || '').toUpperCase();
-    const ts = new Date(ev.timestamp || 0).getTime();
-    return ts > cutoff && (t === 'BUILD_FAILED' || t === 'QA_FAIL' || t === 'SCRAPER_ERROR');
-  });
-  if (!alerts.length) {
+  if (!_telAlerts.length) {
     el.innerHTML = '<div class="tel-no-alert">✓ No active alerts</div>';
     return;
   }
-  el.innerHTML = alerts.map(ev => {
-    const mins = Math.floor((now - new Date(ev.timestamp).getTime()) / 60000);
+  el.innerHTML = _telAlerts.slice(0, 5).map(a => {
+    const sev = a.severity || 'info';
+    const dot = sev === 'crit' ? '#EF4444' : sev === 'warn' ? '#F97316' : '#94A3B8';
+    const mins = Math.floor((now - new Date(a.ts).getTime()) / 60000);
     const ago = mins < 60 ? mins + 'm ago' : Math.floor(mins/60) + 'h ago';
-    return '<div class="tel-alert-row">' +
-      '<span style="width:5px;height:5px;border-radius:50%;background:#EF4444;flex-shrink:0;display:inline-block"></span>' +
-      '<span style="flex:1">' + escHtml(String(ev.event_type || '')) + ' — ' + escHtml(String(ev.agent_name || '')) + '</span>' +
-      '<span style="font-size:9px;color:#94A3B8">' + ago + '</span>' +
+    return '<div class="tel-alert-row" style="display:flex;align-items:center;gap:5px;padding:2px 0">' +
+      '<span style="width:5px;height:5px;border-radius:50%;background:' + dot + ';flex-shrink:0;display:inline-block"></span>' +
+      '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml(String(a.rule_id || '')) + ': ' + escHtml(String(a.message || '').slice(0, 48)) + '</span>' +
+      '<span style="font-size:9px;color:#94A3B8;flex-shrink:0">' + ago + '</span>' +
     '</div>';
   }).join('');
 }
@@ -3509,19 +3561,43 @@ function telRenderDetail(ev, build) {
 function telUpdateScoopQ(ev) {
   const q = document.getElementById('tel-scoop-q');
   if (!q) return;
-  const t = String(ev&&ev.event_type||'').toUpperCase();
-  if (t.includes('FAIL')) q.textContent = 'Why did this fail and what\'s the fix?';
-  else if (t === 'BUILD_COMPLETE') q.textContent = 'What did this build learn?';
-  else if (t === 'QA_FAIL') q.textContent = 'Which checks failed and why?';
-  else q.textContent = 'What does this event tell us?';
+  const sev = String(ev && ev.severity || '').toLowerCase();
+  const et  = String(ev && ev.event_type || '').toLowerCase();
+  if (sev === 'crit')          q.textContent = '🚨 CRIT — click Ask Dr. Scoop for AI diagnosis';
+  else if (et.includes('fail') || et.includes('violation')) q.textContent = 'Why did this fail and what\'s the fix?';
+  else if (et.includes('completed') || et.includes('success')) q.textContent = 'What did this ' + (ev.layer || 'event') + ' event complete?';
+  else q.textContent = 'Select an event · CRIT events get AI diagnosis';
 }
 
-function telAskScoop() {
-  const entry = _telSelected || (_telBuilds.length ? _telBuilds[0] : null);
+async function telAskScoop() {
+  const ev = _telSelected;
+  const diagEl = document.getElementById('tel-scoop-diag');
+
+  // For CRIT events: call /api/scoop-diagnose inline
+  if (ev && ev.severity === 'crit') {
+    if (diagEl) { diagEl.style.display = ''; diagEl.textContent = '⏳ Dr. Scoop is analyzing trace ' + (ev.trace_id || '…') + ' …'; }
+    const traceEvts = ev.trace_id ? _telEvents.filter(e => e.trace_id === ev.trace_id) : [ev];
+    try {
+      const r = await fetch('https://api.sasmaster.dev/api/scoop-diagnose', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ events: traceEvts.slice(0, 10), trace_id: ev.trace_id || null }),
+      });
+      const d = await r.json();
+      if (diagEl) diagEl.innerHTML = '<div style="font-size:10px;font-weight:700;color:#A78BFA;margin-bottom:5px">Dr. Scoop — ' + escHtml(String(ev.trace_id || 'trace')) + '</div>' + escHtml(String(d.diagnosis || d.error || 'No diagnosis')).replace(/\n/g, '<br>');
+    } catch(e) {
+      if (diagEl) diagEl.textContent = 'Error reaching /api/scoop-diagnose — is command-api running?';
+    }
+    return;
+  }
+
+  // Non-CRIT: hide inline panel, fall through to Dr. Scoop chat
+  if (diagEl) diagEl.style.display = 'none';
+  const entry = ev || (_telBuilds.length ? _telBuilds[0] : null);
   const q = document.getElementById('tel-scoop-q');
   setScoopContext(
-    String(entry ? (entry.task_name || entry.event_type || 'Build Event') : 'Telemetry'),
-    String(entry ? (entry.status || 'UNKNOWN') : 'UNKNOWN'),
+    String(entry ? (entry.task_name || entry.event_type || 'Telemetry Event') : 'Telemetry'),
+    String(entry ? (entry.severity || entry.status || 'INFO') : 'INFO'),
     q ? q.textContent : 'Telemetry analysis request'
   );
   openScoopDiag();
@@ -3570,51 +3646,42 @@ function telApproveFix(i, btn) {
 }
 
 // ── KPIs ──────────────────────────────────────────────────
-function telUpdateKPIs() {
-  const today = new Date().toISOString().slice(0, 10);
-  const todayBuilds = _telBuilds.filter(b => String(b.timestamp||'').slice(0,10) === today);
-  const completed = todayBuilds.filter(b => b.status === 'COMPLETE').length;
-  const failed    = todayBuilds.filter(b => b.status === 'FAILED').length;
-  const total     = todayBuilds.length;
-  const errRate   = total > 0 ? Math.round(failed / total * 100) : 0;
-  const durations = _telBuilds.filter(b => Number(b.duration_s) > 0).map(b => parseInt(b.duration_s, 10));
-  const avgDur    = durations.length ? Math.round(durations.reduce((a,b) => a+b, 0) / durations.length) : 0;
-  const avgStr    = avgDur > 0 ? Math.floor(avgDur/60) + 'm ' + (avgDur%60) + 's' : '--';
-
-  const byId = id => document.getElementById(id);
-  if (byId('tel-kpi-builds'))  byId('tel-kpi-builds').textContent  = completed;
-  if (byId('tel-kpi-errrate')) byId('tel-kpi-errrate').textContent = errRate + '%';
-  if (byId('tel-kpi-dur'))     byId('tel-kpi-dur').textContent     = avgStr;
-  if (byId('tel-kpi-events'))  byId('tel-kpi-events').textContent  = _telEvents.length;
-  telRenderHealthBars(100 - errRate, avgDur);
+async function telUpdateKPIs() {
+  try {
+    const r = await fetch('https://api.sasmaster.dev/api/telemetry/summary?t=' + Date.now());
+    if (!r.ok) return;
+    const d = await r.json();
+    const byId = id => document.getElementById(id);
+    if (byId('tel-kpi-events-today'))   byId('tel-kpi-events-today').textContent   = d.events_today ?? '--';
+    if (byId('tel-kpi-active-traces'))  byId('tel-kpi-active-traces').textContent  = d.active_traces ?? '--';
+    if (byId('tel-kpi-alerts-24h'))     byId('tel-kpi-alerts-24h').textContent     = d.alerts_24h ?? '--';
+    if (byId('tel-kpi-avg-phase')) {
+      const s = d.avg_phase_time_s;
+      byId('tel-kpi-avg-phase').textContent = s != null ? Math.floor(s/60) + 'm ' + (s%60) + 's' : '--';
+    }
+    telRenderHealthBars(d.events_today || 0, d.avg_phase_time_s || 0);
+  } catch(e) {}
 }
 
-async function telLoadCostKPIs() {
+async function telRenderCostChartLazy() {
   try {
     const r = await fetch(apiUrl('/cost-log') + '&t=' + Date.now());
     if (!r.ok) return;
     const d = await r.json();
-    const today = new Date().toISOString().slice(0, 10);
-    const todayCost = (d.recent||[])
-      .filter(e => String(e.timestamp||'').slice(0,10) === today)
-      .reduce((s, e) => s + Number(e.cost_usd||0), 0);
-    const el = document.getElementById('tel-kpi-cost');
-    if (el) el.textContent = '$' + todayCost.toFixed(4);
     telRenderCostChart(d.recent || []);
   } catch(e) {}
 }
 
-function telRenderHealthBars(successRate, avgDur) {
+function telRenderHealthBars(eventsToday, avgPhase) {
   const el = document.getElementById('tel-health-rows');
   if (!el) return;
-  const today = new Date().toISOString().slice(0, 10);
-  const eventsToday = _telEvents.filter(e => String(e.timestamp||'').slice(0,10) === today).length;
-  const maxDur = 600;
-  const durPct = avgDur > 0 ? Math.min(100, Math.round(avgDur/maxDur*100)) : 0;
+  const activeAlerts = _telAlerts.filter(a => !a.resolved_at).length;
+  const maxDur = 3600;
+  const durPct  = avgPhase > 0 ? Math.min(100, Math.round(avgPhase / maxDur * 100)) : 0;
   const rows = [
-    {lbl:'Success Rate', val: successRate+'%', pct: successRate, col: successRate > 80 ? '#10B981' : '#EF4444'},
-    {lbl:'Avg Duration',  val: avgDur>0 ? Math.floor(avgDur/60)+'m' : '--', pct: Math.max(5, 100-durPct), col: '#0EA5E9'},
-    {lbl:'Events Today',  val: eventsToday, pct: Math.min(100, eventsToday*5), col: '#7C3AED'},
+    { lbl:'Events Today',  val: eventsToday, pct: Math.min(100, eventsToday * 2), col: '#7C3AED' },
+    { lbl:'Avg Phase',     val: avgPhase > 0 ? Math.floor(avgPhase/60) + 'm ' + (avgPhase%60) + 's' : '--', pct: Math.max(5, 100 - durPct), col: '#0369A1' },
+    { lbl:'Active Alerts', val: activeAlerts, pct: Math.min(100, activeAlerts * 20), col: activeAlerts === 0 ? '#10B981' : '#EF4444' },
   ];
   el.innerHTML = rows.map(r =>
     '<div class="tel-health-row">' +
@@ -3678,11 +3745,12 @@ function telRenderCostChart(entries) {
           const tab = document.getElementById('tab-telemetry');
           if (tab && tab.classList.contains('active')) {
             telRenderEvents();
-            telRenderAlerts();
+            if (ev.severity === 'crit' || ev.severity === 'warn') telLoadAlerts();
           }
-          if (ev.event_type === 'BUILD_FAILED') telLoadFixes();
-          // Phase 3: wire to main War Room status refresh
-          if (ev.event_type === 'BUILD_COMPLETE' || ev.event_type === 'AGENT_COMPLETE') {
+          // CRIT alert panel refresh
+          if (ev.severity === 'crit') telLoadAlerts();
+          // Main War Room status refresh on pipeline completion or deploy events
+          if (ev.event_type === 'cron_completed' || ev.event_type === 'deploy_completed') {
             loadStatus();
           }
         } catch(err) {}
