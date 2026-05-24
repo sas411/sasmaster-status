@@ -3279,41 +3279,69 @@ loadStatus();
 loadResources();
 renderCosts();
 
-// ── SSE event bus — real-time War Room card refresh ──────────────────
-// Initialised 2s after page load so the primary /status poll fires first.
-// Connects directly to api.sasmaster.dev — NOT via Vercel serverless proxy
-// (30s function timeout kills persistent SSE connections).
-// Falls back to 30s polling (scheduleRefresh) automatically on any error.
-let _sse = null;
-let _sseRetries = 0;
+// ── Event polling — replaces SSE (HARDEN-006) ────────────────────────
+// Polls /api/events/recent every 30s. Deduplicates by event id/ts so only
+// new events since last poll trigger UI refreshes. Handles both the main
+// War Room card refresh and the telemetry tab live-feed update.
+let _eventsKnownIds = new Set();
+let _eventsInitialized = false;
 
-function initSSE() {
-  if (typeof EventSource === 'undefined') return;
-  if (_sse) { try { _sse.close(); } catch(e) {} _sse = null; }
+async function pollEvents() {
   try {
-    _sse = new EventSource('https://api.sasmaster.dev/api/events/stream');
-    _sse.onopen = function() { _sseRetries = 0; };
-    _sse.onmessage = function(e) {
-      try {
-        const ev = JSON.parse(e.data);
-        if (ev.event_type === 'cron_completed' || ev.event_type === 'deploy_completed') {
-          loadKanbanLive();
-          loadCostKPI();
-        }
-      } catch(err) {}
-    };
-    _sse.onerror = function() {
-      try { if (_sse) _sse.close(); } catch(e) {}
-      _sse = null;
-      const delay = Math.min(30000, 1000 * Math.pow(2, _sseRetries));
-      _sseRetries = Math.min(_sseRetries + 1, 5);
-      setTimeout(initSSE, delay);
-    };
-  } catch(e) { /* SSE unavailable — 30s polling continues */ }
+    const r = await apiFetch('https://api.sasmaster.dev/api/events/recent?limit=100&t=' + Date.now());
+    if (!r.ok) return;
+    const data = await r.json();
+    const events = (data.events || []).slice().reverse(); // oldest-first for unshift order
+
+    let hasNew = false;
+    let hasCronOrDeploy = false;
+
+    for (const ev of events) {
+      const evId = ev.id || ev.ts || (ev.event_type + '|' + JSON.stringify(ev.payload || {}).slice(0, 40));
+      if (_eventsKnownIds.has(evId)) continue;
+      _eventsKnownIds.add(evId);
+
+      // On first load, seed _eventsKnownIds and populate _telEvents without triggering callbacks
+      if (!_eventsInitialized) {
+        if (typeof _telEvents !== 'undefined') { _telEvents.unshift(ev); }
+        continue;
+      }
+
+      hasNew = true;
+      if (typeof _telEvents !== 'undefined') {
+        _telEvents.unshift(ev);
+        if (_telEvents.length > 300) _telEvents.pop();
+      }
+
+      if (ev.event_type === 'cron_completed' || ev.event_type === 'deploy_completed') {
+        hasCronOrDeploy = true;
+      }
+      if ((ev.severity === 'crit' || ev.severity === 'warn') && typeof telLoadAlerts === 'function') {
+        telLoadAlerts();
+      }
+    }
+
+    _eventsInitialized = true;
+
+    if (hasNew) {
+      const tab = document.getElementById('tab-telemetry');
+      if (tab && tab.classList.contains('active') && typeof telRenderEvents === 'function') {
+        telRenderEvents();
+      }
+    }
+    if (hasCronOrDeploy) {
+      loadKanbanLive();
+      loadCostKPI();
+      loadStatus();
+    }
+  } catch (err) {
+    if (err && err.rateLimited) return; // apiFetch 429 backoff — skip tick
+  }
 }
 
-// Delay SSE init 2s so primary loadStatus() poll completes first
-setTimeout(initSSE, 2000);
+// Initial poll 2s after page load, then every 30s
+setTimeout(pollEvents, 2000);
+setInterval(pollEvents, 30000);
 
 // Token handled server-side via Vercel proxy — no client token needed
 
@@ -4037,48 +4065,8 @@ function telRenderCostChart(entries) {
   if (btn) btn.addEventListener('click', function() { loadTelemetryData(); });
 })();
 
-// ── Telemetry SSE — separate connection for live updates ──
-// Starts 3s after page load (after primary initSSE at 2s)
-(function() {
-  let telSse = null;
-  let telRetries = 0;
-
-  function connectTelSSE() {
-    if (telSse) { try { telSse.close(); } catch(e) {} telSse = null; }
-    try {
-      telSse = new EventSource('https://api.sasmaster.dev/api/events/stream');
-      telSse.onopen = function() { telRetries = 0; };
-      telSse.onmessage = function(e) {
-        try {
-          const ev = JSON.parse(e.data);
-          if (!ev.event_type) return;
-          _telEvents.unshift(ev);
-          if (_telEvents.length > 300) _telEvents.pop();
-          const tab = document.getElementById('tab-telemetry');
-          if (tab && tab.classList.contains('active')) {
-            telRenderEvents();
-            if (ev.severity === 'crit' || ev.severity === 'warn') telLoadAlerts();
-          }
-          // CRIT alert panel refresh
-          if (ev.severity === 'crit') telLoadAlerts();
-          // Main War Room status refresh on pipeline completion or deploy events
-          if (ev.event_type === 'cron_completed' || ev.event_type === 'deploy_completed') {
-            loadStatus();
-          }
-        } catch(err) {}
-      };
-      telSse.onerror = function() {
-        try { if (telSse) telSse.close(); } catch(e) {}
-        telSse = null;
-        const delay = Math.min(30000, 1000 * Math.pow(2, telRetries));
-        telRetries = Math.min(telRetries + 1, 5);
-        setTimeout(connectTelSSE, delay);
-      };
-    } catch(e) {}
-  }
-
-  setTimeout(connectTelSSE, 3000);
-})();
+// Telemetry live feed is now handled by pollEvents() above (HARDEN-006).
+// No separate SSE connection needed — same polling loop covers both use cases.
 
 // ══════════════════════════════════════════════════════════
 // FINANCIAL INTEL TAB
