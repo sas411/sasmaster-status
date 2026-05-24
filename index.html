@@ -2473,13 +2473,15 @@ function renderKbCard(it, cls, column) {
   const isQA   = it.tag === 'QA' || (it.id||'').startsWith('qa-');
   const hasId  = !!(it.id && !it.id.startsWith('done') && !it.id.startsWith('qa-')) || !!it.approvalId;
 
-  // Extract timestamp: done cards have .date, JARVIS tasks embed created_at in text
+  // Extract created_at: done cards have .date, JARVIS tasks embed created_at in text
   let rawTs = it.date || it.meta?.created_at || '';
   if (!rawTs) {
     const m = (it.text||'').match(/created_at:([\d-T:.Z]+)/);
     if (m) rawTs = m[1];
   }
   const tsDisplay = fmtKbTs(rawTs);
+  // updated_at from sidecar (only present after a state transition via mutator)
+  const updatedDisplay = it.updated_at ? fmtKbTs(it.updated_at) : '';
 
   // For JARVIS tasks, extract the real description from the full text (after the | metadata)
   let displayText = (it.text||'').substring(0, 100);
@@ -2508,7 +2510,8 @@ function renderKbCard(it, cls, column) {
     </div>
     <div class="kb-text">${escHtml(displayText)}</div>
     ${it.meta?.due ? `<div style="font-size:9px;color:var(--warn)">due: ${it.meta.due}</div>` : ''}
-    ${tsDisplay ? `<div style="font-size:9px;color:var(--text-3);margin-top:2px;font-family:'DM Mono',monospace">${escHtml(tsDisplay)}</div>` : ''}
+    ${tsDisplay ? `<div style="font-size:9px;color:var(--text-3);margin-top:2px;font-family:'DM Mono',monospace">created: ${escHtml(tsDisplay)}</div>` : ''}
+    ${updatedDisplay ? `<div style="font-size:9px;color:var(--warn);margin-top:1px;font-family:'DM Mono',monospace">updated: ${escHtml(updatedDisplay)}</div>` : ''}
     ${actions ? `<div class="kb-card-acts" style="position:relative">${actions}</div>` : ''}
   </div>`;
 }
