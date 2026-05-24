@@ -1001,6 +1001,29 @@ function buildMergedActivity(intelFeed, recentBuilds, scrapers, buildEvents) {
   return [...buildEvents, ...existing].slice(0, 25);
 }
 
+// ── Cost summary from logs/cost-log.jsonl ────────────────────────────────────
+let costSummary = { total_cost_usd: 0, entry_count: 0, model_breakdown: {} };
+try {
+  const costLines = fs.readFileSync(path.join(SASMASTER, 'logs', 'cost-log.jsonl'), 'utf8')
+    .trim().split('\n').filter(Boolean);
+  let costTotal = 0;
+  const costModels = {};
+  for (const cl of costLines) {
+    try {
+      const ce = JSON.parse(cl);
+      const c = ce.cost_usd || 0;
+      costTotal += c;
+      const m = ce.model || ce.model_exec || 'unknown';
+      costModels[m] = (costModels[m] || 0) + c;
+    } catch {}
+  }
+  costSummary = {
+    total_cost_usd: Math.round(costTotal * 10000) / 10000,
+    entry_count: costLines.length,
+    model_breakdown: costModels,
+  };
+} catch {}
+
 const status = {
   generated: new Date().toISOString(),
   system:    { jarvis: { alive: jarvisAlive() } },
@@ -1046,7 +1069,8 @@ const status = {
     path: '',
     completed_at: b.date || '',
   })),
-  slack_feed: buildSlackFeed(recentBuilds, intelFeed),
+  slack_feed:  buildSlackFeed(recentBuilds, intelFeed),
+  cost_summary: costSummary,
 };
 
 fs.writeFileSync(OUT, JSON.stringify(status, null, 2));
