@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — Parallel Agent Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas: #F0F4F8;
+  --surface: #FFFFFF;
+  --surface2: #F8FAFC;
+  --border: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --text-primary: #1E293B;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --teal: #0EA5E9;
+  --teal-bg: rgba(14,165,233,0.08);
+  --teal-border: rgba(14,165,233,0.25);
+  --blue: #3B82F6;
+  --blue-bg: rgba(59,130,246,0.08);
+  --blue-border: rgba(59,130,246,0.22);
+  --green: #10B981;
+  --green-bg: rgba(16,185,129,0.08);
+  --green-border: rgba(16,185,129,0.2);
+  --red: #EF4444;
+  --red-bg: rgba(239,68,68,0.08);
+  --red-border: rgba(239,68,68,0.2);
+  --orange: #FB923C;
+  --orange-bg: rgba(251,146,60,0.08);
+  --purple: #7C3AED;
+  --purple-bg: rgba(124,58,237,0.08);
+  --purple-border: rgba(124,58,237,0.2);
+  --dark-bar: #1E293B;
+  --dark-bar-text: #F1F5F9;
+  --dark-bar-muted: #94A3B8;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--canvas);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 40px 48px 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.mono { font-family: 'DM Mono', monospace; }
+.display { font-family: 'Bebas Neue', sans-serif; }
+
+/* Header */
+.doc-header {
+  background: var(--dark-bar);
+  border-radius: 10px;
+  padding: 28px 32px;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.doc-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--purple);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.doc-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 48px;
+  line-height: 1;
+  color: var(--dark-bar-text);
+  margin-bottom: 6px;
+}
+.doc-subtitle {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--dark-bar-muted);
+}
+.doc-meta { text-align: right; flex-shrink: 0; margin-left: 32px; margin-top: 4px; }
+.doc-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: var(--purple-bg);
+  color: var(--purple);
+  border: 1px solid var(--purple-border);
+  display: inline-block;
+  margin-bottom: 8px;
+  letter-spacing: 0.08em;
+}
+.doc-date { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--dark-bar-muted); }
+.divider { height: 1px; background: var(--border); margin-bottom: 36px; }
+
+/* Section label */
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.card-elevated {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.card-recommended {
+  background: var(--surface);
+  border: 1px solid var(--purple-border);
+  border-top: 3px solid var(--purple);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(124,58,237,0.08);
+}
+
+/* Grids */
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+/* Badges */
+.badge { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 4px; display: inline-block; letter-spacing: 0.06em; }
+.badge-live { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.badge-rec { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+.badge-info { background: var(--teal-bg); color: var(--teal); border: 1px solid var(--teal-border); }
+.badge-warn { background: var(--orange-bg); color: var(--orange); border: 1px solid rgba(251,146,60,0.25); }
+.badge-neutral { background: #F1F5F9; color: var(--text-muted); border: 1px solid var(--border); }
+.badge-new { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+
+/* Option label (A / B / C / D) */
+.option-letter {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.option-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+/* Metric row */
+.metric-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+.metric-key { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); width: 56px; flex-shrink: 0; }
+.metric-val { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+
+/* Code block */
+.code-block {
+  background: var(--dark-bar);
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: #CBD5E1;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+}
+.code-comment { color: #475569; }
+.code-teal { color: var(--teal); }
+.code-green { color: #34D399; }
+.code-orange { color: var(--orange); }
+.code-purple { color: #A78BFA; }
+
+/* Flow diagram */
+.flow-diagram {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+}
+.flow-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.flow-node {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.flow-node-orch { background: var(--dark-bar); color: var(--dark-bar-text); border-color: var(--dark-bar); }
+.flow-node-purple { background: var(--purple-bg); color: var(--purple); border-color: var(--purple-border); }
+.flow-node-teal { background: var(--teal-bg); color: var(--teal); border-color: var(--teal-border); }
+.flow-node-blue { background: var(--blue-bg); color: var(--blue); border-color: var(--blue-border); }
+.flow-node-green { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+.flow-arrow { color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 13px; }
+.flow-indent { padding-left: 24px; }
+.flow-indent-2 { padding-left: 48px; }
+.flow-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+.parallel-bar {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--purple);
+  background: var(--purple-bg);
+  border: 1px solid var(--purple-border);
+  border-radius: 3px;
+  padding: 1px 6px;
+}
+
+/* Table */
+.arch-table { width: 100%; border-collapse: collapse; }
+.arch-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  font-weight: 500;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.arch-table td {
+  padding: 12px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.arch-table tr:last-child td { border-bottom: none; }
+.arch-table tr:nth-child(even) { background: var(--surface2); }
+
+/* Rule card */
+.rule-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+.rule-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  color: var(--purple);
+  line-height: 1;
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+}
+.rule-body { flex: 1; }
+.rule-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.rule-desc { font-size: 12px; color: var(--text-secondary); }
+
+/* Step pill */
+.step-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: #F1F5F9;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.step-pill-done { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+.step-pill-next { background: var(--purple-bg); color: var(--purple); border-color: var(--purple-border); }
+.step-pill-future { background: #F1F5F9; color: var(--text-muted); border-color: var(--border); }
+
+/* Text helpers */
+.text-teal { color: var(--teal); }
+.text-green { color: var(--green); }
+.text-red { color: var(--red); }
+.text-orange { color: var(--orange); }
+.text-purple { color: var(--purple); }
+.text-muted { color: var(--text-muted); }
+.text-sec { color: var(--text-secondary); }
+.fw-600 { font-weight: 600; }
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-20 { margin-bottom: 20px; }
+.mb-24 { margin-bottom: 24px; }
+.mb-32 { margin-bottom: 32px; }
+.mb-40 { margin-bottom: 40px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+  <div>
+    <div class="doc-eyebrow">SaSMaster Platform Engineering</div>
+    <div class="doc-title">Parallel Agent Architecture</div>
+    <div class="doc-subtitle">Fan-out patterns · Task tool · S3 handoff · Cost model · RESEARCH-PORTAL-001</div>
+  </div>
+  <div class="doc-meta">
+    <div class="doc-badge">DESIGN v1.0</div>
+    <div class="doc-date">2026-05-24</div>
+    <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+      <span class="badge badge-rec">HARDEN-010</span>
+      <span class="badge badge-live">AGENT-PARALLEL-001</span>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM STATEMENT -->
+<div class="section-label">01 — Problem Statement</div>
+<div class="card-elevated mb-32">
+  <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:16px;">
+    Current SaSMaster build loop is <strong>sequential</strong>: one Claude Code session, one agent context, one task at a time. For complex multi-component builds — e.g. a Research Portal requiring scraper + API + UI + QA — this creates bottlenecks. The <strong>RESEARCH-PORTAL-001</strong> milestone is the first natural candidate for parallelism.
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <span class="step-pill">Sequential today</span>
+    <span class="step-pill" style="color:var(--text-muted);">→</span>
+    <span class="step-pill step-pill-next">Parallel fan-out</span>
+    <span class="step-pill" style="color:var(--text-muted);">→</span>
+    <span class="step-pill step-pill-next">RESEARCH-PORTAL-001</span>
+  </div>
+</div>
+
+<!-- EXECUTION MODEL OPTIONS -->
+<div class="section-label">02 — Execution Model Options</div>
+<div class="grid-4 mb-12">
+
+  <!-- Option A -->
+  <div class="card">
+    <div class="option-letter">A</div>
+    <div class="option-name">Sequential (current)</div>
+    <div class="code-block" style="margin-bottom:14px;font-size:10px;">orchestrator
+  → task1
+  → task2
+  → task3
+  → done</div>
+    <div class="metric-row"><span class="metric-key">COST</span><span class="metric-val">1×</span></div>
+    <div class="metric-row"><span class="metric-key">SPEED</span><span class="metric-val">1× baseline</span></div>
+    <div class="metric-row"><span class="metric-key">FAILURE</span><span class="metric-val">Stops on first error</span></div>
+    <div style="margin-top:12px;"><span class="badge badge-neutral">CURRENT</span></div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card">
+    <div class="option-letter">B</div>
+    <div class="option-name">Fan-out Shell Parallelism</div>
+    <div class="code-block" style="margin-bottom:14px;font-size:10px;">orchestrator
+  → spawn task1 &amp;
+  → spawn task2 &amp;
+  → spawn task3 &amp;
+  → wait all → collect</div>
+    <div class="metric-row"><span class="metric-key">COST</span><span class="metric-val">3× (parallel sessions)</span></div>
+    <div class="metric-row"><span class="metric-key">SPEED</span><span class="metric-val">~1× wall-clock</span></div>
+    <div class="metric-row"><span class="metric-key">FAILURE</span><span class="metric-val">Independent; parent collects exit codes</span></div>
+    <div style="margin-top:12px;"><span class="badge badge-info">PROTOTYPE BUILT</span></div>
+  </div>
+
+  <!-- Option C — Recommended -->
+  <div class="card-recommended">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px;">
+      <div class="option-letter" style="color:var(--purple);">C</div>
+      <span class="badge badge-rec">RECOMMENDED</span>
+    </div>
+    <div class="option-name">Claude Code Task Tool</div>
+    <div class="code-block" style="margin-bottom:14px;font-size:10px;"><span class="code-purple">orchestrator</span> (main session)
+  └── Agent("research")   → result
+  └── Agent("API")        → result  <span class="code-green">// parallel</span>
+  └── Agent("UI")         → result  <span class="code-green">// parallel</span>
+  └── synthesize → QA</div>
+    <div class="metric-row"><span class="metric-key">COST</span><span class="metric-val">3–5× sub-agent billed separately</span></div>
+    <div class="metric-row"><span class="metric-key">SPEED</span><span class="metric-val">~1.5–2× wall-clock</span></div>
+    <div class="metric-row"><span class="metric-key">FAILURE</span><span class="metric-val">Orchestrator catches errors individually</span></div>
+  </div>
+
+  <!-- Option D -->
+  <div class="card">
+    <div class="option-letter">D</div>
+    <div class="option-name">Async S3 Job Queue</div>
+    <div class="code-block" style="margin-bottom:14px;font-size:10px;">JARVIS !task
+  → POST /api/jobs
+  → Mac cron
+  → process
+  → result</div>
+    <div class="metric-row"><span class="metric-key">COST</span><span class="metric-val">1× (serial on Mac)</span></div>
+    <div class="metric-row"><span class="metric-key">SPEED</span><span class="metric-val">Minutes (cron latency)</span></div>
+    <div class="metric-row"><span class="metric-key">FAILURE</span><span class="metric-val">Isolated; queue persists</span></div>
+    <div style="margin-top:12px;"><span class="badge badge-live">HARDEN-006 LIVE</span></div>
+  </div>
+
+</div>
+<div style="font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-bottom:32px;">
+  Decision rule: use C for multi-component builds · use D for recurring background pipelines · fan-out only when tasks are genuinely independent (no shared mutable state)
+</div>
+
+<!-- RECOMMENDED ARCHITECTURE -->
+<div class="section-label">03 — Recommended Architecture for RESEARCH-PORTAL-001</div>
+<div class="card mb-12">
+  <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+    Use <strong>Option C</strong> (Claude Code Task tool) for the build, <strong>Option D</strong> (async queue) for the recurring data pipeline.
+  </div>
+  <div class="flow-diagram">
+    <!-- Orchestrator -->
+    <div class="flow-row mb-8">
+      <span class="flow-node flow-node-orch">research-portal orchestrator</span>
+    </div>
+    <!-- Parallel phase 1 -->
+    <div class="flow-row flow-indent mb-8">
+      <span class="parallel-bar">parallel</span>
+      <span class="flow-arrow">├──</span>
+      <span class="flow-node flow-node-purple">Agent("Explore") → scraper architecture research</span>
+    </div>
+    <div class="flow-row flow-indent mb-8">
+      <span style="width:60px;display:inline-block;"></span>
+      <span class="flow-arrow">└──</span>
+      <span class="flow-node flow-node-purple">Agent("architect") → API + data model design</span>
+    </div>
+    <!-- Synthesis -->
+    <div class="flow-row flow-indent mb-8">
+      <span class="flow-arrow">↓</span>
+      <span class="flow-node" style="background:var(--surface2);font-style:italic;">synthesize design → inject context</span>
+    </div>
+    <!-- Parallel phase 2 -->
+    <div class="flow-row flow-indent mb-8">
+      <span class="parallel-bar">parallel</span>
+      <span class="flow-arrow">├──</span>
+      <span class="flow-node flow-node-teal">Agent("claude") → implement scraper</span>
+    </div>
+    <div class="flow-row flow-indent mb-8">
+      <span style="width:60px;display:inline-block;"></span>
+      <span class="flow-arrow">├──</span>
+      <span class="flow-node flow-node-blue">Agent("claude") → implement API endpoints</span>
+    </div>
+    <div class="flow-row flow-indent mb-8">
+      <span style="width:60px;display:inline-block;"></span>
+      <span class="flow-arrow">└──</span>
+      <span class="flow-node flow-node-purple">Agent("ui-designer") → build UI shell</span>
+    </div>
+    <!-- QA gate -->
+    <div class="flow-row flow-indent">
+      <span class="flow-arrow">↓</span>
+      <span class="flow-node flow-node-green">Agent("qa-agent") → QA gate (final)</span>
+    </div>
+  </div>
+</div>
+
+<!-- COST MODEL -->
+<div class="card mb-32">
+  <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">Cost Model — 4-Agent Fan-out Estimate</div>
+  <table class="arch-table">
+    <thead>
+      <tr>
+        <th>AGENT</th>
+        <th>TASK</th>
+        <th>EST. COST</th>
+        <th>MODE</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="mono text-purple">Explore</td>
+        <td>Map scrapers + API patterns</td>
+        <td class="mono">~$0.02</td>
+        <td><span class="badge badge-rec">parallel</span></td>
+      </tr>
+      <tr>
+        <td class="mono text-purple">Architect</td>
+        <td>Design portal data model + API surface</td>
+        <td class="mono">~$0.05</td>
+        <td><span class="badge badge-rec">parallel</span></td>
+      </tr>
+      <tr>
+        <td class="mono text-teal">3× Implement</td>
+        <td>Scraper · API · UI</td>
+        <td class="mono">~$0.45 ($0.15 each)</td>
+        <td><span class="badge badge-rec">parallel</span></td>
+      </tr>
+      <tr>
+        <td class="mono text-green">QA</td>
+        <td>Full QA gate</td>
+        <td class="mono">~$0.03</td>
+        <td><span class="badge badge-neutral">sequential</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="margin-top:14px;padding:12px 16px;background:var(--surface2);border-radius:6px;display:flex;gap:32px;">
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);margin-bottom:3px;">PARALLEL TOTAL</div>
+      <div style="font-size:20px;font-family:'Bebas Neue',sans-serif;color:var(--purple);">~$0.55</div>
+    </div>
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);margin-bottom:3px;">SEQUENTIAL BASELINE</div>
+      <div style="font-size:20px;font-family:'Bebas Neue',sans-serif;color:var(--text-secondary);">~$0.25</div>
+    </div>
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);margin-bottom:3px;">SPEED GAIN</div>
+      <div style="font-size:20px;font-family:'Bebas Neue',sans-serif;color:var(--green);">~40%</div>
+    </div>
+  </div>
+</div>
+
+<!-- INTER-AGENT COMMUNICATION -->
+<div class="section-label">04 — Inter-Agent Communication Patterns</div>
+<div class="grid-3 mb-32">
+  <div class="card">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:0.1em;margin-bottom:8px;">PATTERN 01</div>
+    <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">Return Value Passing</div>
+    <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:12px;">
+      Sub-agent returns result as text → orchestrator parses → passes to next agent.
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;" class="mono">BEST FOR</div>
+    <div style="font-size:12px;color:var(--text-secondary);">Research results, design specs, file paths</div>
+    <div style="margin-top:10px;padding:8px 10px;background:var(--red-bg);border-radius:4px;font-size:11px;color:var(--red);font-family:'DM Mono',monospace;">
+      Limit: output truncated ~10K tokens
+    </div>
+  </div>
+  <div class="card">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:0.1em;margin-bottom:8px;">PATTERN 02</div>
+    <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">S3 File Handoff</div>
+    <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:12px;">
+      Agent A writes to S3 agent-handoff path. Agent B reads from same path via shared key.
+    </div>
+    <div class="code-block" style="font-size:10px;margin-bottom:10px;">s3://sasmaster-2026/
+  agent-handoff/
+    {session_id}/
+      {artifact}.json</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;" class="mono">BEST FOR</div>
+    <div style="font-size:12px;color:var(--text-secondary);">Large artifacts: schemas, full HTML files, data samples</div>
+    <div style="margin-top:10px;padding:8px 10px;background:var(--green-bg);border-radius:4px;font-size:11px;color:var(--green);font-family:'DM Mono',monospace;">
+      Pattern: already used for jobs/queue.json
+    </div>
+  </div>
+  <div class="card">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--orange);letter-spacing:0.1em;margin-bottom:8px;">PATTERN 03</div>
+    <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">Shared File System</div>
+    <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:12px;">
+      Agent writes to <code style="font-family:'DM Mono',monospace;font-size:11px;">~/SaSMaster/tmp/</code>, orchestrator or next agent reads from same path.
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;" class="mono">BEST FOR</div>
+    <div style="font-size:12px;color:var(--text-secondary);">Local builds where agents share the same Mac filesystem</div>
+    <div style="margin-top:10px;padding:8px 10px;background:var(--red-bg);border-radius:4px;font-size:11px;color:var(--red);font-family:'DM Mono',monospace;">
+      Not available in Railway/cloud context
+    </div>
+  </div>
+</div>
+
+<!-- FAILURE HANDLING -->
+<div class="section-label">05 — Failure Handling Rules</div>
+<div class="mb-32">
+  <div class="rule-card">
+    <div class="rule-num">1</div>
+    <div class="rule-body">
+      <div class="rule-title">Partial failure is not total failure</div>
+      <div class="rule-desc">If 1 of 3 parallel agents fails, collect the 2 successes and retry the failed one with error context.</div>
+    </div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-num">2</div>
+    <div class="rule-body">
+      <div class="rule-title">Never auto-retry more than once</div>
+      <div class="rule-desc">Log the failure to DONE_LOG.md and surface to Shiv. No silent retry loops.</div>
+    </div>
+  </div>
+  <div class="rule-card">
+    <div class="rule-num">3</div>
+    <div class="rule-body">
+      <div class="rule-title">QA is always the final gate</div>
+      <div class="rule-desc">No fan-out result is accepted without QA agent sign-off. QA is never parallelized.</div>
+    </div>
+  </div>
+  <div class="rule-card" style="margin-bottom:0;">
+    <div class="rule-num">4</div>
+    <div class="rule-body">
+      <div class="rule-title">Cost guard applies per sub-agent</div>
+      <div class="rule-desc">Each sub-agent session is independently token-budgeted (alert 150K, abort 250K via HARDEN-001).</div>
+    </div>
+  </div>
+</div>
+
+<!-- FIRST APPLICATION -->
+<div class="section-label">06 — First Application: RESEARCH-PORTAL-001</div>
+<div class="card mb-24">
+  <table class="arch-table">
+    <thead>
+      <tr>
+        <th>AGENT</th>
+        <th>TASK</th>
+        <th>PARALLEL WITH</th>
+        <th>HANDOFF</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-rec">Explore</span></td>
+        <td>Map existing SaSMaster scrapers + API patterns</td>
+        <td class="text-purple mono" style="font-size:12px;">Architect</td>
+        <td class="text-sec" style="font-size:12px;">Writes to <code class="mono" style="font-size:11px;">tmp/research-portal-context.md</code></td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-rec">Architect</span></td>
+        <td>Design Research Portal data model + API surface</td>
+        <td class="text-purple mono" style="font-size:12px;">Explore</td>
+        <td class="text-sec" style="font-size:12px;">Writes to <code class="mono" style="font-size:11px;">tmp/research-portal-context.md</code></td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-info">claude</span></td>
+        <td>Implement /api/research endpoints</td>
+        <td class="text-blue mono" style="font-size:12px;">ui-designer</td>
+        <td class="text-sec" style="font-size:12px;">API spec fragment → UI agent</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-rec">ui-designer</span></td>
+        <td>Build Research Portal UI shell</td>
+        <td class="text-blue mono" style="font-size:12px;">claude (API)</td>
+        <td class="text-sec" style="font-size:12px;">Reads API spec; writes component</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-live">qa-agent</span></td>
+        <td>Full QA gate — all components</td>
+        <td class="text-muted mono" style="font-size:12px;">— (final)</td>
+        <td class="text-sec" style="font-size:12px;">QA report → DONE_LOG.md</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card mb-32" style="background:var(--surface2);">
+  <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">Session Handoff Protocol</div>
+  <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">
+    1. Explore + Architect agents write summaries to <code class="mono" style="font-size:11px;">tmp/research-portal-context.md</code><br>
+    2. Orchestrator synthesizes → injects into implement agent prompts as context<br>
+    3. UI agent receives API spec (OpenAPI fragment) from implement agent via file handoff
+  </div>
+</div>
+
+<!-- NEXT STEPS -->
+<div class="section-label">07 — Next Steps</div>
+<div style="display:flex;flex-direction:column;gap:8px;">
+  <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--green-border);border-radius:8px;">
+    <span class="badge badge-live">DONE</span>
+    <span style="font-size:13px;color:var(--text-secondary);">Design doc + <code class="mono" style="font-size:11px;">parallel-agent-run.sh</code> shell prototype — HARDEN-010 ✅</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--purple-border);border-radius:8px;">
+    <span class="badge badge-rec">NEXT</span>
+    <span style="font-size:13px;color:var(--text-secondary);">Add <code class="mono" style="font-size:11px;">!parallel</code> JARVIS command → triggers 2+ <code class="mono" style="font-size:11px;">claude -p</code> subprocesses</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--purple-border);border-radius:8px;">
+    <span class="badge badge-rec">NEXT</span>
+    <span style="font-size:13px;color:var(--text-secondary);">RESEARCH-PORTAL-001 sprint — first production use of Option C fan-out pattern</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;">
+    <span class="badge badge-neutral">FUTURE</span>
+    <span style="font-size:13px;color:var(--text-secondary);">Post-build cost comparison — measure actual vs. projected cost/time gain</span>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="margin-top:48px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+  <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);">SaSMaster Platform · AGENT-PARALLEL-001 · HARDEN-010 · 2026-05-24</div>
+  <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);">Built by Claude Code · sasmaster-status.vercel.app</div>
+</div>
+
+</body>
+</html>
