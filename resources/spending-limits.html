@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster Spending Limits · Cost Control Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas:   #F0F4F8;
+  --surface:  #FFFFFF;
+  --surface2: #F8FAFC;
+  --border:   #E2E8F0;
+  --border2:  #CBD5E1;
+  --text:     #1E293B;
+  --muted:    #64748B;
+  --dim:      #94A3B8;
+  --lavender: #7C3AED;
+  --lav-light:#EDE9FE;
+  --lav-mid:  #A78BFA;
+  --teal:     #0EA5E9;
+  --teal-l:   #E0F2FE;
+  --green:    #10B981;
+  --green-l:  #D1FAE5;
+  --green-d:  #065F46;
+  --gold:     #F59E0B;
+  --gold-l:   #FEF3C7;
+  --gold-d:   #92400E;
+  --red:      #EF4444;
+  --red-l:    #FEE2E2;
+  --red-d:    #991B1B;
+  --orange:   #F97316;
+  --orange-l: #FFEDD5;
+  --blue:     #3B82F6;
+  --blue-l:   #EFF6FF;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--canvas);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header-badge {
+  background: var(--green-l);
+  color: var(--green-d);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.header h1 { font-size: 20px; font-weight: 600; }
+.header p  { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.main { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+.section { margin-bottom: 28px; }
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dim);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 12px;
+}
+.card.warn  { border-left: 4px solid var(--gold); }
+.card.crit  { border-left: 4px solid var(--red); }
+.card.ok    { border-left: 4px solid var(--green); }
+.card.info  { border-left: 4px solid var(--teal); }
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.card-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.lbl-warn  { background: var(--gold-l);  color: var(--gold-d); }
+.lbl-crit  { background: var(--red-l);   color: var(--red-d); }
+.lbl-ok    { background: var(--green-l); color: var(--green-d); }
+.lbl-info  { background: var(--teal-l);  color: #0369A1; }
+.card-title { font-weight: 600; font-size: 15px; }
+.card p { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+.card p:last-child { margin-bottom: 0; }
+.threshold-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.threshold-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+.threshold-card .val {
+  font-size: 28px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  line-height: 1.1;
+}
+.threshold-card .val.green { color: var(--green); }
+.threshold-card .val.gold  { color: var(--gold); }
+.threshold-card .val.red   { color: var(--red); }
+.threshold-card .label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: 4px;
+}
+.threshold-card .sub {
+  font-size: 12px;
+  color: var(--dim);
+  margin-top: 6px;
+}
+code {
+  font-family: 'DM Mono', monospace;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 12px;
+  color: var(--lavender);
+}
+pre {
+  font-family: 'DM Mono', monospace;
+  background: #1E293B;
+  color: #94A3B8;
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+  margin-top: 8px;
+}
+pre .comment { color: #475569; }
+pre .cmd     { color: #7DD3FC; }
+pre .val     { color: #86EFAC; }
+pre .key     { color: #FCA5A5; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dim);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--border);
+}
+td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  display: inline-block;
+}
+.tag-ok   { background: var(--green-l); color: var(--green-d); }
+.tag-warn { background: var(--gold-l);  color: var(--gold-d); }
+.tag-crit { background: var(--red-l);   color: var(--red-d); }
+.tag-info { background: var(--teal-l);  color: #0369A1; }
+.mono     { font-family: 'DM Mono', monospace; font-size: 12px; }
+.muted    { color: var(--muted); }
+.footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 12px;
+  color: var(--dim);
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      <h1>Spending Limits</h1>
+      <span class="header-badge">HARDEN-001</span>
+    </div>
+    <p>SaSMaster Cost Control · Token budgets, API guards, and spend audit runbook</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Token Budget Thresholds -->
+  <div class="section">
+    <div class="section-title">Daily Token Budget (cost-guard.sh)</div>
+    <div class="threshold-grid">
+      <div class="threshold-card">
+        <div class="val green">250K</div>
+        <div class="label">Hard Abort</div>
+        <div class="sub">Build blocked until next UTC day</div>
+      </div>
+      <div class="threshold-card">
+        <div class="val gold">150K</div>
+        <div class="label">Warn Threshold</div>
+        <div class="sub">Slack alert, build continues</div>
+      </div>
+      <div class="threshold-card">
+        <div class="val red">250K+</div>
+        <div class="label">Alert Fired To</div>
+        <div class="sub">#sasmaster-builds + SASMASTER_SLACK_WEBHOOK</div>
+      </div>
+    </div>
+
+    <div class="card ok">
+      <div class="card-header">
+        <span class="card-label lbl-ok">Active</span>
+        <span class="card-title">cost-guard.sh — Sourced in sasmaster-build.sh</span>
+      </div>
+      <p>Runs <code>cost_guard_precheck()</code> before every Claude invocation. Sums <code>tokens_in + tokens_out</code> from today's entries in <code>logs/cost-log.jsonl</code>. Returns exit 1 (abort) if daily total ≥ 250K.</p>
+      <p>After each build, <code>cost_guard_write()</code> appends the actual token + cost data to <code>cost-log.jsonl</code> and re-checks thresholds, posting Slack alerts only on threshold crossings (not every call above threshold).</p>
+    </div>
+  </div>
+
+  <!-- How to Audit -->
+  <div class="section">
+    <div class="section-title">Audit Current Spend</div>
+    <div class="card info">
+      <div class="card-header">
+        <span class="card-label lbl-info">Runbook</span>
+        <span class="card-title">Check Today's Token Usage</span>
+      </div>
+      <pre><span class="comment"># Sum today's tokens from cost-log.jsonl</span>
+<span class="cmd">python3</span> -c "
+import json, datetime
+today = datetime.date.today().isoformat()
+total, entries = 0, 0
+with open('$HOME/SaSMaster/logs/cost-log.jsonl') as f:
+    for line in f:
+        try:
+            d = json.loads(line)
+            if (d.get('timestamp','') or d.get('ts','')).startswith(today):
+                total += int(d.get('tokens_in',0) or 0)
+                total += int(d.get('tokens_out',0) or 0)
+                entries += 1
+        except: pass
+print(f'Today: {total:,} tokens across {entries} entries')
+print(f'Warn at: 150,000 | Abort at: 250,000')
+"</pre>
+    </div>
+
+    <div class="card info">
+      <div class="card-header">
+        <span class="card-label lbl-info">Runbook</span>
+        <span class="card-title">Check Total USD Spend (all-time)</span>
+      </div>
+      <pre><span class="comment"># Sum cost_usd from cost-log.jsonl</span>
+<span class="cmd">python3</span> -c "
+import json
+total = 0
+with open('$HOME/SaSMaster/logs/cost-log.jsonl') as f:
+    for line in f:
+        try: total += float(json.loads(line).get('cost_usd', 0) or 0)
+        except: pass
+print(f'Total all-time: \${total:.4f}')
+"</pre>
+    </div>
+
+    <div class="card info">
+      <div class="card-header">
+        <span class="card-label lbl-info">Runbook</span>
+        <span class="card-title">Manually Run Cost Guard Check</span>
+      </div>
+      <pre><span class="cmd">bash</span> ~/SaSMaster/scripts/cost-guard.sh
+<span class="comment"># Returns: daily token count + PASS/WARN/ABORT status</span></pre>
+    </div>
+  </div>
+
+  <!-- Model Pricing Reference -->
+  <div class="section">
+    <div class="section-title">Model Pricing Reference (Anthropic, May 2026)</div>
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Input ($/1M tok)</th>
+            <th>Output ($/1M tok)</th>
+            <th>Cache Write</th>
+            <th>Cache Hit</th>
+            <th>Use In SaSMaster</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="mono">claude-opus-4-7</span></td>
+            <td class="mono">$15.00</td>
+            <td class="mono">$75.00</td>
+            <td class="mono">$18.75</td>
+            <td class="mono">$1.50</td>
+            <td>Autonomous coder, complex reasoning</td>
+          </tr>
+          <tr>
+            <td><span class="mono">claude-sonnet-4-6</span></td>
+            <td class="mono">$3.00</td>
+            <td class="mono">$15.00</td>
+            <td class="mono">$3.75</td>
+            <td class="mono">$0.30</td>
+            <td>JARVIS ops, Dr. Scoop, portal builds</td>
+          </tr>
+          <tr>
+            <td><span class="mono">claude-haiku-4-5</span></td>
+            <td class="mono">$0.80</td>
+            <td class="mono">$4.00</td>
+            <td class="mono">$1.00</td>
+            <td class="mono">$0.08</td>
+            <td>QA agent, lessons feedback, scraper debug</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-top:10px;font-size:12px;color:var(--dim)">Model mixing policy: GAP1 routes QA/lessons/scraper-debugger to Haiku 4.5; autonomous-coder/jarvis-ops/data-modeler stay on Sonnet or Opus. Review: 2026-05-31.</p>
+    </div>
+  </div>
+
+  <!-- Budget Philosophy -->
+  <div class="section">
+    <div class="section-title">Budget Philosophy</div>
+    <div class="card warn">
+      <div class="card-header">
+        <span class="card-label lbl-warn">Target</span>
+        <span class="card-title">Aug 2026 Revenue-Before-Burn Crunch</span>
+      </div>
+      <p>SaSMaster must reach first B2B revenue by Aug 2026. Token spend controls are not about being cheap — they prevent runaway autonomous loop costs during overnight builds.</p>
+      <p>The 250K daily token abort ≈ ~$0.75–3.75/day depending on model mix. At current burn this is manageable. Revisit thresholds if autonomous loop cadence increases beyond 3 builds/day.</p>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Rule</th>
+          <th>Value</th>
+          <th>Where Set</th>
+          <th>When to Adjust</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Daily token warn</td>
+          <td><span class="tag tag-warn">150K tokens</span></td>
+          <td><code>cost-guard.sh:COST_GUARD_WARN_THRESHOLD</code></td>
+          <td>Never — just a signal</td>
+        </tr>
+        <tr>
+          <td>Daily token abort</td>
+          <td><span class="tag tag-crit">250K tokens</span></td>
+          <td><code>cost-guard.sh:COST_GUARD_ABORT_THRESHOLD</code></td>
+          <td>If a single build legit needs >250K</td>
+        </tr>
+        <tr>
+          <td>Single phase cost alert</td>
+          <td><span class="tag tag-warn">$2.00 USD</span></td>
+          <td>RULE-002 in <code>config/alert-rules.json</code></td>
+          <td>If running Opus heavily</td>
+        </tr>
+        <tr>
+          <td>Slack alert channel</td>
+          <td><span class="tag tag-info">#sasmaster-builds</span></td>
+          <td><code>SASMASTER_SLACK_WEBHOOK</code> in .env</td>
+          <td>Never</td>
+        </tr>
+        <tr>
+          <td>Log file</td>
+          <td colspan="2"><code>~/SaSMaster/logs/cost-log.jsonl</code></td>
+          <td>Never</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Files -->
+  <div class="section">
+    <div class="section-title">Key Files</div>
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th>File</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>scripts/cost-guard.sh</code></td>
+            <td>Token budget precheck + cost write. Source in sasmaster-build.sh.</td>
+          </tr>
+          <tr>
+            <td><code>logs/cost-log.jsonl</code></td>
+            <td>Append-only spend log. Fields: <code>timestamp, model, tokens_in, tokens_out, cost_usd, build_status, daily_total</code></td>
+          </tr>
+          <tr>
+            <td><code>config/alert-rules.json</code></td>
+            <td>RULE-002: cost_update > $2 single phase → pause for approval</td>
+          </tr>
+          <tr>
+            <td><code>sasmaster-build.sh</code></td>
+            <td>Calls <code>cost_guard_precheck()</code> before Claude and <code>cost_guard_write()</code> after</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  SaSMaster Spending Limits · HARDEN-001 · Last updated 2026-05-24
+</div>
+
+</body>
+</html>
