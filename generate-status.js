@@ -565,57 +565,96 @@ function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
 }
 
 // ── Build events (Layer 7 audit trail) ───────────────────────────────────────
-// Reads today's build-YYYY-MM-DD.jsonl written by runner.py.
+// Reads today's build-YYYY-MM-DD.jsonl (build-auto) AND deploy-events.json (Railway/Vercel).
 // Returns structured events for the recent_activity feed, plus haiku_pct.
 function getBuildEvents() {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  const file = path.join(SASMASTER, 'logs', `build-${today}.jsonl`);
-  if (!fs.existsSync(file)) return { events: [], count: 0, haiku_pct: 0 };
+  const buildFile  = path.join(SASMASTER, 'logs', `build-${today}.jsonl`);
+  const deployFile = path.join(SASMASTER, 'logs', 'deploy-events.json');
 
-  try {
-    const lines = fs.readFileSync(file, 'utf8')
-      .split('\n')
-      .filter(Boolean)
-      .map(l => { try { return JSON.parse(l); } catch { return null; } })
-      .filter(Boolean);
+  let buildCount  = 0;
+  let haiku_pct   = 0;
+  let buildEvents = [];
 
-    const events = lines.slice(-20).map(e => {
-      const isSummary  = e.kind === 'run_summary';
-      const isError    = e.status === 'failed' || (Array.isArray(e.errors) && e.errors.length > 0);
-      const isComplete = isSummary || e.status === 'complete';
+  // ── build-auto events ────────────────────────────────────────────────────────
+  if (fs.existsSync(buildFile)) {
+    try {
+      const lines = fs.readFileSync(buildFile, 'utf8')
+        .split('\n').filter(Boolean)
+        .map(l => { try { return JSON.parse(l); } catch { return null; } })
+        .filter(Boolean);
 
-      let type = 'build';
-      if (isError)         type = 'error';
-      else if (isComplete) type = 'complete';
+      buildEvents = lines.slice(-20).map(e => {
+        const isSummary  = e.kind === 'run_summary';
+        const isError    = e.status === 'failed' || (Array.isArray(e.errors) && e.errors.length > 0);
+        const isComplete = isSummary || e.status === 'complete';
 
-      let text;
-      if (isSummary) {
-        const mins = Math.round((e.wall_seconds || 0) / 60);
-        text = `Build run complete — ${e.features_ok}/${e.features_total} features, $${(e.total_cost_usd || 0).toFixed(2)}, ${mins}m`;
-      } else {
-        const icon = isError ? '❌' : '✅';
-        text = `${icon} ${(e.task || e.feat_id || '').slice(0, 70)}`;
-        if (e.decisions) text += ` — ${e.decisions.slice(0, 60)}`;
-      }
+        let type = 'build';
+        if (isError)         type = 'error';
+        else if (isComplete) type = 'complete';
 
-      return {
-        type,
-        text:      text.slice(0, 120),
+        let text;
+        if (isSummary) {
+          const mins = Math.round((e.wall_seconds || 0) / 60);
+          text = `Build run complete — ${e.features_ok}/${e.features_total} features, $${(e.total_cost_usd || 0).toFixed(2)}, ${mins}m`;
+        } else {
+          const icon = isError ? '❌' : '✅';
+          text = `${icon} ${(e.task || e.feat_id || '').slice(0, 70)}`;
+          if (e.decisions) text += ` — ${e.decisions.slice(0, 60)}`;
+        }
+
+        return { type, text: text.slice(0, 120), ts: e.ts || '', layer: 'APP', component: 'build-auto' };
+      });
+
+      const featureLines = lines.filter(e => e.kind !== 'run_summary' && e.model_tier);
+      const haikuCount   = featureLines.filter(e => e.model_tier === 'haiku').length;
+      haiku_pct  = featureLines.length > 0 ? Math.round((haikuCount / featureLines.length) * 100) : 0;
+      buildCount = lines.filter(e => e.kind !== 'run_summary').length;
+    } catch {}
+  }
+
+  // ── deploy events (Railway POST /api/deploy-event + Vercel webhook) ──────────
+  let deployCount  = 0;
+  let deployEvents = [];
+
+  // Railway deploys: synced from S3 by sync-to-s3-cache.sh every 5 min
+  if (fs.existsSync(deployFile)) {
+    try {
+      const entries = JSON.parse(fs.readFileSync(deployFile, 'utf8'));
+      const todayEntries = (Array.isArray(entries) ? entries : [])
+        .filter(e => String(e.ts || '').slice(0, 10) === today);
+      deployCount += todayEntries.length;
+      deployEvents = todayEntries.map(e => ({
+        type:      'complete',
+        text:      `🚀 Deploy ${e.target || 'platform'} — ${(e.task || '').slice(0, 60)}${e.commit ? ' @' + e.commit : ''}`,
         ts:        e.ts || '',
         layer:     'APP',
-        component: 'build-auto',
-      };
-    });
+        component: 'deploy',
+      }));
+    } catch {}
+  }
 
-    // Count model_tier values for haiku_pct KPI
-    const featureLines = lines.filter(e => e.kind !== 'run_summary' && e.model_tier);
-    const haikuCount   = featureLines.filter(e => e.model_tier === 'haiku').length;
-    const haiku_pct    = featureLines.length > 0
-      ? Math.round((haikuCount / featureLines.length) * 100)
-      : 0;
+  // Vercel deploys: already in events.jsonl as deploy_completed (event_type)
+  const eventsFile = path.join(SASMASTER, 'logs', 'events.jsonl');
+  if (fs.existsSync(eventsFile)) {
+    try {
+      const lines = fs.readFileSync(eventsFile, 'utf8').split('\n').filter(Boolean).slice(-500);
+      const vercelDeploys = lines
+        .map(l => { try { return JSON.parse(l); } catch { return null; } })
+        .filter(e => e && e.event_type === 'deploy_completed' && String(e.ts || '').slice(0, 10) === today);
+      deployCount += vercelDeploys.length;
+      deployEvents = deployEvents.concat(vercelDeploys.map(e => ({
+        type:      'complete',
+        text:      `🚀 Vercel deploy — ${(e.payload?.project || e.payload?.url || '').slice(0, 70)}`,
+        ts:        e.ts || '',
+        layer:     'APP',
+        component: 'deploy',
+      })));
+    } catch {}
+  }
 
-    return { events, count: lines.filter(e => e.kind !== 'run_summary').length, haiku_pct };
-  } catch { return { events: [], count: 0, haiku_pct: 0 }; }
+  const allEvents = [...buildEvents, ...deployEvents].slice(0, 25);
+  return { events: allEvents, count: buildCount + deployCount, haiku_pct };
 }
 
 // ── Build performance trends (last 7 days) ────────────────────────────────────
