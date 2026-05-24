@@ -219,7 +219,7 @@ function parsePending() {
 function parseAgents() {
   const LOG = path.join(SASMASTER, 'logs');
   const agents = [
-    { name: 'JARVIS',            icon: '🤖', schedule: 'HTTP API',      nextRun: 'Always on',       log: 'jarvis.log',            channel: 'HTTP Events API',    jobId: null },
+    { name: 'JARVIS',            icon: '🤖', schedule: 'HTTP API',      nextRun: 'Always on',       log: 'jarvis.log',            channel: 'HTTP Events API',    jobId: null, descOverride: 'HTTP Events API (Railway) — Socket Mode daemon retired' },
     { name: 'Media Intel',       icon: '📡', schedule: '6AM daily',     nextRun: 'Tomorrow 6AM',    log: 'media-intel.log',       channel: '#sasmaster-intel',   jobId: 'media-intel' },
     { name: 'TMDB Daily',        icon: '📺', schedule: '5AM daily',     nextRun: 'Tomorrow 5AM',    log: 'tmdb-agent.log',        channel: '#sasmaster-intel',   jobId: 'tmdb-daily' },
     { name: 'DoneLog Analyst',   icon: '📊', schedule: 'Post-build',    nextRun: 'Post 12AM build', log: 'donelog-analyst.log',   channel: '#sasmaster-builds',  jobId: null },
@@ -229,6 +229,9 @@ function parseAgents() {
     { name: 'Financial Analyst', icon: '💰', schedule: 'Sunday 8PM',   nextRun: 'Sun 8PM',         log: 'financial-analyst.log', channel: '#sasmaster-intel',   jobId: null },
     { name: 'Weekly Review',     icon: '🗂️', schedule: 'Sunday 8PM',   nextRun: 'Sun 8PM',         log: 'weekly-review.log',     channel: '#sasmaster-content', jobId: 'weekly-review' },
     { name: 'IAB Intel',         icon: '📡', schedule: 'Monday 7AM',   nextRun: 'Mon 7AM',         log: 'iab-agent.log',         channel: '#sasmaster-intel',   jobId: 'iab-intel' },
+    { name: 'Security Watchdog', icon: '🔐', schedule: 'Daily 5:30AM', nextRun: 'Tomorrow 5:30AM', log: 'security-watchdog.log', channel: '#sasmaster-builds',  jobId: null },
+    { name: 'Railway Monitor',   icon: '🛤️', schedule: 'Every 15min',  nextRun: 'In ≤15min',       log: 'railway-monitor.log',   channel: '#sasmaster-builds',  jobId: null },
+    { name: 'Research Portal',   icon: '🔬', schedule: 'TBD',          nextRun: 'Pending launch',  log: 'research-portal-agent.log', channel: '#sasmaster-intel', jobId: null, descOverride: 'SCAFFOLDED — pending RESEARCH-PORTAL-001 launch' },
   ];
 
   return agents.map(a => {
@@ -241,7 +244,7 @@ function parseAgents() {
     const tsMatch = last.match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
     const lastRun = tsMatch ? tsMatch[1] : null;
 
-    const summary = last.replace(/^\[\d{4}-\d{2}-\d{2}T[\d:.]+Z\]\s*/, '')
+    const summary = a.descOverride || last.replace(/^\[\d{4}-\d{2}-\d{2}T[\d:.]+Z\]\s*/, '')
                         .replace(/^\[[A-Z0-9_-]+\]\s*/i, '')
                         .slice(0, 80);
 
