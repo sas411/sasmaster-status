@@ -1859,11 +1859,11 @@ async function loadKanbanLive() {
   } catch (_) { /* silently fall back to status.json kanban */ }
 }
 
-// Cost KPI fetch — reads cost-log.jsonl via command-api
+// Cost KPI fetch — tries live command-api, falls back to cost_summary in status.json
 async function loadCostKPI() {
   try {
     const r = await fetch(apiUrl('/cost-log') + '&t=' + Date.now());
-    if (!r.ok) return;
+    if (!r.ok) throw new Error('not-ok');
     const data = await r.json();
     const s = data.summary || {};
     const costEl = document.getElementById('kpiCost');
@@ -1879,7 +1879,20 @@ async function loadCostKPI() {
         .join(' · ') || (s.entry_count + ' entries');
       subEl.textContent = breakdown;
     }
-  } catch (_) { /* leave as -- */ }
+  } catch (_) {
+    // fallback: pre-compiled summary from status.json (no Railway /cost-log needed)
+    const s = (_lastData || {}).cost_summary || {};
+    if (s.total_cost_usd === undefined) return;
+    const costEl = document.getElementById('kpiCost');
+    const subEl  = document.getElementById('kpiCostSub');
+    if (costEl) {
+      costEl.textContent = '$' + (s.total_cost_usd || 0).toFixed(2);
+      costEl.className = 'kpi-val ok';
+    }
+    if (subEl) {
+      subEl.textContent = s.entry_count ? s.entry_count + ' builds' : 'cached';
+    }
+  }
 }
 
 function scheduleRefresh() {
