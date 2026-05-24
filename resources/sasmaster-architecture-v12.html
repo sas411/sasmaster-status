@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster Architecture v12 · Operator Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas:   #F0F4F8;
+  --surface:  #FFFFFF;
+  --surface2: #F8FAFC;
+  --border:   #E2E8F0;
+  --border2:  #CBD5E1;
+  --text:     #1E293B;
+  --muted:    #64748B;
+  --dim:      #94A3B8;
+  --lavender: #7C3AED;
+  --lav-light:#EDE9FE;
+  --lav-mid:  #A78BFA;
+  --teal:     #0EA5E9;
+  --teal-l:   #E0F2FE;
+  --teal-d:   #0369A1;
+  --green:    #10B981;
+  --green-l:  #D1FAE5;
+  --green-d:  #065F46;
+  --gold:     #F59E0B;
+  --gold-l:   #FEF3C7;
+  --gold-d:   #92400E;
+  --red:      #EF4444;
+  --red-l:    #FEE2E2;
+  --red-d:    #991B1B;
+  --orange:   #F97316;
+  --orange-l: #FFEDD5;
+  --blue:     #3B82F6;
+  --blue-l:   #EFF6FF;
+  --blue-d:   #1D4ED8;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  background: var(--canvas);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 40px 72px;
+}
+
+/* HEADER */
+.hdr {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 40px;
+  align-items: end;
+  padding-bottom: 28px;
+  margin-bottom: 44px;
+  border-bottom: 2px solid var(--lavender);
+}
+
+.hdr-eye {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--lavender);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hdr-eye::before { content:''; width:20px; height:1.5px; background:var(--lavender); }
+
+.hdr-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.hdr-title span { color: var(--lavender); }
+
+.hdr-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.hdr-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 2.1;
+  text-align: right;
+}
+.hdr-meta .v { color: var(--teal-d); font-weight: 500; }
+.hdr-meta .g { color: var(--green-d); }
+
+/* SECTION */
+.sec { margin-bottom: 44px; }
+
+.sec-hdr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sec-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--lavender);
+  background: var(--lav-light);
+  border: 1px solid rgba(124,58,237,0.15);
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+}
+
+.sec-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+/* NORTH STAR */
+.ns {
+  background: linear-gradient(135deg, var(--lav-light) 0%, var(--teal-l) 100%);
+  border: 1px solid rgba(124,58,237,0.2);
+  border-radius: 12px;
+  padding: 22px 28px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.ns::after {
+  content: '2035';
+  position: absolute;
+  right: 20px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 80px;
+  font-weight: 800;
+  color: rgba(124,58,237,0.07);
+  letter-spacing: 0.06em;
+  pointer-events: none;
+  line-height: 1;
+}
+.ns-lbl { font-family:'DM Mono',monospace; font-size:9px; color:var(--lavender); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:6px; }
+.ns-mission { font-size:18px; font-weight:700; color:var(--text); letter-spacing:-0.01em; margin-bottom:6px; }
+.ns-sub { font-size:12px; color:var(--muted); max-width:580px; }
+
+/* PILLS */
+.pill {
+  display:inline-flex; align-items:center; gap:4px;
+  font-family:'DM Mono',monospace; font-size:9px;
+  padding:2px 7px; border-radius:20px;
+  letter-spacing:0.05em; text-transform:uppercase; vertical-align:middle;
+}
+.pill::before { content:''; width:5px; height:5px; border-radius:50%; display:inline-block; flex-shrink:0; }
+.pl { background:var(--green-l); color:var(--green-d); border:1px solid rgba(16,185,129,0.2); }
+.pl::before { background:var(--green); }
+.pp { background:var(--gold-l); color:var(--gold-d); border:1px solid rgba(245,158,11,0.2); }
+.pp::before { background:var(--gold); }
+.pn { background:var(--teal-l); color:var(--teal-d); border:1px solid rgba(14,165,233,0.2); }
+.pn::before { background:var(--teal); }
+.pf { background:#F1F5F9; color:#475569; border:1px solid #CBD5E1; }
+.pf::before { background:#94A3B8; }
+.pc { background:var(--red-l); color:var(--red-d); border:1px solid rgba(239,68,68,0.2); }
+.pc::before { background:var(--red); }
+.pw { background:var(--orange-l); color:#C2410C; border:1px solid rgba(249,115,22,0.2); }
+.pw::before { background:var(--orange); }
+.pi { background:#F1F5F9; color:#475569; border:1px solid #CBD5E1; }
+.pi::before { background:#94A3B8; }
+
+/* CARDS */
+.card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 22px; }
+.card-sm { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:14px 16px; }
+
+/* GRIDS */
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+.g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+
+/* PRINCIPLE ROW */
+.pr { display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.pr:last-child { border-bottom:none; }
+.pn-tag { font-family:'DM Mono',monospace; font-size:9px; color:var(--lavender); background:var(--lav-light); padding:2px 7px; border-radius:4px; white-space:nowrap; flex-shrink:0; border:1px solid rgba(124,58,237,0.12); }
+.pr-desc { color:var(--muted); line-height:1.5; }
+
+/* DIAGRAM WRAPPER */
+.dw { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin:14px 0; }
+.dl {
+  font-family:'DM Mono',monospace; font-size:9px; color:var(--muted);
+  text-transform:uppercase; letter-spacing:0.13em; margin-bottom:12px;
+  display:flex; align-items:center; gap:8px;
+}
+.dl::before { content:''; width:14px; height:1.5px; background:var(--lav-mid); flex-shrink:0; }
+
+/* AGENT CARDS */
+.agc { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:12px 14px; display:flex; flex-direction:column; gap:5px; transition:border-color .2s; }
+.agc:hover { border-color:rgba(124,58,237,0.25); }
+.ag-name { font-family:'DM Mono',monospace; font-size:11px; font-weight:500; color:var(--lavender); }
+.ag-model { font-family:'DM Mono',monospace; font-size:9px; color:var(--dim); }
+.ag-desc { font-size:11px; color:var(--muted); line-height:1.4; }
+.atag { font-family:'DM Mono',monospace; font-size:9px; padding:2px 6px; border-radius:4px; display:inline-block; margin-top:2px; }
+.an { background:var(--green-l); color:var(--green-d); border:1px solid rgba(16,185,129,0.15); }
+.ac { background:var(--lav-light); color:var(--lavender); border:1px solid rgba(124,58,237,0.12); }
+.ad { background:var(--teal-l); color:var(--teal-d); border:1px solid rgba(14,165,233,0.15); }
+
+/* BUILD CHAIN */
+.chain { display:flex; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:10px; }
+.cs { flex:1; padding:12px 10px; text-align:center; border-right:1px solid var(--border); }
+.cs:last-child { border-right:none; }
+.csn { font-family:'DM Mono',monospace; font-size:11px; font-weight:500; color:var(--text); margin-bottom:3px; }
+.csr { font-size:10px; color:var(--muted); line-height:1.3; }
+
+/* SKILL CHIPS */
+.sc-cloud { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.chip { font-family:'DM Mono',monospace; font-size:10px; padding:3px 9px; border-radius:20px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); }
+.cu { border-color:rgba(124,58,237,0.25); color:var(--lavender); background:var(--lav-light); }
+.cp { border-color:rgba(14,165,233,0.2); color:var(--teal-d); background:var(--teal-l); }
+.cn { border-color:rgba(16,185,129,0.2); color:var(--green-d); background:var(--green-l); }
+
+/* MEMORY ROWS */
+.mr { display:grid; grid-template-columns:96px 1fr 160px 80px; align-items:center; gap:16px; padding:11px 14px; background:var(--surface); border:1px solid var(--border); border-radius:8px; margin-bottom:6px; }
+.ml { font-family:'DM Mono',monospace; font-size:11px; font-weight:600; }
+.mb-wrap { height:5px; background:var(--canvas); border-radius:3px; overflow:hidden; }
+.mb { height:100%; border-radius:3px; }
+.mp { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); line-height:1.5; }
+.ms { font-family:'DM Mono',monospace; font-size:11px; text-align:right; }
+
+/* OP BOX */
+.ob { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--lav-mid); border-radius:0 8px 8px 0; padding:14px 18px; margin-top:12px; }
+.ob-t { font-family:'DM Mono',monospace; font-size:9px; color:var(--lavender); text-transform:uppercase; letter-spacing:0.12em; margin-bottom:10px; }
+.og { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.ol { font-family:'DM Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:4px; }
+.ov { font-family:'DM Mono',monospace; font-size:11px; color:var(--text); line-height:1.6; }
+
+/* RULES TABLE */
+.rr { display:grid; grid-template-columns:72px 1fr 80px 100px; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.rr:last-child { border-bottom:none; }
+.rid { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); }
+.ract { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); text-align:right; }
+
+/* PHASE ROWS */
+.phrow { display:flex; align-items:center; gap:16px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:8px; margin-bottom:6px; }
+.phid { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); width:100px; flex-shrink:0; }
+.phdesc { flex:1; font-size:12px; color:var(--muted); }
+.phdesc strong { color:var(--text); font-weight:600; }
+
+/* ENDPOINT TABLE */
+.er { display:grid; grid-template-columns:280px 1fr 80px; align-items:center; gap:16px; padding:10px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.er:last-child { border-bottom:none; }
+.eu { font-family:'DM Mono',monospace; font-size:11px; color:var(--teal-d); }
+.ed { color:var(--muted); }
+
+/* SPRINT ITEMS */
+.si { font-family:'DM Mono',monospace; font-size:11px; padding:6px 10px; border-radius:6px; margin-bottom:4px; }
+.sd { background:var(--green-l); color:var(--green-d); border:1px solid rgba(16,185,129,0.15); }
+.sq { background:var(--gold-l); color:var(--gold-d); border:1px solid rgba(245,158,11,0.15); }
+.st { background:var(--lav-light); color:var(--lavender); border:1px solid rgba(124,58,237,0.15); }
+
+/* CODE */
+code { font-family:'DM Mono',monospace; font-size:11px; background:var(--lav-light); color:var(--lavender); padding:1px 5px; border-radius:3px; }
+
+/* PORTAL TABS */
+.ptab { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:14px; text-align:center; }
+.ptab-name { font-family:'DM Mono',monospace; font-size:10px; font-weight:600; color:var(--text); letter-spacing:0.05em; margin-bottom:4px; }
+.ptab-desc { font-size:10px; color:var(--muted); line-height:1.4; }
+
+/* FOOTER */
+.ftr { margin-top:52px; padding-top:18px; border-top:1px solid var(--border); display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:10px; color:var(--dim); }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div>
+    <div class="hdr-eye">SaSMaster · Operator Reference · Internal Only</div>
+    <div class="hdr-title">Platform <span>Architecture</span> v12</div>
+    <div class="hdr-sub">How the platform runs · for Shiv + Claude · updated 2026-05-24</div>
+  </div>
+  <div class="hdr-meta">
+    <div>Version <span class="v">v12 · Sprint 11</span></div>
+    <div>War Room <span class="v">sasmaster-status.vercel.app</span></div>
+    <div>Nerve Center <span class="v">api.sasmaster.dev</span></div>
+    <div>Agents <span class="v">8 active</span></div>
+    <div>KB <span class="v">210 entries</span></div>
+    <div>Status <span class="g">● OPERATIONAL</span></div>
+  </div>
+</div>
+
+<!-- 00 · PLATFORM IDENTITY -->
+<div class="sec">
+  <div class="sec-hdr"><span class="sec-num">00</span><span class="sec-title">⚡ Platform Identity + North Star</span></div>
+  <div class="ns">
+    <div class="ns-lbl">North Star v3 · Bloomberg Terminal for Media</div>
+    <div class="ns-mission">Audiences in Control via GenAI Synthetic Avatars</div>
+    <div class="ns-sub">B2B Research Intelligence (live) + B2C Synthetic Avatar (building) converge. 2035 = industry currency for the $300T content licensing market. The platform is the moat.</div>
+  </div>
+  <div class="g3" style="margin-bottom:14px;">
+    <div class="card-sm">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.1em;">IP Owner</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Shiv Ashish Sehgal</div>
+      <div style="font-size:11px;color:var(--muted);">15+ yrs M&E · RSG Databricks 2018–2024 · Clean IP · First commercial impl = SaSMaster</div>
+    </div>
+    <div class="card-sm">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.1em;">Core IP Assets</div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--lavender);line-height:2;">Parent Key · MM-Asset-ID<br>Data Orchestration Layer<br>GN-Nielsen Matching<br>SoV Index · Prophet™</div>
+    </div>
+    <div class="card-sm">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.1em;">4 Service Lines</div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--teal-d);line-height:2;">Data Analytics<br>Research-aaS<br>Data Science-aaS<br>GenAI-aaS</div>
+    </div>
+  </div>
+  <div class="ob">
+    <div class="ob-t">3 Platform Principles</div>
+    <div class="pr"><span class="pn-tag">MODULAR</span><span class="pr-desc">Every component belongs to a layer. Layers communicate via defined interfaces only. No layer owns another. Each independently deployable, scalable, replaceable, testable, sellable.</span></div>
+    <div class="pr"><span class="pn-tag">AUTOMATION &gt; MANUAL</span><span class="pr-desc">When a choice exists between manual and automated, automated always wins. Manual = fallback only. Memory tracking, sync, health checks, deploys, reporting — all automated.</span></div>
+    <div class="pr"><span class="pn-tag">INTELLIGENT MONITORING</span><span class="pr-desc">Every layer junction is a monitoring point. Raw events → hub → rules engine → weighted alert. Pattern-based alerting. Human reviews outcomes, not process.</span></div>
+  </div>
+</div>
+
+<!-- 01 · MODULAR INFRASTRUCTURE -->
+<div class="sec">
+  <div class="sec-hdr"><span class="sec-num">01</span><span class="sec-title">🏗 Modular Infrastructure Stack</span></div>
+  <div class="dw">
+    <div class="dl">5-layer modular stack · each arrow = defined interface contract · replace any layer without touching others</div>
+    <svg width="100%" viewBox="0 0 1060 428" role="img">
+      <title>SaSMaster Modular Infrastructure Stack</title>
+      <desc>Five independent modular layers: Trigger, Execution, Data, Storage, Presentation, each connected by labeled interface arrows</desc>
+      <defs>
+        <marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <!-- TRIGGER -->
+      <rect x="0" y="0" width="1060" height="60" rx="8" fill="#EDE9FE" stroke="rgba(124,58,237,0.3)" stroke-width="0.5"/>
+      <rect x="0" y="0" width="5" height="60" rx="3" fill="#7C3AED"/>
+      <text x="22" y="22" font-family="'DM Mono',monospace" font-size="10" font-weight="600" fill="#7C3AED" letter-spacing="0.08em">TRIGGER</text>
+      <text x="22" y="40" font-family="'DM Mono',monospace" font-size="11" fill="#4C1D95">JARVIS Socket Mode · command-api Node.js · Railway (INFRA-CLOUD-001 pending)</text>
+      <text x="22" y="55" font-family="'DM Mono',monospace" font-size="10" fill="#7C3AED">Cloudflare Tunnel → api.sasmaster.dev · #ui→ui-designer · #viz→data-viz · #data/#infra→autonomous-coder</text>
+      <rect x="970" y="18" width="82" height="20" rx="10" fill="rgba(245,158,11,0.12)" stroke="rgba(245,158,11,0.3)" stroke-width="0.5"/>
+      <text x="1011" y="28" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="9" fill="#92400E">PENDING</text>
+      <!-- Arrow 1 -->
+      <line x1="180" y1="60" x2="180" y2="92" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a1)"/>
+      <line x1="530" y1="60" x2="530" y2="92" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a1)"/>
+      <text x="355" y="79" text-anchor="middle" font-family="'DM Mono',monospace" font-size="10" fill="#94A3B8">task payload + trace_id</text>
+      <!-- EXECUTION -->
+      <rect x="0" y="92" width="1060" height="60" rx="8" fill="#E0F2FE" stroke="rgba(3,105,161,0.3)" stroke-width="0.5"/>
+      <rect x="0" y="92" width="5" height="60" rx="3" fill="#0369A1"/>
+      <text x="22" y="114" font-family="'DM Mono',monospace" font-size="10" font-weight="600" fill="#0369A1" letter-spacing="0.08em">EXECUTION</text>
+      <text x="22" y="132" font-family="'DM Mono',monospace" font-size="11" fill="#0C4A6E">Claude Code · 8 sub-agents · autonomous build loop · cost-log.jsonl</text>
+      <text x="22" y="147" font-family="'DM Mono',monospace" font-size="10" fill="#0369A1">ui-designer → data-viz → autonomous-coder → qa-agent → deploy · PLAN=Opus4.7 · EXEC=Sonnet4.6</text>
+      <rect x="970" y="110" width="82" height="20" rx="10" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.25)" stroke-width="0.5"/>
+      <text x="1011" y="120" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="9" fill="#065F46">LIVE</text>
+      <!-- Arrow 2 -->
+      <line x1="180" y1="152" x2="180" y2="184" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a1)"/>
+      <line x1="530" y1="152" x2="530" y2="184" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a1)"/>
+      <text x="355" y="171" text-anchor="middle" font-family="'DM Mono',monospace" font-size="10" fill="#94A3B8">S3 writes (locked paths) · events.jsonl · cost-log.jsonl</text>
+      <!-- DATA -->
+      <rect x="0" y="184" width="1060" height="60" rx="8" fill="#D1FAE5" stroke="rgba(15,118,110,0.3)" stroke-width="0.5"/>
+      <rect x="0" y="184" width="5" height="60" rx="3" fill="#0F766E"/>
+      <text x="22" y="206" font-family="'DM Mono',monospace" font-size="10" font-weight="600" fill="#0F766E" letter-spacing="0.08em">DATA</text>
+      <text x="22" y="224" font-family="'DM Mono',monospace" font-size="11" fill="#064E3B">11 direct scrapers · 4 RSG API consumers · 23 cron jobs · DuckDB compute</text>
+      <text x="22" y="239" font-family="'DM Mono',monospace" font-size="10" fill="#0F766E">ra-linear-analytics-bundle bridge · GH Actions migration medium term · no Spark · no pandas at scale</text>
+      <rect x="970" y="202" width="82" height="20" rx="10" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.25)" stroke-width="0.5"/>
+      <text x="1011" y="212" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="9" fill="#065F46">LIVE</text>
+      <!-- Arrow 3 -->
+      <line x1="180" y1="244" x2="180" y2="276" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a1)"/>
+      <line x1="530" y1="244" x2="530" y2="276" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a1)"/>
+      <text x="355" y="263" text-anchor="middle" font-family="'DM Mono',monospace" font-size="10" fill="#94A3B8">parquet ZSTD · locked S3 paths · schema versioned</text>
+      <!-- STORAGE -->
+      <rect x="0" y="276" width="1060" height="60" rx="8" fill="#FEF3C7" stroke="rgba(180,83,9,0.3)" stroke-width="0.5"/>
+      <rect x="0" y="276" width="5" height="60" rx="3" fill="#B45309"/>
+      <text x="22" y="298" font-family="'DM Mono',monospace" font-size="10" font-weight="600" fill="#B45309" letter-spacing="0.08em">STORAGE</text>
+      <text x="22" y="316" font-family="'DM Mono',monospace" font-size="11" fill="#78350F">S3 sasmaster-2026 us-east-1 · 85.4 GB · DuckDB compute · Obsidian cold archive</text>
+      <text x="22" y="331" font-family="'DM Mono',monospace" font-size="10" fill="#B45309">memory-meta.json · audit trails · cost-log.jsonl · knowledge-bank/ 309 objects · nightly CI sync</text>
+      <rect x="970" y="294" width="82" height="20" rx="10" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.25)" stroke-width="0.5"/>
+      <text x="1011" y="304" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="9" fill="#065F46">LIVE</text>
+      <!-- Arrow 4 -->
+      <line x1="180" y1="336" x2="180" y2="368" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a1)"/>
+      <line x1="530" y1="336" x2="530" y2="368" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a1)"/>
+      <text x="355" y="355" text-anchor="middle" font-family="'DM Mono',monospace" font-size="10" fill="#94A3B8">read-only · SSE stream + 30s poll · no writes from presentation</text>
+      <!-- PRESENTATION -->
+      <rect x="0" y="368" width="1060" height="60" rx="8" fill="#EFF6FF" stroke="rgba(29,78,216,0.25)" stroke-width="0.5"/>
+      <rect x="0" y="368" width="5" height="60" rx="3" fill="#1D4ED8"/>
+      <text x="22" y="390" font-family="'DM Mono',monospace" font-size="10" font-weight="600" fill="#1D4ED8" letter-spacing="0.08em">PRESENTATION</text>
+      <text x="22" y="408" font-family="'DM Mono',monospace" font-size="11" fill="#1E3A8A">War Room (Vercel) · SaSMaster Portal (Vercel) · api.sasmaster.dev · Cloudflare global edge</text>
+      <text x="22" y="423" font-family="'DM Mono',monospace" font-size="10" fill="#1D4ED8">Nerve Center endpoints · Telemetry tab · Dr. Scoop companion · already cloud</text>
+      <rect x="970" y="386" width="82" height="20" rx="10" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.25)" stroke-width="0.5"/>
+      <text x="1011" y="396" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="9" fill="#065F46">LIVE</text>
+    </svg>
+  </div>
+  <div class="ob">
+    <div class="ob-t">Layer Interfaces</div>
+    <div class="og">
+      <div><div class="ol">Trigger → Execution</div><div class="ov">JARVIS sends task payload via /jobs/start. trace_id generated at command receipt, propagates through entire chain.</div></div>
+      <div><div class="ol">Execution → Storage</div><div class="ov">autonomous-coder writes to S3 via locked paths only. DuckDB reads parquet. cost-log.jsonl append-only.</div></div>
+      <div><div class="ol">Storage → Presentation</div><div class="ov">War Room polls /status every 30s. Kanban reads /api/tasks live. Memory strip reads /api/memory/status. All read-only.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 02 · JARVIS ORCHESTRATION -->
+<div class="sec">
+  <div class="sec-hdr"><span class="sec-num">02</span><span class="sec-title">🤖 JARVIS Orchestration Engine</span></div>
+  <div class="g2" style="margin-bottom:12px;">
+    <div class="card-sm">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em;">Commands</div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;line-height:2.2;color:var(--text);">
+        <code>!build</code> <span style="color:var(--muted);">trigger autonomous build loop</span><br>
+        <code>!task HIGH/MED</code> <span style="color:var(--muted);">inject task to TASKS.md</span><br>
+        <code>!status</code> <span style="color:var(--muted);">system health report</span><br>
+        <code>!briefing</code> <span style="color:var(--muted);">post daily briefing now</span><br>
+        <code>!debug</code> <code>!query</code> <code>!iab</code> <span style="color:var(--muted);">agent triggers</span>
+      </div>
+    </div>
+    <div class="card-sm">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em;">⚠️ Critical — Slack Trigger Rule</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:10px;">JARVIS <code>event.bot_id</code> guard silently drops all API-posted messages. Every <code>!build</code> must be <strong style="color:var(--text);">human-typed directly in Slack</strong>. Never route via API post.</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.1em;">Intent Routing (Sprint 10)</div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;line-height:2;color:var(--muted);"><code>#ui</code> → <span style="color:var(--lavender);font-weight:500;">ui-designer</span> &nbsp;<code>#viz</code> → <span style="color:var(--teal-d);font-weight:500;">data-viz</span><br><code>#data</code> <code>#infra</code> → <span style="color:var(--green-d);font-weight:500;">autonomous-coder</span></div>
+    </div>
+  </div>
+  <div class="dw">
+    <div class="dl">JARVIS intent routing — !build command to specialist agent to mandatory QA gate</div>
+    <svg width="100%" viewBox="0 0 1060 248" role="img">
+      <title>JARVIS Intent Routing Tree</title>
+      <desc>JARVIS receives build command, intent classifier routes to specialist agent, all paths converge at mandatory QA gate</desc>
+      <defs>
+        <marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <!-- !build source -->
+      <rect x="380" y="8" width="300" height="40" rx="6" fill="#1E293B" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+      <text x="530" y="28" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="12" fill="#F8FAFC" font-weight="500">!build [task] typed in Slack</text>
+      <line x1="530" y1="48" x2="530" y2="76" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a2)"/>
+      <!-- Classifier -->
+      <rect x="350" y="76" width="360" height="50" rx="6" fill="#EDE9FE" stroke="rgba(124,58,237,0.35)" stroke-width="0.5"/>
+      <text x="530" y="97" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="12" fill="#4C1D95" font-weight="600">Intent Classifier</text>
+      <text x="530" y="116" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="10" fill="#7C3AED">reads TASKS.md tags · generates trace_id · posts routing decision to Slack</text>
+      <!-- 3 route arrows -->
+      <line x1="420" y1="126" x2="160" y2="162" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a2)"/>
+      <line x1="530" y1="126" x2="530" y2="162" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a2)"/>
+      <line x1="640" y1="126" x2="900" y2="162" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a2)"/>
+      <!-- Route labels -->
+      <text x="270" y="148" text-anchor="middle" font-family="'DM Mono',monospace" font-size="10" fill="#7C3AED">#ui tag</text>
+      <text x="530" y="148" text-anchor="middle" font-family="'DM Mono',monospace" font-size="10" fill="#0369A1">#viz tag</text>
+      <text x="790" y="148" text-anchor="middle" font-family="'DM Mono',monospace" font-size="10" fill="#0F766E">#data · #infra</text>
+      <!-- 3 Agent boxes -->
+      <rect x="40" y="162" width="240" height="52" rx="6" fill="#EDE9FE" stroke="rgba(124,58,237,0.3)" stroke-width="0.5"/>
+      <text x="160" y="183" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="12" fill="#4C1D95" font-weight="600">ui-designer</text>
+      <text x="160" y="201" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="10" fill="#7C3AED">portal · layout · tokens.md</text>
+      <rect x="400" y="162" width="260" height="52" rx="6" fill="#E0F2FE" stroke="rgba(3,105,161,0.3)" stroke-width="0.5"/>
+      <text x="530" y="183" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="12" fill="#0C4A6E" font-weight="600">data-viz</text>
+      <text x="530" y="201" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="10" fill="#0369A1">charts · D3 · amCharts · Sankey</text>
+      <rect x="780" y="162" width="240" height="52" rx="6" fill="#D1FAE5" stroke="rgba(15,118,110,0.3)" stroke-width="0.5"/>
+      <text x="900" y="183" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="12" fill="#064E3B" font-weight="600">autonomous-coder</text>
+      <text x="900" y="201" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="10" fill="#0F766E">build · pipeline · infra</text>
+      <!-- Converge to QA -->
+      <line x1="160" y1="214" x2="460" y2="230" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a2)"/>
+      <line x1="530" y1="214" x2="530" y2="230" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a2)"/>
+      <line x1="900" y1="214" x2="600" y2="230" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a2)"/>
+      <!-- QA Gate -->
+      <rect x="360" y="230" width="340" height="16" rx="4" fill="#FEF3C7" stroke="rgba(180,83,9,0.35)" stroke-width="0.5"/>
+      <text x="530" y="238" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="9" fill="#92400E" font-weight="600">qa-agent · MANDATORY GATE · PASS required before any deploy</text>
+    </svg>
+  </div>
+  <div class="card-sm">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.1em;">Autonomous Build Loop — AUTO-LOOP-001</div>
+    <div class="chain">
+      <div class="cs"><div class="csn" style="color:var(--lavender);">JARVIS</div><div class="csr">receives !build<br>generates trace_id</div></div>
+      <div class="cs"><div class="csn" style="color:var(--teal-d);">Route</div><div class="csr">tags → agent<br>post to Slack</div></div>
+      <div class="cs"><div class="csn" style="color:var(--green-d);">Execute</div><div class="csr">phase by phase<br>cost tracked</div></div>
+      <div class="cs"><div class="csn" style="color:var(--gold-d);">QA Gate</div><div class="csr">PASS required<br>no self-cert</div></div>
+      <div class="cs"><div class="csn" style="color:var(--blue-d);">Deploy</div><div class="csr">git commit<br>Vercel auto</div></div>
+      <div class="cs"><div class="csn" style="color:var(--muted);">DONE_LOG</div><div class="csr">Slack notify<br>memory nudge</div></div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px;">Circuit breakers: phase max $2 · 2 retries · 3h run limit · $30 run ceiling · QA mandatory — no exceptions</div>
+  </div>
+</div>
+
+<!-- 03 · AGENT FLEET -->
+<div class="sec">
+  <div class="sec-hdr"><span class="sec-num">03</span><span class="sec-title">🧠 Agent Fleet · 8 Active Agents</span></div>
+  <div class="g4" style="margin-bottom:12px;">
+    <div class="agc" style="border-color:rgba(124,58,237,0.2);"><div class="ag-name">ui-designer</div><div class="ag-model">sonnet-4-6 · Sprint 10</div><div class="ag-desc">Portal UI layout, component generation, token compliance. Co-loads autonomous-ui-designer + uiux-mastery + tokens.md.</div><span class="atag an">NEW ✦</span></div>
+    <div class="agc" style="border-color:rgba(14,165,233,0.15);"><div class="ag-name" style="color:var(--teal-d);">data-viz</div><div class="ag-model">sonnet-4-6 · Sprint 10</div><div class="ag-desc">D3/amCharts/Recharts, Sankey, bubble clouds. init(data, containerId) API standard. Co-loads data-viz skill.</div><span class="atag an">NEW ✦</span></div>
+    <div class="agc"><div class="ag-name">autonomous-coder</div><div class="ag-model">sonnet-4-6 · Core</div><div class="ag-desc">Build execution, cost-log SOLE write surface. Layer 7 transparency. Phase I pipeline authority.</div><span class="atag ac">CORE</span></div>
+    <div class="agc"><div class="ag-name">qa-agent</div><div class="ag-model">sonnet-4-6 · Core</div><div class="ag-desc">15-check Puppeteer post-build validator. Writes TASKS.md DRAFT on fail. Mandatory gate — no exceptions.</div><span class="atag ac">CORE</span></div>
+    <div class="agc"><div class="ag-name">lessons-feedback</div><div class="ag-model">sonnet-4-6 · Core</div><div class="ag-desc">SLC 3-tier pipeline, DONE_LOG analysis, skill promotion. Runs Friday 5:50PM automatically.</div><span class="atag ac">CORE</span></div>
+    <div class="agc"><div class="ag-name" style="color:var(--teal-d);">scraper-debugger</div><div class="ag-model">sonnet-4-6 · Data</div><div class="ag-desc">Read-only scraper triage. ROOT_CAUSE / FIX / VALIDATION format. Triggered via !debug.</div><span class="atag ad">DATA</span></div>
+    <div class="agc"><div class="ag-name" style="color:var(--teal-d);">data-modeler</div><div class="ag-model">opus-4-5 · Data</div><div class="ag-desc">Schema design, migration risk. Read-only. Highest model tier — reserved for architecture decisions only.</div><span class="atag ad">DATA</span></div>
+    <div class="agc"><div class="ag-name">jarvis-ops</div><div class="ag-model">sonnet-4-5 · Core</div><div class="ag-desc">JARVIS daemon ops, cron management, Slack routing, system health. Operational layer authority.</div><span class="atag ac">CORE</span></div>
+  </div>
+  <div class="card-sm">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.1em;">3-Agent Build Chain · ~/SaSMaster/docs/agent-handoff-protocol.md</div>
+    <div class="chain">
+      <div class="cs" style="background:#EDE9FE;"><div class="csn" style="color:#4C1D95;">ui-designer</div><div class="csr">screen layout<br>placeholder containers</div></div>
+      <div class="cs" style="background:#E0F2FE;"><div class="csn" style="color:var(--teal-d);">data-viz</div><div class="csr">viz components<br>init(data, id) API</div></div>
+      <div class="cs" style="background:#D1FAE5;"><div class="csn" style="color:var(--green-d);">autonomous-coder</div><div class="csr">wires real data<br>calls init()</div></div>
+      <div class="cs" style="background:#FEF3C7;"><div class="csn" style="color:var(--gold-d);">qa-agent</div><div class="csr">end-to-end validate<br>PASS/FAIL/WARN</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 04 · SKILL LAYER -->
+<div class="sec">
+  <div class="sec-hdr"><span class="sec-num">04</span><span class="sec-title">📚 Skill Layer · ~/.claude/skills/</span></div>
+  <div style="margin-bottom:10px;"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em;">User Skills — SaSMaster specific</div>
+  <div class="sc-cloud"><span class="chip cu">autonomous-ui-designer</span><span class="chip cu">uiux-mastery</span><span class="chip cu">data-viz</span><span class="chip cu">fullstack-architect</span><span class="chip cu">jarvis-ops</span><span class="chip cu">s3-data-architect</span><span class="chip cu">duckdb-parquet</span><span class="chip cu">scraper-engineer</span><span class="chip cu">media-domain</span><span class="chip cu">qa-agent</span><span class="chip cu">no-fingerprints</span><span class="chip cu">math-mastery</span><span class="chip cu">ableton-sme</span><span class="chip cu">programming-researcher</span><span class="chip cu">shiv-executive-profile</span><span class="chip cu">sow-consultant</span><span class="chip cu">linkedin-thought-leader</span><span class="chip cu">emba-analyst</span><span class="chip cn">platform-observability ✦ NEW</span></div></div>
+  <div><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em;">Public Skills</div>
+  <div class="sc-cloud"><span class="chip cp">frontend-design</span><span class="chip cp">docx</span><span class="chip cp">pdf</span><span class="chip cp">pptx</span><span class="chip cp">xlsx</span><span class="chip cp">file-reading</span><span class="chip cp">pdf-reading</span></div></div>
+  <div class="ob">
+    <div class="ob-t">Skill Law</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.6;">Token authority delegated to <code>design-system/tokens.md v1.0</code> — skills reference it, never redefine tokens. <strong style="color:var(--text);">If a principle matters enough to discuss 10+ minutes, encode it in a skill.</strong> Skills encode platform principles permanently. Every agent loads relevant skills at invocation start.</div>
+  </div>
+</div>
+
+<!-- 05 · MEMORY SYSTEM -->
+<div class="sec">
+  <div class="sec-hdr"><span class="sec-num">05</span><span class="sec-title">🧩 Memory System · 4-Layer Architecture</span></div>
+  <div class="dw" style="margin-bottom:12px;">
+    <div class="dl">Memory hierarchy — entries flow DOWN only, never deleted · accumulation above threshold triggers hygiene</div>
+    <svg width="100%" viewBox="0 0 1060 128" role="img">
+      <title>SaSMaster 4-Layer Memory Architecture</title>
+      <desc>HOT claude.ai 22/30 flows to WARM CLAUDE_MEMORY.md 80 lines, then COLD Obsidian 10 entries, then S3 ARCHIVE 309 objects</desc>
+      <defs>
+        <marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <!-- HOT -->
+      <rect x="0" y="8" width="238" height="112" rx="8" fill="#EDE9FE" stroke="rgba(124,58,237,0.3)" stroke-width="0.5"/>
+      <rect x="0" y="8" width="238" height="30" rx="8" fill="rgba(124,58,237,0.2)"/>
+      <rect x="0" y="26" width="238" height="12" fill="rgba(124,58,237,0.2)"/>
+      <text x="119" y="23" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="11" fill="#4C1D95" font-weight="600">🔥 HOT</text>
+      <text x="119" y="56" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="11" fill="#1E293B">claude.ai</text>
+      <text x="119" y="72" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="10" fill="#7C3AED">memory_user_edits</text>
+      <rect x="16" y="84" width="206" height="5" rx="2" fill="#E2E8F0"/>
+      <rect x="16" y="84" width="150" height="5" rx="2" fill="#7C3AED" opacity="0.5"/>
+      <text x="119" y="108" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="13" fill="#4C1D95" font-weight="700">22 / 30 ✅</text>
+      <!-- Arrow -->
+      <line x1="238" y1="64" x2="272" y2="64" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a3)"/>
+      <text x="255" y="54" text-anchor="middle" font-family="'DM Mono',monospace" font-size="8" fill="#94A3B8">retire</text>
+      <!-- WARM -->
+      <rect x="272" y="8" width="238" height="112" rx="8" fill="#E0F2FE" stroke="rgba(3,105,161,0.25)" stroke-width="0.5"/>
+      <rect x="272" y="8" width="238" height="30" rx="8" fill="rgba(3,105,161,0.15)"/>
+      <rect x="272" y="26" width="238" height="12" fill="rgba(3,105,161,0.15)"/>
+      <text x="391" y="23" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="11" fill="#0C4A6E" font-weight="600">🌡 WARM</text>
+      <text x="391" y="56" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="11" fill="#1E293B">CLAUDE_MEMORY.md</text>
+      <text x="391" y="72" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="10" fill="#0369A1">Claude Code reads every session</text>
+      <rect x="288" y="84" width="206" height="5" rx="2" fill="#E2E8F0"/>
+      <rect x="288" y="84" width="206" height="5" rx="2" fill="#0369A1" opacity="0.4"/>
+      <text x="391" y="108" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="13" fill="#0C4A6E" font-weight="700">80 lines ✅</text>
+      <!-- Arrow -->
+      <line x1="510" y1="64" x2="544" y2="64" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a3)"/>
+      <text x="527" y="54" text-anchor="middle" font-family="'DM Mono',monospace" font-size="8" fill="#94A3B8">archive</text>
+      <!-- COLD -->
+      <rect x="544" y="8" width="238" height="112" rx="8" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="0.5"/>
+      <rect x="544" y="8" width="238" height="30" rx="8" fill="rgba(100,116,139,0.12)"/>
+      <rect x="544" y="26" width="238" height="12" fill="rgba(100,116,139,0.12)"/>
+      <text x="663" y="23" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="11" fill="#334155" font-weight="600">🧊 COLD</text>
+      <text x="663" y="56" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="11" fill="#1E293B">Obsidian vault</text>
+      <text x="663" y="72" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="10" fill="#64748B">_archive/hot-memory-retired/</text>
+      <rect x="560" y="84" width="206" height="5" rx="2" fill="#E2E8F0"/>
+      <rect x="560" y="84" width="82" height="5" rx="2" fill="#64748B" opacity="0.4"/>
+      <text x="663" y="108" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="13" fill="#475569" font-weight="700">10 entries</text>
+      <!-- Arrow -->
+      <line x1="782" y1="64" x2="816" y2="64" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a3)"/>
+      <text x="799" y="54" text-anchor="middle" font-family="'DM Mono',monospace" font-size="8" fill="#94A3B8">sync</text>
+      <!-- ARCHIVE -->
+      <rect x="816" y="8" width="244" height="112" rx="8" fill="#FEF3C7" stroke="rgba(180,83,9,0.25)" stroke-width="0.5"/>
+      <rect x="816" y="8" width="244" height="30" rx="8" fill="rgba(180,83,9,0.12)"/>
+      <rect x="816" y="26" width="244" height="12" fill="rgba(180,83,9,0.12)"/>
+      <text x="938" y="23" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="11" fill="#78350F" font-weight="600">📦 ARCHIVE</text>
+      <text x="938" y="56" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="11" fill="#1E293B">S3 sasmaster-2026</text>
+      <text x="938" y="72" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="10" fill="#B45309">knowledge-bank/ · CI nightly sync</text>
+      <rect x="832" y="84" width="212" height="5" rx="2" fill="#E2E8F0"/>
+      <rect x="832" y="84" width="127" height="5" rx="2" fill="#B45309" opacity="0.4"/>
+      <text x="938" y="108" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="13" fill="#92400E" font-weight="700">309 objects</text>
+    </svg>
+  </div>
+  <div class="mr"><div class="ml" style="color:var(--lavender);">🔥 HOT</div><div><div style="font-size:11px;color:var(--muted);margin-bottom:4px;">claude.ai memory_user_edits — what Claude carries in conversations</div><div class="mb-wrap"><div class="mb" style="width:73%;background:var(--lavender);"></div></div></div><div class="mp">claude.ai<br>memory_user_edits</div><div class="ms" style="color:var(--lavender);">22/30 ✅</div></div>
+  <div class="mr"><div class="ml" style="color:var(--teal-d);">🌡 WARM</div><div><div style="font-size:11px;color:var(--muted);margin-bottom:4px;">CLAUDE_MEMORY.md — Claude Code reads every session start</div><div class="mb-wrap"><div class="mb" style="width:100%;background:var(--teal);"></div></div></div><div class="mp">~/SaSMaster/<br>CLAUDE_MEMORY.md</div><div class="ms" style="color:var(--teal-d);">80 lines ✅</div></div>
+  <div class="mr"><div class="ml" style="color:#64748B;">🧊 COLD</div><div><div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Obsidian — retired entries, session logs, completed decisions</div><div class="mb-wrap"><div class="mb" style="width:35%;background:#94A3B8;"></div></div></div><div class="mp">obsidian/_archive/<br>hot-memory-retired/</div><div class="ms" style="color:#64748B;">10 entries</div></div>
+  <div class="mr"><div class="ml" style="color:var(--gold-d);">📦 ARCHIVE</div><div><div style="font-size:11px;color:var(--muted);margin-bottom:4px;">S3 knowledge-bank — long-term IP, KB entries (210), audit trails</div><div class="mb-wrap"><div class="mb" style="width:55%;background:var(--gold);"></div></div></div><div class="mp">s3://sasmaster-2026/<br>knowledge-bank/</div><div class="ms" style="color:var(--gold-d);">309 objects</div></div>
+  <div class="ob">
+    <div class="ob-t">Hygiene Protocol</div>
+    <div class="og">
+      <div><div class="ol">Trigger</div><div class="ov">WARM &gt; 100 lines → RULE-005 hygiene nudge. HOT &gt; 25 → manual review. Never run hygiene at &gt;50% Claude Code context.</div></div>
+      <div><div class="ol">Automation</div><div class="ov">update-memory.sh auto-writes warm.lines + warm.sha to memory-meta.json on every run. /api/memory/status reads live.</div></div>
+      <div><div class="ol">HOT Update</div><div class="ov">python3 one-liner post-hygiene updates hot.slots_used in memory-meta.json. Only manual touch — all else automated.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 06 · INTELLIGENT MONITORING -->
+<div class="sec">
+  <div class="sec-hdr"><span class="sec-num">06</span><span class="sec-title">📡 Intelligent Monitoring + Event Hub</span></div>
+  <div class="g2" style="margin-bottom:12px;">
+    <div class="card-sm">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em;">Event Schema — 7-field LOCKED</div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;line-height:2.2;color:var(--text);"><span style="color:var(--lavender);">ts</span> <span style="color:var(--muted);">ISO8601 UTC</span><br><span style="color:var(--lavender);">trace_id</span> <span style="color:var(--muted);">TASK-DATE-8uuid · links full op</span><br><span style="color:var(--lavender);">layer</span> <span style="color:var(--muted);">trigger|execution|data|storage|pres</span><br><span style="color:var(--lavender);">event_type</span> <span style="color:var(--muted);">snake_case from layer map</span><br><span style="color:var(--lavender);">severity</span> <span style="color:var(--muted);">info | warn | crit</span><br><span style="color:var(--lavender);">payload</span> <span style="color:var(--muted);">context key/values</span><br><span style="color:var(--lavender);">source</span> <span style="color:var(--muted);">script or agent name</span></div>
+    </div>
+    <div class="card-sm">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.1em;">Proportional Slack Routing</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:center;gap:10px;"><span class="pill pi">INFO</span><span style="font-size:12px;color:var(--muted);">#builds — quiet, no ping, plain text</span></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span class="pill pw">WARN</span><span style="font-size:12px;color:var(--muted);">#builds — ⚠️ prefix, visible, no ping</span></div>
+        <div style="display:flex;align-items:center;gap:10px;"><span class="pill pc">CRIT</span><span style="font-size:12px;color:var(--muted);">#builds — 🚨 prefix, @shiv direct ping</span></div>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:var(--muted);">Pattern-based alerting — rules fire on event patterns, not individual events. Same rule + trace_id = one alert.</div>
+    </div>
+  </div>
+  <div class="dw" style="margin-bottom:12px;">
+    <div class="dl">Event hub — all 5 layers emit structured events · rules engine routes to outputs intelligently</div>
+    <svg width="100%" viewBox="0 0 1060 230" role="img">
+      <title>SaSMaster Event Hub Architecture</title>
+      <desc>Five layers emit events to central hub. Hub feeds Rules Engine for pattern alerting, SSE stream for War Room telemetry, and Dr. Scoop for CRIT diagnosis</desc>
+      <defs>
+        <marker id="a4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <!-- Left: 5 emitter boxes -->
+      <rect x="0" y="10" width="160" height="30" rx="5" fill="#EDE9FE" stroke="rgba(124,58,237,0.3)" stroke-width="0.5"/>
+      <text x="80" y="25" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="11" fill="#4C1D95" font-weight="500">TRIGGER</text>
+      <rect x="0" y="52" width="160" height="30" rx="5" fill="#E0F2FE" stroke="rgba(3,105,161,0.3)" stroke-width="0.5"/>
+      <text x="80" y="67" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="11" fill="#0C4A6E" font-weight="500">EXECUTION</text>
+      <rect x="0" y="94" width="160" height="30" rx="5" fill="#D1FAE5" stroke="rgba(15,118,110,0.3)" stroke-width="0.5"/>
+      <text x="80" y="109" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="11" fill="#064E3B" font-weight="500">DATA</text>
+      <rect x="0" y="136" width="160" height="30" rx="5" fill="#FEF3C7" stroke="rgba(180,83,9,0.3)" stroke-width="0.5"/>
+      <text x="80" y="151" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="11" fill="#78350F" font-weight="500">STORAGE</text>
+      <rect x="0" y="178" width="160" height="30" rx="5" fill="#EFF6FF" stroke="rgba(29,78,216,0.25)" stroke-width="0.5"/>
+      <text x="80" y="193" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="11" fill="#1E3A8A" font-weight="500">PRESENTATION</text>
+      <!-- Dashed lines to hub -->
+      <line x1="160" y1="25" x2="348" y2="100" stroke="rgba(124,58,237,0.3)" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <line x1="160" y1="67" x2="348" y2="107" stroke="rgba(3,105,161,0.3)" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <line x1="160" y1="109" x2="348" y2="115" stroke="rgba(15,118,110,0.3)" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <line x1="160" y1="151" x2="348" y2="122" stroke="rgba(180,83,9,0.3)" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <line x1="160" y1="193" x2="348" y2="130" stroke="rgba(29,78,216,0.2)" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <!-- Hub -->
+      <rect x="348" y="76" width="200" height="70" rx="10" fill="#1E293B" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+      <text x="448" y="100" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="13" fill="#F8FAFC" font-weight="600">EVENT HUB</text>
+      <text x="448" y="118" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="10" fill="#94A3B8">events.jsonl · 7-field schema</text>
+      <text x="448" y="134" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="9" fill="#64748B">emit-event.sh · SSE stream</text>
+      <!-- Arrows to outputs -->
+      <line x1="548" y1="96" x2="716" y2="42" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a4)"/>
+      <line x1="548" y1="111" x2="716" y2="113" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a4)"/>
+      <line x1="548" y1="126" x2="716" y2="183" stroke="#CBD5E1" stroke-width="0.5" marker-end="url(#a4)"/>
+      <!-- Right: 3 output boxes -->
+      <rect x="716" y="10" width="344" height="64" rx="8" fill="#FEE2E2" stroke="rgba(239,68,68,0.25)" stroke-width="0.5"/>
+      <text x="888" y="32" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="12" fill="#991B1B" font-weight="600">Rules Engine</text>
+      <text x="888" y="52" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="10" fill="#DC2626">9 rules · INFO/WARN/CRIT → Slack @shiv</text>
+      <rect x="716" y="86" width="344" height="54" rx="8" fill="#E0F2FE" stroke="rgba(3,105,161,0.2)" stroke-width="0.5"/>
+      <text x="888" y="107" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="12" fill="#0C4A6E" font-weight="600">SSE Stream + Telemetry</text>
+      <text x="888" y="126" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="10" fill="#0369A1">War Room live feed · trace_id correlation</text>
+      <rect x="716" y="152" width="344" height="64" rx="8" fill="#EDE9FE" stroke="rgba(124,58,237,0.2)" stroke-width="0.5"/>
+      <text x="888" y="174" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="12" fill="#4C1D95" font-weight="600">Dr. Scoop Diagnostics</text>
+      <text x="888" y="194" text-anchor="middle" dominant-baseline="central" font-family="'DM Mono',monospace" font-size="10" fill="#7C3AED">CRIT → AI diagnosis in plain English</text>
+    </svg>
+  </div>
+  <div class="card-sm">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.1em;">9 Alert Rules — INFRA-MONITOR-001</div>
+    <div class="rr" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);font-weight:600;letter-spacing:0.06em;padding-bottom:8px;"><span>RULE</span><span>PATTERN</span><span style="text-align:center;">SEVERITY</span><span>ACTION</span></div>
+    <div class="rr"><span class="rid">RULE-001</span><span>phase_failed ≥ 2 same trace_id</span><span style="text-align:center;"><span class="pill pc">CRIT</span></span><span class="ract">pause loop</span></div>
+    <div class="rr"><span class="rid">RULE-002</span><span>cost_update > $2 single phase</span><span style="text-align:center;"><span class="pill pw">WARN</span></span><span class="ract">pause + approve</span></div>
+    <div class="rr"><span class="rid">RULE-003</span><span>scraper_completed missing > 24h</span><span style="text-align:center;"><span class="pill pw">WARN</span></span><span class="ract">Slack alert</span></div>
+    <div class="rr"><span class="rid">RULE-004</span><span>cron_missed × 2 consecutive</span><span style="text-align:center;"><span class="pill pc">CRIT</span></span><span class="ract">@shiv ping</span></div>
+    <div class="rr"><span class="rid">RULE-005</span><span>WARM memory lines > 100</span><span style="text-align:center;"><span class="pill pi">INFO</span></span><span class="ract">hygiene nudge</span></div>
+    <div class="rr"><span class="rid">RULE-006</span><span>JARVIS no heartbeat > 10 min</span><span style="text-align:center;"><span class="pill pc">CRIT</span></span><span class="ract">auto restart</span></div>
+    <div class="rr"><span class="rid">RULE-007</span><span>data_anomaly: row_count < 80% expected</span><span style="text-align:center;"><span class="pill pw">WARN</span></span><span class="ract">flag + alert</span></div>
+    <div class="rr"><span class="rid">RULE-008</span><span>deploy_completed + qa_result:FAIL same trace</span><span style="text-align:center;"><span class="pill pc">CRIT</span></span><span class="ract">rollback signal</span></div>
+    <div class="rr"><span class="rid">RULE-009</span><span>schema_violation detected any layer</span><span style="text-align:center;"><span class="pill pc">CRIT</span></span><span class="ract">halt pipeline</span></div>
+  </div>
+</div>
+
+<!-- 07 · DATA PIPELINE -->
+<div class="sec">
+  <div class="sec-hdr"><span class="sec-num">07</span><span class="sec-title">🗄 Data Pipeline · S3 Architecture</span></div>
+  <div class="phrow" style="border-left:3px solid var(--green);"><div class="phid">PHASE 1 <span class="pill pl">LIVE</span></div><div class="phdesc"><strong>TMDB + IMDB + Parent Key Resolver</strong> · 589K IMDB-matched movies · tmdb_dev/ + imdb/ + parent_keys/v1/ · DuckDB</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">85.4 GB</div></div>
+  <div class="phrow" style="border-left:3px solid var(--gold);"><div class="phid">PHASE 1b <span class="pill pp">PENDING</span></div><div class="phdesc"><strong>EIDR Backfill</strong> · 589,814 tconsts → EIDR IDs · parent_keys/v1b/ · auth gate pending</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">~60–85%</div></div>
+  <div class="phrow" style="border-left:3px solid var(--teal);"><div class="phid">PHASE 2a <span class="pill pn">NEXT</span></div><div class="phdesc"><strong>RSG API Snapshots</strong> · ra-linear-analytics-bundle bridge · rsg_snap/ · 4 consumers</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">bridge ready</div></div>
+  <div class="phrow" style="border-left:2px solid var(--border2);"><div class="phid">PHASE 2b <span class="pill pf">FUTURE</span></div><div class="phdesc"><strong>Direct Nielsen</strong> · AMRLD person-level panel · 1-min qualifier · QoQ PID three-state</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);">post-license</div></div>
+  <div class="ob">
+    <div class="ob-t">S3 Locked Paths — sasmaster-2026 us-east-1</div>
+    <div class="og">
+      <div><div class="ol">TMDB</div><div class="ov">tmdb_dev/ bulk NDJSON<br>tmdb_dev/deltas/ biweekly</div></div>
+      <div><div class="ol">IMDB + Parent Key</div><div class="ov">imdb/&lt;dataset&gt;/YYYY-MM-DD/data.parquet<br>parent_keys/v1/YYYY-MM-DD/{movies,tv}.parquet</div></div>
+      <div><div class="ol">Schema LOCKED</div><div class="ov">COALESCE(imdb_tconst, 'tmdb_mov_&lt;id&gt;'|'tmdb_tv_&lt;id&gt;')<br>DuckDB over S3 · no Spark · no pandas at scale</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 08 · PORTAL SURFACES -->
+<div class="sec">
+  <div class="sec-hdr"><span class="sec-num">08</span><span class="sec-title">🖥 Portal Surfaces · Design System</span></div>
+  <div class="g4" style="margin-bottom:12px;">
+    <div class="ptab" style="border-color:rgba(124,58,237,0.2);"><div class="ptab-name" style="color:var(--lavender);">CONTENT</div><div class="ptab-desc">Programming Research · schedule · audience flow · segmentation</div><div style="margin-top:8px;"><span class="pill pl">priority build</span></div></div>
+    <div class="ptab"><div class="ptab-name">ADVERTISING</div><div class="ptab-desc">Ad Research · AdVant™ · IAB · CPM analytics</div><div style="margin-top:8px;"><span class="pill pp">stub</span></div></div>
+    <div class="ptab"><div class="ptab-name">MARKETING</div><div class="ptab-desc">Audience segments · psychographics · affinity</div><div style="margin-top:8px;"><span class="pill pp">stub</span></div></div>
+    <div class="ptab"><div class="ptab-name">CPG</div><div class="ptab-desc">CPG Research · consumer panel · intent</div><div style="margin-top:8px;"><span class="pill pp">stub</span></div></div>
+  </div>
+  <div class="g2">
+    <div class="card-sm"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em;">Portal — Dark Cinematic</div><div style="font-family:'DM Mono',monospace;font-size:11px;line-height:2.1;"><span style="display:inline-block;width:10px;height:10px;background:#0a0a0f;border-radius:2px;vertical-align:middle;margin-right:6px;border:1px solid var(--border2);"></span><span style="color:var(--muted);">--bg-base</span> <span style="color:var(--text);">#0a0a0f</span><br><span style="display:inline-block;width:10px;height:10px;background:#a78bfa;border-radius:2px;vertical-align:middle;margin-right:6px;"></span><span style="color:var(--muted);">--lavender</span> <span style="color:var(--text);">#a78bfa</span><br><span style="display:inline-block;width:10px;height:10px;background:#22d3ee;border-radius:2px;vertical-align:middle;margin-right:6px;"></span><span style="color:var(--muted);">--teal</span> <span style="color:var(--text);">#22d3ee</span><br><span style="display:inline-block;width:10px;height:10px;background:#f59e0b;border-radius:2px;vertical-align:middle;margin-right:6px;"></span><span style="color:var(--muted);">--gold</span> <span style="color:var(--text);">#f59e0b</span><br><span style="color:var(--muted);">Bebas Neue · Barlow Condensed · Share Tech Mono</span></div></div>
+    <div class="card-sm"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em;">War Room — Analyst Light</div><div style="font-family:'DM Mono',monospace;font-size:11px;line-height:2.1;"><span style="display:inline-block;width:10px;height:10px;background:#F0F4F8;border-radius:2px;vertical-align:middle;margin-right:6px;border:1px solid var(--border2);"></span><span style="color:var(--muted);">--canvas</span> <span style="color:var(--text);">#F0F4F8</span><br><span style="display:inline-block;width:10px;height:10px;background:#7C3AED;border-radius:2px;vertical-align:middle;margin-right:6px;"></span><span style="color:var(--muted);">--lavender</span> <span style="color:var(--text);">#A682F2</span><br><span style="display:inline-block;width:10px;height:10px;background:#0EA5E9;border-radius:2px;vertical-align:middle;margin-right:6px;"></span><span style="color:var(--muted);">--teal</span> <span style="color:var(--text);">#0EA5E9</span><br><span style="display:inline-block;width:10px;height:10px;background:#10B981;border-radius:2px;vertical-align:middle;margin-right:6px;"></span><span style="color:var(--muted);">--green</span> <span style="color:var(--text);">#10B981</span><br><span style="color:var(--muted);">DM Sans · DM Mono (this document)</span></div></div>
+  </div>
+  <div style="margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;">Token authority: <code>~/SaSMaster/design-system/tokens.md v1.0</code> — single source of truth. Dr. Scoop floating companion on every portal screen — never remove.</div>
+</div>
+
+<!-- 09 · NERVE CENTER -->
+<div class="sec">
+  <div class="sec-hdr"><span class="sec-num">09</span><span class="sec-title">🔗 Nerve Center · Live Endpoints</span></div>
+  <div class="card-sm">
+    <div class="er" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);font-weight:600;letter-spacing:0.06em;padding-bottom:8px;"><span>ENDPOINT</span><span>RETURNS</span><span>STATUS</span></div>
+    <div class="er"><span class="eu">sasmaster-status.vercel.app</span><span class="ed">War Room — source of truth, live Kanban, agent health, S3 grid, cost</span><span><span class="pill pl">live</span></span></div>
+    <div class="er"><span class="eu">api.sasmaster.dev/api/tasks</span><span class="ed">Live Kanban JSON — all tasks by state. claude.ai can read this live when URL pasted.</span><span><span class="pill pl">live</span></span></div>
+    <div class="er"><span class="eu">api.sasmaster.dev/api/memory/status</span><span class="ed">4-layer memory health — HOT slots, WARM lines, COLD, S3. Reads memory-meta.json.</span><span><span class="pill pl">live</span></span></div>
+    <div class="er"><span class="eu">api.sasmaster.dev/api/events/stream</span><span class="ed">SSE event stream — real-time events from all 5 layers. 25s heartbeat.</span><span><span class="pill pl">live</span></span></div>
+    <div class="er"><span class="eu">api.sasmaster.dev/api/alerts</span><span class="ed">Last 50 alerts from rules engine — filterable by severity.</span><span><span class="pill pp">INFRA-MONITOR-001</span></span></div>
+    <div class="er"><span class="eu">api.sasmaster.dev/api/telemetry/summary</span><span class="ed">4 KPI metrics: events today, active traces, alerts 24h, avg phase time.</span><span><span class="pill pp">INFRA-TELEMETRY-001</span></span></div>
+  </div>
+  <div style="margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radi
