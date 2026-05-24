@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-24T07:22:55.237Z",
+  "generated": "2026-05-24T07:37:50.877Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -1101,7 +1101,7 @@
       "object_count": 7777,
       "last_updated": "2026-04-30T17:45:13.000Z",
       "fresh": false,
-      "age_hours": 565.6,
+      "age_hours": 565.9,
       "entities": {
         "movies": 1186402,
         "tv_series": 220147,
@@ -1120,7 +1120,7 @@
       "object_count": 7,
       "last_updated": "2026-04-21T23:00:01.000Z",
       "fresh": false,
-      "age_hours": 776.4,
+      "age_hours": 776.6,
       "entities": {
         "movies": 743825,
         "tv_series": 298238,
@@ -1139,7 +1139,7 @@
       "object_count": 7,
       "last_updated": "2026-04-28T11:29:34.000Z",
       "fresh": false,
-      "age_hours": 619.9,
+      "age_hours": 620.1,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1158,7 +1158,7 @@
       "object_count": 1,
       "last_updated": "2026-04-21T23:04:10.000Z",
       "fresh": false,
-      "age_hours": 776.3,
+      "age_hours": 776.6,
       "entities": {
         "movies": 861878,
         "tv_series": null,
@@ -1177,7 +1177,7 @@
       "object_count": 34,
       "last_updated": "2026-04-22T07:44:59.000Z",
       "fresh": false,
-      "age_hours": 767.6,
+      "age_hours": 767.9,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1196,7 +1196,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:47:11.000Z",
       "fresh": false,
-      "age_hours": 772.6,
+      "age_hours": 772.8,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1215,7 +1215,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:38:36.000Z",
       "fresh": false,
-      "age_hours": 772.7,
+      "age_hours": 773,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1234,7 +1234,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T04:42:21.000Z",
       "fresh": false,
-      "age_hours": 770.7,
+      "age_hours": 770.9,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1253,7 +1253,7 @@
       "object_count": 14,
       "last_updated": "2026-04-22T07:53:17.000Z",
       "fresh": false,
-      "age_hours": 767.5,
+      "age_hours": 767.7,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1272,7 +1272,7 @@
       "object_count": 5,
       "last_updated": "2026-04-22T01:13:31.000Z",
       "fresh": false,
-      "age_hours": 774.2,
+      "age_hours": 774.4,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1291,7 +1291,7 @@
       "object_count": 3,
       "last_updated": "2026-04-29T02:57:31.000Z",
       "fresh": false,
-      "age_hours": 604.4,
+      "age_hours": 604.7,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1406,6 +1406,14 @@
       "time": "*/4:0",
       "name": "token refresh 4h",
       "command": "bash /Users/shivashish/SaSMaster/scripts/refresh-claude-token.sh >> /Users/shivashish/SaSMaster/logs/token-refresh.log 2>&1",
+      "channel": "—",
+      "weekly": false,
+      "status": "pending"
+    },
+    {
+      "time": "*:*/5",
+      "name": "rules engine 5min",
+      "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/rules-engine.js >> /Users/shivashish/SaSMaster/logs/rules-engine.log 2>&1",
       "channel": "—",
       "weekly": false,
       "status": "pending"
