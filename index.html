@@ -1774,6 +1774,43 @@ function authHeaders() {
 }
 
 // ══════════════════════════════════════════════════════════
+// RATE-LIMIT-AWARE FETCH WRAPPER
+// Handles 429 from Cloudflare or Railway. Shows a toast and
+// throws so callers can skip their update cycle gracefully.
+// ══════════════════════════════════════════════════════════
+let _rateLimitedUntil = 0;
+
+async function apiFetch(url, opts = {}) {
+  // If we're in a backoff window, skip immediately
+  if (Date.now() < _rateLimitedUntil) {
+    const secsLeft = Math.ceil((_rateLimitedUntil - Date.now()) / 1000);
+    throw Object.assign(new Error('rate_limited'), { rateLimited: true, secsLeft });
+  }
+  const r = await fetch(url, opts);
+  if (r.status === 429) {
+    const retryAfter = parseInt(r.headers.get('retry-after') || '60', 10);
+    _rateLimitedUntil = Date.now() + retryAfter * 1000;
+    _showRateLimitToast(retryAfter);
+    throw Object.assign(new Error('rate_limited'), { rateLimited: true, secsLeft: retryAfter });
+  }
+  return r;
+}
+
+function _showRateLimitToast(seconds) {
+  let toast = document.getElementById('sm-rate-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'sm-rate-toast';
+    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#7c3aed;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.4);transition:opacity .3s';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = `Rate limited by Cloudflare — pausing ${seconds}s`;
+  toast.style.opacity = '1';
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => { toast.style.opacity = '0'; }, Math.min(seconds * 1000, 8000));
+}
+
+// ══════════════════════════════════════════════════════════
 // GLOBAL STATE
 // ══════════════════════════════════════════════════════════
 let _lastData = null;
@@ -1814,7 +1851,7 @@ async function loadStatus() {
   ];
   for (const src of sources) {
     try {
-      const r = await fetch(src.url + '?t=' + Date.now());
+      const r = await apiFetch(src.url + '?t=' + Date.now());
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const d = await r.json();
       _lastData = d;
@@ -1839,7 +1876,7 @@ async function loadStatus() {
 // Live kanban fetch — replaces stale status.json kanban with fresh TASKS.md parse
 async function loadKanbanLive() {
   try {
-    const r = await fetch(apiUrl('/tasks/kanban') + '&t=' + Date.now());
+    const r = await apiFetch(apiUrl('/tasks/kanban') + '&t=' + Date.now());
     if (!r.ok) return;
     const kb = await r.json();
     populateKanban(_lastData || {}, kb);
@@ -1862,7 +1899,7 @@ async function loadKanbanLive() {
 // Cost KPI fetch — tries live command-api, falls back to cost_summary in status.json
 async function loadCostKPI() {
   try {
-    const r = await fetch(apiUrl('/cost-log') + '&t=' + Date.now());
+    const r = await apiFetch(apiUrl('/cost-log') + '&t=' + Date.now());
     if (!r.ok) throw new Error('not-ok');
     const data = await r.json();
     const s = data.summary || {};
@@ -2451,7 +2488,7 @@ async function taskAction(action, id, btn) {
   btn.disabled = true;
   btn.textContent = '…';
   try {
-    const r = await fetch(apiUrl(`/tasks/${id}/${action}`), {
+    const r = await apiFetch(apiUrl(`/tasks/${id}/${action}`), {
       method: 'POST', headers: authHeaders(),
       body: JSON.stringify({}),
     });
@@ -2514,22 +2551,22 @@ function initSortable() {
         }
 
         if (approvalId && action === 'complete') {
-          await fetch(apiUrl(`/approvals/${approvalId}/dismiss`), {
+          await apiFetch(apiUrl(`/approvals/${approvalId}/dismiss`), {
             method: 'POST', headers: authHeaders(), body: JSON.stringify({}),
           });
         } else if (action === 'block') {
           const reason = prompt('Block reason:');
           if (!reason) { evt.from.insertBefore(card, evt.from.children[evt.oldIndex] || null); return; }
-          await fetch(apiUrl(`/tasks/${taskId}/block`), {
+          await apiFetch(apiUrl(`/tasks/${taskId}/block`), {
             method: 'POST', headers: authHeaders(), body: JSON.stringify({ reason }),
           });
         } else if (action === 'complete') {
           const notes = prompt('Completion notes (optional):') || '';
-          await fetch(apiUrl(`/tasks/${taskId}/complete`), {
+          await apiFetch(apiUrl(`/tasks/${taskId}/complete`), {
             method: 'POST', headers: authHeaders(), body: JSON.stringify({ notes }),
           });
         } else {
-          await fetch(apiUrl(`/tasks/${taskId}/${action}`), {
+          await apiFetch(apiUrl(`/tasks/${taskId}/${action}`), {
             method: 'POST', headers: authHeaders(), body: JSON.stringify({}),
           });
         }
@@ -2544,7 +2581,7 @@ async function taskBlockPrompt(id, btn) {
   if (!reason) return;
   btn.disabled = true;
   try {
-    await fetch(apiUrl(`/tasks/${id}/block`), {
+    await apiFetch(apiUrl(`/tasks/${id}/block`), {
       method: 'POST', headers: authHeaders(),
       body: JSON.stringify({ reason }),
     });
@@ -2556,7 +2593,7 @@ async function taskCompletePrompt(id, btn) {
   const notes = prompt('Completion notes (optional):') || '';
   btn.disabled = true;
   try {
-    await fetch(apiUrl(`/tasks/${id}/complete`), {
+    await apiFetch(apiUrl(`/tasks/${id}/complete`), {
       method: 'POST', headers: authHeaders(),
       body: JSON.stringify({ notes }),
     });
@@ -2806,7 +2843,7 @@ async function triggerJob(jobId, btn) {
   const orig = btn.innerHTML;
   btn.innerHTML = '⏳'; btn.disabled = true;
   try {
-    const r = await fetch(apiUrl('/trigger'), {
+    const r = await apiFetch(apiUrl('/trigger'), {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({job: jobId})
@@ -2843,7 +2880,7 @@ async function openLogs(agentName, jobId, btn) {
   stream.innerHTML = '<div style="color:#475569;font-style:italic">Loading logs...</div>';
 
   try {
-    const r = await fetch(apiUrl('/logs?agent=' + encodeURIComponent(agentName)), {
+    const r = await apiFetch(apiUrl('/logs?agent=' + encodeURIComponent(agentName)), {
       headers: authHeaders()
     });
     if (r.status === 401) { stream.innerHTML = '<div style="color:#F87171">Auth error — check Vercel env vars</div>'; return; }
@@ -2884,7 +2921,7 @@ async function submitTask() {
   btn.disabled = true; btn.textContent = '⏳ Adding...';
 
   try {
-    const r = await fetch(apiUrl('/add-task'), {
+    const r = await apiFetch(apiUrl('/add-task'), {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({text, priority, tag})
@@ -2917,7 +2954,7 @@ async function submitTask() {
 // ══════════════════════════════════════════════════════════
 async function loadQueue() {
   try {
-    const d = await fetch(apiUrl('/queue'), { headers: authHeaders() }).then(r => r.json());
+    const d = await apiFetch(apiUrl('/queue'), { headers: authHeaders() }).then(r => r.json());
     // d has { high:[], medium:[], explore:[] } format from API
     const high = d.high || d.highItems || [];
     const med = d.medium || d.med || d.medItems || [];
@@ -3531,7 +3568,7 @@ async function diagFetchLog(task) {
   const agent = matchTaskToLog(task);
   if (!agent) { logEl.textContent = 'No log source matched for this task type.'; return; }
   try {
-    const r = await fetch(apiUrl(`/logs?agent=${encodeURIComponent(agent)}&lines=30`), { headers: authHeaders() });
+    const r = await apiFetch(apiUrl(`/logs?agent=${encodeURIComponent(agent)}&lines=30`), { headers: authHeaders() });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
     const lines = (data.content || '').split('\n').filter(Boolean);
@@ -3566,7 +3603,7 @@ What is likely wrong and what should be done next?`;
 
   try {
     out.innerHTML = '<span style="color:var(--text-3)">Analyzing…</span>';
-    const r = await fetch(apiUrl('/api/scoop/chat'), {
+    const r = await apiFetch(apiUrl('/api/scoop/chat'), {
       method: 'POST',
       headers: { ...authHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: prompt, context: 'ops-diagnosis' }),
@@ -3623,7 +3660,7 @@ async function loadTelemetryData() {
 // ── Events ────────────────────────────────────────────────
 async function telLoadEvents() {
   try {
-    const r = await fetch(apiUrl('/api/events/recent?limit=100') + '&t=' + Date.now());
+    const r = await apiFetch(apiUrl('/api/events/recent?limit=100') + '&t=' + Date.now());
     if (!r.ok) return;
     const d = await r.json();
     _telEvents = d.events || [];
@@ -3737,7 +3774,7 @@ function telSelectEvent(idx) {
 // ── Alerts ────────────────────────────────────────────────
 async function telLoadAlerts() {
   try {
-    const r = await fetch('https://api.sasmaster.dev/api/alerts?resolved=false&t=' + Date.now());
+    const r = await apiFetch('https://api.sasmaster.dev/api/alerts?resolved=false&t=' + Date.now());
     if (!r.ok) return;
     const d = await r.json();
     _telAlerts = d.alerts || [];
@@ -3769,7 +3806,7 @@ function telRenderAlerts() {
 // ── Build log ─────────────────────────────────────────────
 async function telLoadBuilds() {
   try {
-    const r = await fetch(apiUrl('/api/build-log/recent?limit=50') + '&t=' + Date.now());
+    const r = await apiFetch(apiUrl('/api/build-log/recent?limit=50') + '&t=' + Date.now());
     if (!r.ok) return;
     const d = await r.json();
     _telBuilds = d.builds || [];
@@ -3853,7 +3890,7 @@ async function telAskScoop() {
     if (diagEl) { diagEl.style.display = ''; diagEl.textContent = '⏳ Dr. Scoop is analyzing trace ' + (ev.trace_id || '…') + ' …'; }
     const traceEvts = ev.trace_id ? _telEvents.filter(e => e.trace_id === ev.trace_id) : [ev];
     try {
-      const r = await fetch('https://api.sasmaster.dev/api/scoop-diagnose', {
+      const r = await apiFetch('https://api.sasmaster.dev/api/scoop-diagnose', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ events: traceEvts.slice(0, 10), trace_id: ev.trace_id || null }),
@@ -3881,7 +3918,7 @@ async function telAskScoop() {
 // ── Fix queue ─────────────────────────────────────────────
 async function telLoadFixes() {
   try {
-    const r = await fetch(apiUrl('/api/fix-queue') + '&t=' + Date.now());
+    const r = await apiFetch(apiUrl('/api/fix-queue') + '&t=' + Date.now());
     if (!r.ok) return;
     const d = await r.json();
     _telFixes = d.fixes || [];
@@ -3923,7 +3960,7 @@ function telApproveFix(i, btn) {
 // ── KPIs ──────────────────────────────────────────────────
 async function telUpdateKPIs() {
   try {
-    const r = await fetch('https://api.sasmaster.dev/api/telemetry/summary?t=' + Date.now());
+    const r = await apiFetch('https://api.sasmaster.dev/api/telemetry/summary?t=' + Date.now());
     if (!r.ok) return;
     const d = await r.json();
     const byId = id => document.getElementById(id);
@@ -3940,7 +3977,7 @@ async function telUpdateKPIs() {
 
 async function telRenderCostChartLazy() {
   try {
-    const r = await fetch(apiUrl('/cost-log') + '&t=' + Date.now());
+    const r = await apiFetch(apiUrl('/cost-log') + '&t=' + Date.now());
     if (!r.ok) return;
     const d = await r.json();
     telRenderCostChart(d.recent || []);
@@ -4351,7 +4388,7 @@ window.finRebuildDoc = function() {
 
   async function fetchMemoryStatus() {
     try {
-      const r = await fetch(API);
+      const r = await apiFetch(API);
       if (!r.ok) return;
       renderMemoryStrip(await r.json());
     } catch {}

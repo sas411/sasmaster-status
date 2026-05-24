@@ -34,6 +34,13 @@ module.exports = async (req, res) => {
       },
       ...(body ? { body } : {}),
     });
+    // Pass retry-after header through so browser apiFetch wrapper can back off correctly
+    if (r.status === 429) {
+      const retryAfter = r.headers.get('retry-after') || '60';
+      res.setHeader('retry-after', retryAfter);
+      res.status(429).json({ error: 'rate_limited', retry_after: parseInt(retryAfter, 10) });
+      return;
+    }
     const data = await r.json();
     res.status(r.status).json(data);
   } catch (err) {
