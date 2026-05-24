@@ -15,10 +15,15 @@ const DONE_FILE   = path.join(SASMASTER, 'DONE_LOG.md');
 const OUT         = path.join(__dirname, 'status.json');
 
 // ── JARVIS ───────────────────────────────────────────────────────────────────
+// Socket Mode daemon is dead (JARVIS-ARCH-001). JARVIS is alive when Railway
+// HTTP Events API responds to /health.
 function jarvisAlive() {
   try {
-    const out = execSync('launchctl list com.sasmaster.jarvis 2>/dev/null', { encoding: 'utf8' });
-    return out.includes('com.sasmaster.jarvis');
+    const out = execSync(
+      'curl -sf --max-time 4 https://api.sasmaster.dev/health',
+      { encoding: 'utf8' }
+    );
+    return out.includes('"status"') && out.includes('"ok"');
   } catch { return false; }
 }
 
@@ -214,7 +219,7 @@ function parsePending() {
 function parseAgents() {
   const LOG = path.join(SASMASTER, 'logs');
   const agents = [
-    { name: 'JARVIS',            icon: '🤖', schedule: '24/7 daemon',   nextRun: 'Always on',       log: 'jarvis.log',            channel: '24/7 daemon',        jobId: null },
+    { name: 'JARVIS',            icon: '🤖', schedule: 'HTTP API',      nextRun: 'Always on',       log: 'jarvis.log',            channel: 'HTTP Events API',    jobId: null },
     { name: 'Media Intel',       icon: '📡', schedule: '6AM daily',     nextRun: 'Tomorrow 6AM',    log: 'media-intel.log',       channel: '#sasmaster-intel',   jobId: 'media-intel' },
     { name: 'TMDB Daily',        icon: '📺', schedule: '5AM daily',     nextRun: 'Tomorrow 5AM',    log: 'tmdb-agent.log',        channel: '#sasmaster-intel',   jobId: 'tmdb-daily' },
     { name: 'DoneLog Analyst',   icon: '📊', schedule: 'Post-build',    nextRun: 'Post 12AM build', log: 'donelog-analyst.log',   channel: '#sasmaster-builds',  jobId: null },
