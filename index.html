@@ -578,6 +578,54 @@ a{color:inherit}
 .fin-export-btn{margin-left:auto;padding:5px 14px;background:#0EA5E9;color:#fff;border:none;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.4px;cursor:pointer;font-family:var(--mono);transition:all .15s}
 .fin-export-btn:hover{background:#0284C7}
 
+/* INTERNAL FINANCE TAB */
+.ifin-kpi-row{display:flex;gap:0;background:#0F172A;border-bottom:1px solid #1E293B;flex-shrink:0;overflow-x:auto}
+.ifin-kpi{display:flex;flex-direction:column;padding:12px 18px;border-right:1px solid #1E293B;flex:1;min-width:90px}
+.ifin-kpi-lbl{font-size:8.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#475569;font-family:var(--mono);margin-bottom:3px}
+.ifin-kpi-val{font-family:var(--display);font-size:20px;color:#F1F5F9;letter-spacing:.3px;line-height:1.1}
+.ifin-kpi-sub{font-size:9px;color:#64748B;margin-top:2px;font-family:var(--mono)}
+.ifin-kpi-val.green{color:#10B981}
+.ifin-kpi-val.warn{color:#F59E0B}
+.ifin-kpi-val.crit{color:#EF4444}
+.ifin-section{padding:14px 16px;border-bottom:1px solid #E2E8F0}
+.ifin-sec-hdr{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#64748B;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ifin-sec-hdr .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ifin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.ifin-card{background:#fff;border:1px solid #E2E8F0;border-radius:6px;padding:10px 12px}
+.ifin-card-lbl{font-size:9px;font-weight:700;color:#64748B;margin-bottom:2px;font-family:var(--mono);letter-spacing:.3px}
+.ifin-card-val{font-family:var(--mono);font-size:15px;font-weight:700;color:#0F172A}
+.ifin-card-sub{font-size:9px;color:#94A3B8;margin-top:1px}
+.ifin-mix-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-bottom:4px}
+.ifin-mix-opus{background:#8B5CF6}
+.ifin-mix-sonnet{background:#0EA5E9}
+.ifin-mix-haiku{background:#10B981}
+.ifin-mix-legend{display:flex;gap:10px;font-size:9px;font-family:var(--mono);color:#64748B}
+.ifin-mix-dot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle}
+.ifin-rev-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ifin-rev-panel{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:12px 14px}
+.ifin-rev-title{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#64748B;margin-bottom:8px;font-family:var(--mono)}
+.ifin-rev-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #F1F5F9;font-size:11px}
+.ifin-rev-row:last-child{border-bottom:none}
+.ifin-rev-lbl{color:#64748B}
+.ifin-rev-val{font-family:var(--mono);font-weight:700;color:#0F172A}
+.ifin-rev-total{display:flex;justify-content:space-between;padding:6px 0 0;font-size:12px;font-weight:700;margin-top:2px}
+.ifin-crunch{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.25);border-radius:6px;padding:10px 14px;margin-top:8px;display:flex;align-items:center;gap:10px}
+.ifin-crunch-icon{font-size:18px}
+.ifin-crunch-days{font-family:var(--display);font-size:24px;font-weight:700;color:#EF4444}
+.ifin-crunch-lbl{font-size:9px;color:#64748B;font-family:var(--mono)}
+.ifin-table{width:100%;border-collapse:collapse;font-size:11.5px}
+.ifin-table thead{background:#F8FAFC;position:sticky;top:0;z-index:2}
+.ifin-table th{padding:8px 14px;text-align:left;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#64748B;border-bottom:1px solid #E2E8F0}
+.ifin-table td{padding:9px 14px;border-bottom:1px solid #F1F5F9;font-family:var(--mono)}
+.ifin-table tfoot td{font-weight:700;background:#F8FAFC;border-top:2px solid #E2E8F0}
+.ifin-trend-up{color:#EF4444}.ifin-trend-dn{color:#10B981}.ifin-trend-flat{color:#94A3B8}
+.ifin-forecast-bars{display:flex;gap:6px;align-items:flex-end;height:72px;padding:0 2px}
+.ifin-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.ifin-bar{width:100%;border-radius:3px 3px 0 0;min-height:4px;transition:height .3s}
+.ifin-bar-lbl{font-size:8px;font-family:var(--mono);color:#64748B;text-align:center}
+.ifin-bar-amt{font-size:8px;font-family:var(--mono);color:#64748B}
+.ifin-bar.green{background:#10B981}.ifin-bar.red{background:#EF4444}.ifin-bar.crit-flag{background:#DC2626}
+
 /* Dr. Scoop FAB */
 .scoop-fab-wrap{position:fixed;bottom:calc(var(--bh) + 14px);right:18px;z-index:450;display:flex;flex-direction:column;align-items:center;gap:4px}
 .scoop-fab{width:56px;height:56px;border-radius:50%;background:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;overflow:hidden;padding:0;box-shadow:0 0 0 3px rgba(139,92,246,.35),0 0 0 6px rgba(139,92,246,.12),0 4px 16px rgba(0,0,0,.15);animation:scooppulse 3s infinite}
@@ -989,6 +1037,7 @@ a{color:inherit}
       <button class="tab-btn" onclick="switchTab('queue')" data-tab="queue">📋 QUEUE <span class="tbadge" id="tabQueueBadge">11</span></button>
       <button class="tab-btn" onclick="switchTab('resources')" data-tab="resources">📚 RESOURCES</button>
       <button class="tab-btn" onclick="switchTab('costs')" data-tab="costs">💰 COSTS</button>
+      <button class="tab-btn" onclick="switchTab('finance')" data-tab="finance">💵 FINANCE</button>
       <button class="tab-btn" onclick="switchTab('telemetry')" data-tab="telemetry">📡 TELEMETRY</button>
       <button class="tab-btn" onclick="switchTab('financial')" data-tab="financial">💹 FINANCIAL INTEL <span class="tbadge" style="background:#10B981;color:#fff">NEW</span></button>
     </div>
@@ -1207,6 +1256,218 @@ a{color:inherit}
         </div>
       </div>
     </div>
+
+    <!-- ═══ FINANCE TAB ═════════════════════════════════════════ -->
+    <div class="tab-panel" id="tab-finance" style="background:#F0F4F8;overflow-y:auto">
+
+      <!-- ROW 1 — Monthly Burn KPIs -->
+      <div class="ifin-kpi-row">
+        <div class="ifin-kpi">
+          <div class="ifin-kpi-lbl">API BURN MTD</div>
+          <div class="ifin-kpi-val" id="ifin-api-burn">$—</div>
+          <div class="ifin-kpi-sub">anthropic api</div>
+        </div>
+        <div class="ifin-kpi">
+          <div class="ifin-kpi-lbl">INFRA MTD</div>
+          <div class="ifin-kpi-val" id="ifin-infra">$—</div>
+          <div class="ifin-kpi-sub">railway+vercel+aws</div>
+        </div>
+        <div class="ifin-kpi">
+          <div class="ifin-kpi-lbl">TOOLS MTD</div>
+          <div class="ifin-kpi-val" id="ifin-tools">$—</div>
+          <div class="ifin-kpi-sub">cursor+other</div>
+        </div>
+        <div class="ifin-kpi" style="background:rgba(251,191,36,.06)">
+          <div class="ifin-kpi-lbl">TOTAL BURN MTD</div>
+          <div class="ifin-kpi-val warn" id="ifin-total-burn">$—</div>
+          <div class="ifin-kpi-sub">all sources</div>
+        </div>
+        <div class="ifin-kpi">
+          <div class="ifin-kpi-lbl">RUNWAY</div>
+          <div class="ifin-kpi-val green" id="ifin-runway">—</div>
+          <div class="ifin-kpi-sub">months at burn rate</div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex:1;gap:0;overflow:hidden;flex-wrap:wrap">
+
+        <!-- LEFT COLUMN -->
+        <div style="flex:1;min-width:320px;display:flex;flex-direction:column;border-right:1px solid #E2E8F0">
+
+          <!-- ROW 2 — Token Intelligence -->
+          <div class="ifin-section">
+            <div class="ifin-sec-hdr">
+              <span class="dot" style="background:#0EA5E9"></span>
+              TOKEN INTELLIGENCE
+              <span style="margin-left:auto;font-size:9px;color:#94A3B8" id="ifin-period">—</span>
+            </div>
+            <div class="ifin-grid">
+              <div class="ifin-card">
+                <div class="ifin-card-lbl">TOKENS MTD</div>
+                <div class="ifin-card-val" id="ifin-tokens-mtd">—</div>
+                <div class="ifin-card-sub">in + out</div>
+              </div>
+              <div class="ifin-card">
+                <div class="ifin-card-lbl">COST / SESSION</div>
+                <div class="ifin-card-val" id="ifin-cost-per-sess">$—</div>
+                <div class="ifin-card-sub">avg this month</div>
+              </div>
+              <div class="ifin-card">
+                <div class="ifin-card-lbl">SESSIONS MTD</div>
+                <div class="ifin-card-val" id="ifin-sessions">—</div>
+                <div class="ifin-card-sub">build sessions</div>
+              </div>
+              <div class="ifin-card">
+                <div class="ifin-card-lbl">TOP AGENT</div>
+                <div class="ifin-card-val" style="font-size:12px" id="ifin-top-agent">—</div>
+                <div class="ifin-card-sub" id="ifin-top-agent-cost">by cost</div>
+              </div>
+            </div>
+            <div class="ifin-mix-bar" id="ifin-mix-bar">
+              <div class="ifin-mix-opus" id="ifin-mix-opus" style="width:0%"></div>
+              <div class="ifin-mix-sonnet" id="ifin-mix-sonnet" style="width:0%"></div>
+              <div class="ifin-mix-haiku" id="ifin-mix-haiku" style="width:0%"></div>
+            </div>
+            <div class="ifin-mix-legend">
+              <span><span class="ifin-mix-dot" style="background:#8B5CF6"></span>Opus <span id="ifin-opus-pct">0</span>%</span>
+              <span><span class="ifin-mix-dot" style="background:#0EA5E9"></span>Sonnet <span id="ifin-sonnet-pct">0</span>%</span>
+              <span><span class="ifin-mix-dot" style="background:#10B981"></span>Haiku <span id="ifin-haiku-pct">0</span>%</span>
+              <span style="margin-left:auto" id="ifin-trend">stable</span>
+            </div>
+          </div>
+
+          <!-- ROW 3 — Cost Breakdown Table -->
+          <div class="ifin-section" style="flex:1;overflow-y:auto">
+            <div class="ifin-sec-hdr">
+              <span class="dot" style="background:#7C3AED"></span>
+              COST BREAKDOWN
+            </div>
+            <table class="ifin-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>MTD</th>
+                  <th>Last Mo</th>
+                  <th>Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Anthropic API</td>
+                  <td id="ifin-tbl-api">$0.00</td>
+                  <td id="ifin-tbl-api-prev">$0.00</td>
+                  <td id="ifin-tbl-api-trend" class="ifin-trend-flat">→</td>
+                </tr>
+                <tr>
+                  <td>Railway</td>
+                  <td id="ifin-tbl-railway">$0.00</td>
+                  <td>$20.00</td>
+                  <td class="ifin-trend-flat">→</td>
+                </tr>
+                <tr>
+                  <td>Vercel</td>
+                  <td id="ifin-tbl-vercel">$0.00</td>
+                  <td>$20.00</td>
+                  <td class="ifin-trend-flat">→</td>
+                </tr>
+                <tr>
+                  <td>AWS</td>
+                  <td id="ifin-tbl-aws">$0.00</td>
+                  <td>$5.00</td>
+                  <td class="ifin-trend-flat">→</td>
+                </tr>
+                <tr>
+                  <td>Tools</td>
+                  <td id="ifin-tbl-tools">$0.00</td>
+                  <td>$20.00</td>
+                  <td class="ifin-trend-flat">→</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>TOTAL</td>
+                  <td id="ifin-tbl-total">$0.00</td>
+                  <td id="ifin-tbl-total-prev">$65.00</td>
+                  <td id="ifin-tbl-total-trend" class="ifin-trend-flat">→</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div style="width:320px;flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto">
+
+          <!-- Revenue + EMBA -->
+          <div class="ifin-section">
+            <div class="ifin-sec-hdr">
+              <span class="dot" style="background:#10B981"></span>
+              REVENUE + OBLIGATIONS
+            </div>
+            <div class="ifin-rev-grid">
+              <div class="ifin-rev-panel">
+                <div class="ifin-rev-title">Revenue (Cash)</div>
+                <div class="ifin-rev-row">
+                  <span class="ifin-rev-lbl">Consulting invoiced</span>
+                  <span class="ifin-rev-val" id="ifin-rev-invoiced">$—</span>
+                </div>
+                <div class="ifin-rev-row">
+                  <span class="ifin-rev-lbl">Consulting received</span>
+                  <span class="ifin-rev-val" id="ifin-rev-received">$—</span>
+                </div>
+                <div class="ifin-rev-row">
+                  <span class="ifin-rev-lbl">Severance MTD</span>
+                  <span class="ifin-rev-val" id="ifin-rev-severance">$—</span>
+                </div>
+                <div class="ifin-rev-total">
+                  <span>Total in MTD</span>
+                  <span id="ifin-rev-total" style="color:#10B981">$—</span>
+                </div>
+              </div>
+              <div class="ifin-rev-panel">
+                <div class="ifin-rev-title">EMBA Obligations</div>
+                <div class="ifin-rev-row">
+                  <span class="ifin-rev-lbl">NUS next</span>
+                  <span class="ifin-rev-val" id="ifin-emba-nus">—</span>
+                </div>
+                <div class="ifin-rev-row">
+                  <span class="ifin-rev-lbl">UCLA next</span>
+                  <span class="ifin-rev-val" id="ifin-emba-ucla">—</span>
+                </div>
+                <div class="ifin-crunch" id="ifin-crunch-box">
+                  <div class="ifin-crunch-icon">⚠️</div>
+                  <div>
+                    <div style="display:flex;align-items:baseline;gap:4px">
+                      <span class="ifin-crunch-days" id="ifin-crunch-days">87</span>
+                      <span class="ifin-crunch-lbl">days</span>
+                    </div>
+                    <div class="ifin-crunch-lbl">AUG 2026 CRUNCH · ~$40,000+</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6-Month Forecast -->
+          <div class="ifin-section" style="flex:1">
+            <div class="ifin-sec-hdr">
+              <span class="dot" style="background:#F59E0B"></span>
+              6-MONTH CASH FORECAST
+              <span style="margin-left:auto;font-size:8px;color:#94A3B8">update monthly</span>
+            </div>
+            <div class="ifin-forecast-bars" id="ifin-forecast-bars"></div>
+            <div style="font-size:9px;color:#94A3B8;font-family:var(--mono);margin-top:6px;text-align:center">
+              hover bar for income/expense detail · red = negative month
+            </div>
+            <div id="ifin-forecast-tooltip" style="display:none;background:#1E293B;color:#F1F5F9;padding:8px 12px;border-radius:6px;font-size:10px;font-family:var(--mono);margin-top:8px;line-height:1.8"></div>
+          </div>
+        </div>
+
+      </div><!-- /two-col -->
+      <div style="padding:6px 16px;font-size:9px;color:#94A3B8;font-family:var(--mono);flex-shrink:0;border-top:1px solid #E2E8F0;background:#fff">
+        Data: ~/SaSMaster/finance/ · Auto-syncs daily 23:58 via sync-finance.sh · Revenue/EMBA: manual update · Last sync: <span id="ifin-last-sync">—</span>
+      </div>
+    </div><!-- /tab-finance -->
 
     <!-- ═══ TELEMETRY TAB ═══════════════════════════════════════ -->
     <div class="tab-panel" id="tab-telemetry">
@@ -2854,6 +3115,7 @@ function switchTab(tabId) {
   if (tabId === 'queue') loadQueue();
   if (tabId === 'costs') renderCosts();
   if (tabId === 'financial') loadFinancial();
+  if (tabId === 'finance') loadInternalFinance();
 }
 
 function toggleSidebar() {
@@ -4085,6 +4347,180 @@ window.finRebuildDoc = function() {
   fetchMemoryStatus();
   setInterval(fetchMemoryStatus, 5 * 60 * 1000);
 })();
+
+// ══════════════════════════════════════════════════════════
+// INTERNAL FINANCE TAB
+// ══════════════════════════════════════════════════════════
+let _financeData = null;
+let _financeInterval = null;
+
+function fmt$(v) { return v == null ? '$—' : '$' + Number(v).toFixed(2); }
+function fmtK(v) { if (v == null) return '—'; return v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(1)+'K' : String(v); }
+
+async function loadInternalFinance() {
+  try {
+    const r = await fetch('/finance-data.json?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    _financeData = await r.json();
+  } catch(e) {
+    // Use stub data if file not available
+    _financeData = null;
+  }
+  renderInternalFinance(_financeData);
+  if (!_financeInterval) {
+    _financeInterval = setInterval(() => {
+      if (_currentTab === 'finance') loadInternalFinance();
+    }, 60000);
+  }
+}
+
+function renderInternalFinance(d) {
+  const b = d?.burn || {};
+  const t = d?.tokens || {};
+  const m = d?.by_model || {};
+  const rev = d?.revenue || {};
+  const emba = d?.emba || {};
+  const aug = d?.aug_crunch || {};
+  const infra = d?.infrastructure || {};
+
+  // ROW 1 — Burn KPIs
+  setText('ifin-api-burn', fmt$(b.api_mtd));
+  setText('ifin-infra', fmt$(b.infra_mtd));
+  setText('ifin-tools', fmt$(b.tools_mtd));
+  setText('ifin-total-burn', fmt$(b.total_mtd));
+  const runway = b.runway_months;
+  const el = document.getElementById('ifin-runway');
+  if (el) {
+    el.textContent = runway != null ? runway + ' mo' : '—';
+    el.className = 'ifin-kpi-val ' + (runway == null ? '' : runway < 3 ? 'crit' : runway < 6 ? 'warn' : 'green');
+  }
+
+  // ROW 2 — Token Intelligence
+  setText('ifin-period', d?.period || '—');
+  setText('ifin-tokens-mtd', fmtK(t.total_tokens_this_month));
+  setText('ifin-cost-per-sess', fmt$(t.avg_cost_per_session_usd));
+  setText('ifin-sessions', t.total_sessions_this_month ?? '—');
+  const topAgent = t.most_expensive_agent || '—';
+  setText('ifin-top-agent', topAgent);
+  const byAgent = d?.by_agent || {};
+  setText('ifin-top-agent-cost', topAgent !== '—' ? fmt$(byAgent[topAgent]) : 'by cost');
+
+  // Model mix bar
+  const mix = t.model_mix_pct || {};
+  ['opus','sonnet','haiku'].forEach(tier => {
+    const bar = document.getElementById('ifin-mix-' + tier);
+    const pct = document.getElementById('ifin-' + tier + '-pct');
+    if (bar) bar.style.width = (mix[tier] || 0) + '%';
+    if (pct) pct.textContent = mix[tier] || 0;
+  });
+
+  const trendEl = document.getElementById('ifin-trend');
+  if (trendEl) {
+    const trend = t.efficiency_trend || 'stable';
+    trendEl.textContent = trend === 'rising' ? '↑ rising' : trend === 'falling' ? '↓ falling' : '→ stable';
+    trendEl.style.color = trend === 'rising' ? '#EF4444' : trend === 'falling' ? '#10B981' : '#94A3B8';
+  }
+
+  // Cost breakdown table
+  setText('ifin-tbl-api', fmt$(b.api_mtd));
+  setText('ifin-tbl-railway', fmt$(infra.railway_usd));
+  setText('ifin-tbl-vercel', fmt$(infra.vercel_usd));
+  setText('ifin-tbl-aws', fmt$(infra.aws_usd));
+  setText('ifin-tbl-tools', fmt$(b.tools_mtd));
+  setText('ifin-tbl-total', fmt$(b.total_mtd));
+  // Prior month
+  const hist = d?.history || {};
+  const months = Object.keys(hist).sort();
+  const prevMonth = months[months.length - 1];
+  if (prevMonth) {
+    const prev = hist[prevMonth];
+    setText('ifin-tbl-api-prev', fmt$(prev.api_costs_usd));
+    setText('ifin-tbl-total-prev', fmt$(prev.total_usd));
+    const apiTrend = document.getElementById('ifin-tbl-api-trend');
+    if (apiTrend && prev.api_costs_usd != null) {
+      const dir = b.api_mtd > prev.api_costs_usd ? '↑' : b.api_mtd < prev.api_costs_usd ? '↓' : '→';
+      apiTrend.textContent = dir;
+      apiTrend.className = dir === '↑' ? 'ifin-trend-up' : dir === '↓' ? 'ifin-trend-dn' : 'ifin-trend-flat';
+    }
+  }
+
+  // Revenue
+  setText('ifin-rev-invoiced', fmt$(rev.consulting_invoiced_usd));
+  setText('ifin-rev-received', fmt$(rev.consulting_received_usd));
+  setText('ifin-rev-severance', fmt$(rev.severance_received_usd));
+  setText('ifin-rev-total', fmt$(rev.total_received_usd));
+
+  // EMBA
+  const nusDate = emba.next_payment_date || '—';
+  const nusAmt = emba.next_payment_amount_usd;
+  setText('ifin-emba-nus', 'SGD ' + (emba.nus_remaining_sgd || '—'));
+  setText('ifin-emba-ucla', nusAmt ? fmt$(nusAmt) + ' · ' + nusDate : '—');
+
+  // Aug crunch countdown
+  setText('ifin-crunch-days', aug.days_away ?? '—');
+  const crunchBox = document.getElementById('ifin-crunch-box');
+  if (crunchBox && aug.days_away <= 60) crunchBox.style.background = 'rgba(220,38,38,.1)';
+
+  // Last sync
+  setText('ifin-last-sync', d?.generated_at ? new Date(d.generated_at).toLocaleString() : '—');
+
+  // Forecast bars
+  renderForecastBars(d?.forecast || []);
+}
+
+function renderForecastBars(months) {
+  const container = document.getElementById('ifin-forecast-bars');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!months.length) { container.innerHTML = '<div style="font-size:10px;color:#94A3B8;font-family:var(--mono);margin:auto">Run /update forecast to populate</div>'; return; }
+  const nets = months.map(m => Math.abs(m.net_usd || 0));
+  const maxNet = Math.max(...nets, 1);
+  months.forEach(m => {
+    const net = m.net_usd || 0;
+    const isCrunch = m.flag === 'critical-crunch';
+    const isNeg = net < 0;
+    const hPct = Math.max(Math.round(Math.abs(net) / maxNet * 100), 5);
+    const wrap = document.createElement('div');
+    wrap.className = 'ifin-bar-wrap';
+    const bar = document.createElement('div');
+    bar.className = 'ifin-bar ' + (isCrunch ? 'crit-flag' : isNeg ? 'red' : 'green');
+    bar.style.height = hPct + '%';
+    bar.title = m.month;
+    const lbl = document.createElement('div');
+    lbl.className = 'ifin-bar-lbl';
+    lbl.textContent = m.month.slice(5);
+    const amt = document.createElement('div');
+    amt.className = 'ifin-bar-amt';
+    amt.textContent = net >= 0 ? '+' + fmt$(net) : fmt$(net);
+    wrap.appendChild(bar);
+    wrap.appendChild(lbl);
+    wrap.appendChild(amt);
+    // Tooltip
+    bar.addEventListener('mouseenter', () => {
+      const tip = document.getElementById('ifin-forecast-tooltip');
+      if (!tip) return;
+      tip.style.display = 'block';
+      tip.innerHTML = `<strong>${m.month}</strong><br>` +
+        `Income: ${fmt$(m.income?.total_usd)}<br>` +
+        `SaSMaster burn: ${fmt$(m.expenses?.sasmaster_burn_usd)}<br>` +
+        `EMBA: ${fmt$(m.expenses?.emba_usd)}<br>` +
+        `Living: ${fmt$(m.expenses?.living_usd)}<br>` +
+        `Net: <strong style="color:${net>=0?'#10B981':'#EF4444'}">${net>=0?'+':''}${fmt$(net)}</strong>` +
+        (m.notes ? `<br><em>${m.notes}</em>` : '') +
+        (isCrunch ? '<br><span style="color:#EF4444">⚠️ CRUNCH MONTH</span>' : '');
+    });
+    bar.addEventListener('mouseleave', () => {
+      const tip = document.getElementById('ifin-forecast-tooltip');
+      if (tip) tip.style.display = 'none';
+    });
+    container.appendChild(wrap);
+  });
+}
+
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
 
 </script>
 
