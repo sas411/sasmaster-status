@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster · Lessons · May 24, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas:   #F0F4F8;
+  --surface:  #FFFFFF;
+  --surface2: #F8FAFC;
+  --border:   #E2E8F0;
+  --text:     #1E293B;
+  --muted:    #64748B;
+  --dim:      #94A3B8;
+  --lavender: #7C3AED;
+  --lav-light:#EDE9FE;
+  --teal:     #0EA5E9;
+  --teal-l:   #E0F2FE;
+  --green:    #10B981;
+  --green-l:  #D1FAE5;
+  --green-d:  #065F46;
+  --gold:     #F59E0B;
+  --gold-l:   #FEF3C7;
+  --gold-d:   #92400E;
+  --red:      #EF4444;
+  --red-l:    #FEE2E2;
+  --red-d:    #991B1B;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--canvas); color: var(--text); font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; line-height: 1.6; }
+.header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 20px 32px; display: flex; align-items: center; gap: 12px; }
+.header-badge { background: var(--gold); color: var(--gold-d); font-family: 'DM Mono', monospace; font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600; }
+.header h1 { font-size: 18px; font-weight: 600; }
+.header-sub { font-size: 13px; color: var(--muted); margin-left: auto; font-family: 'DM Mono', monospace; }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+
+.lesson-group { margin-bottom: 32px; }
+.group-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+.lesson-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+.lesson-header { padding: 12px 16px; display: flex; align-items: flex-start; gap: 12px; }
+.lesson-icon { width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.icon-pattern  { background: var(--lav-light); }
+.icon-decision { background: var(--gold-l); }
+.icon-antipattern { background: var(--red-l); }
+.icon-gotcha { background: var(--teal-l); }
+.lesson-body { flex: 1; }
+.lesson-title { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+.lesson-text  { font-size: 13px; color: var(--muted); }
+.lesson-detail { padding: 0 16px 12px 56px; }
+.lesson-detail p { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.lesson-detail code { font-family: 'DM Mono', monospace; font-size: 12px; background: var(--canvas); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; color: var(--text); }
+.lesson-tag { display: inline-block; font-size: 10px; font-family: 'DM Mono', monospace; background: var(--canvas); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; color: var(--dim); margin-right: 4px; }
+
+.pattern-strip { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.pattern-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; flex: 1; min-width: 200px; }
+.pi-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin-bottom: 4px; }
+.pi-val { font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="header-badge">LESSONS</span>
+  <h1>Key Decisions &amp; Patterns — May 24, 2026</h1>
+  <span class="header-sub">Sprint 11 + HARDEN Sprint</span>
+</div>
+<div class="container">
+
+  <!-- Architecture Decisions -->
+  <div class="lesson-group">
+    <div class="group-title">Architecture Decisions</div>
+
+    <div class="lesson-card">
+      <div class="lesson-header">
+        <div class="lesson-icon icon-decision">🏗</div>
+        <div class="lesson-body">
+          <div class="lesson-title">JARVIS: Socket Mode → HTTP Events API (not the other way around)</div>
+          <div class="lesson-text">Socket Mode keeps a persistent WebSocket from Mac → Slack. HTTP Events API is Slack → Railway (push). The architectural reason to flip: Railway is always-on cloud; Mac is not. Never require the Mac to be awake for inbound events.</div>
+        </div>
+      </div>
+      <div class="lesson-detail">
+        <p><strong>Rule:</strong> Cloud-hosted service (Railway) must own the inbound path. Mac-side is for outbound (scraping, builds). launchd daemon for JARVIS was wrong architecture from the start.</p>
+        <p><span class="lesson-tag">#jarvis</span><span class="lesson-tag">#railway</span><span class="lesson-tag">#infra</span></p>
+      </div>
+    </div>
+
+    <div class="lesson-card">
+      <div class="lesson-header">
+        <div class="lesson-icon icon-pattern">⚡</div>
+        <div class="lesson-body">
+          <div class="lesson-title">DuckDB on Railway: use S3 pre-cache, not live queries</div>
+          <div class="lesson-text">DuckDB <code>httpfs</code> extension + AWS CLI not available in Railway Nixpacks. Even with <code>ListObjectsV2Command</code> SDK, extension install fails silently. Correct pattern: Mac cron runs heavy DuckDB jobs, writes JSON cache to S3, Railway reads cache.</div>
+        </div>
+      </div>
+      <div class="lesson-detail">
+        <p><strong>Architecture:</strong> Mac-side <code>s3-entity-counts.js</code> → <code>sync-to-s3-cache.sh</code> → <code>cache/api/data-counts.json</code> → Railway <code>readS3JSON()</code></p>
+        <p><strong>Anti-pattern:</strong> Trying to run DuckDB extension installs in container builds. Never works without a custom Dockerfile.</p>
+        <p><span class="lesson-tag">#duckdb</span><span class="lesson-tag">#railway</span><span class="lesson-tag">#s3</span></p>
+      </div>
+    </div>
+
+    <div class="lesson-card">
+      <div class="lesson-header">
+        <div class="lesson-icon icon-decision">🔒</div>
+        <div class="lesson-body">
+          <div class="lesson-title">SSE 30-second Railway timeout: replace with async job + poll</div>
+          <div class="lesson-text">Railway kills SSE connections after 30s. Dr. Scoop chat used SSE → unpredictably cut off mid-answer. Solution: POST to <code>/api/jobs</code> (202 accepted), GET poll every 30s, result delivered on completion. No timeout risk.</div>
+        </div>
+      </div>
+      <div class="lesson-detail">
+        <p><strong>Rule:</strong> Never use SSE for responses that might take >25s on Railway. Use the async job queue pattern from HARDEN-006.</p>
+        <p><span class="lesson-tag">#sse</span><span class="lesson-tag">#railway</span><span class="lesson-tag">#api</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security Patterns -->
+  <div class="lesson-group">
+    <div class="group-title">Security Patterns</div>
+
+    <div class="lesson-card">
+      <div class="lesson-header">
+        <div class="lesson-icon icon-antipattern">🚨</div>
+        <div class="lesson-body">
+          <div class="lesson-title">INTERNAL_SERVICE_TOKEN drift: .env vs Railway env can diverge silently</div>
+          <div class="lesson-text">Railway env vars set via dashboard don't auto-sync to <code>.env</code>. Token 7fa907b was set in Railway but <code>.env</code> still had the old value. <code>/api/*</code> calls from Mac-side scripts were silently returning 401 with no clear error message.</div>
+        </div>
+      </div>
+      <div class="lesson-detail">
+        <p><strong>Fix:</strong> After setting Railway env vars, always run <code>vercel env pull .env.local</code> or manually update <code>.env</code> to match.</p>
+        <p><strong>Prevention:</strong> INFRA-DB-002 will add a health endpoint that reports token fingerprint without exposing the full token.</p>
+        <p><span class="lesson-tag">#security</span><span class="lesson-tag">#env</span><span class="lesson-tag">#railway</span></p>
+      </div>
+    </div>
+
+    <div class="lesson-card">
+      <div class="lesson-header">
+        <div class="lesson-icon icon-gotcha">🔍</div>
+        <div class="lesson-body">
+          <div class="lesson-title">xapp- tokens in Slack SDK: deprecated and source of credential drift</div>
+          <div class="lesson-text">Slack xapp- tokens are per-app-instance tokens from Socket Mode. After migrating to HTTP Events API, the xapp- token is no longer needed but was still being injected. Dropped from .env to reduce credential surface area.</div>
+        </div>
+      </div>
+      <div class="lesson-detail">
+        <p><strong>Rule:</strong> Audit and remove credentials immediately when they're no longer in the hot path. They accumulate silently and create compliance risk.</p>
+        <p><span class="lesson-tag">#slack</span><span class="lesson-tag">#credentials</span><span class="lesson-tag">#security</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent Patterns -->
+  <div class="lesson-group">
+    <div class="group-title">Agent &amp; Build Patterns</div>
+
+    <div class="lesson-card">
+      <div class="lesson-header">
+        <div class="lesson-icon icon-pattern">🤖</div>
+        <div class="lesson-body">
+          <div class="lesson-title">Domain-split (not layer-split) is the correct fan-out primitive</div>
+          <div class="lesson-text">Layer-split (scraper agent → API agent → UI agent) creates sequential dependencies at every boundary. Domain-split (Ad Intel agent owns its full scraper+API+UI vertical) enables true parallelism. Each domain agent is self-contained and stateless relative to peer domains.</div>
+        </div>
+      </div>
+      <div class="lesson-detail">
+        <p><strong>Cost model:</strong> ~$0.55 parallel vs $0.25 sequential for a 4-section portal build. Speed gain ~40% wall-clock. Worth it when tasks are genuinely independent.</p>
+        <p><strong>Decision rule:</strong> Only fan-out when tasks don't share mutable state. If agent B reads agent A's output, keep them sequential.</p>
+        <p><span class="lesson-tag">#agents</span><span class="lesson-tag">#parallel</span><span class="lesson-tag">#architecture</span></p>
+      </div>
+    </div>
+
+    <div class="lesson-card">
+      <div class="lesson-header">
+        <div class="lesson-icon icon-gotcha">⚡</div>
+        <div class="lesson-body">
+          <div class="lesson-title">Backtick escaping in heredoc Python → bash substitution</div>
+          <div class="lesson-text">In process-jobs.sh, the Python heredoc was generating lines with <code>`{sha}`</code> — bash tried to execute <code>{sha}</code> as a command (non-fatal but produced stderr noise). Required escaping as <code>\`{sha}\`</code> inside the Python f-string.</div>
+        </div>
+      </div>
+      <div class="lesson-detail">
+        <p><strong>Rule:</strong> Any backtick inside a Python heredoc embedded in bash must be escaped with <code>\`</code>. This applies to any <code>`code`</code> Markdown formatting in dynamically generated text.</p>
+        <p><span class="lesson-tag">#bash</span><span class="lesson-tag">#python</span><span class="lesson-tag">#scripting</span></p>
+      </div>
+    </div>
+
+    <div class="lesson-card">
+      <div class="lesson-header">
+        <div class="lesson-icon icon-pattern">📊</div>
+        <div class="lesson-body">
+          <div class="lesson-title">Schema drift detection: 3 S3 datasets, suspect last write, exit codes for cron</div>
+          <div class="lesson-text">schema-drift-check.py reads the last 5 S3 batches per dataset, compares column names and types. If a new column appears or type changes, it flags the write as suspect and exits non-zero. Daily cron runs this; Slack alert fires on non-zero exit.</div>
+        </div>
+      </div>
+      <div class="lesson-detail">
+        <p><strong>Pattern:</strong> Schema drift is a silent bug. The check must run daily and alert loudly — not weekly, not quietly. The cron exit code is the gate; never swallow failures.</p>
+        <p><span class="lesson-tag">#schema</span><span class="lesson-tag">#s3</span><span class="lesson-tag">#data-quality</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portal Design -->
+  <div class="lesson-group">
+    <div class="group-title">Portal Design</div>
+
+    <div class="lesson-card">
+      <div class="lesson-header">
+        <div class="lesson-icon icon-decision">🎨</div>
+        <div class="lesson-body">
+          <div class="lesson-title">B2C portal needs distinct visual identity from War Room (the internal tool)</div>
+          <div class="lesson-text">War Room is lavender/purple — internal operations aesthetic. Research Portal is amber/terminal black — B2C product, premium media buyer experience. They serve different audiences and must not look related.</div>
+        </div>
+      </div>
+      <div class="lesson-detail">
+        <p><strong>Rule:</strong> Every new portal starts with a design brief that explicitly names the target audience and differentiates it from existing portals. Never clone War Room's palette for B2C.</p>
+        <p><span class="lesson-tag">#ui</span><span class="lesson-tag">#portal</span><span class="lesson-tag">#b2c</span></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
