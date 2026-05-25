@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SaSMaster Architecture v13 · Operator Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#F0F4F8;--surface:#FFFFFF;--surface2:#F8FAFC;
+  --border:#E2E8F0;--border2:#CBD5E1;
+  --text:#1E293B;--text2:#475569;--text3:#94A3B8;
+  --lav:#7C3AED;--lav-light:#EDE9FE;--lav-mid:#A682F2;
+  --teal:#0EA5E9;--teal-light:#E0F2FE;
+  --green:#10B981;--green-light:#D1FAE5;
+  --red:#EF4444;--red-light:#FEE2E2;
+  --amber:#F59E0B;--amber-light:#FEF3C7;
+  --blue:#3B82F6;--blue-light:#DBEAFE;
+  --dark:#1E293B;
+  --mono:'DM Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6}
+.page{max-width:960px;margin:0 auto;padding:40px 32px 80px}
+
+/* ── HEADER ─────────────────────────────── */
+.doc-header{margin-bottom:48px}
+.doc-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.doc-tag{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;background:var(--lav);color:#fff;padding:3px 10px;border-radius:4px}
+.doc-version{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px}
+.doc-title{font-size:28px;font-weight:600;color:var(--text);margin-bottom:4px}
+.doc-sub{font-size:14px;color:var(--text2);margin-bottom:16px}
+.doc-meta{display:flex;gap:16px;flex-wrap:wrap}
+.meta-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px}
+.meta-dot{width:6px;height:6px;border-radius:50%}
+.dot-green{background:var(--green)}.dot-amber{background:var(--amber)}.dot-lav{background:var(--lav-mid)}
+
+/* ── SECTION ─────────────────────────────── */
+.section{margin-bottom:48px}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.section-num{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:1px;min-width:28px}
+.section-icon{font-size:18px}
+.section-title{font-size:18px;font-weight:600;color:var(--text);flex:1}
+.section-status{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:4px;border:1px solid}
+
+.status-live{color:var(--green);border-color:rgba(16,185,129,.3);background:var(--green-light)}
+.status-running{color:var(--teal);border-color:rgba(14,165,233,.3);background:var(--teal-light)}
+.status-pending{color:var(--amber);border-color:rgba(245,158,11,.3);background:var(--amber-light)}
+.status-done{color:var(--lav);border-color:rgba(124,58,237,.3);background:var(--lav-light)}
+
+/* ── OPERATOR BOX ─────────────────────────────── */
+.op-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:12px}
+.op-box-title{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.op-box-content{font-size:13px;color:var(--text2);line-height:1.65}
+.op-box-content code{font-family:var(--mono);font-size:11px;background:var(--canvas);border:1px solid var(--border);border-radius:3px;padding:1px 5px;color:var(--lav)}
+.op-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.op-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+
+/* ── CARDS ─────────────────────────────── */
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.card-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.card-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
+.card:hover{border-color:var(--border2)}
+.card-id{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.5px;margin-bottom:4px}
+.card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.card-desc{font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:10px}
+.card-tag{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid;margin-right:4px;margin-bottom:2px}
+.tag-lav{color:var(--lav);border-color:rgba(124,58,237,.3);background:var(--lav-light)}
+.tag-teal{color:var(--teal);border-color:rgba(14,165,233,.3);background:var(--teal-light)}
+.tag-green{color:var(--green);border-color:rgba(16,185,129,.3);background:var(--green-light)}
+.tag-amber{color:var(--amber);border-color:rgba(245,158,11,.3);background:var(--amber-light)}
+.tag-red{color:var(--red);border-color:rgba(239,68,68,.3);background:var(--red-light)}
+.tag-blue{color:var(--blue);border-color:rgba(59,130,246,.3);background:var(--blue-light)}
+.tag-gray{color:var(--text2);border-color:var(--border);background:var(--canvas)}
+
+/* ── SVG DIAGRAMS ─────────────────────────────── */
+.diagram-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;overflow:hidden}
+.diagram-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+
+/* ── LAYER STACK ─────────────────────────────── */
+.layer-stack{display:flex;flex-direction:column;gap:0;margin-bottom:16px}
+.layer{border:1px solid var(--border);padding:14px 20px;background:var(--surface);display:grid;grid-template-columns:100px 1fr auto;gap:16px;align-items:center}
+.layer:first-child{border-radius:10px 10px 0 0}
+.layer:last-child{border-radius:0 0 10px 10px}
+.layer+.layer{border-top:none}
+.layer-num{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:1px}
+.layer-info{}
+.layer-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.layer-detail{font-size:11px;color:var(--text2)}
+.layer-meta{font-family:var(--mono);font-size:10px;text-align:right;color:var(--text3)}
+
+/* ── SKILL GRID ─────────────────────────────── */
+.skill-section{margin-bottom:16px}
+.skill-section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.skill-grid{display:flex;flex-wrap:wrap;gap:6px}
+.skill-pill{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid;white-space:nowrap}
+
+/* ── ROUTE TABLE ─────────────────────────────── */
+.route-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px}
+.route-table th{background:var(--canvas);font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);padding:8px 12px;text-align:left;border:1px solid var(--border)}
+.route-table td{padding:10px 12px;border:1px solid var(--border);background:var(--surface);color:var(--text2);vertical-align:top}
+.route-table td:first-child{font-family:var(--mono);font-size:12px;color:var(--lav);font-weight:500}
+.route-table tr:hover td{background:var(--canvas)}
+
+/* ── METRICS STRIP ─────────────────────────────── */
+.metric-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.metric-cell{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center}
+.metric-val{font-family:var(--mono);font-size:20px;font-weight:500;color:var(--lav);margin-bottom:2px}
+.metric-lbl{font-size:11px;color:var(--text3);line-height:1.4}
+
+/* ── INLINE CODE ─────────────────────────────── */
+.code-block{font-family:var(--mono);font-size:12px;background:var(--dark);color:#e2e8f0;border-radius:8px;padding:14px 16px;margin-bottom:12px;line-height:1.7;overflow-x:auto}
+.code-block .c{color:#64748b}.code-block .s{color:#86efac}.code-block .k{color:#c4b5fd}.code-block .v{color:#7dd3fc}
+
+/* ── DIVIDER ─────────────────────────────── */
+.divider{border:none;border-top:1px solid var(--border);margin:32px 0}
+
+/* ── FOOTER ─────────────────────────────── */
+.doc-footer{display:flex;justify-content:space-between;align-items:center;padding-top:20px;border-top:1px solid var(--border);margin-top:48px}
+.footer-text{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ── HEADER ── -->
+<div class="doc-header">
+  <div class="doc-eyebrow">
+    <div class="doc-tag">Operator Reference</div>
+    <div class="doc-version">ARCHITECTURE · v13 · 2026-05-25</div>
+  </div>
+  <div class="doc-title">SaSMaster Platform Architecture</div>
+  <div class="doc-sub">Distributed Memory · Distributed Compute · Agent Fleet · Skill Fleet · UI/UX Visual Intelligence · Autonomous Systems</div>
+  <div class="doc-meta">
+    <div class="meta-pill"><span class="meta-dot dot-green"></span>JARVIS v5 Live · Railway</div>
+    <div class="meta-pill"><span class="meta-dot dot-green"></span>UI-INFRA 6/6 Done</div>
+    <div class="meta-pill"><span class="meta-dot dot-amber"></span>PERF Wave Running</div>
+    <div class="meta-pill"><span class="meta-dot dot-lav"></span>58 Tasks · 27 Pending</div>
+    <div class="meta-pill"><span class="meta-dot dot-green"></span>32 Skills Installed</div>
+  </div>
+</div>
+
+<!-- ── 00 PLATFORM SNAPSHOT ── -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">00</div>
+    <div class="section-icon">🌐</div>
+    <div class="section-title">Platform snapshot</div>
+    <div class="section-status status-live">Live</div>
+  </div>
+  <div class="metric-strip">
+    <div class="metric-cell"><div class="metric-val">2</div><div class="metric-lbl">Businesses<br>B2B + B2C</div></div>
+    <div class="metric-cell"><div class="metric-val">8</div><div class="metric-lbl">Sub-agents<br>deployed</div></div>
+    <div class="metric-cell"><div class="metric-val">32</div><div class="metric-lbl">Skills<br>installed</div></div>
+    <div class="metric-cell"><div class="metric-val">14</div><div class="metric-lbl">Chart types<br>@sasmaster/viz</div></div>
+    <div class="metric-cell"><div class="metric-val">1.59×</div><div class="metric-lbl">Parallel compute<br>speedup proven</div></div>
+  </div>
+  <div class="op-row">
+    <div class="op-box">
+      <div class="op-box-title">Mission</div>
+      <div class="op-box-content">Audiences in control via GenAI Synthetic Avatars. B2B Research (live) + B2C Avatar (100K/market) converge at The Exchange. 2035 = Bloomberg Terminal for the $300T content licensing market.</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">Routing doctrine</div>
+      <div class="op-box-content"><code>claude.ai</code> = strategy + task cards only. <code>Claude Code</code> = confirmed builds 1–3 tasks. <code>JARVIS queue</code> = 4+ async/bulk/scheduled. Never auto-fire Slack from claude.ai.</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">Automation principle</div>
+      <div class="op-box-content">Automation over manual — always. Manual is fallback only. Applies to memory tracking, sync, health checks, deploys, reporting, and visualization stack management.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 01 LIVE SERVICES ── -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">01</div>
+    <div class="section-icon">🔌</div>
+    <div class="section-title">Live services & endpoints</div>
+    <div class="section-status status-live">Live</div>
+  </div>
+  <table class="route-table">
+    <thead><tr><th>Service</th><th>URL / Location</th><th>Role</th><th>Verify</th></tr></thead>
+    <tbody>
+      <tr><td>War Room</td><td>sasmaster-status.vercel.app</td><td>Canonical dashboard — auto-deploys on push</td><td>Open URL, check status pills</td></tr>
+      <tr><td>Railway API</td><td>sasmaster-api-production.up.railway.app</td><td>PRIMARY backend — JARVIS v5 HTTP Events</td><td><code>curl /health</code></td></tr>
+      <tr><td>Cloudflare Tunnel</td><td>api.sasmaster.dev → Railway</td><td>Public edge → Railway backend</td><td><code>curl api.sasmaster.dev/health</code></td></tr>
+      <tr><td>Cloudflare WAF</td><td>Cloudflare dashboard</td><td>2 active rules — platform security</td><td>Check WAF analytics</td></tr>
+      <tr><td>JARVIS Slack</td><td>Channel C0ATABZAH39</td><td>!build !task !briefing !status commands</td><td>Post !status in channel</td></tr>
+      <tr><td>Storybook</td><td>localhost:6006</td><td>Component library — machine-readable spec</td><td><code>npm run storybook</code></td></tr>
+      <tr><td>tasks.db</td><td>~/SaSMaster/tasks.db</td><td>SQLite WAL — JARVIS sole write gate</td><td><code>sqlite3 tasks.db "SELECT COUNT(*) FROM tasks"</code></td></tr>
+      <tr><td>S3 Bucket</td><td>sasmaster-2026</td><td>Data + knowledge bank + UI baselines</td><td><code>aws s3 ls s3://sasmaster-2026 --profile X</code></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── 02 DISTRIBUTED COMPUTE ── -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">02</div>
+    <div class="section-icon">⚡</div>
+    <div class="section-title">Distributed compute</div>
+    <div class="section-status status-live">Live · 1.59× proven</div>
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="diagram-label">Three-surface routing architecture</div>
+    <svg width="100%" viewBox="0 0 880 160" role="img">
+      <title>Three-surface compute routing</title>
+      <desc>claude.ai for strategy, Claude Code for 1-3 task builds, JARVIS for 4+ async tasks</desc>
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#A682F2" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+      <!-- Surface 1 -->
+      <rect x="20" y="30" width="220" height="100" rx="10" fill="#EDE9FE" stroke="#A682F2" stroke-width="1"/>
+      <text x="130" y="58" text-anchor="middle" font-family="DM Mono" font-size="10" fill="#7C3AED" letter-spacing="1">SURFACE 1</text>
+      <text x="130" y="80" text-anchor="middle" font-family="DM Sans" font-size="14" font-weight="600" fill="#1E293B">claude.ai</text>
+      <text x="130" y="98" text-anchor="middle" font-family="DM Sans" font-size="11" fill="#475569">Strategy · Task cards · Design</text>
+      <text x="130" y="116" text-anchor="middle" font-family="DM Mono" font-size="10" fill="#7C3AED">NEVER auto-fires Slack</text>
+      <!-- Arrow 1 -->
+      <line x1="242" y1="80" x2="308" y2="80" stroke="#A682F2" stroke-width="1.5" marker-end="url(#arr)" fill="none"/>
+      <text x="275" y="72" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#94A3B8">1–3 tasks</text>
+      <!-- Surface 2 -->
+      <rect x="310" y="30" width="220" height="100" rx="10" fill="#E0F2FE" stroke="#0EA5E9" stroke-width="1"/>
+      <text x="420" y="58" text-anchor="middle" font-family="DM Mono" font-size="10" fill="#0EA5E9" letter-spacing="1">SURFACE 2</text>
+      <text x="420" y="80" text-anchor="middle" font-family="DM Sans" font-size="14" font-weight="600" fill="#1E293B">Claude Code</text>
+      <text x="420" y="98" text-anchor="middle" font-family="DM Sans" font-size="11" fill="#475569">Execution · File ops · Builds</text>
+      <text x="420" y="116" text-anchor="middle" font-family="DM Mono" font-size="10" fill="#0EA5E9">Confirmed builds only</text>
+      <!-- Arrow 2 -->
+      <line x1="532" y1="80" x2="598" y2="80" stroke="#A682F2" stroke-width="1.5" marker-end="url(#arr)" fill="none"/>
+      <text x="565" y="72" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#94A3B8">4+ tasks</text>
+      <!-- Surface 3 -->
+      <rect x="600" y="30" width="260" height="100" rx="10" fill="#D1FAE5" stroke="#10B981" stroke-width="1"/>
+      <text x="730" y="58" text-anchor="middle" font-family="DM Mono" font-size="10" fill="#10B981" letter-spacing="1">SURFACE 3</text>
+      <text x="730" y="80" text-anchor="middle" font-family="DM Sans" font-size="14" font-weight="600" fill="#1E293B">JARVIS Queue</text>
+      <text x="730" y="98" text-anchor="middle" font-family="DM Sans" font-size="11" fill="#475569">Async · Bulk · Scheduled</text>
+      <text x="730" y="116" text-anchor="middle" font-family="DM Mono" font-size="10" fill="#10B981">BATCH-001 live · Railway</text>
+    </svg>
+  </div>
+
+  <div class="op-row">
+    <div class="op-box">
+      <div class="op-box-title">Parallel execution pattern</div>
+      <div class="op-box-content">Domain-split only — never layer-split. Ad Intel ∥ Market Intel = valid. ui-designer ∥ data-viz = invalid (not independent). Serial baseline measured before any benchmark. 1.59× speedup proven May 25.</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">JARVIS write gate</div>
+      <div class="op-box-content">JARVIS is the sole write gate to <code>tasks.db</code> (SQLite WAL). cost-log is agent-namespaced during parallel windows; JARVIS merges at join gate. JARVIS-BATCH-001: <code>POST /tasks/batch</code> on Railway commit 573cb5f.</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">TASKS.md gate syntax</div>
+      <div class="op-box-content">Sequential tasks require explicit <code>GATE: mark [x] done + verify before NEXT-TASK-ID</code> and <code>DEPENDS ON PREV-ID [x]</code>. Prose dependency descriptions are not enough — JARVIS needs the [x] state check.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 03 DISTRIBUTED MEMORY ── -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">03</div>
+    <div class="section-icon">🧠</div>
+    <div class="section-title">Distributed memory — 4-layer architecture</div>
+    <div class="section-status status-live">Live · Nightly sync</div>
+  </div>
+
+  <div class="layer-stack">
+    <div class="layer" style="border-left:3px solid var(--lav);background:var(--lav-light)">
+      <div class="layer-num">LAYER 1<br><span style="color:var(--lav);font-weight:600">HOT</span></div>
+      <div class="layer-info">
+        <div class="layer-name">claude.ai memory slots</div>
+        <div class="layer-detail">30 slots — active session context. Injected into every conversation. Immediate, always available. MEMORY-HYGIENE-001: retired entries move verbatim to Obsidian with retirement headers.</div>
+      </div>
+      <div class="layer-meta">30 slots max<br>Session scope<br>Auto-injected</div>
+    </div>
+    <div class="layer" style="border-left:3px solid var(--teal)">
+      <div class="layer-num">LAYER 2<br><span style="color:var(--teal);font-weight:600">WARM</span></div>
+      <div class="layer-info">
+        <div class="layer-name">CLAUDE_MEMORY.md</div>
+        <div class="layer-detail">Cross-session persistence in repo. Read by Claude Code at session start. Hot memory retirement target. Updated by autonomous-coder post-build. Bridge between live sessions and cold storage.</div>
+      </div>
+      <div class="layer-meta">Repo-committed<br>Session-start read<br>Auto-updated</div>
+    </div>
+    <div class="layer" style="border-left:3px solid var(--amber)">
+      <div class="layer-num">LAYER 3<br><span style="color:var(--amber);font-weight:600">COLD</span></div>
+      <div class="layer-info">
+        <div class="layer-name">Obsidian vault</div>
+        <div class="layer-detail">knowledge-bank/.obsidian/ — retired hot memories at _archive/hot-memory-retired/. All EMBA material under knowledge-bank/emba/. emba-analyst agent reads vault and learns over time. WAR-ROOM-RESOURCES-INDEX.md cross-links all War Room resources to KB entries.</div>
+      </div>
+      <div class="layer-meta">Obsidian vault<br>emba-analyst reads<br>Cold retrieval</div>
+    </div>
+    <div class="layer" style="border-left:3px solid var(--green)">
+      <div class="layer-num">LAYER 4<br><span style="color:var(--green);font-weight:600">ARCHIVE</span></div>
+      <div class="layer-info">
+        <div class="layer-name">S3 knowledge bank</div>
+        <div class="layer-detail">s3://sasmaster-2026/knowledge-bank/ — 204 entries across 8 domains (WHY/FEELS/BUILD/WORKS/KNOW/SAY/SELL/MADE). KB-CI-002: nightly cron 0 5 * * * → kb-nightly-sync.sh. UI baselines at ui-baselines/. Viz evaluations at viz-evaluations/.</div>
+      </div>
+      <div class="layer-meta">204 KB entries<br>Nightly CI sync<br>S3 archive</div>
+    </div>
+  </div>
+
+  <div class="op-row">
+    <div class="op-box">
+      <div class="op-box-title">Dr. Scoop memory loop</div>
+      <div class="op-box-content">DuckDB <code>scoop_memory</code> table. S3 backup. cache_control ephemeral. userId UUID wired from portal localStorage → POST body. Full memory loop live end-to-end.</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">EMBA Obsidian rule</div>
+      <div class="op-box-content">All EMBA material (case studies, pre-reads, notes, assignments, reflections) → Obsidian under <code>knowledge-bank/emba/</code>. Never stays only in downloads or chat. Syncs to S3 nightly via KB-CI-002.</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">Where it lives / verify</div>
+      <div class="op-box-content">Layer 1: claude.ai settings. Layer 2: <code>~/SaSMaster/CLAUDE_MEMORY.md</code>. Layer 3: Obsidian app. Layer 4: <code>aws s3 ls s3://sasmaster-2026/knowledge-bank/ --profile X</code>.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 04 AGENT FLEET ── -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">04</div>
+    <div class="section-icon">🤖</div>
+    <div class="section-title">Agent fleet</div>
+    <div class="section-status status-live">8 agents deployed</div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-id">~/.claude/agents/</div>
+      <div class="card-title">autonomous-coder</div>
+      <div class="card-desc">Primary build executor. cost-log writer. Phase I pipeline. Sole writer to cost-log.jsonl (13-field schema locked Apr 28). Reads build-discipline before every task.</div>
+      <span class="card-tag tag-lav">BUILD</span><span class="card-tag tag-amber">Sonnet 4.6</span>
+    </div>
+    <div class="card">
+      <div class="card-id">~/.claude/agents/</div>
+      <div class="card-title">jarvis-ops</div>
+      <div class="card-desc">JARVIS interface layer. Slack channel routing. War Room status reads. TASKS.md + tasks.db sync. Knows all JARVIS commands and routing doctrine.</div>
+      <span class="card-tag tag-teal">OPS</span><span class="card-tag tag-amber">Sonnet 4.6</span>
+    </div>
+    <div class="card">
+      <div class="card-id">~/.claude/agents/</div>
+      <div class="card-title">qa-agent</div>
+      <div class="card-desc">Portal verification after every build. Detail page rendering, META tab fields, drill-down navigation. Ends false positives — no self-certification without QA agent pass.</div>
+      <span class="card-tag tag-green">QA</span><span class="card-tag tag-amber">Haiku 4.5</span>
+    </div>
+    <div class="card">
+      <div class="card-id">~/.claude/agents/</div>
+      <div class="card-title">data-modeler</div>
+      <div class="card-desc">Schema design, S3 path architecture, DuckDB query patterns, Parent Key v1 schema. Consults before any new dataset onboarding or schema change.</div>
+      <span class="card-tag tag-blue">DATA</span><span class="card-tag tag-lav">Opus 4.7</span>
+    </div>
+    <div class="card">
+      <div class="card-id">~/.claude/agents/</div>
+      <div class="card-title">scraper-debugger</div>
+      <div class="card-desc">Web scraping and ingestion engineering. Async fetch patterns, rate limiting, retry logic, NDJSON output, S3 landing. 11 direct scrapers + 4 RSG API consumers.</div>
+      <span class="card-tag tag-amber">SCRAPE</span><span class="card-tag tag-amber">Haiku 4.5</span>
+    </div>
+    <div class="card">
+      <div class="card-id">~/.claude/agents/</div>
+      <div class="card-title">lessons-feedback</div>
+      <div class="card-desc">SLC 3-tier feedback pipeline. DONE_LOG writer. FEEDBACK.md updater. Captures build lessons and propagates to skill updates. Self-improving build loop.</div>
+      <span class="card-tag tag-green">LEARN</span><span class="card-tag tag-amber">Haiku 4.5</span>
+    </div>
+    <div class="card">
+      <div class="card-id">~/.claude/agents/</div>
+      <div class="card-title">viz-evaluator</div>
+      <div class="card-desc">Quarterly cadence: benchmarks all 14 chart renderers against npm ecosystem. Proposes renderer swaps via Slack. One approval = one router.ts line change. Zero consuming code changes.</div>
+      <span class="card-tag tag-lav">VIZ</span><span class="card-tag tag-amber">Quarterly</span>
+    </div>
+    <div class="card">
+      <div class="card-id">~/.claude/agents/</div>
+      <div class="card-title">emba-analyst</div>
+      <div class="card-desc">UCLA-NUS EMBA coursework support. Reads Obsidian vault under knowledge-bank/emba/. Learns over time. Covers frameworks, case method, finance, and residency logistics.</div>
+      <span class="card-tag tag-blue">EMBA</span><span class="card-tag tag-teal">Reads vault</span>
+    </div>
+  </div>
+
+  <div class="op-row-2">
+    <div class="op-box">
+      <div class="op-box-title">Where it lives</div>
+      <div class="op-box-content">All agents at <code>~/.claude/agents/</code>. Model routing: Opus 4.7 = data-modeler (planning). Sonnet 4.6 = autonomous-coder + jarvis-ops (execution). Haiku 4.5 = qa-agent + scraper-debugger + lessons-feedback (speed).</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">What triggers agents</div>
+      <div class="op-box-content">JARVIS !build dispatches via opusplan routing. Claude Code session triggers sub-agents contextually. viz-evaluator: cron <code>0 9 1 */3 *</code> → !build VIZ-EVAL trigger → JARVIS dispatches. lessons-feedback: post every completed build phase.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 05 SKILL FLEET ── -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">05</div>
+    <div class="section-icon">🛠</div>
+    <div class="section-title">Skill fleet</div>
+    <div class="section-status status-done">32 skills · /mnt/skills/</div>
+  </div>
+
+  <div class="skill-section">
+    <div class="skill-section-label">Public (8)</div>
+    <div class="skill-grid">
+      <span class="skill-pill tag-gray">docx</span>
+      <span class="skill-pill tag-gray">pdf</span>
+      <span class="skill-pill tag-gray">pptx</span>
+      <span class="skill-pill tag-gray">xlsx</span>
+      <span class="skill-pill tag-gray">frontend-design</span>
+      <span class="skill-pill tag-gray">file-reading</span>
+      <span class="skill-pill tag-gray">pdf-reading</span>
+      <span class="skill-pill tag-gray">self-knowledge</span>
+    </div>
+  </div>
+
+  <div class="skill-section">
+    <div class="skill-section-label">User (21) — SaSMaster IP</div>
+    <div class="skill-grid">
+      <span class="skill-pill tag-lav">fullstack-architect</span>
+      <span class="skill-pill tag-lav">uiux-mastery</span>
+      <span class="skill-pill tag-lav">autonomous-ui-designer</span>
+      <span class="skill-pill tag-lav">build-discipline</span>
+      <span class="skill-pill tag-teal">data-viz</span>
+      <span class="skill-pill tag-teal">duckdb-parquet</span>
+      <span class="skill-pill tag-teal">s3-data-architect</span>
+      <span class="skill-pill tag-teal">scraper-engineer</span>
+      <span class="skill-pill tag-teal">media-domain</span>
+      <span class="skill-pill tag-green">jarvis-ops</span>
+      <span class="skill-pill tag-green">qa-agent</span>
+      <span class="skill-pill tag-green">playwright-debugger</span>
+      <span class="skill-pill tag-green">aws-infra</span>
+      <span class="skill-pill tag-green">platform-security</span>
+      <span class="skill-pill tag-amber">shiv-executive-profile</span>
+      <span class="skill-pill tag-amber">sow-consultant</span>
+      <span class="skill-pill tag-amber">linkedin-thought-leader</span>
+      <span class="skill-pill tag-amber">emba-analyst</span>
+      <span class="skill-pill tag-blue">math-mastery</span>
+      <span class="skill-pill tag-blue">ableton-sme</span>
+      <span class="skill-pill tag-blue">no-finger-prints</span>
+    </div>
+  </div>
+
+  <div class="skill-section">
+    <div class="skill-section-label">Example (10)</div>
+    <div class="skill-grid">
+      <span class="skill-pill tag-gray">doc-coauthoring</span>
+      <span class="skill-pill tag-gray">web-artifacts-builder</span>
+      <span class="skill-pill tag-gray">skill-creator</span>
+      <span class="skill-pill tag-gray">theme-factory</span>
+      <span class="skill-pill tag-gray">mcp-builder</span>
+      <span class="skill-pill tag-gray">brand-guidelines</span>
+      <span class="skill-pill tag-gray">slack-gif-creator</span>
+      <span class="skill-pill tag-gray">algorithmic-art</span>
+      <span class="skill-pill tag-gray">canvas-design</span>
+      <span class="skill-pill tag-gray">internal-comms</span>
+    </div>
+  </div>
+
+  <div class="op-box">
+    <div class="op-box-title">Skill governance</div>
+    <div class="op-box-content">Update <code>skill-inventory.html</code> in War Room same session any skill ships. Build-discipline skill is non-negotiable — read before every build task, every task card, every Claude Code execution cycle. New-component checklist: CONTEXT.md is required artifact before any portal code is written.</div>
+  </div>
+</div>
+
+<!-- ── 06 UI/UX ARCHITECTURE ── -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">06</div>
+    <div class="section-icon">🎨</div>
+    <div class="section-title">UI/UX architecture</div>
+    <div class="section-status status-running">PERF wave running</div>
+  </div>
+
+  <div class="card-grid-2" style="margin-bottom:16px">
+    <div class="card" style="border-left:3px solid var(--green)">
+      <div class="card-title">Infrastructure sprint — 6/6 done ✅</div>
+      <div class="card-desc">
+        <strong>001</strong> Token enforcement gate — HOT at 205 real src/ violations. TOKEN-DEBT-001 pending.<br>
+        <strong>002</strong> Visual regression baseline — 6/6 screenshots in S3 sasmaster-2026/ui-baselines/2026-05-25/.<br>
+        <strong>003</strong> Sandbox isolation — template.html + 3 reference components. SANDBOX_RULE §10.<br>
+        <strong>004</strong> Design system package — 86 tokens, Style Dictionary → CSS + TS + Tailwind. 0% drift.<br>
+        <strong>005</strong> Storybook — port 6006, 4 components × 17 variants. COMPONENT_SPEC_RULE enforced.<br>
+        <strong>006</strong> CONTEXT.md + DDRs — 4 specs, 3 DDRs, new-component checklist in build-discipline.
+      </div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--amber)">
+      <div class="card-title">PERF wave — running now 🔄</div>
+      <div class="card-desc">
+        <strong>PERF-001</strong> GSAP single RAF coordinator + Framer Motion 🔄<br>
+        <strong>PERF-002</strong> Four chart libraries installed + smoke tests 🔄<br>
+        <strong>PERF-003</strong> HLS.js + Plyr video — M1 Max optimized 🔄<br><br>
+        <strong>PERF-004</strong> OGL animated backgrounds (gates on 001) ⏳<br>
+        <strong>PERF-005</strong> IntersectionObserver + device budget (gates on 001) ⏳<br>
+        <strong>TOKEN-DEBT-001</strong> CSS tokenization cleanup — 205 violations ⏳
+      </div>
+    </div>
+  </div>
+
+  <div class="op-row">
+    <div class="op-box">
+      <div class="op-box-title">Component lifecycle</div>
+      <div class="op-box-content">claude.ai artifact (design + concept) → /sandbox/ isolated file (build + QA + screenshot) → Storybook story (variants + baseline) → portal integration (wiring only, never redesign). No component skips the sandbox gate.</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">GPU compositor lanes</div>
+      <div class="op-box-content">Lane 1: CSS compositor (UI micro-animations). Lane 2: Canvas 2D (chart rendering). Lane 3: WebGL (OGL animated backgrounds, ECharts-GL). Lane 4: Hardware video decode (HLS.js). M1 Max: zero CPU↔GPU transfer bottleneck — unified memory.</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">Design system tokens</div>
+      <div class="op-box-content">Dark portal: <code>--bg-base #0a0a0f</code>, <code>--lavender #a78bfa</code>, <code>--teal #22d3ee</code>, <code>--gold #f59e0b</code>. Fonts: Bebas Neue / Barlow Condensed / Share Tech Mono. Style Dictionary: one JSON → CSS vars + TS types + Tailwind config.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 07 @SASMASTER/VIZ ── -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">07</div>
+    <div class="section-icon">📊</div>
+    <div class="section-title">@sasmaster/viz — visual intelligence platform</div>
+    <div class="section-status status-pending">VIZ-001 next</div>
+  </div>
+
+  <div class="diagram-wrap">
+    <div class="diagram-label">Unified visualization API — renderer routing</div>
+    <svg width="100%" viewBox="0 0 880 200" role="img">
+      <title>@sasmaster/viz architecture</title>
+      <desc>SaSViz component routes to four renderer libraries via lazy-loaded router</desc>
+      <defs><marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#A682F2" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+      <!-- API -->
+      <rect x="20" y="70" width="200" height="60" rx="10" fill="#EDE9FE" stroke="#7C3AED" stroke-width="1.5"/>
+      <text x="120" y="96" text-anchor="middle" font-family="DM Mono" font-size="10" fill="#7C3AED" letter-spacing="1">PORTAL CODE</text>
+      <text x="120" y="116" text-anchor="middle" font-family="DM Sans" font-size="13" font-weight="600" fill="#1E293B">&lt;SaSViz /&gt;</text>
+      <!-- Arrow to router -->
+      <line x1="222" y1="100" x2="288" y2="100" stroke="#A682F2" stroke-width="1.5" marker-end="url(#arr2)" fill="none"/>
+      <!-- Router -->
+      <rect x="290" y="60" width="180" height="80" rx="10" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+      <text x="380" y="88" text-anchor="middle" font-family="DM Mono" font-size="10" fill="#64748B" letter-spacing="1">ROUTER</text>
+      <text x="380" y="108" text-anchor="middle" font-family="DM Sans" font-size="12" font-weight="600" fill="#1E293B">router.ts</text>
+      <text x="380" y="124" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#94A3B8">lazy-loaded · 14 types</text>
+      <!-- Arrows to renderers -->
+      <line x1="472" y1="78" x2="536" y2="38" stroke="#A682F2" stroke-width="1" marker-end="url(#arr2)" fill="none"/>
+      <line x1="472" y1="92" x2="536" y2="92" stroke="#A682F2" stroke-width="1" marker-end="url(#arr2)" fill="none"/>
+      <line x1="472" y1="106" x2="536" y2="146" stroke="#A682F2" stroke-width="1" marker-end="url(#arr2)" fill="none"/>
+      <line x1="472" y1="118" x2="536" y2="172" stroke="#A682F2" stroke-width="1" marker-end="url(#arr2)" fill="none"/>
+      <!-- Renderers -->
+      <rect x="538" y="16" width="160" height="44" rx="8" fill="#EDE9FE" stroke="#A682F2" stroke-width="1"/>
+      <text x="618" y="35" text-anchor="middle" font-family="DM Sans" font-size="11" font-weight="600" fill="#7C3AED">amCharts 5</text>
+      <text x="618" y="50" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#7C3AED">Sankey · chord · maps</text>
+      <rect x="538" y="70" width="160" height="44" rx="8" fill="#E0F2FE" stroke="#0EA5E9" stroke-width="1"/>
+      <text x="618" y="89" text-anchor="middle" font-family="DM Sans" font-size="11" font-weight="600" fill="#0EA5E9">Reaviz</text>
+      <text x="618" y="104" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#0EA5E9">Line · bar · gauge · hero</text>
+      <rect x="538" y="124" width="160" height="44" rx="8" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1"/>
+      <text x="618" y="143" text-anchor="middle" font-family="DM Sans" font-size="11" font-weight="600" fill="#92400E">ECharts-GL</text>
+      <text x="618" y="158" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#92400E">Heatmap · WebGL · scale</text>
+      <rect x="538" y="152" width="160" height="44" rx="8" fill="#D1FAE5" stroke="#10B981" stroke-width="1"/>
+      <text x="618" y="171" text-anchor="middle" font-family="DM Sans" font-size="11" font-weight="600" fill="#065F46">D3</text>
+      <text x="618" y="186" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#065F46">Bubble cloud · IP charts</text>
+      <!-- Token bridge -->
+      <rect x="716" y="70" width="150" height="60" rx="8" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="791" y="96" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#64748B" letter-spacing="1">TOKEN BRIDGE</text>
+      <text x="791" y="112" text-anchor="middle" font-family="DM Mono" font-size="10" fill="#1E293B">theme-tokens.ts</text>
+      <text x="791" y="124" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#94A3B8">one change → all charts</text>
+      <line x1="700" y1="100" x2="714" y2="100" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="3,2" fill="none"/>
+    </svg>
+  </div>
+
+  <div class="code-block"><span class="c">// Portal code — only ever this. Never import chart libs directly.</span>
+<span class="k">import</span> { <span class="v">SaSViz</span> } <span class="k">from</span> <span class="s">'@sasmaster/viz'</span>
+
+<span class="c">// amCharts renderer underneath — invisible to portal</span>
+&lt;<span class="v">SaSViz</span> type=<span class="s">"sankey"</span> data={dayprtFlow} variant=<span class="s">"cinematic"</span> /&gt;
+
+<span class="c">// ECharts-GL WebGL renderer — auto-switches at 1000+ data points</span>
+&lt;<span class="v">SaSViz</span> type=<span class="s">"heatmap"</span> data={scheduleGrid} variant=<span class="s">"dense"</span> /&gt;
+
+<span class="c">// D3 bespoke IP — renderer never changes for these</span>
+&lt;<span class="v">SaSViz</span> type=<span class="s">"bubble-cloud"</span> data={audienceData} variant=<span class="s">"bespoke"</span> /&gt;</div>
+
+  <div class="op-row">
+    <div class="op-box">
+      <div class="op-box-title">SaSRenderer interface</div>
+      <div class="op-box-content">Every renderer implements: <code>render()</code>, <code>update()</code>, <code>destroy()</code>, <code>screenshot()</code> (visual regression hook), <code>pause()</code>, <code>resume()</code> (IntersectionObserver hooks). Swap = one line in router.ts.</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">viz-evaluator trigger</div>
+      <div class="op-box-content">Quarterly cron → benchmarks all 14 renderers → posts swap proposal to Slack → Shiv approves → <code>viz-swap.sh</code> runs → visual regression passes → router.ts updated → committed. Zero consumer code changes ever.</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">Build queue</div>
+      <div class="op-box-content">VIZ-001 (package scaffold + SaSViz API) → VIZ-002 (14 renderers wired) → VIZ-003 (viz-evaluator agent) → VIZ-004 (portal migration — retire nivo/G2Plot/Chart.js). Gates sequential after PERF-002.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 08 DATA ARCHITECTURE ── -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">08</div>
+    <div class="section-icon">🗄</div>
+    <div class="section-title">Data architecture</div>
+    <div class="section-status status-live">Phase 1 live</div>
+  </div>
+
+  <div class="op-row">
+    <div class="op-box">
+      <div class="op-box-title">S3 paths — LOCKED</div>
+      <div class="op-box-content"><code>tmdb_dev/</code> — TMDB metadata<br><code>imdb/&lt;dataset&gt;/YYYY-MM-DD/data.parquet</code><br><code>parent_keys/v1/YYYY-MM-DD/</code><br><code>ui-baselines/YYYY-MM-DD/</code><br><code>viz-evaluations/YYYY-QN/</code><br><code>knowledge-bank/</code> — 204 KB entries<br>Never create paths outside this registry.</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">Scraper fleet</div>
+      <div class="op-box-content">11 direct scrapers + 4 RSG API snapshot consumers via ra-linear-analytics-bundle bridge. All output NDJSON → Parquet via DuckDB. ZSTD compression. Direct Nielsen post-license pending (Phase 2b).</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">Phase progression</div>
+      <div class="op-box-content"><strong>Phase 1</strong>: TMDB + IMDB + ParentKey ✅<br><strong>Phase 1b</strong>: EIDR backfill ⏳<br><strong>Phase 2a</strong>: RSG snapshots ⏳<br><strong>Phase 2b</strong>: Direct Nielsen post-license ⏳<br>DuckDB compute layer throughout.</div>
+    </div>
+  </div>
+
+  <div class="op-row-2">
+    <div class="op-box">
+      <div class="op-box-title">AWS credential rule (May 23)</div>
+      <div class="op-box-content">NEVER pbpaste-pipe secrets to <code>gh secret set</code> — silent paste corruption. CANONICAL: AWS Console → Download .csv → <code>aws configure --profile X</code> → test locally <code>aws s3 ls --profile X</code> → <code>gh secret set --body $(aws configure get field --profile X)</code>. Always <code>--profile X</code>, never default.</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">Financial intel tracker</div>
+      <div class="op-box-content">54 companies live. War Room tab 8. SEC EDGAR cron 5:05AM daily. ECharts-GL will be the renderer when @sasmaster/viz ships — auto-WebGL at dataset size threshold on M1 Max. Real-time streaming data path.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 09 AUTONOMOUS & SELF-LEARNING ── -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">09</div>
+    <div class="section-icon">🔄</div>
+    <div class="section-title">Autonomous & self-learning systems</div>
+    <div class="section-status status-live">Multiple loops active</div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Knowledge bank nightly sync</div>
+      <div class="card-desc">KB-CI-002: cron <code>0 5 * * *</code> → kb-nightly-sync.sh → pushes Obsidian vault to S3. 204 entries across 8 domains. Nightly ensures cold + archive layers stay in sync. WAR-ROOM-RESOURCES-INDEX.md cross-links all 29 resource cards.</div>
+      <span class="card-tag tag-green">NIGHTLY</span><span class="card-tag tag-teal">S3 sync</span>
+    </div>
+    <div class="card">
+      <div class="card-title">Memory hygiene protocol</div>
+      <div class="card-desc">MEMORY-HYGIENE-001 (May 23): When hot memory slot is retired, entry moves verbatim to Obsidian with retirement headers. 30-slot ceiling enforced. Older entries compressed or moved to CLAUDE_MEMORY.md warm layer before removal.</div>
+      <span class="card-tag tag-lav">HOT→COLD</span><span class="card-tag tag-amber">30 slot max</span>
+    </div>
+    <div class="card">
+      <div class="card-title">viz-evaluator quarterly loop</div>
+      <div class="card-desc">Quarterly benchmark of all 14 chart renderers. npm ecosystem scan, render time, bundle size, visual quality score, API stability rating. Swap proposals via Slack. viz-benchmark.sh runs against Storybook stories. Baseline stored to S3.</div>
+      <span class="card-tag tag-lav">QUARTERLY</span><span class="card-tag tag-green">Self-improving</span>
+    </div>
+    <div class="card">
+      <div class="card-title">lessons-feedback pipeline</div>
+      <div class="card-desc">SLC 3-tier system: every completed build phase generates lessons. DONE_LOG captures outcomes. FEEDBACK.md accumulates patterns. High-value lessons propagate to relevant skill SKILL.md files — the skill fleet improves with every build.</div>
+      <span class="card-tag tag-green">POST-BUILD</span><span class="card-tag tag-teal">Skill updates</span>
+    </div>
+    <div class="card">
+      <div class="card-title">emba-analyst learning loop</div>
+      <div class="card-desc">All EMBA material → Obsidian → emba-analyst reads vault at session start. Framework knowledge, case studies, faculty patterns accumulate over 15 months of the UCLA-NUS program. Agent gets smarter each residency.</div>
+      <span class="card-tag tag-blue">EMBA</span><span class="card-tag tag-amber">Vault-fed</span>
+    </div>
+    <div class="card">
+      <div class="card-title">Auto-commit post-build</div>
+      <div class="card-desc">Git auto-commit fires on every completed build cycle. War Room (sasmaster-status) auto-deploys on every push via Vercel. Status.json pushed to S3 on each on-complete hook. Full audit trail maintained automatically.</div>
+      <span class="card-tag tag-teal">AUTO</span><span class="card-tag tag-green">Post-build</span>
+    </div>
+  </div>
+
+  <div class="op-row-2">
+    <div class="op-box">
+      <div class="op-box-title">Dr. Scoop autonomous memory</div>
+      <div class="op-box-content">DuckDB <code>scoop_memory</code> table stores user interactions. S3 backup runs post-session. cache_control ephemeral for Dr. Scoop API calls. userId UUID wired from portal localStorage → POST body → DuckDB write. Full memory loop live end-to-end.</div>
+    </div>
+    <div class="op-box">
+      <div class="op-box-title">Token enforcement automation</div>
+      <div class="op-box-content"><code>scripts/audit.sh</code> runs as pre-deploy gate in sasmaster-build.sh. 205 real violations HOT in active src/. TOKEN-DEBT-001 is next UI work item. Archive dirs, sandbox demos, network brand colors excluded via <code>/* token-exempt: [reason] */</code>.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 10 BUILD GOVERNANCE ── -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">10</div>
+    <div class="section-icon">⚖️</div>
+    <div class="section-title">Build governance</div>
+    <div class="section-status status-done">Enforced</div>
+  </div>
+
+  <table class="route-table">
+    <thead><tr><th>Rule</th><th>Where enforced</th><th>Gate</th></tr></thead>
+    <tbody>
+      <tr><td>build-discipline skill</td><td>Read before every build task — non-negotiable</td><td>/mnt/skills/user/build-discipline/SKILL.md</td></tr>
+      <tr><td>SANDBOX_RULE §10</td><td>New component or significant rework → sandbox first</td><td>/sandbox/ dir + screenshot before portal integration</td></tr>
+      <tr><td>COMPONENT_SPEC_RULE</td><td>Write Storybook story before building component</td><td>Storybook port 6006 must show story before merge</td></tr>
+      <tr><td>Token audit gate</td><td>Pre-deploy in sasmaster-build.sh — blocks on violations</td><td>bash scripts/audit.sh ‖ exit 1</td></tr>
+      <tr><td>Visual regression</td><td>Post-build compare.sh against S3 baseline</td><td>&lt;2% pixel diff threshold</td></tr>
+      <tr><td>JARVIS sole write gate</td><td>All task state changes via JARVIS only</td><td>tasks.db SQLite WAL — no direct writes</td></tr>
+      <tr><td>No direct lib imports</td><td>Portals import only @sasmaster/viz</td><td>grep check — zero echarts/reaviz/amcharts in portal code</td></tr>
+      <tr><td>CONTEXT.md required</td><td>Every new component ships with CONTEXT.md</td><td>New-component checklist in build-discipline</td></tr>
+      <tr><td>DDR for key decisions</td><td>Architectural decisions documented in /docs/decisions/</td><td>DDR-001 through DDR-003 live; DDR-004 (chart ownership) locked</td></tr>
+      <tr><td>Automation over manual</td><td>Platform-wide principle</td><td>If a manual path exists alongside automated, automated is always chosen</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="doc-footer">
+  <div class="footer-text">SASMASTER PLATFORM · ARCHITECTURE v13 · 2026-05-25</div>
+  <div class="footer-text">WAR ROOM · sasmaster-status.vercel.app · OPERATOR REFERENCE</div>
+</div>
+
+</div>
+</body>
+</html>
