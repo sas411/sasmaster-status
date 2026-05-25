@@ -1033,7 +1033,8 @@ try {
 } catch {}
 
 const status = {
-  generated: new Date().toISOString(),
+  generated:    new Date().toISOString(),
+  generated_at: new Date().toISOString(),  // alias — Railway health check reads this
   system:    { jarvis: { alive: jarvisAlive() } },
 
   queue: {
