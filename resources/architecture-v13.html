@@ -298,6 +298,121 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
     </div>
   </div>
 
+  <div class="diagram-wrap" style="margin-bottom:16px">
+    <div class="diagram-label">Memory tiering — capacity vs access speed</div>
+    <svg width="100%" viewBox="0 0 880 280" role="img" aria-label="Memory tiering visualization">
+      <defs>
+        <marker id="arr-retire" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#CBD5E1" stroke-width="1.5" stroke-linecap="round"/>
+        </marker>
+      </defs>
+      <!-- ROW 1: HOT -->
+      <rect x="20" y="10" width="840" height="52" rx="6" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
+      <text x="38" y="32" font-family="DM Mono,monospace" font-size="8" fill="#7C3AED" letter-spacing="1.5">L1</text>
+      <text x="38" y="53" font-family="DM Mono,monospace" font-size="13" font-weight="700" fill="#7C3AED">HOT</text>
+      <line x1="80" y1="14" x2="80" y2="58" stroke="#7C3AED" stroke-width="1" opacity="0.25"/>
+      <text x="96" y="30" font-family="DM Sans,sans-serif" font-size="13" font-weight="600" fill="#1E293B">claude.ai memory slots</text>
+      <text x="96" y="50" font-family="DM Mono,monospace" font-size="9.5" fill="#475569">30 slots · Active session · Auto-injected into every conversation · MEMORY-HYGIENE-001</text>
+      <text x="858" y="28" text-anchor="end" font-family="DM Mono,monospace" font-size="10" font-weight="600" fill="#7C3AED">30 slots</text>
+      <text x="858" y="42" text-anchor="end" font-family="DM Mono,monospace" font-size="9" fill="#94A3B8">session scope</text>
+      <text x="858" y="56" text-anchor="end" font-family="DM Mono,monospace" font-size="9" fill="#94A3B8">instant access</text>
+      <!-- Arrow 1→2 -->
+      <line x1="440" y1="64" x2="440" y2="78" stroke="#CBD5E1" stroke-width="1.5" marker-end="url(#arr-retire)"/>
+      <text x="452" y="74" font-family="DM Mono,monospace" font-size="8" fill="#94A3B8">retire on limit</text>
+      <!-- ROW 2: WARM -->
+      <rect x="20" y="80" width="840" height="52" rx="6" fill="#F0F9FF" stroke="#0EA5E9" stroke-width="1.5"/>
+      <text x="38" y="102" font-family="DM Mono,monospace" font-size="8" fill="#0891B2" letter-spacing="1.5">L2</text>
+      <text x="34" y="123" font-family="DM Mono,monospace" font-size="11" font-weight="700" fill="#0891B2">WARM</text>
+      <line x1="80" y1="84" x2="80" y2="128" stroke="#0EA5E9" stroke-width="1" opacity="0.25"/>
+      <text x="96" y="100" font-family="DM Sans,sans-serif" font-size="13" font-weight="600" fill="#1E293B">CLAUDE_MEMORY.md</text>
+      <text x="96" y="120" font-family="DM Mono,monospace" font-size="9.5" fill="#475569">Repo-committed · Session-start read · Updated by autonomous-coder post-build · Cross-session bridge</text>
+      <text x="858" y="98" text-anchor="end" font-family="DM Mono,monospace" font-size="10" font-weight="600" fill="#0891B2">unlimited</text>
+      <text x="858" y="112" text-anchor="end" font-family="DM Mono,monospace" font-size="9" fill="#94A3B8">repo-committed</text>
+      <text x="858" y="126" text-anchor="end" font-family="DM Mono,monospace" font-size="9" fill="#94A3B8">session-start read</text>
+      <!-- Arrow 2→3 -->
+      <line x1="440" y1="134" x2="440" y2="148" stroke="#CBD5E1" stroke-width="1.5" marker-end="url(#arr-retire)"/>
+      <text x="452" y="144" font-family="DM Mono,monospace" font-size="8" fill="#94A3B8">retire / compress</text>
+      <!-- ROW 3: COLD -->
+      <rect x="20" y="150" width="840" height="52" rx="6" fill="#FFFBEB" stroke="#D97706" stroke-width="1.5"/>
+      <text x="38" y="172" font-family="DM Mono,monospace" font-size="8" fill="#D97706" letter-spacing="1.5">L3</text>
+      <text x="36" y="193" font-family="DM Mono,monospace" font-size="11" font-weight="700" fill="#D97706">COLD</text>
+      <line x1="80" y1="154" x2="80" y2="198" stroke="#D97706" stroke-width="1" opacity="0.25"/>
+      <text x="96" y="170" font-family="DM Sans,sans-serif" font-size="13" font-weight="600" fill="#1E293B">Obsidian vault</text>
+      <text x="96" y="190" font-family="DM Mono,monospace" font-size="9.5" fill="#475569">knowledge-bank/.obsidian/ · Retired hot memories · EMBA material · emba-analyst reads over time</text>
+      <text x="858" y="168" text-anchor="end" font-family="DM Mono,monospace" font-size="10" font-weight="600" fill="#D97706">Obsidian vault</text>
+      <text x="858" y="182" text-anchor="end" font-family="DM Mono,monospace" font-size="9" fill="#94A3B8">manual retrieval</text>
+      <text x="858" y="196" text-anchor="end" font-family="DM Mono,monospace" font-size="9" fill="#94A3B8">cold access</text>
+      <!-- Arrow 3→4 -->
+      <line x1="440" y1="204" x2="440" y2="218" stroke="#CBD5E1" stroke-width="1.5" marker-end="url(#arr-retire)"/>
+      <text x="452" y="214" font-family="DM Mono,monospace" font-size="8" fill="#94A3B8">nightly sync · KB-CI-002 · cron 0 5 * * *</text>
+      <!-- ROW 4: ARCHIVE -->
+      <rect x="20" y="220" width="840" height="52" rx="6" fill="#F0FDF4" stroke="#059669" stroke-width="1.5"/>
+      <text x="36" y="242" font-family="DM Mono,monospace" font-size="8" fill="#059669" letter-spacing="1.5">L4</text>
+      <text x="28" y="263" font-family="DM Mono,monospace" font-size="9" font-weight="700" fill="#059669">ARCHIVE</text>
+      <line x1="80" y1="224" x2="80" y2="268" stroke="#059669" stroke-width="1" opacity="0.25"/>
+      <text x="96" y="240" font-family="DM Sans,sans-serif" font-size="13" font-weight="600" fill="#1E293B">S3 knowledge bank</text>
+      <text x="96" y="260" font-family="DM Mono,monospace" font-size="9.5" fill="#475569">s3://sasmaster-2026/knowledge-bank/ · 204 entries · 8 domains · ui-baselines/ · viz-evaluations/</text>
+      <text x="858" y="238" text-anchor="end" font-family="DM Mono,monospace" font-size="10" font-weight="600" fill="#059669">204 entries</text>
+      <text x="858" y="252" text-anchor="end" font-family="DM Mono,monospace" font-size="9" fill="#94A3B8">8 domains</text>
+      <text x="858" y="266" text-anchor="end" font-family="DM Mono,monospace" font-size="9" fill="#94A3B8">nightly CI sync</text>
+    </svg>
+  </div>
+
+  <div class="diagram-wrap" style="margin-bottom:16px">
+    <div class="diagram-label">Self-learning pipeline — SLC 3-tier build loop</div>
+    <svg width="100%" viewBox="0 0 880 165" role="img" aria-label="Self-learning pipeline">
+      <defs>
+        <marker id="arr-slc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#A682F2" stroke-width="1.5" stroke-linecap="round"/>
+        </marker>
+        <marker id="arr-loop" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/>
+        </marker>
+      </defs>
+      <!-- Stage 1: Build Phase -->
+      <rect x="20" y="20" width="140" height="80" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/>
+      <text x="90" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#7C3AED" letter-spacing="1.5">TRIGGER</text>
+      <text x="90" y="64" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#1E293B">Build phase</text>
+      <text x="90" y="80" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">complete</text>
+      <text x="90" y="94" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">post-build hook</text>
+      <!-- Arrow 1→2 -->
+      <line x1="162" y1="60" x2="178" y2="60" stroke="#A682F2" stroke-width="1.5" marker-end="url(#arr-slc)"/>
+      <!-- Stage 2: DONE_LOG -->
+      <rect x="180" y="20" width="140" height="80" rx="8" fill="#F0F9FF" stroke="#0EA5E9" stroke-width="1.5"/>
+      <text x="250" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#0891B2" letter-spacing="1.5">CAPTURE</text>
+      <text x="250" y="64" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#1E293B">DONE_LOG</text>
+      <text x="250" y="80" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">outcomes</text>
+      <text x="250" y="94" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">cost · status</text>
+      <!-- Arrow 2→3 -->
+      <line x1="322" y1="60" x2="338" y2="60" stroke="#A682F2" stroke-width="1.5" marker-end="url(#arr-slc)"/>
+      <!-- Stage 3: FEEDBACK.md -->
+      <rect x="340" y="20" width="140" height="80" rx="8" fill="#FFFBEB" stroke="#D97706" stroke-width="1.5"/>
+      <text x="410" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#D97706" letter-spacing="1.5">ACCUMULATE</text>
+      <text x="410" y="62" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#1E293B">FEEDBACK.md</text>
+      <text x="410" y="78" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">pattern</text>
+      <text x="410" y="94" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">accumulation</text>
+      <!-- Arrow 3→4 -->
+      <line x1="482" y1="60" x2="498" y2="60" stroke="#A682F2" stroke-width="1.5" marker-end="url(#arr-slc)"/>
+      <!-- Stage 4: LESSONS.md -->
+      <rect x="500" y="20" width="140" height="80" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+      <text x="570" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#3B82F6" letter-spacing="1.5">QUALITY GATE</text>
+      <text x="570" y="62" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#1E293B">LESSONS.md</text>
+      <text x="570" y="78" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">≥3× → skill-worthy</text>
+      <text x="570" y="94" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">threshold gate</text>
+      <!-- Arrow 4→5 -->
+      <line x1="642" y1="60" x2="658" y2="60" stroke="#A682F2" stroke-width="1.5" marker-end="url(#arr-slc)"/>
+      <!-- Stage 5: SKILL.md -->
+      <rect x="660" y="20" width="200" height="80" rx="8" fill="#F0FDF4" stroke="#059669" stroke-width="1.5"/>
+      <text x="760" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#059669" letter-spacing="1.5">FLEET UPDATE</text>
+      <text x="760" y="62" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#1E293B">SKILL.md</text>
+      <text x="760" y="78" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">Fri 17:50 · skill-review.sh</text>
+      <text x="760" y="94" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">32 skills installed</text>
+      <!-- Feedback loop: stage 5 bottom → arc → stage 1 bottom -->
+      <path d="M 760 102 Q 760 140 440 140 Q 90 140 90 102" fill="none" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-loop)"/>
+      <text x="440" y="156" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#94A3B8" letter-spacing="0.5">improves every build → self-evolving skill fleet</text>
+    </svg>
+  </div>
+
   <div class="op-row">
     <div class="op-box">
       <div class="op-box-title">Dr. Scoop memory loop</div>
