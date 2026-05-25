@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI/UX Engineering Brief — SaSMaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #F0F4F8;
+    color: #1E293B;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 40px 24px;
+    min-height: 100vh;
+  }
+  .container { max-width: 980px; margin: 0 auto; }
+  .breadcrumb { font-family: 'DM Mono', monospace; font-size: 11px; color: #94A3B8; letter-spacing: .04em; margin-bottom: 10px; }
+  h1 { font-size: 22px; font-weight: 700; color: #0F172A; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #64748B; margin-bottom: 6px; }
+  .meta-row { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; }
+  .badge {
+    display: inline-block; padding: 2px 9px; border-radius: 10px;
+    font-size: 10px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  }
+  .badge-green  { background: #D1FAE5; color: #065F46; }
+  .badge-blue   { background: #DBEAFE; color: #1E40AF; }
+  .badge-amber  { background: #FEF3C7; color: #92400E; }
+  .badge-slate  { background: #F1F5F9; color: #475569; }
+  .badge-purple { background: #EDE9FE; color: #5B21B6; }
+
+  .section-label {
+    font-size: 11px; font-weight: 600; color: #64748B;
+    letter-spacing: .07em; text-transform: uppercase;
+    margin-bottom: 12px; padding-bottom: 8px;
+    border-bottom: 0.5px solid #E2E8F0;
+  }
+  .section { margin-bottom: 32px; }
+
+  /* Status strip */
+  .status-strip {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: #fff; border: 0.5px solid #E2E8F0; border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .stat-label { font-size: 10px; font-weight: 500; color: #94A3B8; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 4px; }
+  .stat-value { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; color: #0F172A; }
+  .stat-sub { font-size: 11px; color: #94A3B8; margin-top: 2px; }
+
+  /* Layer cards */
+  .layers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
+  .layer-card {
+    background: #fff; border: 0.5px solid #E2E8F0; border-radius: 12px; overflow: hidden;
+  }
+  .layer-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px 10px; border-bottom: 0.5px solid #F1F5F9;
+  }
+  .layer-title { font-size: 13px; font-weight: 600; color: #0F172A; }
+  .layer-id { font-family: 'DM Mono', monospace; font-size: 10px; color: #94A3B8; }
+  .layer-body { padding: 12px 16px; }
+  .layer-row {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 12px; color: #475569;
+    padding: 4px 0; border-bottom: 0.5px solid #F8FAFC;
+  }
+  .layer-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .dot-green  { background: #10B981; }
+  .dot-blue   { background: #3B82F6; }
+  .dot-amber  { background: #F59E0B; }
+  .dot-red    { background: #EF4444; }
+  .dot-purple { background: #8B5CF6; }
+  .dot-slate  { background: #94A3B8; }
+
+  /* Token audit table */
+  .audit-card {
+    background: #fff; border: 0.5px solid #E2E8F0; border-radius: 12px;
+    overflow: hidden; margin-bottom: 32px;
+  }
+  .audit-header {
+    display: grid; grid-template-columns: 2fr 80px 80px 1fr;
+    padding: 9px 16px; font-size: 11px; font-weight: 500; color: #94A3B8;
+    font-family: 'DM Mono', monospace; background: #F8FAFC;
+    border-bottom: 0.5px solid #E2E8F0;
+  }
+  .audit-header span:not(:first-child) { text-align: right; }
+  .audit-row {
+    display: grid; grid-template-columns: 2fr 80px 80px 1fr;
+    padding: 8px 16px; font-size: 12px; color: #334155;
+    border-bottom: 0.5px solid #F8FAFC; align-items: center;
+  }
+  .audit-row:last-child { border-bottom: none; }
+  .audit-row:hover { background: #FAFBFC; }
+  .audit-row span:not(:first-child) { text-align: right; font-family: 'DM Mono', monospace; }
+  .num-red    { color: #DC2626; }
+  .num-amber  { color: #D97706; }
+  .num-green  { color: #059669; }
+  .file-name  { font-family: 'DM Mono', monospace; font-size: 11px; }
+
+  /* Protocol steps */
+  .protocol-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 32px; }
+  .protocol-card {
+    background: #fff; border: 0.5px solid #E2E8F0; border-radius: 12px;
+    padding: 16px;
+  }
+  .step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 700;
+    background: #0F172A; color: #fff; margin-right: 8px; flex-shrink: 0;
+  }
+  .step-header { display: flex; align-items: center; margin-bottom: 6px; }
+  .step-title { font-size: 13px; font-weight: 600; color: #0F172A; }
+  .step-desc { font-size: 12px; color: #64748B; line-height: 1.5; }
+  code {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    background: #F1F5F9; border-radius: 4px; padding: 1px 5px; color: #334155;
+  }
+
+  /* Token package */
+  .token-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
+  .token-card {
+    background: #fff; border: 0.5px solid #E2E8F0; border-radius: 12px; padding: 16px;
+  }
+  .token-card-title { font-size: 12px; font-weight: 600; color: #0F172A; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .token-item { font-size: 11px; color: #64748B; padding: 3px 0; border-bottom: 0.5px solid #F8FAFC; display: flex; justify-content: space-between; }
+  .token-item:last-child { border-bottom: none; }
+  .token-val { font-family: 'DM Mono', monospace; color: #334155; }
+
+  /* DDR list */
+  .ddr-card {
+    background: #fff; border: 0.5px solid #E2E8F0; border-radius: 12px;
+    overflow: hidden; margin-bottom: 12px;
+  }
+  .ddr-row {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 16px; border-bottom: 0.5px solid #F8FAFC;
+  }
+  .ddr-row:last-child { border-bottom: none; }
+  .ddr-id { font-family: 'DM Mono', monospace; font-size: 11px; color: #94A3B8; flex-shrink: 0; width: 60px; padding-top: 1px; }
+  .ddr-title { font-size: 13px; font-weight: 600; color: #0F172A; margin-bottom: 2px; }
+  .ddr-desc { font-size: 12px; color: #64748B; }
+
+  /* Debt table */
+  .debt-banner {
+    background: #FFFBEB; border: 0.5px solid #FDE68A; border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px; font-size: 13px; color: #92400E;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 40px; padding-top: 16px; border-top: 0.5px solid #E2E8F0;
+    font-size: 11px; color: #94A3B8; font-family: 'DM Mono', monospace;
+    display: flex; justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="breadcrumb">SASMASTER · RESOURCES · ARCHITECTURE</div>
+  <h1>UI/UX Engineering Brief</h1>
+  <p class="subtitle">Token system · Visual regression · Sandbox protocol · Design system package · Storybook · DDR structure</p>
+  <div class="meta-row">
+    <span class="badge badge-green">PHASE 1 COMPLETE</span>
+    <span class="badge badge-blue">6/6 UI-INFRA TASKS</span>
+    <span class="badge badge-amber">205 TOKEN-DEBT PENDING</span>
+    <span class="badge badge-slate">2026-05-25</span>
+  </div>
+
+  <!-- Status strip -->
+  <div class="status-strip">
+    <div class="stat-card">
+      <div class="stat-label">Token Allowlist</div>
+      <div class="stat-value">86</div>
+      <div class="stat-sub">canonical tokens</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Violations</div>
+      <div class="stat-value" style="color:#D97706">205</div>
+      <div class="stat-sub">src/ debt tracked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Baselines</div>
+      <div class="stat-value">6</div>
+      <div class="stat-sub">screenshots @ S3</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Storybook</div>
+      <div class="stat-value">17</div>
+      <div class="stat-sub">variants across 4 components</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">DDRs</div>
+      <div class="stat-value">3</div>
+      <div class="stat-sub">design decisions locked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Build Gate</div>
+      <div class="stat-value" style="color:#DC2626">HOT</div>
+      <div class="stat-sub">blocks on violations</div>
+    </div>
+  </div>
+
+  <!-- 6 layers -->
+  <div class="section">
+    <div class="section-label">What Was Built — UI-INFRA-001 through 006</div>
+    <div class="layers-grid">
+
+      <div class="layer-card">
+        <div class="layer-header">
+          <span class="layer-title">Token Audit Gate</span>
+          <span class="layer-id">UI-INFRA-001</span>
+        </div>
+        <div class="layer-body">
+          <div class="layer-row"><div class="dot dot-green"></div><span><code>scripts/audit.sh</code> — greps all active <code>src/</code>, <code>sandbox/</code>, <code>packages/design-system/stories/</code></span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>Allowlist extracted from <code>design-system/tokens.md</code> — 44 hex + 58 rgba patterns</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>Escape hatches: <code>token-exempt:</code> (line), <code>token-exempt-block-start/end</code> (block), <code>file-token-exempt:</code> (file)</span></div>
+          <div class="layer-row"><div class="dot dot-amber"></div><span>Wired into <code>sasmaster-build.sh</code> as pre-deploy gate — <code>exit 1</code> on violations</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>Report: <code>reports/token-audit-YYYY-MM-DD.txt</code></span></div>
+        </div>
+      </div>
+
+      <div class="layer-card">
+        <div class="layer-header">
+          <span class="layer-title">Visual Regression</span>
+          <span class="layer-id">UI-INFRA-002</span>
+        </div>
+        <div class="layer-body">
+          <div class="layer-row"><div class="dot dot-green"></div><span>6 screenshots at 1280×900 — portal home, CONTENT, ADVERTISING, detail, War Room tab 1 + last</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>Uploaded: <code>s3://sasmaster-2026/ui-baselines/2026-05-25/</code></span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span><code>scripts/compare-baseline.sh</code> — pixelmatch diff, 0.5% threshold (env configurable)</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>Self-test: 6/6 PASS at 0% diff</span></div>
+          <div class="layer-row"><div class="dot dot-slate"></div><span>CONTENT nav selector needs update — fallback captured default state</span></div>
+        </div>
+      </div>
+
+      <div class="layer-card">
+        <div class="layer-header">
+          <span class="layer-title">Sandbox Protocol</span>
+          <span class="layer-id">UI-INFRA-003</span>
+        </div>
+        <div class="layer-body">
+          <div class="layer-row"><div class="dot dot-green"></div><span><code>sandbox/README.md</code> — mandatory build-here-first protocol for all new UI work</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span><code>sandbox/template.html</code> — standalone starter with full <code>:root {}</code> token block + font loading</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>3 reference components extracted: KPI card, metric strip, Dr. Scoop panel</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span><code>SANDBOX_RULE</code> added to build-discipline SKILL.md — §10</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span><code>.vercelignore</code> excludes <code>sandbox/</code> from deploys</span></div>
+        </div>
+      </div>
+
+      <div class="layer-card">
+        <div class="layer-header">
+          <span class="layer-title">Design System Package</span>
+          <span class="layer-id">UI-INFRA-004</span>
+        </div>
+        <div class="layer-body">
+          <div class="layer-row"><div class="dot dot-green"></div><span><code>packages/design-system/</code> — private workspace package <code>@sasmaster/design-system</code></span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>86 tokens converted via Style Dictionary 4.x from <code>tokens.md</code></span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>3 outputs: <code>dist/tokens.css</code> · <code>dist/tokens.ts</code> · <code>dist/tailwind.config.js</code></span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>Import-swap test: 0% functional drift vs inline tokens</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>Root <code>package.json</code> workspaces wired to <code>packages/*</code></span></div>
+        </div>
+      </div>
+
+      <div class="layer-card">
+        <div class="layer-header">
+          <span class="layer-title">Storybook</span>
+          <span class="layer-id">UI-INFRA-005</span>
+        </div>
+        <div class="layer-body">
+          <div class="layer-row"><div class="dot dot-green"></div><span>Storybook 8.6 · <code>@storybook/html-vite</code> · 501ms startup</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>Dark theme default — <code>var(--bg-base)</code> #0a0a0f · all 4 fonts loaded</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span><strong>KPICard</strong>: Default · Loading · NegativeDelta · PositiveDelta · CompactGrid</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span><strong>MetricStrip</strong>: Default · Compact · SectionHeader</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span><strong>NavBar</strong>: Default · ActiveSection · Loading &nbsp;|&nbsp; <strong>DrScoop</strong>: Default · Expanded · WithMessages · Alert</span></div>
+        </div>
+      </div>
+
+      <div class="layer-card">
+        <div class="layer-header">
+          <span class="layer-title">CONTEXT.md + DDRs</span>
+          <span class="layer-id">UI-INFRA-006</span>
+        </div>
+        <div class="layer-body">
+          <div class="layer-row"><div class="dot dot-green"></div><span><code>docs/CONTEXT_TEMPLATE.md</code> + <code>docs/DDR_TEMPLATE.md</code> — canonical templates</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>4 component CONTEXT.md files alongside stories — tokens, constraints, edge cases, DDR refs</span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>3 DDRs written in <code>docs/decisions/</code></span></div>
+          <div class="layer-row"><div class="dot dot-green"></div><span>New-component checklist added to build-discipline — 7 gates before portal integration</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Token violation breakdown -->
+  <div class="section">
+    <div class="section-label">Token Audit — Active Violations (TOKEN-DEBT-001)</div>
+    <div class="debt-banner">
+      <span>⚠</span>
+      <span>205 violations in <code>src/</code> — build gate is live and blocking. Brand colors, sandbox files, and multi-theme variants have been exempted. Remaining are genuine CSS tokenization debt.</span>
+    </div>
+    <div class="audit-card">
+      <div class="audit-header">
+        <span>File</span>
+        <span>Violations</span>
+        <span>Status</span>
+        <span>Fix Strategy</span>
+      </div>
+      <div class="audit-row">
+        <span class="file-name">src/home.css</span>
+        <span class="num-red">77</span>
+        <span><span class="badge badge-amber">DEBT</span></span>
+        <span style="font-size:11px;color:#64748B">Map to token vars or add named tokens</span>
+      </div>
+      <div class="audit-row">
+        <span class="file-name">src/global.css</span>
+        <span class="num-red">31</span>
+        <span><span class="badge badge-amber">DEBT</span></span>
+        <span style="font-size:11px;color:#64748B">Global utility shades → token vars</span>
+      </div>
+      <div class="audit-row">
+        <span class="file-name">src/program-route.jsx</span>
+        <span class="num-amber">23</span>
+        <span><span class="badge badge-amber">DEBT</span></span>
+        <span style="font-size:11px;color:#64748B">Component colors → tokens or token-exempt</span>
+      </div>
+      <div class="audit-row">
+        <span class="file-name">src/macro.jsx</span>
+        <span class="num-amber">21</span>
+        <span><span class="badge badge-amber">DEBT</span></span>
+        <span style="font-size:11px;color:#64748B">Component colors → tokens</span>
+      </div>
+      <div class="audit-row">
+        <span class="file-name">src/program-route.css</span>
+        <span class="num-amber">17</span>
+        <span><span class="badge badge-amber">DEBT</span></span>
+        <span style="font-size:11px;color:#64748B">CSS shades → token vars</span>
+      </div>
+      <div class="audit-row">
+        <span class="file-name">src/shell.css · src/portals.css</span>
+        <span class="num-amber">20</span>
+        <span><span class="badge badge-amber">DEBT</span></span>
+        <span style="font-size:11px;color:#64748B">Shell + portal shades → tokens</span>
+      </div>
+      <div class="audit-row">
+        <span class="file-name">src/video/plyr-theme.css</span>
+        <span style="font-family:'DM Mono',monospace;color:#64748B">8</span>
+        <span><span class="badge badge-slate">REVIEW</span></span>
+        <span style="font-size:11px;color:#64748B">3rd-party player theme — likely needs file-token-exempt</span>
+      </div>
+      <div class="audit-row">
+        <span class="file-name">src/shell.jsx · src/macro.css · src/theme.jsx</span>
+        <span class="num-green">8</span>
+        <span><span class="badge badge-slate">REVIEW</span></span>
+        <span style="font-size:11px;color:#64748B">Small counts — quick pass</span>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#94A3B8;font-family:'DM Mono',monospace">Verify: <code style="background:#E2E8F0">bash scripts/audit.sh</code> · Gate passes at exit 0</p>
+  </div>
+
+  <!-- Sandbox protocol -->
+  <div class="section">
+    <div class="section-label">New Component Protocol — Mandatory 7-Gate Checklist</div>
+    <div class="protocol-grid">
+      <div class="protocol-card">
+        <div class="step-header"><span class="step-num">1</span><span class="step-title">Build in Sandbox First</span></div>
+        <p class="step-desc">Create <code>sandbox/&lt;component&gt;-sandbox.html</code>. Must render standalone at <code>file://</code> — no server, no imports, tokens inline.</p>
+      </div>
+      <div class="protocol-card">
+        <div class="step-header"><span class="step-num">2</span><span class="step-title">QA Agent Pass</span></div>
+        <p class="step-desc">Run <code>node scripts/qa-agent.js sandbox/&lt;component&gt;.html</code>. Fix all failures before proceeding.</p>
+      </div>
+      <div class="protocol-card">
+        <div class="step-header"><span class="step-num">3</span><span class="step-title">Write the Story First</span></div>
+        <p class="step-desc">Add <code>packages/design-system/stories/&lt;Component&gt;.stories.js</code> with Default + Loading + Error variants minimum.</p>
+      </div>
+      <div class="protocol-card">
+        <div class="step-header"><span class="step-num">4</span><span class="step-title">Storybook Renders</span></div>
+        <p class="step-desc">Run <code>npm run storybook</code> in <code>packages/design-system/</code>. All variants must render on dark background at port 6006.</p>
+      </div>
+      <div class="protocol-card">
+        <div class="step-header"><span class="step-num">5</span><span class="step-title">Write CONTEXT.md</span></div>
+        <p class="step-desc">Create <code>&lt;Component&gt;.CONTEXT.md</code> alongside the story. Document tokens used, hard constraints, edge cases. Template at <code>docs/CONTEXT_TEMPLATE.md</code>.</p>
+      </div>
+      <div class="protocol-card">
+        <div class="step-header"><span class="step-num">6</span><span class="step-title">Zero Token Violations</span></div>
+        <p class="step-desc">Run <code>bash scripts/audit.sh</code>. Gate must exit 0. Use <code>token-exempt-block-start/end</code> for brand/screen accent colors only.</p>
+      </div>
+    </div>
+    <div class="protocol-card" style="margin-bottom:0">
+      <div class="step-header"><span class="step-num">7</span><span class="step-title">Only Then: Copy to Portal</span></div>
+      <p class="step-desc">All 6 gates above must pass before component logic is integrated into portal. No exceptions. Write a DDR for any decision that would surprise a future developer — template at <code>docs/DDR_TEMPLATE.md</code>.</p>
+    </div>
+  </div>
+
+  <!-- Design System Package -->
+  <div class="section">
+    <div class="section-label">@sasmaster/design-system — Token Categories</div>
+    <div class="token-grid">
+      <div class="token-card">
+        <div class="token-card-title"><span class="badge badge-purple">COLOR</span> Portal Surface · 35 tokens</div>
+        <div class="token-item"><span>Backgrounds</span><span class="token-val">9</span></div>
+        <div class="token-item"><span>Accent colors</span><span class="token-val">16</span></div>
+        <div class="token-item"><span>Text</span><span class="token-val">4</span></div>
+        <div class="token-item"><span>Borders</span><span class="token-val">4</span></div>
+        <div class="token-item"><span>Semantic aliases</span><span class="token-val">4</span></div>
+      </div>
+      <div class="token-card">
+        <div class="token-card-title"><span class="badge badge-blue">COLOR</span> War Room Surface · 28 tokens</div>
+        <div class="token-item"><span>Backgrounds</span><span class="token-val">3</span></div>
+        <div class="token-item"><span>Borders</span><span class="token-val">2</span></div>
+        <div class="token-item"><span>Text</span><span class="token-val">3</span></div>
+        <div class="token-item"><span>Semantic (green/blue/amber/red)</span><span class="token-val">16</span></div>
+        <div class="token-item"><span>Layout constants</span><span class="token-val">4</span></div>
+      </div>
+      <div class="token-card">
+        <div class="token-card-title"><span class="badge badge-slate">UTILITY</span> Both Surfaces · 33 tokens</div>
+        <div class="token-item"><span>White + alpha variants</span><span class="token-val">20</span></div>
+        <div class="token-item"><span>Black + alpha variants</span><span class="token-val">8</span></div>
+        <div class="token-item"><span>Lav-white overlays</span><span class="token-val">5</span></div>
+        <div class="token-item"><span>Motion (easing + duration)</span><span class="token-val">8</span></div>
+        <div class="token-item"><span>Spacing + elevation</span><span class="token-val">8</span></div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#94A3B8;margin-top:-8px;font-family:'DM Mono',monospace">
+      Source: <code style="background:#E2E8F0">design-system/tokens.md</code> →
+      Style Dictionary 4.x →
+      <code style="background:#E2E8F0">packages/design-system/dist/tokens.css</code> ·
+      <code style="background:#E2E8F0">dist/tokens.ts</code> ·
+      <code style="background:#E2E8F0">dist/tailwind.config.js</code>
+    </p>
+  </div>
+
+  <!-- DDRs -->
+  <div class="section">
+    <div class="section-label">Design Decision Records — docs/decisions/</div>
+    <div class="ddr-card">
+      <div class="ddr-row">
+        <span class="ddr-id">DDR-001</span>
+        <div>
+          <div class="ddr-title">D3 Force Simulation Retirement</div>
+          <div class="ddr-desc">Removed force-directed graphs — 40% CPU reduction, physics adds no analytical value for media intelligence use case. Do not revert: performance budget is strict; any graph need can be met with Sankey/amCharts without physics sim.</div>
+        </div>
+      </div>
+      <div class="ddr-row">
+        <span class="ddr-id">DDR-002</span>
+        <div>
+          <div class="ddr-title">Dr. Scoop Component Isolation Pattern</div>
+          <div class="ddr-desc">Dr. Scoop fetches its own data, manages its own state, accepts only a <code>userId</code> init call. Prior wiring caused cascading re-renders. Isolation is what makes it embeddable across portal, War Room, and research portal without refactor.</div>
+        </div>
+      </div>
+      <div class="ddr-row">
+        <span class="ddr-id">DDR-003</span>
+        <div>
+          <div class="ddr-title">Dark Cinematic Token System — Canonical Adoption</div>
+          <div class="ddr-desc">All portal UI uses exclusively <code>tokens.md</code> v1.0. Hardcoded hex/rgb banned from active source — enforced by <code>audit.sh</code> build gate. Prior state: 300+ unique color values, no shared vocabulary, style changes required multi-file find/replace.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Visual baseline -->
+  <div class="section">
+    <div class="section-label">Visual Regression Baseline — S3 Path</div>
+    <div class="audit-card">
+      <div class="audit-header">
+        <span>Screenshot</span>
+        <span style="text-align:left">URL</span>
+        <span>Resolution</span>
+        <span>Status</span>
+      </div>
+      <div class="audit-row">
+        <span class="file-name">portal-home.png</span>
+        <span style="font-size:11px;color:#64748B;font-family:'DM Mono',monospace;text-align:left">s3://sasmaster-2026/ui-baselines/2026-05-25/</span>
+        <span>1280×900</span>
+        <span><span class="badge badge-green">CAPTURED</span></span>
+      </div>
+      <div class="audit-row">
+        <span class="file-name">portal-advertising.png</span>
+        <span style="font-size:11px;color:#64748B;text-align:left">—</span>
+        <span>1280×900</span>
+        <span><span class="badge badge-green">CAPTURED</span></span>
+      </div>
+      <div class="audit-row">
+        <span class="file-name">portal-content.png</span>
+        <span style="font-size:11px;color:#64748B;text-align:left">—</span>
+        <span>1280×900</span>
+        <span><span class="badge badge-amber">FALLBACK</span></span>
+      </div>
+      <div class="audit-row">
+        <span class="file-name">warroom-tab1.png · warroom-last-tab.png</span>
+        <span style="font-size:11px;color:#64748B;text-align:left">—</span>
+        <span>1280×900</span>
+        <span><span class="badge badge-green">CAPTURED</span></span>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#94A3B8;font-family:'DM Mono',monospace">Run diff: <code style="background:#E2E8F0">bash scripts/compare-baseline.sh &lt;new-screenshots-dir&gt;</code> · Threshold: 0.5% (set <code>DIFF_THRESHOLD=X</code> to override)</p>
+  </div>
+
+  <div class="footer">
+    <span>UI-INFRA-001..006 · TOKEN-DEBT-001 · 2026-05-25</span>
+    <span>sasmaster-status · resources/uiux-engineering-brief.html</span>
+  </div>
+
+</div>
+</body>
+</html>
