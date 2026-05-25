@@ -221,11 +221,11 @@
   <h1>🧠 Skill Inventory — v2</h1>
   <div class="sub">Claude Code personal skill library · synced across claude.ai + local · self-evolving via post-build capture</div>
   <div class="badge-row">
-    <span class="badge badge-live"><span class="dot"></span>29 Skills Active</span>
-    <span class="badge badge-pur">13 SaSMaster Domain</span>
+    <span class="badge badge-live"><span class="dot"></span>33 Skills Active</span>
+    <span class="badge badge-pur">14 SaSMaster Domain</span>
     <span class="badge badge-info">7 Engineering</span>
     <span class="badge badge-amber">Friday Auto-Review Cron</span>
-    <span class="badge badge-info">Sprint 10+11 · 3 new skills</span>
+    <span class="badge badge-info">Sprint 12 · aws-infra added</span>
   </div>
 </div>
 
@@ -233,13 +233,13 @@
 
   <!-- ── Stats bar ── -->
   <div class="stats-bar">
-    <div class="sb-item"><strong>29</strong><span>Total Skills</span></div>
+    <div class="sb-item"><strong>33</strong><span>Total Skills</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>29</strong><span>Synced Both</span></div>
+    <div class="sb-item"><strong>33</strong><span>Synced Both</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>9,500+</strong><span>Lines of Knowledge</span></div>
+    <div class="sb-item"><strong>9,800+</strong><span>Lines of Knowledge</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>13</strong><span>SaSMaster Domain</span></div>
+    <div class="sb-item"><strong>14</strong><span>SaSMaster Domain</span></div>
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>Fri 5:50PM</strong><span>Auto-Review Cron</span></div>
     <div class="sb-sep"></div>
@@ -979,6 +979,34 @@
       </div>
     </div>
 
+    <!-- aws-infra -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">aws-infra</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">AWS infrastructure authority for SaSMaster — IAM user management, credential transport (CSV→CLI→GH Secrets, never pbpaste/echo), S3 access scoping, GitHub Actions secrets wiring, and CI/CD pipeline setup. Canonical credential law: download CSV → aws configure --profile → test S3 locally → push via gh secret set. Automates: IAM inline policies, profile setup, S3 access verification, GH secret push, key audit. Manual-only: create/delete access keys, MFA rotation, billing alerts. Load on any AWS, IAM, access key, boto3, S3 permission, or CI sync mention.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">AWS</span>
+          <span class="trigger-tag">IAM</span>
+          <span class="trigger-tag">access key</span>
+          <span class="trigger-tag">gh secret</span>
+          <span class="trigger-tag">boto3 credentials</span>
+          <span class="trigger-tag">S3 permission</span>
+          <span class="trigger-tag">CI sync</span>
+          <span class="trigger-tag">INFRA-AWS</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">239 lines</span><span>Added May 25, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
     <!-- ui-designer agent -->
     <div class="skill-card cat-sasmaster" data-cat="sasmaster">
       <div class="sc-stripe"></div>
@@ -1138,12 +1166,13 @@
         <tr><td class="skill-name-cell">internal-finance</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(16,185,129,.1);color:#065F46;font-size:9px;font-weight:700;text-transform:uppercase;">Finance</span></td><td class="desc-cell">Internal CFO/accountant — Cash vs GAAP framework, consulting/severance/EMBA treatment, token intel by model+agent, War Room FINANCE tab, Aug 2026 crunch countdown, 6-month forecast</td><td class="lines-cell">—</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">build-discipline</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">SaSMaster engineering constitution — 10 non-negotiable gates: phase deploy discipline, QA sign-off, font/animation load order, Dr. Scoop isolation, state architecture, task card structure, TASKS.md sync, JARVIS webhook rules (raw body before JSON, 200-before-async), security gates (gitleaks, x-api-key, S3 registry).</td><td class="lines-cell">94</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">platform-security</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Platform security hardening — 5 layers: Railway x-api-key auth, AWS S3 public-access block + least-privilege IAM, secret hygiene (gitleaks, .env-only, gitignore), JARVIS HMAC + channel allowlist + bot_id guard, integrity-check.sh + 30s timeout + SSE cap. Load when adding API routes, S3 buckets, Slack commands, or CI pipelines.</td><td class="lines-cell">v1.0</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">aws-infra</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">AWS infrastructure authority — IAM user management, credential transport law (CSV→CLI→GH Secrets, never pbpaste/echo), S3 scoping, GitHub Actions secrets, CI/CD wiring. Automates: inline policies, profile setup, S3 verification, gh secret push. Manual-only: create/delete access keys, MFA, billing. Load on AWS, IAM, access key, boto3, S3 permission, CI sync, INFRA-AWS.</td><td class="lines-cell">239</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
       </tbody>
     </table>
   </div>
 
   <div style="text-align:center;margin-top:32px;font-size:11px;color:var(--ink-400);">
-    SaSMaster Intelligence Platform · Skill Inventory v2 · Updated May 24, 2026 · 32 skills · 9,600+ lines
+    SaSMaster Intelligence Platform · Skill Inventory v2 · Updated May 25, 2026 · 33 skills · 9,800+ lines
   </div>
 
 </div><!-- /canvas -->
