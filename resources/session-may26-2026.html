@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster · Session Report · May 26, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas:   #F0F4F8;
+  --surface:  #FFFFFF;
+  --surface2: #F8FAFC;
+  --border:   #E2E8F0;
+  --text:     #1E293B;
+  --muted:    #64748B;
+  --dim:      #94A3B8;
+  --lavender: #7C3AED;
+  --lav-light:#EDE9FE;
+  --teal:     #0EA5E9;
+  --teal-l:   #E0F2FE;
+  --green:    #10B981;
+  --green-l:  #D1FAE5;
+  --green-d:  #065F46;
+  --gold:     #F59E0B;
+  --gold-l:   #FEF3C7;
+  --red:      #EF4444;
+  --red-l:    #FEE2E2;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--canvas); color: var(--text); font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; line-height: 1.6; }
+.header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 20px 32px; display: flex; align-items: center; gap: 12px; }
+.header-badge { background: var(--lavender); color: #fff; font-family: 'DM Mono', monospace; font-size: 11px; padding: 3px 8px; border-radius: 4px; }
+.header h1 { font-size: 18px; font-weight: 600; }
+.header-sub { font-size: 13px; color: var(--muted); margin-left: auto; font-family: 'DM Mono', monospace; }
+.container { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+
+.kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 32px; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+.kpi-val { font-size: 28px; font-weight: 700; font-family: 'DM Mono', monospace; color: var(--lavender); }
+.kpi-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 4px; }
+
+.sprint-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
+.sprint-header { padding: 14px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.sprint-header h2 { font-size: 14px; font-weight: 600; }
+.badge { display: inline-flex; align-items: center; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 3px; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .04em; }
+.badge-done { background: var(--green-l); color: var(--green-d); }
+.badge-ship { background: var(--lav-light); color: var(--lavender); }
+.badge-new  { background: var(--teal-l); color: #0369a1; }
+
+.task-list { padding: 4px 0; }
+.task-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 20px; border-bottom: 1px solid var(--border); }
+.task-row:last-child { border-bottom: none; }
+.task-check { width: 16px; height: 16px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; }
+.task-check svg { width: 9px; height: 9px; fill: white; }
+.task-name { font-weight: 500; font-size: 13px; }
+.task-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.task-commit { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); margin-top: 3px; }
+.task-tags { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+.tag { font-size: 10px; font-family: 'DM Mono', monospace; background: var(--canvas); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; color: var(--muted); }
+
+.section-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 24px 0 12px; }
+
+.insight-box { background: var(--lav-light); border: 1px solid #C4B5FD; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; }
+.insight-box h3 { font-size: 13px; font-weight: 600; color: var(--lavender); margin-bottom: 8px; }
+.insight-box p { font-size: 13px; color: var(--text); line-height: 1.6; }
+
+.commit-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 24px; }
+.commit-table th { background: var(--surface2); padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border-bottom: 1px solid var(--border); }
+.commit-table td { padding: 10px 16px; font-size: 12px; border-bottom: 1px solid var(--border); }
+.commit-table tr:last-child td { border-bottom: none; }
+.commit-hash { font-family: 'DM Mono', monospace; background: var(--canvas); padding: 2px 6px; border-radius: 3px; font-size: 11px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="header-badge">SESSION</span>
+  <h1>May 25–26, 2026 — Sprint Report</h1>
+  <span class="header-sub">Sprint 14 · JARVIS Intelligence · 7 tasks complete</span>
+</div>
+<div class="container">
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-val">7</div><div class="kpi-lbl">Tasks Completed</div></div>
+    <div class="kpi"><div class="kpi-val">4</div><div class="kpi-lbl">JARVIS Upgrades</div></div>
+    <div class="kpi"><div class="kpi-val">2</div><div class="kpi-lbl">New Skills</div></div>
+    <div class="kpi"><div class="kpi-val">32</div><div class="kpi-lbl">Total Skills</div></div>
+  </div>
+
+  <div class="insight-box">
+    <h3>Session Theme — Compounding Build Intelligence</h3>
+    <p>This sprint completed the build intelligence stack: conflict detection prevents wasted retries, batch capping eliminates timeouts, opportunistic builds use idle time, and the claude-platform skill prevents the most common session anti-patterns. JARVIS now builds autonomously without any human trigger during idle windows (10PM–4AM or queue depth &gt;10), respecting the 7-task cap and a 30-min cooldown.</p>
+  </div>
+
+  <!-- Build Hygiene + Conflict Sprint -->
+  <div class="sprint-card">
+    <div class="sprint-header">
+      <h2>Build Hygiene &amp; Conflict Detection</h2>
+      <span class="badge badge-done">SHIPPED</span>
+    </div>
+    <div class="task-list">
+      <div class="task-row">
+        <div class="task-check"><svg viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+        <div>
+          <div class="task-name">BUILD-HYGIENE-001 — Suffix-Free mktemp + Pre-Flight Cleanup</div>
+          <div class="task-desc">Root cause: macOS mktemp with .json suffix never randomizes → literal filename collision on second build. Fix: suffix-free XXXXXX template. Pre-flight guard added: wipes stale /tmp/claude-output-* before every build. QA checklist added with 2 shell_pass checks.</div>
+          <div class="task-commit">commit c625da2 · preflight.sh + sasmaster-build.sh + qa-checklists/pre-build.json</div>
+          <div class="task-tags"><span class="tag">#build</span><span class="tag">#hygiene</span><span class="tag">#preflight</span></div>
+        </div>
+      </div>
+      <div class="task-row">
+        <div class="task-check"><svg viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+        <div>
+          <div class="task-name">JARVIS-SMART-CONFLICT-001 — Process Classifier + Smart Poller</div>
+          <div class="task-desc">Replaced binary "any process = defer" logic. New: ps aux classifier distinguishes scraper/build/idle. Scrapers get 60s-poll/15min-max smart poller. Build collision defers immediately. Startup grace (&lt;30s) reclassified as idle. !force override. Escalation at 10min if HIGH task queued.</div>
+          <div class="task-tags"><span class="tag">#jarvis</span><span class="tag">#build</span><span class="tag">#conflict</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compounding Intelligence Sprint -->
+  <div class="sprint-card">
+    <div class="sprint-header">
+      <h2>Compounding Intelligence Layer</h2>
+      <span class="badge badge-done">SHIPPED</span>
+    </div>
+    <div class="task-list">
+      <div class="task-row">
+        <div class="task-check"><svg viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+        <div>
+          <div class="task-name">SELF-IMPROVE-001 — Lessons → Rules Auto-Promoter</div>
+          <div class="task-desc">LESSONS.md schema upgraded (Root Cause / Rule / Wire To / Status fields). lessons-to-rules.js: Haiku generates bash/JSON/text rules from pending-wire entries. !wire-lessons JARVIS command routes to preflight.sh / pre-build.json / agent-rules.md. Build quality log (JSONL). Friday 6:10PM cron.</div>
+          <div class="task-commit">commit 473f807 · lessons-to-rules.js + LESSONS.md schema</div>
+          <div class="task-tags"><span class="tag">#self-improve</span><span class="tag">#lessons</span><span class="tag">#intelligence</span></div>
+        </div>
+      </div>
+      <div class="task-row">
+        <div class="task-check"><svg viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+        <div>
+          <div class="task-name">SKILL-GENAI-MARKET-001 — Living GenAI Market Agent</div>
+          <div class="task-desc">14 RSS feeds, Promise.allSettled, 5 items per feed. Haiku batch scoring → red/yellow/none flags. Posts digest to #sasmaster-intel. !approve-genai-skill JARVIS command bumps skill version. genai-market SKILL.md scaffold. Friday 6:05PM cron.</div>
+          <div class="task-commit">commit 473f807 · agents/genai-market-agent.js + ~/.claude/skills/user/genai-market/SKILL.md</div>
+          <div class="task-tags"><span class="tag">#genai</span><span class="tag">#market</span><span class="tag">#skill</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JARVIS Autonomous Sprint -->
+  <div class="sprint-card">
+    <div class="sprint-header">
+      <h2>JARVIS Autonomous Build System</h2>
+      <span class="badge badge-done">SHIPPED</span>
+    </div>
+    <div class="task-list">
+      <div class="task-row">
+        <div class="task-check"><svg viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+        <div>
+          <div class="task-name">JARVIS-BATCH-SIZE-001 — 7-Task Cron Cap</div>
+          <div class="task-desc">Root cause: 27 HIGH tasks queued → Claude hits 10-min timeout × 3 retries = 30 min dead compute. Fix: async-prompt.md now instructs Claude to work max 7 HIGH tasks then exit cleanly. score-queue.sh exports SASMASTER_BATCH_CAP=7, Slack shows "N of M tasks this cycle (cap: 7)".</div>
+          <div class="task-commit">commit 8adc4da · scripts/async-prompt.md + scripts/score-queue.sh</div>
+          <div class="task-tags"><span class="tag">#jarvis</span><span class="tag">#build</span><span class="tag">#performance</span></div>
+        </div>
+      </div>
+      <div class="task-row">
+        <div class="task-check"><svg viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+        <div>
+          <div class="task-name">JARVIS-AUTONOMOUS-001 — Tier 2 Opportunistic Builds</div>
+          <div class="task-desc">Four phases: isIdle() detector (ps aux inline scan, 30-min cooldown via last-build.json, 10PM–4AM window or queue&gt;10), 15-min setInterval poller, veto window for SENSITIVE/RISKY tasks (10-min !veto gate), and last-build.json written on every successful execBuild. writeLastBuild() helper prevents thrash.</div>
+          <div class="task-commit">commit 78aaf48 · scripts/jarvis.js (+163 lines)</div>
+          <div class="task-tags"><span class="tag">#jarvis</span><span class="tag">#autonomous</span><span class="tag">#build</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skills Sprint -->
+  <div class="sprint-card">
+    <div class="sprint-header">
+      <h2>SKILL-CLAUDE-001 — Platform Doctrine Skill</h2>
+      <span class="badge badge-ship">NEW SKILL</span>
+    </div>
+    <div class="task-list">
+      <div class="task-row">
+        <div class="task-check"><svg viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+        <div>
+          <div class="task-name">claude-platform — Model routing, surface doctrine, 7 anti-patterns</div>
+          <div class="task-desc">SKILL.md: model routing table (Opus plan / Sonnet exec / Haiku ops / Batch bulk), surface doctrine (claude.ai strategy | Claude Code 1–3 tasks | JARVIS 4+ async), batch rule hard gate, 10 MCP servers with SaSMaster use cases, 7 anti-patterns from session history (Railway rotation, pbpaste AWS, 4+ direct tasks, degraded≠DOWN, suffix-free mktemp, amend-after-push, preflight-as-poll). voice-patterns.md: task card format, 29 JARVIS commands, gate syntax, surface quick-reference.</div>
+          <div class="task-commit">commit f934ee2 (skill-inventory) · ~/.claude/skills/user/claude-platform/</div>
+          <div class="task-tags"><span class="tag">#skill</span><span class="tag">#claude</span><span class="tag">#platform</span><span class="tag">#doctrine</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Commits table -->
+  <div class="section-title">Commit Log</div>
+  <table class="commit-table">
+    <thead><tr><th>Hash</th><th>Task</th><th>Files Changed</th></tr></thead>
+    <tbody>
+      <tr><td><span class="commit-hash">c625da2</span></td><td>BUILD-HYGIENE-001 + build quality log placement fix</td><td>preflight.sh, sasmaster-build.sh, pre-build.json, qa-agent.js</td></tr>
+      <tr><td><span class="commit-hash">473f807</span></td><td>SELF-IMPROVE-001 + SKILL-GENAI-MARKET-001</td><td>jarvis.js, lessons-to-rules.js, genai-market-agent.js, LESSONS.md, genai-market/SKILL.md</td></tr>
+      <tr><td><span class="commit-hash">8adc4da</span></td><td>JARVIS-BATCH-SIZE-001 — 7-task cron cap</td><td>scripts/async-prompt.md, scripts/score-queue.sh</td></tr>
+      <tr><td><span class="commit-hash">78aaf48</span></td><td>JARVIS-AUTONOMOUS-001 — Tier 2 opportunistic builds</td><td>scripts/jarvis.js (+163 lines)</td></tr>
+      <tr><td><span class="commit-hash">f934ee2</span></td><td>SKILL-CLAUDE-001 — claude-platform skill inventory entry</td><td>skill-inventory.html (sasmaster-status)</td></tr>
+    </tbody>
+  </table>
+
+</div>
+</body>
+</html>

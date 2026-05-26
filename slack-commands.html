@@ -222,7 +222,7 @@
 <div class="page-header">
   <div class="eyebrow">SaSMaster · JARVIS</div>
   <h1><span class="jarvis-tag">JARVIS v4</span> Slack Command Reference</h1>
-  <div class="sub">Socket Mode daemon · scripts/jarvis.js · launchd: com.sasmaster.jarvis · 15 commands live</div>
+  <div class="sub">Socket Mode daemon · scripts/jarvis.js · launchd: com.sasmaster.jarvis · 20+ commands live · Opportunistic builds active</div>
   <div class="badge-row">
     <span class="badge badge-live"><span class="dot-live"></span>All Commands Live</span>
     <span class="badge badge-info">Socket Mode · Always-On</span>
@@ -693,6 +693,65 @@
 
   </div>
 
+  <!-- Autonomous Build Controls (JARVIS-AUTONOMOUS-001) -->
+  <div class="sec-title">Autonomous Build Controls</div>
+  <div class="cmd-grid" style="margin-bottom:8px;">
+
+    <div class="cmd-card queue-card">
+      <div class="cc-header">
+        <div class="cc-emoji">⚡</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!force</span>
+            <span class="cc-channel">#builds</span>
+          </div>
+          <div class="cc-desc">Override an active scraper conflict and start the build immediately. Only valid when the smart conflict poller is active (scraper detected at preflight time).</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="detail-row"><span class="detail-key">When active</span><span class="detail-val">Scraper detected at build time — poller is running (max 15 min)</span></div>
+        <div class="detail-row"><span class="detail-key">Effect</span><span class="detail-val">Resolves conflict immediately, fires build without waiting for scraper to finish</span></div>
+        <div class="detail-row"><span class="detail-key">No conflict</span><span class="detail-val">Posts "No active conflict to override"</span></div>
+        <div class="response-preview" style="margin-top:12px;">
+          <div class="rp-label">Slack response</div>
+          <div class="rp-text">
+            <span class="rp-warn">⚡ Force override received — starting build despite active scraper conflict [PID 42167]</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmd-card queue-card">
+      <div class="cc-header">
+        <div class="cc-emoji">🛑</div>
+        <div class="cc-titles">
+          <div class="cc-cmd-row">
+            <span class="slack-cmd highlight">!veto</span>
+            <span class="cc-channel">#builds</span>
+          </div>
+          <div class="cc-desc">Cancel an opportunistic build during the 10-minute veto window. Only valid when a SENSITIVE or RISKY task is queued and the veto window is open.</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="detail-row"><span class="detail-key">When active</span><span class="detail-val">Top queued HIGH task is flagged SENSITIVE or RISKY — 10-min window posted</span></div>
+        <div class="detail-row"><span class="detail-key">Effect</span><span class="detail-val">Cancels this cycle. Queue intact. Next opportunistic poll in 15 min.</span></div>
+        <div class="detail-row"><span class="detail-key">No window</span><span class="detail-val">Posts "No active veto window"</span></div>
+        <div class="detail-row"><span class="detail-key">Silence</span><span class="detail-val">If no !veto in 10 min → build proceeds automatically</span></div>
+        <div class="response-preview" style="margin-top:12px;">
+          <div class="rp-label">Slack response</div>
+          <div class="rp-text">
+            <span class="rp-warn">🛑 Veto received — opportunistic build cancelled for this cycle.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="background:var(--lav-50,#F5F3FF);border:1px solid #C4B5FD;border-radius:8px;padding:14px 18px;margin-bottom:32px;font-size:12px;color:#4C1D95;">
+    <strong>Opportunistic Build Logic</strong> — JARVIS polls every 15 min. Fires automatically when: no active conflict, queue has HIGH tasks, last build &gt;30 min ago, and time is 10PM–4AM local <em>or</em> queue depth &gt;10. Posts to #builds: <code>🔧 Opportunistic build — N of M task(s) this cycle (cap: 7)</code>. State file: <code>status/last-build.json</code>.
+  </div>
+
   <!-- Status command -->
   <div class="sec-title">Status Command</div>
   <div style="max-width:680px;margin-bottom:40px;">
@@ -848,7 +907,7 @@
   </div>
 
   <div class="footer">
-    SaSMaster JARVIS Slack Command Reference · Updated 2026-04-28 · 15 commands · Maintained by Claude Code
+    SaSMaster JARVIS Slack Command Reference · Updated 2026-05-26 · 20+ commands · Opportunistic builds active · Maintained by Claude Code
   </div>
 
 </div>
