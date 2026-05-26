@@ -1045,6 +1045,26 @@ try {
   };
 } catch {}
 
+// ── Portal coverage — reads latest report from ~/SaSMaster/reports/ ──────────
+function loadPortalCoverage() {
+  try {
+    const reportsDir = path.join(SASMASTER, 'reports');
+    const files = fs.readdirSync(reportsDir)
+      .filter(f => f.startsWith('portal-coverage-') && f.endsWith('.json'))
+      .sort()
+      .reverse();
+    if (!files.length) return null;
+    const raw = JSON.parse(fs.readFileSync(path.join(reportsDir, files[0]), 'utf8'));
+    return {
+      baseline: raw.baseline || 'unknown',
+      portal_url: raw.portal_url || '',
+      report_date: files[0].replace('portal-coverage-', '').replace('.json', ''),
+      summary: raw.summary || {},
+    };
+  } catch { return null; }
+}
+const portalCoverage = loadPortalCoverage();
+
 const status = {
   generated:    new Date().toISOString(),
   generated_at: new Date().toISOString(),  // alias — Railway health check reads this
@@ -1093,6 +1113,7 @@ const status = {
   })),
   slack_feed:  buildSlackFeed(recentBuilds, intelFeed),
   cost_summary: costSummary,
+  portal_coverage: portalCoverage,
 };
 
 fs.writeFileSync(OUT, JSON.stringify(status, null, 2));
