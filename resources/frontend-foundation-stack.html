@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frontend Foundation Stack — SaSMaster War Room</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --canvas:   #F0F4F8;
+    --surface:  #FFFFFF;
+    --border:   #E2E8F0;
+    --border-strong: #CBD5E0;
+    --text-primary:   #1A202C;
+    --text-secondary: #4A5568;
+    --text-muted:     #94A3B8;
+    --teal:    #0EA5E9;
+    --teal-lt: #E0F2FE;
+    --green:   #10B981;
+    --green-lt:#D1FAE5;
+    --lavender:#A682F2;
+    --lav-lt:  #EDE9FE;
+    --orange:  #FB923C;
+    --orange-lt:#FFF0E6;
+    --red:     #EF4444;
+    --red-lt:  #FEE2E2;
+    --dark-ticker: #1E293B;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  body {
+    background: var(--canvas);
+    font-family: var(--sans);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 0;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--dark-ticker);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-icon {
+    width: 36px; height: 36px;
+    background: var(--teal);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .header-title { font-size: 16px; font-weight: 600; color: #fff; letter-spacing: -0.2px; }
+  .header-sub { font-size: 12px; color: #94A3B8; font-family: var(--mono); margin-top: 1px; }
+  .header-meta { text-align: right; }
+  .header-meta .version { font-family: var(--mono); font-size: 11px; color: var(--teal); }
+  .header-meta .updated { font-size: 11px; color: #64748B; margin-top: 2px; }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 32px 48px; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 28px; }
+  .section-label {
+    font-size: 10px; font-weight: 600; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  /* ── STACK TABLE ── */
+  .stack-table { width: 100%; border-collapse: collapse; }
+  .stack-table thead th {
+    font-size: 10px; font-weight: 600; letter-spacing: .07em;
+    text-transform: uppercase; color: var(--text-muted);
+    padding: 10px 16px; text-align: left;
+    border-bottom: 1px solid var(--border);
+    background: var(--canvas);
+  }
+  .stack-table thead th:last-child { text-align: right; }
+  .stack-table .group-header td {
+    font-size: 10px; font-weight: 600; letter-spacing: .07em;
+    text-transform: uppercase; color: var(--text-muted);
+    padding: 10px 16px 4px;
+    background: #F8FAFC;
+    border-top: 1px solid var(--border);
+  }
+  .stack-table tbody tr td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .stack-table tbody tr:last-child td { border-bottom: none; }
+  .stack-table .col-layer { font-weight: 500; color: var(--text-primary); width: 22%; }
+  .stack-table .col-tool  { color: var(--text-secondary); width: 52%; font-size: 13px; }
+  .stack-table .col-ver   { text-align: right; width: 26%; }
+
+  /* ── PILLS ── */
+  .pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 500; font-family: var(--mono);
+    padding: 3px 9px; border-radius: 100px;
+    white-space: nowrap;
+  }
+  .pill-teal    { background: var(--teal-lt);   color: #0369A1; }
+  .pill-green   { background: var(--green-lt);  color: #065F46; }
+  .pill-lav     { background: var(--lav-lt);    color: #5B21B6; }
+  .pill-orange  { background: var(--orange-lt); color: #C2410C; }
+  .pill-gray    { background: #F1F5F9;          color: #475569; }
+  .pill-live    { background: var(--green-lt);  color: #065F46; }
+  .dot-live {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* ── GRID CARDS ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+
+  /* ── DESIGN SYSTEM CARDS ── */
+  .ds-card { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  .ds-dark { background: #0a0a0f; }
+  .ds-light { background: var(--surface); }
+  .ds-header { padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .ds-header-light { border-color: var(--border); }
+  .ds-badge {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    letter-spacing: .07em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 4px; margin-bottom: 6px;
+  }
+  .ds-body { padding: 16px 18px; }
+
+  /* ── TOKEN ROWS ── */
+  .token-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; }
+  .swatch { width: 22px; height: 22px; border-radius: 5px; flex-shrink: 0; border: 1px solid rgba(0,0,0,.1); }
+  .token-name { font-family: var(--mono); font-size: 11px; }
+
+  /* ── FONT PREVIEW ── */
+  .font-row { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .font-row:last-child { border: none; margin: 0; padding: 0; }
+  .font-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+
+  /* ── MONO STRUCTURE ── */
+  .mono-block {
+    background: #F8FAFC;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--text-secondary);
+  }
+  .mono-dir { color: var(--teal); font-weight: 500; }
+  .mono-file { color: var(--text-primary); }
+  .mono-comment { color: var(--text-muted); }
+  .mono-indent { padding-left: 20px; }
+  .mono-indent2 { padding-left: 40px; }
+
+  /* ── TASK REGISTRY ── */
+  .task-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .task-row:last-child { border-bottom: none; }
+  .task-id { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--teal); min-width: 120px; }
+  .task-desc { flex: 1; font-size: 13px; color: var(--text-secondary); }
+  .task-gate { font-size: 11px; color: var(--text-muted); font-family: var(--mono); }
+
+  /* ── SIGNAL TABLE ── */
+  .signal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .signal-card {
+    border-radius: 8px; padding: 12px 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .signal-color { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .signal-name { font-size: 12px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; }
+  .signal-use  { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--dark-ticker);
+    padding: 14px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11px; color: #64748B; font-family: var(--mono);
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-icon">🏗</div>
+    <div>
+      <div class="header-title">Frontend Foundation Stack</div>
+      <div class="header-sub">sasmaster-platform · Turborepo monorepo</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div class="version">STACK-REF-001 · v2.0</div>
+    <div class="updated">Last updated: May 26, 2026</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 01 FULL STACK -->
+  <div class="section">
+    <div class="section-label">01 · full stack — verified against live source docs</div>
+    <div class="card">
+      <table class="stack-table">
+        <thead>
+          <tr>
+            <th class="col-layer">Layer</th>
+            <th class="col-tool">Tool</th>
+            <th class="col-ver">Version / Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="group-header"><td colspan="3">Core framework</td></tr>
+          <tr><td class="col-layer">Framework</td><td class="col-tool">Next.js — App Router, Turbopack, AGENTS.md</td><td class="col-ver"><span class="pill pill-orange">16.2.6 ↑ verified</span></td></tr>
+          <tr><td class="col-layer">Runtime</td><td class="col-tool">React</td><td class="col-ver"><span class="pill pill-green">19 stable</span></td></tr>
+          <tr><td class="col-layer">Types</td><td class="col-tool">TypeScript — strict mode, zero <code>any</code></td><td class="col-ver"><span class="pill pill-green">5 strict</span></td></tr>
+          <tr><td class="col-layer">Package manager</td><td class="col-tool">Bun — monorepo-wide</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+          <tr><td class="col-layer">Monorepo</td><td class="col-tool">Turborepo — remote cache via Vercel</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+
+          <tr class="group-header"><td colspan="3">Styling + design system</td></tr>
+          <tr><td class="col-layer">Styling engine</td><td class="col-tool">Tailwind CSS — CSS-first config, @theme block</td><td class="col-ver"><span class="pill pill-orange">v4.3 ↑ verified</span></td></tr>
+          <tr><td class="col-layer">Components</td><td class="col-tool">shadcn/ui — customised to SaSMaster tokens</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+          <tr><td class="col-layer">Dark tokens</td><td class="col-tool">Cinematic — Bebas Neue · Barlow Condensed · Share Tech Mono</td><td class="col-ver"><span class="pill pill-lav">locked v1.0</span></td></tr>
+          <tr><td class="col-layer">Light tokens</td><td class="col-tool">Operational — Space Grotesk · Inter · JetBrains Mono</td><td class="col-ver"><span class="pill pill-teal">v1.0</span></td></tr>
+
+          <tr class="group-header"><td colspan="3">State + data</td></tr>
+          <tr><td class="col-layer">Global state</td><td class="col-tool">Zustand — replaces window.APP_STATE</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+          <tr><td class="col-layer">Server state</td><td class="col-tool">TanStack Query — Railway API caching</td><td class="col-ver"><span class="pill pill-green">v5</span></td></tr>
+
+          <tr class="group-header"><td colspan="3">Visualisation</td></tr>
+          <tr><td class="col-layer">Financial / time series</td><td class="col-tool">Highcharts + highcharts-react-official</td><td class="col-ver"><span class="pill pill-lav">licensed ✓ 100033385101500</span></td></tr>
+          <tr><td class="col-layer">Standard charts</td><td class="col-tool">Recharts · nivo</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+          <tr><td class="col-layer">Complex diagrams</td><td class="col-tool">amCharts5 — Sankey · stream · chord</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+          <tr><td class="col-layer">Custom math viz</td><td class="col-tool">D3</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+
+          <tr class="group-header"><td colspan="3">Animation</td></tr>
+          <tr><td class="col-layer">Cinematic sequences</td><td class="col-tool">GSAP — tunnel rings · gold shimmer · portal transitions</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+          <tr><td class="col-layer">React transitions</td><td class="col-tool">Framer Motion — component-level</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+
+          <tr class="group-header"><td colspan="3">AI companion</td></tr>
+          <tr><td class="col-layer">Dr. Scoop</td><td class="col-tool">assistant-ui primitives — now a real React component</td><td class="col-ver"><span class="pill pill-teal">latest</span></td></tr>
+          <tr><td class="col-layer">Memory</td><td class="col-tool">DuckDB scoop_memory → Railway streaming API</td><td class="col-ver"><span class="pill pill-live"><span class="dot-live"></span>live</span></td></tr>
+
+          <tr class="group-header"><td colspan="3">Dev tooling + quality</td></tr>
+          <tr><td class="col-layer">Component dev</td><td class="col-tool">Storybook 8 — dark cinematic theme</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+          <tr><td class="col-layer">Unit tests</td><td class="col-tool">Vitest — monorepo-aware</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+          <tr><td class="col-layer">E2E tests</td><td class="col-tool">Playwright</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+          <tr><td class="col-layer">Pre-commit</td><td class="col-tool">Husky + lint-staged — typecheck + lint gates</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+          <tr><td class="col-layer">Linting</td><td class="col-tool">ESLint (flat config) + Prettier</td><td class="col-ver"><span class="pill pill-green">latest</span></td></tr>
+
+          <tr class="group-header"><td colspan="3">Infrastructure — unchanged</td></tr>
+          <tr><td class="col-layer">Deploy</td><td class="col-tool">Vercel — sasmaster-platform, Turborepo remote cache</td><td class="col-ver"><span class="pill pill-live"><span class="dot-live"></span>live</span></td></tr>
+          <tr><td class="col-layer">API</td><td class="col-tool">Railway — sasmaster-api-production.up.railway.app</td><td class="col-ver"><span class="pill pill-live"><span class="dot-live"></span>live</span></td></tr>
+          <tr><td class="col-layer">Data</td><td class="col-tool">DuckDB · S3 sasmaster-2026 · SQLite WAL</td><td class="col-ver"><span class="pill pill-live"><span class="dot-live"></span>live</span></td></tr>
+          <tr><td class="col-layer">CI</td><td class="col-tool">GitHub Actions — typecheck · lint · test · build</td><td class="col-ver"><span class="pill pill-teal">FRONTEND-005</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 02 DESIGN SYSTEMS -->
+  <div class="section">
+    <div class="section-label">02 · design systems — both themes in packages/tokens</div>
+    <div class="grid-2">
+
+      <!-- DARK -->
+      <div class="ds-card ds-dark">
+        <div class="ds-header" style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div class="ds-badge" style="background:#1a1a24;color:#a78bfa;">◼ DARK CINEMATIC</div>
+            <div style="color:#fff;font-size:14px;font-weight:600;">Portal · Bloomberg Terminal</div>
+          </div>
+          <span style="font-family:var(--mono);font-size:10px;color:#4a4a6a;">tokens.css v1.0</span>
+        </div>
+        <div class="ds-body">
+          <div style="margin-bottom:14px;">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#4a4a6a;margin-bottom:8px;font-family:var(--mono);">Colors</div>
+            <div class="token-row"><div class="swatch" style="background:#0a0a0f;border-color:#333;"></div><span style="color:#9ca3af;" class="token-name">--bg-base</span><span style="color:#4a4a6a;font-size:11px;font-family:var(--mono);margin-left:auto;">#0a0a0f</span></div>
+            <div class="token-row"><div class="swatch" style="background:#a78bfa;"></div><span style="color:#9ca3af;" class="token-name">--brand-lavender</span><span style="color:#4a4a6a;font-size:11px;font-family:var(--mono);margin-left:auto;">#a78bfa</span></div>
+            <div class="token-row"><div class="swatch" style="background:#22d3ee;"></div><span style="color:#9ca3af;" class="token-name">--brand-teal</span><span style="color:#4a4a6a;font-size:11px;font-family:var(--mono);margin-left:auto;">#22d3ee</span></div>
+            <div class="token-row"><div class="swatch" style="background:#f59e0b;"></div><span style="color:#9ca3af;" class="token-name">--brand-gold</span><span style="color:#4a4a6a;font-size:11px;font-family:var(--mono);margin-left:auto;">#f59e0b</span></div>
+            <div class="token-row"><div class="swatch" style="background:#f87171;"></div><span style="color:#9ca3af;" class="token-name">--brand-coral</span><span style="color:#4a4a6a;font-size:11px;font-family:var(--mono);margin-left:auto;">#f87171</span></div>
+          </div>
+          <div>
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#4a4a6a;margin-bottom:8px;font-family:var(--mono);">Typography</div>
+            <div class="font-row">
+              <div class="font-label" style="color:#4a4a6a;font-family:var(--mono);font-size:10px;">Display</div>
+              <div style="font-family:'Impact',sans-serif;font-size:22px;color:#fff;letter-spacing:2px;">BEBAS NEUE</div>
+            </div>
+            <div class="font-row">
+              <div class="font-label" style="color:#4a4a6a;font-family:var(--mono);font-size:10px;">Heading</div>
+              <div style="font-size:15px;color:#d1d5db;font-weight:600;letter-spacing:.5px;">BARLOW CONDENSED</div>
+            </div>
+            <div class="font-row" style="border:none;margin:0;padding:0;">
+              <div class="font-label" style="color:#4a4a6a;font-family:var(--mono);font-size:10px;">Mono</div>
+              <div style="font-family:var(--mono);font-size:13px;color:#a78bfa;">Share Tech Mono · 311.2M</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIGHT -->
+      <div class="ds-card ds-light">
+        <div class="ds-header ds-header-light" style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div class="ds-badge" style="background:#E0F2FE;color:#0369A1;">☀ LIGHT OPERATIONAL</div>
+            <div style="color:var(--text-primary);font-size:14px;font-weight:600;">Research Portal · War Room</div>
+          </div>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">style-guide v1.0</span>
+        </div>
+        <div class="ds-body">
+          <div style="margin-bottom:14px;">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:8px;font-family:var(--mono);">Colors</div>
+            <div class="token-row"><div class="swatch" style="background:#F0F4F8;"></div><span class="token-name" style="color:var(--text-secondary);">--canvas</span><span style="color:var(--text-muted);font-size:11px;font-family:var(--mono);margin-left:auto;">#F0F4F8</span></div>
+            <div class="token-row"><div class="swatch" style="background:#0EA5E9;"></div><span class="token-name" style="color:var(--text-secondary);">--teal-500</span><span style="color:var(--text-muted);font-size:11px;font-family:var(--mono);margin-left:auto;">#0EA5E9</span></div>
+            <div class="token-row"><div class="swatch" style="background:#10B981;"></div><span class="token-name" style="color:var(--text-secondary);">--signal-green</span><span style="color:var(--text-muted);font-size:11px;font-family:var(--mono);margin-left:auto;">#10B981</span></div>
+            <div class="token-row"><div class="swatch" style="background:#FB923C;"></div><span class="token-name" style="color:var(--text-secondary);">--signal-orange</span><span style="color:var(--text-muted);font-size:11px;font-family:var(--mono);margin-left:auto;">#FB923C</span></div>
+            <div class="token-row"><div class="swatch" style="background:#8B5CF6;"></div><span class="token-name" style="color:var(--text-secondary);">--signal-purple</span><span style="color:var(--text-muted);font-size:11px;font-family:var(--mono);margin-left:auto;">#8B5CF6</span></div>
+          </div>
+          <div>
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:8px;font-family:var(--mono);">Typography</div>
+            <div class="font-row" style="border-color:var(--border);">
+              <div class="font-label" style="color:var(--text-muted);font-family:var(--mono);font-size:10px;">Display / Titles</div>
+              <div style="font-size:18px;font-weight:700;color:var(--text-primary);letter-spacing:-.5px;">Space Grotesk</div>
+            </div>
+            <div class="font-row" style="border-color:var(--border);">
+              <div class="font-label" style="color:var(--text-muted);font-family:var(--mono);font-size:10px;">Body / Labels</div>
+              <div style="font-size:14px;color:var(--text-secondary);">Inter — body, labels, UI text</div>
+            </div>
+            <div class="font-row" style="border:none;margin:0;padding:0;">
+              <div class="font-label" style="color:var(--text-muted);font-family:var(--mono);font-size:10px;">Data only</div>
+              <div style="font-family:var(--mono);font-size:13px;color:#0369A1;font-weight:500;">JetBrains Mono · 311.2M ▲</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03 MONOREPO -->
+  <div class="section">
+    <div class="section-label">03 · monorepo structure — sasmaster-platform</div>
+    <div class="card">
+      <div style="padding:20px 24px;">
+        <div class="grid-2" style="gap:24px;">
+          <div>
+            <div class="mono-block">
+<span class="mono-dir">sasmaster-platform/</span>
+<div class="mono-indent"><span class="mono-dir">apps/</span></div>
+<div class="mono-indent2"><span class="mono-dir">portal/</span> <span class="mono-comment">← new React portal</span></div>
+<div class="mono-indent2"><span class="mono-dir">war-room/</span> <span class="mono-comment">← phase 2 migration</span></div>
+<div class="mono-indent"><span class="mono-dir">packages/</span></div>
+<div class="mono-indent2"><span class="mono-dir">tokens/</span> <span class="mono-comment">← CSS vars, @theme</span></div>
+<div class="mono-indent2"><span class="mono-dir">ui/</span> <span class="mono-comment">← shadcn + SaSMaster</span></div>
+<div class="mono-indent2"><span class="mono-dir">types/</span> <span class="mono-comment">← shared interfaces</span></div>
+<div class="mono-indent2"><span class="mono-dir">tsconfig/</span> <span class="mono-comment">← TS config inheritance</span></div>
+<span class="mono-file">turbo.json</span>
+<span class="mono-file">AGENTS.md</span> <span class="mono-comment">← Next.js 16 agent rules</span>
+<span class="mono-file">bun.lockb</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--text-muted);font-family:var(--mono);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em;">Key rules</div>
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+              <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--teal);font-size:15px;flex-shrink:0;">→</span><span style="color:var(--text-secondary);"><code style="font-size:11px;background:#F1F5F9;padding:1px 5px;border-radius:3px;">packages/tokens</code> owns all CSS vars — apps only import</span></div>
+              <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--teal);font-size:15px;flex-shrink:0;">→</span><span style="color:var(--text-secondary);"><code style="font-size:11px;background:#F1F5F9;padding:1px 5px;border-radius:3px;">packages/ui</code> owns Tailwind v4 + PostCSS — one config, zero duplication</span></div>
+              <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--teal);font-size:15px;flex-shrink:0;">→</span><span style="color:var(--text-secondary);">All components import from <code style="font-size:11px;background:#F1F5F9;padding:1px 5px;border-radius:3px;">@sasmaster/ui</code> — never inline Tailwind that duplicates a token</span></div>
+              <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--teal);font-size:15px;flex-shrink:0;">→</span><span style="color:var(--text-secondary);">Storybook story required for every new component in packages/ui</span></div>
+              <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--teal);font-size:15px;flex-shrink:0;">→</span><span style="color:var(--text-secondary);">App Router only — no Pages Router files, ever</span></div>
+              <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--teal);font-size:15px;flex-shrink:0;">→</span><span style="color:var(--text-secondary);">Highcharts components always <code style="font-size:11px;background:#F1F5F9;padding:1px 5px;border-radius:3px;">'use client'</code></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 TASK REGISTRY -->
+  <div class="section">
+    <div class="section-label">04 · task registry — foundation build sequence</div>
+    <div class="card">
+      <div class="task-row" style="background:#F8FAFC;">
+        <div style="font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);min-width:120px;">Task ID</div>
+        <div style="flex:1;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);">Description</div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);">Gate</div>
+      </div>
+      <div class="task-row"><div class="task-id">FRONTEND-001</div><div class="task-desc">Turborepo monorepo scaffold — Bun, apps/, packages/, ESLint, Prettier</div><div class="task-gate">→ 002</div></div>
+      <div class="task-row"><div class="task-id">FRONTEND-002</div><div class="task-desc">packages/tokens — dark cinematic CSS vars in Tailwind v4 @theme</div><div class="task-gate">→ 002B</div></div>
+      <div class="task-row"><div class="task-id">FRONTEND-002B</div><div class="task-desc">Light operational tokens — Space Grotesk, Inter, JetBrains Mono, signal colors, radius/shadow scale</div><div class="task-gate">→ 003</div></div>
+      <div class="task-row"><div class="task-id">FRONTEND-003</div><div class="task-desc">packages/ui — shadcn/ui + SaSMaster overrides + core components + Storybook 8</div><div class="task-gate">→ 003B</div></div>
+      <div class="task-row"><div class="task-id">FRONTEND-003B</div><div class="task-desc">Highcharts setup — HighchartsProvider, dark theme init, license 100033385101500, LineChart story</div><div class="task-gate">→ 004</div></div>
+      <div class="task-row"><div class="task-id">FRONTEND-004</div><div class="task-desc">apps/portal — Next.js 16 App Router shell, dark cinematic layout, nav, Dr. Scoop placeholder</div><div class="task-gate">→ 005</div></div>
+      <div class="task-row"><div class="task-id">FRONTEND-005</div><div class="task-desc">AGENTS.md + dev tooling — Husky, Vitest, GitHub Actions CI</div><div class="task-gate">→ 006</div></div>
+      <div class="task-row"><div class="task-id">FRONTEND-006</div><div class="task-desc">Vercel deploy — apps/portal live, Turborepo remote cache, production URL confirmed</div><div class="task-gate">✓ done</div></div>
+    </div>
+  </div>
+
+  <!-- 05 SIGNAL COLOR RULES -->
+  <div class="section">
+    <div class="section-label">05 · signal color rules — fixed semantics, never override</div>
+    <div class="signal-grid">
+      <div class="signal-card">
+        <div class="signal-name"><span class="signal-color" style="background:#0EA5E9;"></span>Teal</div>
+        <div class="signal-use">Live data · Primary CTA · Positive trend · Numbers · Accents</div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-name"><span class="signal-color" style="background:#FB923C;"></span>Orange</div>
+        <div class="signal-use">Chart accent · Prior year overlay · Pricing alerts · Last data point</div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-name"><span class="signal-color" style="background:#10B981;"></span>Green</div>
+        <div class="signal-use">Positive delta · LIVE dot · Score ring · Good performance</div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-name"><span class="signal-color" style="background:#EF4444;"></span>Red</div>
+        <div class="signal-use">Negative delta · Restrictions · Alerts · Bad performance</div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-name"><span class="signal-color" style="background:#8B5CF6;"></span>Purple</div>
+        <div class="signal-use">Audience data · TUT · Demographic breakdown · Demo segments</div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-name"><span class="signal-color" style="background:#60A5FA;"></span>Blue</div>
+        <div class="signal-use">Audience bar fills · Gradient CTAs · Chart bar (light theme)</div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-name"><span class="signal-color" style="background:#a78bfa;"></span>Lavender</div>
+        <div class="signal-use">Dark portal primary · Dr. Scoop accent · Cinematic highlights</div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-name"><span class="signal-color" style="background:#f59e0b;"></span>Gold</div>
+        <div class="signal-use">Dark portal shimmer · Premium tier · Special callouts</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>SaSMaster · sasmaster-platform · STACK-REF-001</span>
+  <span>Next.js 16.2.6 · Tailwind v4.3 · React 19 · Bun · Turborepo</span>
+  <span>May 26, 2026</span>
+</div>
+
+</body>
+</html>
