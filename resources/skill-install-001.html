@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster Skill Fleet · SKILL-INSTALL-001</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas:   #F0F4F8;
+  --surface:  #FFFFFF;
+  --surface2: #F8FAFC;
+  --border:   #E2E8F0;
+  --border2:  #CBD5E1;
+  --text:     #1E293B;
+  --muted:    #64748B;
+  --dim:      #94A3B8;
+  --lavender: #7C3AED;
+  --lav-light:#EDE9FE;
+  --lav-mid:  #A78BFA;
+  --teal:     #0EA5E9;
+  --teal-l:   #E0F2FE;
+  --green:    #10B981;
+  --green-l:  #D1FAE5;
+  --green-d:  #065F46;
+  --gold:     #F59E0B;
+  --gold-l:   #FEF3C7;
+  --gold-d:   #92400E;
+  --red:      #EF4444;
+  --red-l:    #FEE2E2;
+  --red-d:    #991B1B;
+  --orange:   #F97316;
+  --orange-l: #FFEDD5;
+  --blue:     #3B82F6;
+  --blue-l:   #EFF6FF;
+  --blue-d:   #1E40AF;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--canvas);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header-badge {
+  background: var(--green-l);
+  color: var(--green-d);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.header h1 { font-size: 20px; font-weight: 600; }
+.header p  { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.main { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+.section { margin-bottom: 28px; }
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dim);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 12px;
+}
+.card.green { border-left: 4px solid var(--green); }
+.card.blue  { border-left: 4px solid var(--blue); }
+.card.teal  { border-left: 4px solid var(--teal); }
+.card.lav   { border-left: 4px solid var(--lavender); }
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.card-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.lbl-green { background: var(--green-l); color: var(--green-d); }
+.lbl-blue  { background: var(--blue-l);  color: var(--blue-d); }
+.lbl-teal  { background: var(--teal-l);  color: #0369A1; }
+.lbl-lav   { background: var(--lav-light); color: var(--lavender); }
+.card-title { font-weight: 600; font-size: 15px; }
+.card p { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+.card p:last-child { margin-bottom: 0; }
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+.stat-card .val {
+  font-size: 32px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  line-height: 1.1;
+  color: var(--lavender);
+}
+.stat-card .label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: 4px;
+}
+.stat-card .sub {
+  font-size: 11px;
+  color: var(--dim);
+  margin-top: 4px;
+}
+code {
+  font-family: 'DM Mono', monospace;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 12px;
+  color: var(--lavender);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dim);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--border);
+}
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  display: inline-block;
+}
+.tag-green { background: var(--green-l); color: var(--green-d); }
+.tag-blue  { background: var(--blue-l);  color: var(--blue-d); }
+.tag-teal  { background: var(--teal-l);  color: #0369A1; }
+.tag-lav   { background: var(--lav-light); color: var(--lavender); }
+.mono      { font-family: 'DM Mono', monospace; font-size: 12px; }
+.muted     { color: var(--muted); }
+.tier-header {
+  background: var(--surface2);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.tier-header td { border-bottom: 1px solid var(--border2); padding: 6px 12px; }
+.footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 12px;
+  color: var(--dim);
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      <h1>Skill Fleet Expansion — SKILL-INSTALL-001</h1>
+      <span class="header-badge">LIVE</span>
+    </div>
+    <p>wshobson/agents · 9 plugins · 79 skills · 50 agents · 27 commands · 2026-05-26</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Totals -->
+  <div class="section">
+    <div class="section-title">Fleet Snapshot — After Install</div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="val">79</div>
+        <div class="label">Total Skills</div>
+        <div class="sub">+59 net new</div>
+      </div>
+      <div class="stat-card">
+        <div class="val">50</div>
+        <div class="label">Total Agents</div>
+        <div class="sub">+31 net new</div>
+      </div>
+      <div class="stat-card">
+        <div class="val">27</div>
+        <div class="label">Commands</div>
+        <div class="sub">slash + conductor</div>
+      </div>
+      <div class="stat-card">
+        <div class="val">9</div>
+        <div class="label">Plugins</div>
+        <div class="sub">wshobson/agents</div>
+      </div>
+    </div>
+    <div class="card lav">
+      <div class="card-header">
+        <span class="card-label lbl-lav">Baseline</span>
+        <span class="card-title">Before → After</span>
+      </div>
+      <p>Before: ~20 skills / 19 agents / 0 marketplace commands. After: 79 skills / 50 agents / 27 commands. Source: <code>wshobson/agents</code> marketplace fleet — installed 2026-05-26 this session.</p>
+    </div>
+  </div>
+
+  <!-- Two-tier install table -->
+  <div class="section">
+    <div class="section-title">Two-Tier Install — Plugin Breakdown</div>
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Plugin</th>
+            <th>Skills</th>
+            <th>Agents</th>
+            <th>Tier</th>
+            <th>Key Capability</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="tier-header">
+            <td colspan="5" style="color:var(--green-d)">TIER 1 — Core Platform (installed first)</td>
+          </tr>
+          <tr>
+            <td><code>python-development</code></td>
+            <td>16</td>
+            <td>3</td>
+            <td><span class="tag tag-green">T1</span></td>
+            <td>Async patterns, type safety, design patterns, testing, packaging</td>
+          </tr>
+          <tr>
+            <td><code>llm-application-dev</code></td>
+            <td>8</td>
+            <td>3</td>
+            <td><span class="tag tag-green">T1</span></td>
+            <td>RAG/embeddings, prompt engineering, LLM eval, LangChain architecture</td>
+          </tr>
+          <tr>
+            <td><code>observability-monitoring</code></td>
+            <td>4</td>
+            <td>4</td>
+            <td><span class="tag tag-green">T1</span></td>
+            <td>Prometheus, Grafana, SLO, distributed tracing</td>
+          </tr>
+          <tr>
+            <td><code>security-scanning</code> + <code>block-no-verify</code></td>
+            <td>6</td>
+            <td>2</td>
+            <td><span class="tag tag-green">T1</span></td>
+            <td>STRIDE, SAST, threat mitigation, attack trees</td>
+          </tr>
+          <tr>
+            <td><code>agent-teams</code> + <code>conductor</code></td>
+            <td>9</td>
+            <td>5</td>
+            <td><span class="tag tag-green">T1</span></td>
+            <td>Multi-agent coordination, Conductor workflow (/conductor:implement)</td>
+          </tr>
+          <tr class="tier-header">
+            <td colspan="5" style="color:var(--blue-d)">TIER 2 — Extended Capability (installed second)</td>
+          </tr>
+          <tr>
+            <td><code>backend-development</code></td>
+            <td>9</td>
+            <td>8</td>
+            <td><span class="tag tag-blue">T2</span></td>
+            <td>Microservices, CQRS, event store, saga orchestration, API design</td>
+          </tr>
+          <tr>
+            <td><code>cicd-automation</code></td>
+            <td>4</td>
+            <td>5</td>
+            <td><span class="tag tag-blue">T2</span></td>
+            <td>GitHub Actions, GitLab CI, deployment pipeline design</td>
+          </tr>
+          <tr>
+            <td><code>javascript-typescript</code></td>
+            <td>4</td>
+            <td>2</td>
+            <td><span class="tag tag-blue">T2</span></td>
+            <td>TypeScript advanced types, modern JS patterns, JS testing</td>
+          </tr>
+          <tr>
+            <td><code>machine-learning-ops</code></td>
+            <td>2</td>
+            <td>3</td>
+            <td><span class="tag tag-blue">T2</span></td>
+            <td>ML pipeline workflow, recsys pipeline architect</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Also installed this session -->
+  <div class="section">
+    <div class="section-title">Also Installed This Session — Tooling</div>
+    <div class="card teal">
+      <div class="card-header">
+        <span class="card-label lbl-teal">Tooling</span>
+        <span class="card-title">4 Additional Dev Tools</span>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Tool</th><th>What it adds</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Karpathy CLAUDE.md</code></td>
+            <td>4 behavioral rules: Think Before Coding · Simplicity First · Surgical Changes · Goal-Driven Execution</td>
+          </tr>
+          <tr>
+            <td><code>Repomix</code></td>
+            <td>Monorepo packer — 102 files / 149k tokens, clean XML output for bulk context injection</td>
+          </tr>
+          <tr>
+            <td><code>Playwright MCP (official)</code></td>
+            <td>@playwright/mcp official server — replaces plugin:playwright for real DOM QA</td>
+          </tr>
+          <tr>
+            <td><code>Repomix MCP (npx)</code></td>
+            <td>npx-based Repomix server for inline monorepo packaging via MCP protocol</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Key new capabilities -->
+  <div class="section">
+    <div class="section-title">Key New Capabilities — SaSMaster Impact</div>
+    <div class="card green">
+      <div class="card-header">
+        <span class="card-label lbl-green">Tier 1</span>
+        <span class="card-title">RAG / Embeddings / Python Async Fleet</span>
+      </div>
+      <p>
+        <code>rag-implementation</code>, <code>vector-index-tuning</code>, <code>embedding-strategies</code>, <code>hybrid-search-implementation</code>, <code>similarity-search-patterns</code> — 5 skills unlocked for RESEARCH-PORTAL-003.
+        Python async fleet: 16 skills covering async patterns, resilience, background jobs, observability, error handling, resource management.
+      </p>
+    </div>
+    <div class="card green">
+      <div class="card-header">
+        <span class="card-label lbl-green">Tier 1</span>
+        <span class="card-title">Conductor Multi-Track Workflow</span>
+      </div>
+      <p>
+        <code>/conductor:implement</code>, <code>/conductor:new-track</code>, <code>/conductor:status</code> — structured spec/plan/track lifecycle for parallel feature development.
+        Agent teams: <code>team-spawn</code>, <code>team-delegate</code>, <code>team-review</code>, <code>team-debug</code>, <code>dispatching-parallel-agents</code>.
+      </p>
+    </div>
+    <div class="card blue">
+      <div class="card-header">
+        <span class="card-label lbl-blue">Tier 2</span>
+        <span class="card-title">Security STRIDE + SAST · TypeScript Advanced Types · MLOps</span>
+      </div>
+      <p>
+        Security: <code>stride-analysis-patterns</code>, <code>attack-tree-construction</code>, <code>threat-mitigation-mapping</code>, <code>sast-configuration</code>, <code>security-hardening</code>, <code>security-dependencies</code>.
+        TypeScript: <code>typescript-advanced-types</code>, <code>typescript-scaffold</code>.
+        MLOps: <code>recsys-pipeline-architect</code>, <code>ml-pipeline-workflow</code> — wired for RESEARCH-PORTAL-003.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  SaSMaster Skill Fleet · SKILL-INSTALL-001 · wshobson/agents · 2026-05-26
+</div>
+
+</body>
+</html>
