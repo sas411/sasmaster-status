@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dev Tooling Upgrades · 2026-05-26</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas:   #F0F4F8;
+  --surface:  #FFFFFF;
+  --surface2: #F8FAFC;
+  --border:   #E2E8F0;
+  --border2:  #CBD5E1;
+  --text:     #1E293B;
+  --muted:    #64748B;
+  --dim:      #94A3B8;
+  --lavender: #7C3AED;
+  --lav-light:#EDE9FE;
+  --lav-mid:  #A78BFA;
+  --teal:     #0EA5E9;
+  --teal-l:   #E0F2FE;
+  --green:    #10B981;
+  --green-l:  #D1FAE5;
+  --green-d:  #065F46;
+  --gold:     #F59E0B;
+  --gold-l:   #FEF3C7;
+  --gold-d:   #92400E;
+  --red:      #EF4444;
+  --red-l:    #FEE2E2;
+  --red-d:    #991B1B;
+  --orange:   #F97316;
+  --orange-l: #FFEDD5;
+  --blue:     #3B82F6;
+  --blue-l:   #EFF6FF;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--canvas);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header-badge {
+  background: var(--green-l);
+  color: var(--green-d);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.header h1 { font-size: 20px; font-weight: 600; }
+.header p  { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.main { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+.section { margin-bottom: 28px; }
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dim);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.tool-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 12px;
+}
+.tool-card.ok   { border-left: 4px solid var(--green); }
+.tool-card.info { border-left: 4px solid var(--teal); }
+.tool-card.lav  { border-left: 4px solid var(--lavender); }
+.tool-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.tool-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.lbl-ok    { background: var(--green-l); color: var(--green-d); }
+.lbl-info  { background: var(--teal-l);  color: #0369A1; }
+.lbl-lav   { background: var(--lav-light); color: var(--lavender); }
+.tool-stars {
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 600;
+}
+.tool-title { font-weight: 600; font-size: 16px; }
+.tool-sub   { font-size: 13px; color: var(--muted); margin-top: 2px; margin-bottom: 12px; }
+.cmd-block {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+}
+.cmd-block code {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--lavender);
+  display: block;
+  margin-bottom: 4px;
+}
+.cmd-block .cmd-note {
+  font-size: 12px;
+  color: var(--muted);
+}
+.rule-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rule-list li {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.rule-list li::before {
+  content: '→';
+  color: var(--green);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.rule-list li strong { color: var(--text); }
+.stat-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+}
+.stat-pill {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+}
+.stat-pill span { color: var(--text); font-weight: 600; }
+footer {
+  text-align: center;
+  font-size: 12px;
+  color: var(--dim);
+  padding: 24px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  margin-top: 32px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      <span class="header-badge">INSTALLED 2026-05-26</span>
+    </div>
+    <h1>Dev Tooling Upgrades</h1>
+    <p>Karpathy CLAUDE.md &middot; Repomix &middot; Playwright MCP (official) &mdash; installed in sasmaster-platform</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="section">
+    <div class="section-title">Behavioral Rules — sasmaster-platform/CLAUDE.md</div>
+    <div class="tool-card lav">
+      <div class="tool-header">
+        <span class="tool-label lbl-lav">CLAUDE.MD</span>
+        <span class="tool-stars">★ 144k</span>
+        <span class="tool-title">Karpathy Behavioral Rules</span>
+      </div>
+      <div class="tool-sub">forrestchang/andrej-karpathy-skills &mdash; four rules derived from Karpathy's viral LLM pitfalls post. Active for all Claude Code sessions opened in sasmaster-platform.</div>
+      <div class="cmd-block">
+        <code>curl -fsSL https://raw.githubusercontent.com/forrestchang/andrej-karpathy-skills/main/CLAUDE.md -o ~/sasmaster-platform/CLAUDE.md</code>
+        <div class="cmd-note">Wrote to: ~/sasmaster-platform/CLAUDE.md &mdash; project-scoped, does not override global CLAUDE.md</div>
+      </div>
+      <ul class="rule-list">
+        <li><strong>Think Before Coding</strong> &mdash; state assumptions explicitly; ask when multiple interpretations exist; don't pick silently</li>
+        <li><strong>Simplicity First</strong> &mdash; minimum code that solves the problem; no speculative abstractions; if 200 lines could be 50, rewrite it</li>
+        <li><strong>Surgical Changes</strong> &mdash; touch only what you must; don't improve adjacent code; every changed line traces to the request</li>
+        <li><strong>Goal-Driven Execution</strong> &mdash; define verifiable success criteria before building; state a brief plan for multi-step tasks</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Monorepo Packing — Repomix</div>
+    <div class="tool-card ok">
+      <div class="tool-header">
+        <span class="tool-label lbl-ok">TOOL</span>
+        <span class="tool-stars">★ 20.9k</span>
+        <span class="tool-title">Repomix</span>
+      </div>
+      <div class="tool-sub">Packs entire Turborepo into a single AI-readable file. Claude Code sees packages/tokens, packages/ui, apps/portal, Railway backend all at once. Eliminates cross-package blind spots.</div>
+      <div class="cmd-block">
+        <code>cd ~/sasmaster-platform &amp;&amp; npx repomix --ignore "node_modules,bun.lock,*.lock,.git,dist,build,.next,repomix-output.xml"</code>
+        <div class="cmd-note">Output: repomix-output.xml &mdash; added to .gitignore. Re-run any time you want a fresh snapshot.</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-pill">Files: <span>102</span></div>
+        <div class="stat-pill">Tokens: <span>149k</span></div>
+        <div class="stat-pill">Chars: <span>422k</span></div>
+        <div class="stat-pill">Security: <span>CLEAN</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Browser Testing — Playwright MCP (Official)</div>
+    <div class="tool-card info">
+      <div class="tool-header">
+        <span class="tool-label lbl-info">MCP SERVER</span>
+        <span class="tool-title">@playwright/mcp (Official)</span>
+      </div>
+      <div class="tool-sub">Official Playwright MCP server. Gives Claude Code a live browser that navigates the real DOM — replaces <code>plugin:playwright</code> which guessed selectors from memory. Registered in ~/.claude.json for sasmaster-platform.</div>
+      <div class="cmd-block">
+        <code>claude mcp add playwright npx @playwright/mcp@latest</code>
+        <div class="cmd-note">Scope: project /Users/shivashish/sasmaster-platform &mdash; restart Claude Code to activate</div>
+      </div>
+      <ul class="rule-list">
+        <li><strong>Live DOM navigation</strong> &mdash; browser_navigate, browser_click, browser_fill_form, browser_snapshot</li>
+        <li><strong>Screenshots + network inspection</strong> &mdash; browser_take_screenshot, browser_network_requests</li>
+        <li><strong>Replaces</strong> <code>mcp__plugin_playwright_playwright__*</code> with <code>mcp__playwright__*</code> namespace</li>
+        <li><strong>QA agent upgrade</strong> &mdash; all 15 Puppeteer checks now backed by real browser context</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<footer>SaSMaster Dev Tooling &mdash; Installed 2026-05-26 &mdash; sasmaster-platform</footer>
+
+</body>
+</html>
