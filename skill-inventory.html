@@ -233,23 +233,23 @@
 
   <!-- ── Stats bar ── -->
   <div class="stats-bar">
-    <div class="sb-item"><strong>40</strong><span>Total Skills</span></div>
+    <div class="sb-item"><strong>79</strong><span>Total Skills</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>40</strong><span>Synced Both</span></div>
+    <div class="sb-item"><strong>50</strong><span>Agents</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>11,200+</strong><span>Lines of Knowledge</span></div>
+    <div class="sb-item"><strong>40</strong><span>Personal (Synced)</span></div>
+    <div class="sb-sep"></div>
+    <div class="sb-item"><strong>9 plugins</strong><span>Marketplace Fleet</span></div>
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>17</strong><span>SaSMaster Domain</span></div>
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>Fri 5:50PM</strong><span>Auto-Review Cron</span></div>
-    <div class="sb-sep"></div>
-    <div class="sb-item"><strong>Post-Build</strong><span>Learnings Capture</span></div>
   </div>
 
   <!-- ── Filter ── -->
   <div class="sec-title">Skills</div>
   <div class="filter-row">
-    <button class="filter-btn active" onclick="filterSkills('all',this)">All (40)</button>
+    <button class="filter-btn active" onclick="filterSkills('all',this)">All (40 personal)</button>
     <button class="filter-btn" onclick="filterSkills('sasmaster',this)">SaSMaster Domain (17)</button>
     <button class="filter-btn" onclick="filterSkills('research',this)">Research (1)</button>
     <button class="filter-btn" onclick="filterSkills('engineering',this)">Engineering (9)</button>
@@ -1403,8 +1403,36 @@
     </table>
   </div>
 
+  <!-- ── Marketplace Fleet ── -->
+  <div class="sec-title" style="margin-top:40px;">Marketplace Fleet — wshobson/agents (2026-05-26)</div>
+  <div style="background:white;border-radius:14px;border:1.5px solid var(--lav-200);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:20px;">
+    <table class="coverage-table">
+      <thead>
+        <tr>
+          <th>Plugin</th>
+          <th>Tier</th>
+          <th style="text-align:center;">Skills</th>
+          <th style="text-align:center;">Agents</th>
+          <th style="text-align:center;">Commands</th>
+          <th>Key Skills</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="skill-name-cell">python-development</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">T1</span></td><td style="text-align:center;">16</td><td style="text-align:center;">3</td><td style="text-align:center;">1</td><td class="desc-cell">async-python-patterns, python-testing-patterns, uv-package-manager, python-resilience, python-type-safety + 11 more. Agents: python-pro, django-pro, fastapi-pro</td></tr>
+        <tr><td class="skill-name-cell">llm-application-dev</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">T1</span></td><td style="text-align:center;">8</td><td style="text-align:center;">3</td><td style="text-align:center;">3</td><td class="desc-cell">rag-implementation, embedding-strategies, hybrid-search-implementation, vector-index-tuning, llm-evaluation, prompt-engineering-patterns. Agents: ai-engineer, prompt-engineer, vector-database-engineer</td></tr>
+        <tr><td class="skill-name-cell">observability-monitoring</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">T1</span></td><td style="text-align:center;">4</td><td style="text-align:center;">4</td><td style="text-align:center;">2</td><td class="desc-cell">prometheus-configuration, grafana-dashboards, distributed-tracing, slo-implementation. Agents: observability-engineer, performance-engineer, network-engineer, database-optimizer</td></tr>
+        <tr><td class="skill-name-cell">security-scanning + block-no-verify</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">T1</span></td><td style="text-align:center;">6</td><td style="text-align:center;">2</td><td style="text-align:center;">4</td><td class="desc-cell">attack-tree-construction, sast-configuration, stride-analysis-patterns, threat-mitigation-mapping, security-requirement-extraction, block-no-verify-hook. Agents: security-auditor, threat-modeling-expert</td></tr>
+        <tr><td class="skill-name-cell">agent-teams + conductor</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">T1</span></td><td style="text-align:center;">9</td><td style="text-align:center;">5</td><td style="text-align:center;">13</td><td class="desc-cell">multi-reviewer-patterns, parallel-feature-development, task-coordination-strategies, track-management, workflow-patterns. Commands: /conductor:implement, /conductor:revert. Agents: conductor-validator, team-lead, team-implementer, team-reviewer, team-debugger</td></tr>
+        <tr><td class="skill-name-cell">backend-development</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">T2</span></td><td style="text-align:center;">9</td><td style="text-align:center;">8</td><td style="text-align:center;">1</td><td class="desc-cell">cqrs-implementation, event-store-design, microservices-patterns, saga-orchestration, temporal-python-testing, api-design-principles, workflow-orchestration-patterns. Agents: backend-architect, event-sourcing-architect, graphql-architect, temporal-python-pro</td></tr>
+        <tr><td class="skill-name-cell">cicd-automation</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">T2</span></td><td style="text-align:center;">4</td><td style="text-align:center;">5</td><td style="text-align:center;">1</td><td class="desc-cell">deployment-pipeline-design, github-actions-templates, gitlab-ci-patterns, secrets-management. Agents: cloud-architect, deployment-engineer, devops-troubleshooter, kubernetes-architect, terraform-specialist</td></tr>
+        <tr><td class="skill-name-cell">javascript-typescript</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">T2</span></td><td style="text-align:center;">4</td><td style="text-align:center;">2</td><td style="text-align:center;">1</td><td class="desc-cell">typescript-advanced-types, nodejs-backend-patterns, modern-javascript-patterns, javascript-testing-patterns. Agents: typescript-pro, javascript-pro</td></tr>
+        <tr><td class="skill-name-cell">machine-learning-ops</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">T2</span></td><td style="text-align:center;">2</td><td style="text-align:center;">3</td><td style="text-align:center;">1</td><td class="desc-cell">ml-pipeline-workflow, recsys-pipeline-architect (audience ML for RESEARCH-PORTAL-003). Agents: data-scientist, ml-engineer, mlops-engineer</td></tr>
+      </tbody>
+    </table>
+  </div>
+
   <div style="text-align:center;margin-top:32px;font-size:11px;color:var(--ink-400);">
-    SaSMaster Intelligence Platform · Skill Inventory v2 · Updated May 26, 2026 · 39 skills · 15 agents · 10,200+ lines
+    SaSMaster Intelligence Platform · Skill Inventory v3 · Updated May 26, 2026 · 79 skills · 50 agents · 27 commands · 9 marketplace plugins
   </div>
 
 </div><!-- /canvas -->
