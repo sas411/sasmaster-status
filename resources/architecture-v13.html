@@ -856,6 +856,11 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
       <div class="card-desc">Git auto-commit fires on every completed build cycle. War Room (sasmaster-status) auto-deploys on every push via Vercel. Status.json pushed to S3 on each on-complete hook. Full audit trail maintained automatically.</div>
       <span class="card-tag tag-teal">AUTO</span><span class="card-tag tag-green">Post-build</span>
     </div>
+    <div class="card">
+      <div class="card-title">nielsen-puller (Mac worker)</div>
+      <div class="card-desc">launchd <code>com.sasmaster.nielsen-puller</code>: fires Tuesday 5PM Eastern. Pulls 15 MIT tables + 10 AMRLD Tier 1 recs + 5 Tier 2 CPP records. 1 req/sec via ra-linear-analytics-bundle bridge. SQLite cache → S3 ZSTD Parquet. Failure → JARVIS /events alert. Tuesday total ~10GB (daily 3.5GB + weekly 8GB).</div>
+      <span class="card-tag tag-amber">TUE 5PM</span><span class="card-tag tag-blue">Mac worker</span>
+    </div>
   </div>
 
   <div class="op-row-2">

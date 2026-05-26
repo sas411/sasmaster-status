@@ -1160,6 +1160,58 @@ a{color:inherit}
         <span class="sph-ml" id="s3TotalGB">-- GB total</span>
       </div>
       <div class="s3-grid" id="s3Grid"></div>
+
+      <!-- Nielsen Feed Monitor -->
+      <div class="sph" style="margin-top:14px">
+        <span class="sph-label">Nielsen Feed</span>
+        <span class="sph-sub">MIT + AMRLD · Tue 5PM puller</span>
+        <span class="sph-ml" id="nielsenFreshPill"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px" id="nielsenCards">
+
+        <!-- MIT Card -->
+        <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;font-family:'DM Sans',sans-serif">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:12px;font-weight:700;color:var(--text);letter-spacing:.4px">MIT</span>
+            <span id="mitFreshPill" style="font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;font-family:'DM Mono',monospace;background:rgba(245,158,11,.15);color:#D97706">CHECKING</span>
+          </div>
+          <div style="display:flex;gap:16px;margin-bottom:6px">
+            <div>
+              <div style="font-size:20px;font-weight:700;color:var(--text)" id="mitTableCount">--/15</div>
+              <div style="font-size:9px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px">Tables</div>
+            </div>
+            <div>
+              <div style="font-size:20px;font-weight:700;color:var(--text)" id="mitLastPull">--</div>
+              <div style="font-size:9px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px">Last Pull</div>
+            </div>
+          </div>
+          <div style="font-size:9px;color:var(--text-2);font-family:'DM Mono',monospace">ACM_06_C/P · 04_D/P · 05_H/P</div>
+        </div>
+
+        <!-- AMRLD Card -->
+        <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;font-family:'DM Sans',sans-serif">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:12px;font-weight:700;color:var(--text);letter-spacing:.4px">AMRLD</span>
+            <span id="amrldFreshPill" style="font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;font-family:'DM Mono',monospace;background:rgba(245,158,11,.15);color:#D97706">CHECKING</span>
+          </div>
+          <div style="display:flex;gap:16px;margin-bottom:6px">
+            <div>
+              <div style="font-size:20px;font-weight:700;color:var(--text)" id="amrldRecCount">--/15</div>
+              <div style="font-size:9px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px">Rec Types</div>
+            </div>
+            <div>
+              <div style="font-size:20px;font-weight:700;color:var(--text)" id="amrldLastPull">--</div>
+              <div style="font-size:9px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px">Last Pull</div>
+            </div>
+            <div>
+              <div style="font-size:20px;font-weight:700;color:var(--text)" id="amrldWeeklyFlag">--</div>
+              <div style="font-size:9px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px">Tue Weekly</div>
+            </div>
+          </div>
+          <div style="font-size:9px;color:var(--text-2);font-family:'DM Mono',monospace">REC24 (person) · REC36 · REC56 · REC47/48 CPP</div>
+        </div>
+
+      </div><!-- /nielsenCards -->
     </div>
 
     <!-- ═══════════════════════════════════════════════════
@@ -2180,6 +2232,7 @@ function populateAll(d) {
   populateAgentFullGrid(d);
   populateScrapers(d);
   populateS3Grid(d);
+  populateNielsenCards(d);
   populateKanban(d);
   populateSidebar(d);
   populateTmdbTimeline(d);
@@ -4590,6 +4643,51 @@ function renderForecastBars(months) {
 function setText(id, val) {
   const el = document.getElementById(id);
   if (el) el.textContent = val;
+}
+
+// ── Nielsen Feed Monitor ──────────────────────────────────────────────────────
+function populateNielsenCards(d) {
+  const nielsen = (d && d.nielsen) || {};
+  const STALE_DAYS = 8;
+  const now = Date.now();
+
+  function freshPill(lastPullIso) {
+    if (!lastPullIso) return { label: 'NO DATA', cls: 'background:rgba(239,68,68,.15);color:#DC2626' };
+    const days = (now - new Date(lastPullIso).getTime()) / 864e5;
+    if (days > STALE_DAYS) return { label: 'STALE', cls: 'background:rgba(239,68,68,.15);color:#DC2626' };
+    if (days > 3) return { label: 'AGING', cls: 'background:rgba(245,158,11,.15);color:#D97706' };
+    return { label: 'FRESH', cls: 'background:rgba(16,185,129,.15);color:#059669' };
+  }
+
+  // MIT card
+  const mitLast = nielsen.mit_last_pull || null;
+  const mitCount = nielsen.mit_tables_pulled || '--';
+  const mitPill = freshPill(mitLast);
+  const mitPillEl = document.getElementById('mitFreshPill');
+  if (mitPillEl) { mitPillEl.textContent = mitPill.label; mitPillEl.setAttribute('style', mitPillEl.getAttribute('style').replace(/background[^;]+;color[^"]+/, mitPill.cls)); }
+  const mitTC = document.getElementById('mitTableCount');
+  if (mitTC) mitTC.textContent = mitCount + '/15';
+  const mitLP = document.getElementById('mitLastPull');
+  if (mitLP) mitLP.textContent = mitLast ? mitLast.slice(5, 10) : '--';
+
+  // AMRLD card
+  const amrldLast = nielsen.amrld_last_pull || null;
+  const amrldCount = nielsen.amrld_recs_pulled || '--';
+  const amrldWeekly = nielsen.amrld_tuesday_weekly || false;
+  const amrldPill = freshPill(amrldLast);
+  const amrldPillEl = document.getElementById('amrldFreshPill');
+  if (amrldPillEl) { amrldPillEl.textContent = amrldPill.label; amrldPillEl.setAttribute('style', amrldPillEl.getAttribute('style').replace(/background[^;]+;color[^"]+/, amrldPill.cls)); }
+  const amrldRC = document.getElementById('amrldRecCount');
+  if (amrldRC) amrldRC.textContent = amrldCount + '/15';
+  const amrldLP = document.getElementById('amrldLastPull');
+  if (amrldLP) amrldLP.textContent = amrldLast ? amrldLast.slice(5, 10) : '--';
+  const amrldWF = document.getElementById('amrldWeeklyFlag');
+  if (amrldWF) { amrldWF.textContent = amrldWeekly ? '✓' : '--'; amrldWF.style.color = amrldWeekly ? 'var(--ok)' : 'var(--text-2)'; }
+
+  // Tuesday heavy-day alert
+  if (nielsen.amrld_tuesday_gb !== undefined && nielsen.amrld_tuesday_gb < 8) {
+    console.warn('[Nielsen] Tuesday AMRLD pull < 8GB (' + nielsen.amrld_tuesday_gb + 'GB) — may be incomplete');
+  }
 }
 
 </script>
