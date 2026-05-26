@@ -1023,6 +1023,8 @@ a{color:inherit}
       <span style="color:#7c3aed;font-weight:700;letter-spacing:.05em">MEMORY</span>
       <span id="mlHot" class="mem-pill">HOT —</span>
       <span style="color:#3b2d6e">·</span>
+      <span id="mlScoop" class="mem-pill">SCOOP —</span>
+      <span style="color:#3b2d6e">·</span>
       <span id="mlWarm" class="mem-pill">WARM —</span>
       <span style="color:#3b2d6e">·</span>
       <span id="mlCold" class="mem-pill">COLD —</span>
@@ -4427,11 +4429,12 @@ window.finRebuildDoc = function() {
   const API = 'https://api.sasmaster.dev/api/memory/status';
 
   function renderMemoryStrip(data) {
-    const hotEl  = document.getElementById('mlHot');
-    const warmEl = document.getElementById('mlWarm');
-    const coldEl = document.getElementById('mlCold');
-    const s3El   = document.getElementById('mlS3');
-    const tsEl   = document.getElementById('mlTs');
+    const hotEl   = document.getElementById('mlHot');
+    const scoopEl = document.getElementById('mlScoop');
+    const warmEl  = document.getElementById('mlWarm');
+    const coldEl  = document.getElementById('mlCold');
+    const s3El    = document.getElementById('mlS3');
+    const tsEl    = document.getElementById('mlTs');
     if (!hotEl) return;
 
     const used  = data.hot?.slots_used ?? '—';
@@ -4442,6 +4445,12 @@ window.finRebuildDoc = function() {
       if (used <= 25) hotEl.classList.add('hot-green');
       else if (used <= 28) hotEl.classList.add('hot-yellow');
       else hotEl.classList.add('hot-red');
+    }
+
+    if (scoopEl) {
+      const scoopRows = data.scoop?.rows ?? '—';
+      scoopEl.textContent = `SCOOP [${scoopRows}]`;
+      scoopEl.className = 'mem-pill';
     }
 
     const sha = data.warm?.sha ? data.warm.sha.slice(0, 7) : '—';
