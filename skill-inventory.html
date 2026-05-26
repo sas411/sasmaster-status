@@ -221,11 +221,11 @@
   <h1>🧠 Skill Inventory — v2</h1>
   <div class="sub">Claude Code personal skill library · synced across claude.ai + local · self-evolving via post-build capture</div>
   <div class="badge-row">
-    <span class="badge badge-live"><span class="dot"></span>37 Skills Active</span>
-    <span class="badge badge-pur">16 SaSMaster Domain</span>
+    <span class="badge badge-live"><span class="dot"></span>38 Skills Active</span>
+    <span class="badge badge-pur">17 SaSMaster Domain</span>
     <span class="badge badge-info">8 Engineering</span>
     <span class="badge badge-amber">Friday Auto-Review Cron</span>
-    <span class="badge badge-info">Sprint 15 · nielsen-sme added</span>
+    <span class="badge badge-info">Sprint 16 · nielsen-orchestrator added</span>
   </div>
 </div>
 
@@ -233,13 +233,13 @@
 
   <!-- ── Stats bar ── -->
   <div class="stats-bar">
-    <div class="sb-item"><strong>37</strong><span>Total Skills</span></div>
+    <div class="sb-item"><strong>38</strong><span>Total Skills</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>37</strong><span>Synced Both</span></div>
+    <div class="sb-item"><strong>38</strong><span>Synced Both</span></div>
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>10,900+</strong><span>Lines of Knowledge</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>16</strong><span>SaSMaster Domain</span></div>
+    <div class="sb-item"><strong>17</strong><span>SaSMaster Domain</span></div>
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>Fri 5:50PM</strong><span>Auto-Review Cron</span></div>
     <div class="sb-sep"></div>
@@ -249,8 +249,8 @@
   <!-- ── Filter ── -->
   <div class="sec-title">Skills</div>
   <div class="filter-row">
-    <button class="filter-btn active" onclick="filterSkills('all',this)">All (37)</button>
-    <button class="filter-btn" onclick="filterSkills('sasmaster',this)">SaSMaster Domain (16)</button>
+    <button class="filter-btn active" onclick="filterSkills('all',this)">All (38)</button>
+    <button class="filter-btn" onclick="filterSkills('sasmaster',this)">SaSMaster Domain (17)</button>
     <button class="filter-btn" onclick="filterSkills('research',this)">Research (1)</button>
     <button class="filter-btn" onclick="filterSkills('engineering',this)">Engineering (8)</button>
     <button class="filter-btn" onclick="filterSkills('emba',this)">EMBA / Academia (2)</button>
@@ -1168,6 +1168,33 @@
       </div>
       <div class="sc-footer">
         <div class="sc-meta"><span class="sc-lines">SKILL.md + agents/ + references/</span><span>Added May 26, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <!-- nielsen-orchestrator agent -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">nielsen-orchestrator (agent)</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">Autonomous Nielsen pipeline orchestrator. S3 staleness check → scope decision (MIT / AMRLD / full) → triggers scripts/nielsen_puller.py → validates row counts (REC24 ≥ 1M, ACM_06 C3 tables > 0) → new rec type detection (flag, never auto-process) → JARVIS run summary. Reads nielsen-sme skill on every invocation. Phase 2b: AltID sync coordination with content-catalog-builder after successful full pull. Triggered by launchd Tuesday 5PM or !build nielsen JARVIS command.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">!build nielsen</span>
+          <span class="trigger-tag">Tuesday 5PM launchd</span>
+          <span class="trigger-tag">MIT staleness</span>
+          <span class="trigger-tag">AMRLD validation</span>
+          <span class="trigger-tag">new rec type</span>
+          <span class="trigger-tag">AltID sync</span>
+          <span class="trigger-tag">nielsen pull scope</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">~/.claude/agents/</span><span>Added May 26, 2026</span></div>
         <span class="sc-sync">✓ Synced</span>
       </div>
     </div>

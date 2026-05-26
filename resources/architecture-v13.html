@@ -152,7 +152,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
   </div>
   <div class="metric-strip">
     <div class="metric-cell"><div class="metric-val">2</div><div class="metric-lbl">Businesses<br>B2B + B2C</div></div>
-    <div class="metric-cell"><div class="metric-val">15</div><div class="metric-lbl">Sub-agents<br>deployed</div></div>
+    <div class="metric-cell"><div class="metric-val">16</div><div class="metric-lbl">Sub-agents<br>deployed</div></div>
     <div class="metric-cell"><div class="metric-val">36</div><div class="metric-lbl">Skills<br>installed</div></div>
     <div class="metric-cell"><div class="metric-val">14</div><div class="metric-lbl">Chart types<br>@sasmaster/viz</div></div>
     <div class="metric-cell"><div class="metric-val">1.59×</div><div class="metric-lbl">Parallel compute<br>speedup proven</div></div>
@@ -446,7 +446,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
     <div class="section-num">04</div>
     <div class="section-icon">🤖</div>
     <div class="section-title">Agent fleet</div>
-    <div class="section-status status-live">15 agents deployed</div>
+    <div class="section-status status-live">16 agents deployed</div>
   </div>
 
   <div class="card-grid">
@@ -509,6 +509,12 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
       <div class="card-title">content-catalog-builder</div>
       <div class="card-desc">Content catalog pipeline builder. Owns 5 pipelines: Movie Catalog (IMDB 206.4M + TMDB 68.4% match), TV Series, People/Cast/Crew, Parent Key Assignment, AltID Map. Always runs DRY_RUN before S3 write. JARVIS #catalog / #metadata / #parent-key routing.</div>
       <span class="card-tag tag-blue">CATALOG</span><span class="card-tag tag-amber">Sonnet 4.6</span>
+    </div>
+    <div class="card">
+      <div class="card-id">~/.claude/agents/</div>
+      <div class="card-title">nielsen-orchestrator</div>
+      <div class="card-desc">Nielsen pipeline orchestrator. Staleness check → scope decision → triggers <code>scripts/nielsen_puller.py</code> → validates row counts (REC24 ≥ 1M, C3 ACM_06 > 0) → new rec type detection → JARVIS summary. Reads nielsen-sme skill on every invocation. Routes CRITICAL failures to JARVIS before any downstream step. Phase 2b: coordinates AltID sync with content-catalog-builder. Triggered by launchd Tuesday 5PM or <code>!build nielsen</code>.</div>
+      <span class="card-tag tag-amber">NIELSEN</span><span class="card-tag tag-amber">Tue 5PM</span>
     </div>
   </div>
 
