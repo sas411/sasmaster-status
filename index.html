@@ -1163,6 +1163,17 @@ a{color:inherit}
       </div>
       <div class="s3-grid" id="s3Grid"></div>
 
+      <!-- Obsidian Vault Row -->
+      <div id="obsidianVaultRow" style="display:flex;align-items:center;gap:10px;margin-top:8px;padding:6px 12px;background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-2)">
+        <span style="font-size:9px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.5px">OBSIDIAN VAULT</span>
+        <span id="obsidianSize" style="font-size:11px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace">—</span>
+        <span id="obsidianCount" style="color:var(--text-2)">—</span>
+        <span style="margin-left:auto;display:flex;align-items:center;gap:6px">
+          <span style="background:rgba(124,58,237,.12);color:#7C3AED;border:1px solid rgba(124,58,237,.3);border-radius:10px;padding:1px 7px;font-size:9px;font-weight:700">🟣 LOCAL MAC</span>
+          <span id="obsidianFresh" style="font-size:9px;color:var(--text-3)">—</span>
+        </span>
+      </div>
+
       <!-- Nielsen Feed Monitor -->
       <div class="sph" style="margin-top:14px">
         <span class="sph-label">Nielsen Feed</span>
@@ -1917,6 +1928,7 @@ async function loadStatus() {
       // Kick off live data fetches in parallel (don't block status render)
       loadKanbanLive();
       loadCostKPI();
+      loadWorkerVault();
       scheduleRefresh();
       return;
     } catch (_) {
@@ -1948,6 +1960,23 @@ async function loadKanbanLive() {
     if (bbHigh) bbHigh.textContent = kb.counts?.high ?? '--';
     if (bbMed)  bbMed.textContent  = kb.counts?.med  ?? '--';
   } catch (_) { /* silently fall back to status.json kanban */ }
+}
+
+// Worker vault fetch — reads Mac worker health from public /workers/status endpoint
+async function loadWorkerVault() {
+  try {
+    const r = await fetch('https://api.sasmaster.dev/workers/status');
+    if (!r.ok) return;
+    const workers = await r.json();
+    const mac = workers['mac-m-series-64gb'];
+    if (!mac) return;
+    const sizeEl  = document.getElementById('obsidianSize');
+    const countEl = document.getElementById('obsidianCount');
+    const freshEl = document.getElementById('obsidianFresh');
+    if (sizeEl)  sizeEl.textContent  = mac.obsidian_vault_gb    ? mac.obsidian_vault_gb : '—';
+    if (countEl) countEl.textContent = mac.obsidian_entry_count != null ? fmtNum(mac.obsidian_entry_count) + ' entries' : '—';
+    if (freshEl && mac.last_seen)    freshEl.textContent = relTime(mac.last_seen);
+  } catch (_) {}
 }
 
 // Cost KPI fetch — tries live command-api, falls back to cost_summary in status.json
