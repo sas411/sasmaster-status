@@ -1,13 +1,13 @@
 {
-  "generated": "2026-05-26T21:04:01.685Z",
-  "generated_at": "2026-05-26T21:04:01.685Z",
+  "generated": "2026-05-26T23:49:00.921Z",
+  "generated_at": "2026-05-26T23:49:00.921Z",
   "system": {
     "jarvis": {
       "alive": true
     }
   },
   "queue": {
-    "high": 8,
+    "high": 5,
     "med": 11,
     "highItems": [
       {
@@ -65,42 +65,6 @@
         "full": "TMDB TV Episodes flatten — 0 TMDB calls · ~3 min. BLOCKED: TV Seasons done.",
         "sprint": "Data Pipeline",
         "tag": "DATA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t384",
-        "lineIndex": 384,
-        "text": "[JARVIS-STATUS-ENHANCE-001] Queue breakdown in !status — extend JARVIS !status handler to query tasks.db; return TODO/BL…",
-        "full": "[JARVIS-STATUS-ENHANCE-001] Queue breakdown in !status — extend JARVIS !status handler to query tasks.db; return TODO/BLOCKED/IN_PROGRESS/DONE-today counts; include top 3 BLOCKED tasks with blocker reason; format: \"Queue: 5 TODO · 10 BLOCKED · 0 IN_PROGRESS · 8 DONE today / Top blockers: tv_series phase (4 tasks)\". Verify: !status in Slack returns breakdown; BLOCKED count matches War Room QUEUE tab. LESSON-024.",
-        "sprint": "Platform Hygiene Sprint — 2026-05-26",
-        "tag": "AGENT",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t386",
-        "lineIndex": 386,
-        "text": "[TMDB-STALL-DETECTOR-001] Detect and alert on dependency chain stalls — add stall detection to JARVIS rules engine (runs…",
-        "full": "[TMDB-STALL-DETECTOR-001] Detect and alert on dependency chain stalls — add stall detection to JARVIS rules engine (runs every 5 min); stall = root dependency task (tv_series, eidr_id) with TODO status for >6h; count downstream blocked tasks; fire Slack alert to #sasmaster-builds with diagnose command; add tv_series and parent_keys.eidr_id as monitored roots. Verify: stall alert fires in test with artificial 6h delay; downstream count accurate. LESSON-025.",
-        "sprint": "Platform Hygiene Sprint — 2026-05-26",
-        "tag": "DATA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t388",
-        "lineIndex": 388,
-        "text": "[COVERAGE-BASELINE-001] Reset portal coverage scores post-React migration — update DONE_LOG Analyst to evaluate against …",
-        "full": "[COVERAGE-BASELINE-001] Reset portal coverage scores post-React migration — update DONE_LOG Analyst to evaluate against sasmaster-platform-portal.vercel.app; define coverage criteria for React sections (MetricCards, chart rendering, data loading, Dr. Scoop context); run fresh analysis across all 5 sections + Dr. Scoop; post to #sasmaster-builds \"BASELINE-001: Official post-migration coverage scores\"; update War Room coverage panel; tag scores with post-react-migration. Verify: all 6 entities scored (Content/Advertising/Marketing/CPG/Exchange/Dr. Scoop).",
-        "sprint": "Platform Hygiene Sprint — 2026-05-26",
-        "tag": "UI",
         "priority": "HIGH",
         "state": "BACKLOG",
         "blockReason": "",
@@ -309,42 +273,6 @@
         "meta": {}
       },
       {
-        "id": "t384",
-        "lineIndex": 384,
-        "text": "[JARVIS-STATUS-ENHANCE-001] Queue breakdown in !status — extend JARVIS !status handler to query tasks.db; return TODO/BL…",
-        "full": "[JARVIS-STATUS-ENHANCE-001] Queue breakdown in !status — extend JARVIS !status handler to query tasks.db; return TODO/BLOCKED/IN_PROGRESS/DONE-today counts; include top 3 BLOCKED tasks with blocker reason; format: \"Queue: 5 TODO · 10 BLOCKED · 0 IN_PROGRESS · 8 DONE today / Top blockers: tv_series phase (4 tasks)\". Verify: !status in Slack returns breakdown; BLOCKED count matches War Room QUEUE tab. LESSON-024.",
-        "sprint": "Platform Hygiene Sprint — 2026-05-26",
-        "tag": "AGENT",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t386",
-        "lineIndex": 386,
-        "text": "[TMDB-STALL-DETECTOR-001] Detect and alert on dependency chain stalls — add stall detection to JARVIS rules engine (runs…",
-        "full": "[TMDB-STALL-DETECTOR-001] Detect and alert on dependency chain stalls — add stall detection to JARVIS rules engine (runs every 5 min); stall = root dependency task (tv_series, eidr_id) with TODO status for >6h; count downstream blocked tasks; fire Slack alert to #sasmaster-builds with diagnose command; add tv_series and parent_keys.eidr_id as monitored roots. Verify: stall alert fires in test with artificial 6h delay; downstream count accurate. LESSON-025.",
-        "sprint": "Platform Hygiene Sprint — 2026-05-26",
-        "tag": "DATA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t388",
-        "lineIndex": 388,
-        "text": "[COVERAGE-BASELINE-001] Reset portal coverage scores post-React migration — update DONE_LOG Analyst to evaluate against …",
-        "full": "[COVERAGE-BASELINE-001] Reset portal coverage scores post-React migration — update DONE_LOG Analyst to evaluate against sasmaster-platform-portal.vercel.app; define coverage criteria for React sections (MetricCards, chart rendering, data loading, Dr. Scoop context); run fresh analysis across all 5 sections + Dr. Scoop; post to #sasmaster-builds \"BASELINE-001: Official post-migration coverage scores\"; update War Room coverage panel; tag scores with post-react-migration. Verify: all 6 entities scored (Content/Advertising/Marketing/CPG/Exchange/Dr. Scoop).",
-        "sprint": "Platform Hygiene Sprint — 2026-05-26",
-        "tag": "UI",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
         "id": "t200",
         "lineIndex": 200,
         "text": "KB-CI-002 phase1-complete profile-set",
@@ -499,7 +427,32 @@
         "approvalId": "wbr_mpkfwm6x"
       }
     ],
-    "done": [],
+    "done": [
+      {
+        "id": "done-0",
+        "text": "COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration",
+        "full": "COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-1",
+        "text": "TMDB-STALL-DETECTOR-001 — Stall detection in JARVIS rules engine",
+        "full": "TMDB-STALL-DETECTOR-001 — Stall detection in JARVIS rules engine",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-2",
+        "text": "JARVIS-STATUS-ENHANCE-001 — Queue breakdown in !status",
+        "full": "JARVIS-STATUS-ENHANCE-001 — Queue breakdown in !status",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      }
+    ],
     "qaDrafts": [],
     "memoryPending": [
       "EIDR auth activation → trigger enrich against staged S3 IDs",
@@ -529,7 +482,7 @@
       }
     },
     "counts": {
-      "backlog": 19,
+      "backlog": 16,
       "inProgress": 0,
       "blocked": 0,
       "review": 2,
@@ -537,8 +490,8 @@
     }
   },
   "heatmap": {
-    "** 2026-05": 10,
-    "2026-05-26": 16,
+    "2026-05-26": 22,
+    "** 2026-05": 8,
     "2026-05-25": 15,
     "2026-05-23": 1,
     "2026-04-28": 6,
@@ -595,7 +548,7 @@
       "log": "donelog-analyst.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": "2026-05-26T16:00:01.178Z",
+      "lastRun": "2026-05-26T23:48:01.459Z",
       "lastOutput": "Spawned extract-build-lessons.js (non-blocking)",
       "status": "healthy"
     },
@@ -691,8 +644,8 @@
       "log": "railway-monitor.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": "2026-05-26T21:00:01.108Z",
-      "lastOutput": "✅ All healthy — uptime streak: 51h 35m",
+      "lastRun": "2026-05-26T23:45:01.408Z",
+      "lastOutput": "✅ All healthy — uptime streak: 54h 20m",
       "status": "healthy"
     },
     {
@@ -722,7 +675,26 @@
       "status": "never"
     }
   ],
-  "recentBuilds": [],
+  "recentBuilds": [
+    {
+      "task": "COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration",
+      "date": "2026-05-26 19:52",
+      "notes": "Updated donelog-analyst.js to v2: each portal now has legacy + react signal sets (react signals weighted 2x). Added --ba",
+      "status": "DONE"
+    },
+    {
+      "task": "TMDB-STALL-DETECTOR-001 — Stall detection in JARVIS rules engine",
+      "date": "2026-05-26 19:52",
+      "notes": "RULE-STALL-001 was already implemented and called at boot (startStallDetector()). Fixed: root task search was using t.id",
+      "status": "DONE"
+    },
+    {
+      "task": "JARVIS-STATUS-ENHANCE-001 — Queue breakdown in !status",
+      "date": "2026-05-26 19:52",
+      "notes": "Root cause was that parseAllTasks() in tasks-mutator.ts used STATE_RE=/\\[(WIP|BLOCK:([^\\]]*)|REVIEW)\\]/i which only matc",
+      "status": "DONE"
+    }
+  ],
   "intel_feed": [
     {
       "source": "MEDIA INTEL",
@@ -939,7 +911,7 @@
       "object_count": 7778,
       "last_updated": "2026-05-25T14:33:13.000Z",
       "fresh": false,
-      "age_hours": 30.5,
+      "age_hours": 33.3,
       "entities": {
         "movies": 1186402,
         "tv_series": 220147,
@@ -958,7 +930,7 @@
       "object_count": 7,
       "last_updated": "2026-04-21T23:00:01.000Z",
       "fresh": false,
-      "age_hours": 838.1,
+      "age_hours": 840.8,
       "entities": {
         "movies": 743825,
         "tv_series": 298238,
@@ -977,7 +949,7 @@
       "object_count": 7,
       "last_updated": "2026-04-28T11:29:34.000Z",
       "fresh": false,
-      "age_hours": 681.6,
+      "age_hours": 684.3,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -996,7 +968,7 @@
       "object_count": 1,
       "last_updated": "2026-04-21T23:04:10.000Z",
       "fresh": false,
-      "age_hours": 838,
+      "age_hours": 840.7,
       "entities": {
         "movies": 861878,
         "tv_series": null,
@@ -1015,7 +987,7 @@
       "object_count": 55,
       "last_updated": "2026-05-26T14:40:00.000Z",
       "fresh": true,
-      "age_hours": 10.4,
+      "age_hours": 13.1,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1034,7 +1006,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:47:11.000Z",
       "fresh": false,
-      "age_hours": 834.3,
+      "age_hours": 837,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1053,7 +1025,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:38:36.000Z",
       "fresh": false,
-      "age_hours": 834.4,
+      "age_hours": 837.2,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1072,7 +1044,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T04:42:21.000Z",
       "fresh": false,
-      "age_hours": 832.4,
+      "age_hours": 835.1,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1091,7 +1063,7 @@
       "object_count": 14,
       "last_updated": "2026-04-22T07:53:17.000Z",
       "fresh": false,
-      "age_hours": 829.2,
+      "age_hours": 831.9,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1110,7 +1082,7 @@
       "object_count": 5,
       "last_updated": "2026-04-22T01:13:31.000Z",
       "fresh": false,
-      "age_hours": 835.8,
+      "age_hours": 838.6,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1129,7 +1101,7 @@
       "object_count": 3,
       "last_updated": "2026-04-29T02:57:31.000Z",
       "fresh": false,
-      "age_hours": 666.1,
+      "age_hours": 668.9,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1148,7 +1120,7 @@
       "object_count": 12,
       "last_updated": "2026-05-26T09:01:37.000Z",
       "fresh": true,
-      "age_hours": 12,
+      "age_hours": 14.8,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1167,7 +1139,7 @@
       "object_count": 8,
       "last_updated": "2026-05-26T09:02:31.000Z",
       "fresh": true,
-      "age_hours": 12,
+      "age_hours": 14.8,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1185,7 +1157,7 @@
     "scrapers_total": 23,
     "s3_gb": 118.7,
     "parent_key_rows": 861878,
-    "tasks_open": 19,
+    "tasks_open": 16,
     "build_events_today": 0,
     "model_routing": "haiku+sonnet+opus",
     "haiku_pct_today": 0,
@@ -1201,6 +1173,21 @@
     "trend": "stable"
   },
   "recent_activity": [
+    {
+      "type": "build",
+      "text": "COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration",
+      "ts": "2026-05-26 19:52"
+    },
+    {
+      "type": "build",
+      "text": "TMDB-STALL-DETECTOR-001 — Stall detection in JARVIS rules engine",
+      "ts": "2026-05-26 19:52"
+    },
+    {
+      "type": "build",
+      "text": "JARVIS-STATUS-ENHANCE-001 — Queue breakdown in !status",
+      "ts": "2026-05-26 19:52"
+    },
     {
       "type": "intel",
       "text": "36 signals from 10 sources — Evan Shapiro sweep complete",
@@ -1315,6 +1302,14 @@
       "time": "2:00 AM",
       "name": "kb bulk nightly.sh",
       "command": "/opt/homebrew/bin/bash ~/SaSMaster/scripts/kb-bulk-nightly.sh >> ~/SaSMaster/logs/kb-bulk-nightly.log 2>&1",
+      "channel": "—",
+      "weekly": false,
+      "status": "pending"
+    },
+    {
+      "time": "2:30 AM",
+      "name": "curl  sf https://sasmaster api productio",
+      "command": "curl -sf https://sasmaster-api-production.up.railway.app/health > /dev/null && echo 'Railway health OK' >> ~/SaSMaster/logs/cron.log 2>&1",
       "channel": "—",
       "weekly": false,
       "status": "pending"
@@ -1589,27 +1584,6 @@
       "est": "—"
     },
     {
-      "title": "[JARVIS-STATUS-ENHANCE-001] Queue breakdown in !status — extend JARVIS !status handler to query tasks.db; return TODO/BL…",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "AGENT",
-      "est": "—"
-    },
-    {
-      "title": "[TMDB-STALL-DETECTOR-001] Detect and alert on dependency chain stalls — add stall detection to JARVIS rules engine (runs…",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "DATA",
-      "est": "—"
-    },
-    {
-      "title": "[COVERAGE-BASELINE-001] Reset portal coverage scores post-React migration — update DONE_LOG Analyst to evaluate against …",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "UI",
-      "est": "—"
-    },
-    {
       "title": "KB-CI-002 phase1-complete profile-set",
       "status": "BACKLOG",
       "priority": "MED",
@@ -1699,18 +1673,70 @@
       "priority": "REVIEW",
       "tag": "PENDING",
       "est": "—"
+    },
+    {
+      "title": "COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
+    },
+    {
+      "title": "TMDB-STALL-DETECTOR-001 — Stall detection in JARVIS rules engine",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
+    },
+    {
+      "title": "JARVIS-STATUS-ENHANCE-001 — Queue breakdown in !status",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
     }
   ],
-  "recent_completions": [],
+  "recent_completions": [
+    {
+      "title": "COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration",
+      "category": "Portal",
+      "path": "",
+      "completed_at": "2026-05-26 19:52"
+    },
+    {
+      "title": "TMDB-STALL-DETECTOR-001 — Stall detection in JARVIS rules engine",
+      "category": "Build",
+      "path": "",
+      "completed_at": "2026-05-26 19:52"
+    },
+    {
+      "title": "JARVIS-STATUS-ENHANCE-001 — Queue breakdown in !status",
+      "category": "Build",
+      "path": "",
+      "completed_at": "2026-05-26 19:52"
+    }
+  ],
   "slack_feed": {
     "builds": [
       {
-        "ts": "12:00 PM",
+        "ts": "7:52 PM",
+        "text": "✅ COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration"
+      },
+      {
+        "ts": "7:52 PM",
+        "text": "✅ TMDB-STALL-DETECTOR-001 — Stall detection in JARVIS rules engine"
+      },
+      {
+        "ts": "7:52 PM",
+        "text": "✅ JARVIS-STATUS-ENHANCE-001 — Queue breakdown in !status"
+      },
+      {
+        "ts": "7:48 PM",
         "text": "📊 Spawned extract-build-lessons.js (non-blocking)"
       },
       {
-        "ts": "12:00 PM",
-        "text": "📊 Spawned extract-build-lessons.js (non-blocking)"
+        "ts": "7:48 PM",
+        "text": "📊 Coverage baseline written to /Users/shivashish/sasmaster-status/coverage-baseline.json"
       }
     ],
     "intel": [
