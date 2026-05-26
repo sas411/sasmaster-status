@@ -232,6 +232,7 @@ function parseAgents() {
     { name: 'Security Watchdog', icon: '🔐', schedule: 'Daily 5:30AM', nextRun: 'Tomorrow 5:30AM', log: 'security-watchdog.log', channel: '#sasmaster-builds',  jobId: null },
     { name: 'Railway Monitor',   icon: '🛤️', schedule: 'Every 15min',  nextRun: 'In ≤15min',       log: 'railway-monitor.log',   channel: '#sasmaster-builds',  jobId: null },
     { name: 'Research Portal',   icon: '🔬', schedule: 'TBD',          nextRun: 'Pending launch',  log: 'research-portal-agent.log', channel: '#sasmaster-intel', jobId: null, descOverride: 'SCAFFOLDED — pending RESEARCH-PORTAL-001 launch' },
+    { name: 'Data Guardian',     icon: '🛡️', schedule: 'Post-ingestion', nextRun: 'After next pull', log: 'data-guardian.log',         channel: '#sasmaster-builds',  jobId: null, descOverride: 'Post-ingestion integrity enforcer — snapshot → AMRLD anomaly detection (RULE-HH-01..04) → Tier 2 gate. Wired into nielsen_puller.py via _run_data_guardian().' },
   ];
 
   return agents.map(a => {
@@ -400,7 +401,9 @@ function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents) {
   const imdbP   = prefix('imdb/');
   const imdbPrd = prefix('imdb_prd/');
   const pkP     = prefix('parent_keys/');
-  const nielsenP = prefix('Nielsen/');
+  const nielsenP = prefix('nielsen/');
+  const nielsenMITP  = prefix('nielsen/mit/');
+  const nielsenAMRLD = prefix('nielsen/amrld/');
   const eidrP   = prefix('eidr/');
   const gracP   = prefix('gracenote/');
   const fyiP    = prefix('fyi/');
@@ -481,12 +484,20 @@ function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents) {
     { name: 'Rights scraper', phase: '1b', status: 'designed', pct: 0, last_run: null },
     // ── Phase 2a — Interim snapshots via RSG API bridge
     {
-      name: 'Nielsen snapshot',
+      name: 'Nielsen MIT (15 tables)',
       phase: '2a',
-      status: nielsenP.object_count > 0 ? 'landing' : 'queued',
-      pct: null,
-      last_run: nielsenP.last_modified || null,
-      size_gb: nielsenP.size_gb || null,
+      status: nielsenMITP.object_count > 0 ? 'live' : 'queued',
+      pct: nielsenMITP.object_count > 0 ? 100 : 0,
+      last_run: nielsenMITP.last_modified || null,
+      note: 'Auth0 M2M · Tue prior-week pull · 50K-row/table limit',
+    },
+    {
+      name: 'Nielsen AMRLD (36 rec types)',
+      phase: '2a',
+      status: nielsenAMRLD.object_count > 0 ? 'live' : 'queued',
+      pct: nielsenAMRLD.object_count > 0 ? 100 : 0,
+      last_run: nielsenAMRLD.last_modified || null,
+      note: 'T1×10 T2×5 T3×12(bridge-pending) NEW×9 · Tue full pull',
     },
     {
       name: 'Gracenote snapshot',
@@ -524,7 +535,9 @@ function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
     'imdb/':         { label: 'imdb/',              phase: '1',  status_hint: 'live'    },
     'imdb_prd/':     { label: 'imdb_prd/ (legacy)', phase: '1',  status_hint: 'live'    },
     'parent_keys/':  { label: 'parent_keys/',       phase: '1',  status_hint: 'live'    },
-    'Nielsen/':      { label: 'Nielsen/',           phase: '2a', status_hint: 'landing' },
+    'nielsen/':      { label: 'nielsen/',           phase: '2a', status_hint: 'live' },
+    'nielsen/mit/':  { label: 'nielsen/mit/',       phase: '2a', status_hint: 'live' },
+    'nielsen/amrld/':{ label: 'nielsen/amrld/',     phase: '2a', status_hint: 'live' },
     'gracenote/':    { label: 'gracenote/',         phase: '2a', status_hint: 'landing' },
     'fyi/':          { label: 'fyi/',               phase: '2a', status_hint: 'landing' },
     'opus/':         { label: 'opus/',              phase: '2a', status_hint: 'landing' },

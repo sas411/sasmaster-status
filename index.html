@@ -1123,7 +1123,7 @@ a{color:inherit}
             <div class="tl-node"><div class="tl-date">Apr 22</div><div class="tl-dot tl-done">✓</div><div class="tl-label">Parent Key v1</div><div class="tl-sub">862K titles</div></div>
             <div class="tl-node"><div class="tl-date">In Progress</div><div class="tl-dot tl-active">⟳</div><div class="tl-label">TMDB Bulk Load</div><div class="tl-sub" id="tlTmdbSub">loading...</div></div>
             <div class="tl-node"><div class="tl-date">Pending</div><div class="tl-dot tl-pend">○</div><div class="tl-label">EIDR Backfill</div><div class="tl-sub">Phase 1b</div></div>
-            <div class="tl-node"><div class="tl-date">Pending</div><div class="tl-dot tl-pend">○</div><div class="tl-label">Nielsen Parse</div><div class="tl-sub">Phase 2a</div></div>
+            <div class="tl-node"><div class="tl-date">2026-05-26</div><div class="tl-dot tl-live">●</div><div class="tl-label">Nielsen Live</div><div class="tl-sub">MIT 15/15 · AMRLD T1+T2</div></div>
             <div class="tl-node"><div class="tl-date">Planned</div><div class="tl-dot tl-pend">○</div><div class="tl-label">Phase 2b</div><div class="tl-sub">JustWatch/EIDR direct</div></div>
           </div>
         </div>
@@ -1210,7 +1210,7 @@ a{color:inherit}
               <div style="font-size:9px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px">Tue Weekly</div>
             </div>
           </div>
-          <div style="font-size:9px;color:var(--text-2);font-family:'DM Mono',monospace">REC24 (person) · REC36 · REC56 · REC47/48 CPP</div>
+          <div style="font-size:9px;color:var(--text-2);font-family:'DM Mono',monospace">T1×10 · T2×5 · T3×12 · NEW×9 · REC24/47/48 CPP</div>
         </div>
 
       </div><!-- /nielsenCards -->
@@ -4687,7 +4687,7 @@ function populateNielsenCards(d) {
   const amrldPillEl = document.getElementById('amrldFreshPill');
   if (amrldPillEl) { amrldPillEl.textContent = amrldPill.label; amrldPillEl.setAttribute('style', amrldPillEl.getAttribute('style').replace(/background[^;]+;color[^"]+/, amrldPill.cls)); }
   const amrldRC = document.getElementById('amrldRecCount');
-  if (amrldRC) amrldRC.textContent = amrldCount + '/15';
+  if (amrldRC) amrldRC.textContent = amrldCount + '/36';
   const amrldLP = document.getElementById('amrldLastPull');
   if (amrldLP) amrldLP.textContent = amrldLast ? amrldLast.slice(5, 10) : '--';
   const amrldWF = document.getElementById('amrldWeeklyFlag');
