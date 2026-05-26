@@ -129,7 +129,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
 <div class="doc-header">
   <div class="doc-eyebrow">
     <div class="doc-tag">Operator Reference</div>
-    <div class="doc-version">ARCHITECTURE · v13 · 2026-05-25</div>
+    <div class="doc-version">ARCHITECTURE · v13 · 2026-05-26</div>
   </div>
   <div class="doc-title">SaSMaster Platform Architecture</div>
   <div class="doc-sub">Distributed Memory · Distributed Compute · Agent Fleet · Skill Fleet · UI/UX Visual Intelligence · Autonomous Systems</div>
@@ -138,7 +138,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
     <div class="meta-pill"><span class="meta-dot dot-green"></span>UI-INFRA 6/6 Done</div>
     <div class="meta-pill"><span class="meta-dot dot-green"></span>UI/UX Arch Live</div>
     <div class="meta-pill"><span class="meta-dot dot-lav"></span>58 Tasks · 27 Pending</div>
-    <div class="meta-pill"><span class="meta-dot dot-green"></span>32 Skills Installed</div>
+    <div class="meta-pill"><span class="meta-dot dot-green"></span>35 Skills Installed</div>
   </div>
 </div>
 
@@ -153,7 +153,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
   <div class="metric-strip">
     <div class="metric-cell"><div class="metric-val">2</div><div class="metric-lbl">Businesses<br>B2B + B2C</div></div>
     <div class="metric-cell"><div class="metric-val">13</div><div class="metric-lbl">Sub-agents<br>deployed</div></div>
-    <div class="metric-cell"><div class="metric-val">32</div><div class="metric-lbl">Skills<br>installed</div></div>
+    <div class="metric-cell"><div class="metric-val">35</div><div class="metric-lbl">Skills<br>installed</div></div>
     <div class="metric-cell"><div class="metric-val">14</div><div class="metric-lbl">Chart types<br>@sasmaster/viz</div></div>
     <div class="metric-cell"><div class="metric-val">1.59×</div><div class="metric-lbl">Parallel compute<br>speedup proven</div></div>
   </div>
@@ -192,6 +192,11 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
       <tr><td>Storybook</td><td>localhost:6006</td><td>Component library — machine-readable spec</td><td><code>npm run storybook</code></td></tr>
       <tr><td>tasks.db</td><td>~/SaSMaster/tasks.db</td><td>SQLite WAL — JARVIS sole write gate</td><td><code>sqlite3 tasks.db "SELECT COUNT(*) FROM tasks"</code></td></tr>
       <tr><td>S3 Bucket</td><td>sasmaster-2026</td><td>Data + knowledge bank + UI baselines</td><td><code>aws s3 ls s3://sasmaster-2026 --profile X</code></td></tr>
+      <tr><td>Mac Worker</td><td>~/SaSMaster/workers/</td><td>Primary compute — DuckDB, scraper, Claude Code, ML. Heartbeats Railway every 5 min.</td><td><code>GET /workers/status</code></td></tr>
+      <tr><td>/workers/heartbeat</td><td>Railway (POST)</td><td>Mac worker self-registers; War Room online/offline pill reads this</td><td><code>POST /workers/heartbeat</code></td></tr>
+      <tr><td>/workers/status</td><td>Railway (GET)</td><td>Returns current Mac worker state — online/offline + capabilities</td><td><code>GET /workers/status</code></td></tr>
+      <tr><td>/tasks/pending-compute</td><td>Railway (GET)</td><td>Mac polls this for queued compute tasks; Railway hands off heavy jobs</td><td><code>GET /tasks/pending-compute</code></td></tr>
+      <tr><td>/internal/generate-status</td><td>Railway (POST)</td><td>Internal cron — generates status.json every 5 min; replaces Mac cron</td><td><code>POST /internal/generate-status</code></td></tr>
     </tbody>
   </table>
 </div>
@@ -250,6 +255,12 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
     <div class="op-box">
       <div class="op-box-title">TASKS.md gate syntax</div>
       <div class="op-box-content">Sequential tasks require explicit <code>GATE: mark [x] done + verify before NEXT-TASK-ID</code> and <code>DEPENDS ON PREV-ID [x]</code>. Prose dependency descriptions are not enough — JARVIS needs the [x] state check.</div>
+    </div>
+  </div>
+  <div class="op-row">
+    <div class="op-box">
+      <div class="op-box-title">3-tier compute architecture</div>
+      <div class="op-box-content"><strong>Tier 1 — Railway</strong>: Control plane, always-on. HTTP Events, status.json cron via <code>/internal/generate-status</code>, task routing + batch.<br><strong>Tier 2 — Mac 64GB</strong>: Primary compute worker. Heartbeat-registered at <code>/workers/heartbeat</code>, polls <code>/tasks/pending-compute</code>, capabilities: duckdb / scraper / claude-code / ml.<br><strong>Tier 3 — GitHub Actions</strong>: Scheduled fallback — fires when Mac worker offline or unreachable.</div>
     </div>
   </div>
 </div>
@@ -406,7 +417,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
       <text x="760" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#059669" letter-spacing="1.5">FLEET UPDATE</text>
       <text x="760" y="62" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#1E293B">SKILL.md</text>
       <text x="760" y="78" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">Fri 17:50 · skill-review.sh</text>
-      <text x="760" y="94" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">32 skills installed</text>
+      <text x="760" y="94" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">35 skills installed</text>
       <!-- Feedback loop: stage 5 bottom → arc → stage 1 bottom -->
       <path d="M 760 102 Q 760 140 440 140 Q 90 140 90 102" fill="none" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-loop)"/>
       <text x="440" y="156" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#94A3B8" letter-spacing="0.5">improves every build → self-evolving skill fleet</text>
@@ -435,7 +446,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
     <div class="section-num">04</div>
     <div class="section-icon">🤖</div>
     <div class="section-title">Agent fleet</div>
-    <div class="section-status status-live">13 agents deployed</div>
+    <div class="section-status status-live">14 agents deployed</div>
   </div>
 
   <div class="card-grid">
@@ -487,6 +498,12 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
       <div class="card-desc">UCLA-NUS EMBA coursework support. Reads Obsidian vault under knowledge-bank/emba/. Learns over time. Covers frameworks, case method, finance, and residency logistics.</div>
       <span class="card-tag tag-blue">EMBA</span><span class="card-tag tag-teal">Reads vault</span>
     </div>
+    <div class="card">
+      <div class="card-id">~/SaSMaster/workers/</div>
+      <div class="card-title">mac-worker</div>
+      <div class="card-desc">Mac 64GB compute worker. Polls Railway <code>/tasks/pending-compute</code> for heavy jobs. Heartbeats every 5 min via <code>/workers/heartbeat</code>. Capabilities: duckdb / scraper / claude-code / ml. War Room shows online/offline pill from <code>/workers/status</code>.</div>
+      <span class="card-tag tag-green">COMPUTE</span><span class="card-tag tag-amber">Tier 2</span>
+    </div>
   </div>
 
   <div class="op-row-2">
@@ -507,7 +524,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
     <div class="section-num">05</div>
     <div class="section-icon">🛠</div>
     <div class="section-title">Skill fleet</div>
-    <div class="section-status status-done">32 skills · /mnt/skills/</div>
+    <div class="section-status status-done">35 skills · ~/.claude/skills/user/</div>
   </div>
 
   <div class="skill-section">
@@ -525,7 +542,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
   </div>
 
   <div class="skill-section">
-    <div class="skill-section-label">User (21) — SaSMaster IP</div>
+    <div class="skill-section-label">User (24) — SaSMaster IP</div>
     <div class="skill-grid">
       <span class="skill-pill tag-lav">fullstack-architect</span>
       <span class="skill-pill tag-lav">uiux-mastery</span>
@@ -548,6 +565,9 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
       <span class="skill-pill tag-blue">math-mastery</span>
       <span class="skill-pill tag-blue">ableton-sme</span>
       <span class="skill-pill tag-blue">no-finger-prints</span>
+      <span class="skill-pill tag-teal">scoop-frontend</span>
+      <span class="skill-pill tag-lav">genai-market</span>
+      <span class="skill-pill tag-lav">claude-platform</span>
     </div>
   </div>
 
@@ -871,7 +891,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
 </div>
 
 <div class="doc-footer">
-  <div class="footer-text">SASMASTER PLATFORM · ARCHITECTURE v13 · 2026-05-25</div>
+  <div class="footer-text">SASMASTER PLATFORM · ARCHITECTURE v13 · 2026-05-26</div>
   <div class="footer-text">WAR ROOM · sasmaster-status.vercel.app · OPERATOR REFERENCE</div>
 </div>
 
