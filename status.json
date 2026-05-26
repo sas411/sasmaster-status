@@ -1,14 +1,14 @@
 {
-  "generated": "2026-05-26T15:11:25.084Z",
-  "generated_at": "2026-05-26T15:11:25.084Z",
+  "generated": "2026-05-26T18:29:54.613Z",
+  "generated_at": "2026-05-26T18:29:54.613Z",
   "system": {
     "jarvis": {
       "alive": true
     }
   },
   "queue": {
-    "high": 5,
-    "med": 10,
+    "high": 8,
+    "med": 11,
     "highItems": [
       {
         "id": "t222",
@@ -65,6 +65,42 @@
         "full": "TMDB TV Episodes flatten — 0 TMDB calls · ~3 min. BLOCKED: TV Seasons done.",
         "sprint": "Data Pipeline",
         "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t384",
+        "lineIndex": 384,
+        "text": "[JARVIS-STATUS-ENHANCE-001] Queue breakdown in !status — extend JARVIS !status handler to query tasks.db; return TODO/BL…",
+        "full": "[JARVIS-STATUS-ENHANCE-001] Queue breakdown in !status — extend JARVIS !status handler to query tasks.db; return TODO/BLOCKED/IN_PROGRESS/DONE-today counts; include top 3 BLOCKED tasks with blocker reason; format: \"Queue: 5 TODO · 10 BLOCKED · 0 IN_PROGRESS · 8 DONE today / Top blockers: tv_series phase (4 tasks)\". Verify: !status in Slack returns breakdown; BLOCKED count matches War Room QUEUE tab. LESSON-024.",
+        "sprint": "Platform Hygiene Sprint — 2026-05-26",
+        "tag": "AGENT",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t386",
+        "lineIndex": 386,
+        "text": "[TMDB-STALL-DETECTOR-001] Detect and alert on dependency chain stalls — add stall detection to JARVIS rules engine (runs…",
+        "full": "[TMDB-STALL-DETECTOR-001] Detect and alert on dependency chain stalls — add stall detection to JARVIS rules engine (runs every 5 min); stall = root dependency task (tv_series, eidr_id) with TODO status for >6h; count downstream blocked tasks; fire Slack alert to #sasmaster-builds with diagnose command; add tv_series and parent_keys.eidr_id as monitored roots. Verify: stall alert fires in test with artificial 6h delay; downstream count accurate. LESSON-025.",
+        "sprint": "Platform Hygiene Sprint — 2026-05-26",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t388",
+        "lineIndex": 388,
+        "text": "[COVERAGE-BASELINE-001] Reset portal coverage scores post-React migration — update DONE_LOG Analyst to evaluate against …",
+        "full": "[COVERAGE-BASELINE-001] Reset portal coverage scores post-React migration — update DONE_LOG Analyst to evaluate against sasmaster-platform-portal.vercel.app; define coverage criteria for React sections (MetricCards, chart rendering, data loading, Dr. Scoop context); run fresh analysis across all 5 sections + Dr. Scoop; post to #sasmaster-builds \"BASELINE-001: Official post-migration coverage scores\"; update War Room coverage panel; tag scores with post-react-migration. Verify: all 6 entities scored (Content/Advertising/Marketing/CPG/Exchange/Dr. Scoop).",
+        "sprint": "Platform Hygiene Sprint — 2026-05-26",
+        "tag": "UI",
         "priority": "HIGH",
         "state": "BACKLOG",
         "blockReason": "",
@@ -181,11 +217,23 @@
         "meta": {}
       },
       {
-        "id": "t382",
-        "lineIndex": 382,
+        "id": "t390",
+        "lineIndex": 390,
+        "text": "[MEMORY-HYGIENE-HAIKU-FIX-001] Fix Haiku billing error in memory agent — check agents/memory-hygiene.js model config; ve…",
+        "full": "[MEMORY-HYGIENE-HAIKU-FIX-001] Fix Haiku billing error in memory agent — check agents/memory-hygiene.js model config; verify model string is claude-haiku-4-5-20251001; confirm Railway env has ANTHROPIC_API_KEY with billing-enabled key; re-run dry run; verify Slack digest fires. Verify: dry run completes without billing error; memory-hygiene-report.md generated; Slack fires to #sasmaster-builds.",
+        "sprint": "Platform Hygiene Sprint — 2026-05-26",
+        "tag": "AGENT",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t392",
+        "lineIndex": 392,
         "text": "[INFRA-SYNC-001] Investigate data_freshness: stale — status.json not syncing to S3. Check kb-nightly-sync.sh or status.j…",
         "full": "[INFRA-SYNC-001] Investigate data_freshness: stale — status.json not syncing to S3. Check kb-nightly-sync.sh or status.json write path. Railway health shows degraded because age_min=null (generated_at missing). Fix the sync, not the alert.",
-        "sprint": "UI Performance + Viz Sprint — Phase 2/3/4 — Loaded 2026-05-25",
+        "sprint": "Platform Hygiene Sprint — 2026-05-26",
         "tag": "EDGAR",
         "priority": "MED",
         "state": "BACKLOG",
@@ -255,6 +303,42 @@
         "full": "TMDB TV Episodes flatten — 0 TMDB calls · ~3 min. BLOCKED: TV Seasons done.",
         "sprint": "Data Pipeline",
         "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t384",
+        "lineIndex": 384,
+        "text": "[JARVIS-STATUS-ENHANCE-001] Queue breakdown in !status — extend JARVIS !status handler to query tasks.db; return TODO/BL…",
+        "full": "[JARVIS-STATUS-ENHANCE-001] Queue breakdown in !status — extend JARVIS !status handler to query tasks.db; return TODO/BLOCKED/IN_PROGRESS/DONE-today counts; include top 3 BLOCKED tasks with blocker reason; format: \"Queue: 5 TODO · 10 BLOCKED · 0 IN_PROGRESS · 8 DONE today / Top blockers: tv_series phase (4 tasks)\". Verify: !status in Slack returns breakdown; BLOCKED count matches War Room QUEUE tab. LESSON-024.",
+        "sprint": "Platform Hygiene Sprint — 2026-05-26",
+        "tag": "AGENT",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t386",
+        "lineIndex": 386,
+        "text": "[TMDB-STALL-DETECTOR-001] Detect and alert on dependency chain stalls — add stall detection to JARVIS rules engine (runs…",
+        "full": "[TMDB-STALL-DETECTOR-001] Detect and alert on dependency chain stalls — add stall detection to JARVIS rules engine (runs every 5 min); stall = root dependency task (tv_series, eidr_id) with TODO status for >6h; count downstream blocked tasks; fire Slack alert to #sasmaster-builds with diagnose command; add tv_series and parent_keys.eidr_id as monitored roots. Verify: stall alert fires in test with artificial 6h delay; downstream count accurate. LESSON-025.",
+        "sprint": "Platform Hygiene Sprint — 2026-05-26",
+        "tag": "DATA",
+        "priority": "HIGH",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t388",
+        "lineIndex": 388,
+        "text": "[COVERAGE-BASELINE-001] Reset portal coverage scores post-React migration — update DONE_LOG Analyst to evaluate against …",
+        "full": "[COVERAGE-BASELINE-001] Reset portal coverage scores post-React migration — update DONE_LOG Analyst to evaluate against sasmaster-platform-portal.vercel.app; define coverage criteria for React sections (MetricCards, chart rendering, data loading, Dr. Scoop context); run fresh analysis across all 5 sections + Dr. Scoop; post to #sasmaster-builds \"BASELINE-001: Official post-migration coverage scores\"; update War Room coverage panel; tag scores with post-react-migration. Verify: all 6 entities scored (Content/Advertising/Marketing/CPG/Exchange/Dr. Scoop).",
+        "sprint": "Platform Hygiene Sprint — 2026-05-26",
+        "tag": "UI",
         "priority": "HIGH",
         "state": "BACKLOG",
         "blockReason": "",
@@ -369,11 +453,23 @@
         "meta": {}
       },
       {
-        "id": "t382",
-        "lineIndex": 382,
+        "id": "t390",
+        "lineIndex": 390,
+        "text": "[MEMORY-HYGIENE-HAIKU-FIX-001] Fix Haiku billing error in memory agent — check agents/memory-hygiene.js model config; ve…",
+        "full": "[MEMORY-HYGIENE-HAIKU-FIX-001] Fix Haiku billing error in memory agent — check agents/memory-hygiene.js model config; verify model string is claude-haiku-4-5-20251001; confirm Railway env has ANTHROPIC_API_KEY with billing-enabled key; re-run dry run; verify Slack digest fires. Verify: dry run completes without billing error; memory-hygiene-report.md generated; Slack fires to #sasmaster-builds.",
+        "sprint": "Platform Hygiene Sprint — 2026-05-26",
+        "tag": "AGENT",
+        "priority": "MED",
+        "state": "BACKLOG",
+        "blockReason": "",
+        "meta": {}
+      },
+      {
+        "id": "t392",
+        "lineIndex": 392,
         "text": "[INFRA-SYNC-001] Investigate data_freshness: stale — status.json not syncing to S3. Check kb-nightly-sync.sh or status.j…",
         "full": "[INFRA-SYNC-001] Investigate data_freshness: stale — status.json not syncing to S3. Check kb-nightly-sync.sh or status.json write path. Railway health shows degraded because age_min=null (generated_at missing). Fix the sync, not the alert.",
-        "sprint": "UI Performance + Viz Sprint — Phase 2/3/4 — Loaded 2026-05-25",
+        "sprint": "Platform Hygiene Sprint — 2026-05-26",
         "tag": "EDGAR",
         "priority": "MED",
         "state": "BACKLOG",
@@ -451,30 +547,6 @@
         "sprint": "",
         "tag": "DONE",
         "priority": "DONE"
-      },
-      {
-        "id": "done-6",
-        "text": "NIELSEN-SCOPE-001 — Expand Tuesday pull: full prior week + all AMRLD",
-        "full": "NIELSEN-SCOPE-001 — Expand Tuesday pull: full prior week + all AMRLD",
-        "sprint": "",
-        "tag": "DONE",
-        "priority": "DONE"
-      },
-      {
-        "id": "done-7",
-        "text": "NIELSEN-AUTH-002 — Auth0 M2M JWT auto-refresh for Nielsen bridge",
-        "full": "NIELSEN-AUTH-002 — Auth0 M2M JWT auto-refresh for Nielsen bridge",
-        "sprint": "",
-        "tag": "DONE",
-        "priority": "DONE"
-      },
-      {
-        "id": "done-8",
-        "text": "JARVIS-DNS-001 — Fix JARVIS DNS resolution failure in launchd",
-        "full": "JARVIS-DNS-001 — Fix JARVIS DNS resolution failure in launchd",
-        "sprint": "",
-        "tag": "DONE",
-        "priority": "DONE"
       }
     ],
     "qaDrafts": [],
@@ -483,6 +555,7 @@
       "Nielsen entity counts | TV Parent Keys pass (post TMDB bulk)",
       "Rotate SASMASTER_SLACK_WEBHOOK | Fill SLACK_ALLOWED_USER_ID in .env",
       "<!-- Append new entries below this line -->",
+      "**2026-05-26 14:04 EDT** — MEMORY-HYGIENE-AGENT-001 ✅ agents/memory-hygiene.js live; cron 0 7 * * * (03:00 EDT); Obsidian archive dir created at knowledge-bank/.obsidian/_archive/hot-memory-retired/; dry-run validated (5 HOT entries parsed)",
       "**2026-05-26 08:20 EDT** — JARVIS-RESILIENCE-001 ✅ Railway heartbeat + self-heal + caffeinate launchd (commit 39346d8) · JARVIS-WORKER-001 ✅ /workers/* endpoints + mac-worker.js launchd (commit fd44644) · GITHUB-ACTIONS-COMPUTE-001 ✅ daily-scrapers.yml + weekly-financial-intel.yml + 6 GitHub secrets · WAR-ROOM-HYGIENE-001 ✅ session reports removed from War Room, knowledge-bank/sessions/ created",
       "**2026-05-26 01:00 EDT** — RULE-006 ✅ S3 JSON persistence for watchdog/circuit breaker (commit 35e7e78) · SCOOP-SKILL-001 ✅ scoop-frontend skill 500 lines 11 sections at ~/.claude/skills/user/scoop-frontend/SKILL.md · PLATFORM-SYNC-001 resources.json + skill-inventory (35 skills) + KB sync",
       "**2026-05-25 14:19 EDT** — SKILL-FINANCE-001 + LINKEDIN-CADENCE-001 closed — Finance skill all 5 phases live, cost-tracker synced (/bin/zsh.0037 today), FINANCE War Room tab live, LINKEDIN-001 draft written to content/linkedin-001-draft.md (~790 words, awaits Shiv review)",
@@ -505,7 +578,7 @@
       }
     },
     "counts": {
-      "backlog": 15,
+      "backlog": 19,
       "inProgress": 0,
       "blocked": 0,
       "review": 2,
@@ -513,9 +586,9 @@
     }
   },
   "heatmap": {
-    "2026-05-26": 23,
+    "** 2026-05": 10,
+    "2026-05-26": 20,
     "2026-05-25": 15,
-    "** 2026-05": 6,
     "2026-05-23": 1,
     "2026-04-28": 6,
     "2026-04-23": 1,
@@ -535,7 +608,7 @@
       "channel": "HTTP Events API",
       "jobId": null,
       "descOverride": "HTTP Events API (Railway) — Socket Mode daemon retired",
-      "lastRun": "2026-05-26T15:00:01.404Z",
+      "lastRun": "2026-05-26T15:30:01.423Z",
       "lastOutput": "HTTP Events API (Railway) — Socket Mode daemon retired",
       "status": "healthy"
     },
@@ -571,7 +644,7 @@
       "log": "donelog-analyst.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": "2026-05-25T16:00:01.288Z",
+      "lastRun": "2026-05-26T16:00:01.178Z",
       "lastOutput": "Spawned extract-build-lessons.js (non-blocking)",
       "status": "healthy"
     },
@@ -667,8 +740,8 @@
       "log": "railway-monitor.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": "2026-05-26T15:00:01.752Z",
-      "lastOutput": "✅ All healthy — uptime streak: 45h 35m",
+      "lastRun": "2026-05-26T18:15:01.702Z",
+      "lastOutput": "✅ All healthy — uptime streak: 48h 50m",
       "status": "healthy"
     },
     {
@@ -733,24 +806,6 @@
       "task": "DATA-QUALITY-SKILL-001 — Data Quality Foundation Skill",
       "date": "2026-05-26",
       "notes": "Built ~/.claude/skills/user/data-quality/SKILL.md. 8 monitoring questions (Q1-Q8), 11 AMRLD anomaly rules (RULE-HH-01..0",
-      "status": "DONE"
-    },
-    {
-      "task": "NIELSEN-SCOPE-001 — Expand Tuesday pull: full prior week + all AMRLD",
-      "date": "2026-05-26",
-      "notes": "Six phases all complete. (1) get_prior_week_range() = full Mon→Sun prior calendar week (not rolling 7d). is_tuesday() au",
-      "status": "DONE"
-    },
-    {
-      "task": "NIELSEN-AUTH-002 — Auth0 M2M JWT auto-refresh for Nielsen bridge",
-      "date": "2026-05-26",
-      "notes": "Three fixes shipped together. (1) get_fresh_jwt() — fetches Auth0 M2M token from sasmaster13.us.auth0.com, caches to ~/.",
-      "status": "DONE"
-    },
-    {
-      "task": "JARVIS-DNS-001 — Fix JARVIS DNS resolution failure in launchd",
-      "date": "2026-05-26",
-      "notes": "Root cause was launchd-spawned Node.js resolving DNS differently from shell processes — getaddrinfo ENOTFOUND slack.com.",
       "status": "DONE"
     }
   ],
@@ -970,7 +1025,7 @@
       "object_count": 7778,
       "last_updated": "2026-05-25T14:33:13.000Z",
       "fresh": false,
-      "age_hours": 24.6,
+      "age_hours": 27.9,
       "entities": {
         "movies": 1186402,
         "tv_series": 220147,
@@ -989,7 +1044,7 @@
       "object_count": 7,
       "last_updated": "2026-04-21T23:00:01.000Z",
       "fresh": false,
-      "age_hours": 832.2,
+      "age_hours": 835.5,
       "entities": {
         "movies": 743825,
         "tv_series": 298238,
@@ -1008,7 +1063,7 @@
       "object_count": 7,
       "last_updated": "2026-04-28T11:29:34.000Z",
       "fresh": false,
-      "age_hours": 675.7,
+      "age_hours": 679,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1027,7 +1082,7 @@
       "object_count": 1,
       "last_updated": "2026-04-21T23:04:10.000Z",
       "fresh": false,
-      "age_hours": 832.1,
+      "age_hours": 835.4,
       "entities": {
         "movies": 861878,
         "tv_series": null,
@@ -1046,7 +1101,7 @@
       "object_count": 55,
       "last_updated": "2026-05-26T14:40:00.000Z",
       "fresh": true,
-      "age_hours": 4.5,
+      "age_hours": 7.8,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1065,7 +1120,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:47:11.000Z",
       "fresh": false,
-      "age_hours": 828.4,
+      "age_hours": 831.7,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1084,7 +1139,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:38:36.000Z",
       "fresh": false,
-      "age_hours": 828.5,
+      "age_hours": 831.9,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1103,7 +1158,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T04:42:21.000Z",
       "fresh": false,
-      "age_hours": 826.5,
+      "age_hours": 829.8,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1122,7 +1177,7 @@
       "object_count": 14,
       "last_updated": "2026-04-22T07:53:17.000Z",
       "fresh": false,
-      "age_hours": 823.3,
+      "age_hours": 826.6,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1141,7 +1196,7 @@
       "object_count": 5,
       "last_updated": "2026-04-22T01:13:31.000Z",
       "fresh": false,
-      "age_hours": 830,
+      "age_hours": 833.3,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1160,7 +1215,7 @@
       "object_count": 3,
       "last_updated": "2026-04-29T02:57:31.000Z",
       "fresh": false,
-      "age_hours": 660.2,
+      "age_hours": 663.5,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1179,7 +1234,7 @@
       "object_count": 12,
       "last_updated": "2026-05-26T09:01:37.000Z",
       "fresh": true,
-      "age_hours": 6.2,
+      "age_hours": 9.5,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1198,7 +1253,7 @@
       "object_count": 8,
       "last_updated": "2026-05-26T09:02:31.000Z",
       "fresh": true,
-      "age_hours": 6.1,
+      "age_hours": 9.5,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1216,7 +1271,7 @@
     "scrapers_total": 23,
     "s3_gb": 118.7,
     "parent_key_rows": 861878,
-    "tasks_open": 15,
+    "tasks_open": 19,
     "build_events_today": 0,
     "model_routing": "haiku+sonnet+opus",
     "haiku_pct_today": 0,
@@ -1477,6 +1532,14 @@
       "status": "pending"
     },
     {
+      "time": "7:00 AM",
+      "name": "memory hygiene.js",
+      "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/memory-hygiene.js >> /Users/shivashish/SaSMaster/logs/memory-hygiene.log 2>&1",
+      "channel": "—",
+      "weekly": false,
+      "status": "done"
+    },
+    {
       "time": "9:00 AM",
       "name": "viz evaluator quarterly",
       "command": "cd /Users/shivashish/sasmaster && bash scripts/viz-evaluate.sh >> logs/viz-evaluate-cron.log 2>&1",
@@ -1498,7 +1561,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/donelog-analyst.js >> /Users/shivashish/SaSMaster/logs/donelog-analyst.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "2:00 PM",
@@ -1642,6 +1705,27 @@
       "est": "—"
     },
     {
+      "title": "[JARVIS-STATUS-ENHANCE-001] Queue breakdown in !status — extend JARVIS !status handler to query tasks.db; return TODO/BL…",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "AGENT",
+      "est": "—"
+    },
+    {
+      "title": "[TMDB-STALL-DETECTOR-001] Detect and alert on dependency chain stalls — add stall detection to JARVIS rules engine (runs…",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "DATA",
+      "est": "—"
+    },
+    {
+      "title": "[COVERAGE-BASELINE-001] Reset portal coverage scores post-React migration — update DONE_LOG Analyst to evaluate against …",
+      "status": "BACKLOG",
+      "priority": "HIGH",
+      "tag": "UI",
+      "est": "—"
+    },
+    {
       "title": "KB-CI-002 phase1-complete profile-set",
       "status": "BACKLOG",
       "priority": "MED",
@@ -1699,6 +1783,13 @@
     },
     {
       "title": "Timezone normalization — War Room ticker + agent last_run currently mix UTC/EDT.",
+      "status": "BACKLOG",
+      "priority": "MED",
+      "tag": "AGENT",
+      "est": "—"
+    },
+    {
+      "title": "[MEMORY-HYGIENE-HAIKU-FIX-001] Fix Haiku billing error in memory agent — check agents/memory-hygiene.js model config; ve…",
       "status": "BACKLOG",
       "priority": "MED",
       "tag": "AGENT",
@@ -1766,27 +1857,6 @@
       "priority": "DONE",
       "tag": "DONE",
       "est": "—"
-    },
-    {
-      "title": "NIELSEN-SCOPE-001 — Expand Tuesday pull: full prior week + all AMRLD",
-      "status": "DONE",
-      "priority": "DONE",
-      "tag": "DONE",
-      "est": "—"
-    },
-    {
-      "title": "NIELSEN-AUTH-002 — Auth0 M2M JWT auto-refresh for Nielsen bridge",
-      "status": "DONE",
-      "priority": "DONE",
-      "tag": "DONE",
-      "est": "—"
-    },
-    {
-      "title": "JARVIS-DNS-001 — Fix JARVIS DNS resolution failure in launchd",
-      "status": "DONE",
-      "priority": "DONE",
-      "tag": "DONE",
-      "est": "—"
     }
   ],
   "recent_completions": [
@@ -1822,24 +1892,6 @@
     },
     {
       "title": "DATA-QUALITY-SKILL-001 — Data Quality Foundation Skill",
-      "category": "Build",
-      "path": "",
-      "completed_at": "2026-05-26"
-    },
-    {
-      "title": "NIELSEN-SCOPE-001 — Expand Tuesday pull: full prior week + all AMRLD",
-      "category": "Build",
-      "path": "",
-      "completed_at": "2026-05-26"
-    },
-    {
-      "title": "NIELSEN-AUTH-002 — Auth0 M2M JWT auto-refresh for Nielsen bridge",
-      "category": "Build",
-      "path": "",
-      "completed_at": "2026-05-26"
-    },
-    {
-      "title": "JARVIS-DNS-001 — Fix JARVIS DNS resolution failure in launchd",
       "category": "Build",
       "path": "",
       "completed_at": "2026-05-26"
