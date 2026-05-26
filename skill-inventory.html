@@ -221,11 +221,11 @@
   <h1>🧠 Skill Inventory — v2</h1>
   <div class="sub">Claude Code personal skill library · synced across claude.ai + local · self-evolving via post-build capture</div>
   <div class="badge-row">
-    <span class="badge badge-live"><span class="dot"></span>35 Skills Active</span>
-    <span class="badge badge-pur">14 SaSMaster Domain</span>
+    <span class="badge badge-live"><span class="dot"></span>36 Skills Active</span>
+    <span class="badge badge-pur">15 SaSMaster Domain</span>
     <span class="badge badge-info">8 Engineering</span>
     <span class="badge badge-amber">Friday Auto-Review Cron</span>
-    <span class="badge badge-info">Sprint 14 · scoop-frontend added</span>
+    <span class="badge badge-info">Sprint 14 · content-catalog-platform added</span>
   </div>
 </div>
 
@@ -233,13 +233,13 @@
 
   <!-- ── Stats bar ── -->
   <div class="stats-bar">
-    <div class="sb-item"><strong>35</strong><span>Total Skills</span></div>
+    <div class="sb-item"><strong>36</strong><span>Total Skills</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>35</strong><span>Synced Both</span></div>
+    <div class="sb-item"><strong>36</strong><span>Synced Both</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>9,800+</strong><span>Lines of Knowledge</span></div>
+    <div class="sb-item"><strong>10,200+</strong><span>Lines of Knowledge</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>14</strong><span>SaSMaster Domain</span></div>
+    <div class="sb-item"><strong>15</strong><span>SaSMaster Domain</span></div>
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>Fri 5:50PM</strong><span>Auto-Review Cron</span></div>
     <div class="sb-sep"></div>
@@ -249,8 +249,8 @@
   <!-- ── Filter ── -->
   <div class="sec-title">Skills</div>
   <div class="filter-row">
-    <button class="filter-btn active" onclick="filterSkills('all',this)">All (35)</button>
-    <button class="filter-btn" onclick="filterSkills('sasmaster',this)">SaSMaster Domain (14)</button>
+    <button class="filter-btn active" onclick="filterSkills('all',this)">All (36)</button>
+    <button class="filter-btn" onclick="filterSkills('sasmaster',this)">SaSMaster Domain (15)</button>
     <button class="filter-btn" onclick="filterSkills('research',this)">Research (1)</button>
     <button class="filter-btn" onclick="filterSkills('engineering',this)">Engineering (8)</button>
     <button class="filter-btn" onclick="filterSkills('emba',this)">EMBA / Academia (2)</button>
@@ -1114,6 +1114,35 @@
       </div>
     </div>
 
+    <!-- content-catalog-platform -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">content-catalog-platform</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">SaSMaster content catalog authority — Parent Key hierarchy, IMDB/TMDB/EIDR enrichment, AltID resolution, and People/Cast pipelines. Defines the five canonical pipelines: Movie Catalog (IMDB 206.4M rows + TMDB 68.4% match), TV Series, People/Cast/Crew, Parent Key Assignment (immutable slug-based IDs), and AltID Map (IMDB/TMDB/EIDR/Gracenote cross-system links). Load before any catalog data work. Agent counterpart: content-catalog-builder for autonomous JARVIS-triggered pipeline builds.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">parent key</span>
+          <span class="trigger-tag">IMDB match</span>
+          <span class="trigger-tag">TMDB enrich</span>
+          <span class="trigger-tag">#catalog</span>
+          <span class="trigger-tag">#metadata</span>
+          <span class="trigger-tag">#parent-key</span>
+          <span class="trigger-tag">AltID</span>
+          <span class="trigger-tag">EIDR</span>
+          <span class="trigger-tag">cast pipeline</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">SKILL.md + agents/ + references/</span><span>Added May 26, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
   </div><!-- /skill-grid -->
 
   <!-- ── Evolution Pipeline ── -->
@@ -1197,6 +1226,7 @@
         <tr><td class="skill-name-cell">claude-platform</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Model routing (Opus plan / Sonnet exec / Haiku ops / Batch bulk), surface doctrine (claude.ai strategy | Claude Code 1–3 tasks | JARVIS 4+ async), batch rule, 10 MCP servers, 7 anti-patterns (Railway rotation, pbpaste AWS, 4+ direct tasks, degraded≠DOWN, suffix-free mktemp, amend-after-push, preflight-as-poll). voice-patterns.md: task card format, full JARVIS command reference, gate syntax.</td><td class="lines-cell">v1.0</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">platform-security</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Platform security hardening — 5 layers: Railway x-api-key auth, AWS S3 public-access block + least-privilege IAM, secret hygiene (gitleaks, .env-only, gitignore), JARVIS HMAC + channel allowlist + bot_id guard, integrity-check.sh + 30s timeout + SSE cap. Load when adding API routes, S3 buckets, Slack commands, or CI pipelines.</td><td class="lines-cell">v1.0</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">aws-infra</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">AWS infrastructure authority — IAM user management, credential transport law (CSV→CLI→GH Secrets, never pbpaste/echo), S3 scoping, GitHub Actions secrets, CI/CD wiring. Automates: inline policies, profile setup, S3 verification, gh secret push. Manual-only: create/delete access keys, MFA, billing. Load on AWS, IAM, access key, boto3, S3 permission, CI sync, INFRA-AWS.</td><td class="lines-cell">239</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">content-catalog-platform</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Content catalog authority — Parent Key hierarchy, IMDB/TMDB/EIDR enrichment, AltID resolution, People/Cast/Crew pipelines. 5 canonical pipelines: Movie (68.4% match), TV Series, People, Parent Key Assignment, AltID Map. Agent: content-catalog-builder for autonomous JARVIS #catalog builds.</td><td class="lines-cell">SKILL.md + agents/ + refs/</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">scoop-frontend</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">ra-linear-analytics (Scoop) frontend mastery — boot sequence (7-step init chain), 5 React context layers, Highcharts module order (Boost last), FetchService 3-tier auth cache, theme injection system, animation conventions, CSS ra- prefix convention, webpack module aliases, 11 anti-patterns. Source: ra-linear-analytics-bundle TRUE prod repo. 397 JSX components.</td><td class="lines-cell">500</td><td class="sync-cell"><span class="sync-local">✓ Local</span></td></tr>
       </tbody>
     </table>
