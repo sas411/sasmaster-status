@@ -580,7 +580,7 @@ function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
         people:    ec.people    ?? null,
         telecasts: ec.telecasts ?? null,
       },
-      note: ec.note || null,
+      note: p.note || ec.note || null,
     };
   });
 }
