@@ -138,7 +138,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
     <div class="meta-pill"><span class="meta-dot dot-green"></span>UI-INFRA 6/6 Done</div>
     <div class="meta-pill"><span class="meta-dot dot-green"></span>UI/UX Arch Live</div>
     <div class="meta-pill"><span class="meta-dot dot-lav"></span>58 Tasks · 27 Pending</div>
-    <div class="meta-pill"><span class="meta-dot dot-green"></span>35 Skills Installed</div>
+    <div class="meta-pill"><span class="meta-dot dot-green"></span>40 Skills Installed</div>
   </div>
 </div>
 
@@ -153,7 +153,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
   <div class="metric-strip">
     <div class="metric-cell"><div class="metric-val">2</div><div class="metric-lbl">Businesses<br>B2B + B2C</div></div>
     <div class="metric-cell"><div class="metric-val">16</div><div class="metric-lbl">Sub-agents<br>deployed</div></div>
-    <div class="metric-cell"><div class="metric-val">36</div><div class="metric-lbl">Skills<br>installed</div></div>
+    <div class="metric-cell"><div class="metric-val">40</div><div class="metric-lbl">Skills<br>installed</div></div>
     <div class="metric-cell"><div class="metric-val">14</div><div class="metric-lbl">Chart types<br>@sasmaster/viz</div></div>
     <div class="metric-cell"><div class="metric-val">1.59×</div><div class="metric-lbl">Parallel compute<br>speedup proven</div></div>
   </div>
@@ -417,7 +417,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
       <text x="760" y="44" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#059669" letter-spacing="1.5">FLEET UPDATE</text>
       <text x="760" y="62" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#1E293B">SKILL.md</text>
       <text x="760" y="78" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">Fri 17:50 · skill-review.sh</text>
-      <text x="760" y="94" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">35 skills installed</text>
+      <text x="760" y="94" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#475569">40 skills installed</text>
       <!-- Feedback loop: stage 5 bottom → arc → stage 1 bottom -->
       <path d="M 760 102 Q 760 140 440 140 Q 90 140 90 102" fill="none" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-loop)"/>
       <text x="440" y="156" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#94A3B8" letter-spacing="0.5">improves every build → self-evolving skill fleet</text>
@@ -426,8 +426,8 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
 
   <div class="op-row">
     <div class="op-box">
-      <div class="op-box-title">Dr. Scoop memory loop</div>
-      <div class="op-box-content">DuckDB <code>scoop_memory</code> table. S3 backup. cache_control ephemeral. userId UUID wired from portal localStorage → POST body. Full memory loop live end-to-end.</div>
+      <div class="op-box-title">Dr. Scoop — memory + RAG</div>
+      <div class="op-box-content">DuckDB <code>scoop_memory</code> table + <code>title_briefs</code> CAG cache. Every chat injects top-3 KB entries (29 methodology files, BM25 search) via <code>cache_control: ephemeral</code>. <code>/api/scoop/brief/:tmdbId</code> SSE endpoint — HIT streams cached brief, MISS calls Claude + caches. userId UUID from portal localStorage.</div>
     </div>
     <div class="op-box">
       <div class="op-box-title">EMBA Obsidian rule</div>
@@ -536,7 +536,7 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
     <div class="section-num">05</div>
     <div class="section-icon">🛠</div>
     <div class="section-title">Skill fleet</div>
-    <div class="section-status status-done">35 skills · ~/.claude/skills/user/</div>
+    <div class="section-status status-done">40 skills · ~/.claude/skills/user/</div>
   </div>
 
   <div class="skill-section">
@@ -554,29 +554,45 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
   </div>
 
   <div class="skill-section">
-    <div class="skill-section-label">User (24) — SaSMaster IP</div>
+    <div class="skill-section-label">User (40) — SaSMaster IP</div>
     <div class="skill-grid">
       <span class="skill-pill tag-lav">fullstack-architect</span>
       <span class="skill-pill tag-lav">uiux-mastery</span>
       <span class="skill-pill tag-lav">autonomous-ui-designer</span>
       <span class="skill-pill tag-lav">build-discipline</span>
+      <span class="skill-pill tag-lav">sasmaster-north-star</span>
+      <span class="skill-pill tag-lav">sasmaster-code-review</span>
+      <span class="skill-pill tag-lav">portal-detailpage</span>
       <span class="skill-pill tag-teal">data-viz</span>
       <span class="skill-pill tag-teal">duckdb-parquet</span>
       <span class="skill-pill tag-teal">s3-data-architect</span>
       <span class="skill-pill tag-teal">scraper-engineer</span>
       <span class="skill-pill tag-teal">media-domain</span>
+      <span class="skill-pill tag-teal">data-quality</span>
+      <span class="skill-pill tag-teal">monitoring-alerting</span>
+      <span class="skill-pill tag-teal">content-catalog-platform</span>
+      <span class="skill-pill tag-teal">nielsen-sme</span>
+      <span class="skill-pill tag-teal">programming-researcher</span>
       <span class="skill-pill tag-green">jarvis-ops</span>
       <span class="skill-pill tag-green">qa-agent</span>
       <span class="skill-pill tag-green">playwright-debugger</span>
       <span class="skill-pill tag-green">aws-infra</span>
       <span class="skill-pill tag-green">platform-security</span>
+      <span class="skill-pill tag-green">platform-observability</span>
+      <span class="skill-pill tag-green">slc-taxonomy</span>
       <span class="skill-pill tag-amber">shiv-executive-profile</span>
       <span class="skill-pill tag-amber">sow-consultant</span>
       <span class="skill-pill tag-amber">linkedin-thought-leader</span>
       <span class="skill-pill tag-amber">emba-analyst</span>
+      <span class="skill-pill tag-amber">internal-finance</span>
       <span class="skill-pill tag-blue">math-mastery</span>
       <span class="skill-pill tag-blue">ableton-sme</span>
       <span class="skill-pill tag-blue">no-finger-prints</span>
+      <span class="skill-pill tag-blue">bash-scripts-macos</span>
+      <span class="skill-pill tag-blue">css-debugging</span>
+      <span class="skill-pill tag-blue">svg-animation</span>
+      <span class="skill-pill tag-blue">vite-react-production</span>
+      <span class="skill-pill tag-blue">emil-design-eng</span>
       <span class="skill-pill tag-teal">scoop-frontend</span>
       <span class="skill-pill tag-lav">genai-market</span>
       <span class="skill-pill tag-lav">claude-platform</span>
@@ -656,8 +672,8 @@ body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-siz
       <text x="535" y="60" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" font-weight="600" fill="#1E293B">3 live surfaces</text>
       <text x="535" y="78" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#475569">Portal v10 · production</text>
       <text x="535" y="94" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#475569">War Room · status</text>
-      <text x="535" y="110" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#475569">Research Portal Ph1</text>
-      <text x="535" y="128" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#475569">Dr. Scoop embedded</text>
+      <text x="535" y="110" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#475569">Research Portal Ph2</text>
+      <text x="535" y="128" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#475569">RAG+CAG · KB-29 · SSE briefs</text>
 
       <!-- Arrow 3 → 4 -->
       <line x1="632" y1="75" x2="646" y2="75" stroke="#A682F2" stroke-width="1.5" marker-end="url(#arr-uiux)"/>
