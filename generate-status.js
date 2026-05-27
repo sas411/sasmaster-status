@@ -1259,8 +1259,8 @@ try {
   console.warn('[generate-status] token projection failed:', e.message);
 }
 
-// ── Per-source freshness (WAR-ROOM-RELIABILITY-001) ─────────────────────────
-// Thresholds: JARVIS 10m · TMDB 25h · S3 15m · Nielsen 48h · Build 10m · Token 5h
+// ── Per-source freshness (WAR-ROOM-RELIABILITY-001 · WAR-ROOM-ALERT-001) ────
+// Thresholds match actual cadence: JARVIS 10m · TMDB 25h · S3 26h · Nielsen 48h · Build 4h · Token 5h
 // status: ok (<50% of threshold used) | warn (50-100%) | stale (>100%)
 function buildSourceFreshness() {
   const now = Date.now();
@@ -1357,47 +1357,43 @@ function buildSourceFreshness() {
   } catch {}
 
   return [
-    entry('JARVIS / Railway heartbeat', jarvisLastTs, 10),
-    entry('TMDB scraper',               tmdbLastTs,   25 * 60),
-    entry('S3 Lake sizes',              s3LastTs,     15),
+    entry('JARVIS / Railway heartbeat', jarvisLastTs,  10),
+    entry('TMDB scraper',               tmdbLastTs,    25 * 60),
+    entry('S3 Lake sizes',              s3LastTs,      26 * 60),  // daily scraper, not polled
     entry('Nielsen VIEWERSHIP',         nielsenLastTs, 48 * 60),
-    entry('Build events log',           buildLastTs,  10),
-    entry('Token refresh',              tokenLastTs,  5 * 60),
+    entry('Build events log',           buildLastTs,   4 * 60),   // not continuous
+    entry('Token refresh',              tokenLastTs,   5 * 60),
   ];
 }
 
 const sourceFreshness = buildSourceFreshness();
 
-// ── Phase 5: Stale-source Slack alerting ─────────────────────────────────────
-// Fires once per generate-status.js run for any source that has crossed its threshold.
-// Uses webhook (no Railway round-trip, no new HTTP endpoint).
-function alertStaleSources(freshness) {
-  const stale = freshness.filter(s => s.status === 'stale');
-  if (!stale.length) return;
+// ── Phase 5: Edge-triggered stale-source Slack alerting (WAR-ROOM-ALERT-001) ─
+// Fires ONCE on ok→stale transition. Fires ONCE on stale→ok recovery.
+// Never repeats for an unchanged condition. Daily 9AM digest for persistent stale.
+// State persisted in ~/SaSMaster/status/stale-alert-state.json.
+// !ack <source> snoozes a source for 24h (handled in jarvis.js).
 
-  let webhook = '';
+const STALE_STATE_FILE = path.join(SASMASTER, 'status', 'stale-alert-state.json');
+
+function loadStaleState() {
+  try { return JSON.parse(fs.readFileSync(STALE_STATE_FILE, 'utf8')); } catch { return {}; }
+}
+
+function saveStaleState(state) {
+  try { fs.writeFileSync(STALE_STATE_FILE, JSON.stringify(state, null, 2)); } catch {}
+}
+
+function readWebhook() {
   try {
-    const lines = fs.readFileSync(path.join(SASMASTER, '.env'), 'utf8').split('\n');
-    const wl = lines.find(l => l.startsWith('SASMASTER_SLACK_WEBHOOK='));
-    if (wl) webhook = wl.slice('SASMASTER_SLACK_WEBHOOK='.length).trim().replace(/^['"]|['"]$/g, '');
+    const envLines = fs.readFileSync(path.join(SASMASTER, '.env'), 'utf8').split('\n');
+    const wl = envLines.find(l => l.startsWith('SASMASTER_SLACK_WEBHOOK='));
+    if (wl) return wl.slice('SASMASTER_SLACK_WEBHOOK='.length).trim().replace(/^['"]|['"]$/g, '');
   } catch {}
-  if (!webhook) return;
+  return '';
+}
 
-  const lines = stale.map(s => {
-    const ageStr = s.age_mins != null
-      ? (s.age_mins < 60 ? `${s.age_mins}m` : `${Math.round(s.age_mins / 60)}h`) + ' ago'
-      : 'unknown';
-    const thrStr = s.threshold_mins >= 60
-      ? `${Math.round(s.threshold_mins / 60)}h`
-      : `${s.threshold_mins}m`;
-    return `⚠️ WAR-ROOM-STALE: *${s.source}* last updated ${ageStr} — threshold ${thrStr}`;
-  });
-
-  const body = JSON.stringify({
-    text: lines.join('\n'),
-    attachments: [{ color: 'danger', footer: 'generate-status.js · stale-source monitor' }],
-  });
-
+function postSlackWebhook(webhook, body) {
   try {
     const https = require('https');
     const url   = new URL(webhook);
@@ -1411,6 +1407,94 @@ function alertStaleSources(freshness) {
     req.write(body);
     req.end();
   } catch {}
+}
+
+function fmtAge(age_mins) {
+  if (age_mins == null) return 'unknown';
+  return (age_mins < 60 ? `${age_mins}m` : `${Math.round(age_mins / 60)}h`) + ' ago';
+}
+
+function fmtThreshold(threshold_mins) {
+  return threshold_mins >= 60 ? `${Math.round(threshold_mins / 60)}h` : `${threshold_mins}m`;
+}
+
+function alertStaleSources(freshness) {
+  const webhook = readWebhook();
+  if (!webhook) return;
+
+  const state = loadStaleState();
+  const now   = Date.now();
+  const nowHr = new Date().getHours();
+  const nowMin = new Date().getMinutes();
+
+  const transitionLines   = [];  // ok→stale or stale→ok
+  const persistentStale   = [];  // still stale >24h, for 9AM digest
+
+  for (const s of freshness) {
+    const key  = s.source;
+    const prev = state[key] || {};
+    const snoozedUntil = prev.snoozed_until ? new Date(prev.snoozed_until).getTime() : 0;
+
+    if (snoozedUntil > now) continue;  // user ack'd — skip until snooze expires
+
+    const prevStatus = prev.last_known_status || 'unknown';
+    const curStatus  = s.status;
+
+    // Detect transition
+    const wentStale    = curStatus === 'stale' && prevStatus !== 'stale';
+    const recovered    = curStatus !== 'stale' && prevStatus === 'stale';
+
+    if (wentStale) {
+      transitionLines.push(`🔴 *STALE* — *${s.source}* last updated ${fmtAge(s.age_mins)} (threshold ${fmtThreshold(s.threshold_mins)})`);
+      state[key] = { ...prev, last_known_status: curStatus, last_transition_at: new Date().toISOString(), last_alerted_at: new Date().toISOString() };
+    } else if (recovered) {
+      transitionLines.push(`✅ *RECOVERED* — *${s.source}* is now fresh again`);
+      state[key] = { ...prev, last_known_status: curStatus, last_transition_at: new Date().toISOString(), last_alerted_at: new Date().toISOString() };
+    } else {
+      // No transition — just update the tracked status
+      state[key] = { ...prev, last_known_status: curStatus };
+    }
+
+    // Collect for daily 9AM digest: stale for >24h and still stale now
+    if (curStatus === 'stale') {
+      const lastAlerted = prev.last_alerted_at ? new Date(prev.last_alerted_at).getTime() : 0;
+      const staleHours  = s.age_mins != null ? s.age_mins / 60 : 0;
+      if (staleHours > 24 && now - lastAlerted > 23 * 60 * 60 * 1000) {
+        persistentStale.push(s);
+      }
+    }
+  }
+
+  // Fire transition alert immediately
+  if (transitionLines.length) {
+    const body = JSON.stringify({
+      text: transitionLines.join('\n'),
+      attachments: [{ color: transitionLines.some(l => l.includes('STALE')) ? 'danger' : 'good', footer: 'generate-status.js · stale-source monitor (edge-triggered)' }],
+    });
+    postSlackWebhook(webhook, body);
+  }
+
+  // Daily 9AM digest for persistent stale sources (fires in the 9:00-9:14 window)
+  if (persistentStale.length && nowHr === 9 && nowMin < 15) {
+    const digestLines = persistentStale.map(s =>
+      `⚠️ *${s.source}* — stale ${fmtAge(s.age_mins)} (threshold ${fmtThreshold(s.threshold_mins)}) · \`!ack WAR-ROOM-STALE ${s.source}\` to snooze 24h`
+    );
+    const body = JSON.stringify({
+      text: `📋 *Daily stale-source digest* — ${persistentStale.length} source(s) still stale:`,
+      attachments: [{
+        color: 'warning',
+        text: digestLines.join('\n'),
+        footer: 'generate-status.js · 9AM stale digest',
+      }],
+    });
+    postSlackWebhook(webhook, body);
+    // Mark last_alerted_at so we don't re-digest until tomorrow
+    for (const s of persistentStale) {
+      if (state[s.source]) state[s.source].last_alerted_at = new Date().toISOString();
+    }
+  }
+
+  saveStaleState(state);
 }
 
 alertStaleSources(sourceFreshness);
