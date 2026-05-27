@@ -1076,7 +1076,7 @@ a{color:inherit}
       <div class="section" id="ganttSection">
         <div class="sec-hdr">
           <span class="sec-ttl">24-Hour Agent Timeline</span>
-          <span style="font-size:9px;color:var(--text-3);margin-left:auto;font-family:'DM Mono',monospace">All times EDT · live crontab</span>
+          <span style="font-size:9px;color:var(--text-3);margin-left:auto;font-family:'DM Mono',monospace">All times ET · live crontab</span>
         </div>
         <div id="ganttChart" style="overflow-x:auto;padding-bottom:4px"></div>
       </div>
@@ -2137,7 +2137,7 @@ function populateBuildTicker(d) {
     const label = b.label || b.task || 'Build';
     const status = (b.status || 'DONE').toUpperCase();
     const tagClass = status === 'LIVE' ? 'bt-run' : status === 'DONE' ? 'bt-done' : status === 'BUILD' ? 'bt-build' : 'bt-done';
-    const time = b.ts ? new Date(b.ts).toLocaleDateString('en-US', {month:'short',day:'numeric'}) : b.date || '';
+    const time = b.ts ? fmtNY(b.ts, {month:'short',day:'numeric'}) : b.date || '';
     return `<div class="bevent"><span class="btag ${tagClass}">${status}</span><span class="bevent-txt">${escHtml(label.substring(0,50))}</span><span class="bevent-time">${time}</span></div>`;
   }).join('');
 }
@@ -2309,7 +2309,7 @@ function renderActivityStream(acts) {
     const layerCls = a.type === 'intel' ? 'ly-api' : a.type === 'data' ? 'ly-data' : 'ly-app';
     const txt = a.text || a.msg || '';
     const ts = a.ts || '';
-    const tsStr = ts ? (ts.length > 10 ? new Date(ts).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}) : ts) : '';
+    const tsStr = ts ? (ts.length > 10 ? fmtNY(ts) : ts) : '';
     return `<div class="ev" data-layer="${a.type || 'build'}">
       <span class="el-time">${escHtml(tsStr.split(' ').pop() || tsStr)}</span>
       <span class="el-layer ${layerCls}">${(a.type||'BUILD').toUpperCase()}</span>
@@ -3387,6 +3387,12 @@ function relTime(iso) {
     return days + 'd ago';
   } catch(e) { return iso; }
 }
+// Single timezone util — all non-clock date renders use this
+function fmtNY(ts, opts = {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}) {
+  if (!ts) return '—';
+  try { return new Date(ts).toLocaleString('en-US', { ...opts, timeZone:'America/New_York' }); }
+  catch { return String(ts).slice(0,16); }
+}
 
 // ══════════════════════════════════════════════════════════
 // INIT
@@ -3825,7 +3831,7 @@ function telSevDot(sev) {
 
 function telFmtTs(ts) {
   if (!ts) return '--';
-  try { return new Date(ts).toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}); }
+  try { return new Date(ts).toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZone:'America/New_York'}); }
   catch(e) { return String(ts).slice(11,19) || '--'; }
 }
 
@@ -4277,7 +4283,7 @@ function finRender() {
   const total = meta.total || cos.length;
   document.getElementById('fin-sec-cov').textContent  = (meta.sec_coverage || 47) + '/' + total;
   document.getElementById('fin-refresh').textContent  = meta.built_at
-    ? new Date(meta.built_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})
+    ? fmtNY(meta.built_at)
     : 'Seed data (5AM refresh)';
   const critH = cos.filter(c => c.priority==='Critical'||c.priority==='High').length;
   document.getElementById('fin-alert-count').textContent = critH;
@@ -4493,7 +4499,7 @@ window.finRebuildDoc = function() {
 
     if (tsEl && data.ts) {
       const d = new Date(data.ts);
-      tsEl.textContent = 'updated ' + d.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', hour12:false}) + ' EDT';
+      tsEl.textContent = 'updated ' + d.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit', hour12:false, timeZone:'America/New_York'}) + ' ET';
     }
   }
 
@@ -4623,7 +4629,7 @@ function renderInternalFinance(d) {
   if (crunchBox && aug.days_away <= 60) crunchBox.style.background = 'rgba(220,38,38,.1)';
 
   // Last sync
-  setText('ifin-last-sync', d?.generated_at ? new Date(d.generated_at).toLocaleString() : '—');
+  setText('ifin-last-sync', d?.generated_at ? fmtNY(d.generated_at) : '—');
 
   // Forecast bars
   renderForecastBars(d?.forecast || []);
