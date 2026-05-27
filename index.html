@@ -153,6 +153,13 @@ a{color:inherit}
 .secr{display:flex;justify-content:space-between;align-items:center;padding:2px 0}
 .sec-l{font-size:11px;color:var(--text-2);font-weight:500}
 .sec-v{font-size:10px;font-weight:700;font-family:var(--mono)}.sec-v.ok{color:var(--ok)}.sec-v.w{color:var(--warn)}
+/* Data Freshness panel */
+.fr-row{display:flex;align-items:center;gap:6px;padding:3px 0}
+.fr-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.fr-dot.ok{background:var(--ok)}.fr-dot.warn{background:var(--warn)}.fr-dot.stale{background:var(--crit)}.fr-dot.unknown{background:var(--border)}
+.fr-label{font-size:10px;color:var(--text-2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr-age{font-size:10px;font-family:var(--mono);font-weight:600;flex-shrink:0}
+.fr-age.ok{color:var(--ok)}.fr-age.warn{color:var(--warn)}.fr-age.stale{color:var(--crit)}.fr-age.unknown{color:var(--text-3)}
 
 /* TABS */
 .content-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
@@ -837,7 +844,7 @@ a{color:inherit}
 .bb-sep{color:#334155;margin:0 7px}
 .bb-src{color:#475569;text-transform:uppercase;letter-spacing:.3px}
 .bb-div{color:#334155;margin:0 9px}
-.bb-synced{color:var(--green);font-weight:600;text-transform:uppercase}
+.bb-synced{color:var(--green);font-weight:600;text-transform:uppercase}.bb-synced.warn{color:var(--warn)}.bb-synced.crit{color:var(--crit)}
 .bb-stat{display:inline-flex;align-items:center;gap:4px}
 .bb-stat-lbl{color:#94A3B8;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
 .bb-cnt{padding:1px 7px;border-radius:8px;font-weight:700;font-size:9px}
@@ -1072,6 +1079,10 @@ a{color:inherit}
       <div class="sb-sec">
         <span class="sb-ttl">SCRAPERS</span>
         <div id="sbScrapers"></div>
+      </div>
+      <div class="sb-sec" id="sbFreshnessSec">
+        <span class="sb-ttl">DATA FRESHNESS</span>
+        <div id="sbFreshness"></div>
       </div>
     </div>
   </div>
@@ -2957,6 +2968,30 @@ function populateSidebar(d) {
     return `<div class="scr"><div class="sc-hdr"><span class="sc-nm">${escHtml(s.name)}</span><span class="badge ${cls}">${s.status||'?'}</span></div>
     ${s.pct != null ? `<div class="pbar"><div class="pf ${s.status==='running'?'run':''}" style="width:${s.pct}%"></div></div>` : ''}</div>`;
   }).join('');
+
+  // Data freshness strip
+  const sbFreshness = document.getElementById('sbFreshness');
+  const freshness = d.source_freshness || [];
+  if (freshness.length) {
+    sbFreshness.innerHTML = freshness.map(f => {
+      const dot  = f.status || 'unknown';
+      const ageStr = f.age_mins == null ? '—'
+        : f.age_mins < 60 ? f.age_mins + 'm'
+        : Math.round(f.age_mins / 60) + 'h';
+      const label = f.source.replace(' / ', '/').replace('VIEWERSHIP','VWR');
+      return `<div class="fr-row" title="${escAttr(f.source)} · threshold ${f.threshold_mins >= 60 ? Math.round(f.threshold_mins/60)+'h' : f.threshold_mins+'m'} · ${dot}">
+        <span class="fr-dot ${dot}"></span>
+        <span class="fr-label">${escHtml(label)}</span>
+        <span class="fr-age ${dot}">${escHtml(ageStr)}</span>
+      </div>`;
+    }).join('');
+    // Show section only when data is available
+    const sec = document.getElementById('sbFreshnessSec');
+    if (sec) sec.style.display = '';
+  } else {
+    const sec = document.getElementById('sbFreshnessSec');
+    if (sec) sec.style.display = 'none';
+  }
 }
 
 // ── Resources ─────────────────────────────────────────────
@@ -3696,9 +3731,14 @@ setInterval(() => {
   _syncSeconds++;
   const el = document.getElementById('bbSynced');
   if (!el) return;
-  if (_syncSeconds < 60) el.textContent = 'SYNCED ' + _syncSeconds + 'S AGO';
-  else if (_syncSeconds < 3600) el.textContent = 'SYNCED ' + Math.floor(_syncSeconds/60) + 'M AGO';
-  else el.textContent = 'SYNCED ' + Math.floor(_syncSeconds/3600) + 'H AGO';
+  // Show overall sync age; color goes amber >5m, red >15m
+  let syncStr, syncCls;
+  if (_syncSeconds < 60)   { syncStr = 'SYNCED ' + _syncSeconds + 'S AGO'; syncCls = 'bb-synced'; }
+  else if (_syncSeconds < 300)  { syncStr = 'SYNCED ' + Math.floor(_syncSeconds/60) + 'M AGO'; syncCls = 'bb-synced'; }
+  else if (_syncSeconds < 900)  { syncStr = 'STALE ' + Math.floor(_syncSeconds/60) + 'M'; syncCls = 'bb-synced warn'; }
+  else { syncStr = 'STALE ' + Math.floor(_syncSeconds/3600) + 'H'; syncCls = 'bb-synced crit'; }
+  el.textContent = syncStr;
+  el.className = syncCls;
 }, 1000);
 
 // ══════════════════════════════════════════════════════════

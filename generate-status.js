@@ -1259,6 +1259,162 @@ try {
   console.warn('[generate-status] token projection failed:', e.message);
 }
 
+// ── Per-source freshness (WAR-ROOM-RELIABILITY-001) ─────────────────────────
+// Thresholds: JARVIS 10m · TMDB 25h · S3 15m · Nielsen 48h · Build 10m · Token 5h
+// status: ok (<50% of threshold used) | warn (50-100%) | stale (>100%)
+function buildSourceFreshness() {
+  const now = Date.now();
+
+  function ageMins(ts) {
+    if (!ts) return null;
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return null;
+    return Math.round((now - d.getTime()) / 60000);
+  }
+
+  function entry(source, lastUpdated, thresholdMins) {
+    const age = ageMins(lastUpdated);
+    let status = 'unknown';
+    if (age !== null) {
+      if (age <= thresholdMins * 0.5) status = 'ok';
+      else if (age <= thresholdMins)   status = 'warn';
+      else                             status = 'stale';
+    }
+    return { source, last_updated: lastUpdated || null, threshold_mins: thresholdMins, age_mins: age, status };
+  }
+
+  // ── JARVIS / Railway heartbeat ────────────────────────────────────────────
+  let jarvisLastTs = null;
+  try {
+    const hbFile = path.join(SASMASTER, 'status', 'railway-health.json');
+    if (fs.existsSync(hbFile)) {
+      const hb = JSON.parse(fs.readFileSync(hbFile, 'utf8'));
+      jarvisLastTs = hb.ts || hb.checked_at || null;
+    }
+  } catch {}
+  // Fallback: if JARVIS is alive right now, treat generated_at as its last heartbeat
+  if (!jarvisLastTs && jarvisAlive()) jarvisLastTs = new Date().toISOString();
+
+  // ── TMDB scraper ──────────────────────────────────────────────────────────
+  let tmdbLastTs = null;
+  try {
+    const tf = path.join(SASMASTER, 'status', 'tmdb-progress.json');
+    if (fs.existsSync(tf)) tmdbLastTs = JSON.parse(fs.readFileSync(tf, 'utf8')).last_updated || null;
+  } catch {}
+  if (!tmdbLastTs) {
+    try { tmdbLastTs = fs.statSync(path.join(SASMASTER, 'logs', 'tmdb-agent.log')).mtime.toISOString(); } catch {}
+  }
+
+  // ── S3 Lake sizes ─────────────────────────────────────────────────────────
+  let s3LastTs = null;
+  try { s3LastTs = fs.statSync(path.join(SASMASTER, 'status', 's3-inventory.json')).mtime.toISOString(); } catch {}
+
+  // ── Nielsen VIEWERSHIP ────────────────────────────────────────────────────
+  let nielsenLastTs = null;
+  try {
+    const nf = path.join(SASMASTER, 'status', 'nielsen-progress.json');
+    if (fs.existsSync(nf)) nielsenLastTs = JSON.parse(fs.readFileSync(nf, 'utf8')).last_updated || null;
+  } catch {}
+  if (!nielsenLastTs) {
+    for (const logName of ['nielsen_puller.log', 'nielsen.log', 'data-guardian.log']) {
+      try {
+        const p = path.join(SASMASTER, 'logs', logName);
+        if (fs.existsSync(p)) { nielsenLastTs = fs.statSync(p).mtime.toISOString(); break; }
+      } catch {}
+    }
+  }
+
+  // ── Build events log ──────────────────────────────────────────────────────
+  let buildLastTs = null;
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    const buildLog = path.join(SASMASTER, 'logs', `build-${today}.jsonl`);
+    if (fs.existsSync(buildLog)) buildLastTs = fs.statSync(buildLog).mtime.toISOString();
+  } catch {}
+  if (!buildLastTs) {
+    try {
+      const sqLog = path.join(SASMASTER, 'logs', `score-queue-${today.replace(/-/g, '')}.log`);
+      if (fs.existsSync(sqLog)) buildLastTs = fs.statSync(sqLog).mtime.toISOString();
+    } catch {}
+  }
+
+  // ── Token refresh ─────────────────────────────────────────────────────────
+  // Last line in token-refresh.log that does NOT contain "ERROR"
+  let tokenLastTs = null;
+  try {
+    const refreshLog = path.join(SASMASTER, 'logs', 'token-refresh.log');
+    if (fs.existsSync(refreshLog)) {
+      const lines = fs.readFileSync(refreshLog, 'utf8').split('\n').filter(l => l.trim() && !l.includes('ERROR'));
+      if (lines.length > 0) {
+        // Date format: [Wed May 27 07:34:11 EDT 2026]
+        const m = lines[lines.length - 1].match(/\[([^\]]+)\]/);
+        if (m) {
+          const parsed = new Date(m[1]);
+          if (!isNaN(parsed.getTime())) tokenLastTs = parsed.toISOString();
+        }
+      }
+    }
+  } catch {}
+
+  return [
+    entry('JARVIS / Railway heartbeat', jarvisLastTs, 10),
+    entry('TMDB scraper',               tmdbLastTs,   25 * 60),
+    entry('S3 Lake sizes',              s3LastTs,     15),
+    entry('Nielsen VIEWERSHIP',         nielsenLastTs, 48 * 60),
+    entry('Build events log',           buildLastTs,  10),
+    entry('Token refresh',              tokenLastTs,  5 * 60),
+  ];
+}
+
+const sourceFreshness = buildSourceFreshness();
+
+// ── Phase 5: Stale-source Slack alerting ─────────────────────────────────────
+// Fires once per generate-status.js run for any source that has crossed its threshold.
+// Uses webhook (no Railway round-trip, no new HTTP endpoint).
+function alertStaleSources(freshness) {
+  const stale = freshness.filter(s => s.status === 'stale');
+  if (!stale.length) return;
+
+  let webhook = '';
+  try {
+    const lines = fs.readFileSync(path.join(SASMASTER, '.env'), 'utf8').split('\n');
+    const wl = lines.find(l => l.startsWith('SASMASTER_SLACK_WEBHOOK='));
+    if (wl) webhook = wl.slice('SASMASTER_SLACK_WEBHOOK='.length).trim().replace(/^['"]|['"]$/g, '');
+  } catch {}
+  if (!webhook) return;
+
+  const lines = stale.map(s => {
+    const ageStr = s.age_mins != null
+      ? (s.age_mins < 60 ? `${s.age_mins}m` : `${Math.round(s.age_mins / 60)}h`) + ' ago'
+      : 'unknown';
+    const thrStr = s.threshold_mins >= 60
+      ? `${Math.round(s.threshold_mins / 60)}h`
+      : `${s.threshold_mins}m`;
+    return `⚠️ WAR-ROOM-STALE: *${s.source}* last updated ${ageStr} — threshold ${thrStr}`;
+  });
+
+  const body = JSON.stringify({
+    text: lines.join('\n'),
+    attachments: [{ color: 'danger', footer: 'generate-status.js · stale-source monitor' }],
+  });
+
+  try {
+    const https = require('https');
+    const url   = new URL(webhook);
+    const req   = https.request({
+      hostname: url.hostname,
+      path:     url.pathname + (url.search || ''),
+      method:   'POST',
+      headers:  { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+    });
+    req.on('error', () => {});
+    req.write(body);
+    req.end();
+  } catch {}
+}
+
+alertStaleSources(sourceFreshness);
+
 // ── Portal coverage — reads latest report from ~/SaSMaster/reports/ ──────────
 function loadPortalCoverage() {
   try {
@@ -1330,6 +1486,7 @@ const status = {
   portal_coverage: portalCoverage,
   usage_state: usageState,
   token_projection: tokenProjection,
+  source_freshness: sourceFreshness,
 };
 
 fs.writeFileSync(OUT, JSON.stringify(status, null, 2));
