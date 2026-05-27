@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-27T04:55:01.583Z",
-  "generated_at": "2026-05-27T04:55:01.583Z",
+  "generated": "2026-05-27T05:02:50.567Z",
+  "generated_at": "2026-05-27T05:02:50.567Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -469,8 +469,8 @@
       "log": "railway-monitor.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": "2026-05-27T04:45:01.604Z",
-      "lastOutput": "✅ All healthy — uptime streak: 59h 20m",
+      "lastRun": "2026-05-27T05:00:00.940Z",
+      "lastOutput": "✅ All healthy — uptime streak: 59h 35m",
       "status": "healthy"
     },
     {
@@ -765,8 +765,8 @@
       "size_gb": 30.4,
       "object_count": 7778,
       "last_updated": "2026-05-25T14:33:13.000Z",
-      "fresh": false,
-      "age_hours": null,
+      "fresh": true,
+      "age_hours": 4.5,
       "entities": {
         "movies": 1186402,
         "tv_series": 220147,
@@ -785,7 +785,7 @@
       "object_count": 7,
       "last_updated": "2026-04-21T23:00:01.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 846,
       "entities": {
         "movies": 743825,
         "tv_series": 298238,
@@ -804,7 +804,7 @@
       "object_count": 7,
       "last_updated": "2026-04-28T11:29:34.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 689.6,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -823,7 +823,7 @@
       "object_count": 1,
       "last_updated": "2026-04-21T23:04:10.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 846,
       "entities": {
         "movies": 861878,
         "tv_series": null,
@@ -841,8 +841,8 @@
       "size_gb": 83.9,
       "object_count": 55,
       "last_updated": "2026-05-26T14:40:00.000Z",
-      "fresh": false,
-      "age_hours": null,
+      "fresh": true,
+      "age_hours": 18.4,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -861,7 +861,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:47:11.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 842.3,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -880,7 +880,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:38:36.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 842.4,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -899,7 +899,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T04:42:21.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 840.3,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -918,7 +918,7 @@
       "object_count": 14,
       "last_updated": "2026-04-22T07:53:17.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 837.2,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -937,7 +937,7 @@
       "object_count": 5,
       "last_updated": "2026-04-22T01:13:31.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 843.8,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -956,7 +956,7 @@
       "object_count": 3,
       "last_updated": "2026-04-29T02:57:31.000Z",
       "fresh": false,
-      "age_hours": null,
+      "age_hours": 674.1,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -974,8 +974,8 @@
       "size_gb": 0,
       "object_count": 12,
       "last_updated": "2026-05-26T09:01:37.000Z",
-      "fresh": false,
-      "age_hours": null,
+      "fresh": true,
+      "age_hours": 20,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -993,8 +993,8 @@
       "size_gb": 0.01,
       "object_count": 8,
       "last_updated": "2026-05-26T09:02:31.000Z",
-      "fresh": false,
-      "age_hours": null,
+      "fresh": true,
+      "age_hours": 20,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1714,7 +1714,7 @@
   "token_projection": {
     "week_cost_usd": 0.0037,
     "week_tokens": 1215,
-    "projected_week_cost_usd": 0.0072,
+    "projected_week_cost_usd": 0.0071,
     "pct_elapsed": 52,
     "daily_cost": {
       "2026-05-25": 0.0037272,
@@ -1768,6 +1768,36 @@
         "cost_usd": 0,
         "tokens": 0,
         "model": "claude-sonnet-4-6"
+      }
+    ],
+    "recommendations": [
+      {
+        "type": "throttle",
+        "agent": "build-loop",
+        "action": "Sonnet at 87% — cap opportunistic build loop to 3 tasks/cycle until Thu 10PM reset",
+        "est_save_usd_wk": 0,
+        "severity": "red"
+      },
+      {
+        "type": "caching",
+        "agent": "all-agents",
+        "action": "Enable prompt caching (cache_control: ephemeral) on CLAUDE_MEMORY.md and agent .md reads — estimated 40-60% input token reduction",
+        "est_save_usd_wk": 0,
+        "severity": "amber"
+      },
+      {
+        "type": "batching",
+        "agent": "build-loop",
+        "action": "Batch short tasks (<5K token context) into single Claude Code sessions to amortize system-prompt overhead — reduces per-task input tokens by ~30%",
+        "est_save_usd_wk": 0,
+        "severity": "amber"
+      },
+      {
+        "type": "caching",
+        "agent": "skill-loader",
+        "action": "Cache ~/.claude/skills/user/*.md reads with cache_control: ephemeral on first load — skill files are 2-15KB and re-read every session uncached",
+        "est_save_usd_wk": 0,
+        "severity": "green"
       }
     ],
     "week_start": "2026-05-25T04:00:00.000Z",

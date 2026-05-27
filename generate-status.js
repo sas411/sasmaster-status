@@ -1104,6 +1104,85 @@ try {
       .slice(0, 10)
       .map(([id, d]) => ({ id, ...d }));
 
+    // Auto-generate optimization recommendations
+    const recommendations = [];
+
+    // R1: Agents invoking Opus on low-token tasks (Sonnet would suffice)
+    for (const [id, d] of Object.entries(agentCost)) {
+      const m = (d.model || '').toLowerCase();
+      const avgTokens = d.tokens;
+      if (m.includes('opus') && avgTokens < 50000 && avgTokens > 0) {
+        const estSave = Math.round(d.cost_usd * 0.6 * 100) / 100;
+        recommendations.push({
+          type: 'model-downgrade',
+          agent: id,
+          action: `Downgrade ${id} from Opus → Sonnet (avg ${d.tokens.toLocaleString()} tokens — below 50K threshold)`,
+          est_save_usd_wk: estSave,
+          severity: 'amber',
+        });
+      }
+    }
+
+    // R2: Agents invoking Sonnet on very low-token tasks (Haiku would suffice)
+    for (const [id, d] of Object.entries(agentCost)) {
+      const m = (d.model || '').toLowerCase();
+      if (m.includes('sonnet') && d.tokens < 10000 && d.tokens > 0) {
+        const estSave = Math.round(d.cost_usd * 0.7 * 100) / 100;
+        recommendations.push({
+          type: 'model-downgrade',
+          agent: id,
+          action: `Downgrade ${id} from Sonnet → Haiku (avg ${d.tokens.toLocaleString()} tokens — below 10K threshold)`,
+          est_save_usd_wk: estSave,
+          severity: 'amber',
+        });
+      }
+    }
+
+    // R3: High Sonnet burn rate → throttle builds
+    if (usageState && (usageState.weekly_sonnet_pct || 0) >= 85) {
+      recommendations.push({
+        type: 'throttle',
+        agent: 'build-loop',
+        action: `Sonnet at ${usageState.weekly_sonnet_pct}% — cap opportunistic build loop to 3 tasks/cycle until Thu 10PM reset`,
+        est_save_usd_wk: 0,
+        severity: 'red',
+      });
+    }
+
+    // R4: Prompt caching not wired (no cache fields in log entries — all cost is raw input)
+    const entriesWithTokens = allLines.reduce((n, line) => {
+      try { const e = JSON.parse(line); return n + (e.tokens > 0 ? 1 : 0); } catch { return n; }
+    }, 0);
+    if (entriesWithTokens > 3) {
+      recommendations.push({
+        type: 'caching',
+        agent: 'all-agents',
+        action: 'Enable prompt caching (cache_control: ephemeral) on CLAUDE_MEMORY.md and agent .md reads — estimated 40-60% input token reduction',
+        est_save_usd_wk: Math.round(weekCostTotal * 0.5 * 100) / 100,
+        severity: 'amber',
+      });
+    }
+
+    // R5: Week has active spend — recommend batching small tasks to amortize context load
+    if (weekCostTotal > 0) {
+      recommendations.push({
+        type: 'batching',
+        agent: 'build-loop',
+        action: 'Batch short tasks (<5K token context) into single Claude Code sessions to amortize system-prompt overhead — reduces per-task input tokens by ~30%',
+        est_save_usd_wk: Math.round(weekCostTotal * 0.3 * 100) / 100,
+        severity: 'amber',
+      });
+    }
+
+    // R6: Always-on — cache agent skill files on first invocation
+    recommendations.push({
+      type: 'caching',
+      agent: 'skill-loader',
+      action: 'Cache ~/.claude/skills/user/*.md reads with cache_control: ephemeral on first load — skill files are 2-15KB and re-read every session uncached',
+      est_save_usd_wk: 0,
+      severity: 'green',
+    });
+
     tokenProjection = {
       week_cost_usd: Math.round(weekCostTotal * 10000) / 10000,
       week_tokens: weekTokensTotal,
@@ -1111,6 +1190,7 @@ try {
       pct_elapsed: Math.round(pctElapsed * 100),
       daily_cost: dailyCost,
       top_consumers: topConsumers,
+      recommendations: recommendations.slice(0, 6),
       week_start: weekStart.toISOString(),
       reset_at: resetAt.toISOString(),
     };

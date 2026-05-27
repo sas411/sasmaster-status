@@ -709,6 +709,14 @@ a{color:inherit}
 .qp-model-sonnet{background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE}
 .qp-model-haiku{background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0}
 .qp-model-other{background:#F8FAFC;color:#64748B;border:1px solid #E2E8F0}
+.qp-rec{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:6px;border:1px solid #E2E8F0;background:#fff;margin-bottom:6px}
+.qp-rec.red{border-left:3px solid #EF4444;background:#FFF8F8}
+.qp-rec.amber{border-left:3px solid #F59E0B;background:#FFFDF0}
+.qp-rec.green{border-left:3px solid #10B981;background:#F0FDF9}
+.qp-rec-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.qp-rec-body{flex:1;min-width:0}
+.qp-rec-action{font-size:11px;color:#334155;line-height:1.4}
+.qp-rec-save{font-family:var(--mono);font-size:10px;color:#10B981;margin-top:3px;font-weight:700}
 
 /* ══ STYLE GUIDE v1 ADDITIONS ══ */
 
@@ -1398,6 +1406,12 @@ a{color:inherit}
               <thead><tr><th>#</th><th>Agent / Task</th><th>Model</th><th>Tokens</th><th>Cost</th></tr></thead>
               <tbody id="qp-consumers-body"></tbody>
             </table>
+          </div>
+
+          <!-- Optimization recommendations -->
+          <div id="qp-recs-wrap" style="display:none;margin-top:10px">
+            <div class="qp-consumers-ttl">OPTIMIZATION RECOMMENDATIONS</div>
+            <div id="qp-recs-body"></div>
           </div>
 
           <div class="qp-update-row">
@@ -3379,6 +3393,28 @@ function populateQuotaPanel(d) {
             '<td>' + fmtTokens(c.tokens) + '</td>' +
             '<td>$' + (c.cost_usd || 0).toFixed(4) + '</td>' +
           '</tr>';
+        }).join('');
+      }
+    }
+
+    // Optimization recommendations
+    const recs = tp.recommendations || [];
+    if (recs.length > 0) {
+      const recsWrap = document.getElementById('qp-recs-wrap');
+      const recsBody = document.getElementById('qp-recs-body');
+      if (recsWrap) recsWrap.style.display = '';
+      if (recsBody) {
+        const recIcons = { red: '🔴', amber: '🟠', green: '🟢', caching: '💾', throttle: '⏸', 'model-downgrade': '💡' };
+        recsBody.innerHTML = recs.map(r => {
+          const icon = recIcons[r.type] || recIcons[r.severity] || '💡';
+          const saveStr = r.est_save_usd_wk > 0 ? 'Est. save: $' + r.est_save_usd_wk.toFixed(3) + '/wk' : '';
+          return '<div class="qp-rec ' + (r.severity || 'amber') + '">' +
+            '<div class="qp-rec-icon">' + icon + '</div>' +
+            '<div class="qp-rec-body">' +
+              '<div class="qp-rec-action">' + escHtml(r.action) + '</div>' +
+              (saveStr ? '<div class="qp-rec-save">' + saveStr + '</div>' : '') +
+            '</div>' +
+          '</div>';
         }).join('');
       }
     }
