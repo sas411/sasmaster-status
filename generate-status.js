@@ -351,6 +351,21 @@ function parseS3EntityCounts() {
   catch { return {}; }
 }
 
+// ── EIDR v2 coverage (from eidr-progress.json) ───────────────────────────────
+function parseEidrProgress() {
+  try {
+    const p = JSON.parse(fs.readFileSync(path.join(SASMASTER, 'status', 'eidr-progress.json'), 'utf8'));
+    if (p.phase !== 'complete') return null;
+    return {
+      total:        parseInt(p.total,        10) || null,
+      eidr_matched: parseInt(p.eidr_matched, 10) || null,
+      eidr_pct:     parseFloat(p.eidr_pct)       || null,
+      out_date:     p.out_date || null,
+      source:       p.source   || null,
+    };
+  } catch { return null; }
+}
+
 // ── S3 Freshness (age in hours per key prefix) ───────────────────────────────
 // Uses `aws s3 ls --recursive` on each prefix, picks the most-recent object.
 // Returns a map: { 'tmdb_dev/': { age_hours: 3.2, fresh: true }, ... }
@@ -453,6 +468,7 @@ function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents) {
   const prefix = name => (s3Inv?.prefixes || []).find(p => p.prefix === name) || {};
   const agentByName = {};
   (agents || []).forEach(a => { agentByName[a.name] = a; });
+  const eidrProgress = parseEidrProgress();
 
   const tmdbP   = prefix('tmdb_dev/');
   const imdbP   = prefix('imdb/');
@@ -533,10 +549,13 @@ function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents) {
     {
       name: 'EIDR scraper',
       phase: '1b',
-      status: eidrP.object_count > 0 ? 'landing' : 'designed',
-      pct: null,
-      last_run: eidrP.last_modified || null,
-      row_count: null,
+      status: eidrProgress ? 'live' : (eidrP.object_count > 0 ? 'landing' : 'designed'),
+      pct: eidrProgress ? eidrProgress.eidr_pct : null,
+      last_run: eidrProgress ? eidrProgress.out_date : (eidrP.last_modified || null),
+      row_count: eidrProgress ? eidrProgress.eidr_matched : null,
+      note: eidrProgress
+        ? `v2 parent_keys: ${eidrProgress.eidr_matched?.toLocaleString()} EIDR IDs matched (${eidrProgress.eidr_pct}% of ${eidrProgress.total?.toLocaleString()} titles) — source: ${eidrProgress.source}`
+        : 'Auth pending (code 4) — full backfill blocked',
     },
     { name: 'Rights scraper', phase: '1b', status: 'designed', pct: 0, last_run: null },
     // ── Phase 2a — Interim snapshots via RSG API bridge
@@ -840,6 +859,8 @@ function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haiku
     build_events_today: buildEventsCount || 0,
     model_routing: 'haiku+sonnet+opus',
     haiku_pct_today: haikuPctToday ?? 0,
+    eidr_coverage_pct: pk?.eidr_pct ?? null,
+    eidr_matched_rows: pk?.eidr_matched ?? null,
   };
 }
 
@@ -1073,6 +1094,12 @@ const kanban = {
 };
 
 const parentKeyScraper = scrapers.find(s => s.name === 'SAS-MASTER Parent Key v1');
+const eidrV2Progress   = parseEidrProgress();
+// Merge eidrProgress into parentKeyScraper so buildKPIs can read eidr_pct / eidr_matched
+if (parentKeyScraper && eidrV2Progress) {
+  parentKeyScraper.eidr_pct     = eidrV2Progress.eidr_pct;
+  parentKeyScraper.eidr_matched = eidrV2Progress.eidr_matched;
+}
 
 // Inject trend KPIs into kpis object after buildKPIs() runs — done below inline.
 
