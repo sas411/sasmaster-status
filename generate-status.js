@@ -1275,10 +1275,16 @@ const status = {
 fs.writeFileSync(OUT, JSON.stringify(status, null, 2));
 console.log(`[generate-status] wrote status.json — ${new Date().toISOString()}`);
 
-// Push to S3 for War Room fallback when local machine is unreachable
+// Push to S3 — two paths so Railway heartbeat can promote without cross-prefix IAM
 try {
   execSync(`aws s3 cp "${OUT}" s3://sasmaster-2026/status/status.json --content-type application/json`, { stdio: 'pipe' });
   console.log(`[generate-status] pushed to s3://sasmaster-2026/status/status.json`);
 } catch (e) {
   console.warn(`[generate-status] S3 push failed (non-fatal): ${e.message}`);
+}
+try {
+  execSync(`aws s3 cp "${OUT}" s3://sasmaster-2026/cache/api/status.json --content-type application/json`, { stdio: 'pipe' });
+  console.log(`[generate-status] pushed to s3://sasmaster-2026/cache/api/status.json`);
+} catch (e) {
+  console.warn(`[generate-status] S3 cache/api push failed (non-fatal): ${e.message}`);
 }
