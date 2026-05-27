@@ -1,13 +1,13 @@
 {
-  "generated": "2026-05-26T23:49:00.921Z",
-  "generated_at": "2026-05-26T23:49:00.921Z",
+  "generated": "2026-05-27T04:33:17.402Z",
+  "generated_at": "2026-05-27T04:33:17.402Z",
   "system": {
     "jarvis": {
       "alive": true
     }
   },
   "queue": {
-    "high": 5,
+    "high": 1,
     "med": 11,
     "highItems": [
       {
@@ -17,54 +17,6 @@
         "full": "EIDR backfill Phase 1b — populate parent_keys.eidr_id column. agents/eidr-agent.js + creds exist.",
         "sprint": "Data Pipeline",
         "tag": "AGENT",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t228",
-        "lineIndex": 228,
-        "text": "TMDB Networks loader — ~5K calls · ~3 min. BLOCKED: needs tv_series phase complete.",
-        "full": "TMDB Networks loader — ~5K calls · ~3 min. BLOCKED: needs tv_series phase complete.",
-        "sprint": "Data Pipeline",
-        "tag": "DATA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t231",
-        "lineIndex": 231,
-        "text": "TMDB Companies loader — ~50K calls · ~25 min. BLOCKED: tv_series phase complete.",
-        "full": "TMDB Companies loader — ~50K calls · ~25 min. BLOCKED: tv_series phase complete.",
-        "sprint": "Data Pipeline",
-        "tag": "DATA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t234",
-        "lineIndex": 234,
-        "text": "TMDB TV Seasons loader — ~700K calls · ~5h. BLOCKED: tv_series phase complete.",
-        "full": "TMDB TV Seasons loader — ~700K calls · ~5h. BLOCKED: tv_series phase complete.",
-        "sprint": "Data Pipeline",
-        "tag": "DATA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t237",
-        "lineIndex": 237,
-        "text": "TMDB TV Episodes flatten — 0 TMDB calls · ~3 min. BLOCKED: TV Seasons done.",
-        "full": "TMDB TV Episodes flatten — 0 TMDB calls · ~3 min. BLOCKED: TV Seasons done.",
-        "sprint": "Data Pipeline",
-        "tag": "DATA",
         "priority": "HIGH",
         "state": "BACKLOG",
         "blockReason": "",
@@ -97,8 +49,8 @@
         "meta": {}
       },
       {
-        "id": "t242",
-        "lineIndex": 242,
+        "id": "t238",
+        "lineIndex": 238,
         "text": "Nielsen entity counts — DuckDB over MIT_GN_MASTER_UPDATED.csv (18GB) + VIEWERSHIP (9.8GB).",
         "full": "Nielsen entity counts — DuckDB over MIT_GN_MASTER_UPDATED.csv (18GB) + VIEWERSHIP (9.8GB).",
         "sprint": "Data Pipeline",
@@ -109,8 +61,8 @@
         "meta": {}
       },
       {
-        "id": "t245",
-        "lineIndex": 245,
+        "id": "t241",
+        "lineIndex": 241,
         "text": "Entity counts for EIDR / opus / gracenote / fyi / shiv_curated.",
         "full": "Entity counts for EIDR / opus / gracenote / fyi / shiv_curated.",
         "sprint": "Data Pipeline",
@@ -121,8 +73,8 @@
         "meta": {}
       },
       {
-        "id": "t252",
-        "lineIndex": 252,
+        "id": "t248",
+        "lineIndex": 248,
         "text": "JARVIS vault-sync — wire !vault-sync command (or daily cron) to update ~/SaSMaster/obsidian/ stale files.",
         "full": "JARVIS vault-sync — wire !vault-sync command (or daily cron) to update ~/SaSMaster/obsidian/ stale files.",
         "sprint": "Ops",
@@ -133,8 +85,8 @@
         "meta": {}
       },
       {
-        "id": "t255",
-        "lineIndex": 255,
+        "id": "t251",
+        "lineIndex": 251,
         "text": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture",
         "full": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture",
         "sprint": "Ops",
@@ -145,8 +97,8 @@
         "meta": {}
       },
       {
-        "id": "t258",
-        "lineIndex": 258,
+        "id": "t254",
+        "lineIndex": 254,
         "text": "Add !research command to JARVIS — topic-agnostic synthesis pipeline, posts to #intel.",
         "full": "Add !research command to JARVIS — topic-agnostic synthesis pipeline, posts to #intel.",
         "sprint": "Ops",
@@ -157,8 +109,8 @@
         "meta": {}
       },
       {
-        "id": "t260",
-        "lineIndex": 260,
+        "id": "t256",
+        "lineIndex": 256,
         "text": "Batch similar tasks in build loop — group related tasks into single Claude Code sessions.",
         "full": "Batch similar tasks in build loop — group related tasks into single Claude Code sessions.",
         "sprint": "Ops",
@@ -169,8 +121,8 @@
         "meta": {}
       },
       {
-        "id": "t263",
-        "lineIndex": 263,
+        "id": "t259",
+        "lineIndex": 259,
         "text": "Timezone normalization — War Room ticker + agent last_run currently mix UTC/EDT.",
         "full": "Timezone normalization — War Room ticker + agent last_run currently mix UTC/EDT.",
         "sprint": "Ops",
@@ -181,8 +133,8 @@
         "meta": {}
       },
       {
-        "id": "t390",
-        "lineIndex": 390,
+        "id": "t386",
+        "lineIndex": 386,
         "text": "[MEMORY-HYGIENE-HAIKU-FIX-001] Fix Haiku billing error in memory agent — check agents/memory-hygiene.js model config; ve…",
         "full": "[MEMORY-HYGIENE-HAIKU-FIX-001] Fix Haiku billing error in memory agent — check agents/memory-hygiene.js model config; verify model string is claude-haiku-4-5-20251001; confirm Railway env has ANTHROPIC_API_KEY with billing-enabled key; re-run dry run; verify Slack digest fires. Verify: dry run completes without billing error; memory-hygiene-report.md generated; Slack fires to #sasmaster-builds.",
         "sprint": "Platform Hygiene Sprint — 2026-05-26",
@@ -193,8 +145,8 @@
         "meta": {}
       },
       {
-        "id": "t392",
-        "lineIndex": 392,
+        "id": "t388",
+        "lineIndex": 388,
         "text": "[INFRA-SYNC-001] Investigate data_freshness: stale — status.json not syncing to S3. Check kb-nightly-sync.sh or status.j…",
         "full": "[INFRA-SYNC-001] Investigate data_freshness: stale — status.json not syncing to S3. Check kb-nightly-sync.sh or status.json write path. Railway health shows degraded because age_min=null (generated_at missing). Fix the sync, not the alert.",
         "sprint": "Platform Hygiene Sprint — 2026-05-26",
@@ -225,54 +177,6 @@
         "meta": {}
       },
       {
-        "id": "t228",
-        "lineIndex": 228,
-        "text": "TMDB Networks loader — ~5K calls · ~3 min. BLOCKED: needs tv_series phase complete.",
-        "full": "TMDB Networks loader — ~5K calls · ~3 min. BLOCKED: needs tv_series phase complete.",
-        "sprint": "Data Pipeline",
-        "tag": "DATA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t231",
-        "lineIndex": 231,
-        "text": "TMDB Companies loader — ~50K calls · ~25 min. BLOCKED: tv_series phase complete.",
-        "full": "TMDB Companies loader — ~50K calls · ~25 min. BLOCKED: tv_series phase complete.",
-        "sprint": "Data Pipeline",
-        "tag": "DATA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t234",
-        "lineIndex": 234,
-        "text": "TMDB TV Seasons loader — ~700K calls · ~5h. BLOCKED: tv_series phase complete.",
-        "full": "TMDB TV Seasons loader — ~700K calls · ~5h. BLOCKED: tv_series phase complete.",
-        "sprint": "Data Pipeline",
-        "tag": "DATA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
-        "id": "t237",
-        "lineIndex": 237,
-        "text": "TMDB TV Episodes flatten — 0 TMDB calls · ~3 min. BLOCKED: TV Seasons done.",
-        "full": "TMDB TV Episodes flatten — 0 TMDB calls · ~3 min. BLOCKED: TV Seasons done.",
-        "sprint": "Data Pipeline",
-        "tag": "DATA",
-        "priority": "HIGH",
-        "state": "BACKLOG",
-        "blockReason": "",
-        "meta": {}
-      },
-      {
         "id": "t200",
         "lineIndex": 200,
         "text": "KB-CI-002 phase1-complete profile-set",
@@ -297,8 +201,8 @@
         "meta": {}
       },
       {
-        "id": "t242",
-        "lineIndex": 242,
+        "id": "t238",
+        "lineIndex": 238,
         "text": "Nielsen entity counts — DuckDB over MIT_GN_MASTER_UPDATED.csv (18GB) + VIEWERSHIP (9.8GB).",
         "full": "Nielsen entity counts — DuckDB over MIT_GN_MASTER_UPDATED.csv (18GB) + VIEWERSHIP (9.8GB).",
         "sprint": "Data Pipeline",
@@ -309,8 +213,8 @@
         "meta": {}
       },
       {
-        "id": "t245",
-        "lineIndex": 245,
+        "id": "t241",
+        "lineIndex": 241,
         "text": "Entity counts for EIDR / opus / gracenote / fyi / shiv_curated.",
         "full": "Entity counts for EIDR / opus / gracenote / fyi / shiv_curated.",
         "sprint": "Data Pipeline",
@@ -321,8 +225,8 @@
         "meta": {}
       },
       {
-        "id": "t252",
-        "lineIndex": 252,
+        "id": "t248",
+        "lineIndex": 248,
         "text": "JARVIS vault-sync — wire !vault-sync command (or daily cron) to update ~/SaSMaster/obsidian/ stale files.",
         "full": "JARVIS vault-sync — wire !vault-sync command (or daily cron) to update ~/SaSMaster/obsidian/ stale files.",
         "sprint": "Ops",
@@ -333,8 +237,8 @@
         "meta": {}
       },
       {
-        "id": "t255",
-        "lineIndex": 255,
+        "id": "t251",
+        "lineIndex": 251,
         "text": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture",
         "full": "Add auto-population hook to daily-visuals.sh — on 5:02AM PNG render, also copy latest architecture",
         "sprint": "Ops",
@@ -345,8 +249,8 @@
         "meta": {}
       },
       {
-        "id": "t258",
-        "lineIndex": 258,
+        "id": "t254",
+        "lineIndex": 254,
         "text": "Add !research command to JARVIS — topic-agnostic synthesis pipeline, posts to #intel.",
         "full": "Add !research command to JARVIS — topic-agnostic synthesis pipeline, posts to #intel.",
         "sprint": "Ops",
@@ -357,8 +261,8 @@
         "meta": {}
       },
       {
-        "id": "t260",
-        "lineIndex": 260,
+        "id": "t256",
+        "lineIndex": 256,
         "text": "Batch similar tasks in build loop — group related tasks into single Claude Code sessions.",
         "full": "Batch similar tasks in build loop — group related tasks into single Claude Code sessions.",
         "sprint": "Ops",
@@ -369,8 +273,8 @@
         "meta": {}
       },
       {
-        "id": "t263",
-        "lineIndex": 263,
+        "id": "t259",
+        "lineIndex": 259,
         "text": "Timezone normalization — War Room ticker + agent last_run currently mix UTC/EDT.",
         "full": "Timezone normalization — War Room ticker + agent last_run currently mix UTC/EDT.",
         "sprint": "Ops",
@@ -381,8 +285,8 @@
         "meta": {}
       },
       {
-        "id": "t390",
-        "lineIndex": 390,
+        "id": "t386",
+        "lineIndex": 386,
         "text": "[MEMORY-HYGIENE-HAIKU-FIX-001] Fix Haiku billing error in memory agent — check agents/memory-hygiene.js model config; ve…",
         "full": "[MEMORY-HYGIENE-HAIKU-FIX-001] Fix Haiku billing error in memory agent — check agents/memory-hygiene.js model config; verify model string is claude-haiku-4-5-20251001; confirm Railway env has ANTHROPIC_API_KEY with billing-enabled key; re-run dry run; verify Slack digest fires. Verify: dry run completes without billing error; memory-hygiene-report.md generated; Slack fires to #sasmaster-builds.",
         "sprint": "Platform Hygiene Sprint — 2026-05-26",
@@ -393,8 +297,8 @@
         "meta": {}
       },
       {
-        "id": "t392",
-        "lineIndex": 392,
+        "id": "t388",
+        "lineIndex": 388,
         "text": "[INFRA-SYNC-001] Investigate data_freshness: stale — status.json not syncing to S3. Check kb-nightly-sync.sh or status.j…",
         "full": "[INFRA-SYNC-001] Investigate data_freshness: stale — status.json not syncing to S3. Check kb-nightly-sync.sh or status.json write path. Railway health shows degraded because age_min=null (generated_at missing). Fix the sync, not the alert.",
         "sprint": "Platform Hygiene Sprint — 2026-05-26",
@@ -430,6 +334,14 @@
     "done": [
       {
         "id": "done-0",
+        "text": "TMDB Pipeline Completion — Networks + Companies + TV Seasons + TV Episodes",
+        "full": "TMDB Pipeline Completion — Networks + Companies + TV Seasons + TV Episodes",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-1",
         "text": "COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration",
         "full": "COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration",
         "sprint": "",
@@ -437,7 +349,7 @@
         "priority": "DONE"
       },
       {
-        "id": "done-1",
+        "id": "done-2",
         "text": "TMDB-STALL-DETECTOR-001 — Stall detection in JARVIS rules engine",
         "full": "TMDB-STALL-DETECTOR-001 — Stall detection in JARVIS rules engine",
         "sprint": "",
@@ -445,7 +357,7 @@
         "priority": "DONE"
       },
       {
-        "id": "done-2",
+        "id": "done-3",
         "text": "JARVIS-STATUS-ENHANCE-001 — Queue breakdown in !status",
         "full": "JARVIS-STATUS-ENHANCE-001 — Queue breakdown in !status",
         "sprint": "",
@@ -482,7 +394,7 @@
       }
     },
     "counts": {
-      "backlog": 16,
+      "backlog": 12,
       "inProgress": 0,
       "blocked": 0,
       "review": 2,
@@ -490,6 +402,7 @@
     }
   },
   "heatmap": {
+    "2026-05-27": 2,
     "2026-05-26": 22,
     "** 2026-05": 8,
     "2026-05-25": 15,
@@ -512,7 +425,7 @@
       "channel": "HTTP Events API",
       "jobId": null,
       "descOverride": "HTTP Events API (Railway) — Socket Mode daemon retired",
-      "lastRun": "2026-05-26T20:30:21.819Z",
+      "lastRun": "2026-05-27T04:26:30.576Z",
       "lastOutput": "HTTP Events API (Railway) — Socket Mode daemon retired",
       "status": "healthy"
     },
@@ -644,8 +557,8 @@
       "log": "railway-monitor.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": "2026-05-26T23:45:01.408Z",
-      "lastOutput": "✅ All healthy — uptime streak: 54h 20m",
+      "lastRun": "2026-05-27T04:30:01.057Z",
+      "lastOutput": "✅ All healthy — uptime streak: 59h 5m",
       "status": "healthy"
     },
     {
@@ -676,6 +589,12 @@
     }
   ],
   "recentBuilds": [
+    {
+      "task": "TMDB Pipeline Completion — Networks + Companies + TV Seasons + TV Episodes",
+      "date": "2026-05-27 04:32",
+      "notes": "Audit found Networks (4,633 records, 2MB), Companies (3MB, 5 batches), and TV Seasons (124MB, 5 batches) were all loaded",
+      "status": "DONE"
+    },
     {
       "task": "COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration",
       "date": "2026-05-26 19:52",
@@ -910,8 +829,8 @@
       "size_gb": 30.4,
       "object_count": 7778,
       "last_updated": "2026-05-25T14:33:13.000Z",
-      "fresh": false,
-      "age_hours": 33.3,
+      "fresh": true,
+      "age_hours": 4,
       "entities": {
         "movies": 1186402,
         "tv_series": 220147,
@@ -930,7 +849,7 @@
       "object_count": 7,
       "last_updated": "2026-04-21T23:00:01.000Z",
       "fresh": false,
-      "age_hours": 840.8,
+      "age_hours": 845.6,
       "entities": {
         "movies": 743825,
         "tv_series": 298238,
@@ -949,7 +868,7 @@
       "object_count": 7,
       "last_updated": "2026-04-28T11:29:34.000Z",
       "fresh": false,
-      "age_hours": 684.3,
+      "age_hours": 689.1,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -968,7 +887,7 @@
       "object_count": 1,
       "last_updated": "2026-04-21T23:04:10.000Z",
       "fresh": false,
-      "age_hours": 840.7,
+      "age_hours": 845.5,
       "entities": {
         "movies": 861878,
         "tv_series": null,
@@ -987,7 +906,7 @@
       "object_count": 55,
       "last_updated": "2026-05-26T14:40:00.000Z",
       "fresh": true,
-      "age_hours": 13.1,
+      "age_hours": 17.9,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1006,7 +925,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:47:11.000Z",
       "fresh": false,
-      "age_hours": 837,
+      "age_hours": 841.8,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1025,7 +944,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T02:38:36.000Z",
       "fresh": false,
-      "age_hours": 837.2,
+      "age_hours": 841.9,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1044,7 +963,7 @@
       "object_count": 2,
       "last_updated": "2026-04-22T04:42:21.000Z",
       "fresh": false,
-      "age_hours": 835.1,
+      "age_hours": 839.8,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1063,7 +982,7 @@
       "object_count": 14,
       "last_updated": "2026-04-22T07:53:17.000Z",
       "fresh": false,
-      "age_hours": 831.9,
+      "age_hours": 836.7,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1082,7 +1001,7 @@
       "object_count": 5,
       "last_updated": "2026-04-22T01:13:31.000Z",
       "fresh": false,
-      "age_hours": 838.6,
+      "age_hours": 843.3,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1101,7 +1020,7 @@
       "object_count": 3,
       "last_updated": "2026-04-29T02:57:31.000Z",
       "fresh": false,
-      "age_hours": 668.9,
+      "age_hours": 673.6,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1120,7 +1039,7 @@
       "object_count": 12,
       "last_updated": "2026-05-26T09:01:37.000Z",
       "fresh": true,
-      "age_hours": 14.8,
+      "age_hours": 19.5,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1139,7 +1058,7 @@
       "object_count": 8,
       "last_updated": "2026-05-26T09:02:31.000Z",
       "fresh": true,
-      "age_hours": 14.8,
+      "age_hours": 19.5,
       "entities": {
         "movies": null,
         "tv_series": null,
@@ -1157,7 +1076,7 @@
     "scrapers_total": 23,
     "s3_gb": 118.7,
     "parent_key_rows": 861878,
-    "tasks_open": 16,
+    "tasks_open": 12,
     "build_events_today": 0,
     "model_routing": "haiku+sonnet+opus",
     "haiku_pct_today": 0,
@@ -1173,6 +1092,11 @@
     "trend": "stable"
   },
   "recent_activity": [
+    {
+      "type": "build",
+      "text": "TMDB Pipeline Completion — Networks + Companies + TV Seasons + TV Episodes",
+      "ts": "2026-05-27 04:32"
+    },
     {
       "type": "build",
       "text": "COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration",
@@ -1216,7 +1140,7 @@
       "command": "/Users/shivashish/SaSMaster/scripts/sasmaster-build.sh >> /Users/shivashish/SaSMaster/logs/cron.log 2>&1",
       "channel": "#sasmaster-builds",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "12:00 AM",
@@ -1320,7 +1244,7 @@
       "command": "/Users/shivashish/SaSMaster/scripts/daily-briefing.sh >> /Users/shivashish/SaSMaster/logs/briefing.log 2>&1",
       "channel": "#sasmaster-builds",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "5:00 AM",
@@ -1328,7 +1252,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/tmdb-daily-agent.js >> /Users/shivashish/SaSMaster/logs/tmdb-agent.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "5:00 AM",
@@ -1344,7 +1268,7 @@
       "command": "TZ=America/New_York bash /Users/shivashish/SaSMaster/scripts/integrity-check.sh >> /Users/shivashish/SaSMaster/logs/integrity-check.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "5:02 AM",
@@ -1360,7 +1284,7 @@
       "command": "/usr/bin/env python3 /Users/shivashish/SaSMaster/financial_agent/builder.py >> /Users/shivashish/SaSMaster/financial_agent/builder.log 2>&1",
       "channel": "#sasmaster-builds",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:00 AM",
@@ -1368,7 +1292,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/media-intel-agent.js >> /Users/shivashish/SaSMaster/logs/media-intel.log 2>&1",
       "channel": "#sasmaster-intel",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:00 AM",
@@ -1376,7 +1300,7 @@
       "command": "bash /Users/shivashish/SaSMaster/scripts/schema-drift-monitor.sh >> /Users/shivashish/SaSMaster/logs/schema-drift-monitor.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:05 AM",
@@ -1384,7 +1308,7 @@
       "command": "bash /Users/shivashish/SaSMaster/scripts/morning-package.sh >> /Users/shivashish/SaSMaster/logs/morning-package.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:30 AM",
@@ -1392,7 +1316,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/edgar-scraper.js >> /Users/shivashish/SaSMaster/logs/sec-edgar.log 2>&1",
       "channel": "#sasmaster-intel",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "7:00 AM",
@@ -1416,7 +1340,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/memory-hygiene.js >> /Users/shivashish/SaSMaster/logs/memory-hygiene.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "9:00 AM",
@@ -1432,7 +1356,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/security-watchdog.js >> /Users/shivashish/SaSMaster/logs/security-watchdog.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "12:00 PM",
@@ -1440,7 +1364,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/donelog-analyst.js >> /Users/shivashish/SaSMaster/logs/donelog-analyst.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "2:00 PM",
@@ -1556,34 +1480,6 @@
       "est": "—"
     },
     {
-      "title": "TMDB Networks loader — ~5K calls · ~3 min. BLOCKED: needs tv_series phase complete.",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "DATA",
-      "est": "—"
-    },
-    {
-      "title": "TMDB Companies loader — ~50K calls · ~25 min. BLOCKED: tv_series phase complete.",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "DATA",
-      "est": "—"
-    },
-    {
-      "title": "TMDB TV Seasons loader — ~700K calls · ~5h. BLOCKED: tv_series phase complete.",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "DATA",
-      "est": "—"
-    },
-    {
-      "title": "TMDB TV Episodes flatten — 0 TMDB calls · ~3 min. BLOCKED: TV Seasons done.",
-      "status": "BACKLOG",
-      "priority": "HIGH",
-      "tag": "DATA",
-      "est": "—"
-    },
-    {
       "title": "KB-CI-002 phase1-complete profile-set",
       "status": "BACKLOG",
       "priority": "MED",
@@ -1675,6 +1571,13 @@
       "est": "—"
     },
     {
+      "title": "TMDB Pipeline Completion — Networks + Companies + TV Seasons + TV Episodes",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
+    },
+    {
       "title": "COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration",
       "status": "DONE",
       "priority": "DONE",
@@ -1698,6 +1601,12 @@
   ],
   "recent_completions": [
     {
+      "title": "TMDB Pipeline Completion — Networks + Companies + TV Seasons + TV Episodes",
+      "category": "Build",
+      "path": "",
+      "completed_at": "2026-05-27 04:32"
+    },
+    {
       "title": "COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration",
       "category": "Portal",
       "path": "",
@@ -1718,6 +1627,10 @@
   ],
   "slack_feed": {
     "builds": [
+      {
+        "ts": "4:32 AM",
+        "text": "✅ TMDB Pipeline Completion — Networks + Companies + TV Seasons + TV Episodes"
+      },
       {
         "ts": "7:52 PM",
         "text": "✅ COVERAGE-BASELINE-001 — Reset portal coverage scores post-React migration"
@@ -1775,15 +1688,15 @@
     ],
     "content": [
       {
-        "ts": "8:00 PM",
+        "ts": "May 25",
         "text": "✍️ No theme set — prompted Shiv for direction"
       },
       {
-        "ts": "8:00 PM",
+        "ts": "May 25",
         "text": "✍️ No theme set — prompted Shiv for direction"
       },
       {
-        "ts": "8:00 PM",
+        "ts": "May 25",
         "text": "✍️ Starting LinkedIn Writing Agent..."
       },
       {
