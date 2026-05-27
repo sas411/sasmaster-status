@@ -664,6 +664,52 @@ a{color:inherit}
 .delete-cost{background:none;border:none;cursor:pointer;color:var(--text-3);font-size:13px;padding:2px 6px;border-radius:3px;transition:all .15s}
 .delete-cost:hover{background:var(--crit-bg);color:var(--crit)}
 
+/* ── QUOTA PANEL ────────────────────────────────────────────── */
+.qp-wrap{border-bottom:1px solid var(--border);background:#F8FAFC}
+.qp-hdr{display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.qp-hdr-title{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#334155}
+.qp-hdr-sub{font-size:10px;color:#94A3B8;font-family:var(--mono);margin-left:4px}
+.qp-hdr-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;font-family:var(--mono)}
+.qp-hdr-badge.red{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
+.qp-hdr-badge.amber{background:#FFFBEB;color:#D97706;border:1px solid #FDE68A}
+.qp-hdr-badge.green{background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0}
+.qp-toggle{margin-left:auto;background:none;border:none;cursor:pointer;color:#94A3B8;font-size:11px;padding:2px 4px;transition:transform .2s}
+.qp-toggle.collapsed{transform:rotate(180deg)}
+.qp-body{padding:12px 16px 14px}
+.qp-meters{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+@media(max-width:700px){.qp-meters{grid-template-columns:repeat(2,1fr)}}
+.qp-meter-card{background:#fff;border:1px solid #E2E8F0;border-radius:8px;padding:12px 14px;position:relative}
+.qp-meter-label{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#64748B;font-family:var(--mono);margin-bottom:4px}
+.qp-meter-val{font-family:var(--mono);font-size:26px;font-weight:700;line-height:1;margin-bottom:2px}
+.qp-meter-val.red{color:#EF4444}
+.qp-meter-val.amber{color:#F59E0B}
+.qp-meter-val.green{color:#10B981}
+.qp-meter-reset{font-size:10px;color:#94A3B8;font-family:var(--mono);margin-bottom:8px}
+.qp-meter-track{height:5px;background:#E2E8F0;border-radius:3px;overflow:hidden}
+.qp-meter-fill{height:100%;border-radius:3px;transition:width .5s}
+.qp-meter-fill.red{background:#EF4444}
+.qp-meter-fill.amber{background:#F59E0B}
+.qp-meter-fill.green{background:#10B981}
+.qp-update-row{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:10px;color:#94A3B8;font-family:var(--mono)}
+.qp-update-tip{margin-left:auto;font-size:9px;background:#F1F5F9;padding:2px 8px;border-radius:3px;cursor:pointer;color:#475569;border:1px solid #E2E8F0}
+.qp-proj-row{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E2E8F0;border-radius:8px;padding:10px 14px;margin-bottom:10px}
+.qp-proj-label{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#64748B;font-family:var(--mono);min-width:120px}
+.qp-proj-val{font-family:var(--mono);font-size:13px;font-weight:700}
+.qp-proj-banner{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:4px;font-size:9px;font-weight:700;font-family:var(--mono);text-transform:uppercase}
+.qp-proj-banner.ok{background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0}
+.qp-proj-banner.warn{background:#FFFBEB;color:#D97706;border:1px solid #FDE68A}
+.qp-proj-banner.crit{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
+.qp-consumers-ttl{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#64748B;margin-bottom:6px}
+.qp-consumers-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.qp-consumers-tbl th{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#94A3B8;font-family:var(--mono);padding:4px 8px;border-bottom:1px solid #E2E8F0;text-align:left}
+.qp-consumers-tbl td{padding:5px 8px;border-bottom:1px solid #F1F5F9;font-family:var(--mono);font-size:10.5px;vertical-align:middle}
+.qp-consumers-tbl tr:last-child td{border-bottom:none}
+.qp-model-pill{font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px}
+.qp-model-opus{background:#F5F3FF;color:#7C3AED;border:1px solid #DDD6FE}
+.qp-model-sonnet{background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE}
+.qp-model-haiku{background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0}
+.qp-model-other{background:#F8FAFC;color:#64748B;border:1px solid #E2E8F0}
+
 /* ══ STYLE GUIDE v1 ADDITIONS ══ */
 
 /* Logo gradient */
@@ -1299,6 +1345,69 @@ a{color:inherit}
         <div class="cost-kpi"><div class="cost-kpi-label">AWS S3</div><div class="cost-kpi-val" id="kv-s3">$0.00</div><div class="cost-kpi-sub">storage+requests</div></div>
         <div class="cost-kpi"><div class="cost-kpi-label">OTHER</div><div class="cost-kpi-val" id="kv-other">$0.00</div><div class="cost-kpi-sub">misc</div></div>
       </div>
+
+      <!-- ── QUOTA INSIGHT PANEL ─────────────────────────────────── -->
+      <div class="qp-wrap" id="quotaPanel">
+        <div class="qp-hdr" onclick="toggleQuotaPanel()">
+          <span class="qp-hdr-title">TOKEN QUOTA</span>
+          <span class="qp-hdr-badge" id="qp-sonnet-badge" style="display:none">SONNET —%</span>
+          <span class="qp-hdr-sub" id="qp-reset-countdown">loading…</span>
+          <button class="qp-toggle" id="qp-toggle-btn" title="Collapse/expand">▲</button>
+        </div>
+        <div id="qp-body" class="qp-body">
+          <!-- Meter cards -->
+          <div class="qp-meters" id="qp-meters">
+            <div class="qp-meter-card">
+              <div class="qp-meter-label">SESSION QUOTA</div>
+              <div class="qp-meter-val green" id="qp-session-val">—%</div>
+              <div class="qp-meter-reset" id="qp-session-reset">—</div>
+              <div class="qp-meter-track"><div class="qp-meter-fill green" id="qp-session-fill" style="width:0%"></div></div>
+            </div>
+            <div class="qp-meter-card" style="border-color:#FECACA">
+              <div class="qp-meter-label">WEEKLY SONNET</div>
+              <div class="qp-meter-val red" id="qp-sonnet-val">—%</div>
+              <div class="qp-meter-reset" id="qp-sonnet-reset">—</div>
+              <div class="qp-meter-track"><div class="qp-meter-fill red" id="qp-sonnet-fill" style="width:0%"></div></div>
+            </div>
+            <div class="qp-meter-card">
+              <div class="qp-meter-label">WEEKLY ALL MODELS</div>
+              <div class="qp-meter-val amber" id="qp-allmodels-val">—%</div>
+              <div class="qp-meter-reset" id="qp-allmodels-reset">—</div>
+              <div class="qp-meter-track"><div class="qp-meter-fill amber" id="qp-allmodels-fill" style="width:0%"></div></div>
+            </div>
+            <div class="qp-meter-card">
+              <div class="qp-meter-label">WEEKLY DESIGN</div>
+              <div class="qp-meter-val green" id="qp-design-val">—%</div>
+              <div class="qp-meter-reset" id="qp-design-reset">—</div>
+              <div class="qp-meter-track"><div class="qp-meter-fill green" id="qp-design-fill" style="width:0%"></div></div>
+            </div>
+          </div>
+
+          <!-- Burn rate projection -->
+          <div class="qp-proj-row" id="qp-proj-row" style="display:none">
+            <span class="qp-proj-label">BURN PROJECTION</span>
+            <span class="qp-proj-val" id="qp-proj-val">—</span>
+            <span class="qp-proj-banner ok" id="qp-proj-banner">ON TRACK</span>
+            <span style="margin-left:auto;font-size:10px;color:#94A3B8;font-family:var(--mono)" id="qp-proj-detail">—</span>
+          </div>
+
+          <!-- Top consumers -->
+          <div id="qp-consumers-wrap" style="display:none">
+            <div class="qp-consumers-ttl">WEEK'S BIGGEST CONSUMERS</div>
+            <table class="qp-consumers-tbl">
+              <thead><tr><th>#</th><th>Agent / Task</th><th>Model</th><th>Tokens</th><th>Cost</th></tr></thead>
+              <tbody id="qp-consumers-body"></tbody>
+            </table>
+          </div>
+
+          <div class="qp-update-row">
+            <span id="qp-updated-ts">—</span>
+            <span class="qp-update-tip" title="Edit ~/.sasmaster/usage-state.json with values from claude.ai/settings/usage, then wait for the next 5-min status.json refresh">How to update ▸</span>
+          </div>
+        </div>
+      </div>
+      <!-- ── END QUOTA PANEL ─────────────────────────────────────── -->
+
       <div style="display:flex;gap:0;flex:1;overflow:hidden">
         <div style="flex:1;overflow-y:auto">
           <div style="display:flex;align-items:center;gap:7px;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface)">
@@ -2268,6 +2377,7 @@ function populateAll(d) {
   populateSidebar(d);
   populateTmdbTimeline(d);
   updateBottomBar(d);
+  populateQuotaPanel(d);
 }
 
 // ── Agent Mini-Grid ───────────────────────────────────────
@@ -3114,6 +3224,174 @@ function saveToken() {
     if (th.hc) document.getElementById('thr-hc').value = th.hc;
   } catch(e) {}
 })();
+
+// ══════════════════════════════════════════════════════════
+// QUOTA PANEL
+// ══════════════════════════════════════════════════════════
+let _qpCollapsed = false;
+
+function qpColor(pct) {
+  if (pct >= 85) return 'red';
+  if (pct >= 70) return 'amber';
+  return 'green';
+}
+
+function qpCountdown(isoStr) {
+  if (!isoStr) return '—';
+  const diff = new Date(isoStr) - Date.now();
+  if (diff <= 0) return 'RESET NOW';
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  if (h >= 24) return Math.floor(h / 24) + 'd ' + (h % 24) + 'h';
+  return h + 'h ' + m + 'm';
+}
+
+function fmtTokens(n) {
+  if (n == null) return '—';
+  if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return String(n);
+}
+
+function modelPillClass(model) {
+  if (!model) return 'qp-model-other';
+  const m = model.toLowerCase();
+  if (m.includes('opus')) return 'qp-model-opus';
+  if (m.includes('sonnet')) return 'qp-model-sonnet';
+  if (m.includes('haiku')) return 'qp-model-haiku';
+  return 'qp-model-other';
+}
+
+function modelShort(model) {
+  if (!model || model === 'none' || model === 'unknown') return '—';
+  const m = model.toLowerCase();
+  if (m.includes('opus')) return 'opus';
+  if (m.includes('sonnet')) return 'sonnet';
+  if (m.includes('haiku')) return 'haiku';
+  return model.split('-')[0];
+}
+
+function populateQuotaPanel(d) {
+  const us = d.usage_state;
+  const tp = d.token_projection;
+  const resetStr = us ? us.weekly_resets_at : null;
+  const countdown = qpCountdown(resetStr);
+  const updatedAt = us ? us.updated_at : null;
+
+  // Header countdown
+  const cntEl = document.getElementById('qp-reset-countdown');
+  if (cntEl) cntEl.textContent = resetStr ? 'Resets in ' + countdown : 'No quota data';
+
+  // Header badge for Sonnet (binding constraint)
+  const badgeEl = document.getElementById('qp-sonnet-badge');
+  if (badgeEl && us) {
+    const pct = us.weekly_sonnet_pct || 0;
+    const cls = qpColor(pct);
+    badgeEl.textContent = 'SONNET ' + pct + '%';
+    badgeEl.className = 'qp-hdr-badge ' + cls;
+    badgeEl.style.display = '';
+  }
+
+  if (!us) return;
+
+  // Helper to update a meter card
+  function setMeter(prefix, pct) {
+    const col = qpColor(pct);
+    const valEl = document.getElementById(prefix + '-val');
+    const fillEl = document.getElementById(prefix + '-fill');
+    const resetEl = document.getElementById(prefix + '-reset');
+    if (valEl) { valEl.textContent = pct + '%'; valEl.className = 'qp-meter-val ' + col; }
+    if (fillEl) { fillEl.style.width = Math.min(100, pct) + '%'; fillEl.className = 'qp-meter-fill ' + col; }
+    if (resetEl) resetEl.textContent = 'Resets ' + countdown;
+  }
+
+  setMeter('qp-session', us.session_used_pct || 0);
+  setMeter('qp-sonnet', us.weekly_sonnet_pct || 0);
+  setMeter('qp-allmodels', us.weekly_all_models_pct || 0);
+  setMeter('qp-design', us.weekly_claude_design_pct || 0);
+
+  // Highlight Sonnet card border
+  const sonnetCard = document.querySelector('.qp-meter-card:nth-child(2)');
+  if (sonnetCard) {
+    const sp = us.weekly_sonnet_pct || 0;
+    sonnetCard.style.borderColor = sp >= 85 ? '#FECACA' : sp >= 70 ? '#FDE68A' : '#BBF7D0';
+  }
+
+  // Updated timestamp
+  const tsEl = document.getElementById('qp-updated-ts');
+  if (tsEl && updatedAt) {
+    const d2 = new Date(updatedAt);
+    tsEl.textContent = 'Updated ' + relTime(d2.toISOString());
+  }
+
+  // Burn rate projection
+  if (tp) {
+    const projRow = document.getElementById('qp-proj-row');
+    const projVal = document.getElementById('qp-proj-val');
+    const projBanner = document.getElementById('qp-proj-banner');
+    const projDetail = document.getElementById('qp-proj-detail');
+    if (projRow) projRow.style.display = 'flex';
+
+    const pctElapsed = tp.pct_elapsed || 0;
+    const weekCost = tp.week_cost_usd || 0;
+    const projCost = tp.projected_week_cost_usd || 0;
+
+    // Estimate Sonnet % at projection: scale proportionally
+    const currentSonnetPct = us.weekly_sonnet_pct || 0;
+    const projSonnetPct = pctElapsed > 0 ? Math.round(currentSonnetPct / pctElapsed) : currentSonnetPct;
+    const overQuota = projSonnetPct > 100;
+
+    if (projVal) projVal.textContent = '$' + projCost.toFixed(4) + ' / week';
+    if (projBanner) {
+      if (overQuota) {
+        projBanner.textContent = 'QUOTA EXHAUSTION RISK';
+        projBanner.className = 'qp-proj-banner crit';
+      } else if (projSonnetPct > 85) {
+        projBanner.textContent = 'HIGH BURN';
+        projBanner.className = 'qp-proj-banner warn';
+      } else {
+        projBanner.textContent = 'ON TRACK';
+        projBanner.className = 'qp-proj-banner ok';
+      }
+    }
+    if (projDetail) {
+      projDetail.textContent = pctElapsed + '% of week elapsed · Sonnet proj: ' + projSonnetPct + '%';
+      if (overQuota) {
+        projDetail.style.color = '#DC2626';
+        projDetail.textContent += ' → THROTTLE BUILDS';
+      }
+    }
+
+    // Top consumers
+    const consumers = (tp.top_consumers || []).filter(c => c.cost_usd > 0 || c.tokens > 0);
+    if (consumers.length > 0) {
+      const wrap = document.getElementById('qp-consumers-wrap');
+      const tbody = document.getElementById('qp-consumers-body');
+      if (wrap) wrap.style.display = '';
+      if (tbody) {
+        tbody.innerHTML = consumers.slice(0, 10).map((c, i) => {
+          const mClass = modelPillClass(c.model);
+          return '<tr>' +
+            '<td style="color:#94A3B8">' + (i + 1) + '</td>' +
+            '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml(c.id) + '</td>' +
+            '<td><span class="qp-model-pill ' + mClass + '">' + modelShort(c.model) + '</span></td>' +
+            '<td>' + fmtTokens(c.tokens) + '</td>' +
+            '<td>$' + (c.cost_usd || 0).toFixed(4) + '</td>' +
+          '</tr>';
+        }).join('');
+      }
+    }
+  }
+}
+
+function toggleQuotaPanel() {
+  _qpCollapsed = !_qpCollapsed;
+  const body = document.getElementById('qp-body');
+  const btn = document.getElementById('qp-toggle-btn');
+  if (body) body.style.display = _qpCollapsed ? 'none' : '';
+  if (btn) btn.classList.toggle('collapsed', _qpCollapsed);
+}
 
 // ══════════════════════════════════════════════════════════
 // COSTS TAB

@@ -1045,6 +1045,80 @@ try {
   };
 } catch {}
 
+// ── Usage state (manual paste from claude.ai/settings/usage) ─────────────────
+let usageState = null;
+try {
+  const usagePath = path.join(process.env.HOME, '.sasmaster', 'usage-state.json');
+  if (fs.existsSync(usagePath)) {
+    usageState = JSON.parse(fs.readFileSync(usagePath, 'utf8'));
+  }
+} catch (e) {
+  console.warn('[generate-status] usage-state.json missing or invalid:', e.message);
+}
+
+// ── Token burn rate projection from cost-log.jsonl ────────────────────────────
+let tokenProjection = null;
+try {
+  const costLogPath = path.join(SASMASTER, 'logs', 'cost-log.jsonl');
+  if (fs.existsSync(costLogPath)) {
+    const allLines = fs.readFileSync(costLogPath, 'utf8').trim().split('\n').filter(Boolean);
+    const now = new Date();
+    // Week anchor: Monday 00:00 local
+    const dayOfWeek = now.getDay();
+    const diffToMon = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - diffToMon);
+    weekStart.setHours(0, 0, 0, 0);
+
+    const resetAt = usageState ? new Date(usageState.weekly_resets_at) : new Date(weekStart.getTime() + 7 * 86400000);
+    const dailyCost = {};
+    const agentCost = {};
+    let weekCostTotal = 0;
+    let weekTokensTotal = 0;
+
+    for (const line of allLines) {
+      try {
+        const e = JSON.parse(line);
+        const ts = new Date(e.ts || e.timestamp || '');
+        if (isNaN(ts) || ts < weekStart) continue;
+        const c = e.cost_usd || 0;
+        const t = e.tokens || 0;
+        weekCostTotal += c;
+        weekTokensTotal += t;
+        const dayStr = ts.toISOString().slice(0, 10);
+        dailyCost[dayStr] = (dailyCost[dayStr] || 0) + c;
+        const ag = e.agent_id || e.agent || e.task_id || 'unknown';
+        if (!agentCost[ag]) agentCost[ag] = { cost_usd: 0, tokens: 0, model: e.model || 'unknown' };
+        agentCost[ag].cost_usd += c;
+        agentCost[ag].tokens += t;
+      } catch (_) {}
+    }
+
+    const msElapsed = Math.max(1, now - weekStart);
+    const msTotal = Math.max(msElapsed, resetAt - weekStart);
+    const pctElapsed = Math.min(1, msElapsed / msTotal);
+    const projectedCost = weekCostTotal / pctElapsed;
+
+    const topConsumers = Object.entries(agentCost)
+      .sort((a, b) => b[1].tokens - a[1].tokens)
+      .slice(0, 10)
+      .map(([id, d]) => ({ id, ...d }));
+
+    tokenProjection = {
+      week_cost_usd: Math.round(weekCostTotal * 10000) / 10000,
+      week_tokens: weekTokensTotal,
+      projected_week_cost_usd: Math.round(projectedCost * 10000) / 10000,
+      pct_elapsed: Math.round(pctElapsed * 100),
+      daily_cost: dailyCost,
+      top_consumers: topConsumers,
+      week_start: weekStart.toISOString(),
+      reset_at: resetAt.toISOString(),
+    };
+  }
+} catch (e) {
+  console.warn('[generate-status] token projection failed:', e.message);
+}
+
 // ── Portal coverage — reads latest report from ~/SaSMaster/reports/ ──────────
 function loadPortalCoverage() {
   try {
@@ -1114,6 +1188,8 @@ const status = {
   slack_feed:  buildSlackFeed(recentBuilds, intelFeed),
   cost_summary: costSummary,
   portal_coverage: portalCoverage,
+  usage_state: usageState,
+  token_projection: tokenProjection,
 };
 
 fs.writeFileSync(OUT, JSON.stringify(status, null, 2));
