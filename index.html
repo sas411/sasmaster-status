@@ -3347,11 +3347,11 @@ function populateQuotaPanel(d) {
     const projDetail = document.getElementById('qp-proj-detail');
     if (projRow) projRow.style.display = 'flex';
 
-    const pctElapsed = tp.pct_elapsed || 0;
+    const pctElapsed = (tp.pct_elapsed || 0) / 100;  // convert 52 → 0.52
     const weekCost = tp.week_cost_usd || 0;
     const projCost = tp.projected_week_cost_usd || 0;
 
-    // Estimate Sonnet % at projection: scale proportionally
+    // Estimate Sonnet % at projection: scale current usage by time fraction
     const currentSonnetPct = us.weekly_sonnet_pct || 0;
     const projSonnetPct = pctElapsed > 0 ? Math.round(currentSonnetPct / pctElapsed) : currentSonnetPct;
     const overQuota = projSonnetPct > 100;
@@ -3370,7 +3370,7 @@ function populateQuotaPanel(d) {
       }
     }
     if (projDetail) {
-      projDetail.textContent = pctElapsed + '% of week elapsed · Sonnet proj: ' + projSonnetPct + '%';
+      projDetail.textContent = Math.round(pctElapsed * 100) + '% of week elapsed · Sonnet proj: ' + projSonnetPct + '%';
       if (overQuota) {
         projDetail.style.color = '#DC2626';
         projDetail.textContent += ' → THROTTLE BUILDS';
