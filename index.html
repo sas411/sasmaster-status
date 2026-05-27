@@ -296,9 +296,15 @@ a{color:inherit}
 
 /* AGENTS TAB - full cards with dark output panel */
 .agent-full-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.agent-group-hdr{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:6px 0 4px;border-bottom:1px solid var(--bdr);margin-top:6px}
+.agent-group-hdr:first-child{margin-top:0}
+.agent-group-lbl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-2)}
+.agent-group-count{font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;background:var(--bg2);color:var(--text-2);font-family:var(--mono)}
+.agent-group-tier{font-size:9px;padding:1px 6px;border-radius:4px;font-weight:700}
+.agent-group-tier.t1{background:rgba(16,185,129,.12);color:#059669}.agent-group-tier.t2{background:rgba(99,102,241,.12);color:#6366F1}
 .afc{background:var(--surface);border:1px solid var(--pbd);border-radius:var(--r);overflow:hidden;transition:all .15s;border-top:3px solid transparent}
 .afc:hover{box-shadow:0 4px 16px rgba(124,58,237,.15);border-color:#A78BFA}
-.afc.healthy{border-top-color:var(--ok)}.afc.warn{border-top-color:var(--warn)}.afc.never{border-top-color:#9CA3AF;border-color:var(--border);border-style:dashed}
+.afc.healthy{border-top-color:var(--ok)}.afc.warn{border-top-color:var(--warn)}.afc.never{border-top-color:#9CA3AF;border-color:var(--border);border-style:dashed}.afc.idle{border-top-color:#94A3B8;border-color:var(--bdr);opacity:.85}
 .afc-header{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border-sub)}
 .afc-icon{font-size:16px}.afc-name{font-size:13px;font-weight:700;flex:1}
 .afc-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px}
@@ -2162,12 +2168,13 @@ function populateKPIs(d) {
   const tp = d.tmdb_progress || {};
   const running = k.agents_running || 0;
   const total = k.agents_total || 10;
-  const pct = total > 0 ? Math.round(running / total * 100) : 0;
+  const liveTotal = k.agents_live_total || running; // live/cron agents only for health %
+  const pct = liveTotal > 0 ? Math.round(running / liveTotal * 100) : 0;
 
   document.getElementById('kpiAgents').textContent = running + '/' + total;
-  const agClass = running < total * 0.6 ? 'crit' : running < total * 0.8 ? 'warn' : 'ok';
+  const agClass = running < liveTotal * 0.6 ? 'crit' : running < liveTotal * 0.8 ? 'warn' : 'ok';
   document.getElementById('kpiAgents').className = 'kpi-val ' + agClass;
-  document.getElementById('kpiAgentsSub').textContent = running + ' running now';
+  document.getElementById('kpiAgentsSub').textContent = running + ' live healthy';
 
   const gb = k.s3_gb || 0;
   document.getElementById('kpiS3').textContent = gb.toFixed(1) + ' GB';
@@ -2198,8 +2205,8 @@ function populateKPIs(d) {
 function updateHealthScore(d) {
   const k = d.kpis || {};
   const running = k.agents_running || 0;
-  const total = k.agents_total || 10;
-  const pct = total > 0 ? Math.round(running / total * 100) : 71;
+  const liveTotal = k.agents_live_total || k.agents_total || 10;
+  const pct = liveTotal > 0 ? Math.round(running / liveTotal * 100) : 71;
 
   document.getElementById('healthBar').style.width = pct + '%';
   document.getElementById('healthPct').textContent = pct + '%';
@@ -2207,7 +2214,7 @@ function updateHealthScore(d) {
   // Monkey state
   updateMonkeyState(pct);
 
-  // Dropdown breakdown
+  // Dropdown breakdown (health bar uses live/cron ratio, not full fleet)
   const agPct = pct;
   document.getElementById('hbd-agents').style.width = agPct + '%';
   document.getElementById('hbd-agents-pct').textContent = agPct + '%';
@@ -2246,7 +2253,8 @@ function populateHeaderPills(d) {
 
   const ag = document.getElementById('agentsPill');
   ag.innerHTML = '<span class="pdot"></span> ' + (k.agents_running || '--') + '/' + (k.agents_total || '--') + ' Agents';
-  ag.className = 'pill ' + (k.agents_running >= k.agents_total * 0.8 ? 'pill-ok' : k.agents_running >= k.agents_total * 0.5 ? 'pill-warn' : 'pill-stale');
+  const liveTot = k.agents_live_total || k.agents_total || 1;
+  ag.className = 'pill ' + (k.agents_running >= liveTot * 0.8 ? 'pill-ok' : k.agents_running >= liveTot * 0.5 ? 'pill-warn' : 'pill-stale');
 }
 
 // ── Build Ticker ──────────────────────────────────────────
@@ -2401,7 +2409,9 @@ function populateAgentMiniGrid(d) {
   const healthy = agents.filter(a => a.status === 'healthy').length;
   document.getElementById('agentFleetBadge').textContent = healthy + '/' + agents.length + ' healthy';
 
-  el.innerHTML = agents.map(a => {
+  // Sidebar shows only live/cron agents to avoid overflow (all 50 shown in full AGENTS tab)
+  const liveAgents = agents.filter(a => !a.type || a.type === 'live');
+  el.innerHTML = liveAgents.map(a => {
     const st = a.status || 'never';
     const cls = st === 'healthy' ? 'healthy' : st === 'warn' ? 'warn' : 'never';
     const badgeCls = st === 'healthy' ? 'acs-ok' : st === 'warn' ? 'acs-w' : 'acs-n';
@@ -2481,40 +2491,61 @@ function populateAgentFullGrid(d) {
   const healthy = agents.filter(a => a.status === 'healthy').length;
   document.getElementById('agentFullBadge').textContent = agents.length + ' agents · ' + healthy + ' healthy';
 
-  el.innerHTML = agents.map(a => {
+  function renderAgentCard(a) {
     const st = a.status || 'never';
-    const cls = st === 'healthy' ? 'healthy' : st === 'warn' ? 'warn' : 'never';
+    const cls = st === 'healthy' ? 'healthy' : st === 'warn' ? 'warn' : st === 'idle' ? 'idle' : 'never';
     const badgeCls = st === 'healthy' ? 'acs-ok' : st === 'warn' ? 'acs-w' : 'acs-n';
-    const out = a.lastOutput || (st === 'never' ? 'Never run — waiting for first execution' : '');
-    const outCls = st === 'never' ? 'afc-output never' : 'afc-output';
-    const lastRunStr = a.lastRun ? relTime(a.lastRun) : 'never';
-
-    // Color-code last output
+    const out = a.lastOutput || (st === 'idle' ? 'Invoked contextually — no scheduled run' : st === 'never' ? 'Never run — waiting for first execution' : '');
+    const outCls = (st === 'never' || st === 'idle') ? 'afc-output never' : 'afc-output';
+    const lastRunStr = a.lastRun ? relTime(a.lastRun) : (st === 'idle' ? '—' : 'never');
+    const pluginBadge = a.plugin ? `<span style="font-size:9px;color:var(--text-3);font-family:var(--mono);margin-left:4px">${escHtml(a.plugin)}</span>` : '';
+    const tierBadge = a.tier ? `<span class="afc-badge" style="font-size:9px;padding:1px 5px;margin-left:2px;background:${a.tier==='T1'?'rgba(16,185,129,.12)':'rgba(99,102,241,.12)'};color:${a.tier==='T1'?'#059669':'#6366F1'};border:none">${a.tier}</span>` : '';
     let outHtml = escHtml(out);
     if (out.includes('✅') || out.includes('[DONE]')) outHtml = `<span class="ok">${escHtml(out)}</span>`;
     else if (out.includes('❌') || out.includes('ERROR') || out.includes('error')) outHtml = `<span class="err">${escHtml(out)}</span>`;
     else if (out.includes('⚠') || out.includes('WARN')) outHtml = `<span class="warn">${escHtml(out)}</span>`;
-
+    const isIdle = st === 'idle';
     return `<div class="afc ${cls}">
       <div class="afc-header">
         <span class="afc-icon">${a.icon || '🤖'}</span>
         <span class="afc-name">${escHtml(a.name)}</span>
-        <span class="afc-badge ${badgeCls}">${st.toUpperCase()}</span>
+        ${tierBadge}
+        <span class="afc-badge ${badgeCls}" style="margin-left:auto">${st.toUpperCase()}</span>
       </div>
       <div class="afc-meta-row">
         <div class="afc-cell"><div class="afc-label">LAST RUN</div><div class="afc-val ${st==='healthy'?'ok':''}">${lastRunStr}</div></div>
         <div class="afc-cell"><div class="afc-label">SCHEDULE</div><div class="afc-val">${escHtml(a.schedule || '—')}</div></div>
         <div class="afc-cell"><div class="afc-label">NEXT RUN</div><div class="afc-val">${escHtml(a.nextRun || '—')}</div></div>
-        <div class="afc-cell"><div class="afc-label">LOG</div><div class="afc-val ch">${escHtml(a.log || '—')}</div></div>
+        <div class="afc-cell"><div class="afc-label">${a.plugin ? 'PLUGIN' : 'LOG'}</div><div class="afc-val ch">${escHtml(a.plugin || a.log || '—')}</div></div>
       </div>
       ${a.channel ? `<div class="afc-ch-row">→ ${escHtml(a.channel)}</div>` : ''}
       <div class="${outCls}">${outHtml || '<span style="color:#475569;font-style:italic">No output recorded</span>'}</div>
       <div class="afc-actions">
-        ${a.jobId ? `<button class="btn-run-green" onclick="triggerJob('${a.jobId}', this)">▶ Run</button>` : '<button class="btn-run-green" style="opacity:.4;cursor:default" disabled>▶ Run</button>'}
-        <button class="btn-logs" onclick="openLogs('${escAttr(a.name)}', '${escAttr(a.jobId||'')}', this)">📋 Logs</button>
+        ${(!isIdle && a.jobId) ? `<button class="btn-run-green" onclick="triggerJob('${a.jobId}', this)">▶ Run</button>` : '<button class="btn-run-green" style="opacity:.4;cursor:default" disabled>▶ Run</button>'}
+        ${!isIdle ? `<button class="btn-logs" onclick="openLogs('${escAttr(a.name)}', '${escAttr(a.jobId||'')}', this)">📋 Logs</button>` : ''}
       </div>
     </div>`;
-  }).join('');
+  }
+
+  const groups = [
+    { key: null,          label: 'Live & Cron Agents',        tier: null },
+    { key: 'subagent',    label: 'SaSMaster Sub-Agents',      tier: null },
+    { key: 'marketplace', label: 'Marketplace Sub-Agents',    tier: null },
+  ];
+
+  let html = '';
+  groups.forEach(g => {
+    const members = agents.filter(a => (a.type || null) === g.key);
+    if (!members.length) return;
+    const t1 = members.filter(a => a.tier === 'T1').length;
+    const t2 = members.filter(a => a.tier === 'T2').length;
+    const tierPills = t1 ? `<span class="agent-group-tier t1">T1 ×${t1}</span>` : '';
+    const tierPillsT2 = t2 ? `<span class="agent-group-tier t2">T2 ×${t2}</span>` : '';
+    html += `<div class="agent-group-hdr"><span class="agent-group-lbl">${g.label}</span><span class="agent-group-count">${members.length}</span>${tierPills}${tierPillsT2}</div>`;
+    html += members.map(a => renderAgentCard(a)).join('');
+  });
+
+  el.innerHTML = html;
 }
 
 // ── Scrapers ──────────────────────────────────────────────

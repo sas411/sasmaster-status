@@ -233,11 +233,68 @@ function parseAgents() {
     { name: 'Railway Monitor',   icon: '🛤️', schedule: 'Every 15min',  nextRun: 'In ≤15min',       log: 'railway-monitor.log',   channel: '#sasmaster-builds',  jobId: null },
     { name: 'Research Portal',   icon: '🔬', schedule: 'TBD',          nextRun: 'Pending launch',  log: 'research-portal-agent.log', channel: '#sasmaster-intel', jobId: null, descOverride: 'SCAFFOLDED — pending RESEARCH-PORTAL-001 launch' },
     { name: 'Data Guardian',     icon: '🛡️', schedule: 'Post-ingestion', nextRun: 'After next pull', log: 'data-guardian.log',         channel: '#sasmaster-builds',  jobId: null, descOverride: 'Post-ingestion integrity enforcer — snapshot → AMRLD anomaly detection (RULE-HH-01..04) → Tier 2 gate. Wired into nielsen_puller.py via _run_data_guardian().' },
+
+    // ── SaSMaster Claude Code sub-agents ────────────────────
+    { name: 'Autonomous Coder',     icon: '⚡', schedule: 'On-demand',     nextRun: 'Contextual',   log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Primary build executor. Phase I pipeline. cost-log writer (13-field schema). Reads build-discipline before every task. Model: Sonnet 4.6.' },
+    { name: 'Data Modeler',         icon: '📐', schedule: 'On-demand',     nextRun: 'Contextual',   log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Schema design, S3 paths, DuckDB query patterns, Parent Key v1. Consults before any dataset onboarding or schema change. Model: Opus 4.7.' },
+    { name: 'Viz Evaluator',        icon: '📊', schedule: 'Quarterly',     nextRun: '1 Aug 9AM',    log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Benchmarks all 14 chart renderers vs npm ecosystem. Proposes swaps via Slack. cron 0 9 1 */3 *. Never auto-swaps without approval.' },
+    { name: 'Nielsen Orchestrator', icon: '📡', schedule: 'Tue 5PM',       nextRun: 'Next Tue 5PM', log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Staleness check → scope decision → triggers nielsen_puller.py → validates row counts → JARVIS summary. launchd Tue 5PM.' },
+    { name: 'Mac Worker',           icon: '💻', schedule: '5min heartbeat',nextRun: 'In ≤5min',     log: 'mac-worker.log', channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Mac 64GB compute worker. Polls Railway /tasks/pending-compute. Capabilities: duckdb / scraper / claude-code / ml.' },
+
+    // ── Marketplace T1 — python-development ─────────────────
+    { name: 'python-pro',           icon: '🐍', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'python-development',    descOverride: 'Master Python 3.12+ — async, performance optimization, uv/ruff/pydantic/FastAPI. T1 marketplace.' },
+    { name: 'django-pro',           icon: '🌿', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'python-development',    descOverride: 'Django 5.x async views, DRF, Celery, Channels. Scalable web apps + ORM optimization. T1 marketplace.' },
+    { name: 'fastapi-pro',          icon: '⚡', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'python-development',    descOverride: 'FastAPI with SQLAlchemy 2.0 and Pydantic V2. High-performance async APIs + microservices. T1 marketplace.' },
+
+    // ── Marketplace T1 — llm-application-dev ────────────────
+    { name: 'ai-engineer',          icon: '🤖', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'llm-application-dev',   descOverride: 'LLM applications, advanced RAG, intelligent agents. Vector search, multimodal AI, agent orchestration. T1 marketplace.' },
+    { name: 'prompt-engineer',      icon: '💬', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'llm-application-dev',   descOverride: 'Advanced prompting, chain-of-thought, constitutional AI, production prompt strategies. T1 marketplace.' },
+    { name: 'vector-db-engineer',   icon: '🔢', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'llm-application-dev',   descOverride: 'Pinecone, Weaviate, Qdrant, Milvus, pgvector. RAG apps + semantic search. T1 marketplace.' },
+
+    // ── Marketplace T1 — observability-monitoring ────────────
+    { name: 'observability-engineer', icon: '📈', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'observability-monitoring', descOverride: 'Monitoring, logging, tracing, SLI/SLO management, incident response workflows. T1 marketplace.' },
+    { name: 'performance-engineer', icon: '🏎️', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'observability-monitoring', descOverride: 'Profile and optimize response times, memory usage, query efficiency, scalability. T1 marketplace.' },
+    { name: 'network-engineer',     icon: '🌐', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'observability-monitoring', descOverride: 'Cloud networking, CDN optimization, service mesh, zero-trust, SSL/TLS. T1 marketplace.' },
+    { name: 'database-optimizer',   icon: '🗄️', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'observability-monitoring', descOverride: 'Query optimization, N+1 resolution, multi-tier caching, partitioning, cloud DB. T1 marketplace.' },
+
+    // ── Marketplace T1 — security-scanning ──────────────────
+    { name: 'security-auditor',     icon: '🔐', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'security-scanning',       descOverride: 'OWASP Top 10, auth flaws, compliance, code security review. T1 marketplace.' },
+    { name: 'threat-modeling',      icon: '🎯', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'security-scanning',       descOverride: 'STRIDE, PASTA, attack trees, security requirement extraction. Secure-by-design systems. T1 marketplace.' },
+
+    // ── Marketplace T1 — agent-teams + conductor ─────────────
+    { name: 'conductor-validator',  icon: '🎼', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'agent-teams',            descOverride: 'Validates Conductor project artifacts for completeness, consistency, and correctness. T1 marketplace.' },
+    { name: 'team-lead',            icon: '👥', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'agent-teams',            descOverride: 'Team orchestrator that decomposes work into parallel tasks with file ownership boundaries. T1 marketplace.' },
+    { name: 'team-implementer',     icon: '🔨', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'agent-teams',            descOverride: 'Parallel feature builder within strict file ownership boundaries + integration coordination. T1 marketplace.' },
+    { name: 'team-reviewer',        icon: '🔍', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'agent-teams',            descOverride: 'Multi-dimensional code reviewer: security, performance, architecture, testing, accessibility. T1 marketplace.' },
+    { name: 'team-debugger',        icon: '🐛', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'agent-teams',            descOverride: 'Hypothesis-driven debugging investigator. Evidence gathering with file:line citations. T1 marketplace.' },
+
+    // ── Marketplace T2 — backend-development ─────────────────
+    { name: 'backend-architect',    icon: '🏗️', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'backend-development',    descOverride: 'REST/GraphQL/gRPC APIs, event-driven architectures, service mesh, microservices patterns. T2 marketplace.' },
+    { name: 'event-sourcing',       icon: '📦', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'backend-development',    descOverride: 'Event sourcing, CQRS, event store design, projection building, saga orchestration. T2 marketplace.' },
+    { name: 'graphql-architect',    icon: '🔷', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'backend-development',    descOverride: 'GraphQL federation, performance optimization, advanced caching, real-time systems. T2 marketplace.' },
+    { name: 'temporal-python-pro',  icon: '⏱️', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'backend-development',    descOverride: 'Temporal workflow orchestration, durable workflows, saga patterns, distributed transactions. T2 marketplace.' },
+
+    // ── Marketplace T2 — cicd-automation ─────────────────────
+    { name: 'cloud-architect',      icon: '☁️', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'cicd-automation',        descOverride: 'AWS/Azure/GCP/OCI multi-cloud, Terraform/CDK, FinOps cost optimization, serverless. T2 marketplace.' },
+    { name: 'deployment-engineer',  icon: '🚀', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'cicd-automation',        descOverride: 'CI/CD pipelines, GitOps, GitHub Actions, ArgoCD/Flux, zero-downtime deployments. T2 marketplace.' },
+    { name: 'devops-troubleshooter', icon: '🔧',schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'cicd-automation',        descOverride: 'Incident response, log analysis, distributed tracing, Kubernetes debugging. T2 marketplace.' },
+    { name: 'kubernetes-architect', icon: '⎈',  schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'cicd-automation',        descOverride: 'EKS/AKS/GKE/OKE, Istio/Linkerd, progressive delivery, multi-tenancy, platform engineering. T2 marketplace.' },
+    { name: 'terraform-specialist', icon: '🏔️', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'cicd-automation',        descOverride: 'IaC automation, state management, multi-cloud deployments, GitOps for infrastructure. T2 marketplace.' },
+
+    // ── Marketplace T2 — javascript-typescript ───────────────
+    { name: 'typescript-pro',       icon: '🔵', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'javascript-typescript',   descOverride: 'Advanced TypeScript, generics, strict type safety, decorators, enterprise patterns. T2 marketplace.' },
+    { name: 'javascript-pro',       icon: '🟡', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'javascript-typescript',   descOverride: 'ES6+, async patterns, Node.js APIs, promises, event loops, browser/Node compat. T2 marketplace.' },
+
+    // ── Marketplace T2 — machine-learning-ops ────────────────
+    { name: 'data-scientist',       icon: '📊', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'machine-learning-ops',    descOverride: 'Advanced analytics, ML modeling, statistical analysis, data-driven insights. T2 marketplace.' },
+    { name: 'ml-engineer',          icon: '🧠', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'machine-learning-ops',    descOverride: 'PyTorch 2.x, TensorFlow, model serving, feature engineering, A/B testing. T2 marketplace.' },
+    { name: 'mlops-engineer',       icon: '⚙️', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'machine-learning-ops',    descOverride: 'MLflow, Kubeflow, automated training pipelines, model registries, ML monitoring. T2 marketplace.' },
   ];
 
   return agents.map(a => {
+    if (!a.log) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'idle' };
     const logFile = path.join(LOG, a.log);
-    if (!fs.existsSync(logFile)) return { ...a, lastRun: null, lastOutput: null, status: 'never' };
+    if (!fs.existsSync(logFile)) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'never' };
 
     const lines = fs.readFileSync(logFile, 'utf8').split('\n').filter(Boolean);
     const last  = lines[lines.length - 1] || '';
@@ -763,7 +820,9 @@ function getBuildTrends() {
 
 // ── KPIs (derived) ───────────────────────────────────────────────────────────
 function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haikuPctToday) {
-  const agents_running = agents.filter(a => a.status === 'healthy' || a.status === 'routing').length;
+  // agents_running counts only live/cron agents (not idle sub-agents or marketplace)
+  const liveAgents    = agents.filter(a => !a.type || a.type === 'live');
+  const agents_running = liveAgents.filter(a => a.status === 'healthy' || a.status === 'routing').length;
   const scrapers_live  = scrapers.filter(s => s.status === 'live').length;
   const s3_gb = s3_lake.reduce((sum, b) => sum + (b.size_gb || 0), 0);
   const tasks_open = (tasks.highItems?.length || 0) + (tasks.medItems?.length || 0) + (tasks.exploreItems?.length || 0);
@@ -771,7 +830,8 @@ function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haiku
 
   return {
     agents_running,
-    agents_total: agents.length,
+    agents_total: agents.length,       // 50 — full fleet (live + sub-agents + marketplace)
+    agents_live_total: liveAgents.length, // 14 — live/cron only, used for health bar
     scrapers_live,
     scrapers_total: scrapers.length,
     s3_gb: Math.round(s3_gb * 10) / 10,
