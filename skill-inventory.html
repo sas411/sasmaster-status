@@ -221,7 +221,7 @@
   <h1>🧠 Skill Inventory — v2</h1>
   <div class="sub">Claude Code personal skill library · synced across claude.ai + local · self-evolving via post-build capture</div>
   <div class="badge-row">
-    <span class="badge badge-live"><span class="dot"></span>40 Skills Active</span>
+    <span class="badge badge-live"><span class="dot"></span>44 Skills Active</span>
     <span class="badge badge-pur">17 SaSMaster Domain</span>
     <span class="badge badge-info">9 Engineering</span>
     <span class="badge badge-amber">Friday Auto-Review Cron</span>
@@ -237,7 +237,7 @@
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>50</strong><span>Agents</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>40</strong><span>Personal (Synced)</span></div>
+    <div class="sb-item"><strong>44</strong><span>Personal (Synced)</span></div>
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>9 plugins</strong><span>Marketplace Fleet</span></div>
     <div class="sb-sep"></div>
@@ -249,8 +249,8 @@
   <!-- ── Filter ── -->
   <div class="sec-title">Skills</div>
   <div class="filter-row">
-    <button class="filter-btn active" onclick="filterSkills('all',this)">All (40 personal)</button>
-    <button class="filter-btn" onclick="filterSkills('sasmaster',this)">SaSMaster Domain (17)</button>
+    <button class="filter-btn active" onclick="filterSkills('all',this)">All (44 personal)</button>
+    <button class="filter-btn" onclick="filterSkills('sasmaster',this)">SaSMaster Domain (21)</button>
     <button class="filter-btn" onclick="filterSkills('research',this)">Research (1)</button>
     <button class="filter-btn" onclick="filterSkills('engineering',this)">Engineering (9)</button>
     <button class="filter-btn" onclick="filterSkills('emba',this)">EMBA / Academia (2)</button>
@@ -661,7 +661,7 @@
         </div>
       </div>
       <div class="sc-footer">
-        <div class="sc-meta"><span class="sc-lines">2,037 lines</span><span>Updated May 24, 2026</span></div>
+        <div class="sc-meta"><span class="sc-lines">486 lines</span><span>Updated May 28, 2026</span></div>
         <span class="sc-sync">✓ Synced</span>
       </div>
     </div>
@@ -687,7 +687,7 @@
         </div>
       </div>
       <div class="sc-footer">
-        <div class="sc-meta"><span class="sc-lines">2,293 lines</span><span>Added Apr 22, 2026</span></div>
+        <div class="sc-meta"><span class="sc-lines">417 lines</span><span>Added Apr 22, 2026</span></div>
         <span class="sc-sync">✓ Synced</span>
       </div>
     </div>
@@ -714,7 +714,7 @@
         </div>
       </div>
       <div class="sc-footer">
-        <div class="sc-meta"><span class="sc-lines">293 lines</span><span>Updated May 24, 2026</span></div>
+        <div class="sc-meta"><span class="sc-lines">502 lines</span><span>Updated May 28, 2026</span></div>
         <span class="sc-sync">✓ Synced</span>
       </div>
     </div>
@@ -1282,6 +1282,106 @@
       </div>
     </div>
 
+    <!-- genai-market -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">genai-market</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">GenAI market intelligence — current model releases, framework updates, and market signals. Grounds LLM choice, MCP integration, agent framework, and pricing decisions for SaSMaster. Triggers on model routing review, genai-market-digest.json evaluation, and !approve-genai-skill.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">evaluating LLM options</span>
+          <span class="trigger-tag">model routing rules</span>
+          <span class="trigger-tag">MCP server</span>
+          <span class="trigger-tag">agent framework</span>
+          <span class="trigger-tag">pricing/cost guard</span>
+          <span class="trigger-tag">genai digest</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">48 lines</span><span>Added May 25, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <!-- sasmaster-code-review -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">sasmaster-code-review</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">SaSMaster-specific code reviewer — reviews files against the actual stack (React/Next.js, Railway/Vercel API routes, DuckDB/Parquet pipelines), not generic best practices. 17-rule checklist. Triggers on "review this file", "code review X", "check X before ship".</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">review this file</span>
+          <span class="trigger-tag">code review</span>
+          <span class="trigger-tag">check before ship</span>
+          <span class="trigger-tag">17-rule checklist</span>
+          <span class="trigger-tag">DuckDB pipeline review</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">152 lines</span><span>Added May 26, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <!-- sasmaster-refactor -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">sasmaster-refactor</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">SaSMaster-specific refactor skill — safely restructures code without changing behavior. Depends on sasmaster-code-review findings to determine targets. Triggers on "refactor this file", "clean up X", "apply refactor to Y". QA sign-off required for Railway route changes.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">refactor this file</span>
+          <span class="trigger-tag">clean up</span>
+          <span class="trigger-tag">apply refactor</span>
+          <span class="trigger-tag">restructure</span>
+          <span class="trigger-tag">sasmaster-refactor</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">142 lines</span><span>Added May 26, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <!-- sasmaster-review-refactor -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">sasmaster-review-refactor</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">SaSMaster full code quality loop — chains code-review → confirm → refactor → QA sign-off in one command. Before/After table output. Triggers on "review and clean this file", "code quality pass on X", "full quality pass", "sasmaster-review-refactor".</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">review and clean</span>
+          <span class="trigger-tag">code quality pass</span>
+          <span class="trigger-tag">full quality pass</span>
+          <span class="trigger-tag">sasmaster-review-refactor</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">130 lines</span><span>Added May 26, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
     <!-- emil-design-eng -->
     <div class="skill-card cat-engineering" data-cat="engineering">
       <div class="sc-stripe"></div>
@@ -1374,9 +1474,9 @@
         <tr><td class="skill-name-cell">linkedin-thought-leader</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(245,158,11,.1);color:#92400E;font-size:9px;font-weight:700;text-transform:uppercase;">Personal</span></td><td class="desc-cell">LinkedIn in Shiv's voice — contrarian takes, builder's log, data point drops, post formats, topic bank</td><td class="lines-cell">169</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">ableton-sme</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(245,158,11,.1);color:#92400E;font-size:9px;font-weight:700;text-transform:uppercase;">Personal</span></td><td class="desc-cell">Ableton Live expert — synthesis, Session/Arrangement, MIDI/automation, mixing/mastering, macOS M1 plugins</td><td class="lines-cell">191</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">shiv-executive-profile</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(245,158,11,.1);color:#92400E;font-size:9px;font-weight:700;text-transform:uppercase;">Personal</span></td><td class="desc-cell">Executive identity, voice, career arc, domain expertise — single source of truth for all content written as or about Shiv. Includes vocabulary fingerprint, structural signature, 17-section voice-samples.md, achievement proof points. Loads for bios, articles, proposals, MBA essays, speaker pitches.</td><td class="lines-cell">326 + refs</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
-        <tr><td class="skill-name-cell">data-viz</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">8-step viz system — chart selection, SaSMaster tokens, interactivity, accuracy checklist, media analytics, Chart.js/D3/amCharts/nivo code paths, dashboard composition. Agent counterpart: data-viz agent for autonomous JARVIS builds.</td><td class="lines-cell">2,037</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
-        <tr><td class="skill-name-cell">programming-researcher</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(8,145,178,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Research</span></td><td class="desc-cell">Senior TV/streaming analyst — 3-layer framework, RSG ML ensemble (MAE 0.283), %GSHR/%SCH Index, PID migration, binary optimization, Nielsen/Gracenote decode</td><td class="lines-cell">2,293</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
-        <tr><td class="skill-name-cell">autonomous-ui-designer</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">SaSMaster cinematic UI engine — tokens, component library, chart language, build patterns. !build UI authority. Loads tokens.md before writing HTML. Token authority delegated to design-system/tokens.md v1.0 — never redefines inline. Co-loaded by ui-designer agent.</td><td class="lines-cell">293</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">data-viz</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">8-step viz system — chart selection, SaSMaster tokens, interactivity, accuracy checklist, media analytics, Chart.js/D3/amCharts/nivo code paths, dashboard composition. Agent counterpart: data-viz agent for autonomous JARVIS builds.</td><td class="lines-cell">486</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">programming-researcher</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(8,145,178,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Research</span></td><td class="desc-cell">Senior TV/streaming analyst — 3-layer framework, RSG ML ensemble (MAE 0.283), %GSHR/%SCH Index, PID migration, binary optimization, Nielsen/Gracenote decode</td><td class="lines-cell">417</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">autonomous-ui-designer</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">SaSMaster cinematic UI engine — tokens, component library, chart language, build patterns. !build UI authority. Loads tokens.md before writing HTML. Token authority delegated to design-system/tokens.md v1.0 — never redefines inline. Co-loaded by ui-designer agent.</td><td class="lines-cell">502</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">portal-detailpage</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">portal-v8 DetailPage drill-down — dp-* CSS, TMDB wiring, hero/glass/score-ring, right panel, cast/providers/similar routing</td><td class="lines-cell">366</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">qa-agent</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Autonomous QA verifier — post-build Playwright checks, META tab fields, drill-down nav, ID format, anti-self-certification gate. Emits qa_result event via emit-event.sh (INFRA-EVENTS-001). Mandatory gate before deploy.</td><td class="lines-cell">419</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">slc-taxonomy</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">SLC self-learning pipeline — #skill-worthy tagging, capture-learnings.sh→learnings.md, skill-review.sh Friday promotion, validator rules</td><td class="lines-cell">117</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
@@ -1399,6 +1499,10 @@
         <tr><td class="skill-name-cell">content-catalog-platform</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Content catalog authority — Parent Key hierarchy, IMDB/TMDB/EIDR enrichment, AltID resolution, People/Cast/Crew pipelines. 5 canonical pipelines: Movie (68.4% match), TV Series, People, Parent Key Assignment, AltID Map. Agent: content-catalog-builder for autonomous JARVIS #catalog builds.</td><td class="lines-cell">SKILL.md + agents/ + refs/</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">scoop-frontend</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">ra-linear-analytics (Scoop) frontend mastery — boot sequence (7-step init chain), 5 React context layers, Highcharts module order (Boost last), FetchService 3-tier auth cache, theme injection system, animation conventions, CSS ra- prefix convention, webpack module aliases, 11 anti-patterns. Source: ra-linear-analytics-bundle TRUE prod repo. 397 JSX components.</td><td class="lines-cell">500</td><td class="sync-cell"><span class="sync-local">✓ Local</span></td></tr>
         <tr><td class="skill-name-cell">emil-design-eng</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">Animation &amp; interaction constitution (Emil Kowalski) — 13 rules: GPU-only transform/opacity, entry cubic-bezier(0.23,1,0.32,1) + exit cubic-bezier(0.4,0,1,1), 100–400ms caps, scale 0.94–0.97 entry start (never 0), stagger 30–50ms/item, FLIP layout animations, 5-state interaction checklist. SaSMaster: drill overlays, cast stagger, card flip, Dr. Scoop slide-in.</td><td class="lines-cell">v1.0</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">genai-market</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">GenAI market intelligence — LLM model options, MCP integration, agent framework, pricing/cost guard decisions. Triggers on model routing review and genai-market-digest.json evaluation.</td><td class="lines-cell">48</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">sasmaster-code-review</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">SaSMaster-specific code reviewer — 17-rule checklist against actual stack (React/Next.js, Railway/Vercel, DuckDB/Parquet). Not generic best practices.</td><td class="lines-cell">152</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">sasmaster-refactor</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">SaSMaster-specific refactor — safe restructure without behavior change. Depends on sasmaster-code-review findings. QA sign-off required for Railway route changes.</td><td class="lines-cell">142</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">sasmaster-review-refactor</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Full SaSMaster code quality loop — chains code-review → confirm → refactor → QA sign-off. Before/After table output. One command.</td><td class="lines-cell">130</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
       </tbody>
     </table>
   </div>
