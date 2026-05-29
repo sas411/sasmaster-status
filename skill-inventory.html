@@ -368,7 +368,7 @@
           <span class="sc-name">media-domain</span>
           <span class="sc-cat">SaSMaster</span>
         </div>
-        <div class="sc-desc">TMDB/IMDB schema quirks, tconst format, Nielsen 8-dataset taxonomy (MIT vs Standard, Pocketpiece vs ACM, C3/L+SD), two-tier Nielsen ETL pattern, data quality &amp; fusion rules, EIDR backfill, Parent Key hierarchy, 16-company EDGAR map, join surfaces.</div>
+        <div class="sc-desc">TMDB/IMDB schema quirks, tconst format, Nielsen 8-dataset taxonomy (MIT vs Standard, Pocketpiece vs ACM, C3/L+SD), two-tier Nielsen ETL pattern, data quality &amp; fusion rules, EIDR backfill, Parent Key hierarchy, 16-company EDGAR map, join surfaces. §2b: Nielsen↔Gracenote MM event-grain join — network×datetime key, ACN_NETWORK_CODE==GN_COVERAGE_SAMPLE_ID bridge, PC/FF type gate, EPISODE_NAME title-field swap for movies, 29-hour broadcast-day clock.</div>
       </div>
       <div class="sc-body">
         <div class="sc-triggers">
@@ -381,10 +381,12 @@
           <span class="trigger-tag">C3 / L+SD</span>
           <span class="trigger-tag">AMRLD</span>
           <span class="trigger-tag">ETL quality</span>
+          <span class="trigger-tag">MM match</span>
+          <span class="trigger-tag">EPISODE_NAME</span>
         </div>
       </div>
       <div class="sc-footer">
-        <div class="sc-meta"><span class="sc-lines">265 lines</span><span>Updated Apr 23, 2026</span></div>
+        <div class="sc-meta"><span class="sc-lines">406 lines</span><span>Updated May 29, 2026</span></div>
         <span class="sc-sync">✓ Synced</span>
       </div>
     </div>
@@ -1463,7 +1465,7 @@
         <tr><td class="skill-name-cell">jarvis-ops</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">JARVIS commands, TASKS.md schema, async build loop, Slack routing, Command API, cron schedule. Intent routing: #ui→ui-designer, #viz→data-viz. Railway PRIMARY deployment. !build routing supported.</td><td class="lines-cell">190</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">scraper-engineer</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">11 scrapers + 4 RSG bridges, rate limits, retry/backoff, lockfile/checkpoint patterns</td><td class="lines-cell">190</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">s3-data-architect</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Locked S3 paths, IAM least-privilege, credential hygiene, NDJSON→Parquet pipeline, additive writes</td><td class="lines-cell">183</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
-        <tr><td class="skill-name-cell">media-domain</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">TMDB/IMDB schemas, tconst, Parent Key, EIDR, Nielsen 8-dataset taxonomy (MIT/Standard, C3/L+SD), two-tier ETL pattern, data quality &amp; fusion rules, EDGAR 16-company map</td><td class="lines-cell">265</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">media-domain</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">TMDB/IMDB schemas, tconst, Parent Key, EIDR, Nielsen 8-dataset taxonomy (MIT/Standard, C3/L+SD), two-tier ETL pattern, data quality &amp; fusion rules, EDGAR 16-company map. §2b: Nielsen↔Gracenote MM join — ACN_NETWORK_CODE==GN_COVERAGE_SAMPLE_ID, PC/FF type gate, EPISODE_NAME movie-title swap, 29hr broadcast-day clock.</td><td class="lines-cell">406</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">duckdb-parquet</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">DuckDB/S3 httpfs, ZSTD Parquet, glob patterns, partition pruning, JOIN strategies, schema evolution</td><td class="lines-cell">147</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">fullstack-architect</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">Engineering constitution — React/TS, Fastify/FastAPI, Snowflake, Bedrock GenAI, streaming engine taxonomy (§1.5), Exchange marketplace</td><td class="lines-cell">319</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">uiux-mastery</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">Frankenstein UI audit → diagnosis → prototype. Always renders polished interactive HTML visual.</td><td class="lines-cell">235</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
@@ -1536,7 +1538,7 @@
   </div>
 
   <div style="text-align:center;margin-top:32px;font-size:11px;color:var(--ink-400);">
-    SaSMaster Intelligence Platform · Skill Inventory v3 · Updated May 26, 2026 · 79 skills · 50 agents · 27 commands · 9 marketplace plugins
+    SaSMaster Intelligence Platform · Skill Inventory v3 · Updated May 29, 2026 · 79 skills · 50 agents · 27 commands · 9 marketplace plugins
   </div>
 
 </div><!-- /canvas -->
