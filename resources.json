@@ -1,6 +1,33 @@
 {
     "resources": [
         {
+            "id": "identity-null-normalize-001",
+            "title": "IDENTITY-NULL-NORMALIZE-001 — Task Card",
+            "category": "Data Architecture",
+            "badge": "NEW",
+            "subtitle": "33,348 empty-string IDs → NULL · G5 FAIL → PASS · §2.1 doctrine locked",
+            "description": "Task card for normalizing empty-string identifiers to NULL at ingestion. Triggered by fusion-QA agent (commit 2bb6c0e): 33,348 IMDB rows with imdb_tconst='' causing G2 WARN + G5 FAIL. Adds null_blank() to IMDB land step across 18 ID columns. Routes normalized-to-NULL rows to fusion_ledger/resolver/ (unmatched queue). Locks data-fusion-mastery §2.1 doctrine: empty string is never a valid identifier; normalizing absence is not changing identity. QA gate: distinct non-empty IDs unchanged pre/post, G5 FAIL→PASS, G10 spine byte-diff stays PASS. 2026-05-29.",
+            "date": "2026-05-29",
+            "latest": true,
+            "status": "LIVE",
+            "files": [
+                {
+                    "label": "View",
+                    "type": "md",
+                    "url": "/resources/identity-null-normalize-001.md",
+                    "primary": true
+                }
+            ],
+            "tags": [
+                "DATA",
+                "IDENTITY",
+                "INGESTION",
+                "DATA-QUALITY",
+                "TASK-CARD",
+                "SPRINT-18"
+            ]
+        },
+        {
             "id": "matching-workflow-viz",
             "title": "Matching Workflow & Orchestration",
             "category": "Data Architecture",
