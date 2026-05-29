@@ -351,6 +351,13 @@ function parseS3EntityCounts() {
   catch { return {}; }
 }
 
+// ── IMDB agent status (from scripts/imdb-agent.js post-run) ──────────────────
+function parseImdbStatus() {
+  const file = path.join(SASMASTER, 'status', 'imdb-status.json');
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
+  catch { return null; }
+}
+
 // ── EIDR v2 coverage (from eidr-progress.json) ───────────────────────────────
 function parseEidrProgress() {
   try {
@@ -464,7 +471,7 @@ function parseCrontab() {
 // Real status hydrated from (a) S3 inventory object counts, (b) agent log
 // mtimes, (c) progress JSON. Designed = no data + no script exists. Landing =
 // S3 has data but pipeline not fully automated. Live = automated + running.
-function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents) {
+function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents, imdbStatus) {
   const prefix = name => (s3Inv?.prefixes || []).find(p => p.prefix === name) || {};
   const agentByName = {};
   (agents || []).forEach(a => { agentByName[a.name] = a; });
@@ -526,8 +533,12 @@ function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents) {
       phase: '1',
       status: imdbP.object_count > 0 ? 'live' : 'designed',
       pct: imdbP.object_count > 0 ? 100 : 0,
-      row_count: 206444399, // measured at Phase 1 milestone 2026-04-22
-      last_run: imdbP.last_modified || logMtime('imdb-parse.log'),
+      row_count: imdbStatus?.counts
+        ? (imdbStatus.counts.movies || 0) + (imdbStatus.counts.tv_series || 0) +
+          (imdbStatus.counts.episodes || 0) + (imdbStatus.counts.people || 0)
+        : 206444399,
+      partition: imdbStatus?.partition || null,
+      last_run: imdbStatus?.last_run || imdbP.last_modified || logMtime('imdb-parse.log'),
     },
     {
       name: 'SAS-MASTER Parent Key v1',
@@ -1054,7 +1065,8 @@ const agents        = parseAgents();
 const tmdbProgress  = parseTMDBProgress();
 const s3Inv         = parseS3Inventory();
 const entityCounts  = parseS3EntityCounts();
-const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents);
+const imdbStatus    = parseImdbStatus();
+const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents, imdbStatus);
 const qaDrafts      = parseQADrafts();
 const { phaseStatus, pending: memoryPending } = parseMemoryContext();
 
