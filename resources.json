@@ -50,61 +50,6 @@
             ]
         },
         {
-            "id": "verify-then-resolve",
-            "title": "VERIFY-THEN-RESOLVE \u2014 Gate Before RESOLVER-001 P1",
-            "category": "Data Architecture",
-            "badge": "NEW",
-            "subtitle": "2 read-only checks \u00b7 hard gate \u00b7 68%\u2192~88% tconst coverage lift",
-            "description": "Two read-only verification steps followed by a hard gate before RESOLVER-001 Phase 1 writes to the spine. Step 1: confirm IDENTITY-NULL-NORMALIZE-001 actually executed (not just committed) \u2014 G2 clears, G5 drops 33,348, real IDs intact. Step 2: confirm FUSION-LEDGER-001 is live and cert_gate=BYPASS hard-fails. HARD GATE: both must pass before Step 3. Step 3 (gated): deterministic tconst binding via spine.tmdb_id\u2194curated_movies.imdb_id \u2014 170K-220K new bindings, 68.4%\u2192~88% coverage lift, every binding ledger-logged before spine write. Full matrix publishes after CURATED\u00d74 runs coverage-KPI step. 2026-05-29.",
-            "date": "2026-05-29",
-            "latest": true,
-            "status": "LIVE",
-            "files": [
-                {
-                    "label": "View",
-                    "type": "md",
-                    "url": "/resources/verify-then-resolve.md",
-                    "primary": true
-                }
-            ],
-            "tags": [
-                "DATA",
-                "IDENTITY",
-                "RESOLVER",
-                "COVERAGE",
-                "TASK-CARD",
-                "SPRINT-18",
-                "DATA-QUALITY"
-            ]
-        },
-        {
-            "id": "identity-null-normalize-001",
-            "title": "IDENTITY-NULL-NORMALIZE-001 \u2014 Task Card",
-            "category": "Data Architecture",
-            "badge": "NEW",
-            "subtitle": "33,348 empty-string IDs \u2192 NULL \u00b7 G5 FAIL \u2192 PASS \u00b7 \u00a72.1 doctrine locked",
-            "description": "Task card for normalizing empty-string identifiers to NULL at ingestion. Triggered by fusion-QA agent (commit 2bb6c0e): 33,348 IMDB rows with imdb_tconst='' causing G2 WARN + G5 FAIL. Adds null_blank() to IMDB land step across 18 ID columns. Routes normalized-to-NULL rows to fusion_ledger/resolver/ (unmatched queue). Locks data-fusion-mastery \u00a72.1 doctrine: empty string is never a valid identifier; normalizing absence is not changing identity. QA gate: distinct non-empty IDs unchanged pre/post, G5 FAIL\u2192PASS, G10 spine byte-diff stays PASS. 2026-05-29.",
-            "date": "2026-05-29",
-            "latest": true,
-            "status": "LIVE",
-            "files": [
-                {
-                    "label": "View",
-                    "type": "md",
-                    "url": "/resources/identity-null-normalize-001.md",
-                    "primary": true
-                }
-            ],
-            "tags": [
-                "DATA",
-                "IDENTITY",
-                "INGESTION",
-                "DATA-QUALITY",
-                "TASK-CARD",
-                "SPRINT-18"
-            ]
-        },
-        {
             "id": "matching-workflow-viz",
             "title": "Matching Workflow & Orchestration",
             "category": "Data Architecture",
@@ -130,30 +75,6 @@
                 "GENAI",
                 "ORCHESTRATION",
                 "PIPELINE"
-            ]
-        },
-        {
-            "id": "sasmaster-architecture-v7",
-            "title": "Architecture 7 \u00b7 Platform Reference",
-            "category": "architecture",
-            "badge": "NEW",
-            "subtitle": "Auto-synced from SaSMaster 2026-05-27",
-            "description": "Architecture reference 7 auto-synced by daily-visuals.sh on 2026-05-27.",
-            "date": "2026-05-27",
-            "latest": true,
-            "status": "LIVE",
-            "files": [
-                {
-                    "label": "View",
-                    "type": "html",
-                    "url": "/resources/sasmaster-architecture-v7.html",
-                    "primary": true
-                }
-            ],
-            "tags": [
-                "ARCHITECTURE",
-                "PLATFORM",
-                "REFERENCE"
             ]
         },
         {
