@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activity Heatmap — SaSMaster</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base: #0a0a0f; --bg-surface: #12121a; --bg-elevated: #1a1a2e; --bg-panel: #0d0d16;
+      --lavender: #a78bfa; --teal-bright: #22d3ee; --gold: #f59e0b;
+      --red-alert: #ef4444; --green-signal: #10b981;
+      --lav-dim: rgba(167,139,250,0.14); --lav-border: rgba(167,139,250,0.10);
+      --lav-active: rgba(167,139,250,0.35); --gold-dim: rgba(245,158,11,0.10);
+      --text-primary: #f8f8ff; --text-secondary: #94a3b8; --text-dim: #4b5563;
+      --border: rgba(167,139,250,0.10); --border-subtle: rgba(255,255,255,0.04);
+    }
+
+    body {
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'Barlow Condensed', sans-serif;
+      min-height: 100vh;
+      padding: 32px 40px 64px;
+    }
+
+    * { scrollbar-width: thin; scrollbar-color: rgba(167,139,250,0.3) transparent; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.3); border-radius: 4px; }
+
+    /* ── Header */
+    .page-header {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 32px; padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px; letter-spacing: 3px;
+      color: var(--text-primary);
+    }
+    .page-title span { color: var(--lavender); }
+    .page-meta {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px; color: var(--text-dim);
+      text-align: right; line-height: 1.6;
+    }
+
+    /* ── KPI Strip */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--lavender);
+      opacity: 0.6;
+    }
+    .kpi-card.gold::before { background: var(--gold); }
+    .kpi-card.teal::before { background: var(--teal-bright); }
+    .kpi-card.green::before { background: var(--green-signal); }
+    .kpi-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px; font-weight: 500; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+    .kpi-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px; letter-spacing: 2px;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .kpi-value.lavender { color: var(--lavender); }
+    .kpi-value.gold     { color: var(--gold); }
+    .kpi-value.teal     { color: var(--teal-bright); }
+    .kpi-value.green    { color: var(--green-signal); }
+    .kpi-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px; color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* ── Section headers */
+    .section-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--text-secondary);
+    }
+    .section-pill {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px; padding: 2px 8px;
+      border: 1px solid var(--lav-active);
+      border-radius: 20px; color: var(--lavender);
+      background: var(--lav-dim);
+    }
+
+    /* ── Heatmap */
+    .heatmap-wrap {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: 48px repeat(24, 1fr);
+      gap: 3px;
+      min-width: 700px;
+    }
+    .hm-corner { /* top-left empty cell */ }
+    .hm-hour-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px; color: var(--text-dim);
+      text-align: center; padding-bottom: 4px;
+      letter-spacing: 0.5px;
+    }
+    .hm-day-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px; font-weight: 600;
+      color: var(--text-secondary);
+      display: flex; align-items: center;
+      padding-right: 8px;
+    }
+    .hm-cell {
+      aspect-ratio: 1;
+      border-radius: 3px;
+      background: var(--bg-elevated);
+      cursor: default;
+      transition: transform 150ms, box-shadow 150ms;
+      position: relative;
+    }
+    .hm-cell:hover {
+      transform: scale(1.3);
+      z-index: 10;
+      box-shadow: 0 0 12px rgba(167,139,250,0.4);
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: fixed;
+      background: var(--bg-elevated);
+      border: 1px solid var(--lav-active);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px; color: var(--text-primary);
+      pointer-events: none;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+    }
+
+    /* ── Legend */
+    .legend {
+      display: flex; align-items: center; gap: 6px;
+      margin-top: 12px; justify-content: flex-end;
+    }
+    .legend-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px; color: var(--text-dim);
+    }
+    .legend-cells { display: flex; gap: 3px; }
+    .legend-cell {
+      width: 14px; height: 14px;
+      border-radius: 2px;
+    }
+
+    /* ── Weekly Chart */
+    .weekly-wrap {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 160px;
+      padding: 0 4px;
+      position: relative;
+    }
+    .bar-chart::before {
+      content: '';
+      position: absolute; left: 0; right: 0; bottom: 24px;
+      height: 1px; background: var(--border-subtle);
+    }
+    .bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+      height: 100%;
+    }
+    .bar-body {
+      width: 100%;
+      border-radius: 3px 3px 0 0;
+      min-height: 2px;
+      position: relative;
+      transition: opacity 150ms;
+      cursor: default;
+    }
+    .bar-body:hover { opacity: 0.8; }
+    .bar-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px; color: var(--text-dim);
+      text-align: center; white-space: nowrap;
+      height: 24px; display: flex; align-items: flex-end;
+    }
+    .bar-count {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px; color: var(--text-secondary);
+      position: absolute; top: -14px; left: 50%;
+      transform: translateX(-50%); white-space: nowrap;
+    }
+
+    /* ── Source footnote */
+    .footnote {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .fn-item { }
+    .fn-key {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+      text-transform: uppercase; color: var(--text-dim);
+      margin-bottom: 2px;
+    }
+    .fn-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px; color: var(--text-secondary);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .heatmap-wrap, .weekly-wrap, .footnote {
+      animation: fadeIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .weekly-wrap { animation-delay: 0.1s; }
+    .footnote    { animation-delay: 0.2s; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <div class="page-title">ACTIVITY <span>HEATMAP</span></div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--text-secondary);margin-top:4px;">
+      SaSMaster · Apr 17 → May 29, 2026 · Commit + Build Events
+    </div>
+  </div>
+  <div class="page-meta">
+    SOURCE: git commits (SaSMaster + War Room) + events.jsonl<br>
+    METRIC: event_count · duration_min=NULL (no session pairs)<br>
+    GENERATED: 2026-05-29
+  </div>
+</div>
+
+<!-- KPI Strip -->
+<div class="kpi-strip">
+  <div class="kpi-card">
+    <div class="kpi-label">Total Events</div>
+    <div class="kpi-value lavender" id="kpi-total">—</div>
+    <div class="kpi-sub" id="kpi-days">— active days</div>
+  </div>
+  <div class="kpi-card gold">
+    <div class="kpi-label">Peak Hour</div>
+    <div class="kpi-value gold" id="kpi-hour">—</div>
+    <div class="kpi-sub" id="kpi-hour-sub">— events at peak</div>
+  </div>
+  <div class="kpi-card teal">
+    <div class="kpi-label">Peak Day</div>
+    <div class="kpi-value teal" id="kpi-day">—</div>
+    <div class="kpi-sub" id="kpi-day-sub">— events on peak day</div>
+  </div>
+  <div class="kpi-card green">
+    <div class="kpi-label">Avg / Active Week</div>
+    <div class="kpi-value green" id="kpi-avg">—</div>
+    <div class="kpi-sub" id="kpi-week-sub">— active weeks</div>
+  </div>
+</div>
+
+<!-- Heatmap -->
+<div class="section-header">
+  <div class="section-title">Activity by Hour of Day</div>
+  <div class="section-pill">7 × 24 grid · EDT</div>
+</div>
+<div class="heatmap-wrap">
+  <div class="heatmap-grid" id="heatmap-grid"></div>
+  <div class="legend">
+    <span class="legend-label">0</span>
+    <div class="legend-cells" id="legend-cells"></div>
+    <span class="legend-label" id="legend-max">24</span>
+  </div>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- Weekly Trend -->
+<div class="section-header">
+  <div class="section-title">Weekly Trend</div>
+  <div class="section-pill">W13 → W22 · 2026</div>
+</div>
+<div class="weekly-wrap">
+  <div class="bar-chart" id="bar-chart"></div>
+</div>
+
+<!-- Source footnote -->
+<div class="footnote">
+  <div class="fn-item">
+    <div class="fn-key">Sources</div>
+    <div class="fn-val">git:SaSMaster 409 · git:WarRoom 262 · events.jsonl 135</div>
+  </div>
+  <div class="fn-item">
+    <div class="fn-key">Caveat</div>
+    <div class="fn-val">Commit = event proxy · duration_min=NULL · cron events included in 04-07h spike</div>
+  </div>
+  <div class="fn-item">
+    <div class="fn-key">W19-W20 gap</div>
+    <div class="fn-val">Singapore EMBA residency May 7-16 · 6 events total</div>
+  </div>
+</div>
+
+<script>
+const MATRIX = [[0,0,0,0,0,4,13,0,0,0,2,13,16,5,3,6,3,0,9,1,0,2,3,1],[1,0,2,2,11,3,14,11,11,19,5,4,20,5,11,16,15,7,21,3,10,5,10,11],[7,1,3,5,18,24,10,10,10,6,9,17,6,4,3,1,4,14,5,4,2,5,0,0],[1,2,15,21,14,12,12,10,1,1,0,2,0,1,1,9,6,8,0,3,1,3,2,5],[7,3,11,14,13,2,2,2,9,3,6,6,4,2,1,0,4,4,0,1,4,1,0,0],[0,1,0,0,0,0,0,0,3,1,3,0,0,0,0,0,2,0,0,2,0,0,0,0],[0,1,0,0,0,0,2,20,4,5,0,0,0,0,0,6,12,4,3,6,19,0,5,12]];
+const WEEKLY = [{"week":"2026-W13","total":0,"build":0,"emba":0},{"week":"2026-W14","total":0,"build":0,"emba":0},{"week":"2026-W15","total":0,"build":0,"emba":0},{"week":"2026-W16","total":1,"build":1,"emba":0},{"week":"2026-W17","total":144,"build":144,"emba":0},{"week":"2026-W18","total":140,"build":140,"emba":0},{"week":"2026-W19","total":4,"build":4,"emba":0},{"week":"2026-W20","total":2,"build":2,"emba":0},{"week":"2026-W21","total":102,"build":102,"emba":0},{"week":"2026-W22","total":413,"build":412,"emba":1}];
+const SUMMARY = {"generated_at":"2026-05-29","window":"2026-04-17 → 2026-05-29","total_events":806,"active_days":22,"active_weeks":7,"avg_events_per_active_week":115.1,"peak_hour":4,"peak_hour_label":"04:00","peak_hour_count":56,"peak_weekday":"Tue","peak_weekday_count":217,"peak_week":"2026-W22","peak_week_count":413,"metric":"event_count","null_dur_excluded":806,"sources":{"git_sasmaster":409,"git_sasmaster_status":262,"events_jsonl":135},"reconcile_ok":true};
+
+const DOW = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const HOURS = Array.from({length:24},(_,i)=>i);
+const GLOBAL_MAX = Math.max(...MATRIX.flat());
+
+// KPI
+document.getElementById('kpi-total').textContent = SUMMARY.total_events.toLocaleString();
+document.getElementById('kpi-days').textContent = SUMMARY.active_days + ' active days';
+document.getElementById('kpi-hour').textContent = SUMMARY.peak_hour_label + ' EDT';
+document.getElementById('kpi-hour-sub').textContent = SUMMARY.peak_hour_count + ' events at peak';
+document.getElementById('kpi-day').textContent = SUMMARY.peak_weekday;
+document.getElementById('kpi-day-sub').textContent = SUMMARY.peak_weekday_count + ' events on peak day';
+document.getElementById('kpi-avg').textContent = SUMMARY.avg_events_per_active_week;
+document.getElementById('kpi-week-sub').textContent = SUMMARY.active_weeks + ' active weeks';
+
+// Color interpolation: 0→bg-elevated, mid→lavender, max→gold
+function cellColor(v, max) {
+  if (v === 0) return '#1a1a2e';
+  const t = v / max;
+  if (t < 0.5) {
+    // bg-elevated → lavender
+    const s = t * 2;
+    const r = Math.round(26  + s * (167 - 26));
+    const g = Math.round(26  + s * (139 - 26));
+    const b = Math.round(46  + s * (250 - 46));
+    return `rgb(${r},${g},${b})`;
+  } else {
+    // lavender → gold
+    const s = (t - 0.5) * 2;
+    const r = Math.round(167 + s * (245 - 167));
+    const g = Math.round(139 + s * (158 - 139));
+    const b = Math.round(250 + s * (11  - 250));
+    return `rgb(${r},${g},${b})`;
+  }
+}
+
+// Build heatmap
+const grid = document.getElementById('heatmap-grid');
+const tooltip = document.getElementById('tooltip');
+
+// Corner + hour labels
+grid.innerHTML = '<div class="hm-corner"></div>';
+HOURS.forEach(h => {
+  const el = document.createElement('div');
+  el.className = 'hm-hour-label';
+  el.textContent = h % 4 === 0 ? String(h).padStart(2,'0') : '';
+  grid.appendChild(el);
+});
+
+// Rows
+DOW.forEach((day, r) => {
+  const label = document.createElement('div');
+  label.className = 'hm-day-label';
+  label.textContent = day;
+  grid.appendChild(label);
+
+  HOURS.forEach(c => {
+    const v = MATRIX[r][c];
+    const cell = document.createElement('div');
+    cell.className = 'hm-cell';
+    cell.style.background = cellColor(v, GLOBAL_MAX);
+    if (v > 0) {
+      cell.style.boxShadow = `0 0 ${Math.round(v/GLOBAL_MAX*8)}px ${cellColor(v, GLOBAL_MAX)}40`;
+    }
+    cell.addEventListener('mousemove', e => {
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX + 12) + 'px';
+      tooltip.style.top  = (e.clientY - 32) + 'px';
+      tooltip.innerHTML = `<b>${day} ${String(c).padStart(2,'0')}:00 EDT</b><br>${v} events`;
+    });
+    cell.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    grid.appendChild(cell);
+  });
+});
+
+// Legend
+const legCells = document.getElementById('legend-cells');
+document.getElementById('legend-max').textContent = GLOBAL_MAX;
+for (let i = 0; i <= 8; i++) {
+  const lc = document.createElement('div');
+  lc.className = 'legend-cell';
+  lc.style.background = cellColor(Math.round(i / 8 * GLOBAL_MAX), GLOBAL_MAX);
+  legCells.appendChild(lc);
+}
+
+// Weekly bar chart
+const chart = document.getElementById('bar-chart');
+const maxWeekly = Math.max(...WEEKLY.map(w => w.total));
+const CHART_H = 136; // available bar height (160 - 24 label)
+
+WEEKLY.forEach(w => {
+  const col = document.createElement('div');
+  col.className = 'bar-col';
+
+  const barH = w.total > 0 ? Math.max(4, Math.round((w.total / maxWeekly) * CHART_H)) : 0;
+  const isGap = (w.week === '2026-W19' || w.week === '2026-W20');
+  const isPeak = w.week === '2026-W22';
+
+  const bar = document.createElement('div');
+  bar.className = 'bar-body';
+  bar.style.height = barH + 'px';
+  bar.style.background = isGap
+    ? 'var(--red-alert)'
+    : isPeak
+      ? 'linear-gradient(180deg, var(--gold) 0%, var(--lavender) 100%)'
+      : 'var(--lavender)';
+  bar.style.opacity = w.total === 0 ? '0.15' : '1';
+
+  if (w.total > 0) {
+    const cnt = document.createElement('div');
+    cnt.className = 'bar-count';
+    cnt.textContent = w.total;
+    bar.appendChild(cnt);
+  }
+
+  const lbl = document.createElement('div');
+  lbl.className = 'bar-label';
+  lbl.textContent = w.week.replace('2026-','');
+  lbl.style.color = isGap ? 'var(--red-alert)' : isPeak ? 'var(--gold)' : 'var(--text-dim)';
+
+  col.appendChild(bar);
+  col.appendChild(lbl);
+  chart.appendChild(col);
+});
+</script>
+</body>
+</html>
