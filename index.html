@@ -1296,6 +1296,35 @@ a{color:inherit}
         </div>
 
       </div><!-- /nielsenCards -->
+
+      <!-- ─── DATA HEALTH PANEL (DATA-OBSERVE-001) ─── -->
+      <div class="sph" style="margin-top:16px">
+        <span class="sph-label">Data Health</span>
+        <span class="sph-sub" id="dataHealthRunDate">-- run date</span>
+        <span class="sph-ml" id="dataHealthGatePill"></span>
+      </div>
+
+      <!-- Feed decay pills row (FEED-DECAY-001) -->
+      <div id="feedDecayRow" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:10px"></div>
+
+      <!-- Plane row counts — horizontal bar chart -->
+      <div id="dataHealthBars" style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px"></div>
+
+      <!-- Confidence distribution + manifest hashes -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="dataHealthMeta">
+        <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Confidence Tiers — product mart</div>
+          <div id="dataHealthConf" style="font-size:11px;color:var(--text-2);font-family:'DM Mono',monospace"></div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px">
+          <div style="font-size:10px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Lineage Trace</div>
+          <div id="dataHealthLineage" style="font-size:11px;color:var(--text-2);font-family:'DM Mono',monospace"></div>
+        </div>
+      </div>
+
+      <!-- Failed assertions (if any) -->
+      <div id="dataHealthAssertions" style="margin-top:8px"></div>
+
     </div>
 
     <!-- ═══════════════════════════════════════════════════
@@ -2069,6 +2098,7 @@ async function loadStatus() {
       loadKanbanLive();
       loadCostKPI();
       loadWorkerVault();
+      loadDataHealth();
       scheduleRefresh();
       return;
     } catch (_) {
@@ -2100,6 +2130,125 @@ async function loadKanbanLive() {
     if (bbHigh) bbHigh.textContent = kb.counts?.high ?? '--';
     if (bbMed)  bbMed.textContent  = kb.counts?.med  ?? '--';
   } catch (_) { /* silently fall back to status.json kanban */ }
+}
+
+// Data Health fetch — DATA-OBSERVE-001 + FEED-DECAY-001 panels
+async function loadDataHealth() {
+  try {
+    const [healthRes, decayRes] = await Promise.all([
+      fetch('/observe-health.json?t=' + Date.now()),
+      fetch('/feed-decay.json?t='   + Date.now()),
+    ]);
+    if (healthRes.ok) renderDataHealth(await healthRes.json());
+    if (decayRes.ok)  renderFeedDecay(await decayRes.json());
+  } catch (_) {}
+}
+
+function renderDataHealth(d) {
+  // Run date + gate pill
+  const runDateEl = document.getElementById('dataHealthRunDate');
+  if (runDateEl) runDateEl.textContent = 'run ' + (d.run_date || '--');
+
+  const gatePillEl = document.getElementById('dataHealthGatePill');
+  if (gatePillEl) {
+    const gateResult = d.verify_gate?.result || 'UNKNOWN';
+    const col = gateResult === 'PASS' ? '#16A34A' : '#DC2626';
+    const bg  = gateResult === 'PASS' ? '#F0FDF4' : '#FEF2F2';
+    gatePillEl.innerHTML = `<span style="background:${bg};color:${col};border:1px solid ${col}40;border-radius:10px;padding:1px 8px;font-size:9px;font-weight:700;font-family:'DM Mono',monospace">GATE ${gateResult} · ${d.verify_gate?.pass_count ?? '?'} assertions</span>`;
+  }
+
+  // Plane bar chart
+  const barsEl = document.getElementById('dataHealthBars');
+  if (barsEl && d.planes?.length) {
+    const planes = d.planes;
+    const maxRows = Math.max(...planes.map(p => p.row_count));
+    const colors = {
+      fusion:        '#7C3AED',
+      resolve:       '#2563EB',
+      resolve_held:  '#D97706',
+      marts_analyst: '#0891B2',
+      marts_product: '#16A34A',
+    };
+    const labels = {
+      fusion:        'Fusion',
+      resolve:       'Resolve',
+      resolve_held:  'Held',
+      marts_analyst: 'Analyst Lake',
+      marts_product: 'Product Mart',
+    };
+    barsEl.innerHTML = planes.map(p => {
+      const pct = Math.max(1, Math.round((p.row_count / maxRows) * 100));
+      const col = colors[p.plane] || '#6B7280';
+      const lbl = labels[p.plane] || p.plane;
+      const nullImdb = p.null_rate_imdb >= 0 ? (p.null_rate_imdb * 100).toFixed(1) + '% null' : '–';
+      return `<div style="display:flex;align-items:center;gap:8px;font-size:10px;font-family:'DM Mono',monospace">
+        <span style="width:92px;text-align:right;color:var(--text);font-weight:600">${lbl}</span>
+        <div style="flex:1;background:#F3F4F6;border-radius:3px;height:14px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:${col};opacity:.85"></div>
+        </div>
+        <span style="width:70px;color:var(--text);font-weight:700">${fmtNum(p.row_count)}</span>
+        <span style="width:70px;color:var(--muted)">${nullImdb}</span>
+        <span style="width:50px;color:var(--muted)">${p.confidence_p95 != null ? 'p95=' + p.confidence_p95.toFixed(2) : ''}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Confidence distribution in product mart
+  const confEl = document.getElementById('dataHealthConf');
+  if (confEl && d.lineage) {
+    const lb = d.lineage.plane_breakdown || {};
+    const total = d.lineage.total_rows || 1;
+    const fusionN   = lb.fusion   || 0;
+    const resolveN  = lb.resolve  || 0;
+    const heldN     = lb.resolve_held || 0;
+    confEl.innerHTML = [
+      `<div style="margin-bottom:3px">🟣 Exact-ID  (fusion)   <b>${fmtNum(fusionN)}</b>  ${(fusionN/total*100).toFixed(1)}%</div>`,
+      `<div style="margin-bottom:3px">🔵 Resolved (≥0.80)    <b>${fmtNum(resolveN)}</b>  ${(resolveN/total*100).toFixed(1)}%</div>`,
+      `<div>🟡 Held     (<0.80)    <b>${fmtNum(heldN)}</b>  ${(heldN/total*100).toFixed(1)}%</div>`,
+    ].join('');
+  }
+
+  // Lineage summary
+  const linEl = document.getElementById('dataHealthLineage');
+  if (linEl && d.lineage) {
+    const lb = d.lineage.plane_breakdown || {};
+    linEl.innerHTML = [
+      `<div style="margin-bottom:3px">Total product-mart rows: <b>${fmtNum(d.lineage.total_rows)}</b></div>`,
+      ...Object.entries(lb).map(([plane, cnt]) =>
+        `<div style="color:var(--muted)">  ${plane}: ${fmtNum(cnt)}</div>`),
+      `<div style="margin-top:4px;color:var(--dim);font-size:9px">Manifest hashes: fusion=${(d.manifest_hashes?.fusion||'').slice(0,8)}… resolve=${(d.manifest_hashes?.resolve||'').slice(0,8)}…</div>`,
+    ].join('');
+  }
+
+  // Failed assertions
+  const assertEl = document.getElementById('dataHealthAssertions');
+  if (assertEl) {
+    const failed = d.verify_gate?.failed_assertions || [];
+    if (failed.length) {
+      assertEl.innerHTML = `<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:8px 10px;font-size:10px;color:#DC2626;font-family:'DM Mono',monospace">
+        ⚠ Failed assertions: ${failed.join(', ')}
+      </div>`;
+    } else {
+      assertEl.innerHTML = `<div style="font-size:10px;color:var(--green);font-family:'DM Mono',monospace">✓ All ${d.verify_gate?.pass_count ?? '?'} assertions passed · ${d.run_date}</div>`;
+    }
+  }
+}
+
+function renderFeedDecay(d) {
+  const rowEl = document.getElementById('feedDecayRow');
+  if (!rowEl || !d.feeds?.length) return;
+  const statusColor = { FRESH:'#16A34A', AGING:'#D97706', STALE:'#EA580C', FROZEN:'#DC2626' };
+  const statusBg    = { FRESH:'#F0FDF4', AGING:'#FFFBEB', STALE:'#FFF7ED', FROZEN:'#FEF2F2' };
+  const emoji       = { FRESH:'🟢', AGING:'🟡', STALE:'🟠', FROZEN:'🔴' };
+  rowEl.innerHTML = d.feeds.map(f => {
+    const col = statusColor[f.status] || '#6B7280';
+    const bg  = statusBg[f.status]   || '#F9FAFB';
+    const em  = emoji[f.status]       || '⚫';
+    return `<span title="${f.rationale}\nLast refresh: ${f.last_refresh_date} (${f.days_since_refresh}d ago)\nDecay: ${(f.decay_pct*100).toFixed(0)}% of ${f.staleness_threshold_d}d threshold"
+      style="background:${bg};color:${col};border:1px solid ${col}40;border-radius:10px;padding:2px 9px;font-size:9px;font-weight:700;font-family:'DM Mono',monospace;cursor:default;white-space:nowrap">
+      ${em} ${f.feed_name} · ${f.status}
+    </span>`;
+  }).join('');
 }
 
 // Worker vault fetch — reads Mac worker health from public /workers/status endpoint

@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-05-30T22:57:13.255280+00:00",
+  "run_date": "2026-05-30",
+  "planes": [
+    {
+      "run_date": "2026-05-30",
+      "plane": "fusion",
+      "dataset": "FUSION-001",
+      "row_count": 635810,
+      "null_rate_imdb": 0.946781,
+      "null_rate_eidr": -1.0,
+      "confidence_p95": 1.0,
+      "confidence_p80": 0.0,
+      "confidence_held_pct": 0.946781,
+      "source_manifest": "s3://sasmaster-2026/_manifests/FUSION-001/2026-05-30.json"
+    },
+    {
+      "run_date": "2026-05-30",
+      "plane": "resolve",
+      "dataset": "RESOLVER-001",
+      "row_count": 11095,
+      "null_rate_imdb": 0.0,
+      "null_rate_eidr": -1.0,
+      "confidence_p95": 0.95,
+      "confidence_p80": 0.95,
+      "confidence_held_pct": 0.0,
+      "source_manifest": "s3://sasmaster-2026/_manifests/RESOLVER-001/2026-05-30.json"
+    },
+    {
+      "run_date": "2026-05-30",
+      "plane": "resolve_held",
+      "dataset": "RESOLVER-001-held",
+      "row_count": 5680,
+      "null_rate_imdb": 0.023063,
+      "null_rate_eidr": -1.0,
+      "confidence_p95": 0.7892,
+      "confidence_p80": 0.76238,
+      "confidence_held_pct": 1.0,
+      "source_manifest": "s3://sasmaster-2026/_manifests/RESOLVER-001/2026-05-30.json"
+    },
+    {
+      "run_date": "2026-05-30",
+      "plane": "marts_analyst",
+      "dataset": "ANALYST-LAKE-001",
+      "row_count": 652585,
+      "null_rate_imdb": 0.974495,
+      "null_rate_eidr": -1.0,
+      "confidence_p95": 1.0,
+      "confidence_p80": 0.0,
+      "confidence_held_pct": 0.931148,
+      "source_manifest": "s3://sasmaster-2026/_manifests/ANALYST-LAKE-001/2026-05-30.json"
+    },
+    {
+      "run_date": "2026-05-30",
+      "plane": "marts_product",
+      "dataset": "PRODUCT-MART-001",
+      "row_count": 11323,
+      "null_rate_imdb": 0.0,
+      "null_rate_eidr": 1.0,
+      "confidence_p95": 0.95,
+      "confidence_p80": 0.95,
+      "confidence_held_pct": 0.0,
+      "source_manifest": "s3://sasmaster-2026/_manifests/PRODUCT-MART-001/2026-05-30.json"
+    }
+  ],
+  "lineage": {
+    "total_rows": 11323,
+    "plane_breakdown": {
+      "resolve": 11095,
+      "fusion": 228
+    }
+  },
+  "verify_gate": {
+    "result": "PASS",
+    "pass_count": 11,
+    "fail_count": 0,
+    "failed_assertions": []
+  },
+  "manifest_hashes": {
+    "fusion": "4645254882be81c6f4ca926ec4292765",
+    "resolve": "54c55243419fdc6143935ef4134e2773",
+    "analyst": "98b8ba6adf5f7d119c8927083fb8b620",
+    "product": "da4da019da3b4f852eda4cb235482edf"
+  }
+}

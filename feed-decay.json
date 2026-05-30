@@ -1,0 +1,67 @@
+{
+  "generated_at": "2026-05-30T22:57:54.985045+00:00",
+  "run_date": "2026-05-30",
+  "feeds": [
+    {
+      "run_date": "2026-05-30",
+      "feed_name": "GN_PARENT_KEY_MASTER",
+      "last_refresh_date": "2026-05-29",
+      "days_since_refresh": 1,
+      "staleness_threshold_d": 90,
+      "decay_pct": 0.011111,
+      "status": "FRESH",
+      "fallback_action": "USE_CACHED",
+      "rationale": "GN 635,810 spine baseline is durable between scheduled refreshes"
+    },
+    {
+      "run_date": "2026-05-30",
+      "feed_name": "IMDB",
+      "last_refresh_date": "2026-04-28",
+      "days_since_refresh": 32,
+      "staleness_threshold_d": 30,
+      "decay_pct": 1.066667,
+      "status": "FROZEN",
+      "fallback_action": "USE_CACHED",
+      "rationale": "IMDB data is 32d old (FROZEN at 30d threshold but <45d HOLD threshold); use cached"
+    },
+    {
+      "run_date": "2026-05-30",
+      "feed_name": "TMDB",
+      "last_refresh_date": "2026-05-29",
+      "days_since_refresh": 1,
+      "staleness_threshold_d": 7,
+      "decay_pct": 0.142857,
+      "status": "FRESH",
+      "fallback_action": "USE_CACHED",
+      "rationale": "TMDB data is 1d old; within acceptable range"
+    },
+    {
+      "run_date": "2026-05-30",
+      "feed_name": "EIDR",
+      "last_refresh_date": "2026-05-29",
+      "days_since_refresh": 1,
+      "staleness_threshold_d": 180,
+      "decay_pct": 0.005556,
+      "status": "FRESH",
+      "fallback_action": "USE_CACHED",
+      "rationale": "EIDR is slow-moving by design; cached EIDR IDs remain valid"
+    }
+  ],
+  "decisions": [
+    {
+      "feed_name": "IMDB",
+      "status": "FROZEN",
+      "decay_pct": 1.066667,
+      "last_refresh_date": "2026-04-28",
+      "days_since_refresh": 32,
+      "fallback_action": "USE_CACHED",
+      "rationale": "IMDB data is 32d old (FROZEN at 30d threshold but <45d HOLD threshold); use cached"
+    }
+  ],
+  "status_summary": {
+    "FRESH": 3,
+    "AGING": 0,
+    "STALE": 0,
+    "FROZEN": 1
+  }
+}
