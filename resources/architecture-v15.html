@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster Architecture · v15 · Operator Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --canvas:#F0F4F8; --surface:#ffffff; --surface-2:#f7f9fc;
+    --lavender:#A682F2; --lav-dim:rgba(166,130,242,0.12); --lav-line:rgba(166,130,242,0.30);
+    --teal:#0EA5E9; --teal-dim:rgba(14,165,233,0.12);
+    --green:#10B981; --green-dim:rgba(16,185,129,0.13);
+    --amber:#F59E0B; --amber-dim:rgba(245,158,11,0.14);
+    --slate:#64748B; --ink:#1e293b; --ink-2:#475569; --muted:#94a3b8;
+    --border:#e2e8f0; --border-2:#dbe4ee;
+    --radius:14px; --radius-sm:8px;
+    --shadow:0 1px 2px rgba(15,23,42,0.04),0 6px 20px rgba(15,23,42,0.06);
+    --mono:'DM Mono',ui-monospace,monospace; --sans:'DM Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--canvas);font-family:var(--sans);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;padding:32px 20px 80px}
+  .wrap{max-width:920px;margin:0 auto}
+
+  /* ---- Header ---- */
+  header{background:linear-gradient(135deg,#ffffff 0%,#f4f0ff 100%);border:1px solid var(--border);border-radius:var(--radius);padding:30px 32px;box-shadow:var(--shadow);margin-bottom:14px;position:relative;overflow:hidden}
+  header::after{content:"";position:absolute;top:0;right:0;width:160px;height:100%;background:linear-gradient(90deg,transparent,var(--lav-dim));pointer-events:none}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:2.5px;color:var(--lavender);text-transform:uppercase;font-weight:500}
+  h1{font-size:30px;font-weight:700;letter-spacing:-0.5px;margin:6px 0 2px;color:var(--ink)}
+  h1 span{color:var(--lavender)}
+  .sub{color:var(--ink-2);font-size:14.5px;max-width:640px}
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .chip{font-family:var(--mono);font-size:11px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:4px 11px;color:var(--ink-2)}
+  .chip b{color:var(--ink)}
+
+  /* ---- Legend ---- */
+  .legend{display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;margin-bottom:22px;box-shadow:var(--shadow)}
+  .legend .lk{font-family:var(--mono);font-size:11px;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+  .legend .pill{margin:0}
+
+  /* ---- Pills ---- */
+  .pill{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:0.6px;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid}
+  .pill::before{content:"";width:6px;height:6px;border-radius:50%}
+  .pill.live{background:var(--green-dim);border-color:rgba(16,185,129,0.3);color:#0f7a5a}.pill.live::before{background:var(--green)}
+  .pill.flight{background:var(--amber-dim);border-color:rgba(245,158,11,0.32);color:#a96a09}.pill.flight::before{background:var(--amber)}
+  .pill.phase2{background:#eef2f7;border-color:var(--border-2);color:var(--slate)}.pill.phase2::before{background:var(--muted)}
+  .pill.doctrine{background:var(--lav-dim);border-color:var(--lav-line);color:#7c4fd0}.pill.doctrine::before{background:var(--lavender)}
+
+  /* ---- Section ---- */
+  section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;box-shadow:var(--shadow);margin-bottom:16px}
+  .sechead{display:flex;align-items:center;gap:13px;margin-bottom:4px;flex-wrap:wrap}
+  .snum{font-family:var(--mono);font-size:13px;font-weight:500;color:#fff;background:var(--lavender);width:38px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .stitle{font-size:19px;font-weight:700;letter-spacing:-0.2px;display:flex;align-items:center;gap:9px}
+  .stitle .ico{font-size:18px}
+  .sdesc{color:var(--ink-2);font-size:14px;margin:6px 0 4px;padding-left:51px}
+  .sdesc .star{color:var(--amber)}
+
+  /* ---- Diagram frame ---- */
+  .diagram{background:var(--surface-2);border:1px solid var(--border-2);border-radius:var(--radius-sm);padding:16px;margin:16px 0 14px}
+  .diagram svg{display:block;width:100%;height:auto}
+  .dcap{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center;margin-top:8px;letter-spacing:0.3px}
+
+  /* ---- SVG text helpers (applied via classes inside svg) ---- */
+  .n-lab{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;fill:#1e293b}
+  .n-sub{font-family:'DM Mono',monospace;font-size:9.5px;fill:#64748b}
+  .n-mono{font-family:'DM Mono',monospace;font-size:10px;fill:#475569}
+  .n-cap{font-family:'DM Mono',monospace;font-size:9px;fill:#94a3b8;letter-spacing:1px;text-transform:uppercase}
+
+  /* ---- Operator boxes ---- */
+  .opgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+  .opbox{background:var(--surface-2);border:1px solid var(--border-2);border-left:3px solid var(--teal);border-radius:8px;padding:11px 13px}
+  .opbox:nth-child(2){border-left-color:var(--lavender)}
+  .opbox:nth-child(3){border-left-color:var(--green)}
+  .opbox .ot{font-family:var(--mono);font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .opbox .ov{font-size:12.5px;color:var(--ink-2);line-height:1.45}
+  .opbox .ov code{font-family:var(--mono);font-size:11px;background:#eef2f7;padding:1px 5px;border-radius:4px;color:var(--ink)}
+
+  @media(max-width:680px){
+    .opgrid{grid-template-columns:1fr}
+    .sdesc{padding-left:0}
+    body{padding:18px 12px 60px}
+    section{padding:20px 18px}
+  }
+  footer{text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:24px;letter-spacing:0.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">SaSMaster · Operator Reference</div>
+  <h1>Architecture <span>v15</span></h1>
+  <p class="sub">The one machine, end to end — with the PIL memory upgrade (Supervised-Autonomy Memory + Memory-as-a-Queryable-Service) as this release's centerpiece. Internal reference for Shiv + Claude. Not a marketing artifact.</p>
+  <div class="meta-row">
+    <span class="chip"><b>Rev</b> v15 · 2026-05-30</span>
+    <span class="chip"><b>Repo</b> github.com/sas411/sasmaster</span>
+    <span class="chip"><b>KB</b> FOUND-001 live</span>
+    <span class="chip"><b>Platform score</b> A (3.9)</span>
+  </div>
+</header>
+
+<div class="legend">
+  <span class="lk">Status key</span>
+  <span class="pill live">Live</span>
+  <span class="pill flight">In-flight</span>
+  <span class="pill phase2">Phase 2 / deferred</span>
+  <span class="pill doctrine">Doctrine</span>
+</div>
+
+<!-- 00 NORTH STAR -->
+<section>
+  <div class="sechead"><span class="snum">00</span><span class="stitle"><span class="ico">🧭</span>North Star — The One Machine</span><span class="pill doctrine">Composable-Stack</span></div>
+  <p class="sdesc">SaSMaster is one autonomous machine, not silos. Every new revenue line is a new <em>orchestration</em> of the same capabilities — build once, point at each stream.</p>
+  <div class="diagram">
+    <svg viewBox="0 0 880 150" role="img" aria-label="Composable stack pipeline: Data and Fusion to Analysis to Viz to Voice to Agents to JARVIS to Publish to Measure, looping back to Data.">
+      <defs>
+        <marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#A682F2"/></marker>
+        <marker id="arrG" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#10B981"/></marker>
+      </defs>
+      <!-- 8 nodes -->
+      <g>
+        <!-- node template positions -->
+        <!-- row of nodes -->
+        <g>
+          <rect x="6"   y="40" width="96" height="42" rx="8" fill="#fff" stroke="#A682F2" stroke-width="1.4"/>
+          <text x="54"  y="58" text-anchor="middle" class="n-lab">Data ·</text>
+          <text x="54"  y="72" text-anchor="middle" class="n-lab">Fusion</text>
+        </g>
+        <rect x="118" y="40" width="86" height="42" rx="8" fill="#fff" stroke="#e2e8f0"/><text x="161" y="65" text-anchor="middle" class="n-lab">Analysis</text>
+        <rect x="220" y="40" width="74" height="42" rx="8" fill="#fff" stroke="#e2e8f0"/><text x="257" y="65" text-anchor="middle" class="n-lab">Viz</text>
+        <rect x="310" y="40" width="78" height="42" rx="8" fill="#fff" stroke="#e2e8f0"/><text x="349" y="65" text-anchor="middle" class="n-lab">Voice</text>
+        <rect x="404" y="40" width="84" height="42" rx="8" fill="#fff" stroke="#e2e8f0"/><text x="446" y="65" text-anchor="middle" class="n-lab">Agents</text>
+        <rect x="504" y="40" width="82" height="42" rx="8" fill="#fff" stroke="#0EA5E9" stroke-width="1.4"/><text x="545" y="65" text-anchor="middle" class="n-lab">JARVIS</text>
+        <rect x="602" y="40" width="84" height="42" rx="8" fill="#fff" stroke="#e2e8f0"/><text x="644" y="65" text-anchor="middle" class="n-lab">Publish</text>
+        <rect x="702" y="40" width="92" height="42" rx="8" fill="#fff" stroke="#10B981" stroke-width="1.4"/><text x="748" y="65" text-anchor="middle" class="n-lab">Measure</text>
+        <!-- arrows -->
+        <line x1="103" y1="61" x2="116" y2="61" stroke="#A682F2" stroke-width="1.6" marker-end="url(#arr)"/>
+        <line x1="205" y1="61" x2="218" y2="61" stroke="#A682F2" stroke-width="1.6" marker-end="url(#arr)"/>
+        <line x1="295" y1="61" x2="308" y2="61" stroke="#A682F2" stroke-width="1.6" marker-end="url(#arr)"/>
+        <line x1="389" y1="61" x2="402" y2="61" stroke="#A682F2" stroke-width="1.6" marker-end="url(#arr)"/>
+        <line x1="489" y1="61" x2="502" y2="61" stroke="#A682F2" stroke-width="1.6" marker-end="url(#arr)"/>
+        <line x1="587" y1="61" x2="600" y2="61" stroke="#A682F2" stroke-width="1.6" marker-end="url(#arr)"/>
+        <line x1="687" y1="61" x2="700" y2="61" stroke="#A682F2" stroke-width="1.6" marker-end="url(#arr)"/>
+        <!-- feedback loop Measure -> Data -->
+        <path d="M748,84 L748,118 L54,118 L54,84" fill="none" stroke="#10B981" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#arrG)"/>
+        <text x="400" y="113" text-anchor="middle" class="n-cap">measurement feeds the next cycle</text>
+      </g>
+    </svg>
+    <div class="dcap">data/fusion → analysis → viz → voice → agents → JARVIS → publish → measure → (loop)<br><span style="color:#7c4fd0">voice</span> = executive-narration / synthetic-avatar delivery — insight made <em>hearable &amp; presented</em>, not just read</div>
+  </div>
+  <div class="opgrid">
+    <div class="opbox"><div class="ot">Where it lives</div><div class="ov"><code>~/SaSMaster</code> monorepo + <code>sasmaster-platform</code> Turborepo</div></div>
+    <div class="opbox"><div class="ot">What triggers it</div><div class="ov">Any new revenue line re-orchestrates the same stack (e.g. paid Substack)</div></div>
+    <div class="opbox"><div class="ot">How to verify</div><div class="ov">Strip data + viz → "just another newsletter." Both present → moat.</div></div>
+  </div>
+</section>
+
+<!-- 01 DATA & FUSION -->
+<section>
+  <div class="sechead"><span class="snum">01</span><span class="stitle"><span class="ico">🧬</span>Data &amp; Fusion</span><span class="pill live">Live</span></div>
+  <p class="sdesc">Two planes joined by the Parent Key membrane: <b>Identity</b> (resolve once) vs <b>Behavior</b> (attach forever). Composite-confidence fusion, 0.95 auto / 0.80 review.</p>
+  <div class="diagram">
+    <svg viewBox="0 0 880 184" role="img" aria-label="Fusion membrane: Identity plane (IMDB, TMDB, EIDR) resolves once into the Parent Key; Behavior plane (Nielsen, Gracenote, social) attaches forever.">
+      <defs><marker id="arr2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#0EA5E9"/></marker></defs>
+      <!-- identity plane -->
+      <rect x="10" y="20" width="250" height="144" rx="10" fill="#fff" stroke="#A682F2" stroke-width="1.3"/>
+      <text x="135" y="40" text-anchor="middle" class="n-cap" fill="#7c4fd0">Identity plane · resolve once</text>
+      <rect x="30" y="54" width="92" height="30" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="76" y="73" text-anchor="middle" class="n-mono">imdb_id</text>
+      <rect x="148" y="54" width="92" height="30" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="194" y="73" text-anchor="middle" class="n-mono">tmdb_*</text>
+      <rect x="30" y="92" width="92" height="30" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="76" y="111" text-anchor="middle" class="n-mono">eidr_id</text>
+      <rect x="148" y="92" width="92" height="30" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="194" y="111" text-anchor="middle" class="n-mono">imdb_epi</text>
+      <text x="135" y="146" text-anchor="middle" class="n-sub">PK=MASTER · EIDR=CONTRIBUTOR</text>
+      <!-- membrane -->
+      <rect x="392" y="46" width="96" height="92" rx="12" fill="#A682F2"/>
+      <text x="440" y="86" text-anchor="middle" class="n-lab" fill="#fff" style="font-size:13px">Parent</text>
+      <text x="440" y="103" text-anchor="middle" class="n-lab" fill="#fff" style="font-size:13px">Key</text>
+      <text x="440" y="123" text-anchor="middle" font-family="DM Mono" font-size="8.5" fill="#ede7ff">589K matched</text>
+      <!-- behavior plane -->
+      <rect x="620" y="20" width="250" height="144" rx="10" fill="#fff" stroke="#0EA5E9" stroke-width="1.3"/>
+      <text x="745" y="40" text-anchor="middle" class="n-cap" fill="#0c7fb5">Behavior plane · attach forever</text>
+      <rect x="640" y="54" width="92" height="30" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="686" y="73" text-anchor="middle" class="n-mono">Nielsen</text>
+      <rect x="758" y="54" width="92" height="30" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="804" y="73" text-anchor="middle" class="n-mono">Gracenote</text>
+      <rect x="640" y="92" width="92" height="30" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="686" y="111" text-anchor="middle" class="n-mono">social</text>
+      <rect x="758" y="92" width="92" height="30" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="804" y="111" text-anchor="middle" class="n-mono">RSG snap</text>
+      <text x="745" y="146" text-anchor="middle" class="n-sub">never overrides identity</text>
+      <!-- arrows: identity mints the key, key is stamped onto behavior rows -->
+      <defs><marker id="arr2L" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#A682F2"/></marker></defs>
+      <text x="325" y="74" text-anchor="middle" font-family="DM Mono" font-size="9.5" fill="#7c4fd0">mints</text>
+      <line x1="262" y1="92" x2="388" y2="92" stroke="#A682F2" stroke-width="1.8" marker-end="url(#arr2L)"/>
+      <text x="554" y="74" text-anchor="middle" font-family="DM Mono" font-size="9.5" fill="#0c7fb5">keys onto rows</text>
+      <line x1="492" y1="92" x2="616" y2="92" stroke="#0EA5E9" stroke-width="1.8" marker-end="url(#arr2)"/>
+    </svg>
+    <div class="dcap"><span style="color:#7c4fd0">identity <b>mints</b> the key</span> (push) · <span style="color:#0c7fb5">behavior rows are <b>stamped</b> with it</span>, many&rarr;one, never overrides · unmatched behavior <em>pulls</em> a new resolution (the only feedback)<br>11 scrapers + 4 RSG snapshots → S3 sasmaster-2026 → Parent Key → DuckDB / Parquet (ZSTD)</div>
+  </div>
+  <div class="opgrid">
+    <div class="opbox"><div class="ot">Where it lives</div><div class="ov"><code>s3://sasmaster-2026/</code> · <code>parent_keys/v1/</code> · <code>duckdb-parquet</code></div></div>
+    <div class="opbox"><div class="ot">What triggers it</div><div class="ov">Scraper crons → NDJSON land → Parquet convert → fusion resolve</div></div>
+    <div class="opbox"><div class="ot">How to verify</div><div class="ov"><code>fusion-qa-agent.js</code> (10 gates) · 3-leg sync SHA match</div></div>
+  </div>
+</section>
+
+<!-- 02 MEMORY TIERS + PIL SCHEMA -->
+<section>
+  <div class="sechead"><span class="snum">02</span><span class="stitle"><span class="ico">🧠</span>Memory — Distributed v2 + PIL Schema</span><span class="pill live">Tiers Live</span><span class="pill flight">Schema</span></div>
+  <p class="sdesc"><span class="star">★</span> Four tiers with a <b>hard size cap</b> on hot+warm. PIL-SCHEMA extends every entry with <code>rationale · reconstruction_cost · asset_class · status</code> — append-before-retire across 204+ entries.</p>
+  <div class="diagram">
+    <svg viewBox="0 0 880 210" role="img" aria-label="Four memory tiers — hot (30 slots, capped), warm CLAUDE_MEMORY.md (capped), cold Obsidian, archive S3 — beside the PIL entry schema fields.">
+      <defs><marker id="arr3" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#94a3b8"/></marker></defs>
+      <!-- tiers -->
+      <rect x="20" y="18" width="430" height="34" rx="7" fill="#A682F2"/><text x="40" y="40" class="n-lab" fill="#fff">HOT · claude.ai</text><text x="430" y="40" text-anchor="end" font-family="DM Mono" font-size="10" fill="#fff">30 slots</text>
+      <rect x="20" y="60" width="430" height="34" rx="7" fill="#bda0f5"/><text x="40" y="82" class="n-lab" fill="#fff">WARM · CLAUDE_MEMORY.md</text><text x="430" y="82" text-anchor="end" font-family="DM Mono" font-size="9.5" fill="#fff">recent_updates</text>
+      <rect x="20" y="102" width="430" height="34" rx="7" fill="#fff" stroke="#0EA5E9" stroke-width="1.3"/><text x="40" y="124" class="n-lab">COLD · Obsidian vault</text><text x="430" y="124" text-anchor="end" class="n-mono">knowledge-bank/</text>
+      <rect x="20" y="144" width="430" height="34" rx="7" fill="#fff" stroke="#10B981" stroke-width="1.3"/><text x="40" y="166" class="n-lab">ARCHIVE · S3</text><text x="430" y="166" text-anchor="end" class="n-mono">nightly KB-CI-002</text>
+      <!-- size cap bracket -->
+      <path d="M462,18 L470,18 L470,94 L462,94" fill="none" stroke="#F59E0B" stroke-width="1.6"/>
+      <text x="478" y="50" font-family="DM Mono" font-size="10" fill="#a96a09">HARD</text>
+      <text x="478" y="64" font-family="DM Mono" font-size="10" fill="#a96a09">SIZE</text>
+      <text x="478" y="78" font-family="DM Mono" font-size="10" fill="#a96a09">CAP</text>
+      <!-- flow arrows down -->
+      <line x1="240" y1="53" x2="240" y2="58" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#arr3)"/>
+      <line x1="240" y1="95" x2="240" y2="100" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#arr3)"/>
+      <line x1="240" y1="137" x2="240" y2="142" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#arr3)"/>
+      <!-- PIL schema panel -->
+      <rect x="560" y="18" width="300" height="160" rx="10" fill="#fff" stroke="#A682F2" stroke-width="1.3"/>
+      <text x="576" y="40" class="n-cap" fill="#7c4fd0">PIL entry schema · per memory</text>
+      <rect x="576" y="50" width="268" height="26" rx="6" fill="#f4f0ff"/><text x="588" y="67" class="n-mono">rationale</text>
+      <rect x="576" y="82" width="268" height="26" rx="6" fill="#f4f0ff"/><text x="588" y="99" class="n-mono">reconstruction_cost</text>
+      <rect x="576" y="114" width="268" height="26" rx="6" fill="#f4f0ff"/><text x="588" y="131" class="n-mono">asset_class · status</text>
+      <text x="576" y="160" class="n-sub">FOUND-001 → status=DOCTRINE · class=LICENSABLE</text>
+    </svg>
+    <div class="dcap">PIL-DOCTRINE — automation-before-complexity: a new tier/field ships with the automation that maintains it, or it doesn't ship</div>
+  </div>
+  <div class="opgrid">
+    <div class="opbox"><div class="ot">Where it lives</div><div class="ov">hot=claude.ai · <code>CLAUDE_MEMORY.md</code> · Obsidian · <code>s3://sasmaster-2026/knowledge-bank/</code></div></div>
+    <div class="opbox"><div class="ot">What triggers it</div><div class="ov">Nightly 5AM cron sync · append-before-retire migration on schema change</div></div>
+    <div class="opbox"><div class="ot">How to verify</div><div class="ov">Hot at slot cap → swap to warm · 3-leg sync SHA clean</div></div>
+  </div>
+</section>
+
+<!-- 03 SUPERVISED-AUTONOMY MEMORY + QUERYABLE SERVICE -->
+<section>
+  <div class="sechead"><span class="snum">03</span><span class="stitle"><span class="ico">🛡️</span>Supervised-Autonomy Memory + Queryable Service</span><span class="pill flight">Reconcile</span><span class="pill phase2">Service P2</span></div>
+  <p class="sdesc"><span class="star">★</span> New facts pass a <b>reconciliation gate</b> (shared <code>compare()</code> core) with a synchronous <b>DOCTRINE promotion gate</b> — human confirms, never autonomous. Integrity audits nightly. Making cold/archive queryable by agents is <b>Phase 2</b>.</p>
+  <div class="diagram">
+    <svg viewBox="0 0 880 196" role="img" aria-label="Supervised-autonomy memory: new fact enters reconcile compare, hits human DOCTRINE promotion gate, then writes to tiers; nightly integrity audit; queryable service deferred to Phase 2.">
+      <defs>
+        <marker id="arr4" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#A682F2"/></marker>
+        <marker id="arr4a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#F59E0B"/></marker>
+      </defs>
+      <rect x="14" y="60" width="120" height="46" rx="9" fill="#fff" stroke="#e2e8f0"/><text x="74" y="80" text-anchor="middle" class="n-lab">New fact /</text><text x="74" y="96" text-anchor="middle" class="n-lab">lesson</text>
+      <rect x="180" y="60" width="132" height="46" rx="9" fill="#fff" stroke="#0EA5E9" stroke-width="1.3"/><text x="246" y="80" text-anchor="middle" class="n-lab">RECONCILE</text><text x="246" y="96" text-anchor="middle" class="n-mono">compare() core</text>
+      <!-- human gate -->
+      <rect x="358" y="52" width="150" height="62" rx="9" fill="#fff6e6" stroke="#F59E0B" stroke-width="1.6"/><text x="433" y="76" text-anchor="middle" class="n-lab" fill="#a96a09">DOCTRINE gate</text><text x="433" y="94" text-anchor="middle" class="n-sub" fill="#a96a09">human confirm</text>
+      <rect x="556" y="60" width="120" height="46" rx="9" fill="#A682F2"/><text x="616" y="80" text-anchor="middle" class="n-lab" fill="#fff">Write to</text><text x="616" y="96" text-anchor="middle" class="n-lab" fill="#fff">tiers</text>
+      <!-- integrity -->
+      <rect x="556" y="134" width="300" height="40" rx="9" fill="#fff" stroke="#10B981" stroke-width="1.3"/><text x="572" y="152" class="n-lab" fill="#0f7a5a">INTEGRITY</text><text x="572" y="167" class="n-mono">round-trip restore · nightly contradiction audit</text>
+      <!-- queryable service phase 2 -->
+      <rect x="14" y="134" width="500" height="40" rx="9" fill="#eef2f7" stroke="#cbd5e1" stroke-width="1.3" stroke-dasharray="6 4"/><text x="30" y="152" class="n-lab" fill="#64748b">QUERYABLE SERVICE</text><text x="30" y="167" class="n-mono">cold/archive queried on-demand by JARVIS + fusion agents</text><text x="504" y="158" text-anchor="end" font-family="DM Mono" font-size="10" fill="#64748b">PHASE 2</text>
+      <!-- arrows -->
+      <line x1="135" y1="83" x2="178" y2="83" stroke="#A682F2" stroke-width="1.7" marker-end="url(#arr4)"/>
+      <line x1="313" y1="83" x2="356" y2="83" stroke="#A682F2" stroke-width="1.7" marker-end="url(#arr4)"/>
+      <line x1="509" y1="83" x2="554" y2="83" stroke="#F59E0B" stroke-width="1.7" marker-end="url(#arr4a)"/>
+    </svg>
+    <div class="dcap">PIL-RECONCILE + PIL-INTEGRITY in-flight · PIL-SERVICE parked behind the maintenance-cap principle until SCHEMA/RECONCILE/INTEGRITY are stable</div>
+  </div>
+  <div class="opgrid">
+    <div class="opbox"><div class="ot">Where it lives</div><div class="ov">reconciliation agent + shared <code>compare()</code> · audit folded into <code>KB-CI-002</code></div></div>
+    <div class="opbox"><div class="ot">What triggers it</div><div class="ov">Every memory write → reconcile; DOCTRINE promotion needs a human bless</div></div>
+    <div class="opbox"><div class="ot">How to verify</div><div class="ov">Round-trip restore passes · nightly audit reports zero contradictions</div></div>
+  </div>
+</section>
+
+<!-- 04 FOUNDATION + SKILLS -->
+<section>
+  <div class="sechead"><span class="snum">04</span><span class="stitle"><span class="ico">📚</span>Knowledge — FOUND-001 Foundation &amp; Skills</span><span class="pill live">Live</span></div>
+  <p class="sdesc">One canonical foundation (Substance → Delivery → Craft) is the single source of truth; 8 explanation-facing skills carry ≤6-line pointers to it. DRY — never a copy.</p>
+  <div class="diagram">
+    <svg viewBox="0 0 880 252" role="img" aria-label="FOUND-001 broken into four sections; eight skills each inherit only the sections they need, shown as colored tags — pointers, not copies.">
+      <defs><marker id="arr5" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#A682F2"/></marker></defs>
+      <!-- source of truth -->
+      <rect x="18" y="44" width="244" height="170" rx="10" fill="#fff" stroke="#A682F2" stroke-width="1.4"/>
+      <text x="34" y="66" class="n-lab" fill="#7c4fd0">FOUND-001 · source</text>
+      <text x="34" y="80" class="n-sub">viz-insight-foundation.md</text>
+      <rect x="34" y="90" width="212" height="26" rx="6" fill="#f4f0ff" stroke="#A682F2"/><text x="44" y="107" class="n-mono" fill="#7c4fd0">§1 · R2D3 doctrine</text>
+      <rect x="34" y="122" width="212" height="26" rx="6" fill="#e8f6fd" stroke="#0EA5E9"/><text x="44" y="139" class="n-mono" fill="#0c7fb5">§2 · Metric glossary</text>
+      <rect x="34" y="154" width="212" height="26" rx="6" fill="#fff6e6" stroke="#F59E0B"/><text x="44" y="171" class="n-mono" fill="#a96a09">§3 · Chart catalog</text>
+      <rect x="34" y="186" width="212" height="26" rx="6" fill="#e7f7f1" stroke="#10B981"/><text x="44" y="203" class="n-mono" fill="#0f7a5a">§4 · Insight pipeline</text>
+      <!-- pointer arrow -->
+      <text x="296" y="124" text-anchor="middle" class="n-cap" fill="#7c4fd0">pointers</text>
+      <line x1="264" y1="130" x2="326" y2="130" stroke="#A682F2" stroke-width="1.6" marker-end="url(#arr5)"/>
+      <!-- 8 skills, each tagged with the sections it inherits -->
+      <g>
+        <rect x="330" y="21" width="530" height="24" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="344" y="38" class="n-mono">data-viz</text>
+        <rect x="786" y="25" width="34" height="16" rx="4" fill="#f4f0ff" stroke="#A682F2"/><text x="803" y="37" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#7c4fd0">§1</text>
+        <rect x="826" y="25" width="34" height="16" rx="4" fill="#fff6e6" stroke="#F59E0B"/><text x="843" y="37" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#a96a09">§3</text>
+
+        <rect x="330" y="49" width="530" height="24" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="344" y="66" class="n-mono">media-domain</text>
+        <rect x="826" y="53" width="34" height="16" rx="4" fill="#e8f6fd" stroke="#0EA5E9"/><text x="843" y="65" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#0c7fb5">§2</text>
+
+        <rect x="330" y="77" width="530" height="24" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="344" y="94" class="n-mono">programming-researcher</text>
+        <rect x="786" y="81" width="34" height="16" rx="4" fill="#e8f6fd" stroke="#0EA5E9"/><text x="803" y="93" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#0c7fb5">§2</text>
+        <rect x="826" y="81" width="34" height="16" rx="4" fill="#e7f7f1" stroke="#10B981"/><text x="843" y="93" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#0f7a5a">§4</text>
+
+        <rect x="330" y="105" width="530" height="24" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="344" y="122" class="n-mono">shiv-executive-profile</text>
+        <rect x="786" y="109" width="34" height="16" rx="4" fill="#f4f0ff" stroke="#A682F2"/><text x="803" y="121" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#7c4fd0">§1</text>
+        <rect x="826" y="109" width="34" height="16" rx="4" fill="#e7f7f1" stroke="#10B981"/><text x="843" y="121" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#0f7a5a">§4</text>
+
+        <rect x="330" y="133" width="530" height="24" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="344" y="150" class="n-mono">linkedin-thought-leader</text>
+        <rect x="786" y="137" width="34" height="16" rx="4" fill="#f4f0ff" stroke="#A682F2"/><text x="803" y="149" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#7c4fd0">§1</text>
+        <rect x="826" y="137" width="34" height="16" rx="4" fill="#e7f7f1" stroke="#10B981"/><text x="843" y="149" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#0f7a5a">§4</text>
+
+        <rect x="330" y="161" width="530" height="24" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="344" y="178" class="n-mono">autonomous-ui-designer</text>
+        <rect x="786" y="165" width="34" height="16" rx="4" fill="#f4f0ff" stroke="#A682F2"/><text x="803" y="177" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#7c4fd0">§1</text>
+        <rect x="826" y="165" width="34" height="16" rx="4" fill="#fff6e6" stroke="#F59E0B"/><text x="843" y="177" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#a96a09">§3</text>
+
+        <rect x="330" y="189" width="530" height="24" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="344" y="206" class="n-mono">uiux-mastery</text>
+        <rect x="786" y="193" width="34" height="16" rx="4" fill="#f4f0ff" stroke="#A682F2"/><text x="803" y="205" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#7c4fd0">§1</text>
+        <rect x="826" y="193" width="34" height="16" rx="4" fill="#fff6e6" stroke="#F59E0B"/><text x="843" y="205" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#a96a09">§3</text>
+
+        <rect x="330" y="217" width="530" height="24" rx="6" fill="#f7f9fc" stroke="#e2e8f0"/><text x="344" y="234" class="n-mono">emba-analyst</text>
+        <rect x="826" y="221" width="34" height="16" rx="4" fill="#f4f0ff" stroke="#A682F2"/><text x="843" y="233" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#7c4fd0">§1</text>
+      </g>
+    </svg>
+    <div class="dcap">each skill holds a ≤6-line <b>pointer, not a copy</b> — edit the source once, all inherit · tag color = inherited section · §2 also points to the deeper media-research-metrics.md</div>
+  </div>
+  <div class="opgrid">
+    <div class="opbox"><div class="ot">Where it lives</div><div class="ov"><code>knowledge-bank/principles/viz-insight-foundation.md</code></div></div>
+    <div class="opbox"><div class="ot">What triggers it</div><div class="ov">Any explanation-facing build inherits the pointer; agents inherit via skills</div></div>
+    <div class="opbox"><div class="ot">How to verify</div><div class="ov">Each skill carries pointer (not copy) · zero duplicate/drifting docs</div></div>
+  </div>
+</section>
+
+<!-- 05 SKILL & AGENT FLEET -->
+<section>
+  <div class="sechead"><span class="snum">05</span><span class="stitle"><span class="ico">🤖</span>Skill &amp; Agent Fleet</span><span class="pill live">79 skills</span><span class="pill live">50 agents</span></div>
+  <p class="sdesc">Two layers: SaSMaster-native <b>domain</b> agents sit on top of the <code>wshobson/agents</code> marketplace <b>capability</b> fleet. Skills (capabilities) and agents (runtime workers) are separate counts.</p>
+  <div class="diagram">
+    <svg viewBox="0 0 880 214" role="img" aria-label="Fleet snapshot: 79 skills, 50 agents, 27 commands, 9 plugins. SaSMaster-native domain agents run on the wshobson marketplace capability fleet.">
+      <!-- snapshot strip -->
+      <rect x="14"  y="12" width="205" height="48" rx="9" fill="#f4f0ff" stroke="#A682F2" stroke-width="1.1"/><text x="116" y="38" text-anchor="middle" font-family="DM Mono" font-size="20" fill="#7c4fd0">79</text><text x="116" y="52" text-anchor="middle" class="n-sub">total skills · +59</text>
+      <rect x="229" y="12" width="205" height="48" rx="9" fill="#e8f6fd" stroke="#0EA5E9" stroke-width="1.1"/><text x="331" y="38" text-anchor="middle" font-family="DM Mono" font-size="20" fill="#0c7fb5">50</text><text x="331" y="52" text-anchor="middle" class="n-sub">total agents · +31</text>
+      <rect x="444" y="12" width="205" height="48" rx="9" fill="#f7f9fc" stroke="#e2e8f0"/><text x="546" y="38" text-anchor="middle" font-family="DM Mono" font-size="20" fill="#1e293b">27</text><text x="546" y="52" text-anchor="middle" class="n-sub">commands</text>
+      <rect x="659" y="12" width="205" height="48" rx="9" fill="#f7f9fc" stroke="#e2e8f0"/><text x="761" y="38" text-anchor="middle" font-family="DM Mono" font-size="20" fill="#1e293b">9</text><text x="761" y="52" text-anchor="middle" class="n-sub">plugins</text>
+      <!-- native domain layer -->
+      <rect x="14" y="76" width="850" height="48" rx="10" fill="#fff" stroke="#A682F2" stroke-width="1.3"/>
+      <text x="26" y="92" class="n-cap" fill="#7c4fd0">SaSMaster-native domain agents</text>
+      <rect x="190" y="98" width="150" height="20" rx="5" fill="#f7f9fc" stroke="#e2e8f0"/><text x="265" y="112" text-anchor="middle" class="n-mono">Intel · Media/Tech/EDGAR</text>
+      <rect x="348" y="98" width="158" height="20" rx="5" fill="#f7f9fc" stroke="#e2e8f0"/><text x="427" y="112" text-anchor="middle" class="n-mono">Fusion · Resolver…QA</text>
+      <rect x="514" y="98" width="158" height="20" rx="5" fill="#f7f9fc" stroke="#e2e8f0"/><text x="593" y="112" text-anchor="middle" class="n-mono">Insight · Scoop chain</text>
+      <rect x="680" y="98" width="172" height="20" rx="5" fill="#f7f9fc" stroke="#e2e8f0"/><text x="766" y="112" text-anchor="middle" class="n-mono">Ops · JARVIS/build/QA</text>
+      <!-- connector -->
+      <text x="440" y="141" text-anchor="middle" class="n-cap">↕ domain agents compose on the capability fleet</text>
+      <!-- marketplace layer -->
+      <rect x="14" y="148" width="850" height="58" rx="10" fill="#f7f9fc" stroke="#cbd5e1" stroke-width="1.2"/>
+      <text x="26" y="164" class="n-cap" fill="#64748b">wshobson/agents marketplace · installed 2026-05-26</text>
+      <g font-family="DM Mono" font-size="9" fill="#475569">
+        <rect x="26"  y="172" width="116" height="16" rx="4" fill="#fff" stroke="#e2e8f0"/><text x="84"  y="184" text-anchor="middle">python-dev ·16</text>
+        <rect x="150" y="172" width="120" height="16" rx="4" fill="#fff" stroke="#e2e8f0"/><text x="210" y="184" text-anchor="middle">llm-app-dev ·8</text>
+        <rect x="278" y="172" width="128" height="16" rx="4" fill="#fff" stroke="#e2e8f0"/><text x="342" y="184" text-anchor="middle">observability ·4</text>
+        <rect x="414" y="172" width="100" height="16" rx="4" fill="#fff" stroke="#e2e8f0"/><text x="464" y="184" text-anchor="middle">security ·6</text>
+        <rect x="522" y="172" width="186" height="16" rx="4" fill="#fff" stroke="#e2e8f0"/><text x="615" y="184" text-anchor="middle">agent-teams + conductor ·9</text>
+        <rect x="26"  y="192" width="100" height="16" rx="4" fill="#fff" stroke="#e2e8f0"/><text x="76"  y="204" text-anchor="middle">backend ·9</text>
+        <rect x="134" y="192" width="84"  height="16" rx="4" fill="#fff" stroke="#e2e8f0"/><text x="176" y="204" text-anchor="middle">cicd ·4</text>
+        <rect x="226" y="192" width="84"  height="16" rx="4" fill="#fff" stroke="#e2e8f0"/><text x="268" y="204" text-anchor="middle">js-ts ·4</text>
+        <rect x="318" y="192" width="92"  height="16" rx="4" fill="#fff" stroke="#e2e8f0"/><text x="364" y="204" text-anchor="middle">mlops ·2</text>
+      </g>
+    </svg>
+    <div class="dcap">baseline ~20 skills / 19 agents → <b>79 skills / 50 agents</b> · two-tier install (T1 core platform · T2 extended) · count grows as net-new ships</div>
+  </div>
+  <div class="opgrid">
+    <div class="opbox"><div class="ot">Where it lives</div><div class="ov"><code>~/.claude/skills/</code> + <code>~/.claude/plugins/</code> · native agents in <code>scripts/</code></div></div>
+    <div class="opbox"><div class="ot">What triggers it</div><div class="ov">Crons (intel) · pipeline calls (fusion/insight) · <code>!build</code> · <code>/conductor:*</code></div></div>
+    <div class="opbox"><div class="ot">How to verify</div><div class="ov">War Room <code>SKILL-INSTALL-001</code> · <code>!status</code> in #builds</div></div>
+  </div>
+</section>
+
+<!-- 06 INSIGHT ENGINE -->
+<section>
+  <div class="sechead"><span class="snum">06</span><span class="stitle"><span class="ico">💬</span>Insight Engine — Dr. Scoop / Smart Insights 2.0</span><span class="pill live">Takeaways+Chat</span><span class="pill flight">2.0 pipeline</span></div>
+  <p class="sdesc">NL question → answer, as a four-agent chain with a human confirmation gate and a claim-verification gate before anything advertiser-facing leaves the building.</p>
+  <div class="diagram">
+    <svg viewBox="0 0 880 168" role="img" aria-label="Four-agent insight pipeline: Comprehender, human confirm gate, Payload Generator (parallel), Optimal Executor, claim-verification gate, Packager.">
+      <defs><marker id="arr6" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#0EA5E9"/></marker></defs>
+      <rect x="10" y="58" width="120" height="50" rx="9" fill="#fff" stroke="#A682F2" stroke-width="1.3"/><text x="70" y="79" text-anchor="middle" class="n-lab">Comprehender</text><text x="70" y="95" text-anchor="middle" class="n-sub">NL → query plan</text>
+      <rect x="156" y="52" width="118" height="62" rx="9" fill="#fff6e6" stroke="#F59E0B" stroke-width="1.5"/><text x="215" y="76" text-anchor="middle" class="n-lab" fill="#a96a09">Confirm gate</text><text x="215" y="93" text-anchor="middle" class="n-sub" fill="#a96a09">human bless</text>
+      <rect x="300" y="58" width="124" height="50" rx="9" fill="#fff" stroke="#e2e8f0"/><text x="362" y="79" text-anchor="middle" class="n-lab">Payload Gen</text><text x="362" y="95" text-anchor="middle" class="n-sub">parallel prep</text>
+      <rect x="450" y="58" width="124" height="50" rx="9" fill="#fff" stroke="#e2e8f0"/><text x="512" y="79" text-anchor="middle" class="n-lab">Executor</text><text x="512" y="95" text-anchor="middle" class="n-sub">data + models</text>
+      <rect x="600" y="52" width="118" height="62" rx="9" fill="#fff6e6" stroke="#F59E0B" stroke-width="1.5"/><text x="659" y="76" text-anchor="middle" class="n-lab" fill="#a96a09">Claim verify</text><text x="659" y="93" text-anchor="middle" class="n-sub" fill="#a96a09">trace + metric-correct</text>
+      <rect x="744" y="58" width="124" height="50" rx="9" fill="#A682F2"/><text x="806" y="79" text-anchor="middle" class="n-lab" fill="#fff">Packager</text><text x="806" y="95" text-anchor="middle" class="n-sub" fill="#ede7ff">deck / takeaways</text>
+      <g stroke="#0EA5E9" stroke-width="1.6">
+        <line x1="131" y1="83" x2="154" y2="83" marker-end="url(#arr6)"/>
+        <line x1="275" y1="83" x2="298" y2="83" marker-end="url(#arr6)"/>
+        <line x1="425" y1="83" x2="448" y2="83" marker-end="url(#arr6)"/>
+        <line x1="575" y1="83" x2="598" y2="83" marker-end="url(#arr6)"/>
+        <line x1="719" y1="83" x2="742" y2="83" marker-end="url(#arr6)"/>
+      </g>
+      <text x="440" y="140" text-anchor="middle" class="n-cap">Comprehender = ASK-PRODUCT-001 constrained plan grammar · grammar boundary = answerable boundary</text>
+    </svg>
+    <div class="dcap">Executor must honor §02 metric correctness (duration-weighting) · claims are advertiser-facing → traceable, never invented</div>
+  </div>
+  <div class="opgrid">
+    <div class="opbox"><div class="ot">Where it lives</div><div class="ov"><code>services/scoop/</code> · Smart Insights panel · <code>#intel</code></div></div>
+    <div class="opbox"><div class="ot">What triggers it</div><div class="ov">User asks a business question in NL · report-takeaways auto-run</div></div>
+    <div class="opbox"><div class="ot">How to verify</div><div class="ov">Plan shown before run · every claim figure traces to queried data</div></div>
+  </div>
+</section>
+
+<!-- 07 THREE SURFACES -->
+<section>
+  <div class="sechead"><span class="snum">07</span><span class="stitle"><span class="ico">🎛️</span>Orchestration — JARVIS &amp; the Three Surfaces</span><span class="pill live">Live</span><span class="pill doctrine">Routing</span></div>
+  <p class="sdesc">Strategy on Claude.ai, execution on Claude Code, bulk/async on JARVIS. Claude.ai never auto-fires Slack — the draft is the human gate.</p>
+  <div class="diagram">
+    <svg viewBox="0 0 880 170" role="img" aria-label="Three surfaces routing: Claude.ai strategy, Claude Code 1-3 tasks, JARVIS queue 4+ tasks, converging on TASKS.md and the build loop.">
+      <defs><marker id="arr7" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#A682F2"/></marker></defs>
+      <rect x="20" y="20" width="240" height="58" rx="10" fill="#fff" stroke="#A682F2" stroke-width="1.3"/><text x="140" y="44" text-anchor="middle" class="n-lab">Claude.ai</text><text x="140" y="62" text-anchor="middle" class="n-sub">strategy · design · task cards</text>
+      <rect x="320" y="20" width="240" height="58" rx="10" fill="#fff" stroke="#0EA5E9" stroke-width="1.3"/><text x="440" y="44" text-anchor="middle" class="n-lab">Claude Code</text><text x="440" y="62" text-anchor="middle" class="n-sub">execution · 1–3 confirmed tasks</text>
+      <rect x="620" y="20" width="240" height="58" rx="10" fill="#fff" stroke="#10B981" stroke-width="1.3"/><text x="740" y="44" text-anchor="middle" class="n-lab">JARVIS queue</text><text x="740" y="62" text-anchor="middle" class="n-sub">4+ async / bulk / scheduled</text>
+      <!-- converge to TASKS.md -->
+      <rect x="320" y="104" width="240" height="44" rx="10" fill="#A682F2"/><text x="440" y="123" text-anchor="middle" class="n-lab" fill="#fff">TASKS.md → build loop</text><text x="440" y="139" text-anchor="middle" font-family="DM Mono" font-size="9" fill="#ede7ff">7AM / 2PM self-score · phase gates</text>
+      <g stroke="#A682F2" stroke-width="1.5" fill="none">
+        <path d="M140,78 C140,98 320,100 360,104" marker-end="url(#arr7)"/>
+        <path d="M440,78 L440,102" marker-end="url(#arr7)"/>
+        <path d="M740,78 C740,98 560,100 520,104" marker-end="url(#arr7)"/>
+      </g>
+    </svg>
+    <div class="dcap">SUPERVISED-AUTONOMY — every gate (plan, viz bless, claim sign-off) is a gold label feeding the self-learning skills</div>
+  </div>
+  <div class="opgrid">
+    <div class="opbox"><div class="ot">Where it lives</div><div class="ov"><code>scripts/jarvis.js</code> · <code>TASKS.md</code> · <code>#builds C0ATABZAH39</code></div></div>
+    <div class="opbox"><div class="ot">What triggers it</div><div class="ov"><code>!task</code> inject → <code>TASKS-MD-SYNC</code> → self-score or <code>!build</code></div></div>
+    <div class="opbox"><div class="ot">How to verify</div><div class="ov">Kanban entry exists · each phase ends in a human bless</div></div>
+  </div>
+</section>
+
+<!-- 08 INFRA -->
+<section>
+  <div class="sechead"><span class="snum">08</span><span class="stitle"><span class="ico">🛰️</span>Live Services &amp; Infrastructure</span><span class="pill live">Live</span></div>
+  <p class="sdesc">War Room is the source-of-truth surface; the portal is the product; Railway + Cloudflare Tunnel expose the API; crons drive the daily rhythm.</p>
+  <div class="diagram">
+    <svg viewBox="0 0 880 168" role="img" aria-label="Infrastructure topology: War Room and portal on Vercel, Railway API behind Cloudflare Tunnel, JARVIS daemon, S3, and the cron schedule.">
+      <defs><marker id="arr8" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#64748b"/></marker></defs>
+      <rect x="20" y="24" width="180" height="44" rx="9" fill="#fff" stroke="#A682F2" stroke-width="1.3"/><text x="110" y="42" text-anchor="middle" class="n-lab">War Room</text><text x="110" y="58" text-anchor="middle" class="n-mono">sasmaster-status</text>
+      <rect x="20" y="92" width="180" height="44" rx="9" fill="#fff" stroke="#0EA5E9" stroke-width="1.3"/><text x="110" y="110" text-anchor="middle" class="n-lab">Portal</text><text x="110" y="126" text-anchor="middle" class="n-mono">Next.js 16 / React 19</text>
+      <rect x="350" y="58" width="180" height="46" rx="9" fill="#fff" stroke="#10B981" stroke-width="1.3"/><text x="440" y="78" text-anchor="middle" class="n-lab">Railway API</text><text x="440" y="94" text-anchor="middle" class="n-mono">JARVIS v5 HTTP events</text>
+      <rect x="350" y="118" width="180" height="32" rx="8" fill="#f7f9fc" stroke="#e2e8f0"/><text x="440" y="138" text-anchor="middle" class="n-mono">Cloudflare Tunnel → api.sasmaster.dev</text>
+      <rect x="680" y="24" width="180" height="44" rx="9" fill="#fff" stroke="#e2e8f0"/><text x="770" y="42" text-anchor="middle" class="n-lab">S3 sasmaster-2026</text><text x="770" y="58" text-anchor="middle" class="n-mono">KB + data + archive</text>
+      <rect x="680" y="92" width="180" height="58" rx="9" fill="#f7f9fc" stroke="#e2e8f0"/><text x="770" y="110" text-anchor="middle" class="n-cap">Cron rhythm</text><text x="770" y="126" text-anchor="middle" class="n-mono">5A brief · 6A intel</text><text x="770" y="140" text-anchor="middle" class="n-mono">7A/2P score · Fri 6P tech</text>
+      <g stroke="#64748b" stroke-width="1.3" fill="none" opacity="0.8">
+        <line x1="200" y1="46" x2="348" y2="74" marker-end="url(#arr8)"/>
+        <line x1="200" y1="114" x2="348" y2="86" marker-end="url(#arr8)"/>
+        <line x1="530" y1="80" x2="678" y2="50" marker-end="url(#arr8)"/>
+        <line x1="530" y1="92" x2="678" y2="116" marker-end="url(#arr8)"/>
+      </g>
+    </svg>
+    <div class="dcap">Railway Hobby plan · single-point-of-failure mitigated (HARDEN-SPRINT) · LaunchAgent token-refresh every 3h</div>
+  </div>
+  <div class="opgrid">
+    <div class="opbox"><div class="ot">Where it lives</div><div class="ov">Vercel (War Room + portal) · Railway (API) · Cloudflare (tunnel) · AWS (S3)</div></div>
+    <div class="opbox"><div class="ot">What triggers it</div><div class="ov">Git push → Vercel auto-deploy · crons on the Mac via launchd</div></div>
+    <div class="opbox"><div class="ot">How to verify</div><div class="ov">War Room status · <code>!status</code> · <code>gitleaks</code> clean pre-commit</div></div>
+  </div>
+</section>
+
+<footer>SaSMaster Architecture v15 · Operator Reference · Shiv + Claude · 2026-05-30 · supersedes v11</footer>
+
+</div>
+</body>
+</html>
