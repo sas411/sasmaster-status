@@ -3579,7 +3579,7 @@ function applyQuotaData(tq) {
       weekly_all_models_pct:   tq.weekly_all_models_pct || 0,
       weekly_claude_design_pct:tq.weekly_design_pct    || 0,
       session_used_pct:        tq.session_used_pct     || 0,
-      weekly_resets_at:        tq.resets_at            || null,
+      weekly_resets_at:        tq.resets_at_text || tq.resets_at || null,
       updated_at:              tq.scraped_at           || null,
     },
     token_projection: null,
