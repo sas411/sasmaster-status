@@ -2234,7 +2234,7 @@ function renderFeedDecay(d) {
   const statusColor = { FRESH:'#16A34A', AGING:'#D97706', STALE:'#EA580C', FROZEN:'#DC2626' };
   const statusBg    = { FRESH:'#F0FDF4', AGING:'#FFFBEB', STALE:'#FFF7ED', FROZEN:'#FEF2F2' };
   const emoji       = { FRESH:'🟢', AGING:'🟡', STALE:'🟠', FROZEN:'🔴' };
-  rowEl.innerHTML = d.feeds.map(f => {
+  const feedPills = d.feeds.map(f => {
     const col = statusColor[f.status] || '#6B7280';
     const bg  = statusBg[f.status]   || '#F9FAFB';
     const em  = emoji[f.status]       || '⚫';
@@ -2243,6 +2243,23 @@ function renderFeedDecay(d) {
       ${em} ${f.feed_name} · ${f.status}
     </span>`;
   }).join('');
+
+  // Coverage metrics row (FEED-DECAY-001 gate: no_eidr_pct / no_gn_pct)
+  let coverageRow = '';
+  const cm = d.coverage_metrics;
+  if (cm) {
+    const eidrPct  = (cm.no_eidr_pct * 100).toFixed(1);
+    const gnPct    = (cm.no_gn_pct   * 100).toFixed(1);
+    const eidrCol  = cm.no_eidr_pct > 0.5 ? '#DC2626' : cm.no_eidr_pct > 0.1 ? '#D97706' : '#16A34A';
+    const gnCol    = cm.no_gn_pct   > 0.5 ? '#DC2626' : cm.no_gn_pct   > 0.1 ? '#D97706' : '#16A34A';
+    coverageRow = `<div style="margin-top:5px;font-size:9px;font-family:'DM Mono',monospace;display:flex;gap:10px;flex-wrap:wrap">
+      <span title="% spine rows with no EIDR ID (snapshot ${cm.snapshot_date})" style="color:${eidrCol}">no_eidr: ${eidrPct}%</span>
+      <span title="GN held / (resolved + held) — unmatched GN coverage gap" style="color:${gnCol}">no_gn: ${gnPct}% · ${fmtNum(cm.gn_held)} held / ${fmtNum(cm.gn_resolved+cm.gn_held)} attempted</span>
+      <span style="color:var(--muted)" title="Spine rows with known IMDB tconst">no_imdb: ${(cm.no_imdb_pct*100).toFixed(1)}%</span>
+    </div>`;
+  }
+
+  rowEl.innerHTML = feedPills + coverageRow;
 }
 
 // Worker vault fetch — reads Mac worker health from public /workers/status endpoint
