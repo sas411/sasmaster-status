@@ -2060,19 +2060,12 @@ let _logAgentName = '';
 let _logJobId = '';
 
 // ══════════════════════════════════════════════════════════
-// COST DATA (hardcoded, persisted in memory)
+// COST DATA — live feed from /api/costs (s3 _observe/costs/latest.json)
+// Populated by services/cost-agent/collect.js (cron 0 */6 * * *)
 // ══════════════════════════════════════════════════════════
-let COSTS = [
-  {id:1, date:'2026-04-01', cat:'claude-ai', service:'Claude AI Pro', desc:'Monthly Pro subscription', amt:20.00, tokens:''},
-  {id:2, date:'2026-04-26', cat:'claude-code', service:'Claude Code · Sonnet 4.6', desc:'Portal v9 autonomous build · 12-section spec · War Room redesign', amt:18.50, tokens:'~6.2M in / 480K out'},
-  {id:3, date:'2026-04-22', cat:'claude-code', service:'Claude Code · Sonnet 4.6', desc:'Skills fleet build · autonomous-ui-designer · qa-agent', amt:12.30, tokens:'~4.1M in / 320K out'},
-  {id:4, date:'2026-04-23', cat:'claude-code', service:'Claude Code · Sonnet 4.6', desc:'Portal v8 DetailPage drill-down · Social Intelligence panel', amt:9.80, tokens:'~3.3M in / 260K out'},
-  {id:5, date:'2026-04-24', cat:'claude-code', service:'Claude Code · Opus 4.6', desc:'Dr. Scoop API integration · Claude Code config', amt:14.20, tokens:'~950K in / 72K out'},
-  {id:6, date:'2026-04-01', cat:'s3', service:'AWS S3 · sasmaster-2026', desc:'Storage: 85.4 GB · GET/PUT requests', amt:2.61, tokens:''},
-  {id:7, date:'2026-04-22', cat:'claude-code', service:'Claude Code · Sonnet 4.6', desc:'Memory System v2 · CLAUDE_MEMORY.md · Obsidian vault', amt:5.40, tokens:'~1.8M in / 140K out'},
-  {id:8, date:'2026-04-26', cat:'claude-code', service:'Claude Code · Sonnet 4.6', desc:'build-auto cost logging · per-feature JSONL · 11/11 smoke test', amt:3.20, tokens:'~1.1M in / 85K out'},
-];
-let nextCostId = 9;
+let COSTS = [];
+let _costsData = null; // full latest.json payload
+let nextCostId = 1;
 
 // ══════════════════════════════════════════════════════════
 // DATA LOADING
@@ -2097,6 +2090,7 @@ async function loadStatus() {
       // Kick off live data fetches in parallel (don't block status render)
       loadKanbanLive();
       loadCostKPI();
+      loadCosts();
       loadWorkerVault();
       loadDataHealth();
       scheduleRefresh();
@@ -2301,6 +2295,80 @@ async function loadCostKPI() {
     if (subEl) {
       subEl.textContent = s.entry_count ? s.entry_count + ' builds' : 'cached';
     }
+  }
+}
+
+// Live costs fetch — replaces hardcoded COSTS array with data from /api/costs
+async function loadCosts() {
+  try {
+    const r = await fetch('/api/costs?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    _costsData = data;
+
+    // Populate COSTS array from entries
+    if (Array.isArray(data.entries) && data.entries.length > 0) {
+      COSTS = data.entries.map(e => ({
+        id:      e.id,
+        date:    e.date || data.period + '-01',
+        cat:     e.cat || 'other',
+        service: e.service || '—',
+        desc:    e.desc || '',
+        amt:     parseFloat(e.amt || 0),
+        tokens:  e.tokens || '',
+      }));
+      nextCostId = Math.max(...COSTS.map(e => e.id)) + 1;
+    }
+
+    // Update KPI strip from kpis block
+    const k = data.kpis || {};
+    const fmt = v => '$' + (v || 0).toFixed(2);
+    const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setText('kv-total', fmt(k.total));
+    setText('kv-cc',    fmt(k.claude_code));
+    setText('kv-ca',    fmt(k.claude_ai));
+    setText('kv-cd',    fmt(k.design));
+    setText('kv-s3',    fmt(k.aws_s3));
+    setText('kv-other', fmt(k.other));
+
+    // Show stale badge on totalBadge if data is >8h old
+    const badge = document.getElementById('totalBadge');
+    if (badge && data.generated_at) {
+      const ageH = (Date.now() - new Date(data.generated_at).getTime()) / 3600000;
+      if (ageH > 8) {
+        badge.textContent = `stale ${Math.round(ageH)}h`;
+        badge.style.color = '#F59E0B';
+      } else {
+        const mins = Math.round(ageH * 60);
+        badge.textContent = mins < 2 ? 'just now' : `${mins}m ago`;
+        badge.style.color = '';
+      }
+    }
+
+    // Update top-level KPI cost strip if present
+    const costEl = document.getElementById('kpiCost');
+    if (costEl && k.total != null) {
+      costEl.textContent = fmt(k.total);
+      costEl.className = 'kpi-val ok';
+    }
+
+    // Re-render costs tab if it's active
+    if (document.getElementById('tab-costs')?.classList.contains('active')) {
+      renderCosts();
+    }
+
+    // Update TOKEN QUOTA panel if token_quota block present
+    if (data.token_quota) {
+      applyQuotaData(data.token_quota);
+    }
+
+    // Update cache efficiency in console (dev aid)
+    if (data.cache_efficiency != null) {
+      console.info('[cost-agent] cache_efficiency:', data.cache_efficiency);
+    }
+
+  } catch (err) {
+    console.warn('[loadCosts] failed:', err.message, '— COSTS tab will be empty until next collect run');
   }
 }
 
@@ -3499,6 +3567,31 @@ function modelShort(model) {
   if (m.includes('sonnet')) return 'sonnet';
   if (m.includes('haiku')) return 'haiku';
   return model.split('-')[0];
+}
+
+// TOKEN-QUOTA-FEED-001 adapter — bridges token_quota block from latest.json
+// into populateQuotaPanel's expected shape. Stub until scrape-quota.js is built.
+function applyQuotaData(tq) {
+  if (!tq) return;
+  populateQuotaPanel({
+    usage_state: {
+      weekly_sonnet_pct:       tq.weekly_sonnet_pct    || 0,
+      weekly_all_models_pct:   tq.weekly_all_models_pct || 0,
+      weekly_claude_design_pct:tq.weekly_design_pct    || 0,
+      session_used_pct:        tq.session_used_pct     || 0,
+      weekly_resets_at:        tq.resets_at            || null,
+      updated_at:              tq.scraped_at           || null,
+    },
+    token_projection: null,
+  });
+  // Staleness badge — show if scrape is >12h old
+  if (tq.stale) {
+    const tsEl = document.getElementById('qp-updated-ts');
+    if (tsEl) {
+      tsEl.textContent = 'Stale — scrape failed, last known values shown';
+      tsEl.style.color = '#F59E0B';
+    }
+  }
 }
 
 function populateQuotaPanel(d) {
