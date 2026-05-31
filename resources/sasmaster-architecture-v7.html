@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — Technology Architecture v7</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f5f4fb;font-family:'Inter',sans-serif;color:#1a1830;font-size:13px;line-height:1.5;padding:12px;}
+
+/* PAGE HEADER */
+.page-header{display:flex;align-items:center;background:#fff;border:1px solid #e0dcf4;border-radius:12px;padding:12px 18px;margin-bottom:12px;gap:16px;}
+.monkey-img{width:52px;height:52px;background:#ddd8f8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;overflow:hidden;}
+.monkey-img img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;opacity:0.92;}
+.page-title{flex:1;min-width:0;}
+.page-title h1{font-size:22px;font-weight:700;color:#1a1830;letter-spacing:-0.01em;}
+.page-title p{font-size:11px;color:#8a85a8;margin-top:2px;white-space:normal;}
+.scoop-block{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.scoop-img{width:46px;height:46px;background:#fdf8ee;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;overflow:hidden;}
+.scoop-img img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;}
+.scoop-label{font-size:13px;font-weight:700;color:#b8881a;letter-spacing:0.06em;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;letter-spacing:0.08em;padding:2px 8px;border-radius:3px;text-transform:uppercase;}
+.badge-live{background:#e8fff0;color:#1a7a40;border:1px solid #80d4a0;}
+.badge-new{background:#fff4e0;color:#904010;border:1px solid #e0a040;}
+.badge-planned{background:#f0eeff;color:#5040a0;border:1px solid #c0b0f0;}
+.badge-weekly{background:#f0f8ff;color:#1a5080;border:1px solid #90c4e8;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#30c060;animation:pulse 2s infinite;display:inline-block;flex-shrink:0;}
+.amber-dot{width:6px;height:6px;border-radius:50%;background:#f0a030;animation:pulse 2.5s infinite;display:inline-block;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* WORKFLOW BAR */
+.workflow-bar{background:#fff;border:1px solid #e0dcf4;border-radius:10px;padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;}
+.wf-label{font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#a0a0bc;margin-right:10px;white-space:nowrap;border-right:1px solid #e8e4f8;padding-right:10px;line-height:1.5;flex-shrink:0;}
+.wf-steps{display:flex;align-items:center;flex:1;flex-wrap:wrap;gap:3px;}
+.wf-pill{display:flex;flex-direction:column;align-items:flex-start;background:#f5f3fe;border:1px solid #d8d2f4;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:600;color:#5040a0;white-space:nowrap;line-height:1.3;}
+.wf-pill span{font-weight:400;font-size:9px;color:#8070c0;}
+.wf-pill.pink{background:#fff5fa;border-color:#f0b0c8;color:#c03070;}
+.wf-pill.pink span{color:#d07090;}
+.wf-pill.green{background:#f0fff4;border-color:#a0e4b8;color:#1a7a40;}
+.wf-pill.green span{color:#40a060;}
+.wf-pill.lime{background:#f4fff0;border-color:#b0e890;color:#2a6820;}
+.wf-pill.lime span{color:#50a030;}
+.wf-pill.dark{background:#1a1830;border-color:#3a3060;color:#c0b8e8;}
+.wf-pill.dark span{color:#7070a0;}
+.wf-pill.amber{background:#fff8ee;border-color:#f0c060;color:#904010;}
+.wf-pill.amber span{color:#c07020;}
+.wf-pill.teal{background:#f0fffb;border-color:#80e0c0;color:#1a6850;}
+.wf-pill.teal span{color:#40a080;}
+.wf-pill.agent{background:#fdf0ff;border-color:#d0a0e8;color:#701090;}
+.wf-pill.agent span{color:#a040c0;}
+.wf-arrow{color:#c0b8e0;padding:0 3px;font-size:11px;}
+
+/* MAIN GRID */
+.main-layout{display:grid;grid-template-columns:190px 1fr 250px;gap:12px;margin-bottom:12px;}
+.col-label{font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#b0abc8;margin-bottom:8px;text-align:center;}
+
+/* SHIV CARDS */
+.shiv-card{background:#fff;border:1px solid #e4e0f4;border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.shiv-card:last-child{margin-bottom:0;}
+.shiv-card-title{font-size:11px;font-weight:700;color:#2a2050;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.shiv-item{font-size:10px;color:#5a548a;padding:2px 0;display:flex;align-items:center;gap:5px;}
+.step-num{width:16px;height:16px;border-radius:50%;background:#6050c0;color:#fff;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.s2{background:#e060a0!important;}.s3{background:#30a060!important;}.s4{background:#c09020!important;}.s5{background:#e05030!important;}
+.hi-pink{color:#e060a0;font-weight:600;}.hi-green{color:#20a050;font-weight:600;}.hi-gold{color:#c09020;font-weight:600;}
+
+/* SHIV ROLE BOX */
+.shiv-role{background:#fdf8ee;border:1.5px solid #e8c870;border-radius:10px;padding:8px 10px;margin-bottom:8px;}
+.shiv-role-title{font-size:11px;font-weight:700;color:#8a6010;margin-bottom:5px;display:flex;align-items:center;gap:5px;}
+.shiv-role-item{font-size:10px;color:#7a6030;padding:1px 0;display:flex;align-items:flex-start;gap:5px;}
+.shiv-role-item::before{content:'✓';color:#c09020;flex-shrink:0;}
+
+/* MAC CONTAINER */
+.mac-container{background:#ede8ff;border:1.5px solid #c4b8e8;border-radius:14px;padding:12px;}
+.mac-header-bar{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#6050a0;text-align:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #d0c8f0;}
+
+/* WAR ROOM */
+.war-room{background:#fff;border:1.5px solid #d8d0f0;border-radius:10px;margin-bottom:8px;overflow:hidden;}
+.wr-header{background:#f8f6ff;border-bottom:1px solid #e8e4f8;padding:8px 12px;display:flex;align-items:center;gap:8px;}
+.wr-title{font-size:12px;font-weight:700;color:#3028a0;}
+.wr-sub{font-size:10px;color:#9090c0;margin-left:4px;}
+.wr-modes{display:grid;grid-template-columns:1fr 1fr;}
+.mode-card{padding:10px 12px;}
+.mode-card.strategy{background:#fff8fc;border-right:1px solid #f0e0f0;}
+.mode-card.design{background:#fffff8;}
+.mode-title{font-size:11px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:5px;}
+.mode-card.strategy .mode-title{color:#d04090;}
+.mode-card.design .mode-title{color:#a08000;}
+.mode-item{font-size:10px;color:#706898;padding:1px 0;}
+
+/* DESIGN GATE */
+.design-gate{background:#fffbee;border:1.5px solid #d4a030;border-radius:8px;padding:7px 12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:8px;}
+.dg-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.dg-text{font-size:10px;color:#7a5010;}
+.dg-text strong{color:#5a3800;display:block;font-size:11px;margin-bottom:1px;}
+
+/* JARVIS CARD */
+.jarvis-card{background:#fff;border:2px solid #f0a030;border-radius:10px;margin-bottom:12px;overflow:hidden;position:relative;}
+.jarvis-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#f0a030,#f8d060,#f0a030);}
+.jarvis-header{background:#fffbf0;border-bottom:1px solid #f0d080;padding:9px 14px;display:flex;align-items:center;gap:8px;}
+.jarvis-title{font-size:13px;font-weight:700;color:#8a5010;}
+.jarvis-sub{font-size:10px;color:#b08020;font-family:'JetBrains Mono',monospace;}
+.jarvis-body{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 14px;}
+.jcol-title{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#c07020;margin-bottom:6px;}
+.j-item{font-size:11px;color:#7a6030;padding:2px 0;display:flex;align-items:flex-start;gap:5px;}
+.j-item::before{content:'·';color:#e0a040;flex-shrink:0;}
+.j-archived{font-size:11px;color:#b0a8c0;text-decoration:line-through;font-style:italic;padding:2px 0;padding-left:10px;}
+.cmd-pill{font-family:'JetBrains Mono',monospace;background:#fff4e0;border:1px solid #f0c060;color:#804010;font-size:10px;padding:2px 7px;border-radius:3px;display:inline-block;margin:2px 0;}
+
+/* JARVIS CARD */
+.jarvis-card{background:#fff;border:2px solid #f0a030;border-radius:10px;margin-bottom:8px;overflow:hidden;position:relative;}
+.jarvis-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#f0a030,#f8d060,#f0a030);}
+.jarvis-header{background:#fffbf0;border-bottom:1px solid #f0d080;padding:8px 12px;display:flex;align-items:center;gap:8px;}
+.jarvis-title{font-size:12px;font-weight:700;color:#8a5010;}
+.jarvis-sub{font-size:10px;color:#b08020;font-family:'JetBrains Mono',monospace;}
+.jarvis-body{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 12px;}
+.jcol-title{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#c07020;margin-bottom:5px;}
+.j-item{font-size:10px;color:#7a6030;padding:2px 0;display:flex;align-items:flex-start;gap:5px;}
+.j-item::before{content:'·';color:#e0a040;flex-shrink:0;}
+.j-archived{font-size:10px;color:#b0a8c0;text-decoration:line-through;font-style:italic;padding:2px 0;padding-left:10px;}
+.cmd-pill{font-family:'JetBrains Mono',monospace;background:#fff4e0;border:1px solid #f0c060;color:#804010;font-size:9px;padding:2px 6px;border-radius:3px;display:inline-block;margin:1px 0;}
+
+/* ── AGENT INTELLIGENCE LAYER ────────────────────────── */
+.intelligence-layer{background:#fff;border:2px solid #c090e8;border-radius:10px;margin-bottom:8px;overflow:hidden;position:relative;}
+.intelligence-layer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#9040c0,#c060f0,#e0a0ff,#c060f0,#9040c0);}
+.il-header{background:#fdf5ff;border-bottom:1px solid #e8d0f8;padding:8px 12px;display:flex;align-items:center;gap:8px;}
+.il-title{font-size:12px;font-weight:700;color:#601090;}
+.il-sub{font-size:10px;color:#9050c0;}
+.il-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;padding:10px 12px;}
+.agent-block{background:#fdf0ff;border:1px solid #e0c0f0;border-radius:8px;padding:8px 10px;}
+.agent-block.live{border-color:#d0a0f0;background:#f8eeff;}
+.agent-name{font-size:10px;font-weight:700;color:#701090;margin-bottom:3px;display:flex;align-items:center;justify-content:space-between;gap:4px;}
+.agent-schedule{font-size:9px;font-family:'JetBrains Mono',monospace;color:#a060c0;margin-bottom:4px;background:#f0e0ff;padding:2px 5px;border-radius:3px;display:inline-block;}
+.agent-item{font-size:10px;color:#805090;padding:1px 0;display:flex;align-items:flex-start;gap:4px;}
+.agent-item::before{content:'→';color:#c080e0;flex-shrink:0;}
+.agent-output{font-size:10px;color:#60a060;font-weight:600;margin-top:4px;padding-top:3px;border-top:1px solid #e0d0f0;}
+.agent-output::before{content:'↓ ';color:#80c080;}
+
+/* ── SELF-DIRECTED LOOP ────────────────────────────── */
+.self-loop{background:#f0fff4;border:1.5px solid #80d8a0;border-radius:10px;padding:9px 12px;margin-bottom:8px;}
+.sl-title{font-size:11px;font-weight:700;color:#1a6030;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.sl-steps{display:flex;align-items:center;gap:3px;flex-wrap:wrap;}
+.sl-step{background:#fff;border:1px solid #a0e4b0;border-radius:6px;padding:3px 8px;font-size:10px;color:#2a6840;font-weight:600;white-space:nowrap;}
+.sl-arrow{color:#60c080;font-size:11px;padding:0 2px;}
+.sl-note{font-size:10px;color:#4a8060;margin-top:5px;font-style:italic;}
+
+/* REPO SECTION */
+.repo-section{background:#fff;border:1.5px solid #d8d0f0;border-radius:10px;margin-bottom:8px;overflow:hidden;}
+.repo-sec-header{background:#2a2448;padding:7px 12px;display:flex;align-items:center;gap:8px;}
+.repo-sec-title{font-size:10px;font-weight:600;letter-spacing:0.1em;color:#c0b8e0;text-transform:uppercase;}
+.repo-sec-path{font-size:10px;color:#6060a0;font-family:'JetBrains Mono',monospace;margin-left:4px;}
+.repo-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e8e4f8;}
+.repo-file{background:#fff;padding:8px 10px;}
+.rf-name{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#3028a0;margin-bottom:2px;}
+.rf-name.gold{color:#c09020;}
+.rf-name.faded{color:#b0a8c0;text-decoration:line-through;font-size:10px;}
+.rf-desc{font-size:10px;color:#8080b0;}
+.file-badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:600;letter-spacing:0.04em;padding:2px 6px;border-radius:3px;margin-top:3px;}
+.fb-green{background:#e8fff0;color:#1a7a40;border:1px solid #a0e0b8;}
+.fb-amber{background:#fff8e0;color:#906010;border:1px solid #e0c060;}
+.fb-purple{background:#f0eeff;color:#5040a0;border:1px solid #c0b0f0;}
+
+/* CLAUDE CODE */
+.claude-code{background:#f0fff4;border:1.5px solid #a0e4b8;border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.cc-title{font-size:11px;font-weight:700;color:#1a6a30;margin-bottom:7px;display:flex;align-items:center;gap:6px;}
+.cc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.cc-col-title{font-size:10px;font-weight:700;color:#2a8040;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:3px;}
+.cc-item{font-size:10px;color:#407060;padding:1px 0;display:flex;align-items:flex-start;gap:4px;}
+.cc-item::before{content:'·';color:#60c080;flex-shrink:0;margin-top:1px;}
+
+/* WATCHDOG */
+.watchdog{background:#fff8f0;border:1.5px solid #e8b070;border-radius:10px;padding:8px 12px;margin-bottom:8px;}
+.wd-title{font-size:11px;font-weight:700;color:#8a4010;margin-bottom:5px;display:flex;align-items:center;gap:6px;}
+.wd-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.wd-item{font-size:10px;color:#7a5030;display:flex;align-items:flex-start;gap:4px;}
+.wd-item::before{content:'👁';font-size:9px;flex-shrink:0;}
+
+/* CRON */
+.cron-section{background:#0f0e1e;border-radius:10px;padding:12px 14px;}
+.cron-title{font-size:11px;font-weight:700;color:#c0b8e8;margin-bottom:3px;display:flex;align-items:center;gap:6px;}
+.cron-sub{font-size:10px;color:#6060a0;font-weight:400;}
+.trigger-label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#5050a0;margin-bottom:4px;margin-top:7px;}
+.cron-pipeline{display:flex;align-items:center;gap:3px;flex-wrap:wrap;}
+.chip{font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace;padding:3px 8px;border-radius:4px;display:flex;align-items:center;gap:4px;white-space:nowrap;}
+.ct{background:#1a1838;color:#8080d0;border:1px solid #3030a0;}
+.cs{background:#183018;color:#60d080;border:1px solid #306030;}
+.cf{background:#181820;color:#9090c0;border:1px solid #404060;}
+.ck{background:#201818;color:#e07070;border:1px solid #603030;}
+.csl{background:#182820;color:#70c080;border:1px solid #307050;}
+.cr{background:#201808;color:#d0a040;border:1px solid #606010;}
+.cj{background:#201408;color:#f0a030;border:1px solid #804010;}
+.ca{background:#1e1030;color:#d090f0;border:1px solid #8040c0;}
+.pipe-arr{color:#404060;font-size:12px;padding:0 1px;}
+.cron-divider{height:1px;background:#202040;margin:8px 0;}
+
+/* ── 24H TIMELINE ──────────────────────────────────── */
+.timeline-section{background:#fff;border:1px solid #e4e0f4;border-radius:12px;padding:16px 20px;margin-bottom:12px;overflow:hidden;}
+.tl-header{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#8a85a8;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.tl-header::after{content:'';flex:1;height:1px;background:#f0eeff;}
+.timeline{position:relative;padding:8px 0;}
+.tl-track{position:absolute;top:24px;left:0;right:0;height:2px;background:linear-gradient(90deg,#6050c0,#a060e0,#d090f0,#a060e0,#6050c0);opacity:0.2;border-radius:1px;}
+.tl-events{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;position:relative;}
+.tl-event{display:flex;flex-direction:column;align-items:center;position:relative;}
+.tl-dot{width:10px;height:10px;border-radius:50%;margin-bottom:6px;flex-shrink:0;position:relative;z-index:1;}
+.tl-dot.agent{background:#c060f0;box-shadow:0 0 6px rgba(192,96,240,0.4);}
+.tl-dot.build{background:#30a060;box-shadow:0 0 6px rgba(48,160,96,0.4);}
+.tl-dot.brief{background:#f0a030;box-shadow:0 0 6px rgba(240,160,48,0.4);}
+.tl-dot.cron{background:#6050c0;box-shadow:0 0 6px rgba(96,80,192,0.4);}
+.tl-time{font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#8a85a8;margin-bottom:3px;}
+.tl-label{font-size:9px;color:#5a548a;text-align:center;line-height:1.3;max-width:70px;}
+.tl-label strong{color:#2a2050;display:block;font-size:10px;}
+
+/* CLOUD CARDS */
+.cloud-card{background:#fff;border:1px solid #e4e0f4;border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.cloud-card:last-child{margin-bottom:0;}
+.cc2-title{font-size:11px;font-weight:700;color:#2a2050;margin-bottom:5px;display:flex;align-items:center;gap:6px;}
+.c-item{font-size:10px;color:#5a548a;padding:2px 0;display:flex;align-items:center;gap:5px;}
+.c-item.pk{color:#e04090;font-weight:600;}
+.c-item.gn{color:#1a8040;font-weight:600;}
+.c-item.am{color:#a06010;font-weight:600;}
+.c-item.pu{color:#7020a0;font-weight:600;}
+
+/* REPO MAP */
+.repo-map{background:#fff;border:1px solid #e4e0f4;border-radius:12px;overflow:hidden;margin-bottom:12px;}
+.rm-header{font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#a0a0c0;padding:8px 16px;border-bottom:1px solid #f0eeff;text-align:center;}
+.rm-row{display:grid;grid-template-columns:30px 200px 1fr auto;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid #f5f4fb;}
+.rm-row:last-child{border-bottom:none;}
+.rm-icon{font-size:15px;}
+.rm-name{font-size:11px;font-weight:700;color:#2a2050;font-family:'JetBrains Mono',monospace;}
+.rm-desc{font-size:10px;color:#8a85a8;}
+.rb{font-size:9px;font-weight:700;letter-spacing:0.08em;padding:2px 8px;border-radius:4px;white-space:nowrap;}
+.rb-prod{background:#ffeeee;color:#a02020;border:1px solid #f0a0a0;}
+.rb-active{background:#eeffee;color:#1a7040;border:1px solid #80d0a0;}
+.rb-local{background:#f4f2ff;color:#6050a0;border:1px solid #c0b8e8;}
+
+/* BOTTOM WORKFLOW */
+.bottom-workflow{background:#fff;border:1px solid #e4e0f4;border-radius:12px;padding:16px 20px;}
+.bw-header{font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#a0a0c0;margin-bottom:12px;text-align:center;}
+.bw-steps{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;}
+.bw-step{border-top:3px solid #e0dcf4;padding-top:8px;}
+.bw-step.b1{border-color:#6050c0;}.bw-step.b2{border-color:#e060a0;}.bw-step.b3{border-color:#30a060;}.bw-step.b4{border-color:#c09020;}.bw-step.b5{border-color:#f0a030;}.bw-step.b6{border-color:#9030d0;}.bw-step.b7{border-color:#8050c0;}
+.bw-num{font-size:16px;font-weight:700;color:#e0dcf4;margin-bottom:3px;}
+.bw-title{font-size:11px;font-weight:700;color:#2a2050;margin-bottom:3px;}
+.bw-desc{font-size:10px;color:#8a85a8;line-height:1.4;}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+  .main-layout{grid-template-columns:170px 1fr 210px;}
+  .il-grid{grid-template-columns:1fr 1fr 1fr 1fr;}
+}
+@media(max-width:900px){
+  .main-layout{grid-template-columns:1fr 1fr;grid-template-rows:auto auto;}
+  .main-layout>div:first-child{grid-column:1;grid-row:1;}
+  .main-layout>div:nth-child(2){grid-column:1/-1;grid-row:2;}
+  .main-layout>div:last-child{grid-column:2;grid-row:1;}
+  .il-grid{grid-template-columns:1fr 1fr;}
+  .bw-steps{grid-template-columns:repeat(4,1fr);}
+  .tl-events{grid-template-columns:repeat(6,1fr);}
+}
+@media(max-width:600px){
+  body{padding:8px;}
+  .main-layout{grid-template-columns:1fr;}
+  .main-layout>div:first-child,.main-layout>div:last-child{grid-column:1;grid-row:auto;}
+  .il-grid{grid-template-columns:1fr 1fr;}
+  .bw-steps{grid-template-columns:repeat(2,1fr);}
+  .tl-events{grid-template-columns:repeat(4,1fr);}
+  .cc-grid{grid-template-columns:1fr 1fr;}
+  .page-title h1{font-size:18px;}
+  .rm-row{grid-template-columns:24px 1fr auto;}.rm-name{display:none;}
+  .wf-steps{gap:2px;}
+  .trigger-surfaces{grid-template-columns:1fr;}
+}
+.agent-block.live{border-color:#d0a0f0;background:#f8eeff;}
+.agent-name{font-size:11px;font-weight:700;color:#701090;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;gap:4px;}
+.agent-schedule{font-size:9px;font-family:'JetBrains Mono',monospace;color:#a060c0;margin-bottom:5px;background:#f0e0ff;padding:2px 6px;border-radius:3px;display:inline-block;}
+.agent-item{font-size:10px;color:#805090;padding:1px 0;display:flex;align-items:flex-start;gap:4px;}
+.agent-item::before{content:'→';color:#c080e0;flex-shrink:0;}
+.agent-output{font-size:10px;color:#60a060;font-weight:600;margin-top:4px;padding-top:4px;border-top:1px solid #e0d0f0;}
+.agent-output::before{content:'↓ ';color:#80c080;}
+
+/* ── SELF-DIRECTED LOOP — NEW ────────────────────────────── */
+.self-loop{background:#f0fff4;border:1.5px solid #80d8a0;border-radius:10px;padding:11px 14px;margin-bottom:12px;}
+.sl-title{font-size:12px;font-weight:700;color:#1a6030;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.sl-steps{display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+.sl-step{background:#fff;border:1px solid #a0e4b0;border-radius:6px;padding:4px 9px;font-size:10px;color:#2a6840;font-weight:600;white-space:nowrap;}
+.sl-arrow{color:#60c080;font-size:11px;padding:0 2px;}
+.sl-note{font-size:10px;color:#4a8060;margin-top:6px;font-style:italic;}
+
+/* REPO SECTION */
+.repo-section{background:#fff;border:1.5px solid #d8d0f0;border-radius:10px;margin-bottom:12px;overflow:hidden;}
+.repo-sec-header{background:#2a2448;padding:8px 14px;display:flex;align-items:center;gap:8px;}
+.repo-sec-title{font-size:10px;font-weight:600;letter-spacing:0.1em;color:#c0b8e0;text-transform:uppercase;}
+.repo-sec-path{font-size:10px;color:#6060a0;font-family:'JetBrains Mono',monospace;margin-left:4px;}
+.repo-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e8e4f8;}
+.repo-file{background:#fff;padding:9px 12px;}
+.rf-name{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#3028a0;margin-bottom:3px;}
+.rf-name.gold{color:#c09020;}
+.rf-name.faded{color:#b0a8c0;text-decoration:line-through;font-size:10px;}
+.rf-desc{font-size:10px;color:#8080b0;}
+.file-badge{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:600;letter-spacing:0.04em;padding:2px 6px;border-radius:3px;margin-top:3px;}
+.fb-green{background:#e8fff0;color:#1a7a40;border:1px solid #a0e0b8;}
+.fb-amber{background:#fff8e0;color:#906010;border:1px solid #e0c060;}
+.fb-purple{background:#f0eeff;color:#5040a0;border:1px solid #c0b0f0;}
+
+/* CLAUDE CODE */
+.claude-code{background:#f0fff4;border:1.5px solid #a0e4b8;border-radius:10px;padding:12px 14px;margin-bottom:12px;}
+.cc-title{font-size:12px;font-weight:700;color:#1a6a30;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.cc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.cc-col-title{font-size:10px;font-weight:700;color:#2a8040;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;}
+.cc-item{font-size:11px;color:#407060;padding:2px 0;display:flex;align-items:flex-start;gap:4px;}
+.cc-item::before{content:'·';color:#60c080;flex-shrink:0;margin-top:1px;}
+
+/* WATCHDOG — NEW */
+.watchdog{background:#fff8f0;border:1.5px solid #e8b070;border-radius:10px;padding:10px 14px;margin-bottom:12px;}
+.wd-title{font-size:11px;font-weight:700;color:#8a4010;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.wd-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.wd-item{font-size:10px;color:#7a5030;display:flex;align-items:flex-start;gap:4px;}
+.wd-item::before{content:'👁';font-size:9px;flex-shrink:0;}
+
+/* CRON */
+.cron-section{background:#0f0e1e;border-radius:10px;padding:14px 16px;}
+.cron-title{font-size:11px;font-weight:700;color:#c0b8e8;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+.cron-sub{font-size:10px;color:#6060a0;font-weight:400;}
+.trigger-label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#5050a0;margin-bottom:5px;margin-top:8px;}
+.cron-pipeline{display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+.chip{font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace;padding:4px 10px;border-radius:4px;display:flex;align-items:center;gap:4px;white-space:nowrap;}
+.ct{background:#1a1838;color:#8080d0;border:1px solid #3030a0;}
+.cs{background:#183018;color:#60d080;border:1px solid #306030;}
+.cf{background:#181820;color:#9090c0;border:1px solid #404060;}
+.ck{background:#201818;color:#e07070;border:1px solid #603030;}
+.csl{background:#182820;color:#70c080;border:1px solid #307050;}
+.cr{background:#201808;color:#d0a040;border:1px solid #606010;}
+.cj{background:#201408;color:#f0a030;border:1px solid #804010;}
+.ca{background:#1e1030;color:#d090f0;border:1px solid #8040c0;}
+.pipe-arr{color:#404060;font-size:12px;padding:0 2px;}
+.cron-divider{height:1px;background:#202040;margin:10px 0;}
+
+/* ── 24H TIMELINE — NEW ──────────────────────────────────── */
+.timeline-section{background:#fff;border:1px solid #e4e0f4;border-radius:12px;padding:20px 24px;margin-bottom:20px;overflow:hidden;}
+.tl-header{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#8a85a8;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.tl-header::after{content:'';flex:1;height:1px;background:#f0eeff;}
+.timeline{position:relative;padding:8px 0;}
+.tl-track{position:absolute;top:24px;left:0;right:0;height:2px;background:linear-gradient(90deg,#6050c0,#a060e0,#d090f0,#a060e0,#6050c0);opacity:0.2;border-radius:1px;}
+.tl-events{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;position:relative;}
+.tl-event{display:flex;flex-direction:column;align-items:center;position:relative;}
+.tl-dot{width:10px;height:10px;border-radius:50%;margin-bottom:6px;flex-shrink:0;position:relative;z-index:1;}
+.tl-dot.agent{background:#c060f0;box-shadow:0 0 6px rgba(192,96,240,0.4);}
+.tl-dot.build{background:#30a060;box-shadow:0 0 6px rgba(48,160,96,0.4);}
+.tl-dot.brief{background:#f0a030;box-shadow:0 0 6px rgba(240,160,48,0.4);}
+.tl-dot.cron{background:#6050c0;box-shadow:0 0 6px rgba(96,80,192,0.4);}
+.tl-time{font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#8a85a8;margin-bottom:3px;}
+.tl-label{font-size:9px;color:#5a548a;text-align:center;line-height:1.3;max-width:70px;}
+.tl-label strong{color:#2a2050;display:block;font-size:10px;}
+
+/* CLOUD CARDS */
+.cloud-card{background:#fff;border:1px solid #e4e0f4;border-radius:10px;padding:11px 13px;margin-bottom:10px;}
+.cloud-card:last-child{margin-bottom:0;}
+.cc2-title{font-size:12px;font-weight:700;color:#2a2050;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.c-item{font-size:11px;color:#5a548a;padding:2px 0;display:flex;align-items:center;gap:5px;}
+.c-item.pk{color:#e04090;font-weight:600;}
+.c-item.gn{color:#1a8040;font-weight:600;}
+.c-item.am{color:#a06010;font-weight:600;}
+.c-item.pu{color:#7020a0;font-weight:600;}
+
+/* COMMAND CENTER */
+.command-center{background:#fff;border:2px solid #2060c0;border-radius:10px;margin-bottom:12px;overflow:hidden;position:relative;}
+.command-center::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1040a0,#3080f0,#60b0ff,#3080f0,#1040a0);}
+.cc-header{background:#f0f6ff;border-bottom:1px solid #c0d8f8;padding:9px 14px;display:flex;align-items:center;gap:8px;}
+.cc-main-title{font-size:13px;font-weight:700;color:#1040a0;}
+.cc-main-sub{font-size:10px;color:#4070c0;}
+.cc-body{padding:12px 14px;}
+.trigger-surfaces{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.trigger-card{border-radius:8px;padding:10px 12px;}
+.trigger-card.warroom{background:#f0fff4;border:1.5px solid #80d8a0;}
+.trigger-card.mcp{background:#f5f0ff;border:1.5px solid #b090e0;}
+.tc-title{font-size:11px;font-weight:700;margin-bottom:5px;}
+.trigger-card.warroom .tc-title{color:#1a6030;}
+.trigger-card.mcp .tc-title{color:#5020a0;}
+.tc-item{font-size:10px;padding:1px 0;display:flex;align-items:flex-start;gap:4px;}
+.trigger-card.warroom .tc-item{color:#406050;}
+.trigger-card.mcp .tc-item{color:#604080;}
+.tc-item::before{content:'→';flex-shrink:0;}
+.api-row{background:#0f1e3a;border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.api-chip{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;padding:3px 9px;border-radius:4px;background:#1a3060;color:#60a0f0;border:1px solid #2050a0;white-space:nowrap;}
+.api-chip.tunnel{background:#0a2a18;color:#40d080;border-color:#206040;}
+.api-chip.domain{background:#1a1028;color:#c080f0;border-color:#6030a0;}
+.api-label{font-size:9px;font-weight:700;color:#4060a0;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;}
+.api-arr{color:#304080;font-size:12px;}
+
+/* REPO MAP */
+.repo-map{background:#fff;border:1px solid #e4e0f4;border-radius:12px;overflow:hidden;margin-bottom:20px;}
+.rm-header{font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#a0a0c0;padding:10px 20px;border-bottom:1px solid #f0eeff;text-align:center;}
+.rm-row{display:grid;grid-template-columns:36px 210px 1fr auto;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid #f5f4fb;}
+.rm-row:last-child{border-bottom:none;}
+.rm-icon{font-size:16px;}
+.rm-name{font-size:12px;font-weight:700;color:#2a2050;font-family:'JetBrains Mono',monospace;}
+.rm-desc{font-size:11px;color:#8a85a8;}
+.rb{font-size:9px;font-weight:700;letter-spacing:0.08em;padding:3px 10px;border-radius:4px;white-space:nowrap;}
+.rb-prod{background:#ffeeee;color:#a02020;border:1px solid #f0a0a0;}
+.rb-active{background:#eeffee;color:#1a7040;border:1px solid #80d0a0;}
+.rb-local{background:#f4f2ff;color:#6050a0;border:1px solid #c0b8e8;}
+
+/* BOTTOM WORKFLOW */
+.bottom-workflow{background:#fff;border:1px solid #e4e0f4;border-radius:12px;padding:20px 24px;}
+.bw-header{font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#a0a0c0;margin-bottom:16px;text-align:center;}
+.bw-steps{display:grid;grid-template-columns:repeat(7,1fr);gap:14px;}
+.bw-step{border-top:3px solid #e0dcf4;padding-top:10px;}
+.bw-step.b1{border-color:#6050c0;}.bw-step.b2{border-color:#e060a0;}.bw-step.b3{border-color:#30a060;}.bw-step.b4{border-color:#c09020;}.bw-step.b5{border-color:#f0a030;}.bw-step.b6{border-color:#9030d0;}.bw-step.b7{border-color:#8050c0;}
+.bw-num{font-size:18px;font-weight:700;color:#e0dcf4;margin-bottom:4px;}
+.bw-title{font-size:12px;font-weight:700;color:#2a2050;margin-bottom:4px;}
+.bw-desc{font-size:11px;color:#8a85a8;line-height:1.4;}
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="monkey-img">
+    <img src="data:image/jpeg;base64,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" style="mix-blend-mode:multiply;opacity:0.92;width:100%;height:100%;object-fit:contain;">
+  </div>
+  <div class="page-title">
+    <h1>SaSMaster — Technology Architecture</h1>
+    <p>Media Intelligence Platform · Fully Autonomous JARVIS Agentic Model · April 2026 · v7 — Command Center LIVE · Express API · MCP · Cloudflare Tunnel · sasmaster.dev</p>
+  </div>
+  <div class="scoop-block">
+    <div class="scoop-img">
+      <img src="data:image/jpeg;base64,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" style="mix-blend-mode:multiply;width:100%;height:100%;object-fit:contain;">
+    </div>
+    <div class="scoop-label">★ SaSMasTER</div>
+  </div>
+</div>
+
+<!-- WORKFLOW BAR -->
+<div class="workflow-bar">
+  <div class="wf-label">AGENTIC<br>WORKFLOW</div>
+  <div class="wf-steps">
+    <div class="wf-pill agent">🤖 Agents Observe<span>TMDB · EDGAR · EIDR · News · S3</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-pill">📋 Auto-inject Tasks<span>TASKS.md · prioritized</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-pill pink">🎨 Design<span>Claude.ai · Prototype HTML</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-pill green">✅ Shiv Approves<span>Design gate · iPhone</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-pill lime">⚡ Self-Directed Build<span>Score queue → build if HIGH</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-pill dark">🌙 Night Shift<span>12AM autonomous</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-pill amber">🤖 JARVIS<span>Socket Mode · real-time</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-pill teal">💬 Slack Review<span>Shiv 5AM · board + arch</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-pill" style="background:#f0fff4;border-color:#a0e4b8;color:#1a7040;">⌨️ sm CLI<span>sm status · sm trends · sm build</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-pill" style="background:#f0f6ff;border-color:#a0c4f0;color:#1040a0;">🖥️ War Room<span>Live polls · ▶ trigger buttons</span></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-pill" style="background:#f5f0ff;border-color:#b090e0;color:#5020a0;">🤖 Claude MCP<span>get_status · trigger_job</span></div>
+  </div>
+</div>
+
+<!-- 24H AGENT TIMELINE -->
+<div class="timeline-section">
+  <div class="tl-header">24-HOUR AUTONOMOUS AGENT SCHEDULE</div>
+  <div class="timeline">
+    <div class="tl-track"></div>
+    <div class="tl-events">
+      <div class="tl-event">
+        <div class="tl-dot agent"></div>
+        <div class="tl-time">6AM</div>
+        <div class="tl-label"><strong>Media Intel</strong>Evan Shapiro 75% + M&E → Slack</div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-dot build"></div>
+        <div class="tl-time">7AM</div>
+        <div class="tl-label"><strong>Self-Score</strong>JARVIS scores queue → triggers if HIGH</div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-dot agent"></div>
+        <div class="tl-time">8AM</div>
+        <div class="tl-label"><strong>TMDB Agent</strong>Trending pull → inject programming tasks</div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-dot cron"></div>
+        <div class="tl-time">9AM</div>
+        <div class="tl-label"><strong>Watchdog</strong>Health check → restart if needed</div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-dot agent"></div>
+        <div class="tl-time">12PM</div>
+        <div class="tl-label"><strong>DONE_LOG</strong>Analyst → gap detection → inject tasks</div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-dot build"></div>
+        <div class="tl-time">2PM</div>
+        <div class="tl-label"><strong>Self-Score</strong>Mid-day build trigger if HIGH queue</div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-dot agent"></div>
+        <div class="tl-time">6PM</div>
+        <div class="tl-label"><strong>TMDB Agent</strong>Evening trending refresh</div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-dot agent"></div>
+        <div class="tl-time">8PM</div>
+        <div class="tl-label"><strong>LinkedIn Agent</strong>Weekly draft → Shiv approval (Mon)</div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-dot cron"></div>
+        <div class="tl-time">10PM</div>
+        <div class="tl-label"><strong>Pre-load</strong>TMDB data cache for midnight build</div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-dot build"></div>
+        <div class="tl-time">12AM</div>
+        <div class="tl-label"><strong>Night Build</strong>Cron → Claude Code executes TASKS.md</div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-dot cron"></div>
+        <div class="tl-time">5AM</div>
+        <div class="tl-label"><strong>Briefing</strong>Text + board + arch PNG → Slack</div>
+      </div>
+      <div class="tl-event">
+        <div class="tl-dot agent"></div>
+        <div class="tl-time">5:02AM</div>
+        <div class="tl-label"><strong>Visuals</strong>Board + arch screenshots → Slack</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AGENT FLEET — FULL WIDTH -->
+<div class="intelligence-layer" style="margin-bottom:12px;">
+  <div class="il-header">
+    <span style="font-size:16px;">🧠</span>
+    <span class="il-title">Intelligence Layer — Agent Fleet</span>
+    <span class="il-sub" style="margin-left:4px;">8 agents · fully autonomous · 3-channel Slack routing</span>
+    <div style="margin-left:auto;" class="badge badge-live"><span class="live-dot"></span> LIVE</div>
+  </div>
+  <div class="il-grid" style="grid-template-columns:repeat(8,1fr);gap:8px;padding:12px;">
+
+    <div class="agent-block live">
+      <div class="agent-name">📺 TMDB Trending<span class="badge badge-live" style="font-size:8px;">LIVE</span></div>
+      <div class="agent-schedule">Daily · 15-day full refresh</div>
+      <div class="agent-item">800K+ titles → S3</div>
+      <div class="agent-item">NDJSON · checkpointed</div>
+      <div class="agent-output">#sasmaster-intel</div>
+    </div>
+
+    <div class="agent-block live">
+      <div class="agent-name">📰 Media Intel<span class="badge badge-live" style="font-size:8px;">LIVE</span></div>
+      <div class="agent-schedule">Daily · 6AM</div>
+      <div class="agent-item">3-tier · 13 sources</div>
+      <div class="agent-item">Evan Shapiro 40%</div>
+      <div class="agent-output">#sasmaster-intel</div>
+    </div>
+
+    <div class="agent-block live">
+      <div class="agent-name">🔬 Tech Intel<span class="badge badge-live" style="font-size:8px;">LIVE</span></div>
+      <div class="agent-schedule">Fri 6PM + !tech</div>
+      <div class="agent-item">14 sources · Tier 1+2</div>
+      <div class="agent-item">400–500 word digest</div>
+      <div class="agent-output">#sasmaster-intel</div>
+    </div>
+
+    <div class="agent-block live">
+      <div class="agent-name">📊 Finance (EDGAR)<span class="badge badge-live" style="font-size:8px;">LIVE</span></div>
+      <div class="agent-schedule">Mon 9AM + !finance</div>
+      <div class="agent-item">10 media cos · XBRL</div>
+      <div class="agent-item">10-K/10-Q/8-K · YoY</div>
+      <div class="agent-output">#sasmaster-intel</div>
+    </div>
+
+    <div class="agent-block live">
+      <div class="agent-name">✍️ LinkedIn Writer<span class="badge badge-live" style="font-size:8px;">LIVE</span></div>
+      <div class="agent-schedule">On demand · !linkedin</div>
+      <div class="agent-item">Shiv's voice + style</div>
+      <div class="agent-item">Merger Paradox trained</div>
+      <div class="agent-output">#sasmaster-content</div>
+    </div>
+
+    <div class="agent-block live">
+      <div class="agent-name">🔍 DONE_LOG Analyst<span class="badge badge-live" style="font-size:8px;">LIVE</span></div>
+      <div class="agent-schedule">Daily · 12PM</div>
+      <div class="agent-item">Gap detection</div>
+      <div class="agent-item">Portal completeness score</div>
+      <div class="agent-output">Injects gap tasks</div>
+    </div>
+
+    <div class="agent-block live">
+      <div class="agent-name">📋 Weekly Review<span class="badge badge-live" style="font-size:8px;">LIVE</span></div>
+      <div class="agent-schedule">Sunday 8PM</div>
+      <div class="agent-item">Full week DONE_LOG</div>
+      <div class="agent-item">YC-style WBR draft</div>
+      <div class="agent-output">#sasmaster-content</div>
+    </div>
+
+    <div class="agent-block live">
+      <div class="agent-name">🎬 EIDR Agent<span class="badge badge-live" style="font-size:8px;">LIVE</span></div>
+      <div class="agent-schedule">On demand</div>
+      <div class="agent-item">resolveId · searchTitle</div>
+      <div class="agent-item">Cross-links IMDB↔EIDR</div>
+      <div class="agent-output">Content enrichment</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SELF-DIRECTED BUILD LOOP — FULL WIDTH -->
+<div class="self-loop" style="margin-bottom:12px;">
+  <div class="sl-title">
+    <span>🔁</span> Self-Directed Build Loop
+    <span class="badge badge-live"><span class="live-dot"></span> LIVE</span>
+    <span style="font-size:10px;color:#4a8060;font-weight:400;margin-left:8px;">Triggers: 7AM · 2PM · on !build · post-agent-inject · Shiv approves designs only — everything else runs automatically</span>
+  </div>
+  <div class="sl-steps">
+    <div class="sl-step">Agents inject tasks</div><div class="sl-arrow">→</div>
+    <div class="sl-step">JARVIS scores queue</div><div class="sl-arrow">→</div>
+    <div class="sl-step">HIGH items exist?</div><div class="sl-arrow">→</div>
+    <div class="sl-step">Fire sasmaster-build.sh</div><div class="sl-arrow">→</div>
+    <div class="sl-step">Shiv approves design</div><div class="sl-arrow">→</div>
+    <div class="sl-step">Build fails?</div><div class="sl-arrow">→</div>
+    <div class="sl-step">Auto-retry once</div><div class="sl-arrow">→</div>
+    <div class="sl-step">Escalate to Shiv</div><div class="sl-arrow">→</div>
+    <div class="sl-step">Git auto-commit ✓</div>
+  </div>
+</div>
+
+<!-- MAIN THREE-COLUMN LAYOUT -->
+<div class="main-layout">
+
+  <!-- SHIV COLUMN -->
+  <div>
+    <div class="col-label">SHIV — APPROVER</div>
+
+    <div class="shiv-role">
+      <div class="shiv-role-title">👑 Your Role in v7</div>
+      <div class="shiv-role-item">Review agent outputs</div>
+      <div class="shiv-role-item">Approve designs only</div>
+      <div class="shiv-role-item">Trigger jobs via War Room or Claude</div>
+      <div class="shiv-role-item">System runs 24/7 without you</div>
+    </div>
+
+    <div class="shiv-card">
+      <div class="shiv-card-title">🖥️ War Room</div>
+      <div class="shiv-item hi-green">Live status · 30s polling</div>
+      <div class="shiv-item hi-pink">▶ Run buttons → trigger jobs</div>
+      <div class="shiv-item">Log drawer per agent</div>
+      <div class="shiv-item" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#3080f0;">sasmaster-status.vercel.app</div>
+    </div>
+
+    <div class="shiv-card">
+      <div class="shiv-card-title" style="color:#5020a0;">🤖 Claude Desktop MCP</div>
+      <div class="shiv-item">get_system_status</div>
+      <div class="shiv-item">trigger_job · get_logs</div>
+      <div class="shiv-item">get_queue · get_done_log</div>
+      <div class="shiv-item hi-gold">Conversational control</div>
+    </div>
+
+    <div class="shiv-card">
+      <div class="shiv-card-title">🌐 Claude.ai Browser</div>
+      <div class="shiv-item hi-pink">🎨 Design prototypes</div>
+      <div class="shiv-item hi-green">✅ Approve designs</div>
+      <div class="shiv-item">Architecture decisions</div>
+      <div class="shiv-item">Sprint direction</div>
+    </div>
+
+    <div class="shiv-card">
+      <div class="shiv-card-title">📱 iPhone</div>
+      <div class="shiv-item">5AM Slack review</div>
+      <div class="shiv-item hi-gold">Board + arch visuals</div>
+      <div class="shiv-item">Agent approval requests</div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid #f0eeff;">
+        <div style="font-size:9px;font-weight:700;color:#c08020;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;">JARVIS Commands</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#905010;background:#fff8ee;border:1px solid #f0d080;border-radius:5px;padding:7px 9px;line-height:2.2;">
+          !build<br>!task HIGH &lt;desc&gt;<br>!briefing &lt;text&gt;<br>!status<br>!approve / !skip
+        </div>
+      </div>
+    </div>
+
+    <div class="shiv-card">
+      <div class="shiv-card-title" style="color:#7020a0;">📋 Workflow</div>
+      <div class="shiv-item"><span class="step-num">1</span> Agents detect needs</div>
+      <div class="shiv-item"><span class="step-num s2">2</span> Tasks auto-injected</div>
+      <div class="shiv-item"><span class="step-num s3">3</span> <span class="hi-pink">Shiv designs + approves</span></div>
+      <div class="shiv-item"><span class="step-num s4">4</span> Build fires automatically</div>
+      <div class="shiv-item"><span class="step-num s5">5</span> Shiv reviews at 5AM</div>
+    </div>
+  </div>
+
+  <!-- MAC COLUMN -->
+  <div>
+    <div class="col-label">MACBOOK PRO M1 MAX — AUTONOMOUS BUILD SERVER</div>
+    <div class="mac-container">
+      <div class="mac-header-bar">MACBOOK PRO M1 MAX — ~/SaSMaster · FULLY AUTONOMOUS 24/7</div>
+
+      <!-- War Room / Claude.ai -->
+      <div class="war-room">
+        <div class="wr-header">
+          <span style="font-size:16px;">✳️</span>
+          <span class="wr-title">Claude.ai — Strategy + Design</span>
+          <span class="wr-sub">Architecture · Prototypes · Planning · Design gate</span>
+        </div>
+        <div class="wr-modes">
+          <div class="mode-card strategy">
+            <div class="mode-title">🧠 Strategy Mode</div>
+            <div class="mode-item">Architecture decisions</div>
+            <div class="mode-item">Feature planning</div>
+            <div class="mode-item">Review agent outputs</div>
+            <div class="mode-item">Sprint direction</div>
+          </div>
+          <div class="mode-card design">
+            <div class="mode-title">🎨 Design Mode</div>
+            <div class="mode-item">Build HTML prototypes</div>
+            <div class="mode-item">UI/UX iterations</div>
+            <div class="mode-item">→ approved spec only</div>
+            <div class="mode-item">→ Claude Code builds</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design Gate -->
+      <div class="design-gate">
+        <div class="dg-icon">🔐</div>
+        <div class="dg-text">
+          <strong>Design Gate — Shiv Must Approve</strong>
+          No approved HTML prototype = No task = Claude Code doesn't build it
+        </div>
+      </div>
+
+      <!-- Command Center — NEW v7 -->
+      <div class="command-center">
+        <div class="cc-header">
+          <span style="font-size:16px;">🖥️</span>
+          <span class="cc-main-title">Command Center — One Backend · Two Trigger Surfaces</span>
+          <div style="margin-left:auto;" class="badge badge-live"><span class="live-dot"></span> LIVE</div>
+        </div>
+        <div class="cc-body">
+          <div class="trigger-surfaces">
+            <div class="trigger-card warroom">
+              <div class="tc-title">🖥️ War Room (Vercel)</div>
+              <div class="tc-item">Live polls /status every 30s</div>
+              <div class="tc-item">▶ Run buttons queue jobs</div>
+              <div class="tc-item">Log drawer per agent</div>
+              <div class="tc-item">Queue panel (HIGH/MED/EXPLORE)</div>
+              <div style="margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#1a6030;background:#e0fff0;border-radius:4px;padding:3px 7px;display:inline-block;">sasmaster-status.vercel.app</div>
+            </div>
+            <div class="trigger-card mcp">
+              <div class="tc-title">🤖 Claude Desktop MCP</div>
+              <div class="tc-item">get_system_status</div>
+              <div class="tc-item">trigger_job(job, reason)</div>
+              <div class="tc-item">get_logs(agent, lines)</div>
+              <div class="tc-item">get_queue · get_done_log</div>
+              <div style="margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#5020a0;background:#f0e8ff;border-radius:4px;padding:3px 7px;display:inline-block;">mcp-server/dist/index.js · stdio</div>
+            </div>
+          </div>
+          <div class="api-row">
+            <span class="api-label">Express API</span>
+            <span class="api-chip">localhost:3002</span>
+            <span class="api-arr">→</span>
+            <span class="api-chip">/status</span>
+            <span class="api-chip">/trigger</span>
+            <span class="api-chip">/logs</span>
+            <span class="api-chip">/queue</span>
+            <span class="api-chip">/done-log</span>
+            <span style="flex:1;"></span>
+            <span class="api-label">Tunnel</span>
+            <span class="api-chip tunnel">api.sasmaster.dev → localhost:3002</span>
+            <span class="api-label" style="margin-left:8px;">Domain</span>
+            <span class="api-chip domain">sasmaster.dev ✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Intelligence Layer moved to full-width above -->
+
+      <!-- JARVIS CARD -->
+      <div class="jarvis-card">
+        <div class="jarvis-header">
+          <span style="font-size:16px;">🤖</span>
+          <span class="jarvis-title">JARVIS — Socket Mode Daemon + Orchestrator</span>
+          <span class="jarvis-sub">scripts/jarvis.js · launchd: com.sasmaster.jarvis · WebSocket always-on</span>
+          <div style="margin-left:auto;" class="badge badge-live"><span class="live-dot"></span> LIVE</div>
+        </div>
+        <div class="jarvis-body">
+          <div>
+            <div class="jcol-title">Commands (All Live)</div>
+            <div class="j-item"><span class="cmd-pill">!build</span> ad-hoc build trigger</div>
+            <div class="j-item"><span class="cmd-pill">!task HIGH/MED</span> inject to TASKS.md</div>
+            <div class="j-item"><span class="cmd-pill">!status</span> uptime + pending queue</div>
+            <div class="j-item"><span class="cmd-pill">!approve</span> / <span class="cmd-pill">!skip</span> queue management</div>
+            <div class="j-item"><span class="cmd-pill">!briefing</span> post session summary</div>
+            <div class="j-item"><span class="cmd-pill">!tech</span> on-demand tech brief</div>
+            <div class="j-item"><span class="cmd-pill">!finance</span> SEC EDGAR digest</div>
+            <div class="j-item"><span class="cmd-pill">!linkedin</span> draft article</div>
+          </div>
+          <div>
+            <div class="jcol-title">Infrastructure (Live)</div>
+            <div class="j-item">Socket Mode WebSocket · always-on</div>
+            <div class="j-item">Auto-starts on Mac boot (launchd)</div>
+            <div class="j-item">Build retry + escalation on failure</div>
+            <div class="j-item">pending-approvals.json queue</div>
+            <div class="j-item">Channels: builds · intel · content</div>
+            <div class="j-archived">poll-slack.sh — archived</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Watchdog — NEW -->
+      <div class="watchdog">
+        <div class="wd-title">
+          <span>👁️</span> Watchdog Daemon
+          <span class="badge badge-planned">PLANNED</span>
+        </div>
+        <div class="wd-grid">
+          <div class="wd-item">JARVIS process health + auto-restart</div>
+          <div class="wd-item">Cron job verification · alert if missed</div>
+          <div class="wd-item">Disk space monitor (builds + logs)</div>
+          <div class="wd-item">Node process leak detection</div>
+          <div class="wd-item">Agent execution confirmation</div>
+          <div class="wd-item">Daily health report at 5AM</div>
+        </div>
+      </div>
+
+      <!-- Repo / Control Files -->
+      <div class="repo-section">
+        <div class="repo-sec-header">
+          <span class="repo-sec-title">SaSMaster Repo</span>
+          <span class="repo-sec-path">· /USERS/SHIVASHISH/SASMASTER</span>
+        </div>
+        <div class="repo-grid">
+          <div class="repo-file">
+            <div class="rf-name">CLAUDE.md</div>
+            <div class="rf-desc">Dispatch brain · Rules · routing</div>
+          </div>
+          <div class="repo-file">
+            <div class="rf-name">TASKS.md</div>
+            <div class="rf-desc">Priority queue · agents inject here</div>
+            <div class="file-badge fb-amber">← agents + !task inject</div>
+          </div>
+          <div class="repo-file">
+            <div class="rf-name">FEEDBACK.md</div>
+            <div class="rf-desc">Shiv's async voice · Read each session</div>
+          </div>
+          <div class="repo-file">
+            <div class="rf-name">DONE_LOG.md</div>
+            <div class="rf-desc">Build reports · DONE_LOG Analyst reads</div>
+          </div>
+          <div class="repo-file">
+            <div class="rf-name gold">SaSMaster Portal.html</div>
+            <div class="rf-desc">v7 canonical UI · single source of truth</div>
+            <div class="file-badge fb-green">✓ canonical</div>
+          </div>
+          <div class="repo-file">
+            <div class="rf-name gold">sasmaster-architecture-v7.html</div>
+            <div class="rf-desc">Living architecture diagram · v7</div>
+            <div class="file-badge fb-purple">← this file</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Claude Code -->
+      <div class="claude-code">
+        <div class="cc-title">
+          <span style="font-size:15px;">⚡</span>
+          Claude Code — Build Crew
+          <span style="font-size:11px;color:#4080a0;font-weight:400;">Terminal · ~/SaSMaster · reads CLAUDE.md on every session</span>
+        </div>
+        <div class="cc-grid">
+          <div>
+            <div class="cc-col-title">Reads</div>
+            <div class="cc-item">Reads/writes ~/SaSMaster</div>
+            <div class="cc-item">Takes approved HTML → wires in</div>
+          </div>
+          <div>
+            <div class="cc-col-title">Executes</div>
+            <div class="cc-item">TASKS.md priority order</div>
+            <div class="cc-item">Writes DONE_LOG.md per task</div>
+          </div>
+          <div>
+            <div class="cc-col-title">Skills</div>
+            <div class="cc-item">fullstack-architect</div>
+            <div class="cc-item">uiux-mastery · obra</div>
+          </div>
+          <div>
+            <div class="cc-col-title">sm CLI</div>
+            <div class="cc-item">sm status · sm build</div>
+            <div class="cc-item">sm task · sm trends</div>
+            <div class="cc-item">sm agents · sm queue</div>
+            <div class="cc-item">sm voice → Whisper API</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Build triggers moved to full-width section below -->
+
+    </div>
+  </div>
+
+  <!-- CLOUD COLUMN -->
+  <div>
+    <div class="col-label">CLOUD</div>
+    <div class="cloud-card" style="border-color:#a0d8f0;">
+      <div class="cc2-title" style="color:#1a3a6a;">🖥️ War Room — sasmaster-status.vercel.app</div>
+      <div class="c-item gn">Live · polls /status every 30s</div>
+      <div class="c-item">▶ Run buttons → POST /trigger</div>
+      <div class="c-item">Log drawer per agent</div>
+      <div class="c-item">Auto-deploys on git push</div>
+      <div style="margin-top:5px;" class="file-badge fb-green">✓ LIVE — public URL</div>
+    </div>
+    <div class="cloud-card" style="border-color:#a0c8f0;">
+      <div class="cc2-title" style="color:#1040a0;">⚡ Cloudflare Tunnel</div>
+      <div class="c-item gn">api.sasmaster.dev → localhost:3002</div>
+      <div class="c-item">Enterprise TLS · DDoS protection</div>
+      <div class="c-item">launchd daemon · auto-restart</div>
+      <div class="c-item" style="color:#5020a0;">sasmaster.dev domain owned ✓</div>
+      <div style="margin-top:5px;" class="file-badge fb-green">✓ LIVE · $12/yr Cloudflare</div>
+    </div>
+    <div class="cloud-card">
+      <div class="cc2-title">✳️ Claude.ai</div>
+      <div class="c-item">Anthropic cloud</div>
+      <div class="c-item">AI processing · reasoning</div>
+      <div class="c-item pk">🎨 Design prototypes</div>
+      <div class="c-item pu">🧠 Agent intelligence</div>
+      <div style="margin-top:5px;" class="file-badge fb-purple">Claude Max ✓</div>
+    </div>
+    <div class="cloud-card">
+      <div class="cc2-title">📺 TMDB API</div>
+      <div class="c-item">Free developer plan</div>
+      <div class="c-item">Trending TV + movies</div>
+      <div class="c-item">Show metadata · genres</div>
+      <div class="c-item gn">→ Top 10 trending TV live</div>
+      <div class="c-item gn">→ Top 5 movies live</div>
+      <div class="c-item gn">→ sm trends command</div>
+      <div style="margin-top:5px;" class="file-badge fb-green">✓ LIVE in status page</div>
+    </div>
+    <div class="cloud-card" style="border-color:#c0d8f0;">
+      <div class="cc2-title" style="color:#1a3a6a;">📋 SEC EDGAR API</div>
+      <div class="c-item">Free · no auth · RESTful JSON</div>
+      <div class="c-item">10-K · 10-Q · 8-K · XBRL financials</div>
+      <div class="c-item" style="color:#1a3a6a;">10 media companies tracked</div>
+      <div class="c-item" style="color:#1a6a3a;">→ data.sec.gov/submissions/</div>
+      <div class="c-item" style="color:#1a6a3a;">→ data.sec.gov/api/xbrl/companyfacts/</div>
+      <div class="c-item" style="color:#1a6a3a;">→ Feeds Financial Analysis Agent</div>
+      <div class="c-item" style="color:#601090;">→ Exchange + Programming portals</div>
+      <div style="margin-top:5px;display:flex;gap:5px;">
+        <div class="file-badge fb-blue" style="background:#e8f0fb;color:#1a3a7a;border:1px solid #b0c8f0;">Netflix · Disney · WBD</div>
+      </div>
+      <div style="margin-top:4px;display:flex;gap:5px;">
+        <div class="file-badge fb-blue" style="background:#e8f0fb;color:#1a3a7a;border:1px solid #b0c8f0;">Paramount · Comcast · Fox</div>
+      </div>
+      <div style="margin-top:5px;" class="file-badge fb-green">✓ LIVE — !finance command</div>
+    </div>
+    <div class="cloud-card" style="border-color:#e8c890;">
+      <div class="cc2-title" style="color:#7a4800;">☁️ AWS S3 Data Lake</div>
+      <div class="c-item">IAM: sasmaster-cli · us-east-1</div>
+      <div class="c-item" style="color:#1a6a3a;font-weight:600;">s3://sasmaster-2026</div>
+      <div class="c-item" style="color:#1a3a6a;">imdb_prd/ · 7 TSV files · ~1.9GB · refresh every 15 days</div>
+      <div class="c-item" style="color:#1a3a6a;">name.basics · title.basics · title.ratings + 4 more</div>
+      <div class="c-item" style="color:#7a4800;">tmdb_dev/ · 6 export types · NDJSON · refresh every 15 days</div>
+      <div class="c-item" style="color:#7a4800;">Checkpointed · 1000 records/batch</div>
+      <div style="margin-top:5px;" class="file-badge fb-green">✓ IMDB loaded · TMDB running · 15-day cycle</div>
+    </div>
+    <div class="cloud-card" style="border-color:#d0c0f0;">
+      <div class="cc2-title" style="color:#5020a0;">🎬 EIDR Registry</div>
+      <div class="c-item">Entertainment Identifier Registry</div>
+      <div class="c-item">Free · public reads · no auth</div>
+      <div class="c-item" style="color:#5020a0;">resolveId · searchTitle · searchByImdbId</div>
+      <div class="c-item" style="color:#1a6a3a;">→ Content enrichment pipeline</div>
+      <div class="c-item" style="color:#1a6a3a;">→ Cross-links IMDB ↔ EIDR IDs</div>
+      <div style="margin-top:5px;" class="file-badge fb-purple">✓ agents/eidr-agent.js</div>
+    </div>
+    <div class="cloud-card">
+      <div class="cc2-title">🐙 GitHub</div>
+      <div class="c-item">Remote backup</div>
+      <div class="c-item">git push (future)</div>
+      <div class="c-item am">Auto-commit after builds</div>
+    </div>
+    <div class="cloud-card" style="border-color:#c8f0d8;">
+      <div class="cc2-title" style="color:#1a6030;">💬 Slack — Notifications Only (v7)</div>
+      <div style="margin-top:4px;background:#fff8ee;border-radius:6px;padding:5px 8px;border:1px solid #f0d080;margin-bottom:4px;">
+        <div style="font-size:10px;font-weight:700;color:#8a5010;">⚠️ Triggers removed in v7</div>
+        <div style="font-size:10px;color:#806030;">War Room + Claude MCP are now the trigger surfaces</div>
+      </div>
+      <div style="margin-top:4px;background:#f0fff4;border-radius:6px;padding:6px 8px;border:1px solid #c0ead0;">
+        <div style="font-size:10px;font-weight:700;color:#1a5020;margin-bottom:3px;">#sasmaster-builds <span style="font-family:monospace;color:#6080a0;font-weight:400;">C0ATABZAH39</span></div>
+        <div style="font-size:10px;color:#407060;">Build results · DONE_LOG · 5AM briefing · board PNG</div>
+      </div>
+      <div style="margin-top:5px;background:#f0f8ff;border-radius:6px;padding:6px 8px;border:1px solid #b0d0f0;">
+        <div style="font-size:10px;font-weight:700;color:#1a3a6a;margin-bottom:3px;">#sasmaster-intel <span style="font-family:monospace;color:#6080a0;font-weight:400;">C0AU4M74A7Q</span></div>
+        <div style="font-size:10px;color:#406080;">Media intel · Tech brief · Finance brief · TMDB trending</div>
+      </div>
+      <div style="margin-top:5px;background:#fff8f0;border-radius:6px;padding:6px 8px;border:1px solid #f0c090;">
+        <div style="font-size:10px;font-weight:700;color:#7a3010;margin-bottom:3px;">#sasmaster-content <span style="font-family:monospace;color:#6080a0;font-weight:400;">C0AV11K9F08</span></div>
+        <div style="font-size:10px;color:#806030;">LinkedIn drafts · Weekly Review · Agent outputs</div>
+      </div>
+    </div>
+    <div class="cloud-card" style="border-color:#e0d0f8;">
+      <div class="cc2-title" style="color:#601090;">🤖 Agent Outputs</div>
+      <div class="c-item pu">📺 Trending data → portals</div>
+      <div class="c-item pu">📰 Media intel digest → #sasmaster-intel</div>
+      <div class="c-item pu">🔬 Tech brief (Fri 6PM) → #sasmaster-intel</div>
+      <div class="c-item pu">📊 Finance brief → #sasmaster-intel</div>
+      <div class="c-item pu">✍️ LinkedIn drafts → #sasmaster-content</div>
+      <div class="c-item pu">🔍 Gap analysis → TASKS.md</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- AUTOMATED BUILD TRIGGERS — FULL WIDTH -->
+<div class="cron-section" style="margin-bottom:12px;border-radius:12px;">
+  <div class="cron-title">⚡ Automated Build Triggers
+    <span class="cron-sub">· Multiple trigger points · all feed same sasmaster-build.sh</span>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:10px;">
+    <div>
+      <div class="trigger-label">WAR ROOM (Any Browser · Real-time)</div>
+      <div class="cron-pipeline">
+        <span class="chip" style="background:#0a1e0a;color:#40d060;border:1px solid #206040;">🖥️ War Room ▶ Run</span>
+        <span class="pipe-arr">→</span>
+        <span class="chip" style="background:#0a1428;color:#60a0f0;border:1px solid #204080;">POST api.sasmaster.dev/trigger</span>
+        <span class="pipe-arr">→</span>
+        <span class="chip cs">TASKS.md</span>
+        <span class="pipe-arr">→</span>
+        <span class="chip ck">Claude Code</span>
+        <span class="pipe-arr">→</span>
+        <span class="chip csl">#builds ✓</span>
+      </div>
+      <div style="margin-top:8px;" class="trigger-label">CLAUDE MCP (Conversational)</div>
+      <div class="cron-pipeline">
+        <span class="chip" style="background:#1e0a30;color:#c080f0;border:1px solid #602090;">🤖 trigger_job()</span>
+        <span class="pipe-arr">→</span>
+        <span class="chip" style="background:#0a1428;color:#60a0f0;border:1px solid #204080;">Express API :3002</span>
+        <span class="pipe-arr">→</span>
+        <span class="chip cs">TASKS.md</span>
+        <span class="pipe-arr">→</span>
+        <span class="chip ck">Claude Code</span>
+        <span class="pipe-arr">→</span>
+        <span class="chip csl">Slack notify</span>
+      </div>
+    </div>
+    <div>
+      <div class="trigger-label">NIGHTLY CRON (12AM)</div>
+      <div class="cron-pipeline">
+        <span class="chip ct">12AM</span><span class="pipe-arr">→</span>
+        <span class="chip cs">sasmaster-build.sh</span><span class="pipe-arr">→</span>
+        <span class="chip cf">async-prompt.md</span><span class="pipe-arr">→</span>
+        <span class="chip ck">Claude Code</span><span class="pipe-arr">→</span>
+        <span class="chip csl">#builds</span><span class="pipe-arr">→</span>
+        <span class="chip cr">Shiv 5AM 🌅</span>
+      </div>
+      <div style="margin-top:8px;" class="trigger-label">AD-HOC · JARVIS (Real-time)</div>
+      <div class="cron-pipeline">
+        <span class="chip cj">!build in Slack</span><span class="pipe-arr">→</span>
+        <span class="chip cj">JARVIS WebSocket</span><span class="pipe-arr">→</span>
+        <span class="chip cs">build.sh</span><span class="pipe-arr">→</span>
+        <span class="chip ck">Claude Code</span><span class="pipe-arr">→</span>
+        <span class="chip csl">#builds ✓</span>
+      </div>
+      <div style="margin-top:8px;" class="trigger-label">VOICE-TO-TASK (iPhone · Whisper)</div>
+      <div class="cron-pipeline">
+        <span class="chip" style="background:#1e1028;color:#d090f0;border:1px solid #8040c0;">🎤 Voice Memo</span><span class="pipe-arr">→</span>
+        <span class="chip" style="background:#1e1028;color:#d090f0;border:1px solid #8040c0;">Whisper API</span><span class="pipe-arr">→</span>
+        <span class="chip cs">TASKS.md</span><span class="pipe-arr">→</span>
+        <span class="chip csl">Slack confirm</span>
+      </div>
+    </div>
+    <div>
+      <div class="trigger-label">AGENT INTELLIGENCE CRONS (LIVE)</div>
+      <div class="cron-pipeline"><span class="chip ca">6AM daily</span><span class="pipe-arr">→</span><span class="chip ca">Media Intel Agent</span><span class="pipe-arr">→</span><span class="chip csl">#intel</span></div>
+      <div class="cron-pipeline" style="margin-top:5px;"><span class="chip ca">2AM daily</span><span class="pipe-arr">→</span><span class="chip ca">TMDB → S3 · 15-day refresh</span><span class="pipe-arr">→</span><span class="chip" style="background:#182028;color:#60b8d0;border:1px solid #306880;">sasmaster-2026</span></div>
+      <div class="cron-pipeline" style="margin-top:5px;"><span class="chip ca">Fri 6PM</span><span class="pipe-arr">→</span><span class="chip ca">Tech Intel · 14 sources</span><span class="pipe-arr">→</span><span class="chip csl">#intel</span></div>
+      <div class="cron-pipeline" style="margin-top:5px;"><span class="chip ca">Mon 9AM</span><span class="pipe-arr">→</span><span class="chip ca">SEC EDGAR Finance Agent</span><span class="pipe-arr">→</span><span class="chip csl">#intel</span></div>
+      <div style="margin-top:8px;" class="trigger-label">SELF-DIRECTED (Agent-initiated)</div>
+      <div class="cron-pipeline">
+        <span class="chip ca">Agent injects task</span><span class="pipe-arr">→</span>
+        <span class="chip ca">JARVIS scores queue</span><span class="pipe-arr">→</span>
+        <span class="chip ca">HIGH? → auto-trigger</span><span class="pipe-arr">→</span>
+        <span class="chip cs">build.sh</span><span class="pipe-arr">→</span>
+        <span class="chip ck">Claude Code</span><span class="pipe-arr">→</span>
+        <span class="chip csl">git commit</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REPO MAP -->
+<div class="repo-map">
+  <div class="rm-header">REPOSITORY MAP — THREE REPOS, NEVER CROSSED</div>
+  <div class="rm-row">
+    <div class="rm-icon">🗄️</div>
+    <div class="rm-name">ra-linear-analytics-bundle</div>
+    <div class="rm-desc">TRUE production · Snowflake/AWS/Databricks · never touched during SaSMaster dev</div>
+    <div class="rb rb-prod">PROD</div>
+  </div>
+  <div class="rm-row">
+    <div class="rm-icon">⭐</div>
+    <div class="rm-name">SaSMaster</div>
+    <div class="rm-desc">Clean rebuild · 8 agents live · Command Center (Express API + MCP + Cloudflare Tunnel) · 3-channel Slack · S3 data lake (IMDB + TMDB) · SEC EDGAR · EIDR · v7 UI · sasmaster.dev</div>
+    <div class="rb rb-active">ACTIVE</div>
+  </div>
+  <div class="rm-row">
+    <div class="rm-icon">📁</div>
+    <div class="rm-name">frankenstein</div>
+    <div class="rm-desc">Analytics on local Mac · local reference only · never modified</div>
+    <div class="rb rb-local">LOCAL</div>
+  </div>
+</div>
+
+<!-- BOTTOM WORKFLOW -->
+<div class="bottom-workflow">
+  <div class="bw-header">FULLY AUTONOMOUS LOOP · SHIV IS APPROVER ONLY · AGENTS RUN 24/7</div>
+  <div class="bw-steps">
+    <div class="bw-step b1">
+      <div class="bw-num">1</div>
+      <div class="bw-title" style="color:#9030d0;">🧠 8 Agents observe</div>
+      <div class="bw-desc">Media Intel · Tech Intel · Finance · TMDB · EIDR · LinkedIn · DONE_LOG · Weekly Review — all live.</div>
+    </div>
+    <div class="bw-step b2">
+      <div class="bw-num">2</div>
+      <div class="bw-title">📋 Tasks auto-injected</div>
+      <div class="bw-desc">Agents write directly to TASKS.md. JARVIS scores and prioritizes queue.</div>
+    </div>
+    <div class="bw-step b3">
+      <div class="bw-num">3</div>
+      <div class="bw-title">🎨 <span style="color:#e060a0;">Shiv designs</span></div>
+      <div class="bw-desc">Claude.ai builds HTML prototype. Shiv approves. <strong>This is the gate.</strong></div>
+    </div>
+    <div class="bw-step b4">
+      <div class="bw-num">4</div>
+      <div class="bw-title">⚡ Self-directed build</div>
+      <div class="bw-desc">JARVIS scores queue → fires build if HIGH items exist. No manual trigger needed.</div>
+    </div>
+    <div class="bw-step b5">
+      <div class="bw-num">5</div>
+      <div class="bw-title">🌙 Night shift + retry</div>
+      <div class="bw-desc">12AM cron builds. Failures auto-retry once. If still failing → escalate to Shiv.</div>
+    </div>
+    <div class="bw-step b6">
+      <div class="bw-num">6</div>
+      <div class="bw-title" style="color:#f0a030;">🖥️ War Room + MCP</div>
+      <div class="bw-desc">War Room: live status + ▶ trigger from any browser. Claude MCP: conversational control. One backend. Two surfaces.</div>
+    </div>
+    <div class="bw-step b7">
+      <div class="bw-num">7</div>
+      <div class="bw-title">👁️ Shiv reviews</div>
+      <div class="bw-desc">5AM Slack: board + arch PNGs. !approve or !skip. Drops FEEDBACK.md. Plans sprint.</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
