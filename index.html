@@ -2843,19 +2843,76 @@ function populateS3Grid(d) {
   const el = document.getElementById('s3Grid');
   el.innerHTML = lake.map(b => {
     const stCls = b.status === 'live' ? 'st ok' : b.status === 'landing' ? 'st land' : b.status === 'queued' ? 'st que' : b.status === 'running' ? 'st run' : 'st des';
-    const ents = b.entities || {};
-    const entRows = Object.entries(ents)
-      .filter(([,v]) => v != null)
-      .map(([k,v]) => `<div class="s3-rows"><span>${k}</span><span class="s3-row-val">${fmtNum(v)}</span></div>`)
-      .join('');
     const upd = b.last_updated ? relTime(b.last_updated) : '—';
+    const asOf = b.as_of ? `<span style="font-size:9px;color:var(--text-3);font-family:'DM Mono',monospace;margin-left:4px">as of ${escHtml(b.as_of)}</span>` : '';
+
+    let entRows = '';
+    const et = b.entity_type;
+
+    if (et === 'entity') {
+      // Per-type count table
+      const TYPE_LABELS = {movies:'Movies', tv_series:'TV Series', episodes:'Episodes', people:'People', sports:'Sports', other:'Other', telecasts:'Telecasts'};
+      const ents = b.entities || {};
+      const hasAny = Object.values(ents).some(v => v != null);
+      if (hasAny) {
+        entRows = Object.entries(TYPE_LABELS)
+          .map(([k, label]) => {
+            const v = ents[k];
+            if (v == null) return '';
+            return `<div class="s3-rows"><span>${label}</span><span class="s3-row-val">${fmtNum(v)}</span></div>`;
+          }).join('');
+      }
+      if (b.flag) entRows += `<div class="s3-note" style="color:#f59e0b;margin-top:4px">⚑ ${escHtml(b.flag)}</div>`;
+
+    } else if (et === 'entity_funnel') {
+      // Current-vs-target funnel per type
+      const f = b.funnel || {};
+      const FUNNEL_LABELS = {movies:'Movies', tv_series:'TV Series', episodes:'Episodes'};
+      entRows = Object.entries(FUNNEL_LABELS).map(([k, label]) => {
+        const row = f[k];
+        if (!row) return '';
+        const pct = row.target > 0 ? Math.round(row.current / row.target * 100) : 0;
+        const barW = Math.min(100, pct);
+        return `<div style="margin:3px 0">
+          <div style="display:flex;justify-content:space-between;font-size:10px;font-family:'DM Mono',monospace">
+            <span style="color:var(--text)">${label}</span>
+            <span style="color:var(--text-2)">${fmtNum(row.current)} <span style="color:var(--text-3)">/ ${fmtNum(row.target)}</span></span>
+          </div>
+          <div style="height:3px;background:var(--bdr);border-radius:2px;margin:2px 0">
+            <div style="height:100%;width:${barW}%;background:var(--ok);border-radius:2px"></div>
+          </div>
+          <div style="font-size:9px;color:var(--text-3);font-family:'DM Mono',monospace">
+            ${fmtNum(row.matched)} matched · ${fmtNum(row.certified)} certified
+          </div>
+        </div>`;
+      }).join('');
+      if (b.untyped != null && b.untyped > 0)
+        entRows += `<div class="s3-note" style="color:#f59e0b;margin-top:4px">⚑ ${fmtNum(b.untyped)} rows untyped (no title_type)</div>`;
+
+    } else if (et === 'measurement') {
+      entRows = `<div class="s3-rows" style="color:var(--text-2);font-style:italic"><span>Entity types</span><span class="s3-row-val">N/A · measurement grain</span></div>`;
+      if ((b.entities || {}).distinct_programs != null)
+        entRows += `<div class="s3-rows"><span>Programs</span><span class="s3-row-val">${fmtNum(b.entities.distinct_programs)}</span></div>`;
+
+    } else if (et === 'na') {
+      entRows = `<div class="s3-rows" style="color:var(--text-3);font-style:italic"><span colspan="2">N/A · not entity data / parse deferred</span></div>`;
+
+    } else {
+      // Legacy fallback — old schema without entity_type
+      const ents = b.entities || {};
+      entRows = Object.entries(ents)
+        .filter(([,v]) => v != null)
+        .map(([k,v]) => `<div class="s3-rows"><span>${k}</span><span class="s3-row-val">${fmtNum(v)}</span></div>`)
+        .join('');
+    }
+
     return `<div class="s3-tile">
       <div class="s3-tile-top">
         <span class="s3-path-big">${escHtml(b.prefix || b.path)}</span>
         <span class="${stCls}">${(b.status||'').toUpperCase()}</span>
       </div>
       <div class="s3-size">${b.size_gb ? b.size_gb.toFixed(2) : '0'} GB</div>
-      <div class="s3-obj">${fmtNum(b.object_count || 0)} objects</div>
+      <div class="s3-obj">${fmtNum(b.object_count || 0)} objects${asOf}</div>
       ${entRows}
       <div class="s3-updated">Phase ${escHtml(b.phase||'?')} · ${upd}</div>
       ${b.note ? `<div class="s3-note">${escHtml(b.note)}</div>` : ''}

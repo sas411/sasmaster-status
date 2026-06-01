@@ -344,11 +344,17 @@ function parseS3Inventory() {
   catch { return null; }
 }
 
-// ── S3 entity counts (from scripts/s3-entity-counts.js cache) ────────────────
+// ── S3 entity counts (from scripts/build_data_counts.py cache) ───────────────
 function parseS3EntityCounts() {
   const file = path.join(SASMASTER, 'status', 's3-entity-counts.json');
-  try { return JSON.parse(fs.readFileSync(file, 'utf8')).prefixes || {}; }
-  catch { return {}; }
+  try {
+    const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
+    // Attach top-level as_of to each prefix entry for timestamp display
+    const asOf = raw.as_of || null;
+    const prefixes = raw.prefixes || {};
+    Object.values(prefixes).forEach(p => { if (asOf && !p.as_of) p.as_of = asOf; });
+    return prefixes;
+  } catch { return {}; }
 }
 
 // ── IMDB agent status (from scripts/imdb-agent.js post-run) ──────────────────
@@ -661,14 +667,25 @@ function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
       last_updated: p.last_modified,
       fresh: freshData.fresh,
       age_hours: freshData.age_hours,
+      // entity_type drives renderer: 'entity' | 'entity_funnel' | 'measurement' | 'na'
+      entity_type: ec.type || null,
+      // Per-type counts (entity datasets)
       entities: {
         movies:    ec.movies    ?? null,
         tv_series: ec.tv_series ?? null,
         episodes:  ec.episodes  ?? null,
         people:    ec.people    ?? null,
+        sports:    ec.sports    ?? null,
+        other:     ec.other     ?? null,
         telecasts: ec.telecasts ?? null,
       },
-      note: p.note || ec.note || null,
+      // parent_keys funnel (entity_funnel datasets)
+      funnel: ec.funnel || null,
+      untyped: ec.untyped ?? null,
+      // Flags and timestamps
+      flag:   ec.flag   || null,
+      as_of:  ec.as_of  || null,
+      note: p.note || ec.note || meta.entities_note || null,
     };
   });
 }
@@ -1065,6 +1082,15 @@ const alerts        = parseAlerts();
 const agents        = parseAgents();
 const tmdbProgress  = parseTMDBProgress();
 const s3Inv         = parseS3Inventory();
+// Refresh entity counts from live S3 queries (fast — reads cached parquet)
+try {
+  execSync(`python3 "${path.join(SASMASTER, 'scripts', 'build_data_counts.py')}"`, {
+    stdio: 'pipe', timeout: 120_000,
+    env: { ...process.env },
+  });
+} catch (e) {
+  console.warn('[generate-status] build_data_counts.py failed:', e.message?.slice(0, 200));
+}
 const entityCounts  = parseS3EntityCounts();
 const imdbStatus    = parseImdbStatus();
 const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents, imdbStatus);
