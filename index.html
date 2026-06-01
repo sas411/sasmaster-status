@@ -2844,7 +2844,20 @@ function populateS3Grid(d) {
   el.innerHTML = lake.map(b => {
     const stCls = b.status === 'live' ? 'st ok' : b.status === 'landing' ? 'st land' : b.status === 'queued' ? 'st que' : b.status === 'running' ? 'st run' : 'st des';
     const upd = b.last_updated ? relTime(b.last_updated) : '—';
-    const asOf = b.as_of ? `<span style="font-size:9px;color:var(--text-3);font-family:'DM Mono',monospace;margin-left:4px">as of ${escHtml(b.as_of)}</span>` : '';
+    const renderTime = new Date().toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',hour12:false}) + ' local';
+    const dataAsOf  = b.computed_at
+      ? new Date(b.computed_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false,timeZoneName:'short'})
+      : null;
+    const staleChip = b.stale
+      ? `<span style="font-size:9px;padding:1px 6px;border-radius:8px;background:rgba(245,158,11,.18);color:#D97706;font-weight:700;margin-left:4px">STALE</span>`
+      : '';
+    const twoStamps = dataAsOf
+      ? `<div style="font-size:9px;color:var(--text-3);font-family:'DM Mono',monospace;margin-top:3px">
+           data as-of ${escHtml(dataAsOf)}${staleChip}
+           <span style="color:var(--text-3);margin-left:8px">· rendered ${renderTime}</span>
+           ${b.source_job ? `<span style="color:var(--text-3);margin-left:6px">· ${escHtml(b.source_job)}</span>` : ''}
+         </div>`
+      : '';
 
     let entRows = '';
     const et = b.entity_type;
@@ -2906,14 +2919,15 @@ function populateS3Grid(d) {
         .join('');
     }
 
-    return `<div class="s3-tile">
+    return `<div class="s3-tile"${b.stale ? ' style="border-color:rgba(245,158,11,.35)"' : ''}>
       <div class="s3-tile-top">
         <span class="s3-path-big">${escHtml(b.prefix || b.path)}</span>
         <span class="${stCls}">${(b.status||'').toUpperCase()}</span>
       </div>
       <div class="s3-size">${b.size_gb ? b.size_gb.toFixed(2) : '0'} GB</div>
-      <div class="s3-obj">${fmtNum(b.object_count || 0)} objects${asOf}</div>
+      <div class="s3-obj">${fmtNum(b.object_count || 0)} objects</div>
       ${entRows}
+      ${twoStamps}
       <div class="s3-updated">Phase ${escHtml(b.phase||'?')} · ${upd}</div>
       ${b.note ? `<div class="s3-note">${escHtml(b.note)}</div>` : ''}
     </div>`;

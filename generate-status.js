@@ -344,17 +344,37 @@ function parseS3Inventory() {
   catch { return null; }
 }
 
-// ── S3 entity counts (from scripts/build_data_counts.py cache) ───────────────
+// ── S3 entity counts — compute-on-write, read-only ───────────────────────────
+// Primary: read warroom/counts.json from S3 (written by each job + nightly recompute)
+// Fallback: local status/s3-entity-counts.json (written by build_data_counts.py)
 function parseS3EntityCounts() {
-  const file = path.join(SASMASTER, 'status', 's3-entity-counts.json');
+  // Try S3 primary first
   try {
-    const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
-    // Attach top-level as_of to each prefix entry for timestamp display
-    const asOf = raw.as_of || null;
-    const prefixes = raw.prefixes || {};
-    Object.values(prefixes).forEach(p => { if (asOf && !p.as_of) p.as_of = asOf; });
-    return prefixes;
+    const raw = safeExec('aws s3 cp s3://sasmaster-2026/warroom/counts.json - 2>/dev/null');
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  // Local fallback
+  try {
+    const raw = JSON.parse(fs.readFileSync(path.join(SASMASTER, 'status', 's3-entity-counts.json'), 'utf8'));
+    return raw.prefixes || raw;
   } catch { return {}; }
+}
+
+// Staleness thresholds per prefix (hours). Missing prefix = no staleness check.
+const STALE_HOURS = {
+  'parent_keys/': 72,    // match jobs run on-demand; flag after 3 days of silence
+  'tmdb_dev/':    360,   // biweekly delta = 15 days
+  'imdb/':        840,   // monthly re-pull = 35 days
+  'gracenote/':   720,   // 30 days
+  'fyi/':         720,   // 30 days
+  'nielsen/':     192,   // Tuesday 5PM puller = 8 days
+};
+
+function countBlockStale(prefix, computedAt) {
+  const threshold = STALE_HOURS[prefix];
+  if (!threshold || !computedAt) return false;
+  const ageHours = (Date.now() - new Date(computedAt).getTime()) / 3_600_000;
+  return ageHours > threshold;
 }
 
 // ── IMDB agent status (from scripts/imdb-agent.js post-run) ──────────────────
@@ -657,6 +677,8 @@ function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
     if (p.prefix === 'tmdb_dev/' && tmdb?.status === 'running') status = 'landing';
 
     const freshData = (s3Freshness || {})[p.prefix] || { age_hours: null, fresh: false };
+    const computedAt = ec.computed_at || null;
+    const stale      = countBlockStale(p.prefix, computedAt);
     return {
       path: meta.label,
       prefix: p.prefix,
@@ -680,11 +702,14 @@ function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
         telecasts: ec.telecasts ?? null,
       },
       // parent_keys funnel (entity_funnel datasets)
-      funnel: ec.funnel || null,
+      funnel:  ec.funnel  || null,
       untyped: ec.untyped ?? null,
-      // Flags and timestamps
-      flag:   ec.flag   || null,
-      as_of:  ec.as_of  || null,
+      // Compute-on-write provenance stamps
+      computed_at: computedAt,
+      source_job:  ec.source_job || null,
+      stale,
+      // Flags and notes
+      flag: ec.flag || null,
       note: p.note || ec.note || meta.entities_note || null,
     };
   });
@@ -1082,15 +1107,8 @@ const alerts        = parseAlerts();
 const agents        = parseAgents();
 const tmdbProgress  = parseTMDBProgress();
 const s3Inv         = parseS3Inventory();
-// Refresh entity counts from live S3 queries (fast — reads cached parquet)
-try {
-  execSync(`python3 "${path.join(SASMASTER, 'scripts', 'build_data_counts.py')}"`, {
-    stdio: 'pipe', timeout: 120_000,
-    env: { ...process.env },
-  });
-} catch (e) {
-  console.warn('[generate-status] build_data_counts.py failed:', e.message?.slice(0, 200));
-}
+// Counts read from S3 warroom/counts.json (compute-on-write — jobs write this, not generate-status).
+// generate-status.js is READ-ONLY with respect to entity counts.
 const entityCounts  = parseS3EntityCounts();
 const imdbStatus    = parseImdbStatus();
 const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents, imdbStatus);
