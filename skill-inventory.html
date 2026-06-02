@@ -222,7 +222,7 @@
   <div class="sub">Claude Code personal skill library · synced across claude.ai + local · self-evolving via post-build capture</div>
   <div class="badge-row">
     <span class="badge badge-live"><span class="dot"></span>44 Skills Active</span>
-    <span class="badge badge-pur">17 SaSMaster Domain</span>
+    <span class="badge badge-pur">20 SaSMaster Domain</span>
     <span class="badge badge-info">9 Engineering</span>
     <span class="badge badge-amber">Friday Auto-Review Cron</span>
     <span class="badge badge-info">Sprint 17 · RESEARCH-PORTAL-002 · Emil design-eng added</span>
@@ -233,7 +233,7 @@
 
   <!-- ── Stats bar ── -->
   <div class="stats-bar">
-    <div class="sb-item"><strong>79</strong><span>Total Skills</span></div>
+    <div class="sb-item"><strong>82</strong><span>Total Skills</span></div>
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>50</strong><span>Agents</span></div>
     <div class="sb-sep"></div>
@@ -241,7 +241,7 @@
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>9 plugins</strong><span>Marketplace Fleet</span></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><strong>17</strong><span>SaSMaster Domain</span></div>
+    <div class="sb-item"><strong>20</strong><span>SaSMaster Domain</span></div>
     <div class="sb-sep"></div>
     <div class="sb-item"><strong>Fri 5:50PM</strong><span>Auto-Review Cron</span></div>
   </div>
@@ -249,8 +249,8 @@
   <!-- ── Filter ── -->
   <div class="sec-title">Skills</div>
   <div class="filter-row">
-    <button class="filter-btn active" onclick="filterSkills('all',this)">All (44 personal)</button>
-    <button class="filter-btn" onclick="filterSkills('sasmaster',this)">SaSMaster Domain (21)</button>
+    <button class="filter-btn active" onclick="filterSkills('all',this)">All (47 personal)</button>
+    <button class="filter-btn" onclick="filterSkills('sasmaster',this)">SaSMaster Domain (24)</button>
     <button class="filter-btn" onclick="filterSkills('research',this)">Research (1)</button>
     <button class="filter-btn" onclick="filterSkills('engineering',this)">Engineering (9)</button>
     <button class="filter-btn" onclick="filterSkills('emba',this)">EMBA / Academia (2)</button>
@@ -1384,6 +1384,84 @@
       </div>
     </div>
 
+    <!-- wikidata-fusion -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">wikidata-fusion</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">Wikidata certified alt-ID fusion — QID super-anchor mines EIDR (P2704), TheTVDB (P4835), TMDb (P4947/P4983), Netflix, Freebase. 5-signal cert model: CERTIFIED / PROVISIONAL / QUARANTINE. Backfills parent_keys.eidr_id. Discovery over hardcoding — every ExternalId property pulled generically. Pairs with gracenote-validate for incremental baseline netting.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">wikidata</span>
+          <span class="trigger-tag">SPARQL</span>
+          <span class="trigger-tag">alt ids</span>
+          <span class="trigger-tag">QID</span>
+          <span class="trigger-tag">EIDR backfill</span>
+          <span class="trigger-tag">certified fusion</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">SKILL.md + 3 refs</span><span>Added Jun 1, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <!-- gracenote-validate -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">gracenote-validate</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">30-day Gracenote View trial kit — R1–R5 TMS ID validator (format/type/hierarchy/collapse/cross-system) + stratified eval sampler + PROCURE/WALK scorecard. Type-accuracy hard floor 95%. Incremental-over-Wikidata metric (not gross hit-rate). Provenance wall: gracenote_trial_eval rows never touch the spine. gn_validate.py 8/8 · gn_eval_score.py 5/5.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">gracenote</span>
+          <span class="trigger-tag">tmsId</span>
+          <span class="trigger-tag">rootId</span>
+          <span class="trigger-tag">validate gracenote</span>
+          <span class="trigger-tag">procure/walk</span>
+          <span class="trigger-tag">gracenoteview</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">SKILL.md + 2 refs + 3 scripts</span><span>Added Jun 2, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <!-- gracenote-onconnect -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">gracenote-onconnect</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">Hands-off OnConnect resolve+fuse pipeline — async client (concurrency-cap 5, 429 backoff, gzip) + mine+fuse job + NDJSON→Parquet converter. CERTIFIED/PROVISIONAL/QUARANTINE tiers; binds on rootId not tmsId. Spine-promotion gated on Public v1.1 tier ToS confirmation (SUPERVISED-AUTONOMY). gracenote_prd/ S3 prefix locked. onconnect_client 3/3 · gn_resolve_fuse 5/5 · gn_fusion_to_parquet 4/4.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">onconnect</span>
+          <span class="trigger-tag">tmsapi</span>
+          <span class="trigger-tag">resolve to tms</span>
+          <span class="trigger-tag">fuse gracenote</span>
+          <span class="trigger-tag">fill tms ids</span>
+          <span class="trigger-tag">gracenote api</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">SKILL.md + 1 ref + 3 scripts</span><span>Added Jun 2, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
     <!-- emil-design-eng -->
     <div class="skill-card cat-engineering" data-cat="engineering">
       <div class="sc-stripe"></div>
@@ -1505,6 +1583,9 @@
         <tr><td class="skill-name-cell">sasmaster-code-review</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">SaSMaster-specific code reviewer — 17-rule checklist against actual stack (React/Next.js, Railway/Vercel, DuckDB/Parquet). Not generic best practices.</td><td class="lines-cell">152</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">sasmaster-refactor</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">SaSMaster-specific refactor — safe restructure without behavior change. Depends on sasmaster-code-review findings. QA sign-off required for Railway route changes.</td><td class="lines-cell">142</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">sasmaster-review-refactor</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Full SaSMaster code quality loop — chains code-review → confirm → refactor → QA sign-off. Before/After table output. One command.</td><td class="lines-cell">130</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">wikidata-fusion</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Wikidata certified alt-ID fusion — QID super-anchor, 5-signal cert model (CERTIFIED/PROVISIONAL/QUARANTINE), EIDR/TheTVDB/TMDb promotable set, eidr_id backfill, discovery over hardcoding. Pairs with gracenote-validate for incremental baseline netting.</td><td class="lines-cell">SKILL.md + 3 refs</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">gracenote-validate</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">30-day GN View trial kit — R1–R5 TMS validator + stratified sampler + PROCURE/WALK scorer. Type-acc 95% floor. Incremental-over-Wikidata metric. gracenote_trial_eval provenance wall. 8/8 + 5/5 PASS.</td><td class="lines-cell">SKILL.md + 2 refs + 3 scripts</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">gracenote-onconnect</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">OnConnect resolve+fuse pipeline — async client + mine+fuse + NDJSON→Parquet. CERTIFIED/PROVISIONAL/QUARANTINE; binds on rootId. Spine-promotion GATED on tier ToS. gracenote_prd/ locked. 3/3 + 5/5 + 4/4 PASS.</td><td class="lines-cell">SKILL.md + 1 ref + 3 scripts</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
       </tbody>
     </table>
   </div>
