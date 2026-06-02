@@ -1233,6 +1233,8 @@ a{color:inherit}
         <span class="sph-ml" id="s3TotalGB">-- GB total</span>
       </div>
       <div class="s3-grid" id="s3Grid"></div>
+      <!-- WARROOM-MOVIE-ROLLUP-001: dedup banner — populated by populateS3Grid() -->
+      <div id="movieUniverseRollup" style="display:none;padding:0 20px 0"></div>
 
       <!-- Obsidian Vault Row -->
       <div id="obsidianVaultRow" style="display:flex;align-items:center;gap:10px;margin-top:8px;padding:6px 12px;background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text-2)">
@@ -2932,6 +2934,30 @@ function populateS3Grid(d) {
       ${b.note ? `<div class="s3-note">${escHtml(b.note)}</div>` : ''}
     </div>`;
   }).join('');
+
+  // WARROOM-MOVIE-ROLLUP-001: dedup banner below the s3Grid
+  const mu = d.movie_universe;
+  const rollupEl = document.getElementById('movieUniverseRollup');
+  if (rollupEl) {
+    if (mu && mu.combined_movie_universe) {
+      rollupEl.style.display = 'block';
+      rollupEl.innerHTML = `<div style="display:flex;align-items:flex-start;gap:16px;padding:10px 14px 11px;background:var(--pbg);border:1px solid var(--pbd);border-radius:6px;margin-bottom:0">
+        <div style="flex-shrink:0;min-width:96px">
+          <div style="font-family:var(--cond);font-size:9px;font-weight:700;letter-spacing:1px;color:var(--purple);text-transform:uppercase;margin-bottom:2px">MOVIE UNIVERSE</div>
+          <div style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--purple);line-height:1">${fmtNum(mu.combined_movie_universe)}</div>
+          <div style="font-size:9px;color:var(--text-3);margin-top:2px;font-family:var(--mono)">distinct IMDB &amp; EIDR</div>
+        </div>
+        <div style="flex:1;padding-left:14px;border-left:1px solid var(--pbd);font-size:10px;color:var(--text-2);line-height:1.7;font-family:var(--sans)">
+          Movie coverage: <strong style="color:var(--text)">${fmtNum(mu.combined_movie_universe)}</strong> distinct titles (IMDB &amp; EIDR).
+          GN <strong style="color:var(--cyan)">${fmtNum(mu.gn_movies)}</strong> assets · FYI <strong style="color:var(--cyan)">${fmtNum(mu.fyi_movies)}</strong> programs —
+          same titles, different ID systems, <strong style="color:var(--text)">not additive</strong>.
+          Opus <strong style="color:var(--purple)">${fmtNum(mu.opus_movies)}</strong> IMDB-only, tracked separately.
+        </div>
+      </div>`;
+    } else {
+      rollupEl.style.display = 'none';
+    }
+  }
 }
 
 // ── Kanban ────────────────────────────────────────────────

@@ -1110,6 +1110,7 @@ const s3Inv         = parseS3Inventory();
 // Counts read from S3 warroom/counts.json (compute-on-write — jobs write this, not generate-status).
 // generate-status.js is READ-ONLY with respect to entity counts.
 const entityCounts  = parseS3EntityCounts();
+const movieUniverse = (entityCounts || {})['_movie_universe'] || null;
 const imdbStatus    = parseImdbStatus();
 const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents, imdbStatus);
 const qaDrafts      = parseQADrafts();
@@ -1630,6 +1631,7 @@ const status = {
   // ── New fields for v3 War Room ──
   scrapers,
   s3_lake,
+  movie_universe: movieUniverse,
   kpis:                (() => {
     const kpis = buildKPIs(agents, scrapers, s3_lake, tasks, parentKeyScraper, buildEventsCount, haikuPctToday);
     kpis.builds_7d       = buildTrends?.builds_7d   || 0;
