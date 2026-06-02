@@ -234,6 +234,9 @@ function parseAgents() {
     { name: 'Research Portal',   icon: '🔬', schedule: 'TBD',          nextRun: 'Pending launch',  log: 'research-portal-agent.log', channel: '#sasmaster-intel', jobId: null, descOverride: 'SCAFFOLDED — pending RESEARCH-PORTAL-001 launch' },
     { name: 'Data Guardian',     icon: '🛡️', schedule: 'Post-ingestion', nextRun: 'After next pull', log: 'data-guardian.log',         channel: '#sasmaster-builds',  jobId: null, descOverride: 'Post-ingestion integrity enforcer — snapshot → AMRLD anomaly detection (RULE-HH-01..04) → Tier 2 gate. Wired into nielsen_puller.py via _run_data_guardian().' },
 
+    // ── Drafted (on-demand, no cron yet) ────────────────────
+    { name: 'Gracenote OnConnect', icon: '🎬', schedule: 'on-demand (JARVIS)', nextRun: '—', log: 'gn-onconnect.log', channel: '#sasmaster-builds', jobId: null, type: 'drafted', statusOverride: 'drafted', descOverride: 'Resolve+fuse drafted · self-tests green · spine-promotion GATED (tier UNCONFIRMED)' },
+
     // ── SaSMaster Claude Code sub-agents ────────────────────
     { name: 'Autonomous Coder',     icon: '⚡', schedule: 'On-demand',     nextRun: 'Contextual',   log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Primary build executor. Phase I pipeline. cost-log writer (13-field schema). Reads build-discipline before every task. Model: Sonnet 4.6.' },
     { name: 'Data Modeler',         icon: '📐', schedule: 'On-demand',     nextRun: 'Contextual',   log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Schema design, S3 paths, DuckDB query patterns, Parent Key v1. Consults before any dataset onboarding or schema change. Model: Opus 4.7.' },
@@ -292,6 +295,7 @@ function parseAgents() {
   ];
 
   return agents.map(a => {
+    if (a.statusOverride) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: a.statusOverride };
     if (!a.log) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'idle' };
     const logFile = path.join(LOG, a.log);
     if (!fs.existsSync(logFile)) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'never' };

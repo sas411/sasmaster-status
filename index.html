@@ -2661,7 +2661,7 @@ function populateAgentMiniGrid(d) {
   el.innerHTML = liveAgents.map(a => {
     const st = a.status || 'never';
     const cls = st === 'healthy' ? 'healthy' : st === 'warn' ? 'warn' : 'never';
-    const badgeCls = st === 'healthy' ? 'acs-ok' : st === 'warn' ? 'acs-w' : 'acs-n';
+    const badgeCls = st === 'healthy' ? 'acs-ok' : (st === 'warn' || st === 'drafted') ? 'acs-w' : 'acs-n';
     const lastRunStr = a.lastRun ? relTime(a.lastRun) : 'never';
     return `<div class="ac ${cls}" onclick="setScoopContext('${escAttr(a.name)}', '${st}', '${escAttr((a.lastOutput||'').substring(0,60))}')">
       <div class="ac-hdr">
@@ -2741,7 +2741,7 @@ function populateAgentFullGrid(d) {
   function renderAgentCard(a) {
     const st = a.status || 'never';
     const cls = st === 'healthy' ? 'healthy' : st === 'warn' ? 'warn' : st === 'idle' ? 'idle' : 'never';
-    const badgeCls = st === 'healthy' ? 'acs-ok' : st === 'warn' ? 'acs-w' : 'acs-n';
+    const badgeCls = st === 'healthy' ? 'acs-ok' : (st === 'warn' || st === 'drafted') ? 'acs-w' : 'acs-n';
     const out = a.lastOutput || (st === 'idle' ? 'Invoked contextually — no scheduled run' : st === 'never' ? 'Never run — waiting for first execution' : '');
     const outCls = (st === 'never' || st === 'idle') ? 'afc-output never' : 'afc-output';
     const lastRunStr = a.lastRun ? relTime(a.lastRun) : (st === 'idle' ? '—' : 'never');
@@ -2778,6 +2778,7 @@ function populateAgentFullGrid(d) {
     { key: null,          label: 'Live & Cron Agents',        tier: null },
     { key: 'subagent',    label: 'SaSMaster Sub-Agents',      tier: null },
     { key: 'marketplace', label: 'Marketplace Sub-Agents',    tier: null },
+    { key: 'drafted',     label: 'Drafted Agents',            tier: null },
   ];
 
   let html = '';
