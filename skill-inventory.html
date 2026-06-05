@@ -1284,6 +1284,61 @@
       </div>
     </div>
 
+    <!-- cost-optimizer skill -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">cost-optimizer</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">Token &amp; API-cost optimization authority. Model selection decision tree (opus/sonnet/haiku), effort discipline (Opus 4.8 effort param — defaults high), prompt-cache strategy (1024-token floor, ~13:1 in:out target), quota/budget governance (subscription %-cap vs api_usage $/day), cost-log.jsonl 13-field schema reader, Opus 4.8 API hard-stops (temperature/top_p/top_k/prefill = 400). Pairs with cost-sentinel agent (enforcement) and autonomous-coder (cost-log writes). Always pin aliases (opus/sonnet/haiku), never version strings.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">token usage</span>
+          <span class="trigger-tag">cost / budget / spend</span>
+          <span class="trigger-tag">burn rate</span>
+          <span class="trigger-tag">effort level</span>
+          <span class="trigger-tag">prompt cache</span>
+          <span class="trigger-tag">model routing</span>
+          <span class="trigger-tag">opusplan</span>
+          <span class="trigger-tag">API billing</span>
+          <span class="trigger-tag">downgrade</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">~/.claude/skills/user/cost-optimizer/</span><span>Added Jun 5, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
+    <!-- cost-sentinel agent -->
+    <div class="skill-card cat-sasmaster" data-cat="sasmaster">
+      <div class="sc-stripe"></div>
+      <div class="sc-header">
+        <div class="sc-top">
+          <span class="sc-name">cost-sentinel (agent)</span>
+          <span class="sc-cat">SaSMaster</span>
+        </div>
+        <div class="sc-desc">Autonomous cost &amp; quota enforcer. Haiku 4.5 by design (cheap to run frequently). Reads cost-log.jsonl + usage-state.json, computes burn rate + projection, sets routing tier (NORMAL/WARN/DOWNGRADE/PAUSE), flags top-3 spenders and waste patterns (in:out >8:1, effort=high on execution tasks, misrouted models). Writes only: SASMASTER_MODEL_OVERRIDE env var, Slack digest to #sasmaster-builds, Costs-tab War Room payload. Pre-build hook on 4+ task batches, hourly cron in active windows. Reads billing_mode to switch between %-of-weekly-cap (subscription) and $/day-budget (api_usage) tiers. Never writes product code.</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-triggers">
+          <span class="trigger-tag">check spend</span>
+          <span class="trigger-tag">burn rate</span>
+          <span class="trigger-tag">are we over budget</span>
+          <span class="trigger-tag">should we downgrade</span>
+          <span class="trigger-tag">before !build batch</span>
+          <span class="trigger-tag">Costs tab refresh</span>
+        </div>
+      </div>
+      <div class="sc-footer">
+        <div class="sc-meta"><span class="sc-lines">~/.claude/agents/cost-sentinel.md</span><span>Added Jun 5, 2026</span></div>
+        <span class="sc-sync">✓ Synced</span>
+      </div>
+    </div>
+
     <!-- genai-market -->
     <div class="skill-card cat-sasmaster" data-cat="sasmaster">
       <div class="sc-stripe"></div>
@@ -1579,6 +1634,8 @@
         <tr><td class="skill-name-cell">content-catalog-platform</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Content catalog authority — Parent Key hierarchy, IMDB/TMDB/EIDR enrichment, AltID resolution, People/Cast/Crew pipelines. 5 canonical pipelines: Movie (68.4% match), TV Series, People, Parent Key Assignment, AltID Map. Agent: content-catalog-builder for autonomous JARVIS #catalog builds.</td><td class="lines-cell">SKILL.md + agents/ + refs/</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">scoop-frontend</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">ra-linear-analytics (Scoop) frontend mastery — boot sequence (7-step init chain), 5 React context layers, Highcharts module order (Boost last), FetchService 3-tier auth cache, theme injection system, animation conventions, CSS ra- prefix convention, webpack module aliases, 11 anti-patterns. Source: ra-linear-analytics-bundle TRUE prod repo. 397 JSX components.</td><td class="lines-cell">500</td><td class="sync-cell"><span class="sync-local">✓ Local</span></td></tr>
         <tr><td class="skill-name-cell">emil-design-eng</td><td><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(14,165,233,.1);color:#0369A1;font-size:9px;font-weight:700;text-transform:uppercase;">Engineering</span></td><td class="desc-cell">Animation &amp; interaction constitution (Emil Kowalski) — 13 rules: GPU-only transform/opacity, entry cubic-bezier(0.23,1,0.32,1) + exit cubic-bezier(0.4,0,1,1), 100–400ms caps, scale 0.94–0.97 entry start (never 0), stagger 30–50ms/item, FLIP layout animations, 5-state interaction checklist. SaSMaster: drill overlays, cast stagger, card flip, Dr. Scoop slide-in.</td><td class="lines-cell">v1.0</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">cost-optimizer</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Token &amp; API-cost optimization authority — model decision tree, effort discipline (Opus 4.8), prompt-cache strategy, quota/budget governance (subscription %-cap vs api_usage $/day), cost-log.jsonl reader, Opus 4.8 hard-stops. Pairs with cost-sentinel agent.</td><td class="lines-cell">~/.claude/skills/user/cost-optimizer/</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
+        <tr><td class="skill-name-cell">cost-sentinel (agent)</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">Autonomous cost enforcer (Haiku 4.5). Reads cost-log.jsonl + usage-state.json, sets routing tier, flags top spenders + waste, posts Slack digest, emits Costs-tab payload. billing_mode branch: %-cap (subscription) vs $/day (api_usage). Pre-build hook on 4+ task batches.</td><td class="lines-cell">~/.claude/agents/cost-sentinel.md</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">genai-market</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">GenAI market intelligence — LLM model options, MCP integration, agent framework, pricing/cost guard decisions. Triggers on model routing review and genai-market-digest.json evaluation.</td><td class="lines-cell">48</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">sasmaster-code-review</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">SaSMaster-specific code reviewer — 17-rule checklist against actual stack (React/Next.js, Railway/Vercel, DuckDB/Parquet). Not generic best practices.</td><td class="lines-cell">152</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
         <tr><td class="skill-name-cell">sasmaster-refactor</td><td><span class="sc-cat cat-sasmaster" style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(124,58,237,.1);color:#7C3AED;font-size:9px;font-weight:700;text-transform:uppercase;">SaSMaster</span></td><td class="desc-cell">SaSMaster-specific refactor — safe restructure without behavior change. Depends on sasmaster-code-review findings. QA sign-off required for Railway route changes.</td><td class="lines-cell">142</td><td class="sync-cell"><span class="sync-both">✓ Both</span></td></tr>
@@ -1619,7 +1676,7 @@
   </div>
 
   <div style="text-align:center;margin-top:32px;font-size:11px;color:var(--ink-400);">
-    SaSMaster Intelligence Platform · Skill Inventory v3 · Updated May 29, 2026 · 79 skills · 50 agents · 27 commands · 9 marketplace plugins
+    SaSMaster Intelligence Platform · Skill Inventory v3 · Updated Jun 5, 2026 · 80 skills · 51 agents · 27 commands · 9 marketplace plugins
   </div>
 
 </div><!-- /canvas -->
