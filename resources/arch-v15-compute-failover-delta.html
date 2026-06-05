@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compute Failover Topology — arch-v15 delta · SaSMaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-base: #0a0a0f; --bg-surface: #12121a; --bg-elevated: #1a1a2e; --bg-panel: #0d0d16;
+    --bg-inset: #0e0e18;
+    --lavender: #a78bfa; --teal-bright: #22d3ee; --gold: #f59e0b;
+    --red-alert: #ef4444; --green-signal: #10b981;
+    --lav-dim: rgba(167,139,250,0.14); --lav-border: rgba(167,139,250,0.10);
+    --lav-active: rgba(167,139,250,0.35); --teal-dim: rgba(34,211,238,0.12);
+    --gold-dim: rgba(245,158,11,0.10); --red-dim: rgba(239,68,68,0.12);
+    --green-dim: rgba(16,185,129,0.12);
+    --text-primary: #f8f8ff; --text-secondary: #94a3b8; --text-dim: #4b5563;
+    --text-inverse: #0a0a0f;
+    --border: rgba(167,139,250,0.10); --border-active: rgba(167,139,250,0.35);
+    --border-subtle: rgba(255,255,255,0.04);
+    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  body {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Barlow Condensed', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    overflow-x: hidden;
+  }
+  * { scrollbar-width: thin; scrollbar-color: rgba(167,139,250,0.3) transparent; }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.3); border-radius: 4px; }
+
+  .wrap { max-width: 920px; margin: 0 auto; }
+
+  /* Header */
+  header { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 22px; }
+  .eyebrow { font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--lavender); }
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: 38px; letter-spacing: 2px; line-height: 1; margin-top: 8px; }
+  .sub { font-size: 14px; color: var(--text-secondary); margin-top: 6px; max-width: 560px; line-height: 1.5; }
+  .ver-badge { text-align: right; flex-shrink: 0; }
+  .ver-badge .v { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px; color: var(--lavender); line-height: 1; }
+  .ver-badge .vsub { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); margin-top: 5px; letter-spacing: .5px; }
+
+  /* State toggle */
+  .states { display: flex; gap: 8px; margin-bottom: 18px; }
+  .state-btn {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: .5px;
+    padding: 9px 16px; border-radius: 8px; cursor: pointer;
+    background: transparent; color: var(--text-secondary);
+    border: 1px solid var(--border); transition: all 150ms var(--ease-spring);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .state-btn:hover { border-color: var(--border-active); color: var(--text-primary); }
+  .state-btn .pip { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); }
+  .state-btn.active { background: var(--lav-dim); border-color: var(--lav-active); color: var(--text-primary); box-shadow: 0 0 16px rgba(167,139,250,0.2); }
+  .state-btn[data-state="normal"].active .pip { background: var(--green-signal); }
+  .state-btn[data-state="failover"].active .pip { background: var(--gold); }
+  .state-btn[data-state="recovery"].active .pip { background: var(--teal-bright); }
+
+  /* Stage card */
+  .card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.6); overflow: hidden; }
+  .stage-pad { padding: 24px 28px 8px; }
+  .stage { position: relative; width: 860px; max-width: 100%; height: 520px; margin: 0 auto; }
+
+  /* SVG connector layer */
+  .lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .lines path { fill: none; transition: stroke .3s var(--ease-spring), opacity .3s var(--ease-spring), stroke-width .3s var(--ease-spring); }
+  .dispatch { stroke-width: 2; }
+  .heartbeat { stroke-dasharray: 5 6; }
+  .dim-line { stroke: var(--text-dim); opacity: .22; }
+
+  @keyframes flow { to { stroke-dashoffset: -22; } }
+  .heartbeat.live { animation: flow 1.1s linear infinite; }
+
+  /* Nodes */
+  .node { position: absolute; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; transition: all .3s var(--ease-spring); }
+  .node .ntype { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); }
+  .node .nname { font-family: 'Bebas Neue', sans-serif; font-size: 21px; letter-spacing: 1px; margin-top: 3px; }
+  .node .nmeta { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
+  .node .nstat { display: flex; align-items: center; gap: 7px; margin-top: 9px; font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: .5px; }
+  .node .nstat .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Control plane node */
+  #cp { left: 280px; top: 30px; width: 300px; }
+  #cp { border-color: var(--lav-active); box-shadow: 0 0 18px rgba(167,139,250,0.12); }
+  #cp .nname { color: var(--lavender); }
+  .cp-queue { display: flex; gap: 14px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-subtle); }
+  .cp-queue .q { font-family: 'Share Tech Mono', monospace; }
+  .cp-queue .q .ql { font-size: 9px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
+  .cp-queue .q .qv { font-size: 15px; color: var(--text-primary); margin-top: 2px; }
+
+  /* Decision gate */
+  #gate { left: 330px; top: 190px; width: 200px; text-align: center; padding: 10px 14px; border-radius: 20px; }
+  #gate .gtitle { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); }
+  #gate .gval { font-family: 'Share Tech Mono', monospace; font-size: 13px; margin-top: 3px; }
+
+  /* Worker nodes */
+  #mac { left: 50px; top: 380px; width: 270px; }
+  #gha { left: 540px; top: 380px; width: 270px; }
+
+  /* ===== STATE STYLING ===== */
+
+  /* helpers */
+  .active-node { border-color: var(--lav-active) !important; background: var(--bg-elevated); box-shadow: 0 0 18px rgba(167,139,250,0.18) !important; }
+  .active-node .nname { color: var(--lavender) !important; }
+  .standby-node { opacity: .5; border-color: var(--border); }
+  .alert-node { border-color: rgba(239,68,68,0.5) !important; box-shadow: 0 0 18px rgba(239,68,68,0.15) !important; }
+  .alert-node .nname { color: var(--red-alert) !important; }
+
+  /* NORMAL */
+  .stage.s-normal .dispatch-mac { stroke: var(--lavender); opacity: 1; stroke-width: 2.5; }
+  .stage.s-normal .dispatch-gha { stroke: var(--text-dim); opacity: .2; }
+  .stage.s-normal .hb-mac { stroke: var(--teal-bright); opacity: .9; }
+  .stage.s-normal .hb-gha { stroke: var(--text-dim); opacity: .12; animation: none; }
+
+  /* FAILOVER */
+  .stage.s-failover .dispatch-mac { stroke: var(--red-alert); opacity: .3; stroke-width: 2; stroke-dasharray: 3 5; }
+  .stage.s-failover .dispatch-gha { stroke: var(--gold); opacity: 1; stroke-width: 2.5; }
+  .stage.s-failover .hb-mac { stroke: var(--red-alert); opacity: .5; animation: none; }
+  .stage.s-failover .hb-gha { stroke: var(--teal-bright); opacity: .9; }
+
+  /* RECOVERY */
+  .stage.s-recovery .dispatch-mac { stroke: var(--lavender); opacity: 1; stroke-width: 2.5; }
+  .stage.s-recovery .dispatch-gha { stroke: var(--text-dim); opacity: .25; }
+  .stage.s-recovery .hb-mac { stroke: var(--teal-bright); opacity: .9; }
+  .stage.s-recovery .hb-gha { stroke: var(--green-signal); opacity: .35; animation: none; }
+
+  /* dedup badge — recovery only */
+  .dedup { position: absolute; left: 196px; top: 300px; opacity: 0; transition: opacity .3s var(--ease-spring);
+    font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: .5px;
+    background: var(--green-dim); border: 1px solid rgba(16,185,129,0.4); color: var(--green-signal);
+    padding: 4px 9px; border-radius: 6px; }
+  .stage.s-recovery .dedup { opacity: 1; }
+
+  /* threshold annotation */
+  .thresh { position: absolute; left: 548px; top: 232px; font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--text-dim); letter-spacing: .5px; }
+  .thresh b { color: var(--text-secondary); font-weight: 400; }
+
+  /* Status bar */
+  .statusbar { display: flex; align-items: stretch; border-top: 1px solid var(--border); background: var(--bg-panel); }
+  .statusbar .cell { flex: 1; padding: 14px 20px; border-right: 1px solid var(--border-subtle); }
+  .statusbar .cell:last-child { border-right: none; }
+  .statusbar .sl { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); }
+  .statusbar .sv { font-family: 'Share Tech Mono', monospace; font-size: 15px; margin-top: 5px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+  .statusbar .sv .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* Caption tying state to QA gate */
+  .caption { padding: 16px 28px 22px; border-top: 1px solid var(--border-subtle); }
+  .caption .ctag { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--lavender); }
+  .caption .ctxt { font-size: 13.5px; color: var(--text-secondary); margin-top: 6px; line-height: 1.55; max-width: 760px; }
+  .caption .ctxt b { color: var(--text-primary); font-weight: 600; }
+
+  /* Delta legend */
+  .legend { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .legend .lcol { background: var(--bg-surface); padding: 16px 20px; }
+  .legend .lhead { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
+  .legend .lhead.nw { color: var(--lavender); }
+  .legend .lhead.ex { color: var(--text-dim); }
+  .legend ul { list-style: none; }
+  .legend li { font-size: 13px; color: var(--text-secondary); padding-left: 18px; position: relative; margin-bottom: 7px; line-height: 1.4; }
+  .legend li:last-child { margin-bottom: 0; }
+  .legend .nw li::before { content: "+"; position: absolute; left: 0; color: var(--lavender); font-family: 'Share Tech Mono', monospace; font-weight: 700; }
+  .legend .ex li::before { content: "·"; position: absolute; left: 4px; color: var(--text-dim); font-size: 18px; line-height: .8; }
+  .legend li b { color: var(--text-primary); font-weight: 600; }
+
+  footer { margin-top: 18px; display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: .5px; flex-wrap: wrap; gap: 8px; }
+
+  @media (max-width: 900px) {
+    .stage { transform: scale(0.62); transform-origin: top left; height: 340px; }
+    .legend { grid-template-columns: 1fr; }
+    header { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="eyebrow">arch-v15 delta · INFRA-FAILOVER-001</div>
+      <h1>Compute Failover Topology</h1>
+      <div class="sub">Heartbeat-driven auto-cutover across the 3-tier compute plane. Replaces the home-Mac-as-primary SPOF with a control plane that detects a stale worker and reroutes the queue with zero job loss. This is the Ph3 target state — build against it.</div>
+    </div>
+    <div class="ver-badge">
+      <div class="v">v15</div>
+      <div class="vsub">TARGET STATE<br>CARD 2 / PH3</div>
+    </div>
+  </header>
+
+  <div class="states">
+    <div class="state-btn active" data-state="normal"><span class="pip"></span>Normal operation</div>
+    <div class="state-btn" data-state="failover"><span class="pip"></span>Mac down · failover</div>
+    <div class="state-btn" data-state="recovery"><span class="pip"></span>Mac back · recovery</div>
+  </div>
+
+  <div class="card">
+    <div class="stage-pad">
+      <div class="stage s-normal" id="stage">
+
+        <!-- connector layer -->
+        <svg class="lines" viewBox="0 0 860 520" preserveAspectRatio="none">
+          <defs>
+            <marker id="arrow-lav" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a78bfa"/></marker>
+            <marker id="arrow-gold" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#f59e0b"/></marker>
+            <marker id="arrow-dim" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#4b5563"/></marker>
+          </defs>
+
+          <!-- control plane -> gate -->
+          <path class="dispatch dim-line" d="M430,140 L430,190" stroke="#4b5563" opacity=".4"/>
+
+          <!-- dispatch: gate -> workers -->
+          <path class="dispatch dispatch-mac" d="M360,228 C 280,300 240,330 195,380" marker-end="url(#arrow-lav)"/>
+          <path class="dispatch dispatch-gha" d="M500,228 C 580,300 620,330 665,380" marker-end="url(#arrow-dim)"/>
+
+          <!-- heartbeat: workers -> control plane -->
+          <path class="heartbeat hb-mac live" d="M250,380 C 300,280 340,200 372,140" marker-end="url(#arrow-dim)"/>
+          <path class="heartbeat hb-gha" d="M610,380 C 560,280 520,200 488,140" marker-end="url(#arrow-dim)"/>
+        </svg>
+
+        <!-- Control plane -->
+        <div class="node" id="cp">
+          <div class="ntype">Control Plane · Railway</div>
+          <div class="nname">JARVIS v5 — HTTP Events API</div>
+          <div class="nmeta">Long-lived token · queue dispatch · worker registry</div>
+          <div class="cp-queue">
+            <div class="q"><div class="ql">Queue depth</div><div class="qv" id="q-depth">14</div></div>
+            <div class="q"><div class="ql">Routing to</div><div class="qv" id="q-route">Mac-64GB</div></div>
+            <div class="q"><div class="ql">Delivery</div><div class="qv">≥1 · idemp.</div></div>
+          </div>
+        </div>
+
+        <!-- Decision gate -->
+        <div class="node" id="gate">
+          <div class="gtitle">Failover decision</div>
+          <div class="gval" id="gate-val">last_seen 0:04 · OK</div>
+        </div>
+        <div class="thresh">stale &gt; <b>5:00</b> → reroute</div>
+
+        <!-- Mac worker -->
+        <div class="node" id="mac">
+          <div class="ntype">Primary worker</div>
+          <div class="nname">Mac 64GB</div>
+          <div class="nmeta">Local · highest throughput</div>
+          <div class="nstat"><span class="dot" id="mac-dot"></span><span id="mac-stat">heartbeat live</span></div>
+        </div>
+
+        <!-- GitHub Actions worker -->
+        <div class="node" id="gha">
+          <div class="ntype">Hot fallback</div>
+          <div class="nname">GitHub Actions</div>
+          <div class="nmeta">Cloud · always reachable</div>
+          <div class="nstat"><span class="dot" id="gha-dot"></span><span id="gha-stat">standby</span></div>
+        </div>
+
+        <!-- dedup badge (recovery) -->
+        <div class="dedup">dedup guard · no double-run on re-attach</div>
+
+      </div>
+    </div>
+
+    <!-- status bar -->
+    <div class="statusbar">
+      <div class="cell"><div class="sl">Active worker</div><div class="sv"><span class="dot" id="sb-dot"></span><span id="sb-worker">Mac-64GB</span></div></div>
+      <div class="cell"><div class="sl">Mode</div><div class="sv" id="sb-mode">STEADY</div></div>
+      <div class="cell"><div class="sl">Jobs lost</div><div class="sv" id="sb-lost">0</div></div>
+      <div class="cell"><div class="sl">Cutover window</div><div class="sv" id="sb-window">—</div></div>
+    </div>
+
+    <!-- caption -> QA gate mapping -->
+    <div class="caption">
+      <div class="ctag" id="cap-tag">QA Gate 1 · heartbeat + routing</div>
+      <div class="ctxt" id="cap-txt"><b>Steady state.</b> Mac posts liveness to the Railway control plane; the control plane tracks <code>last_seen</code> and dispatches the queue to Mac while GitHub Actions sits on warm standby. The active worker is visible on the surface.</div>
+    </div>
+  </div>
+
+  <!-- delta legend -->
+  <div class="legend">
+    <div class="lcol">
+      <div class="lhead nw">New in v15 (build this)</div>
+      <ul class="nw">
+        <li><b>Heartbeat loop</b> — worker → control-plane liveness, <code>last_seen</code> tracked</li>
+        <li><b>Auto-failover decision</b> — stale &gt; 5:00 reroutes the queue, no human</li>
+        <li><b>Dedup guard on re-attach</b> — in-flight jobs never double-run</li>
+        <li><b>Active-worker on the surface</b> — War Room reflects cutover live</li>
+      </ul>
+    </div>
+    <div class="lcol">
+      <div class="lhead ex">Existing (do not fork)</div>
+      <ul class="ex">
+        <li><b>Railway</b> control plane — JARVIS v5 HTTP Events API, token wired</li>
+        <li><b>Mac 64GB</b> primary worker tier</li>
+        <li><b>GitHub Actions</b> fallback tier (promoted passive → hot)</li>
+        <li><b>At-least-once delivery</b> with idempotent handlers</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <span>SaSMaster · sasmaster-status.vercel.app · arch-v15</span>
+    <span>Threshold 5:00 pending Shiv confirm · target state for INFRA-FAILOVER-001</span>
+  </footer>
+
+</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const btns = document.querySelectorAll('.state-btn');
+
+  const C = {
+    lav: '#a78bfa', teal: '#22d3ee', gold: '#f59e0b', red: '#ef4444', green: '#10b981', dim: '#4b5563'
+  };
+
+  const STATES = {
+    normal: {
+      cls: 's-normal',
+      qDepth: '14', qRoute: 'Mac-64GB',
+      gate: 'last_seen 0:04 · OK', gateColor: C.green,
+      macNode: 'active-node', macDot: C.teal, macStat: 'heartbeat live',
+      ghaNode: 'standby-node', ghaDot: C.dim, ghaStat: 'standby',
+      sbDot: C.green, sbWorker: 'Mac-64GB', sbMode: 'STEADY', sbLost: '0', sbWindow: '—',
+      capTag: 'QA Gate 1 · heartbeat + routing',
+      capTxt: '<b>Steady state.</b> Mac posts liveness to the Railway control plane; the control plane tracks last_seen and dispatches the queue to Mac while GitHub Actions sits on warm standby. The active worker is visible on the surface.'
+    },
+    failover: {
+      cls: 's-failover',
+      qDepth: '17', qRoute: 'GitHub Actions',
+      gate: 'last_seen 5:12 · STALE', gateColor: C.gold,
+      macNode: 'alert-node', macDot: C.red, macStat: 'no heartbeat 5:12',
+      ghaNode: 'active-node', ghaDot: C.teal, ghaStat: 'heartbeat live · taking queue',
+      sbDot: C.gold, sbWorker: 'GitHub Actions', sbMode: 'FAILOVER', sbLost: '0', sbWindow: '< 1 cycle',
+      capTag: 'QA Gate 1 · zero-loss cutover',
+      capTxt: '<b>Mac is down.</b> last_seen crosses 5:00, the decision gate fires, and the queued jobs reroute to GitHub Actions automatically — no human, no dropped jobs. The kill test passes only if Jobs-lost stays at 0.'
+    },
+    recovery: {
+      cls: 's-recovery',
+      qDepth: '6', qRoute: 'Mac-64GB',
+      gate: 'last_seen 0:02 · re-attached', gateColor: C.teal,
+      macNode: 'active-node', macDot: C.teal, macStat: 'heartbeat resumed',
+      ghaNode: 'standby-node', ghaDot: C.green, ghaStat: 'draining · then standby',
+      sbDot: C.teal, sbWorker: 'Mac-64GB', sbMode: 'RECOVERED', sbLost: '0', sbWindow: 'clean',
+      capTag: 'QA Gate 3 · recovery without double-run',
+      capTxt: '<b>Mac returns.</b> The control plane re-attaches it and routing returns to primary — but the dedup guard ensures any job already picked up by GitHub Actions is never executed twice. GHA drains its in-flight work, then drops back to standby.'
+    }
+  };
+
+  function apply(name){
+    const s = STATES[name];
+    stage.classList.remove('s-normal','s-failover','s-recovery');
+    stage.classList.add(s.cls);
+
+    document.getElementById('q-depth').textContent = s.qDepth;
+    document.getElementById('q-route').textContent = s.qRoute;
+
+    const gv = document.getElementById('gate-val');
+    gv.textContent = s.gate; gv.style.color = s.gateColor;
+    document.getElementById('gate').style.borderColor =
+      name === 'failover' ? 'rgba(245,158,11,0.5)' : (name === 'recovery' ? 'rgba(34,211,238,0.4)' : 'var(--border)');
+
+    const mac = document.getElementById('mac');
+    mac.className = 'node ' + s.macNode;
+    document.getElementById('mac-dot').style.background = s.macDot;
+    document.getElementById('mac-stat').textContent = s.macStat;
+
+    const gha = document.getElementById('gha');
+    gha.className = 'node ' + s.ghaNode;
+    document.getElementById('gha-dot').style.background = s.ghaDot;
+    document.getElementById('gha-stat').textContent = s.ghaStat;
+
+    document.getElementById('sb-dot').style.background = s.sbDot;
+    document.getElementById('sb-worker').textContent = s.sbWorker;
+    const mode = document.getElementById('sb-mode');
+    mode.textContent = s.sbMode;
+    mode.style.color = name === 'failover' ? C.gold : (name === 'recovery' ? C.teal : 'var(--text-primary)');
+    document.getElementById('sb-lost').textContent = s.sbLost;
+    document.getElementById('sb-lost').style.color = C.green;
+    document.getElementById('sb-window').textContent = s.sbWindow;
+
+    document.getElementById('cap-tag').textContent = s.capTag;
+    document.getElementById('cap-txt').innerHTML = s.capTxt;
+
+    btns.forEach(b => b.classList.toggle('active', b.dataset.state === name));
+  }
+
+  btns.forEach(b => b.addEventListener('click', () => apply(b.dataset.state)));
+
+  // init only after fonts confirm loaded (build-discipline §3)
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => apply('normal'));
+  } else {
+    window.addEventListener('load', () => apply('normal'));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remote-Ops & Autonomy Loop — arch-v15 · SaSMaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-base:#0a0a0f; --bg-surface:#12121a; --bg-elevated:#1a1a2e; --bg-panel:#0d0d16; --bg-inset:#0e0e18;
+    --lavender:#a78bfa; --teal-bright:#22d3ee; --gold:#f59e0b; --red-alert:#ef4444; --green-signal:#10b981;
+    --lav-dim:rgba(167,139,250,0.14); --lav-active:rgba(167,139,250,0.35);
+    --teal-dim:rgba(34,211,238,0.12); --gold-dim:rgba(245,158,11,0.10); --green-dim:rgba(16,185,129,0.12);
+    --text-primary:#f8f8ff; --text-secondary:#94a3b8; --text-dim:#4b5563; --text-inverse:#0a0a0f;
+    --border:rgba(167,139,250,0.10); --border-active:rgba(167,139,250,0.35); --border-subtle:rgba(255,255,255,0.04);
+    --ease-spring:cubic-bezier(0.16,1,0.3,1);
+  }
+  body { background:var(--bg-base); color:var(--text-primary); font-family:'Barlow Condensed',sans-serif; min-height:100vh; padding:40px 20px; overflow-x:hidden; }
+  * { scrollbar-width:thin; scrollbar-color:rgba(167,139,250,0.3) transparent; }
+  ::-webkit-scrollbar { width:4px; height:4px; } ::-webkit-scrollbar-thumb { background:rgba(167,139,250,0.3); border-radius:4px; }
+  .wrap { max-width:920px; margin:0 auto; }
+
+  header { display:flex; justify-content:space-between; align-items:flex-end; gap:24px; margin-bottom:22px; }
+  .eyebrow { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--lavender); }
+  h1 { font-family:'Bebas Neue',sans-serif; font-size:38px; letter-spacing:2px; line-height:1; margin-top:8px; }
+  .sub { font-size:14px; color:var(--text-secondary); margin-top:6px; max-width:600px; line-height:1.5; }
+  .ver-badge { text-align:right; flex-shrink:0; }
+  .ver-badge .v { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:1px; color:var(--lavender); line-height:1; }
+  .ver-badge .vsub { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); margin-top:5px; letter-spacing:.5px; }
+
+  .states { display:flex; gap:8px; margin-bottom:18px; }
+  .state-btn { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:600; letter-spacing:.5px; padding:9px 16px; border-radius:8px; cursor:pointer; background:transparent; color:var(--text-secondary); border:1px solid var(--border); transition:all 150ms var(--ease-spring); display:flex; align-items:center; gap:8px; }
+  .state-btn:hover { border-color:var(--border-active); color:var(--text-primary); }
+  .state-btn .pip { width:7px; height:7px; border-radius:50%; background:var(--text-dim); }
+  .state-btn.active { background:var(--lav-dim); border-color:var(--lav-active); color:var(--text-primary); box-shadow:0 0 16px rgba(167,139,250,0.2); }
+  .state-btn[data-state="auto"].active .pip { background:var(--green-signal); }
+  .state-btn[data-state="escalate"].active .pip { background:var(--gold); }
+
+  .card { background:var(--bg-surface); border:1px solid var(--border); border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.6); overflow:hidden; }
+  .stage-pad { padding:20px 24px 8px; }
+  .stage { position:relative; width:860px; max-width:100%; height:520px; margin:0 auto; }
+
+  /* band labels + divider */
+  .band-lbl { position:absolute; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; }
+  .band-ceiling { left:0; top:0; color:var(--gold); }
+  .band-floor { left:0; top:170px; color:var(--green-signal); }
+  .divider { position:absolute; left:0; right:0; top:160px; border-top:1px dashed var(--border-active); opacity:.5; }
+
+  .lines { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+  .lines path { fill:none; transition:stroke .3s var(--ease-spring), opacity .3s var(--ease-spring), stroke-width .3s var(--ease-spring); }
+  @keyframes flow { to { stroke-dashoffset:-22; } }
+  .flow { stroke-dasharray:5 6; }
+  .flow.live { animation:flow 1.1s linear infinite; }
+
+  .node { position:absolute; background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px; padding:12px 14px; transition:all .3s var(--ease-spring); }
+  .node .ntype { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); }
+  .node .nname { font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:1px; margin-top:3px; }
+  .node .nmeta { font-family:'Barlow Condensed',sans-serif; font-size:11.5px; color:var(--text-secondary); margin-top:3px; line-height:1.4; }
+  .mono { font-family:'Share Tech Mono',monospace; }
+
+  /* phone */
+  #phone { left:355px; top:18px; width:150px; height:120px; border-radius:18px; border-color:var(--border-active); box-shadow:0 0 18px rgba(167,139,250,0.12); display:flex; flex-direction:column; }
+  #phone .ptop { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-dim); text-align:center; }
+  #phone .pname { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:1px; color:var(--lavender); text-align:center; margin-top:1px; }
+  #phone .pscreen { flex:1; margin-top:8px; border-radius:8px; background:var(--bg-inset); border:1px solid var(--border-subtle); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; transition:all .3s var(--ease-spring); padding:6px; }
+  #phone .pmsg { font-family:'Share Tech Mono',monospace; font-size:10px; text-align:center; line-height:1.3; }
+  .pbtns { display:flex; gap:5px; }
+  .pbtn { font-family:'Barlow Condensed',sans-serif; font-size:9px; font-weight:600; padding:3px 7px; border-radius:5px; letter-spacing:.3px; }
+  .pbtn.ok { background:var(--lavender); color:var(--text-inverse); }
+  .pbtn.no { background:transparent; border:1px solid var(--red-alert); color:var(--red-alert); }
+
+  /* hub */
+  #hub { left:320px; top:232px; width:220px; border-color:var(--lav-active); box-shadow:0 0 18px rgba(167,139,250,0.12); }
+  #hub .nname { color:var(--lavender); }
+
+  #triggers { left:42px; top:232px; width:212px; }
+  #triggers .trow { font-family:'Share Tech Mono',monospace; font-size:10.5px; color:var(--text-secondary); display:flex; justify-content:space-between; margin-top:5px; }
+  #triggers .trow b { color:var(--text-dim); font-weight:400; }
+
+  #workers { left:606px; top:232px; width:212px; }
+  #workers .wrow { display:flex; align-items:center; gap:7px; font-family:'Share Tech Mono',monospace; font-size:10.5px; margin-top:5px; color:var(--text-secondary); }
+  #workers .wrow .dot { width:7px; height:7px; border-radius:50%; }
+
+  #publish { left:300px; top:412px; width:260px; }
+  #publish .prow { display:flex; gap:8px; margin-top:6px; flex-wrap:wrap; }
+  #publish .chip { font-family:'Share Tech Mono',monospace; font-size:10px; padding:3px 8px; border-radius:5px; background:var(--lav-dim); border:1px solid var(--border); color:var(--text-secondary); }
+
+  /* always-on agent chips */
+  .agent { position:absolute; padding:8px 11px; border-radius:8px; background:var(--bg-elevated); border:1px solid var(--border); transition:all .3s var(--ease-spring); width:172px; }
+  .agent .al { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px; text-transform:uppercase; color:var(--text-dim); }
+  .agent .av { font-family:'Barlow Condensed',sans-serif; font-size:12.5px; margin-top:2px; color:var(--text-secondary); display:flex; align-items:center; gap:6px; }
+  .agent .av .dot { width:7px; height:7px; border-radius:50%; background:var(--green-signal); }
+  #ag-cost { left:42px; top:360px; }
+  #ag-fleet { left:42px; top:418px; }
+  #ag-heal { left:606px; top:360px; }
+
+  /* state styling */
+  .alert-line { stroke:var(--text-dim); opacity:.18; }
+  .appr-line { stroke:var(--text-dim); opacity:.18; }
+  .loop-line { stroke:var(--text-dim); opacity:.3; }
+
+  .stage.s-auto .loop-line { stroke:var(--lavender); opacity:.9; }
+  .stage.s-auto .ret-line { stroke:var(--teal-bright); opacity:.7; }
+  .stage.s-auto .alert-line, .stage.s-auto .appr-line { stroke:var(--text-dim); opacity:.16; }
+
+  .stage.s-escalate .loop-line { stroke:var(--lavender); opacity:.7; }
+  .stage.s-escalate .ret-line { stroke:var(--teal-bright); opacity:.5; }
+  .stage.s-escalate .alert-line { stroke:var(--gold); opacity:1; }
+  .stage.s-escalate .appr-line { stroke:var(--lavender); opacity:1; }
+
+  .statusbar { display:flex; border-top:1px solid var(--border); background:var(--bg-panel); }
+  .statusbar .cell { flex:1; padding:13px 18px; border-right:1px solid var(--border-subtle); }
+  .statusbar .cell:last-child { border-right:none; }
+  .statusbar .sl { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); }
+  .statusbar .sv { font-family:'Share Tech Mono',monospace; font-size:14px; margin-top:5px; color:var(--text-primary); display:flex; align-items:center; gap:8px; }
+  .statusbar .sv .dot { width:8px; height:8px; border-radius:50%; }
+
+  .caption { padding:16px 24px 20px; border-top:1px solid var(--border-subtle); }
+  .caption .ctag { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--lavender); }
+  .caption .ctxt { font-size:13.5px; color:var(--text-secondary); margin-top:6px; line-height:1.55; max-width:780px; }
+  .caption .ctxt b { color:var(--text-primary); font-weight:600; }
+
+  .legend { margin-top:18px; display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+  .legend .lcol { background:var(--bg-surface); padding:16px 20px; }
+  .legend .lhead { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px; }
+  .legend .lhead.fl { color:var(--green-signal); } .legend .lhead.ce { color:var(--gold); }
+  .legend ul { list-style:none; } .legend li { font-size:13px; color:var(--text-secondary); padding-left:18px; position:relative; margin-bottom:7px; line-height:1.4; }
+  .legend li:last-child { margin-bottom:0; }
+  .legend .fl li::before { content:"●"; position:absolute; left:0; color:var(--green-signal); font-size:9px; top:4px; }
+  .legend .ce li::before { content:"◆"; position:absolute; left:0; color:var(--gold); font-size:9px; top:4px; }
+  .legend li b { color:var(--text-primary); font-weight:600; }
+
+  footer { margin-top:18px; display:flex; justify-content:space-between; font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); letter-spacing:.5px; flex-wrap:wrap; gap:8px; }
+
+  @media (max-width:900px){ .stage{ transform:scale(0.62); transform-origin:top left; height:340px; } .legend{ grid-template-columns:1fr; } header{ flex-direction:column; align-items:flex-start; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="eyebrow">arch-v15 · SELFHEAL-001 + APPROVALS-001</div>
+      <h1>Remote-Ops &amp; Autonomy Loop</h1>
+      <div class="sub">How the platform lives and breathes while you're fully remote: an autonomous floor that runs the daily cadence, self-heals, and auto-throttles without you — and a supervised ceiling that escalates the rare decision to your phone for a one-tap answer, from anywhere.</div>
+    </div>
+    <div class="ver-badge">
+      <div class="v">v15</div>
+      <div class="vsub">TARGET STATE<br>CARDS A + B</div>
+    </div>
+  </header>
+
+  <div class="states">
+    <div class="state-btn active" data-state="auto"><span class="pip"></span>Autonomous day</div>
+    <div class="state-btn" data-state="escalate"><span class="pip"></span>Escalation · needs one tap</div>
+  </div>
+
+  <div class="card">
+    <div class="stage-pad">
+      <div class="stage s-auto" id="stage">
+
+        <div class="band-lbl band-ceiling">◆ Supervised ceiling — one tap, from anywhere</div>
+        <div class="divider"></div>
+        <div class="band-lbl band-floor">● Autonomous floor — runs without you</div>
+
+        <svg class="lines" viewBox="0 0 860 520" preserveAspectRatio="none">
+          <defs>
+            <marker id="m-lav" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a78bfa"/></marker>
+            <marker id="m-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#22d3ee"/></marker>
+            <marker id="m-gold" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#f59e0b"/></marker>
+            <marker id="m-dim" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#4b5563"/></marker>
+          </defs>
+
+          <!-- floor loop: triggers -> hub -> workers -> back; hub -> publish -->
+          <path class="flow loop-line live" d="M254,285 C 285,283 300,280 320,278" stroke-width="2.5" marker-end="url(#m-lav)"/>
+          <path class="flow loop-line live" d="M540,272 L606,272" stroke-width="2.5" marker-end="url(#m-lav)"/>
+          <path class="flow ret-line live" d="M650,304 C 600,360 540,370 480,372" stroke-width="2" marker-end="url(#m-teal)"/>
+          <path class="flow loop-line live" d="M430,300 L430,412" stroke-width="2.5" marker-end="url(#m-lav)"/>
+
+          <!-- escalation channel -->
+          <path class="alert-line" d="M412,232 L412,140" stroke-width="2.5" marker-end="url(#m-gold)"/>
+          <path class="appr-line" d="M450,140 L450,232" stroke-width="2.5" marker-end="url(#m-lav)"/>
+        </svg>
+
+        <!-- phone -->
+        <div class="node" id="phone">
+          <div class="ptop">REMOTE CONSOLE</div>
+          <div class="pname">Shiv · phone</div>
+          <div class="pscreen" id="pscreen">
+            <div class="pmsg" id="pmsg">ALL CLEAR<br>0 pending</div>
+          </div>
+        </div>
+
+        <!-- triggers -->
+        <div class="node" id="triggers">
+          <div class="ntype">Triggers · cron (self-firing)</div>
+          <div class="nname">Daily cadence</div>
+          <div class="trow"><span>5:00 briefing</span><b>auto</b></div>
+          <div class="trow"><span>6:00 intel scan</span><b>auto</b></div>
+          <div class="trow"><span>7:00 / 14:00 self-score</span><b>auto</b></div>
+        </div>
+
+        <!-- hub -->
+        <div class="node" id="hub">
+          <div class="ntype">Control plane · Railway (cloud)</div>
+          <div class="nname">JARVIS v5</div>
+          <div class="nmeta">Always-on · queue dispatch · worker registry · location-independent</div>
+        </div>
+
+        <!-- workers -->
+        <div class="node" id="workers">
+          <div class="ntype">Compute</div>
+          <div class="nname">Workers</div>
+          <div class="wrow"><span class="dot" style="background:var(--lavender)"></span>Mac 64GB · heavy <span class="mono" style="color:var(--text-dim)">(home)</span></div>
+          <div class="wrow"><span class="dot" style="background:var(--text-dim)"></span>GitHub Actions · failover</div>
+        </div>
+
+        <!-- publish -->
+        <div class="node" id="publish">
+          <div class="ntype">Publish (cloud, always-reachable)</div>
+          <div class="nname">Outputs</div>
+          <div class="prow"><span class="chip">Slack</span><span class="chip">War Room</span><span class="chip">S3</span></div>
+        </div>
+
+        <!-- always-on agents -->
+        <div class="agent" id="ag-cost"><div class="al">cost-sentinel</div><div class="av" id="cost-av"><span class="dot"></span>auto-throttle · Haiku@$25</div></div>
+        <div class="agent" id="ag-fleet"><div class="al">fleet-improve</div><div class="av" id="fleet-av"><span class="dot"></span>capturing lessons</div></div>
+        <div class="agent" id="ag-heal"><div class="al">self-heal</div><div class="av" id="heal-av"><span class="dot"></span>heartbeat 0:04 · watching</div></div>
+
+      </div>
+    </div>
+
+    <div class="statusbar">
+      <div class="cell"><div class="sl">Mode</div><div class="sv" id="sb-mode"><span class="dot" id="sb-dot"></span>AUTONOMOUS</div></div>
+      <div class="cell"><div class="sl">Pending approvals</div><div class="sv" id="sb-pending">0</div></div>
+      <div class="cell"><div class="sl">Last escalation</div><div class="sv" id="sb-last">—</div></div>
+      <div class="cell"><div class="sl">Human touch</div><div class="sv" id="sb-touch">none</div></div>
+    </div>
+
+    <div class="caption">
+      <div class="ctag" id="cap-tag">Floor · runs without you</div>
+      <div class="ctxt" id="cap-txt"><b>Autonomous day.</b> Cron fires the daily cadence, the Railway control plane dispatches to the Mac (heavy) with GHA on failover, and results publish to Slack / War Room / S3. cost-sentinel auto-throttles, fleet-improve captures lessons, self-heal watches the heartbeat — all without you. The phone stays quiet.</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="lcol">
+      <div class="lhead fl">Runs without you (floor)</div>
+      <ul class="fl">
+        <li><b>Daily cadence</b> — briefing, intel scans, self-score on cron</li>
+        <li><b>Dispatch + execute</b> — control plane → Mac, GHA failover</li>
+        <li><b>Self-heal revive</b> — launchd + power-on-restore (SELFHEAL Ph2)</li>
+        <li><b>Cost auto-throttle</b> — Haiku at $25, no human</li>
+      </ul>
+    </div>
+    <div class="lcol">
+      <div class="lhead ce">Needs one tap (ceiling)</div>
+      <ul class="ce">
+        <li><b>FLEET-IMPROVE apply</b> — proposal → Approve/Reject (APPROVALS)</li>
+        <li><b>Cost halt resume</b> — $40 hard stop → your tap to resume</li>
+        <li><b>Risky build confirm</b> — escalated, never auto-yes</li>
+        <li><b>Console-only tasks</b> — rare: keys, WAF, Auth0</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <span>SaSMaster · sasmaster-status.vercel.app · arch-v15 · companion to compute-failover</span>
+    <span>Autonomous floor + supervised ceiling · reachable LA → Sydney → Tokyo → Shanghai</span>
+  </footer>
+
+</div>
+
+<script>
+  const stage = document.getElementById('stage');
+  const btns = document.querySelectorAll('.state-btn');
+  const C = { lav:'#a78bfa', teal:'#22d3ee', gold:'#f59e0b', green:'#10b981', dim:'#4b5563' };
+
+  const S = {
+    auto: {
+      cls:'s-auto',
+      pscreenBorder:'var(--border-subtle)', pscreenBg:'var(--bg-inset)',
+      pmsg:'ALL CLEAR<br>0 pending', pmsgColor:C.green, pbtns:false,
+      cost:{t:'auto-throttle · Haiku@$25', d:C.green}, fleet:{t:'capturing lessons', d:C.green}, heal:{t:'heartbeat 0:04 · watching', d:C.green},
+      mode:'AUTONOMOUS', modeColor:'var(--text-primary)', sbDot:C.green, pending:'0', last:'—', touch:'none',
+      capTag:'Floor · runs without you',
+      capTxt:'<b>Autonomous day.</b> Cron fires the daily cadence, the Railway control plane dispatches to the Mac (heavy) with GHA on failover, and results publish to Slack / War Room / S3. cost-sentinel auto-throttles, fleet-improve captures lessons, self-heal watches the heartbeat — all without you. The phone stays quiet.'
+    },
+    escalate: {
+      cls:'s-escalate',
+      pscreenBorder:'rgba(245,158,11,0.4)', pscreenBg:'rgba(245,158,11,0.08)',
+      pmsg:'FLEET-IMPROVE<br>proposal ready', pmsgColor:C.gold, pbtns:true,
+      cost:{t:'auto-throttle · Haiku@$25', d:C.green}, fleet:{t:'proposal queued → escalated', d:C.gold}, heal:{t:'heartbeat 0:04 · watching', d:C.green},
+      mode:'ESCALATION', modeColor:C.gold, sbDot:C.gold, pending:'1', last:'fleet-improve proposal', touch:'1 tap',
+      capTag:'Ceiling · SELFHEAL alert ↑ + APPROVALS tap ↓',
+      capTxt:'<b>Something needs you.</b> A gate trips — here, a fleet-improve edit proposal — and instead of stalling, it escalates up the channel to your phone as a one-tap Approve / Reject (APPROVALS-001). The same path carries a self-heal alert when the Mac goes unreachable (SELFHEAL-001). You answer from a hallway in Singapore; the floor keeps running underneath. Nothing auto-applies on silence — no answer stays PENDING.'
+    }
+  };
+
+  function apply(name){
+    const s = S[name];
+    stage.classList.remove('s-auto','s-escalate'); stage.classList.add(s.cls);
+
+    const screen = document.getElementById('pscreen');
+    screen.style.borderColor = s.pscreenBorder; screen.style.background = s.pscreenBg;
+    const msg = document.getElementById('pmsg'); msg.innerHTML = s.pmsg; msg.style.color = s.pmsgColor;
+
+    // build/remove phone buttons
+    let existing = screen.querySelector('.pbtns');
+    if (existing) existing.remove();
+    if (s.pbtns){
+      const div = document.createElement('div'); div.className = 'pbtns';
+      div.innerHTML = '<span class="pbtn ok">Approve</span><span class="pbtn no">Reject</span>';
+      screen.appendChild(div);
+    }
+
+    const setAgent = (avId, dotEl, obj) => {
+      const av = document.getElementById(avId);
+      av.childNodes[1] ? null : null;
+      av.querySelector('.dot').style.background = obj.d;
+      // replace trailing text node
+      av.innerHTML = '<span class="dot" style="background:'+obj.d+'"></span>'+obj.t;
+    };
+    setAgent('cost-av', null, s.cost); setAgent('fleet-av', null, s.fleet); setAgent('heal-av', null, s.heal);
+
+    document.getElementById('sb-dot').style.background = s.sbDot;
+    const mode = document.getElementById('sb-mode');
+    mode.innerHTML = '<span class="dot" id="sb-dot" style="background:'+s.sbDot+'"></span>'+s.mode;
+    mode.style.color = s.modeColor;
+    document.getElementById('sb-pending').textContent = s.pending;
+    document.getElementById('sb-pending').style.color = name==='escalate' ? C.gold : 'var(--text-primary)';
+    document.getElementById('sb-last').textContent = s.last;
+    document.getElementById('sb-touch').textContent = s.touch;
+    document.getElementById('sb-touch').style.color = name==='escalate' ? C.gold : 'var(--text-primary)';
+
+    document.getElementById('cap-tag').textContent = s.capTag;
+    document.getElementById('cap-txt').innerHTML = s.capTxt;
+
+    btns.forEach(b => b.classList.toggle('active', b.dataset.state === name));
+  }
+
+  btns.forEach(b => b.addEventListener('click', () => apply(b.dataset.state)));
+
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(() => apply('auto')); }
+  else { window.addEventListener('load', () => apply('auto')); }
+</script>
+</body>
+</html>
