@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — Platform Scorecard · Jun 5, 2026 (EOD)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f6f4;
+    --surface:#ffffff;
+    --ink:#16161d;
+    --ink-soft:#52525b;
+    --ink-dim:#8a8a96;
+    --line:#e6e6e2;
+    --lavender:#7c5cff;
+    --lav-soft:#efeaff;
+    --teal:#0ea5b7;
+    --gold:#c98a12;
+    --gold-soft:rgba(201,138,18,0.07);
+    --gold-line:rgba(201,138,18,0.3);
+    --green:#0f9d63;
+    --green-soft:#e6f6ee;
+    --green-line:#9ad9bb;
+    --red:#d4493f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;line-height:1.5;padding:40px 20px}
+  .sheet{max-width:920px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 8px 30px rgba(0,0,0,0.05)}
+  mono,.mono{font-family:'DM Mono',monospace}
+
+  header{padding:32px 40px 28px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+  .h-left .eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--lavender);font-weight:500}
+  .h-left h1{font-size:27px;font-weight:700;letter-spacing:-.02em;margin-top:6px}
+  .h-left .sub{color:var(--ink-soft);font-size:14px;margin-top:4px}
+  .grade-badge{text-align:center;flex-shrink:0}
+  .grade-badge .g{font-size:52px;font-weight:700;line-height:1;letter-spacing:-.03em;color:var(--lavender)}
+  .grade-badge .gpa{font-family:'DM Mono',monospace;font-size:14px;color:var(--ink-soft);margin-top:6px}
+  .grade-badge .delta{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);margin-top:4px}
+
+  .verified{display:flex;align-items:center;gap:10px;padding:12px 40px;background:var(--green-soft);border-bottom:1px solid var(--line);font-size:13px;color:#0b6e47}
+  .verified .dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+  .verified b{font-weight:600}
+
+  .resolved{padding:14px 40px;background:var(--green-soft);border-bottom:1px solid var(--green-line);color:#0b6e47;font-size:13px;display:flex;gap:12px;align-items:flex-start}
+  .resolved .tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:var(--green);color:#fff;padding:3px 8px;border-radius:5px;font-weight:500;flex-shrink:0;margin-top:1px}
+  .resolved b{font-weight:600}
+  .resolved code{font-family:'DM Mono',monospace;background:rgba(15,157,99,.12);padding:1px 5px;border-radius:4px;font-size:12px}
+
+  .open{padding:14px 40px;background:var(--gold-soft);border-bottom:1px solid var(--gold-line);color:#7a5200;font-size:13px;display:flex;gap:12px;align-items:flex-start}
+  .open .tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:var(--gold);color:#fff;padding:3px 8px;border-radius:5px;font-weight:500;flex-shrink:0;margin-top:1px}
+  .open b{font-weight:600;color:#5a3c00}
+  .open code{font-family:'DM Mono',monospace;background:rgba(201,138,18,0.12);padding:1px 5px;border-radius:4px;font-size:12px;color:#5a3c00}
+
+  .section-label{padding:24px 40px 12px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .dim{background:var(--surface);padding:16px 40px;display:flex;align-items:center;gap:16px}
+  .dim:nth-child(odd){padding-left:40px;padding-right:24px}
+  .dim:nth-child(even){padding-left:24px;padding-right:40px}
+  .dim .dgrade{font-family:'DM Mono',monospace;font-weight:500;font-size:18px;width:42px;flex-shrink:0;text-align:center}
+  .dim .dbody{flex:1}
+  .dim .dname{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
+  .dim .dnote{font-size:12.5px;color:var(--ink-soft);margin-top:2px}
+  .g-a{color:var(--lavender)}
+  .g-b{color:var(--teal)}
+  .up-badge{font-family:'DM Mono',monospace;font-size:9px;background:var(--green-soft);color:var(--green);border:1px solid var(--green-line);padding:2px 6px;border-radius:4px;font-weight:500;letter-spacing:.05em}
+
+  .shipped{padding:24px 40px}
+  .shipped ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px 28px;margin-top:4px}
+  .shipped li{font-size:13px;color:var(--ink-soft);padding-left:20px;position:relative}
+  .shipped li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700}
+  .shipped li b{color:var(--ink);font-weight:600}
+
+  .prio{padding:8px 40px 28px}
+  .prio-row{display:flex;align-items:flex-start;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
+  .prio-row:last-child{border-bottom:none}
+  .prio-num{font-family:'DM Mono',monospace;font-weight:500;font-size:13px;width:24px;height:24px;border-radius:6px;background:var(--lav-soft);color:var(--lavender);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .p-body{flex:1;font-size:13.5px;color:var(--ink-soft)}
+  .p-body b{color:var(--ink);font-weight:600}
+  .p-body code{font-family:'DM Mono',monospace;background:#f0f0ee;padding:1px 5px;border-radius:4px;font-size:12px;color:var(--ink)}
+  .p-when{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-dim);flex-shrink:0;text-align:right;min-width:56px;margin-top:2px}
+
+  footer{padding:18px 40px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-dim);flex-wrap:wrap;gap:8px}
+
+  @media (max-width:680px){
+    .grid,.shipped ul{grid-template-columns:1fr}
+    header{flex-direction:column}
+    .dim,.dim:nth-child(odd),.dim:nth-child(even){padding-left:24px;padding-right:24px}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header>
+    <div class="h-left">
+      <div class="eyebrow">Platform Scorecard · v5</div>
+      <h1>SaSMaster — Platform Health</h1>
+      <div class="sub">Architecture v15 · INFRA-FAILOVER proven in production · autonomy stack wired · remaining phases queued</div>
+    </div>
+    <div class="grade-badge">
+      <div class="g">A−</div>
+      <div class="gpa">3.61 / 4.0</div>
+      <div class="delta">▲ +0.04 · INFRA-FAILOVER proven live</div>
+    </div>
+  </header>
+
+  <div class="verified">
+    <span class="dot"></span>
+    <span><b>Verified Jun 5 (EOD)</b> — COST-003 (S3 dual-write + 5 range pills + 48h staleness banner) · INFRA-FAILOVER-001 Ph1+Ph2+Ph3 (kill test passed live: Mac OFFLINE → GHA auto-triggered → zero job loss → Mac RECOVERED) · SELFHEAL Ph0+Ph1 (pmset + debounced alert) · APPROVALS Ph1 (HMAC endpoint + interactivity URL) · FLEET-IMPROVE-001 (3/3 QA gates) · WARROOM-ARCH-V15-001 (S3 + Obsidian + GitHub) · Slack interactivity URL saved · pmset autorestart 1 done.</span>
+  </div>
+
+  <div class="resolved">
+    <span class="tag">Proven</span>
+    <span><b>INFRA-FAILOVER-001 passed in production.</b> Mac heartbeat went stale → Railway detected it → GHA <code>failover-worker.yml</code> auto-triggered → build queue completed with zero job loss → Mac came back online and recovered cleanly. The kill test ran under live conditions with a real queued build. The Mac SPOF is eliminated.</span>
+  </div>
+
+  <div class="resolved">
+    <span class="tag">Resolved</span>
+    <span><b>War Room Costs display automated and hardened.</b> COST-003 wired the S3 source-of-truth cron — <code>_observe/costs/</code> registered, all five range pills live (<code>wk/mo/MTD/YTD/custom</code>), 48h staleness banner active. The ~90× overstatement is gone and can't drift back.</span>
+  </div>
+
+  <div class="open">
+    <span class="tag">Open</span>
+    <span><b>Remaining phases queued for next run:</b> SELFHEAL Ph2+Ph3 (launchd auto-revive test + tunnel SSH doc) · APPROVALS Ph2+Ph3 (fleet-improve Block Kit + COST halt callers + audit log) · UI-DESIGN Ph2+Ph3 (token drift replacement per-portal + shared <code>KpiCard.jsx</code>). Pre-flight: add <code>GITHUB_PAT_FAILOVER</code> + <code>GITHUB_REPO</code> to Railway dashboard.</span>
+  </div>
+
+  <div class="section-label">Dimensions</div>
+  <div class="grid">
+    <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Data Architecture</div><div class="dnote">Fusion + query surface live. FUSION-001 (635,810 rows, provenance) · SEMANTIC-MARTS-001 (652,585 analyst-lake + 11,323 product-mart). Certified-fusion gate, locked-paths registry.</div></div></div>
+    <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">AI / Agent System</div><div class="dnote">FLEET-IMPROVE-001 fully done (3/3 QA gates). APPROVALS Ph1 live — HMAC endpoint + interactivity URL wired. 51 agents / 80 skills, cost-sentinel active. Ph2+Ph3 queued.</div></div></div>
+    <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Security</div><div class="dnote">WAF + rate-limit, Auth0 M2M cleanup, CI gitleaks — clean on every commit today. SECRET_ROTATION_LOG updated. Residual: Pro-gated managed ruleset (cost deferral, not a hole).</div></div></div>
+    <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Backend / API</div><div class="dnote">JARVIS v5 Railway, long-lived token. New today: <code>/workers/status</code> (age_seconds + failover_eligible), <code>/slack/actions</code> HMAC-verified, <code>/internal/post-approval-request</code> live.</div></div></div>
+    <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Memory / Knowledge</div><div class="dnote">4-tier: HOT · WARM · COLD · ARCH (Obsidian). Staleness detector live. Arch-v15 companion diagrams committed to Obsidian + GitHub today.</div></div></div>
+    <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Observability</div><div class="dnote">Cost source-of-truth now automated — S3 cron, 5 range pills, 48h staleness banner. Arch-v15 failover + autonomy diagrams on War Room. No wrong numbers on any surface.</div></div></div>
+    <div class="dim"><span class="dgrade g-b">B+</span><div class="dbody"><div class="dname">Frontend / UI</div><div class="dnote">Ph1 audit done: root cause confirmed — <code>#7C3AED</code> (wrong) in 3/4 portals vs canonical lavender, KPI card duplicated 4×. Token replacement + shared component in Ph2+Ph3 (queued).</div></div></div>
+    <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Infrastructure <span class="up-badge">↑ B+ → A−</span></div><div class="dnote">Mac SPOF eliminated. Heartbeat live, auto-failover proven in production kill test, GHA picked up a live build with zero job loss. Self-heal Ph0+Ph1 done. Remaining: Ph2 launchd revive test + Ph3 tunnel doc.</div></div></div>
+    <div class="dim"><span class="dgrade g-b">B</span><div class="dbody"><div class="dname">Product Coverage</div><div class="dnote">CONTENT mature; Research Portal shipped. Exchange + CPG still thin on functional depth. Largest open gap — not in scope this sprint.</div></div></div>
+    <div class="dim"><span class="dgrade g-b">B</span><div class="dbody"><div class="dname">Business / Moat</div><div class="dnote">Pre-revenue. Paid Substack live, PIL/LICENSABLE taxonomy, IP genealogy confirmed. LINKEDIN-001 (2026 Upfront breakdown) due Jun 14.</div></div></div>
+  </div>
+
+  <div class="shipped">
+    <div class="section-label" style="padding:0 0 12px">Shipped This Session (Jun 5)</div>
+    <ul>
+      <li><b>COST-003</b> — S3 cron + 5 range pills + 48h staleness banner</li>
+      <li><b>INFRA-FAILOVER-001</b> — heartbeat + GHA failover proven in production</li>
+      <li><b>INFRA-SELFHEAL-001 Ph0+Ph1</b> — pmset + debounced heartbeat alert</li>
+      <li><b>AUTONOMY-APPROVALS-001 Ph1</b> — HMAC endpoint + interactivity URL</li>
+      <li><b>FLEET-IMPROVE-001</b> — lessons loop, 3/3 QA gates, TASKS.md synced</li>
+      <li><b>UI-DESIGN-SYSTEM-001 Ph1</b> — token drift audit, root cause confirmed</li>
+      <li><b>WARROOM-ARCH-V15-001</b> — 2 diagrams → War Room, S3, Obsidian, GitHub</li>
+      <li><b>Manual gates cleared</b> — pmset autorestart, Slack interactivity URL, PAT scoped</li>
+    </ul>
+  </div>
+
+  <div class="section-label" style="padding-top:0">Top 3 Priorities</div>
+  <div class="prio">
+    <div class="prio-row">
+      <span class="prio-num">1</span>
+      <div class="p-body"><b>Complete remaining phases</b> — SELFHEAL Ph2+Ph3 (launchd auto-revive + tunnel SSH), APPROVALS Ph2+Ph3 (fleet-improve Block Kit + COST callers + audit log), UI Ph2+Ph3 (token drift fix + shared KpiCard). Pre-flight: add <code>GITHUB_PAT_FAILOVER</code> + <code>GITHUB_REPO</code> to Railway (2 min).</div>
+      <span class="p-when">next run</span>
+    </div>
+    <div class="prio-row">
+      <span class="prio-num">2</span>
+      <div class="p-body"><b>LINKEDIN-001</b> — 2026 Upfront breakdown. Built ≠ shipped. The content pipeline is wired and waiting. This is the most visible external deliverable on the board.</div>
+      <span class="p-when">by Jun 14</span>
+    </div>
+    <div class="prio-row">
+      <span class="prio-num">3</span>
+      <div class="p-body"><b>INFRA-CLOUD-FLOOR-001 decision</b> — with FAILOVER now proven in production, decide on the always-on thin cloud baseline before the LA → Sydney → Tokyo run. Build or skip — but decide before August.</div>
+      <span class="p-when">decide</span>
+    </div>
+  </div>
+
+  <footer>
+    <span>SaSMaster · Bloomberg Terminal for Media · sasmaster.dev</span>
+    <span>Generated Jun 5, 2026 (EOD) · v5 · supersedes v4 · INFRA-FAILOVER proven</span>
+  </footer>
+
+</div>
+</body>
+</html>

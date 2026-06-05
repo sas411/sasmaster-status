@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — Platform Scorecard · Jun 5, 2026 (PM)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f6f4;
+    --surface:#ffffff;
+    --ink:#16161d;
+    --ink-soft:#52525b;
+    --ink-dim:#8a8a96;
+    --line:#e6e6e2;
+    --lavender:#7c5cff;
+    --lav-soft:#efeaff;
+    --teal:#0ea5b7;
+    --gold:#c98a12;
+    --green:#0f9d63;
+    --green-soft:#e6f6ee;
+    --green-line:#9ad9bb;
+    --red:#d4493f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;line-height:1.5;padding:40px 20px}
+  .sheet{max-width:920px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.04),0 8px 30px rgba(0,0,0,0.05)}
+  mono,.mono{font-family:'DM Mono',monospace}
+
+  header{padding:32px 40px 28px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+  .h-left .eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--lavender);font-weight:500}
+  .h-left h1{font-size:27px;font-weight:700;letter-spacing:-.02em;margin-top:6px}
+  .h-left .sub{color:var(--ink-soft);font-size:14px;margin-top:4px}
+  .grade-badge{text-align:center;flex-shrink:0}
+  .grade-badge .g{font-size:52px;font-weight:700;line-height:1;letter-spacing:-.03em;color:var(--lavender)}
+  .grade-badge .gpa{font-family:'DM Mono',monospace;font-size:14px;color:var(--ink-soft);margin-top:6px}
+  .grade-badge .delta{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);margin-top:4px}
+
+  .verified{display:flex;align-items:center;gap:10px;padding:12px 40px;background:var(--green-soft);border-bottom:1px solid var(--line);font-size:13px;color:#0b6e47}
+  .verified .dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+  .verified b{font-weight:600}
+
+  .resolved{padding:14px 40px;background:var(--green-soft);border-bottom:1px solid var(--green-line);color:#0b6e47;font-size:13px;display:flex;gap:12px;align-items:flex-start}
+  .resolved .tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:var(--green);color:#fff;padding:3px 8px;border-radius:5px;font-weight:500;flex-shrink:0;margin-top:1px}
+  .resolved b{font-weight:600}
+  .resolved code{font-family:'DM Mono',monospace;background:rgba(15,157,99,.12);padding:1px 5px;border-radius:4px;font-size:12px}
+
+  .section-label{padding:24px 40px 12px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .dim{background:var(--surface);padding:16px 40px;display:flex;align-items:center;gap:16px}
+  .dim:nth-child(odd){padding-left:40px;padding-right:24px}
+  .dim:nth-child(even){padding-left:24px;padding-right:40px}
+  .dim .dgrade{font-family:'DM Mono',monospace;font-weight:500;font-size:18px;width:42px;flex-shrink:0;text-align:center}
+  .dim .dbody{flex:1}
+  .dim .dname{font-weight:600;font-size:14px}
+  .dim .dnote{font-size:12.5px;color:var(--ink-soft);margin-top:2px}
+  .g-a{color:var(--lavender)}
+  .g-b{color:var(--teal)}
+
+  .shipped{padding:24px 40px}
+  .shipped ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px 28px;margin-top:4px}
+  .shipped li{font-size:13px;color:var(--ink-soft);padding-left:20px;position:relative}
+  .shipped li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700}
+  .shipped li b{color:var(--ink);font-weight:600}
+
+  .prio{padding:8px 40px 28px}
+  .prio-row{display:flex;align-items:flex-start;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
+  .prio-row:last-child{border-bottom:none}
+  .prio-num{font-family:'DM Mono',monospace;font-weight:500;font-size:13px;width:24px;height:24px;border-radius:6px;background:var(--lav-soft);color:var(--lavender);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .p-body{flex:1;font-size:13.5px;color:var(--ink-soft)}
+  .p-body b{color:var(--ink);font-weight:600}
+  .p-body code{font-family:'DM Mono',monospace;background:#f0f0ee;padding:1px 5px;border-radius:4px;font-size:12px;color:var(--ink)}
+  .p-when{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-dim);flex-shrink:0;text-align:right;min-width:56px;margin-top:2px}
+
+  footer{padding:18px 40px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-dim);flex-wrap:wrap;gap:8px}
+
+  @media (max-width:680px){
+    .grid,.shipped ul{grid-template-columns:1fr}
+    header{flex-direction:column}
+    .dim,.dim:nth-child(odd),.dim:nth-child(even){padding-left:24px;padding-right:24px}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header>
+    <div class="h-left">
+      <div class="eyebrow">Platform Scorecard</div>
+      <h1>SaSMaster — Platform Health</h1>
+      <div class="sub">Architecture v15 · both build batches closed · cost-display bug resolved</div>
+    </div>
+    <div class="grade-badge">
+      <div class="g">A−</div>
+      <div class="gpa">3.57 / 4.0</div>
+      <div class="delta">▲ cost-display resolved</div>
+    </div>
+  </header>
+
+  <div class="verified">
+    <span class="dot"></span>
+    <span><b>Verified Jun 5 (PM)</b> — FUSION-001 (635,810 rows, provenance) · SEMANTIC-MARTS-001 (analyst-lake 652,585 + product-mart 11,323) · COST-DISCIPLINE-001/002 · SEC console edges closed · arch-v15 + scorecard deployed to War Room.</span>
+  </div>
+
+  <div class="resolved">
+    <span class="tag">Resolved</span>
+    <span><b>War Room Costs display now tells the truth.</b> The calc was repointed at the Console <code>cost_report</code> — the Costs tab reads ~<code>$12–13/day</code> and the ~90× overstatement (~$5,745 MTD) is gone. <code>daily_budget_usd</code> is set so the governor can tier. The credibility ding on the health surface is cleared.</span>
+  </div>
+
+  <div class="section-label">Dimensions</div>
+  <div class="grid">
+    <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Data Architecture</div><div class="dnote">Fusion + query surface EXIST — the two pillars graded unbuilt May 29. Certified-fusion gate, three truth planes, locked-paths registry.</div></div></div>
+    <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">AI / Agent System</div><div class="dnote">51 agents / 80 skills, aliases replacing pinned versions, cost-sentinel agent + cost-optimizer skill live.</div></div></div>
+    <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Security</div><div class="dnote">WAF + rate-limit, Auth0 M2M cleanup, CI gitleaks, 3-tier RBAC. Residual: Pro-gated managed ruleset (cost deferral, not a hole).</div></div></div>
+    <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Backend / API</div><div class="dnote">JARVIS v5 HTTP Events API on Railway, long-lived token wired, 3-tier compute control plane.</div></div></div>
+    <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Memory / Knowledge</div><div class="dnote">4-tier architecture: HOT (claude.ai slots) · WARM (Upstash Redis) · COLD (S3) · ARCH (Obsidian). Staleness detector live.</div></div></div>
+    <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Observability</div><div class="dnote">War Room telemetry tab, SSE event feed, Financial Intel tab — and the Costs tab now Console-sourced. No visibly-wrong numbers on the surface.</div></div></div>
+    <div class="dim"><span class="dgrade g-b">B+</span><div class="dbody"><div class="dname">Frontend / UI</div><div class="dnote">React 19 / Next.js 16 Turborepo, 5 portals live, Dr. Scoop wired via assistant-ui + DuckDB.</div></div></div>
+    <div class="dim"><span class="dgrade g-b">B+</span><div class="dbody"><div class="dname">Infrastructure</div><div class="dnote">Railway control plane, Mac 64GB worker, GitHub Actions fallback. arch-v15 now live; cost-display asterisk cleared.</div></div></div>
+    <div class="dim"><span class="dgrade g-b">B</span><div class="dbody"><div class="dname">Product Coverage</div><div class="dnote">CONTENT mature; Research Portal shipped. Exchange marketplace + CPG portal still thin on functional depth — the largest open gap.</div></div></div>
+    <div class="dim"><span class="dgrade g-b">B</span><div class="dbody"><div class="dname">Business / Moat</div><div class="dnote">Pre-revenue. Paid Substack launched, PIL/LICENSABLE taxonomy, IP genealogy confirmed (Parent Key, solo-built 2018–24).</div></div></div>
+  </div>
+
+  <div class="shipped">
+    <div class="section-label" style="padding:0 0 12px">Shipped This Cycle</div>
+    <ul>
+      <li><b>FUSION-001</b> — GN master 635,810 rows fused w/ provenance</li>
+      <li><b>SEMANTIC-MARTS-001</b> — self-serve query surface exists</li>
+      <li><b>COST-DISCIPLINE-001</b> — optimizer skill + sentinel agent, aliases</li>
+      <li><b>COST-DISCIPLINE-002</b> — Costs tab repointed at Console cost_report</li>
+      <li><b>SEC-HARDEN</b> — WAF, rate-limit, Auth0 cleanup, CI gitleaks</li>
+      <li><b>arch-v15</b> — deployed to sasmaster-status (War Room)</li>
+    </ul>
+  </div>
+
+  <div class="section-label" style="padding-top:0">Top 3 Priorities</div>
+  <div class="prio">
+    <div class="prio-row">
+      <span class="prio-num">1</span>
+      <div class="p-body"><b>COST-DISCIPLINE-003</b> — cost-sync cron via the Admin Usage &amp; Cost API → S3 buckets → War Room reads the source of truth with wk/mo/MTD/YTD/custom ranges. Hardens what you just fixed so it can't drift again.</div>
+      <span class="p-when">next</span>
+    </div>
+    <div class="prio-row">
+      <span class="prio-num">2</span>
+      <div class="p-body"><b>Product depth — Exchange + CPG</b> — the two thinnest portals are the only thing holding Product Coverage at B. This is the highest-leverage grade mover left on the board.</div>
+      <span class="p-when">this sprint</span>
+    </div>
+    <div class="prio-row">
+      <span class="prio-num">3</span>
+      <div class="p-body"><b>Fire the content pipeline</b> — SUBSTACK-SLICE-001 is built but not triggered, and <b>LINKEDIN-001</b> (2026 Upfront breakdown) is due <code>Jun 14</code>. Built ≠ shipped.</div>
+      <span class="p-when">by Jun 14</span>
+    </div>
+  </div>
+
+  <footer>
+    <span>SaSMaster · Bloomberg Terminal for Media · sasmaster.dev</span>
+    <span>Generated Jun 5, 2026 (PM) · supersedes v3 · cost-display resolved</span>
+  </footer>
+
+</div>
+</body>
+</html>
