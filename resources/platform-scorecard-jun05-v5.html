@@ -102,14 +102,14 @@
     </div>
     <div class="grade-badge">
       <div class="g">A−</div>
-      <div class="gpa">3.61 / 4.0</div>
-      <div class="delta">▲ +0.04 · INFRA-FAILOVER proven live</div>
+      <div class="gpa">3.68 / 4.0</div>
+      <div class="delta">▲ +0.07 · FE-GRADE-LIFT batch · frontend B+ → A</div>
     </div>
   </header>
 
   <div class="verified">
     <span class="dot"></span>
-    <span><b>Verified Jun 5 (EOD)</b> — COST-003 (S3 dual-write + 5 range pills + 48h staleness banner) · INFRA-FAILOVER-001 Ph1+Ph2+Ph3 (kill test passed live: Mac OFFLINE → GHA auto-triggered → zero job loss → Mac RECOVERED) · SELFHEAL Ph0+Ph1 (pmset + debounced alert) · APPROVALS Ph1 (HMAC endpoint + interactivity URL) · FLEET-IMPROVE-001 (3/3 QA gates) · WARROOM-ARCH-V15-001 (S3 + Obsidian + GitHub) · Slack interactivity URL saved · pmset autorestart 1 done.</span>
+    <span><b>Verified Jun 5 (EOD)</b> — COST-003 (S3 dual-write + 5 range pills + 48h staleness banner) · INFRA-FAILOVER-001 Ph1+Ph2+Ph3 (kill test passed live: Mac OFFLINE → GHA auto-triggered → zero job loss → Mac RECOVERED) · SELFHEAL Ph0+Ph1 (pmset + debounced alert) · APPROVALS Ph1 (HMAC endpoint + interactivity URL) · FLEET-IMPROVE-001 (3/3 QA gates) · WARROOM-ARCH-V15-001 (S3 + Obsidian + GitHub) · Slack interactivity URL saved · pmset autorestart 1 done · <b>FE-GRADE-LIFT BATCH</b> (5 tasks): token-guard CI live, KPI canonical component, 9-state matrix, WCAG 2.1 AA pass, dead nav gated → frontend B+ → A.</span>
   </div>
 
   <div class="resolved">
@@ -124,7 +124,7 @@
 
   <div class="open">
     <span class="tag">Open</span>
-    <span><b>Remaining phases queued for next run:</b> SELFHEAL Ph2+Ph3 (launchd auto-revive test + tunnel SSH doc) · APPROVALS Ph2+Ph3 (fleet-improve Block Kit + COST halt callers + audit log) · UI-DESIGN Ph2+Ph3 (token drift replacement per-portal + shared <code>KpiCard.jsx</code>). Pre-flight: add <code>GITHUB_PAT_FAILOVER</code> + <code>GITHUB_REPO</code> to Railway dashboard.</span>
+    <span><b>Remaining phases queued for next run:</b> SELFHEAL Ph2+Ph3 (launchd auto-revive test + tunnel SSH doc) · APPROVALS Ph2+Ph3 (fleet-improve Block Kit + COST halt callers + audit log) · FE-KPI-CONSOLIDATE-001 Ph3 + FE-STATE-MATRIX-001 Ph3 (Storybook stories, deferred). Pre-flight: add <code>GITHUB_PAT_FAILOVER</code> + <code>GITHUB_REPO</code> to Railway dashboard.</span>
   </div>
 
   <div class="section-label">Dimensions</div>
@@ -135,7 +135,7 @@
     <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Backend / API</div><div class="dnote">JARVIS v5 Railway, long-lived token. New today: <code>/workers/status</code> (age_seconds + failover_eligible), <code>/slack/actions</code> HMAC-verified, <code>/internal/post-approval-request</code> live.</div></div></div>
     <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Memory / Knowledge</div><div class="dnote">4-tier: HOT · WARM · COLD · ARCH (Obsidian). Staleness detector live. Arch-v15 companion diagrams committed to Obsidian + GitHub today.</div></div></div>
     <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Observability</div><div class="dnote">Cost source-of-truth now automated — S3 cron, 5 range pills, 48h staleness banner. Arch-v15 failover + autonomy diagrams on War Room. No wrong numbers on any surface.</div></div></div>
-    <div class="dim"><span class="dgrade g-b">B+</span><div class="dbody"><div class="dname">Frontend / UI</div><div class="dnote">Ph1 audit done: root cause confirmed — <code>#7C3AED</code> (wrong) in 3/4 portals vs canonical lavender, KPI card duplicated 4×. Token replacement + shared component in Ph2+Ph3 (queued).</div></div></div>
+    <div class="dim"><span class="dgrade g-a">A</span><div class="dbody"><div class="dname">Frontend / UI <span class="up-badge">↑ B+ → A</span></div><div class="dnote">FE-GRADE-LIFT batch complete. Token guard CI (zero <code>#7C3AED</code> violations), canonical KpiCard.jsx (9-state matrix), WCAG 2.1 AA pass (all focus rings + contrast), dead nav gated behind <code>PORTAL_FLAGS</code>. Storybook Ph3 deferred.</div></div></div>
     <div class="dim"><span class="dgrade g-a">A−</span><div class="dbody"><div class="dname">Infrastructure <span class="up-badge">↑ B+ → A−</span></div><div class="dnote">Mac SPOF eliminated. Heartbeat live, auto-failover proven in production kill test, GHA picked up a live build with zero job loss. Self-heal Ph0+Ph1 done. Remaining: Ph2 launchd revive test + Ph3 tunnel doc.</div></div></div>
     <div class="dim"><span class="dgrade g-b">B</span><div class="dbody"><div class="dname">Product Coverage</div><div class="dnote">CONTENT mature; Research Portal shipped. Exchange + CPG still thin on functional depth. Largest open gap — not in scope this sprint.</div></div></div>
     <div class="dim"><span class="dgrade g-b">B</span><div class="dbody"><div class="dname">Business / Moat</div><div class="dnote">Pre-revenue. Paid Substack live, PIL/LICENSABLE taxonomy, IP genealogy confirmed. LINKEDIN-001 (2026 Upfront breakdown) due Jun 14.</div></div></div>
@@ -149,6 +149,11 @@
       <li><b>INFRA-SELFHEAL-001 Ph0+Ph1</b> — pmset + debounced heartbeat alert</li>
       <li><b>AUTONOMY-APPROVALS-001 Ph1</b> — HMAC endpoint + interactivity URL</li>
       <li><b>FLEET-IMPROVE-001</b> — lessons loop, 3/3 QA gates, TASKS.md synced</li>
+      <li><b>FE-TOKEN-GUARD-001</b> — token guard CI gate live, zero off-token hex</li>
+      <li><b>FE-KPI-CONSOLIDATE-001</b> — canonical KpiCard.jsx + KpiCard.css (9-state)</li>
+      <li><b>FE-STATE-MATRIX-001</b> — StateComponents.jsx + CSS, transition tokens</li>
+      <li><b>FE-A11Y-001</b> — WCAG 2.1 AA: focus rings, contrast, ARIA roles, keyboard nav</li>
+      <li><b>FE-DEAD-NAV-001</b> — Exchange + CPG gated behind <code>PORTAL_FLAGS</code></li>
       <li><b>UI-DESIGN-SYSTEM-001 Ph1</b> — token drift audit, root cause confirmed</li>
       <li><b>WARROOM-ARCH-V15-001</b> — 2 diagrams → War Room, S3, Obsidian, GitHub</li>
       <li><b>Manual gates cleared</b> — pmset autorestart, Slack interactivity URL, PAT scoped</li>
@@ -159,7 +164,7 @@
   <div class="prio">
     <div class="prio-row">
       <span class="prio-num">1</span>
-      <div class="p-body"><b>Complete remaining phases</b> — SELFHEAL Ph2+Ph3 (launchd auto-revive + tunnel SSH), APPROVALS Ph2+Ph3 (fleet-improve Block Kit + COST callers + audit log), UI Ph2+Ph3 (token drift fix + shared KpiCard). Pre-flight: add <code>GITHUB_PAT_FAILOVER</code> + <code>GITHUB_REPO</code> to Railway (2 min).</div>
+      <div class="p-body"><b>Complete remaining phases</b> — SELFHEAL Ph2+Ph3 (launchd auto-revive + tunnel SSH), APPROVALS Ph2+Ph3 (fleet-improve Block Kit + COST callers + audit log), FE Storybook Ph3 (deferred). Pre-flight: add <code>GITHUB_PAT_FAILOVER</code> + <code>GITHUB_REPO</code> to Railway (2 min).</div>
       <span class="p-when">next run</span>
     </div>
     <div class="prio-row">
@@ -176,7 +181,7 @@
 
   <footer>
     <span>SaSMaster · Bloomberg Terminal for Media · sasmaster.dev</span>
-    <span>Generated Jun 5, 2026 (EOD) · v5 · supersedes v4 · INFRA-FAILOVER proven</span>
+    <span>Generated Jun 5, 2026 (EOD) · v5 · supersedes v4 · INFRA-FAILOVER proven · FE-GRADE-LIFT batch complete</span>
   </footer>
 
 </div>
