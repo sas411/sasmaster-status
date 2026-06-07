@@ -1483,10 +1483,17 @@ a{color:inherit}
             <span style="width:1px;height:16px;background:var(--border);flex-shrink:0"></span>
             <span style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text-3);font-family:var(--mono);flex-shrink:0">RANGE</span>
             <div class="qt-filters" id="costRangePills">
-              <button class="qt-filter" onclick="setCostRange('7D',this)">7D</button>
+              <button class="qt-filter" onclick="setCostRange('wk',this)">wk</button>
+              <button class="qt-filter" onclick="setCostRange('mo',this)">mo</button>
               <button class="qt-filter active" onclick="setCostRange('MTD',this)">MTD</button>
               <button class="qt-filter" onclick="setCostRange('YTD',this)">YTD</button>
+              <button class="qt-filter" onclick="setCostRange('custom',this)">custom</button>
             </div>
+            <span id="costCustomRange" style="display:none;align-items:center;gap:4px;margin-left:4px">
+              <input type="date" id="costCustomFrom" style="font-size:10px;padding:2px 4px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:4px" onchange="applyCustomRange()">
+              <span style="font-size:10px;color:var(--text-3)">→</span>
+              <input type="date" id="costCustomTo" style="font-size:10px;padding:2px 4px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:4px" onchange="applyCustomRange()">
+            </span>
             <span style="font-size:9px;color:var(--text-3);font-family:var(--mono);margin-left:2px" id="rangeNote">api·31d</span>
             <button class="btn-acc" style="margin-left:auto" onclick="openAddCost()">+ Log Cost</button>
           </div>
@@ -1995,6 +2002,8 @@ a{color:inherit}
     <span class="bb-stat"><span class="bb-stat-lbl">MED</span><span class="bb-cnt md" id="bbMed">--</span></span>
     <span class="bb-div">|</span>
     <span class="bb-stat"><span class="bb-stat-lbl">EXPLORE</span><span class="bb-cnt ex" id="bbExp">0</span></span>
+    <span class="bb-div">|</span>
+    <span class="bb-stat" style="display:flex;align-items:center" id="activeWorkerStatus"><span style="color:var(--text-3)">worker…</span></span>
   </div>
   <div class="bb-right">
     SaSMaster War Room <span class="bb-dot">·</span>
@@ -2069,6 +2078,8 @@ let _starredRes = new Set(JSON.parse(localStorage.getItem('sm_starred_resources'
 let _costFilter = 'all';
 let _costRange = 'MTD';
 let _dailyBuckets = [];
+let _costCustomFrom = '';
+let _costCustomTo   = '';
 let _logAgentName = '';
 let _logJobId = '';
 
@@ -2276,20 +2287,58 @@ function renderFeedDecay(d) {
 }
 
 // Worker vault fetch — reads Mac worker health from public /workers/status endpoint
+// INFRA-FAILOVER-001: also renders active-worker panel; flips to FAILOVER if mac-primary offline
 async function loadWorkerVault() {
   try {
     const r = await fetch('https://api.sasmaster.dev/workers/status');
     if (!r.ok) return;
     const workers = await r.json();
-    const mac = workers['mac-m-series-64gb'];
-    if (!mac) return;
-    const sizeEl  = document.getElementById('obsidianSize');
-    const countEl = document.getElementById('obsidianCount');
-    const freshEl = document.getElementById('obsidianFresh');
-    if (sizeEl)  sizeEl.textContent  = mac.obsidian_vault_gb    ? mac.obsidian_vault_gb : '—';
-    if (countEl) countEl.textContent = mac.obsidian_entry_count != null ? fmtNum(mac.obsidian_entry_count) + ' entries' : '—';
-    if (freshEl && mac.last_seen)    freshEl.textContent = relTime(mac.last_seen);
+
+    // Prefer mac-primary (new heartbeat) then fall back to mac-m-series-64gb (legacy)
+    const mac = workers['mac-primary'] || workers['mac-m-series-64gb'];
+
+    if (mac) {
+      const sizeEl  = document.getElementById('obsidianSize');
+      const countEl = document.getElementById('obsidianCount');
+      const freshEl = document.getElementById('obsidianFresh');
+      if (sizeEl)  sizeEl.textContent  = mac.obsidian_vault_gb    ? mac.obsidian_vault_gb : '—';
+      if (countEl) countEl.textContent = mac.obsidian_entry_count != null ? fmtNum(mac.obsidian_entry_count) + ' entries' : '—';
+      if (freshEl && mac.last_seen)    freshEl.textContent = relTime(mac.last_seen);
+    }
+
+    // Active worker indicator — shows in bottom bar or infra section
+    renderActiveWorker(workers);
   } catch (_) {}
+}
+
+function renderActiveWorker(workers) {
+  const el = document.getElementById('activeWorkerStatus');
+  if (!el) return;
+  const mac = workers['mac-primary'] || workers['mac-m-series-64gb'];
+  if (!mac) { el.innerHTML = '<span style="color:var(--text-3)">no worker registered</span>'; return; }
+
+  const online = mac.status === 'online';
+  const ageS   = mac.age_seconds != null ? mac.age_seconds : null;
+  const ageStr = ageS != null ? (ageS < 60 ? `${ageS}s ago` : `${Math.round(ageS/60)}m ago`) : '';
+  const dot    = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${online ? '#22C55E' : '#EF4444'};margin-right:5px;flex-shrink:0"></span>`;
+
+  if (online) {
+    el.innerHTML = `${dot}<strong>Mac Primary</strong> <span style="color:var(--text-3);font-size:10px">${ageStr}</span>`;
+    el.style.color = 'var(--text)';
+  } else {
+    el.innerHTML = `${dot}<strong style="color:#EF4444">Mac OFFLINE</strong> <span style="color:#EF4444;font-size:10px">${ageStr} — failover eligible</span>`;
+    // Show failover banner if not already present
+    const banner = document.getElementById('workerFailoverBanner');
+    if (!banner) {
+      const b = document.createElement('div');
+      b.id = 'workerFailoverBanner';
+      b.style.cssText = 'background:#FEF2F2;border:1.5px solid #FECACA;color:#B91C1C;font-size:12px;font-weight:700;padding:8px 16px;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:10';
+      b.innerHTML = `<span style="font-size:16px">⚠</span> Primary worker (Mac) is OFFLINE — jobs may be queuing. Failover: GitHub Actions. Last seen ${ageStr}.`;
+      const top = document.querySelector('.war-room-body') || document.body;
+      top.prepend(b);
+    }
+  }
+  if (online) document.getElementById('workerFailoverBanner')?.remove();
 }
 
 // Cost KPI fetch — tries live command-api, falls back to cost_summary in status.json
@@ -2362,17 +2411,36 @@ async function loadCosts() {
     setText('kv-s3',    fmt(k.aws_s3));
     setText('kv-other', fmt(k.other));
 
-    // Show stale badge on totalBadge if data is >8h old
+    // Staleness: badge (8h warn) + full-panel flag (48h — QA gate 3)
     const badge = document.getElementById('totalBadge');
     if (badge && data.generated_at) {
       const ageH = (Date.now() - new Date(data.generated_at).getTime()) / 3600000;
-      if (ageH > 8) {
-        badge.textContent = `stale ${Math.round(ageH)}h`;
-        badge.style.color = '#F59E0B';
+      if (ageH >= 48) {
+        badge.textContent = `STALE ${Math.round(ageH)}h — data may be wrong`;
+        badge.style.color = '#EF4444';
+        badge.style.fontWeight = '700';
+        // Inject stale banner above cost KPI strip if not already present
+        const costsPanel = document.querySelector('.tab-panel[data-tab="costs"]') ||
+                           document.getElementById('tab-costs');
+        if (costsPanel && !document.getElementById('costStaleBanner')) {
+          const banner = document.createElement('div');
+          banner.id = 'costStaleBanner';
+          banner.style.cssText = 'background:#FEF2F2;border:1.5px solid #FECACA;color:#B91C1C;font-size:12px;font-weight:700;padding:8px 16px;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;gap:8px';
+          banner.innerHTML = `<span style="font-size:16px">⚠</span> Cost data is <strong>${Math.round(ageH)}h old</strong> — cron may be down. Last sync: ${new Date(data.generated_at).toLocaleString()}`;
+          costsPanel.prepend(banner);
+        }
       } else {
-        const mins = Math.round(ageH * 60);
-        badge.textContent = mins < 2 ? 'just now' : `${mins}m ago`;
-        badge.style.color = '';
+        document.getElementById('costStaleBanner')?.remove();
+        if (ageH > 8) {
+          badge.textContent = `stale ${Math.round(ageH)}h`;
+          badge.style.color = '#F59E0B';
+          badge.style.fontWeight = '';
+        } else {
+          const mins = Math.round(ageH * 60);
+          badge.textContent = mins < 2 ? 'just now' : `${mins}m ago`;
+          badge.style.color = '';
+          badge.style.fontWeight = '';
+        }
       }
     }
 
@@ -3905,17 +3973,29 @@ function updateCostKPIs() {
 
   if (_costRange !== 'MTD' && _dailyBuckets.length > 0) {
     let startDate;
-    if (_costRange === '7D') {
+    if (_costRange === 'wk') {
       const d = new Date(); d.setDate(d.getDate() - 7);
       startDate  = d.toISOString().slice(0, 10);
-      rangeLabel = '7D TOTAL';
+      rangeLabel = 'WK TOTAL';
       rangeNote  = 'last 7 days · api · token-computed';
+    } else if (_costRange === 'mo') {
+      const d = new Date(); d.setDate(d.getDate() - 30);
+      startDate  = d.toISOString().slice(0, 10);
+      rangeLabel = '30D TOTAL';
+      rangeNote  = 'last 30 days · api · token-computed';
     } else if (_costRange === 'YTD') {
       startDate  = firstOfYearStr;
       rangeLabel = 'YTD TOTAL';
       rangeNote  = 'Jan 1 → today · api · 31d window';
+    } else if (_costRange === 'custom' && _costCustomFrom && _costCustomTo) {
+      startDate  = _costCustomFrom;
+      rangeLabel = 'CUSTOM';
+      rangeNote  = `${_costCustomFrom} → ${_costCustomTo} · api`;
     }
-    totals.cc = sumBuckets(startDate, todayStr);
+    if (startDate) {
+      const endDate = (_costRange === 'custom' && _costCustomTo) ? _costCustomTo : todayStr;
+      totals.cc = sumBuckets(startDate, endDate);
+    }
   } else {
     rangeLabel = 'MTD TOTAL';
   }
@@ -3969,6 +4049,25 @@ function setCostRange(r, btn) {
   _costRange = r;
   document.querySelectorAll('#costRangePills .qt-filter').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  const customEl = document.getElementById('costCustomRange');
+  if (customEl) customEl.style.display = (r === 'custom') ? 'flex' : 'none';
+  if (r === 'custom') {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const weekStr  = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+    const fromEl = document.getElementById('costCustomFrom');
+    const toEl   = document.getElementById('costCustomTo');
+    if (fromEl && !fromEl.value) fromEl.value = weekStr;
+    if (toEl   && !toEl.value)   toEl.value   = todayStr;
+    _costCustomFrom = document.getElementById('costCustomFrom')?.value || weekStr;
+    _costCustomTo   = document.getElementById('costCustomTo')?.value   || todayStr;
+  }
+  updateCostKPIs();
+  updateCostBreakdown();
+}
+
+function applyCustomRange() {
+  _costCustomFrom = document.getElementById('costCustomFrom')?.value || '';
+  _costCustomTo   = document.getElementById('costCustomTo')?.value   || '';
   updateCostKPIs();
   updateCostBreakdown();
 }
