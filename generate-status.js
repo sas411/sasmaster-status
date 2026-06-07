@@ -1679,3 +1679,18 @@ try {
 } catch (e) {
   console.warn(`[generate-status] S3 cache/api push failed (non-fatal): ${e.message}`);
 }
+
+// Push skills manifest mirror to public bucket (SKILL-REGISTRY-002)
+// sasmaster-public has BPA off + public-read policy; sasmaster-2026 BPA stays fully ON
+const MANIFEST_SRC = path.join(__dirname, 'resources', 'skills-manifest.json');
+if (fs.existsSync(MANIFEST_SRC)) {
+  try {
+    execSync(
+      `aws s3 cp "${MANIFEST_SRC}" s3://sasmaster-public/skills-manifest.json --content-type application/json`,
+      { stdio: 'pipe' }
+    );
+    console.log(`[generate-status] pushed skills manifest to s3://sasmaster-public/skills-manifest.json`);
+  } catch (e) {
+    console.warn(`[generate-status] skills manifest S3 push failed (non-fatal): ${e.message}`);
+  }
+}

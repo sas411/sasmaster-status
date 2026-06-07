@@ -63,7 +63,9 @@ async function main() {
   fs.writeFileSync(OUT, JSON.stringify(parsed, null, 2));
 
   const count = parsed.skill_count ?? parsed.skills?.length ?? '?';
+  const publicUrl = 'https://sasmaster-public.s3.amazonaws.com/skills-manifest.json';
   console.log(`[fetch-skills-manifest] wrote ${OUT} — ${count} skills, sha ${meta.sha?.slice(0, 8)}`);
+  console.log(`[fetch-skills-manifest] canonical public URL: ${publicUrl}`);
 }
 
 main().catch(e => {
