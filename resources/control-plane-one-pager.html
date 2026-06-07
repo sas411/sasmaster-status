@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — What the Control Plane Is</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-base:#0a0a0f; --bg-surface:#12121a; --bg-elevated:#1a1a2e; --bg-panel:#0d0d16; --bg-inset:#0e0e18;
+    --lavender:#a78bfa; --teal:#22d3ee; --gold:#f59e0b; --red:#ef4444; --green:#10b981;
+    --lav-dim:rgba(167,139,250,.14); --lav-border:rgba(167,139,250,.30);
+    --teal-dim:rgba(34,211,238,.12); --red-dim:rgba(239,68,68,.12); --green-dim:rgba(16,185,129,.12); --gold-dim:rgba(245,158,11,.10);
+    --text-primary:#f8f8ff; --text-secondary:#94a3b8; --text-dim:#4b5563;
+    --hair:rgba(255,255,255,.07);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg-base);
+    font-family:'Barlow Condensed',sans-serif;
+    color:var(--text-primary);
+    padding:36px 28px 48px;
+    line-height:1.5;
+  }
+  .sheet{max-width:1040px; margin:0 auto;}
+  /* header */
+  .top{display:flex; align-items:flex-end; justify-content:space-between; border-bottom:1px solid var(--hair); padding-bottom:14px; margin-bottom:22px; flex-wrap:wrap; gap:10px;}
+  .kicker{font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--lavender);}
+  h1{font-family:'Bebas Neue',sans-serif; font-size:46px; letter-spacing:3px; line-height:.96;}
+  h1 span{color:var(--lavender);}
+  .stamp{font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); text-align:right; letter-spacing:1px;}
+  /* one-liner */
+  .lead{font-size:19px; font-weight:300; color:var(--text-secondary); max-width:760px; margin-bottom:26px;}
+  .lead b{color:var(--text-primary); font-weight:600;}
+  /* analogy strip */
+  .analogy{display:flex; gap:14px; margin-bottom:28px; flex-wrap:wrap;}
+  .an-card{flex:1; min-width:240px; background:var(--bg-surface); border:1px solid var(--hair); border-radius:10px; padding:16px 18px;}
+  .an-card .ic{font-size:22px; margin-bottom:6px;}
+  .an-card .t{font-family:'Barlow Condensed'; font-weight:700; font-size:15px; letter-spacing:.5px; text-transform:uppercase; margin-bottom:4px;}
+  .an-card.tower .t{color:var(--lavender);}
+  .an-card.planes .t{color:var(--teal);}
+  .an-card p{font-size:13.5px; color:var(--text-secondary);}
+  .an-card p b{color:var(--text-primary); font-weight:600;}
+  /* diagram */
+  .secttl{font-family:'Bebas Neue'; font-size:22px; letter-spacing:2px; margin:6px 0 14px; display:flex; align-items:center; gap:10px;}
+  .secttl::before{content:""; width:5px; height:18px; background:var(--lavender); border-radius:2px;}
+  .diagram{background:var(--bg-panel); border:1px solid var(--hair); border-radius:14px; padding:22px; margin-bottom:28px;}
+  .layer{border-radius:10px; padding:14px 16px; margin-bottom:14px;}
+  .layer:last-child{margin-bottom:0;}
+  .layer-cp{background:var(--lav-dim); border:1px solid var(--lav-border);}
+  .layer-wl{background:rgba(34,211,238,.06); border:1px solid rgba(34,211,238,.18);}
+  .layer-hd{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:6px;}
+  .layer-hd .nm{font-family:'Bebas Neue'; font-size:20px; letter-spacing:2px;}
+  .layer-cp .nm{color:var(--lavender);} .layer-wl .nm{color:var(--teal);}
+  .layer-hd .sub{font-size:12.5px; color:var(--text-secondary); font-weight:500;}
+  .chips{display:flex; gap:8px; flex-wrap:wrap;}
+  .chip{font-family:'Share Tech Mono',monospace; font-size:11px; padding:6px 10px; border-radius:6px; background:var(--bg-inset); border:1px solid var(--hair); color:var(--text-primary); display:flex; align-items:center; gap:6px;}
+  .chip .d{font-size:10px; color:var(--text-dim);}
+  .layer-cp .chip{border-color:var(--lav-border);}
+  .layer-wl .chip{border-color:rgba(34,211,238,.2);}
+  .flow{text-align:center; color:var(--text-dim); font-family:'Share Tech Mono'; font-size:11px; letter-spacing:1px; margin:2px 0 12px;}
+  /* IS / IS NOT */
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:28px;}
+  .col{background:var(--bg-surface); border:1px solid var(--hair); border-radius:12px; padding:18px 20px;}
+  .col.is{border-top:3px solid var(--lavender);}
+  .col.isnot{border-top:3px solid var(--text-dim);}
+  .col h3{font-family:'Bebas Neue'; font-size:19px; letter-spacing:1.5px; margin-bottom:4px;}
+  .col.is h3{color:var(--lavender);} .col.isnot h3{color:var(--text-secondary);}
+  .col .csub{font-size:12px; color:var(--text-dim); margin-bottom:12px; font-family:'Share Tech Mono'; letter-spacing:.5px;}
+  .col ul{list-style:none;}
+  .col li{font-size:13.5px; padding:5px 0 5px 20px; position:relative; color:var(--text-secondary); border-bottom:1px solid var(--hair);}
+  .col li:last-child{border-bottom:none;}
+  .col li b{color:var(--text-primary); font-weight:600;}
+  .col.is li::before{content:"▸"; position:absolute; left:2px; color:var(--lavender);}
+  .col.isnot li::before{content:"·"; position:absolute; left:5px; color:var(--text-dim); font-size:18px; top:2px;}
+  /* why it matters */
+  .why{background:linear-gradient(180deg,var(--red-dim),transparent); border:1px solid rgba(239,68,68,.25); border-radius:12px; padding:18px 20px; margin-bottom:28px;}
+  .why h3{font-family:'Bebas Neue'; font-size:20px; letter-spacing:1.5px; color:var(--red); margin-bottom:8px; display:flex; align-items:center; gap:8px;}
+  .why p{font-size:14px; color:var(--text-secondary); max-width:880px;}
+  .why p b{color:var(--text-primary); font-weight:600;}
+  .why .case{font-family:'Share Tech Mono'; font-size:11.5px; color:var(--red); margin-top:10px; padding-top:10px; border-top:1px solid rgba(239,68,68,.2); letter-spacing:.4px;}
+  /* gate */
+  .gate-wrap{margin-bottom:8px;}
+  .gate{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+  .g{background:var(--bg-surface); border:1px solid var(--hair); border-radius:10px; padding:14px; border-left:3px solid var(--lavender);}
+  .g .n{font-family:'Share Tech Mono'; font-size:10px; color:var(--lavender); letter-spacing:1px;}
+  .g .gt{font-family:'Barlow Condensed'; font-weight:700; font-size:14px; letter-spacing:.5px; text-transform:uppercase; margin:3px 0 4px;}
+  .g p{font-size:12.5px; color:var(--text-secondary);}
+  /* test line */
+  .test{margin-top:22px; background:var(--bg-elevated); border:1px solid var(--lav-border); border-radius:12px; padding:18px 22px; text-align:center;}
+  .test .lbl{font-family:'Share Tech Mono'; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px;}
+  .test .q{font-family:'Barlow Condensed'; font-size:17px; font-weight:500; color:var(--text-primary);}
+  .test .q em{color:var(--gold); font-style:normal; font-weight:700;}
+  .test .a{margin-top:8px; font-family:'Bebas Neue'; font-size:18px; letter-spacing:1.5px; color:var(--lavender);}
+  .foot{margin-top:24px; text-align:center; font-family:'Share Tech Mono'; font-size:10px; color:var(--text-dim); letter-spacing:1px;}
+  @media (max-width:720px){ .grid2,.gate{grid-template-columns:1fr;} h1{font-size:36px;} }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="top">
+    <div>
+      <div class="kicker">SaSMaster · Executive One-Pager</div>
+      <h1>The <span>Control Plane</span>, Explained</h1>
+    </div>
+    <div class="stamp">build-discipline §15<br>2026-06-07</div>
+  </div>
+
+  <p class="lead">
+    Your platform has two kinds of code. One kind <b>does the work</b> — scrapes data, fuses keys, renders screens.
+    The other kind <b>decides when, where, and whether the work runs at all.</b> That second kind is the
+    <b>control plane</b>. It's small, it's quiet, and when it breaks, nothing screams — the platform just stops.
+  </p>
+
+  <!-- analogy -->
+  <div class="analogy">
+    <div class="an-card tower">
+      <div class="ic">🗼</div>
+      <div class="t">The Control Plane = the air-traffic tower</div>
+      <p>It flies no planes. It <b>dispatches, schedules, routes, and restarts.</b> If the tower goes dark, every plane is fine in isolation — but nothing takes off, and no one is told.</p>
+    </div>
+    <div class="an-card planes">
+      <div class="ic">✈️</div>
+      <div class="t">The Workload = the planes</div>
+      <p>Scrapers, fusion jobs, the portal UI. If one plane has a problem, <b>it fails loudly</b> — an error, a red build, a missing file. You see it immediately and fix that one thing.</p>
+    </div>
+  </div>
+
+  <!-- diagram -->
+  <div class="secttl">SaSMaster, in two layers</div>
+  <div class="diagram">
+    <div class="layer layer-cp">
+      <div class="layer-hd">
+        <div class="nm">⚙ CONTROL PLANE</div>
+        <div class="sub">dispatches &amp; keeps the system alive · LOAD-BEARING · gated by §15</div>
+      </div>
+      <div class="chips">
+        <span class="chip">jarvis.js <span class="d">routes Slack commands</span></span>
+        <span class="chip">command-api / Railway <span class="d">HTTP events</span></span>
+        <span class="chip">crontab + launchd <span class="d">schedules &amp; auto-restart</span></span>
+        <span class="chip">build loop / queue drainer <span class="d">runs the work</span></span>
+        <span class="chip">reaper.py <span class="d">recovers stuck jobs</span></span>
+        <span class="chip">GHA failover <span class="d">backup worker</span></span>
+      </div>
+    </div>
+
+    <div class="flow">▼ &nbsp; dispatches / schedules / drains &nbsp; ▼</div>
+
+    <div class="layer layer-wl">
+      <div class="layer-hd">
+        <div class="nm">▦ WORKLOAD</div>
+        <div class="sub">the actual product work · fails loud · normal review</div>
+      </div>
+      <div class="chips">
+        <span class="chip">scrapers <span class="d">TMDB / IMDB / box office</span></span>
+        <span class="chip">Parent Key fusion <span class="d">data pipeline</span></span>
+        <span class="chip">portal-v8 UI <span class="d">screens</span></span>
+        <span class="chip">SKILL.md docs <span class="d">knowledge</span></span>
+        <span class="chip">War Room <span class="d">dashboard</span></span>
+        <span class="chip">DONE_LOG / TASKS.md <span class="d">bookkeeping</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- IS / IS NOT -->
+  <div class="grid2">
+    <div class="col is">
+      <h3>It's control plane if…</h3>
+      <div class="csub">touches HOW the system runs</div>
+      <ul>
+        <li>It <b>drains or feeds the command queue</b></li>
+        <li>It <b>schedules</b> anything (cron, launchd, timers)</li>
+        <li>It <b>routes commands</b> or emits heartbeats</li>
+        <li>It <b>selects a worker</b> or fails over to backup</li>
+        <li>It <b>auto-restarts</b> a daemon</li>
+        <li>A bad value makes it <b>silently stop dispatching</b></li>
+      </ul>
+    </div>
+    <div class="col isnot">
+      <h3>It's just workload if…</h3>
+      <div class="csub">touches WHAT the system produces</div>
+      <ul>
+        <li>It scrapes, fuses, or transforms <b>data</b></li>
+        <li>It renders a <b>screen</b> or component</li>
+        <li>It edits a <b>document</b> or skill</li>
+        <li>A bug shows up as a <b>visible error or red build</b></li>
+        <li>You can fix it <b>without the whole platform stalling</b></li>
+        <li>It's downstream <b>bookkeeping</b> (logs, boards)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- why it matters -->
+  <div class="why">
+    <h3>⚠ Why it gets special treatment: it fails silently</h3>
+    <p>
+      A broken scraper throws an error you see in minutes. A broken control plane throws <b>nothing</b> —
+      it just quietly stops dispatching, and you find out <b>hours later</b> from a queue that's climbing instead
+      of draining. That asymmetry is the whole reason for the §15 gate: the cost of a quiet control-plane bug is
+      measured in <b>hours of dead platform</b>, not a single red build.
+    </p>
+    <div class="case">CASE — JARVIS-QUEUE-001 (Jun 7): one hardcoded-credential line made the queue drainer fail without error. Queue sat stuck ~5.5 hrs. Nothing alerted. The fix was one line; the cost was a morning.</div>
+  </div>
+
+  <!-- the gate -->
+  <div class="secttl">The rule: every control-plane change clears this gate first</div>
+  <div class="gate-wrap">
+    <div class="gate">
+      <div class="g"><div class="n">01</div><div class="gt">Impact</div><p>What depends on this? What breaks if it stalls or returns a wrong value?</p></div>
+      <div class="g"><div class="n">02</div><div class="gt">Blast radius</div><p>Does it touch queue / heartbeat / worker / restart? If yes → highest scrutiny.</p></div>
+      <div class="g"><div class="n">03</div><div class="gt">Rollback</div><p>State the <b>one-step</b> revert before shipping. Can't name it → don't ship.</p></div>
+      <div class="g"><div class="n">04</div><div class="gt">Non-blocking</div><p>No sync I/O in a handler. Timeouts exist. Can't hang the loop.</p></div>
+      <div class="g"><div class="n">05</div><div class="gt">Secret / env</div><p>New env var actually SET in the target env? Missing secret = not shippable.</p></div>
+      <div class="g"><div class="n">06</div><div class="gt">Post-change health</div><p>Run <b>!status</b>. Queue draining to 0? Not green = not done — revert.</p></div>
+    </div>
+  </div>
+
+  <!-- the test -->
+  <div class="test">
+    <div class="lbl">The 5-second test</div>
+    <div class="q">Does this change <em>dispatch, schedule, route, restart, or drain</em>?</div>
+    <div class="a">YES → it's control plane → run the §15 gate &nbsp;·&nbsp; NO → it's workload → ship normally</div>
+  </div>
+
+  <div class="foot">SaSMaster · Supervised Autonomy · auto-mode never ships an unreviewed control-plane change</div>
+
+</div>
+</body>
+</html>
