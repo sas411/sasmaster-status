@@ -1031,6 +1031,11 @@ a{color:inherit}
     <div class="kpi-val" id="kpiCost">--</div>
     <div class="kpi-sub" id="kpiCostSub">loading...</div>
   </div>
+  <div class="kpi-card" id="kpiBlessCard" onclick="window.open('/portal/bless.html','_self')" style="cursor:pointer;" title="Open Bless Queue">
+    <div class="kpi-lbl">BLESS QUEUE</div>
+    <div class="kpi-val" id="kpiBless">--</div>
+    <div class="kpi-sub" id="kpiBlessSub">pending decisions</div>
+  </div>
 </div>
 
 <!-- FETCH ERROR BANNER -->
@@ -2524,6 +2529,9 @@ function populateKPIs(d) {
   document.getElementById('kpiTmdb').textContent = deployedToday;
   document.getElementById('kpiTmdb').className = 'kpi-val ' + (deployedToday > 0 ? 'ok' : '');
   document.getElementById('kpiTmdbSub').textContent = deployedToday === 1 ? '1 item today' : deployedToday + ' items today';
+
+  // Bless queue counter
+  loadBlessQueueCount();
 
   // Health score
   updateHealthScore(d);
@@ -5628,6 +5636,44 @@ function populateNielsenCards(d) {
   if (nielsen.amrld_tuesday_gb !== undefined && nielsen.amrld_tuesday_gb < 8) {
     console.warn('[Nielsen] Tuesday AMRLD pull < 8GB (' + nielsen.amrld_tuesday_gb + 'GB) — may be incomplete');
   }
+}
+
+// ─── Bless Queue Counter ──────────────────────────────────────────────────────
+async function loadBlessQueueCount() {
+  const el    = document.getElementById('kpiBless');
+  const subEl = document.getElementById('kpiBlessSub');
+  if (!el) return;
+  try {
+    // Try local bless server first
+    const r = await fetch('http://127.0.0.1:8766/status', { signal: AbortSignal.timeout(1200) });
+    if (r.ok) {
+      const d = await r.json();
+      const pending = (d.total || 0) - (d.BLESS || 0) - (d.REJECT || 0) - (d.ESCALATE || 0);
+      // Also get queue count
+      const qr = await fetch('http://127.0.0.1:8766/queue', { signal: AbortSignal.timeout(1200) });
+      const qd = qr.ok ? await qr.json() : { count: 0 };
+      const n = qd.count || 0;
+      el.textContent = n;
+      el.className = 'kpi-val ' + (n === 0 ? 'ok' : n <= 3 ? 'warn' : 'crit');
+      subEl.textContent = n === 0 ? 'queue clear ✓' : n + ' pending · last: ' + (d.BLESS || 0) + ' blessed';
+      document.getElementById('kpiBlessCard').title = 'Open Bless Queue · ' + n + ' pending';
+      return;
+    }
+  } catch { /* server offline */ }
+  // Fallback: try queue file directly
+  try {
+    const r = await fetch('../data/bless-queue.json', { cache: 'no-cache', signal: AbortSignal.timeout(1500) });
+    if (r.ok) {
+      const q = await r.json();
+      const n = q.filter(i => i.status === 'pending').length;
+      el.textContent = n;
+      el.className = 'kpi-val ' + (n === 0 ? 'ok' : 'warn');
+      subEl.textContent = n === 0 ? 'queue clear ✓' : n + ' pending';
+      return;
+    }
+  } catch { /* queue file not accessible */ }
+  el.textContent = '--';
+  subEl.textContent = 'server offline';
 }
 
 </script>
