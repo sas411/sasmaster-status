@@ -1,0 +1,94 @@
+<svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t d" font-family="'Plus Jakarta Sans',system-ui,sans-serif">
+<title id="t">SaSMaster skill fleet and self-learning lifecycle</title>
+<desc id="d">A closed lifecycle loop. Skills are composed at runtime; completions tagged skill-worthy capture lessons into a proposal queue; a gate promotes only patterns that recur three or more times; a human-gated skill-approve step applies the change with backup, commit and rollback; the skill is graded with-skill versus baseline and description-optimized; then deployed back to the fleet. Logging is autonomous; skill merges stay human-gated.</desc>
+<defs>
+<style>
+ .k{font-size:12px;font-weight:800;letter-spacing:3px;fill:#7C3AED}
+ .h1{font-size:27px;font-weight:800;fill:#1F1B33}
+ .bt{font-size:13.5px;font-weight:800;fill:#4C1D95}
+ .bs{font-size:10px;fill:#5A5470}
+ .al{font-size:9.5px;font-weight:800;font-family:'Share Tech Mono',monospace;fill:#7C3AED}
+ .alg{font-size:9.5px;font-weight:800;font-family:'Share Tech Mono',monospace;fill:#059669}
+ .num{font-size:12px;font-weight:800;fill:#fff}
+</style>
+<marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7C3AED"/></marker>
+<marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#059669"/></marker>
+</defs>
+<rect x="0" y="0" width="1000" height="560" rx="16" fill="#FAF7FF"/>
+<rect x="1" y="1" width="998" height="558" rx="15" fill="none" stroke="#E5DCFF" stroke-width="2"/>
+<text x="40" y="40" class="k">SKILL FLEET</text>
+<text x="40" y="70" class="h1">The Self-Learning Lifecycle</text>
+
+<!-- loop arrows (racetrack) -->
+<line x1="250" y1="148" x2="328" y2="148" stroke="#7C3AED" stroke-width="2.2" marker-end="url(#a)"/>
+<text x="289" y="140" text-anchor="middle" class="al">lessons emerge</text>
+<line x1="530" y1="148" x2="756" y2="148" stroke="#7C3AED" stroke-width="2.2" marker-end="url(#a)"/>
+<text x="643" y="140" text-anchor="middle" class="al">dedup + count occurrences</text>
+<!-- gate down to skill-approve -->
+<line x1="800" y1="192" x2="800" y2="378" stroke="#059669" stroke-width="2.4" marker-end="url(#ag)"/>
+<text x="808" y="290" class="alg">≥3 ✓ promote (SLC)</text>
+<!-- gate reject -->
+<line x1="842" y1="148" x2="905" y2="148" stroke="#8B82A0" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#a)"/>
+<text x="873" y="140" text-anchor="middle" style="font-size:9px;font-family:'Share Tech Mono',monospace;fill:#8B82A0">&lt;3 hold</text>
+<!-- bottom row R->L -->
+<line x1="700" y1="418" x2="578" y2="418" stroke="#7C3AED" stroke-width="2.2" marker-end="url(#a)"/>
+<text x="639" y="410" text-anchor="middle" class="al">applied · gitleaks-gated</text>
+<line x1="375" y1="418" x2="253" y2="418" stroke="#7C3AED" stroke-width="2.2" marker-end="url(#a)"/>
+<text x="314" y="410" text-anchor="middle" class="al">best_description wins</text>
+<!-- left side up -->
+<line x1="150" y1="378" x2="150" y2="192" stroke="#059669" stroke-width="2.4" marker-end="url(#ag)"/>
+<text x="142" y="290" text-anchor="end" class="alg">now in the fleet</text>
+
+<!-- TOP ROW boxes -->
+<g>
+<rect x="50" y="110" width="200" height="76" rx="12" fill="#fff" stroke="#E5DCFF" stroke-width="1.5"/>
+<circle cx="72" cy="132" r="12" fill="#7C3AED"/><text x="72" y="136" text-anchor="middle" class="num">1</text>
+<text x="92" y="138" class="bt">RUNTIME COMPOSE</text>
+<text x="66" y="160" class="bs">agents load skills at runtime</text>
+<text x="66" y="174" class="bs">via progressive disclosure</text>
+</g>
+<g>
+<rect x="330" y="110" width="200" height="76" rx="12" fill="#fff" stroke="#E5DCFF" stroke-width="1.5"/>
+<circle cx="352" cy="132" r="12" fill="#7C3AED"/><text x="352" y="136" text-anchor="middle" class="num">2</text>
+<text x="372" y="138" class="bt">CAPTURE</text>
+<text x="346" y="160" class="bs">#skill-worthy completion →</text>
+<text x="346" y="174" class="bs">proposal queue (LESSONS.md)</text>
+</g>
+<!-- gate diamond -->
+<polygon points="800,104 846,148 800,192 754,148" fill="#FEF6E7" stroke="#B45309" stroke-width="1.8"/>
+<text x="800" y="144" text-anchor="middle" style="font-size:11px;font-weight:800;fill:#B45309">GATE</text>
+<text x="800" y="160" text-anchor="middle" style="font-size:10px;font-family:'Share Tech Mono',monospace;fill:#B45309">≥3×?</text>
+
+<!-- BOTTOM ROW boxes -->
+<g>
+<rect x="700" y="380" width="200" height="76" rx="12" fill="#FEF6E7" stroke="#B45309" stroke-width="2"/>
+<circle cx="722" cy="402" r="12" fill="#B45309"/><text x="722" y="406" text-anchor="middle" class="num">3</text>
+<text x="742" y="408" style="font-size:13.5px;font-weight:800;fill:#B45309">🔒 !skill-approve</text>
+<text x="716" y="430" class="bs">HUMAN GATE · backup + commit</text>
+<text x="716" y="444" class="bs">+ 1-line rollback · refuses blanks</text>
+</g>
+<g>
+<rect x="375" y="380" width="200" height="76" rx="12" fill="#fff" stroke="#E5DCFF" stroke-width="1.5"/>
+<circle cx="397" cy="402" r="12" fill="#7C3AED"/><text x="397" y="406" text-anchor="middle" class="num">4</text>
+<text x="417" y="408" class="bt">GRADE</text>
+<text x="391" y="430" class="bs">with-skill vs baseline eval ·</text>
+<text x="391" y="444" class="bs">desc-optimizer 60/40 split</text>
+</g>
+<g>
+<rect x="50" y="380" width="200" height="76" rx="12" fill="#fff" stroke="#bde6d6" stroke-width="1.5"/>
+<circle cx="72" cy="402" r="12" fill="#059669"/><text x="72" y="406" text-anchor="middle" class="num">5</text>
+<text x="92" y="408" style="font-size:13.5px;font-weight:800;fill:#047857">DEPLOY</text>
+<text x="66" y="430" class="bs">skill registered to the fleet</text>
+<text x="66" y="444" class="bs">→ available next compose</text>
+</g>
+
+<!-- CENTER PANEL -->
+<rect x="300" y="212" width="400" height="152" rx="13" fill="#F4F1FF" stroke="#D6C9Fb"/>
+<text x="500" y="240" text-anchor="middle" style="font-size:13px;font-weight:800;fill:#4C1D95;letter-spacing:1px">SELF-LEARNING LOOP</text>
+<text x="500" y="258" text-anchor="middle" style="font-size:10.5px;font-weight:700;fill:#5A5470">autonomous capture · human-gated merge</text>
+<!-- progressive disclosure mini stack -->
+<rect x="324" y="276" width="352" height="20" rx="5" fill="#ECFDF5" stroke="#bde6d6"/><text x="500" y="290" text-anchor="middle" style="font-size:10px;font-weight:700;font-family:'Share Tech Mono',monospace;fill:#059669">metadata · ~100 words (always loaded)</text>
+<rect x="344" y="300" width="312" height="20" rx="5" fill="#FEF6E7" stroke="#f2dcb4"/><text x="500" y="314" text-anchor="middle" style="font-size:10px;font-weight:700;font-family:'Share Tech Mono',monospace;fill:#B45309">SKILL.md · &lt;500 lines (on trigger)</text>
+<rect x="368" y="324" width="264" height="20" rx="5" fill="#EEEAFB" stroke="#D6C9Fb"/><text x="500" y="338" text-anchor="middle" style="font-size:10px;font-weight:700;font-family:'Share Tech Mono',monospace;fill:#4C1D95">bundled resources (as needed)</text>
+<text x="500" y="358" text-anchor="middle" style="font-size:9px;fill:#8B82A0">live edge: SKILLS-UPDATE-002 (9 files) · SKILL-REGISTRY-002</text>
+</svg>

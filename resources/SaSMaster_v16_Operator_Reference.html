@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster v16 — Operator Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF7FF; --bg2:#F3EEFF; --card:#FFFFFF; --cardSoft:#FAF7FF;
+    --ink:#1F1B33; --muted:#5A5470; --dim:#8B82A0;
+    --accent:#7C3AED; --accentSoft:#A682F2; --accentDeep:#4C1D95;
+    --good:#059669; --goodBg:#ECFDF5; --bad:#DC2626; --badBg:#FEF2F2;
+    --amber:#B45309; --amberBg:#FEF6E7; --border:#E5DCFF; --border2:#D6C9Fb;
+    --mono:'Share Tech Mono',monospace; --sans:'Plus Jakarta Sans',system-ui,sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;
+    background-image:repeating-linear-gradient(45deg,rgba(166,130,242,.04) 0 1px,transparent 1px 24px);}
+  ::selection{background:var(--accentSoft);color:#fff}
+  *{scrollbar-width:thin;scrollbar-color:var(--accentSoft) transparent}
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-thumb{background:var(--accentSoft);border-radius:8px}
+
+  /* scroll progress */
+  #prog{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--accent),var(--good));z-index:100;transition:width .1s}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:90;background:rgba(250,247,255,.92);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;padding:10px 22px;flex-wrap:wrap}
+  nav .brand{font-weight:800;letter-spacing:.5px;color:var(--accentDeep);font-size:15px}
+  nav .brand b{color:var(--accent)}
+  nav .navlinks{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+  nav a{font-size:11.5px;font-weight:600;color:var(--muted);text-decoration:none;padding:5px 9px;border-radius:6px;transition:.15s;white-space:nowrap}
+  nav a:hover{background:var(--bg2);color:var(--accentDeep)}
+  .tracktoggle{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .tracktoggle button{font-family:var(--sans);font-size:11px;font-weight:700;border:0;background:#fff;color:var(--muted);padding:6px 11px;cursor:pointer;transition:.15s}
+  .tracktoggle button.on{background:var(--accent);color:#fff}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px 90px}
+  section{padding:54px 0 10px;scroll-margin-top:62px}
+  .kicker{font-size:12px;font-weight:800;letter-spacing:3px;color:var(--accent);text-transform:uppercase}
+  h1{font-size:46px;font-weight:800;letter-spacing:-.5px;line-height:1.05;margin:10px 0}
+  h2{font-size:30px;font-weight:800;letter-spacing:-.3px;margin:6px 0 4px}
+  h3{font-size:18px;font-weight:800;color:var(--accentDeep);margin:0 0 6px}
+  .lead{font-size:18px;color:var(--muted);max-width:780px}
+  p{margin:8px 0;color:#2c2740}
+  .sec-intro{color:var(--muted);max-width:820px;margin-bottom:18px;font-size:15.5px}
+  a.inline{color:var(--accent);font-weight:600;text-decoration:none}
+
+  /* hero */
+  .hero{background:linear-gradient(135deg,#2A1163 0%,#4C1D95 55%,#3A1B7A 100%);color:#fff;border-radius:22px;
+    padding:46px 42px;margin-top:26px;position:relative;overflow:hidden;box-shadow:0 24px 60px rgba(76,29,149,.28)}
+  .hero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 15%,rgba(166,130,242,.45),transparent 45%);pointer-events:none}
+  .hero .kicker{color:#C7B8FF}
+  .hero h1{color:#fff;font-size:50px}
+  .hero .lead{color:#E4DCFF}
+  .hero .mission{margin-top:18px;padding:16px 18px;border-left:3px solid #A682F2;background:rgba(255,255,255,.07);border-radius:0 10px 10px 0;font-size:16px;color:#F0EBFF;max-width:860px}
+  .hero .meta{margin-top:18px;display:flex;gap:22px;flex-wrap:wrap;font-size:12.5px;color:#C7B8FF;font-family:var(--mono)}
+  .hero .meta b{color:#fff}
+
+  /* kpi strip */
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:26px}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 12px;text-align:center;transition:.2s}
+  .kpi:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(124,58,237,.12);border-color:var(--accentSoft)}
+  .kpi .v{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--accentDeep);line-height:1}
+  .kpi .l{font-size:10.5px;font-weight:600;color:var(--muted);margin-top:7px;letter-spacing:.3px}
+  .kpi .s{font-size:9px;color:var(--dim);font-family:var(--mono);margin-top:3px}
+
+  /* cards / grid */
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;transition:.2s}
+  .card:hover{box-shadow:0 12px 30px rgba(124,58,237,.10);border-color:var(--border2)}
+  .card.soft{background:var(--cardSoft)}
+  .card p{font-size:14px;color:var(--muted)}
+
+  /* track tags */
+  .tag{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:800;letter-spacing:.5px;padding:3px 8px;border-radius:20px;text-transform:uppercase}
+  .tag.biz{background:var(--goodBg);color:var(--good)}
+  .tag.tech{background:#EEF0FF;color:var(--accent)}
+  .biz-note{border-left:3px solid var(--good);background:var(--goodBg);padding:12px 14px;border-radius:0 10px 10px 0;font-size:14px;margin:10px 0;color:#0d5a44}
+  .tech-note{border-left:3px solid var(--accent);background:#F4F1FF;padding:12px 14px;border-radius:0 10px 10px 0;font-size:14px;margin:10px 0;color:#3a2d63}
+  .tech-note code,.biz-note code,td code,p code{font-family:var(--mono);font-size:12.5px;background:#efe9ff;padding:1px 6px;border-radius:4px;color:var(--accentDeep)}
+  body.track-biz .tech-note,body.track-biz .tech-only{display:none}
+  body.track-tech .biz-note,body.track-tech .biz-only{display:none}
+
+  /* status pills */
+  .st{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;font-family:var(--mono)}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .live .dot{background:var(--good);box-shadow:0 0 0 0 rgba(5,150,105,.5);animation:pulse 2s infinite}
+  .live{color:var(--good)}
+  .prog .dot{background:var(--amber)} .prog{color:var(--amber)}
+  .plan .dot{background:var(--dim)} .plan{color:var(--dim)}
+  .block .dot{background:var(--bad)} .block{color:var(--bad)}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(5,150,105,.5)}70%{box-shadow:0 0 0 7px rgba(5,150,105,0)}100%{box-shadow:0 0 0 0 rgba(5,150,105,0)}}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  th{text-align:left;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--accent);padding:9px 10px;border-bottom:2px solid var(--border)}
+  td{padding:9px 10px;border-bottom:1px solid var(--border);color:#3a3550;vertical-align:top}
+  tr:hover td{background:var(--cardSoft)}
+  td.num,th.num{font-family:var(--mono);text-align:right}
+
+  /* funnel bars */
+  .bar{height:10px;background:var(--bg2);border-radius:6px;overflow:hidden;margin-top:5px}
+  .bar > i{display:block;height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accentSoft));transition:width 1.4s cubic-bezier(.16,1,.3,1)}
+  .bar.green > i{background:linear-gradient(90deg,var(--good),#34d399)}
+
+  /* layered stack diagram */
+  .stack{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+  .layer{position:relative;border:1px solid var(--border);border-radius:12px;padding:14px 16px;background:var(--card);display:flex;align-items:center;gap:16px;overflow:hidden}
+  .layer .lid{font-family:var(--mono);font-size:11px;color:#fff;background:var(--accent);border-radius:6px;padding:4px 8px;font-weight:700;flex-shrink:0}
+  .layer .lname{font-weight:800;color:var(--accentDeep);font-size:15px;min-width:200px}
+  .layer .ldesc{font-size:12.5px;color:var(--muted)}
+  .layer.l-prod .lid{background:var(--good)} .layer.l-ctrl .lid{background:var(--accentDeep)}
+  .flowdot{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--good);opacity:.0}
+  .reveal .flowdot{animation:flow 3.2s linear infinite}
+  @keyframes flow{0%{opacity:0;left:-2%}8%{opacity:.9}92%{opacity:.9}100%{opacity:0;left:101%}}
+
+  /* reveal anim */
+  .ri{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s cubic-bezier(.16,1,.3,1)}
+  .ri.reveal{opacity:1;transform:none}
+
+  /* chips */
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+  .chip{font-size:11px;font-weight:600;font-family:var(--mono);background:var(--cardSoft);border:1px solid var(--border);border-radius:20px;padding:4px 10px;color:var(--accentDeep)}
+  .chip.g{border-color:#bde6d6;background:var(--goodBg);color:var(--good)}
+  .chip.a{border-color:#f2dcb4;background:var(--amberBg);color:var(--amber)}
+
+  .pillrow{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+  .statbox{flex:1;min-width:140px;background:var(--cardSoft);border:1px solid var(--border);border-radius:10px;padding:12px}
+  .statbox .v{font-family:var(--mono);font-size:20px;color:var(--accentDeep);font-weight:700}
+  .statbox .l{font-size:11px;color:var(--muted)}
+
+  /* IP moat layers */
+  .moat{display:flex;flex-direction:column;gap:8px}
+  .moatrow{display:flex;align-items:center;gap:14px;border-radius:10px;padding:12px 14px;border:1px solid var(--border);background:var(--card)}
+  .moatrow .depth{font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px;flex-shrink:0;width:120px;text-align:center}
+  .d1{background:#fde8e8;color:#b91c1c}.d2{background:#fdeccb;color:#b45309}.d3{background:#e7e0ff;color:#6d28d9}.d4{background:#d1fae5;color:#047857}
+
+  details{border:1px solid var(--border);border-radius:10px;padding:0 14px;margin:8px 0;background:var(--card)}
+  summary{cursor:pointer;font-weight:700;color:var(--accentDeep);padding:12px 0;list-style:none;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--accent);font-size:18px}
+  details[open] summary::after{content:"–"}
+  details .body{padding:0 0 14px;font-size:13.5px;color:var(--muted)}
+
+  .footer{margin-top:48px;padding-top:22px;border-top:1px solid var(--border);font-size:12px;color:var(--dim);font-family:var(--mono)}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:14px 0;align-items:center}
+  .legend .st{font-size:11px}
+
+  @media(max-width:920px){.kpis{grid-template-columns:repeat(3,1fr)}.g2,.g3{grid-template-columns:1fr}.hero h1{font-size:34px}h1{font-size:34px}.layer .lname{min-width:auto}}
+</style>
+</head>
+<body class="track-all">
+<div id="prog"></div>
+
+<nav>
+  <div class="brand">SaS<b>Master</b> · v16</div>
+  <div class="navlinks">
+    <a href="#north">North Star</a>
+    <a href="#flywheel">Flywheel</a>
+    <a href="#stack">Stack</a>
+    <a href="#data">Data</a>
+    <a href="#memory">Memory</a>
+    <a href="#knowledge">Knowledge</a>
+    <a href="#agents">Agents</a>
+    <a href="#skills">Skills</a>
+    <a href="#control">Control Plane</a>
+    <a href="#token">Token</a>
+    <a href="#compute">Compute</a>
+    <a href="#roadmap">Roadmap</a>
+  </div>
+  <div class="tracktoggle" id="tt">
+    <button data-t="all" class="on">Both</button>
+    <button data-t="biz">Business</button>
+    <button data-t="tech">Technical</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero ri">
+    <div class="kicker">Operator Reference · v16</div>
+    <h1>The Bloomberg Terminal for Media</h1>
+    <p class="lead">One intelligence platform that turns the media industry's fragmented audience, content, and rights data into a single, decision-grade terminal — and a self-learning system that gets cheaper and more autonomous every time it answers.</p>
+    <div class="mission">
+      <b>North Star —</b> Decode data for radical insights to drive Content, Audiences &amp; Revenue. We do it on the industry's first global audience dataset: GenAI-native, currency-agnostic, one language for every market — the terminal where the people who <b>analyze, price, and trade</b> content, advertising, and marketing actually work.
+    </div>
+    <div class="meta">
+      <span>LIVE SNAPSHOT · <b>2026-06-08 00:10 UTC</b></span>
+      <span>PHASE · <b>1 LIVE → 1b IN-PROGRESS → 2a NEXT</b></span>
+      <span>LAKE · <b>125.6 GB</b></span>
+      <span>SPINE · <b>861,878 parent keys</b></span>
+    </div>
+  </div>
+
+  <!-- KPI STRIP -->
+  <div class="kpis" id="kpis">
+    <div class="kpi ri"><div class="v" data-c="51">0</div><div class="l">AGENTS IN FLEET</div><div class="s">11 running · 14 live</div></div>
+    <div class="kpi ri"><div class="v" data-c="23">0</div><div class="l">SCRAPERS / FEEDS</div><div class="s">14 live</div></div>
+    <div class="kpi ri"><div class="v" data-c="861878">0</div><div class="l">PARENT KEYS</div><div class="s">589,814 matched</div></div>
+    <div class="kpi ri"><div class="v" data-c="25953111">0</div><div class="l">IMDB ROWS</div><div class="s">title + name basics</div></div>
+    <div class="kpi ri"><div class="v" data-c="247425">0</div><div class="l">EIDR MATCHED</div><div class="s">28.7% coverage</div></div>
+    <div class="kpi ri"><div class="v" data-c="125" data-suf=".6 GB">0</div><div class="l">S3 DATA LAKE</div><div class="s">sasmaster-2026</div></div>
+  </div>
+  <div class="legend">
+    <span>STATUS LEGEND:</span>
+    <span class="st live"><span class="dot"></span>LIVE</span>
+    <span class="st prog"><span class="dot"></span>IN PROGRESS</span>
+    <span class="st plan"><span class="dot"></span>DESIGNED / NEXT</span>
+    <span class="st block"><span class="dot"></span>BLOCKED / GATED</span>
+    <span style="margin-left:auto">Use the <b>Both / Business / Technical</b> toggle above to filter the read.</span>
+  </div>
+
+  <!-- 1. NORTH STAR + IP -->
+  <section id="north">
+    <div class="kicker ri">01 — Why we win</div>
+    <h2 class="ri">North Star &amp; the Unique IP</h2>
+    <p class="sec-intro ri">The platform exists to do one thing the industry has never had: give the people who analyze, price, and trade media a single comparable language for audiences, content, and rights across every market. The moat is not the dashboards — it is the canonical spine underneath them, born from a decade of solo IP.</p>
+
+    <div class="grid g2">
+      <div class="card ri">
+        <span class="tag biz">Business</span>
+        <h3 style="margin-top:8px">The IP origin story</h3>
+        <p>The <b>SAS-MASTER Parent Key</b>, the <b>Data Orchestration Layer</b>, and the <b>MM-Asset-ID</b> algorithm are Shiv's solo IP, developed on RSG's Databricks platform 2018–2024 and <b>never productized commercially</b>. SaSMaster is the first commercial implementation — a clean-room rebuild that owns its lineage end to end.</p>
+        <div class="biz-note">The defensible asset is the <b>certified canonical layer</b>: one comparable answer across the US, UK, and India that no competitor can hand a buyer, because they did not earn it one certified row at a time.</div>
+      </div>
+      <div class="card ri">
+        <span class="tag tech">Technical</span>
+        <h3 style="margin-top:8px">The four-deep moat</h3>
+        <div class="moat">
+          <div class="moatrow"><span class="depth d1">CLONEABLE</span><div><b>Raw data</b> — anyone with capital can license TMDB/IMDB/Nielsen.</div></div>
+          <div class="moatrow"><span class="depth d2">HARDER</span><div><b>The Parent Key spine</b> — the COALESCE identity that fuses IMDB·TMDB·EIDR into one key.</div></div>
+          <div class="moatrow"><span class="depth d3">HARD</span><div><b>Certification + provenance wall</b> — GENERALIZE-TO-PUBLISH, PIL class, certified fusion.</div></div>
+          <div class="moatrow"><span class="depth d4">HARDEST</span><div><b>Accumulated gold sets</b> — human judgment encoded as reusable, labeled assets.</div></div>
+        </div>
+        <div class="tech-note">Over-invest at depths 3–4. Everything above is replaceable; the bottom two compound.</div>
+      </div>
+    </div>
+
+    <h3 class="ri" style="margin-top:24px">The mission surface — pick the wedge, not the grid</h3>
+    <p class="sec-intro ri">Three verbs × three objects = nine cells. You cannot build nine. The entire system is aimed at <b>one</b> wedge cell where the data edge is sharpest and the catalog deposit compounds fastest.</p>
+    <div class="card ri">
+      <table>
+        <tr><th>&nbsp;</th><th>Content</th><th>Advertising</th><th>Marketing</th></tr>
+        <tr><td><b>Analyze</b></td><td style="background:var(--goodBg);border-radius:6px"><b style="color:var(--good)">◆ WEDGE candidate</b><br><span style="font-size:11px;color:var(--muted)">programming research — home turf, gold sets already want to live here</span></td><td>audience reach &amp; curves</td><td>promo &amp; campaign lift</td></tr>
+        <tr><td><b>Price</b></td><td style="background:var(--goodBg);border-radius:6px"><b style="color:var(--good)">◆ WEDGE candidate</b><br><span style="font-size:11px;color:var(--muted)">avails / valuation — higher willingness to pay</span></td><td>inventory &amp; rate optimization</td><td>spend allocation</td></tr>
+        <tr><td><b>Trade</b></td><td>content acquisition &amp; sales</td><td>exchange / programmatic</td><td>partnership deals</td></tr>
+      </table>
+      <div class="biz-note">Portal coverage today (post-React migration baseline): Content <b>100</b> · Advertising <b>100</b> · Marketing <b>85</b> · CPG <b>100</b> · Exchange <b>100</b> · Dr. Scoop <b>100</b> — overall avg <b>97.5</b>.</div>
+    </div>
+  </section>
+
+  <!-- 2. FLYWHEEL -->
+  <section id="flywheel">
+    <div class="kicker ri">02 — The operating engine</div>
+    <h2 class="ri">The Self-Learning Flywheel</h2>
+    <p class="sec-intro ri">Capability is not a product. The toolkit becomes a terminal when every component is pointed at one wedge and wired into a single labeled-feedback loop. Six work stages on the rim; the <b>control plane</b> at the hub governs every stage and meters autonomy. The one number that matters is the share of outputs shipping with no human touch — and whether it is safely rising.</p>
+    <div class="card ri" style="display:flex;justify-content:center">
+      <div style="max-width:760px;width:100%">
+        <!-- flywheel svg -->
+        <svg viewBox="0 0 1000 880" style="width:100%;height:auto" role="img" aria-label="Self-learning flywheel: six work stages on a clockwise rim around a control plane hub that meters autonomy.">
+          <defs>
+            <marker id="fl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7C3AED"/></marker>
+            <marker id="sp" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#A682F2"/></marker>
+            <marker id="gn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#059669"/></marker>
+          </defs>
+          <text x="500" y="40" text-anchor="middle" style="font:800 26px var(--sans);fill:#1F1B33">The Self-Learning Flywheel</text>
+          <text x="500" y="66" text-anchor="middle" style="font:700 12px var(--sans);fill:#059669;letter-spacing:.3px">WEDGE — the entire loop is aimed at ONE mission cell ↓</text>
+          <g fill="none" stroke="#A682F2" stroke-width="1.6" stroke-dasharray="4 4" opacity=".85" marker-end="url(#sp)">
+            <path d="M500,320 L500,217"/><path d="M595.3,375 L684,323.5"/><path d="M595.3,485 L684,536.5"/>
+            <path d="M500,540 L500,643"/><path d="M404.7,485 L316,536.5"/><path d="M404.7,375 L316,323.5"/>
+          </g>
+          <g fill="none" stroke="#7C3AED" stroke-width="2.4" marker-end="url(#fl)" opacity=".9" class="rim">
+            <path d="M588.9,165.7 A260,260 0 0 1 667.1,210.7"/><path d="M756,364.8 A260,260 0 0 1 756,455.2"/>
+            <path d="M667.1,609.3 A260,260 0 0 1 588.9,654.3"/><path d="M411.1,654.3 A260,260 0 0 1 332.9,609.3"/>
+            <path d="M244,455.2 A260,260 0 0 1 244,364.8"/><path d="M332.9,210.7 A260,260 0 0 1 411.1,165.7"/>
+          </g>
+          <g style="font-family:var(--sans)">
+            <g><rect x="410" y="110" width="180" height="80" rx="12" fill="#fff" stroke="#059669" stroke-width="1.8"/><circle cx="430" cy="132" r="13" fill="#7C3AED"/><text x="430" y="137" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">1</text><text x="500" y="148" text-anchor="middle" font-size="14" font-weight="700" fill="#4C1D95">QUESTION IN</text><text x="500" y="168" text-anchor="middle" font-size="10.5" fill="#5A5470">user · intel agent</text></g>
+            <g><rect x="635.2" y="240" width="180" height="80" rx="12" fill="#fff" stroke="#E5DCFF"/><circle cx="655.2" cy="262" r="13" fill="#7C3AED"/><text x="655.2" y="267" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">2</text><text x="725.2" y="278" text-anchor="middle" font-size="14" font-weight="700" fill="#4C1D95">COMPOSE</text><text x="725.2" y="298" text-anchor="middle" font-size="10.5" fill="#5A5470">agents · skills · spine</text></g>
+            <g><rect x="635.2" y="500" width="180" height="80" rx="12" fill="#fff" stroke="#E5DCFF"/><circle cx="655.2" cy="522" r="13" fill="#7C3AED"/><text x="655.2" y="527" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">3</text><text x="725.2" y="538" text-anchor="middle" font-size="14" font-weight="700" fill="#4C1D95">SERVE</text><text x="725.2" y="558" text-anchor="middle" font-size="10.5" fill="#5A5470">answer on the wedge</text></g>
+            <g><rect x="410" y="630" width="180" height="80" rx="12" fill="#fff" stroke="#E5DCFF"/><circle cx="430" cy="652" r="13" fill="#7C3AED"/><text x="430" y="657" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">4</text><text x="500" y="668" text-anchor="middle" font-size="14" font-weight="700" fill="#4C1D95">BLESS = LABEL</text><text x="500" y="688" text-anchor="middle" font-size="10.5" fill="#5A5470">human gate</text></g>
+            <g><rect x="184.8" y="500" width="180" height="80" rx="12" fill="#fff" stroke="#E5DCFF"/><circle cx="204.8" cy="522" r="13" fill="#7C3AED"/><text x="204.8" y="527" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">5</text><text x="274.8" y="538" text-anchor="middle" font-size="14" font-weight="700" fill="#4C1D95">DEPOSIT</text><text x="274.8" y="558" text-anchor="middle" font-size="10.5" fill="#5A5470">catalog · gold · skill</text></g>
+            <g><rect x="184.8" y="240" width="180" height="80" rx="12" fill="#fff" stroke="#E5DCFF"/><circle cx="204.8" cy="262" r="13" fill="#7C3AED"/><text x="204.8" y="267" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">6</text><text x="274.8" y="278" text-anchor="middle" font-size="14" font-weight="700" fill="#4C1D95">PROMOTE</text><text x="274.8" y="298" text-anchor="middle" font-size="10.5" fill="#5A5470">pattern ≥3 → skill</text></g>
+          </g>
+          <path d="M500,98 L500,108" fill="none" stroke="#059669" stroke-width="2.6" marker-end="url(#gn)"/>
+          <circle cx="500" cy="410" r="110" fill="#fff" stroke="#A682F2" stroke-width="2"/>
+          <circle cx="500" cy="410" r="86" fill="none" stroke="#E5DCFF" stroke-width="11"/>
+          <circle cx="500" cy="410" r="86" fill="none" stroke="#059669" stroke-width="11" stroke-linecap="round" stroke-dasharray="302 238" transform="rotate(-90 500 410)" class="dial"/>
+          <text x="500" y="392" text-anchor="middle" font-size="14" font-weight="800" fill="#4C1D95" letter-spacing="1.5">CONTROL PLANE</text>
+          <text x="500" y="410" text-anchor="middle" font-size="10" font-weight="600" fill="#5A5470">routes · governs every stage</text>
+          <text x="500" y="428" text-anchor="middle" font-size="11" font-weight="800" fill="#059669">↑ meters autonomy</text>
+          <text x="500" y="444" text-anchor="middle" font-size="10" font-weight="600" fill="#5A5470">fail-open / fail-closed</text>
+        </svg>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card soft ri"><span class="tag tech">Turn one is live</span><p style="margin-top:8px"><b>DEPOSIT-GATE-001 P1+P2 shipped 2026-06-07.</b> The reporting-catalog schema + curator agent + gate wiring are built; a slice cannot reach DONE without a blessed, pointer-only catalog entry. <span class="st block"><span class="dot"></span>awaiting bless</span></p></div>
+      <div class="card soft ri"><span class="tag biz">Why it matters</span><p style="margin-top:8px">Every report <b>earns twice</b> — once as revenue/reach, once as a certified asset that makes the next report cheaper. A research practice that doesn't deposit is a content mill.</p></div>
+      <div class="card soft ri"><span class="tag tech">What's missing</span><p style="margin-top:8px">Only the connective tissue between stages <b>3→4→5→6</b> — the labeled-feedback wiring. Compute, memory, agents, and skills are already live.</p></div>
+    </div>
+  </section>
+
+  <!-- 3. STACK -->
+  <section id="stack">
+    <div class="kicker ri">03 — How the pieces fit</div>
+    <h2 class="ri">The Layered Architecture</h2>
+    <p class="sec-intro ri">Read bottom-up: raw data is fused into a certified spine, held in distributed memory, distilled into knowledge and insight, produced by an agent + skill fleet, all governed by the JARVIS control plane, and surfaced as products. Each layer is upgradeable in place behind the control plane.</p>
+    <div class="stack ri" id="stack-d">
+      <div class="layer l-prod"><span class="lid">PRODUCTS</span><span class="lname">Terminal &amp; surfaces</span><span class="ldesc">Programming Research Portal · Advertising · Marketing · CPG · Exchange · Dr. Scoop companion · paid Substack — the wedge surfaces buyers see.</span><span class="flowdot" style="top:10px"></span></div>
+      <div class="layer l-ctrl"><span class="lid">CONTROL</span><span class="lname">JARVIS control plane</span><span class="ldesc">Routes work, governs every stage, meters autonomy, enforces §15 + §2 gates and fail-open/fail-closed. HTTP Events API on Railway; heartbeat + failover.</span><span class="flowdot" style="top:14px"></span></div>
+      <div class="layer"><span class="lid">FLEET</span><span class="lname">Agents &amp; skills</span><span class="ldesc">51 agents (native · subagents · marketplace) + a versioned skill fleet with a self-learning lifecycle. Model-routed Opus/Sonnet/Haiku.</span><span class="flowdot" style="top:8px"></span></div>
+      <div class="layer"><span class="lid">INSIGHT</span><span class="lname">Knowledge bank &amp; insight engine</span><span class="ldesc">Nightly KB sync · reporting catalog (deposit slot) · Dr. Scoop comprehender + claim-verify (fail-closed) · the radical-insight mandate.</span><span class="flowdot" style="top:16px"></span></div>
+      <div class="layer"><span class="lid">MEMORY</span><span class="lname">Distributed memory + PIL ledger</span><span class="ldesc">CLAUDE_MEMORY.md loaded every session · PIL provenance/IP ledger (asset_class · reconstruction_cost · pil_status) · memory-as-queryable-stack (roadmap).</span><span class="flowdot" style="top:12px"></span></div>
+      <div class="layer"><span class="lid">DATA</span><span class="lname">S3 lake &amp; Parent Key spine</span><span class="ldesc">sasmaster-2026 · 125.6 GB · locked-paths registry · NDJSON→Parquet (ZSTD) · certified fusion · provenance wall. The canonical layer.</span><span class="flowdot" style="top:10px"></span></div>
+    </div>
+    <div class="tech-note ri">Data flows up; governance and autonomy decisions flow down from the control plane into every layer (the dashed spokes in the flywheel). This is why the control plane is the single highest-leverage build — it is the only component touching all layers.</div>
+  </section>
+
+  <!-- 4. DATA -->
+  <section id="data">
+    <div class="kicker ri">04 — The canonical layer</div>
+    <h2 class="ri">Data Management &amp; the Parent Key Spine</h2>
+    <p class="sec-intro ri">A 125.6 GB lake on <code>s3://sasmaster-2026</code>, governed by a locked-paths registry. Every scraper lands NDJSON; a separate DuckDB job converts to ZSTD Parquet with the parent key computed at write time. Movies and TV are never merged; schema changes are additive or they force a version bump.</p>
+
+    <div class="grid g2">
+      <div class="card ri">
+        <h3>The Parent Key (v1)</h3>
+        <div class="tech-note" style="margin-top:6px"><code>parent_key = COALESCE(imdb_tconst, 'tmdb_mov_'||tmdb_movie_id, 'tmdb_tv_'||tmdb_tv_id)</code></div>
+        <p>Invariants: parent_key non-null on every row · <code>eidr_id</code> NULL in v1 (Phase 1b backfill) · movies &amp; tv_series never merged · ISO <code>YYYY-MM-DD</code> partitions · ZSTD, 128 MB row groups · readers use <code>MAX(partition_date)</code>, never a <code>latest/</code> alias.</p>
+        <div class="chips"><span class="chip g">861,878 keys</span><span class="chip g">589,814 matched</span><span class="chip a">306,805 untyped</span><span class="chip">v1 → v2 on breaking change</span></div>
+      </div>
+      <div class="card ri">
+        <h3>The provenance / IP wall</h3>
+        <p>Every mined row is <b>PIL class INTERNAL</b> by default and carries <code>source · source_url · ingested_at · schema_version</code>. The doctrine is <b>GENERALIZE-TO-PUBLISH</b>: public artifacts ship the generalized shape — a trend, a ratio, a SaSMaster index — never the raw compiled table.</p>
+        <div class="biz-note">This wall is what lets us mine licensed and trial sources for internal intelligence without ever republishing them — the legal spine of the moat. Trial-observed IDs are eval-only and never touch the spine.</div>
+      </div>
+    </div>
+
+    <h3 class="ri" style="margin-top:24px">The certification funnel — current vs target</h3>
+    <div class="card ri">
+      <table>
+        <tr><th>Record class</th><th class="num">Current</th><th class="num">Target</th><th class="num">Certified</th><th>Coverage</th></tr>
+        <tr><td><b>Movies</b> <span class="st live"><span class="dot"></span></span></td><td class="num">556,466</td><td class="num">712,971</td><td class="num">247,408</td><td><div class="bar green" data-w="78"><i></i></div></td></tr>
+        <tr><td><b>TV series</b> <span class="st prog"><span class="dot"></span></span></td><td class="num">2,711</td><td class="num">213,000</td><td class="num">0</td><td><div class="bar" data-w="2"><i></i></div></td></tr>
+        <tr><td><b>Episodes</b> <span class="st plan"><span class="dot"></span></span></td><td class="num">16,409</td><td class="num">6,000,000</td><td class="num">0</td><td><div class="bar" data-w="1"><i></i></div></td></tr>
+      </table>
+      <p style="font-size:12px;color:var(--dim);margin-top:8px">Target 712,971 = verified IMDB movie universe (SASMASTER_PARENT_KEY_2025). 272K tmdb-only titles are a permanent untyped boundary. EIDR backfill: 247,425 IDs matched (28.7% of 861,878).</p>
+    </div>
+
+    <h3 class="ri" style="margin-top:24px">The lake — what's landed</h3>
+    <div class="card ri">
+      <table>
+        <tr><th>Prefix</th><th>Phase</th><th>Status</th><th class="num">GB</th><th>Entity counts</th><th>Updated</th></tr>
+        <tr><td><code>tmdb_dev/</code></td><td>1</td><td><span class="st live"><span class="dot"></span>running</span></td><td class="num">33.4</td><td>1.20M movies · 221.9K tv · 6.01M eps · 4.72M people</td><td>06-07</td></tr>
+        <tr><td><code>imdb/</code></td><td>1</td><td><span class="st live"><span class="dot"></span>live</span></td><td class="num">4.3</td><td>2.37M movies · 370.7K tv · 9.74M eps · 15.37M people</td><td>05-30</td></tr>
+        <tr><td><code>parent_keys/</code></td><td>1</td><td><span class="st live"><span class="dot"></span>live</span></td><td class="num">0.73</td><td>861,878 keys · 589,814 matched</td><td>06-07</td></tr>
+        <tr><td><code>nielsen/</code></td><td>2a</td><td><span class="st live"><span class="dot"></span>live</span></td><td class="num">83.9</td><td>MIT 15 tables · AMRLD 36 rec types</td><td>05-26</td></tr>
+        <tr><td><code>eidr/</code></td><td>1b</td><td><span class="st live"><span class="dot"></span>live</span></td><td class="num">0.43</td><td>DOI spine 1,556 + 14,775 candidates</td><td>05-29</td></tr>
+        <tr><td><code>gracenote/</code> · <code>fyi/</code> · <code>opus/</code></td><td>2a</td><td><span class="st prog"><span class="dot"></span>landing</span></td><td class="num">~0.02</td><td>GN 17.2K mov / 47.9K tv · FYI 17.4K/64.6K · Opus 33.9K mov</td><td>06-05</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5. MEMORY -->
+  <section id="memory">
+    <div class="kicker ri">05 — What the system remembers</div>
+    <h2 class="ri">The Distributed Memory Layer</h2>
+    <p class="sec-intro ri">Two memory surfaces across three storage tiers. A human-readable session memory that orients every agent run, and a machine-readable provenance/IP ledger (PIL) that records why each asset exists and what it would cost to rebuild — held across hot (Upstash, ~ms), warm (recent + structured, ~seconds), and cold (the durable S3 lake, ~minutes). Together they let an autonomous loop reason about its own history.</p>
+    <div class="card ri" style="text-align:center"><img src="sasmaster_memory_tiers.svg" alt="Distributed memory platform — hot, warm and cold tiers with the seven-surface completion fan-out and the PIL-SERVICE convergence" style="max-width:100%;height:auto;border-radius:10px;display:block;margin:0 auto"></div>
+    <div class="grid g2">
+      <div class="card ri">
+        <h3>CLAUDE_MEMORY.md — session memory</h3>
+        <p>Loaded at the start of every session (<code>cat ~/SaSMaster/CLAUDE_MEMORY.md &amp;&amp; cat TASKS.md</code>) and rewritten by <code>update-memory.sh</code>. Five standing sections keep strategy and state coherent across runs:</p>
+        <div class="chips"><span class="chip">Current Sprint</span><span class="chip">Architecture State</span><span class="chip">Recent Wins</span><span class="chip">Known Issues</span><span class="chip">S3 State</span></div>
+      </div>
+      <div class="card ri">
+        <h3>PIL — Provenance &amp; IP Ledger</h3>
+        <p>Every catalog/asset entry carries PIL fields: <code>rationale · reconstruction_cost · asset_class · pil_status</code>. This is the structural record of the moat — it lets the system value its own IP and enforce the GENERALIZE-TO-PUBLISH wall at the asset level.</p>
+        <div class="tech-note"><span class="st prog"><span class="dot"></span>roadmap</span> <b>PIL-SERVICE-001</b> (Phase 2) elevates memory into a queryable stack service; <b>PIL-HOT-READER</b> wires recent wins into the daily briefing.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. KNOWLEDGE -->
+  <section id="knowledge">
+    <div class="kicker ri">06 — Turning data into decisions</div>
+    <h2 class="ri">Knowledge Bank &amp; Insight Engine</h2>
+    <p class="sec-intro ri">Data becomes knowledge through a nightly-synced knowledge bank; knowledge becomes a defensible product through the reporting catalog (the deposit slot); and every published claim is held to a verification standard so the terminal is trusted, not just fast.</p>
+    <div class="grid g3">
+      <div class="card ri">
+        <h3>Knowledge Bank</h3>
+        <p>S3 prefix <code>knowledge-bank/</code>, synced nightly by GitHub Actions (<code>kb-nightly-sync.yml</code>) via least-privilege IAM user <code>sasmaster-ci-kb-sync</code>. <b>KB-CI</b> integrity + <b>KB-INTEGRITY</b> checks verify entries, S3 paths, and orphans.</p>
+        <span class="st prog"><span class="dot"></span>integrity gate in queue</span>
+      </div>
+      <div class="card ri">
+        <h3>Reporting Catalog</h3>
+        <p>The insight engine's memory. Schema: <code>report_id · domain · data_lineage · methodology · chart_spec · viz · takeaways_template · tutorial</code> + PIL fields. Inherit-via-pointer (≤300 chars, never copies). Lifecycle <code>DRAFT→BLESSED→RETIRED</code> — only Shiv blesses.</p>
+        <span class="st live"><span class="dot"></span>P1+P2 shipped 06-07</span>
+      </div>
+      <div class="card ri">
+        <h3>Dr. Scoop — verify, don't assert</h3>
+        <p>The GenAI companion present on every screen. Roadmap runtime wires the catalog into a <b>Comprehender</b> (fail-safe-to-current) and a <b>Claim-verify</b> methodology that is <b>fail-CLOSED</b> — an unresolvable claim is HELD, never auto-passed.</p>
+        <span class="st block"><span class="dot"></span>SCOOP-CATALOG-RUNTIME gated</span>
+      </div>
+    </div>
+    <div class="biz-note ri">The standard, verbatim from the Dr. Scoop Academy: <i>"If it doesn't decode something non-obvious, it isn't an insight — it's a data description."</i> The verification engine is what turns that standard into a product guarantee.</div>
+  </section>
+
+  <!-- 7. AGENTS -->
+  <section id="agents">
+    <div class="kicker ri">07 — The workforce</div>
+    <h2 class="ri">The Agent Fleet — 51 agents</h2>
+    <p class="sec-intro ri">A three-tier fleet: native scheduled agents that run the business on cron, build subagents that execute work under model routing, and a marketplace of specialist agents on call. 11 running and 14 live at last snapshot.</p>
+    <div class="pillrow ri">
+      <div class="statbox"><div class="v">15</div><div class="l">Native / scheduled</div></div>
+      <div class="statbox"><div class="v">5</div><div class="l">Build subagents</div></div>
+      <div class="statbox"><div class="v">31</div><div class="l">Marketplace (T1·T2)</div></div>
+      <div class="statbox"><div class="v">Opus 4.7</div><div class="l">Planning model</div></div>
+      <div class="statbox"><div class="v">Sonnet 4.6</div><div class="l">Execution model</div></div>
+    </div>
+    <div class="grid g2">
+      <div class="card ri">
+        <h3>Native scheduled agents</h3>
+        <table>
+          <tr><th>Agent</th><th>Cadence</th><th>Status</th></tr>
+          <tr><td>JARVIS 🤖 control plane</td><td>always on</td><td><span class="st live"><span class="dot"></span></span></td></tr>
+          <tr><td>Media Intel 📡 (13-source)</td><td>6AM daily</td><td><span class="st live"><span class="dot"></span></span></td></tr>
+          <tr><td>TMDB Daily 📺</td><td>5AM daily</td><td><span class="st live"><span class="dot"></span></span></td></tr>
+          <tr><td>SEC EDGAR 📑</td><td>6:30AM</td><td><span class="st live"><span class="dot"></span></span></td></tr>
+          <tr><td>Security Watchdog 🔐</td><td>5:30AM</td><td><span class="st live"><span class="dot"></span></span></td></tr>
+          <tr><td>Railway Monitor 🛤️</td><td>15 min</td><td><span class="st live"><span class="dot"></span></span></td></tr>
+          <tr><td>Tech / Financial / IAB Intel</td><td>weekly</td><td><span class="st live"><span class="dot"></span></span></td></tr>
+          <tr><td>Data Guardian 🛡️ (AMRLD anomaly gate)</td><td>post-ingest</td><td><span class="st plan"><span class="dot"></span>never run</span></td></tr>
+          <tr><td>Gracenote OnConnect 🎬</td><td>on demand</td><td><span class="st block"><span class="dot"></span>spine-gated</span></td></tr>
+        </table>
+      </div>
+      <div class="card ri">
+        <h3>Build subagents &amp; marketplace</h3>
+        <table>
+          <tr><th>Subagent</th><th>Role</th><th>Model</th></tr>
+          <tr><td>Autonomous Coder ⚡</td><td>build executor</td><td>Sonnet 4.6</td></tr>
+          <tr><td>Data Modeler 📐</td><td>schema · Parent Key</td><td>Opus 4.7</td></tr>
+          <tr><td>Viz Evaluator 📊</td><td>14 renderers vs npm</td><td>quarterly</td></tr>
+          <tr><td>Nielsen Orchestrator 📡</td><td>staleness → pull → validate</td><td>Tue 5PM</td></tr>
+          <tr><td>Mac Worker 💻</td><td>64 GB compute lane</td><td>5-min beat</td></tr>
+        </table>
+        <p style="font-size:12.5px;margin-top:10px"><b>31 marketplace agents</b> on call — 17 Tier-1 (python-pro, ai-engineer, prompt-engineer, security-auditor, agent-teams…) and 14 Tier-2 (backend-architect, cloud-architect, ml-engineer, mlops-engineer…), all idle until summoned.</p>
+        <div class="tech-note" style="margin-top:6px"><span class="st block"><span class="dot"></span></span> 2 agents in error at snapshot (DoneLog Analyst: <code>not_authed</code>; Weekly Review: credit balance) — both non-load-bearing, queued for repair.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. SKILLS -->
+  <section id="skills">
+    <div class="kicker ri">08 — Composable expertise</div>
+    <h2 class="ri">The Skill Fleet &amp; Self-Learning Lifecycle</h2>
+    <p class="sec-intro ri">Skills are the platform's reusable expertise — domain knowledge, build doctrine, and procedures the agents compose at runtime. The self-learning loop is what turns a one-off lesson into permanent capability: patterns recur, get promoted into skills, and every future run starts smarter. Logging is autonomous; skill merges stay human-gated by design.</p>
+    <div class="card ri" style="text-align:center"><img src="sasmaster_skill_lifecycle.svg" alt="Skill fleet self-learning lifecycle — compose, capture, the three-occurrence gate, the human-gated skill-approve step, grade, and deploy" style="max-width:100%;height:auto;border-radius:10px;display:block;margin:0 auto"></div>
+    <div class="grid g2">
+      <div class="card ri">
+        <h3>How a skill is built &amp; graded</h3>
+        <p>Three-level progressive disclosure: <b>~100-word metadata</b> → <b>&lt;500-line SKILL.md</b> → bundled resources. The skill-creator runs with-skill vs baseline prompts, grades the delta, and a description-optimizer (60/40 train/held-out) selects the <code>best_description</code> for reliable triggering.</p>
+        <div class="chips"><span class="chip">progressive disclosure</span><span class="chip">eval-graded</span><span class="chip">description-optimized</span></div>
+      </div>
+      <div class="card ri">
+        <h3>The promotion pipeline (stage 6 of the flywheel)</h3>
+        <p>Work tagged <code>#skill-worthy</code> queues a skill update on completion. <b>SKILL-REGISTRY-002</b> promotes patterns that recur <b>≥3 times</b> from <code>LESSONS.md</code> into <code>SKILL.md</code> via the SLC pipeline. This is the wire that makes the system compound.</p>
+        <div class="tech-note"><span class="st prog"><span class="dot"></span>SKILLS-UPDATE-002</span> — 9 skill files queued for sync to v11-validated state. The fleet's living edge.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. CONTROL PLANE -->
+  <section id="control">
+    <div class="kicker ri">09 — The governor</div>
+    <h2 class="ri">JARVIS — the Control Plane</h2>
+    <p class="sec-intro ri">JARVIS is the hub of the flywheel: it routes work, governs every stage, and meters how much ships autonomously. It runs as an HTTP Events API on Railway (the Socket Mode daemon is retired), with a dead-man heartbeat and a GitHub-Actions failover worker so the loop survives the Mac going offline.</p>
+    <div class="grid g2">
+      <div class="card ri">
+        <h3>The build constitution — gates, not guidelines</h3>
+        <p><b>§2 Quality Gates:</b> flag the top-3 critical behaviors up front; they become QA pass/fail. <i>Never self-certify a fix — a QA agent runs after every phase deploy.</i></p>
+        <p><b>§15 Change Gate:</b> every risky change is filled against five columns before it ships —</p>
+        <div class="chips"><span class="chip">impact</span><span class="chip">blast-radius</span><span class="chip">rollback</span><span class="chip">non-blocking</span><span class="chip">secrets</span></div>
+        <p><b>§10 Security:</b> every Railway route needs <code>x-api-key</code> or Slack HMAC — never open; <code>gitleaks</code> must pass; new S3 paths join the locked-paths registry.</p>
+      </div>
+      <div class="card ri">
+        <h3>Supervised autonomy &amp; fail policy</h3>
+        <p>The doctrine is <b>SUPERVISED-AUTONOMY</b>: a human bless is the training label, and the deliverable of any phase is the <b>gold set</b> future runs are graded against. Autonomy rises only as confidence sustains.</p>
+        <div class="biz-note"><b>fail-open</b> where a stall is the worst outcome (compute lanes fall back to the API). <b>fail-closed</b> where a wrong answer is the worst outcome (claim-verify HOLDS rather than guess).</div>
+        <div class="tech-note">Resilience shipped 06-07/06-08: dead-man heartbeat (<code>drain_heartbeat.json</code>), Railway watcher + GHA <code>queue-heartbeat-watcher.yml</code>, <code>pmset autorestart</code> self-heal, INFRA-FAILOVER kill-test PASS.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. TOKEN -->
+  <section id="token">
+    <div class="kicker ri">10 — Spend discipline</div>
+    <h2 class="ri">Token Optimization</h2>
+    <p class="sec-intro ri">Intelligence is metered. The platform routes each job to the cheapest sufficient model, caches the hot context every agent re-reads, and runs under a hard governor that pauses spend before it ever surprises you.</p>
+    <div class="pillrow ri">
+      <div class="statbox"><div class="v">$0.08</div><div class="l">Cost today (21 calls)</div></div>
+      <div class="statbox"><div class="v">100%</div><div class="l">Cache hit rate</div></div>
+      <div class="statbox"><div class="v">$500/mo</div><div class="l">API governor cap</div></div>
+      <div class="statbox"><div class="v">44%</div><div class="l">Session budget used</div></div>
+    </div>
+    <div class="grid g3">
+      <div class="card ri"><h3>Model routing</h3><p>Three-tier <code>haiku + sonnet + opus</code>: Haiku for embed/classify, Sonnet for execution, Opus for planning. The cheapest model that clears the confidence floor wins the job.</p></div>
+      <div class="card ri"><h3>Prompt caching</h3><p>Caching the hot context — <code>CLAUDE_MEMORY.md</code> and agent reads — is projected to cut input tokens <b>40–60%</b>. Skill-file reads cache next. <span class="st prog"><span class="dot"></span>recommendation live</span></p></div>
+      <div class="card ri"><h3>The governor</h3><p>API track capped at <b>$500/mo</b> with daily tiers — warn $15 · fallback $25 · pause $40. A pause <b>requires human resume</b>; spend can never run away unattended.</p></div>
+    </div>
+  </section>
+
+  <!-- 11. COMPUTE -->
+  <section id="compute">
+    <div class="kicker ri">11 — Where the work runs</div>
+    <h2 class="ri">Compute Optimization</h2>
+    <p class="sec-intro ri">Four tiers, one job each. A presence-aware router sends every task to the cheapest tier that can do it while a human is present to catch failures — heavy lanes on the local 64 GB M1 worker, schedule-critical triggers always on cloud, reasoning metered by the governor, with graceful degradation to API inference when local lanes are unavailable.</p>
+    <div class="card ri" style="text-align:center"><img src="sasmaster_compute_router.svg" alt="Compute optimization router — four tiers (Railway, Mac M1 64GB, GitHub Actions, Claude), the presence chain, the three dispatch lanes, the local-inference lever, and the launchd reliability gap" style="max-width:100%;height:auto;border-radius:10px;display:block;margin:0 auto"></div>
+
+    <h3 class="ri" style="margin-top:22px">Four tiers, one job each</h3>
+    <div class="card ri">
+      <table>
+        <tr><th>Tier</th><th>The one job</th><th>Character</th><th>Cost</th></tr>
+        <tr><td><b>Railway</b></td><td>Availability</td><td>always-on, tiny — control plane + heartbeat watcher; never sleeps</td><td>fixed, small</td></tr>
+        <tr><td><b>Mac M1 · 64 GB</b></td><td>Throughput</td><td>the muscle — DuckDB joins, fusion, local inference, scraping; fast, but only reliable when awake</td><td><b style="color:var(--good)">$0 · off-governor</b></td></tr>
+        <tr><td><b>GitHub Actions</b></td><td>Burst / failover</td><td>ephemeral, parallel, a different host; the backup watcher</td><td>free minutes</td></tr>
+        <tr><td><b>Claude models</b></td><td>Reasoning</td><td>opus / sonnet / haiku by effort — the genuinely hard thinking</td><td>$/token, governed</td></tr>
+      </table>
+      <div class="biz-note">The optimization isn't "use the Mac more" in the abstract — it's <b>route each task to the cheapest tier that can do it while a supervising human is present.</b> Online, the Mac is the cheapest fast compute you own, so it should be saturated. Offline, schedule-critical work falls to Railway/GHA and the Mac drains the queue when it next wakes.</div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card ri">
+        <h3>The compute router</h3>
+        <p>The Mac emits <code>mac:last_ok</code> to Upstash every 60s (SETEX, TTL 180s); a Railway <code>/compute/presence</code> endpoint reads it and reports <code>online/offline</code> within ~3 minutes of a lid close. The router reads presence + a routing table and dispatches accordingly.</p>
+        <div class="tech-note"><span class="st prog"><span class="dot"></span>COMPUTE-ROUTER-001</span> Ph1 live (presence emitter, 2026-06-08); Ph2 decouples schedule-critical triggers to Railway/GHA; Ph3+P4 lid-close drill gated on §15.</div>
+      </div>
+      <div class="card ri">
+        <h3>Local inference &amp; failover</h3>
+        <p>MLX/Ollama embed + classify endpoints with a <b>fail-open client</b>: on timeout or low confidence it falls back to the API — proven by killing a lane mid-job with no stall. DuckDB tuned for 64 GB (memory_limit + perf-core threads).</p>
+        <div class="biz-note">Net effect: the heavy, repetitive work (bulk embedding, corroboration, DuckDB analytics) runs on hardware you already own — pushing marginal compute cost toward zero while the API stays the safety net.</div>
+      </div>
+    </div>
+
+    <div class="card ri" style="border-color:#f3b4b4;background:#FEF2F2;margin-top:16px">
+      <span class="tag" style="background:#fee2e2;color:#b91c1c">⚠ Reliability gap</span>
+      <h3 style="margin-top:8px;color:#b91c1c">The same failure class as JARVIS-QUEUE-001</h3>
+      <p style="color:#7f1d1d"><code>launchd</code> does not fire while the Mac is asleep. The crons that run the daily rhythm — 5A briefing, 6A intel, 7A/2P self-score, Fri tech — live on the Mac. So the moment the lid closes, the rhythm <b>silently misses</b>. The Mac is configured as always-primary when it can only conditionally be primary.</p>
+      <p style="color:#7f1d1d">The fix is the router itself: <b>COMPUTE-ROUTER-001 Ph2</b> decouples schedule-critical triggers to Railway/GHA so they fire regardless of Mac state, while muscle work queues and drains on next wake. Tuning that compounds it: <code>memory_limit</code> set generously, <code>threads = hw.perflevel0.physicalcpu</code> (8–10 performance cores), and the 11 scrapers + fusion passes run concurrently, not serially.</p>
+    </div>
+  </section>
+
+  <!-- 12. ROADMAP -->
+  <section id="roadmap">
+    <div class="kicker ri">12 — Where we are, where next</div>
+    <h2 class="ri">Phase Status &amp; the Path Forward</h2>
+    <div class="card ri">
+      <div class="stack">
+        <div class="layer l-prod"><span class="lid">PHASE 1</span><span class="lname">Spine — LIVE</span><span class="ldesc">TMDB + IMDB scrapers + Parent Key resolver. 861,878 keys, 589,814 matched. The canonical layer is real and queryable.</span></div>
+        <div class="layer"><span class="lid">PHASE 1b</span><span class="lname">EIDR backfill — IN PROGRESS</span><span class="ldesc">247,425 EIDR IDs matched (28.7%). Auth gate pending to populate parent_keys.eidr_id at scale.</span></div>
+        <div class="layer"><span class="lid">PHASE 2a</span><span class="lname">Snapshots — NEXT</span><span class="ldesc">RSG / Nielsen / Gracenote / FYI / Opus landing. Sprint 18 RSG Data Repatriation Suite is the active HIGH task.</span></div>
+        <div class="layer l-ctrl"><span class="lid">ENGINE</span><span class="lname">Close the flywheel — THE PRIORITY</span><span class="ldesc">Wire stages 3→4→5→6: bless the deposit gate, lock the wedge theme, make the autonomy dial honest. Everything else upgrades in place behind it.</span></div>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card soft ri"><h3>Releases that unblock the most</h3><p>① Bless REPORT-CATALOG + DEPOSIT-GATE. ② Lock the Substack/wedge theme. ③ Make "catalog entry blessed" a hard gate on every product slice.</p></div>
+      <div class="card soft ri"><h3>Highest-leverage build</h3><p>The control plane — the only component touching all six stages. Get the autonomy dial instrumented and the rest of the fleet can evolve without rewiring the loop.</p></div>
+      <div class="card soft ri"><h3>The one-line test of progress</h3><p>Is the share of outputs shipping <b>untouched</b> rising, safely, on its own? If yes, the platform is learning. If no, we're still a toolkit.</p></div>
+    </div>
+  </section>
+
+  <div class="footer">
+    SaSMaster v16 · Operator Reference · dual-track (business + technical) · light theme · Plus Jakarta Sans<br>
+    Live snapshot 2026-06-08 00:10 UTC · figures from sasmaster MCP system status + done log · status: LIVE / IN-PROGRESS / DESIGNED / GATED marked per component<br>
+    Built for the War Room. North Star: Decode data for radical insights to drive Content, Audiences &amp; Revenue.
+  </div>
+</div>
+
+<script>
+  // scroll progress
+  const prog=document.getElementById('prog');
+  addEventListener('scroll',()=>{const h=document.documentElement;const p=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;prog.style.width=p+'%';},{passive:true});
+
+  // track toggle
+  document.getElementById('tt').addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b)return;
+    document.querySelectorAll('#tt button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.body.className='track-'+b.dataset.t;
+  });
+
+  // reveal + counters + bars
+  const fmt=n=>n.toLocaleString('en-US');
+  function runCount(el){
+    const target=+el.dataset.c, suf=el.dataset.suf||'', dur=1100, t0=performance.now();
+    function step(t){const k=Math.min(1,(t-t0)/dur);const e=1-Math.pow(1-k,3);
+      el.textContent=fmt(Math.round(target*e))+suf; if(k<1)requestAnimationFrame(step);}
+    requestAnimationFrame(step);
+  }
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(en=>{
+      if(!en.isIntersecting)return;
+      const el=en.target; el.classList.add('reveal');
+      el.querySelectorAll&&el.querySelectorAll('[data-c]').forEach(runCount);
+      if(el.matches&&el.matches('[data-c]'))runCount(el);
+      el.querySelectorAll&&el.querySelectorAll('.bar[data-w] > i').forEach(i=>{i.style.width=i.parentElement.dataset.w+'%';});
+      io.unobserve(el);
+    });
+  },{threshold:.18});
+  document.querySelectorAll('.ri,[data-c],.bar').forEach(el=>io.observe(el));
+  // also observe kpi values individually
+  document.querySelectorAll('#kpis .v[data-c]').forEach(el=>io.observe(el));
+  // stack flow dots stagger
+  document.querySelectorAll('#stack-d .flowdot').forEach((d,i)=>d.style.animationDelay=(i*0.45)+'s');
+</script>
+</body>
+</html>

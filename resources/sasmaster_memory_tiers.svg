@@ -1,0 +1,113 @@
+<svg viewBox="0 0 1000 690" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t d" font-family="'Plus Jakarta Sans',system-ui,sans-serif">
+<title id="t">SaSMaster distributed memory platform — hot, warm, cold tiers</title>
+<desc id="d">A three-tier memory platform. HOT (Upstash, in-context, ~ms, 7-day TTL), WARM (DONE_LOG, catalog, PIL ledger, recent parquet, ~seconds), and COLD (S3 lake, full parquet history, ~minutes, 125.6 GB). One !done command fans out atomically to seven surfaces across the tiers. Data ages out hot-to-cold and is hydrated cold-to-hot on read. PIL-SERVICE flips memory from a write-side discipline into a service agents query at runtime.</desc>
+<defs>
+<style>
+ .k{font-size:12px;font-weight:800;letter-spacing:3px;fill:#7C3AED}
+ .h1{font-size:27px;font-weight:800;fill:#1F1B33}
+ .hd{font-size:14px;font-weight:800;fill:#fff;letter-spacing:.5px}
+ .hsub{font-size:10px;font-weight:600;fill:#fff;opacity:.85}
+ .it{font-size:11.5px;font-weight:600;fill:#2c2740}
+ .itm{font-size:10px;fill:#5A5470}
+ .ft{font-size:10px;font-weight:700;font-family:'Share Tech Mono',monospace;fill:#5A5470}
+ .chip{font-size:10px;font-weight:700;font-family:'Share Tech Mono',monospace}
+ .arl{font-size:9.5px;font-weight:800;font-family:'Share Tech Mono',monospace;letter-spacing:.5px}
+ .band{font-size:13px;font-weight:700;fill:#3a2d63}
+ .bandk{font-size:11px;font-weight:800;fill:#7C3AED;letter-spacing:1px}
+</style>
+<marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7C3AED"/></marker>
+<marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#059669"/></marker>
+</defs>
+<rect x="0" y="0" width="1000" height="690" rx="16" fill="#FAF7FF"/>
+<rect x="1" y="1" width="998" height="688" rx="15" fill="none" stroke="#E5DCFF" stroke-width="2"/>
+<text x="40" y="40" class="k">DISTRIBUTED MEMORY</text>
+<text x="40" y="70" class="h1">Hot · Warm · Cold</text>
+
+<!-- fan-out band -->
+<rect x="40" y="86" width="920" height="64" rx="11" fill="#fff" stroke="#E5DCFF"/>
+<text x="56" y="110" style="font-size:12px;font-weight:800;fill:#4C1D95">ONE <tspan font-family="'Share Tech Mono',monospace" fill="#7C3AED">!done</tspan> → 7 SURFACES</text>
+<text x="56" y="128" style="font-size:10px;fill:#5A5470">atomic completion fan-out · zero manual follow-up</text>
+<!-- 7 chips -->
+<g class="chip">
+<rect x="250" y="98" width="96" height="22" rx="11" fill="#FEF6E7" stroke="#f2dcb4"/><text x="298" y="113" text-anchor="middle" fill="#B45309">DONE_LOG</text>
+<rect x="352" y="98" width="86" height="22" rx="11" fill="#FEF6E7" stroke="#f2dcb4"/><text x="395" y="113" text-anchor="middle" fill="#B45309">TASKS.md</text>
+<rect x="444" y="98" width="104" height="22" rx="11" fill="#ECFDF5" stroke="#bde6d6"/><text x="496" y="113" text-anchor="middle" fill="#059669">PIL HOT·Upstash</text>
+<rect x="554" y="98" width="108" height="22" rx="11" fill="#EEEAFB" stroke="#D6C9Fb"/><text x="608" y="113" text-anchor="middle" fill="#4C1D95">COLD S3·dt=</text>
+<rect x="668" y="98" width="78" height="22" rx="11" fill="#FEF6E7" stroke="#f2dcb4"/><text x="707" y="113" text-anchor="middle" fill="#B45309">Obsidian</text>
+<rect x="752" y="98" width="70" height="22" rx="11" fill="#EEEAFB" stroke="#D6C9Fb"/><text x="787" y="113" text-anchor="middle" fill="#4C1D95">GitHub</text>
+<rect x="828" y="98" width="118" height="22" rx="11" fill="#ECFDF5" stroke="#bde6d6"/><text x="887" y="113" text-anchor="middle" fill="#059669">#builds Slack</text>
+</g>
+
+<!-- TIER COLUMNS -->
+<!-- HOT -->
+<g>
+<rect x="40" y="172" width="270" height="368" rx="13" fill="#fff" stroke="#bde6d6" stroke-width="1.5"/>
+<path d="M40,172 h270 v28 a13,13 0 0 1 -13,13 H53 a13,13 0 0 1 -13,-13 Z" fill="#059669"/>
+<rect x="40" y="200" width="270" height="13" fill="#059669"/>
+<text x="60" y="192" class="hd">🔥 HOT · in-context / RAM</text>
+<text x="60" y="208" class="hsub">what's true right now</text>
+<g transform="translate(60,238)">
+ <text class="it" y="0">● PIL HOT</text><text class="itm" y="15">Upstash · 7-day rolling window</text>
+ <text class="it" y="44">● CLAUDE_MEMORY.md</text><text class="itm" y="59">loaded every session · 5 sections</text>
+ <text class="it" y="88">● mac:last_ok presence</text><text class="itm" y="103">SETEX · TTL 180s</text>
+ <text class="it" y="132">● active TASKS.md queue</text><text class="itm" y="147">live priorities the loop reads first</text>
+ <text class="it" y="176">● recent wins → 6AM briefing</text><text class="itm" y="191">pil-read-recent-wins.py</text>
+</g>
+<rect x="56" y="502" width="238" height="24" rx="6" fill="#ECFDF5"/>
+<text x="64" y="518" class="ft" fill="#059669">~ms · volatile · 7-day TTL · tiny</text>
+</g>
+
+<!-- WARM -->
+<g>
+<rect x="365" y="172" width="270" height="368" rx="13" fill="#fff" stroke="#f2dcb4" stroke-width="1.5"/>
+<path d="M365,172 h270 v28 a13,13 0 0 1 -13,13 H378 a13,13 0 0 1 -13,-13 Z" fill="#B45309"/>
+<rect x="365" y="200" width="270" height="13" fill="#B45309"/>
+<text x="385" y="192" class="hd">🌡 WARM · queryable / recent</text>
+<text x="385" y="208" class="hsub">recent + structured</text>
+<g transform="translate(385,238)">
+ <text class="it" y="0">● DONE_LOG.md</text><text class="itm" y="15">system of record · War Room reads it</text>
+ <text class="it" y="44">● Reporting catalog</text><text class="itm" y="59">DRAFT→BLESSED · pointer-only</text>
+ <text class="it" y="88">● PIL ledger</text><text class="itm" y="103">asset_class · reconstruction_cost</text>
+ <text class="it" y="132">● Recent Parquet (MAX partition)</text><text class="itm" y="147">+ Obsidian archive notes</text>
+ <text class="it" y="176">● knowledge-bank/</text><text class="itm" y="191">nightly GHA sync · KB-CI gate</text>
+</g>
+<rect x="381" y="502" width="238" height="24" rx="6" fill="#FEF6E7"/>
+<text x="389" y="518" class="ft" fill="#B45309">~seconds · structured · nightly</text>
+</g>
+
+<!-- COLD -->
+<g>
+<rect x="690" y="172" width="270" height="368" rx="13" fill="#fff" stroke="#D6C9Fb" stroke-width="1.5"/>
+<path d="M690,172 h270 v28 a13,13 0 0 1 -13,13 H703 a13,13 0 0 1 -13,-13 Z" fill="#4C1D95"/>
+<rect x="690" y="200" width="270" height="13" fill="#4C1D95"/>
+<text x="710" y="192" class="hd">❄ COLD · durable lake</text>
+<text x="710" y="208" class="hsub">everything, forever</text>
+<g transform="translate(710,238)">
+ <text class="it" y="0">● S3 done_log/dt=… partitions</text><text class="itm" y="15">durable partitioned completion record</text>
+ <text class="it" y="44">● Full Parquet history</text><text class="itm" y="59">ZSTD · 128MB row groups</text>
+ <text class="it" y="88">● Raw NDJSON landings</text><text class="itm" y="103">every scraper's source-of-truth drop</text>
+ <text class="it" y="132">● Glaciered v1 schemas</text><text class="itm" y="147">post version-bump · ≥30-day overlap</text>
+ <text class="it" y="176">● Parent Key spine partitions</text><text class="itm" y="191">861,878 keys · immutable history</text>
+</g>
+<rect x="706" y="502" width="238" height="24" rx="6" fill="#EEEAFB"/>
+<text x="714" y="518" class="ft" fill="#4C1D95">~minutes · 125.6 GB · immutable</text>
+</g>
+
+<!-- promote / demote arrows -->
+<line x1="314" y1="300" x2="361" y2="300" stroke="#B45309" stroke-width="2" marker-end="url(#a)"/>
+<text x="337" y="292" text-anchor="middle" class="arl" fill="#B45309">AGE-OUT</text>
+<line x1="361" y1="392" x2="314" y2="392" stroke="#059669" stroke-width="2" marker-end="url(#ag)"/>
+<text x="337" y="412" text-anchor="middle" class="arl" fill="#059669">HYDRATE</text>
+<line x1="639" y1="300" x2="686" y2="300" stroke="#4C1D95" stroke-width="2" marker-end="url(#a)"/>
+<text x="662" y="292" text-anchor="middle" class="arl" fill="#4C1D95">ARCHIVE</text>
+<line x1="686" y1="392" x2="639" y2="392" stroke="#7C3AED" stroke-width="2" marker-end="url(#a)"/>
+<text x="662" y="412" text-anchor="middle" class="arl" fill="#7C3AED">REPLAY</text>
+
+<!-- convergence band -->
+<rect x="40" y="556" width="920" height="112" rx="13" fill="#F4F1FF" stroke="#D6C9Fb"/>
+<rect x="40" y="556" width="6" height="112" rx="3" fill="#7C3AED"/>
+<text x="62" y="584" class="bandk">THE CONVERGENCE · PIL-SERVICE (v15 → v16)</text>
+<text x="62" y="610" class="band">Today memory is something the system <tspan font-style="italic">maintains</tspan> — a write-side discipline.</text>
+<text x="62" y="632" class="band">Flip it to a service agents <tspan font-style="italic" font-weight="800" fill="#7C3AED">query at runtime</tspan>, and agents stop being stateless executors —</text>
+<text x="62" y="654" class="band">they become context-aware operators that consult the institution's whole memory <tspan font-weight="800">before they act.</tspan></text>
+</svg>
