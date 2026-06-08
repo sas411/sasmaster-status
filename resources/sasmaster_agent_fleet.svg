@@ -1,0 +1,102 @@
+<svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t d" font-family="'Plus Jakarta Sans',system-ui,sans-serif">
+<title id="t">SaSMaster agent fleet — composition, tiers, model routing and health</title>
+<desc id="d">A 51-agent fleet split into 15 native scheduled agents, 5 build subagents, and 31 marketplace specialists. Native agents run the business on cron; subagents execute builds under model routing (Opus for planning, Sonnet for execution, Haiku for cheap classification); marketplace agents are on call. Health at snapshot: 11 running, 14 live, 2 in error, 1 never-run, 1 drafted.</desc>
+<defs>
+<style>
+ .k{font-size:12px;font-weight:800;letter-spacing:3px;fill:#7C3AED}
+ .h1{font-size:26px;font-weight:800;fill:#1F1B33}
+ .seg{font-size:13px;font-weight:800;fill:#fff}
+ .ch{font-size:13px;font-weight:800;fill:#fff}
+ .ct{font-size:9px;font-weight:700;fill:#fff;opacity:.9;letter-spacing:.5px}
+ .li{font-size:10.5px;fill:#2c2740}
+ .lim{font-size:9.5px;fill:#5A5470;font-family:'Share Tech Mono',monospace}
+ .mt{font-size:13px;font-weight:800;fill:#fff}
+ .ms{font-size:10px;fill:#fff;opacity:.92}
+ .pill{font-size:11px;font-weight:700;font-family:'Share Tech Mono',monospace}
+</style>
+</defs>
+<rect x="0" y="0" width="1000" height="660" rx="16" fill="#FAF7FF"/>
+<rect x="1" y="1" width="998" height="658" rx="15" fill="none" stroke="#E5DCFF" stroke-width="2"/>
+<text x="40" y="40" class="k">AGENT FLEET</text>
+<text x="40" y="68" class="h1">51 agents · three tiers · model-routed</text>
+
+<!-- composition bar -->
+<text x="40" y="96" style="font-size:10px;font-weight:800;letter-spacing:1px;fill:#5A5470">COMPOSITION</text>
+<rect x="40" y="104" width="270" height="32" rx="6" fill="#7C3AED"/><text x="175" y="125" text-anchor="middle" class="seg">15 NATIVE</text>
+<rect x="314" y="104" width="86" height="32" rx="6" fill="#059669"/><text x="357" y="125" text-anchor="middle" class="seg">5 SUB</text>
+<rect x="404" y="104" width="556" height="32" rx="6" fill="#B45309"/><text x="682" y="125" text-anchor="middle" class="seg">31 MARKETPLACE</text>
+
+<!-- TIER CARDS -->
+<!-- native -->
+<rect x="40" y="156" width="290" height="266" rx="12" fill="#fff" stroke="#D6C9Fb"/>
+<path d="M40,156 h290 v30 H40 Z" fill="#7C3AED"/><rect x="40" y="174" width="290" height="12" fill="#7C3AED"/>
+<text x="56" y="178" class="ch">NATIVE · 15</text><text x="314" y="178" text-anchor="end" class="ct">RUN THE BUSINESS ON CRON</text>
+<g transform="translate(56,206)">
+ <text class="li" y="0">● JARVIS — control plane (Railway)</text>
+ <text class="li" y="22">● Media · Tech · Financial · IAB Intel</text>
+ <text class="li" y="44">● TMDB Daily · SEC EDGAR</text>
+ <text class="li" y="66">● Security Watchdog · Railway Monitor</text>
+ <text class="li" y="88">● LinkedIn · Weekly Review · DoneLog</text>
+ <text class="li" y="110">● Data Guardian — AMRLD anomaly gate</text>
+ <text class="li" y="132">● Gracenote OnConnect — resolve+fuse</text>
+ <text class="li" y="154">● Research Portal — scaffolded</text>
+ <text class="lim" y="186" fill="#7C3AED">6AM intel · 5AM brief · 15-min monitors</text>
+</g>
+<!-- subagents -->
+<rect x="355" y="156" width="290" height="266" rx="12" fill="#fff" stroke="#bde6d6"/>
+<path d="M355,156 h290 v30 H355 Z" fill="#059669"/><rect x="355" y="174" width="290" height="12" fill="#059669"/>
+<text x="371" y="178" class="ch">SUBAGENTS · 5</text><text x="629" y="178" text-anchor="end" class="ct">EXECUTE BUILDS · ROUTED</text>
+<g transform="translate(371,210)">
+ <text class="li" y="0">● Autonomous Coder</text><text class="lim" y="15">build executor · Sonnet 4.6</text>
+ <text class="li" y="40">● Data Modeler</text><text class="lim" y="55">schema · Parent Key · Opus 4.7</text>
+ <text class="li" y="80">● Viz Evaluator</text><text class="lim" y="95">14 renderers vs npm · quarterly</text>
+ <text class="li" y="120">● Nielsen Orchestrator</text><text class="lim" y="135">staleness→pull→validate · Tue 5PM</text>
+ <text class="li" y="160">● Mac Worker</text><text class="lim" y="175">64GB compute lane · 5-min beat</text>
+</g>
+<!-- marketplace -->
+<rect x="670" y="156" width="290" height="266" rx="12" fill="#fff" stroke="#f2dcb4"/>
+<path d="M670,156 h290 v30 H670 Z" fill="#B45309"/><rect x="670" y="174" width="290" height="12" fill="#B45309"/>
+<text x="686" y="178" class="ch">MARKETPLACE · 31</text><text x="944" y="178" text-anchor="end" class="ct">SPECIALISTS ON CALL</text>
+<g transform="translate(686,208)">
+ <text class="li" y="0" font-weight="800" fill="#B45309">TIER 1 · 17</text>
+ <text class="lim" y="16">python-pro · django · fastapi</text>
+ <text class="lim" y="30">ai-engineer · prompt-engineer</text>
+ <text class="lim" y="44">vector-db · security-auditor</text>
+ <text class="lim" y="58">observability · perf · db-optimizer</text>
+ <text class="lim" y="72">agent-teams (lead·impl·review·debug)</text>
+ <text class="li" y="100" font-weight="800" fill="#B45309">TIER 2 · 14</text>
+ <text class="lim" y="116">backend-architect · cloud-architect</text>
+ <text class="lim" y="130">kubernetes · terraform · devops</text>
+ <text class="lim" y="144">ml-engineer · mlops · data-scientist</text>
+ <text class="lim" y="158">typescript · javascript · graphql</text>
+ <text class="lim" y="180" fill="#B45309">idle until summoned</text>
+</g>
+
+<!-- MODEL ROUTING -->
+<text x="40" y="450" style="font-size:10px;font-weight:800;letter-spacing:1px;fill:#5A5470">MODEL ROUTING — CHEAPEST MODEL THAT CLEARS THE BAR</text>
+<rect x="40" y="458" width="300" height="74" rx="11" fill="#EEEAFB" stroke="#D6C9Fb"/>
+<rect x="40" y="458" width="8" height="74" rx="4" fill="#4C1D95"/>
+<text x="60" y="482" class="mt" fill="#4C1D95">OPUS 4.7 · planning</text>
+<text x="60" y="500" class="li">architecture · schema design</text>
+<text x="60" y="516" class="li">the genuinely hard reasoning</text>
+<rect x="350" y="458" width="300" height="74" rx="11" fill="#F4F1FF" stroke="#D6C9Fb"/>
+<rect x="350" y="458" width="8" height="74" rx="4" fill="#7C3AED"/>
+<text x="370" y="482" class="mt" fill="#7C3AED">SONNET 4.6 · execution</text>
+<text x="370" y="500" class="li">builds · file ops · pipeline code</text>
+<text x="370" y="516" class="li">the working executor tier</text>
+<rect x="660" y="458" width="300" height="74" rx="11" fill="#ECFDF5" stroke="#bde6d6"/>
+<rect x="660" y="458" width="8" height="74" rx="4" fill="#059669"/>
+<text x="680" y="482" class="mt" fill="#047857">HAIKU · cheap + local-eligible</text>
+<text x="680" y="500" class="li">embed · classify · first-pass score</text>
+<text x="680" y="516" class="li">candidate for MLX/Ollama, off-API</text>
+
+<!-- HEALTH -->
+<text x="40" y="566" style="font-size:10px;font-weight:800;letter-spacing:1px;fill:#5A5470">FLEET HEALTH · SNAPSHOT 2026-06-08</text>
+<g class="pill">
+<rect x="40" y="576" width="150" height="40" rx="9" fill="#ECFDF5" stroke="#bde6d6"/><circle cx="62" cy="596" r="6" fill="#059669"/><text x="76" y="593" fill="#047857">11 running</text><text x="76" y="608" fill="#5A5470" font-size="9">agents active now</text>
+<rect x="200" y="576" width="150" height="40" rx="9" fill="#ECFDF5" stroke="#bde6d6"/><circle cx="222" cy="596" r="6" fill="#059669"/><text x="236" y="593" fill="#047857">14 live</text><text x="236" y="608" fill="#5A5470" font-size="9">healthy + scheduled</text>
+<rect x="360" y="576" width="150" height="40" rx="9" fill="#FEF2F2" stroke="#f3b4b4"/><circle cx="382" cy="596" r="6" fill="#DC2626"/><text x="396" y="593" fill="#b91c1c">2 error</text><text x="396" y="608" fill="#5A5470" font-size="9">DoneLog · Weekly Review</text>
+<rect x="520" y="576" width="170" height="40" rx="9" fill="#F4F1FF" stroke="#D6C9Fb"/><circle cx="542" cy="596" r="6" fill="#8B82A0"/><text x="556" y="593" fill="#4C1D95">1 never-run</text><text x="556" y="608" fill="#5A5470" font-size="9">Data Guardian (gated)</text>
+<rect x="700" y="576" width="160" height="40" rx="9" fill="#FEF6E7" stroke="#f2dcb4"/><circle cx="722" cy="596" r="6" fill="#B45309"/><text x="736" y="593" fill="#B45309">1 drafted</text><text x="736" y="608" fill="#5A5470" font-size="9">Gracenote OnConnect</text>
+</g>
+</svg>

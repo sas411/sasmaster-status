@@ -552,6 +552,7 @@
 
     <div class="card ri" style="border-color:#f3b4b4;background:#FEF2F2;margin-top:16px">
       <span class="tag" style="background:#fee2e2;color:#b91c1c">⚠ Reliability gap</span>
+      <span class="tag" style="background:#dcfce7;color:#166534;margin-left:8px">✓ reproduced 2026-06-08 01:21Z — 420s gap &gt; 180s TTL</span>
       <h3 style="margin-top:8px;color:#b91c1c">The same failure class as JARVIS-QUEUE-001</h3>
       <p style="color:#7f1d1d"><code>launchd</code> does not fire while the Mac is asleep. The crons that run the daily rhythm — 5A briefing, 6A intel, 7A/2P self-score, Fri tech — live on the Mac. So the moment the lid closes, the rhythm <b>silently misses</b>. The Mac is configured as always-primary when it can only conditionally be primary.</p>
       <p style="color:#7f1d1d">The fix is the router itself: <b>COMPUTE-ROUTER-001 Ph2</b> decouples schedule-critical triggers to Railway/GHA so they fire regardless of Mac state, while muscle work queues and drains on next wake. Tuning that compounds it: <code>memory_limit</code> set generously, <code>threads = hw.perflevel0.physicalcpu</code> (8–10 performance cores), and the 11 scrapers + fusion passes run concurrently, not serially.</p>
