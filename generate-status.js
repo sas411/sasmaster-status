@@ -1298,15 +1298,26 @@ try {
       });
     }
 
-    // R4: Prompt caching not wired (no cache fields in log entries — all cost is raw input)
+    // R4: Prompt caching — check if wired (look for cache_creation_input_tokens in recent entries)
+    const entriesWithCacheTokens = allLines.reduce((n, line) => {
+      try { const e = JSON.parse(line); return n + ((e.cache_creation_input_tokens > 0 || e.cache_read_input_tokens > 0) ? 1 : 0); } catch { return n; }
+    }, 0);
     const entriesWithTokens = allLines.reduce((n, line) => {
       try { const e = JSON.parse(line); return n + (e.tokens > 0 ? 1 : 0); } catch { return n; }
     }, 0);
-    if (entriesWithTokens > 3) {
+    if (entriesWithCacheTokens > 0) {
       recommendations.push({
         type: 'caching',
         agent: 'all-agents',
-        action: 'Enable prompt caching (cache_control: ephemeral) on CLAUDE_MEMORY.md and agent .md reads — estimated 40-60% input token reduction',
+        action: `Prompt caching active — ${entriesWithCacheTokens} log entries with cache tokens. Verify: cache_read_input_tokens > 0 on second run within TTL window.`,
+        est_save_usd_wk: 0,
+        severity: 'green',
+      });
+    } else if (entriesWithTokens > 3) {
+      recommendations.push({
+        type: 'caching',
+        agent: 'all-agents',
+        action: 'Prompt caching wired on intel agents + Dr. Scoop — verify first cache_creation_input_tokens > 0 on next cron run',
         est_save_usd_wk: Math.round(weekCostTotal * 0.5 * 100) / 100,
         severity: 'amber',
       });

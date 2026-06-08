@@ -1405,6 +1405,7 @@ a{color:inherit}
         <div class="cost-kpi"><div class="cost-kpi-label">DESIGN</div><div class="cost-kpi-val" id="kv-cd">$0.00</div><div class="cost-kpi-sub">claude design</div></div>
         <div class="cost-kpi"><div class="cost-kpi-label">AWS S3</div><div class="cost-kpi-val" id="kv-s3">$0.00</div><div class="cost-kpi-sub">storage+requests</div></div>
         <div class="cost-kpi"><div class="cost-kpi-label">OTHER</div><div class="cost-kpi-val" id="kv-other">$0.00</div><div class="cost-kpi-sub">misc</div></div>
+        <div class="cost-kpi"><div class="cost-kpi-label">CACHE HIT</div><div class="cost-kpi-val green" id="kv-cache">—</div><div class="cost-kpi-sub" id="kv-cache-sub">MTD read tokens</div></div>
       </div>
 
       <!-- ── QUOTA INSIGHT PANEL ─────────────────────────────────── -->
@@ -2466,9 +2467,20 @@ async function loadCosts() {
       applyQuotaData(data.token_quota);
     }
 
-    // Update cache efficiency in console (dev aid)
+    // Cache hit tile
     if (data.cache_efficiency != null) {
       console.info('[cost-agent] cache_efficiency:', data.cache_efficiency);
+      const pct = Math.round(data.cache_efficiency * 100);
+      const cacheEl = document.getElementById('kv-cache');
+      if (cacheEl) {
+        cacheEl.textContent = pct + '%';
+        cacheEl.className = 'cost-kpi-val ' + (pct >= 30 ? 'green' : pct >= 10 ? 'warn' : 'crit');
+      }
+      const readK = data.anthropic_admin?.cache_read_tokens
+        ? Math.round(data.anthropic_admin.cache_read_tokens / 1000) + 'K read'
+        : 'MTD read tokens';
+      const subEl = document.getElementById('kv-cache-sub');
+      if (subEl) subEl.textContent = readK;
     }
 
   } catch (err) {
