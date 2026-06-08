@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — The Self-Learning Flywheel</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f;
+    color: #e2e8f0;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 24px 48px;
+  }
+  header {
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  header h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: -0.01em;
+  }
+  header .badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #7c3aed22;
+    border: 1px solid #7c3aed66;
+    color: #a78bfa;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .diagram-wrap {
+    width: 100%;
+    max-width: 900px;
+    background: #0f0f1a;
+    border: 1px solid #1e1e3a;
+    border-radius: 12px;
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .diagram-wrap img, .diagram-wrap object {
+    width: 100%;
+    max-width: 840px;
+    height: auto;
+  }
+  .caption {
+    width: 100%;
+    max-width: 900px;
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: #0f0f1a;
+    border: 1px solid #1e1e3a;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: #94a3b8;
+    line-height: 1.6;
+  }
+  .caption strong { color: #cbd5e1; }
+  .model-block {
+    width: 100%;
+    max-width: 900px;
+    margin-top: 16px;
+    padding: 16px 20px;
+    background: #0d0d1c;
+    border: 1px solid #2d2d4a;
+    border-radius: 8px;
+  }
+  .model-block h3 {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #6366f1;
+    margin-bottom: 12px;
+  }
+  .model-block dl {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 6px 16px;
+    font-size: 0.8rem;
+  }
+  .model-block dt { color: #94a3b8; font-weight: 600; align-self: start; }
+  .model-block dd { color: #cbd5e1; }
+  footer {
+    margin-top: 32px;
+    font-size: 0.72rem;
+    color: #334155;
+  }
+  a.back { color: #6366f1; text-decoration: none; font-size: 0.8rem; }
+  a.back:hover { color: #818cf8; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>The Self-Learning Flywheel</h1>
+  <span class="badge">Architecture</span>
+  <a class="back" href="/" style="margin-left:auto">← War Room</a>
+</header>
+
+<div class="diagram-wrap">
+  <img src="/diagrams/sasmaster_self_learning_flywheel.svg"
+       alt="SaSMaster self-learning flywheel with control plane at the hub"
+       width="840" height="739">
+</div>
+
+<div class="caption">
+  <strong>Six work stages on the rim</strong> — QUESTION IN → COMPOSE → SERVE → BLESS=LABEL → DEPOSIT → PROMOTE — form a clockwise loop.
+  The <strong>control plane sits at the hub</strong>, connects to every stage via governance spokes, routes work, meters autonomy, and enforces fail-open / fail-closed policy.
+  The <strong>dial</strong> shows the share of outputs shipping with no human touch; it rises as confidence sustains.
+  Each turn is aimed at one <strong>mission cell (the wedge)</strong> and deepens the currency-agnostic canonical layer — <strong>the moat</strong>.
+  DEPOSIT (stage 5) is the first turn of the loop — enforced by DEPOSIT-GATE-001.
+</div>
+
+<div class="model-block">
+  <h3>Canonical model — locked language</h3>
+  <dl>
+    <dt>Rim (6 stages)</dt>
+    <dd>QUESTION IN → COMPOSE → SERVE → BLESS=LABEL → DEPOSIT → PROMOTE</dd>
+    <dt>Hub</dt>
+    <dd>CONTROL PLANE — routes work, governs every stage, meters autonomy, holds fail-open / fail-closed</dd>
+    <dt>Dial</dt>
+    <dd>% of outputs shipping with no human touch; rises as confidence sustains</dd>
+    <dt>Wedge</dt>
+    <dd>The whole loop aimed at ONE mission cell</dd>
+    <dt>Moat</dt>
+    <dd>Every turn deepens the currency-agnostic canonical layer</dd>
+    <dt>Gate</dt>
+    <dd>DEPOSIT-GATE-001 — no slice reaches DONE without a certified catalog entry</dd>
+  </dl>
+</div>
+
+<footer>SaSMaster · 2026-06-07 · DEPOSIT-GATE-001 + REPORT-CATALOG-001</footer>
+
+</body>
+</html>
