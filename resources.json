@@ -1296,109 +1296,29 @@
             "id": "arch-v16-operator-reference",
             "title": "Architecture v16 \u2014 Operator Reference",
             "category": "architecture",
-            "type": "page",
-            "badge": "NEW",
-            "status": "LIVE",
+            "badge": "LATEST",
+            "subtitle": "Dual-track architecture reference \u00b7 Live snapshot 2026-06-08 \u00b7 Business + Technical views",
+            "description": "Full platform operator reference v16. Covers data spine (861K parent keys), 4-tier memory system, 50-skill fleet, 14 live agents, compute router (Railway/Mac/GHA/Claude), control plane, token + compute optimization. Dual-track: Business layer (what it does) and Technical layer (how it works). Embeds 6 architecture diagrams inline.",
+            "date": "2026-06-08",
             "latest": true,
+            "status": "LIVE",
             "files": [
                 {
                     "label": "View",
                     "type": "html",
-                    "url": "/resources/SaSMaster_v16_Operator_Reference.html"
+                    "url": "/resources/SaSMaster_v16_Operator_Reference.html",
+                    "primary": true
                 }
             ],
-            "caption": "Dual-track (business + technical) architecture reference. Live snapshot 2026-06-08. Covers data, memory, knowledge, agents, skills, control plane, token + compute optimization.",
-            "added": "2026-06-08"
-        },
-        {
-            "id": "diagram-self-learning-flywheel",
-            "title": "The Self-Learning Flywheel",
-            "category": "architecture",
-            "type": "diagram",
-            "files": [
-                {
-                    "label": "View",
-                    "type": "svg",
-                    "url": "/resources/sasmaster_self_learning_flywheel.svg"
-                }
-            ],
-            "caption": "Six work stages on the rim; control plane at the hub meters autonomy. Deposit (stage 5) is turn one.",
-            "added": "2026-06-08"
-        },
-        {
-            "id": "diagram-memory-tiers",
-            "title": "Distributed Memory \u2014 Hot / Warm / Cold",
-            "category": "architecture",
-            "type": "diagram",
-            "files": [
-                {
-                    "label": "View",
-                    "type": "svg",
-                    "url": "/resources/sasmaster_memory_tiers.svg"
-                }
-            ],
-            "caption": "PIL HOT (Upstash) \u2192 warm (catalog/ledger/parquet) \u2192 cold (S3 lake). One !done fans out to 7 surfaces; PIL-SERVICE makes memory queryable at runtime.",
-            "added": "2026-06-08"
-        },
-        {
-            "id": "diagram-skill-lifecycle",
-            "title": "Skill Fleet \u2014 Self-Learning Lifecycle",
-            "category": "architecture",
-            "type": "diagram",
-            "files": [
-                {
-                    "label": "View",
-                    "type": "svg",
-                    "url": "/resources/sasmaster_skill_lifecycle.svg"
-                }
-            ],
-            "caption": "Compose \u2192 capture \u2192 \u22653 gate \u2192 human-gated skill-approve \u2192 grade \u2192 deploy. Autonomous capture, human-gated merge.",
-            "added": "2026-06-08"
-        },
-        {
-            "id": "diagram-skill-fleet-map",
-            "title": "Skill Fleet Map \u2014 50 Skills, 8 Domains",
-            "category": "architecture",
-            "type": "diagram",
-            "files": [
-                {
-                    "label": "View",
-                    "type": "svg",
-                    "url": "/resources/sasmaster_skill_fleet_map.svg"
-                }
-            ],
-            "caption": "All 50 skills mapped by domain (data, infra, content, product, voice, emba, ops, meta). Self-evolving via SLC 3-tier pipeline.",
-            "added": "2026-06-08"
-        },
-        {
-            "id": "diagram-agent-fleet",
-            "title": "Agent Fleet \u2014 14 Live Agents, 3 Groups",
-            "category": "architecture",
-            "type": "diagram",
-            "files": [
-                {
-                    "label": "View",
-                    "type": "svg",
-                    "url": "/resources/sasmaster_agent_fleet.svg"
-                }
-            ],
-            "caption": "Live agents (JARVIS, data-guardian, nielsen-orchestrator\u2026), subagents (qa-agent, scraper-debugger\u2026), and marketplace agents. Health bar driven by live_total.",
-            "added": "2026-06-08"
-        },
-        {
-            "id": "diagram-compute-router",
-            "title": "Compute Router \u2014 Four Tiers, One Job Each",
-            "category": "architecture",
-            "type": "diagram",
-            "files": [
-                {
-                    "label": "View",
-                    "type": "svg",
-                    "url": "/resources/sasmaster_compute_router.svg"
-                }
-            ],
-            "caption": "Railway=availability \u00b7 Mac M1=throughput \u00b7 GHA=burst/failover \u00b7 Claude=reasoning. Presence-aware routing; local inference lever; launchd sleep gap flagged.",
-            "added": "2026-06-08"
+            "tags": [
+                "ARCHITECTURE",
+                "PLATFORM",
+                "REFERENCE",
+                "CONTROL-PLANE",
+                "COMPUTE-ROUTER",
+                "SKILLS",
+                "AGENTS"
+            ]
         },
         {
             "id": "genre-arbitrage-supply-chart",
