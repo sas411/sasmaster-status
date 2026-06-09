@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Orchestration · Task Card</title>
+<style>
+  :root {
+    --bg: #060a12;
+    --panel: #0b1220;
+    --card: #0f1a28;
+    --border: #1a2a3f;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #4a6080;
+    --dim: #2a3f55;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    padding: 16px;
+    min-height: 100vh;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .badge {
+    font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    padding: 3px 8px; border-radius: 3px; text-transform: uppercase;
+  }
+  .badge-live { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-coming { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-plan { background: rgba(74,96,128,0.15); color: var(--muted); border: 1px solid var(--border); }
+  .badge-cert { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+  .title { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: -0.3px; font-family: -apple-system, sans-serif; }
+  .subtitle { font-size: 10px; color: var(--muted); margin-top: 1px; }
+  .ts { font-size: 10px; color: var(--muted); }
+
+  /* ── STAT ROW ── */
+  .stat-row {
+    display: flex; gap: 1px; margin-bottom: 14px;
+    background: var(--border); border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .stat {
+    flex: 1; background: var(--panel); padding: 8px 10px; text-align: center;
+  }
+  .stat .v {
+    font-size: 18px; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; line-height: 1; display: block; margin-bottom: 2px;
+    font-family: -apple-system, sans-serif;
+  }
+  .stat .l { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* ── PIPELINE STRIP ── */
+  .pipe-strip {
+    display: flex; align-items: stretch; gap: 0;
+    margin-bottom: 14px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+  }
+  .pipe-seg {
+    flex: 1; padding: 8px 6px; text-align: center;
+    background: var(--panel); border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .pipe-seg:last-child { border-right: none; }
+  .pipe-seg::after {
+    content: '›';
+    position: absolute; right: -6px; top: 50%; transform: translateY(-50%);
+    color: var(--border); font-size: 14px; z-index: 2;
+  }
+  .pipe-seg:last-child::after { display: none; }
+  .pipe-seg .ps-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .pipe-seg .ps-val { font-size: 10px; font-weight: 700; }
+  .pipe-seg.active .ps-val { color: var(--accent); }
+  .pipe-seg.done .ps-val { color: var(--green); }
+  .pipe-seg.cert .ps-val { color: #a78bfa; }
+  .pipe-seg.spine .ps-val { color: var(--accent); }
+
+  /* ── GRID ── */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+
+  /* ── PANEL ── */
+  .p {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px;
+  }
+  .p-head {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--muted); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .p-head .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+
+  /* ── SOURCE TABLE ── */
+  .src-row {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 0; border-bottom: 1px solid rgba(26,42,63,0.5);
+  }
+  .src-row:last-child { border-bottom: none; }
+  .src-name { flex: 1; font-size: 10px; font-weight: 700; }
+  .src-detail { font-size: 9px; color: var(--muted); flex: 1.5; }
+  .src-path { font-size: 9px; color: var(--dim); flex: 2; font-family: 'SF Mono', monospace; }
+  .dot-live { background: var(--green); box-shadow: 0 0 4px var(--green); }
+  .dot-coming { background: var(--amber); }
+  .dot-plan { background: var(--muted); }
+
+  /* ── CERT TIERS ── */
+  .cert-row { display: flex; gap: 6px; margin-bottom: 0; }
+  .cert-tile {
+    flex: 1; border-radius: 5px; padding: 8px; border: 1px solid;
+    text-align: center;
+  }
+  .cert-tile.c { background: rgba(16,185,129,0.06); border-color: rgba(16,185,129,0.25); }
+  .cert-tile.p { background: rgba(245,158,11,0.06); border-color: rgba(245,158,11,0.25); }
+  .cert-tile.q { background: rgba(239,68,68,0.06); border-color: rgba(239,68,68,0.25); }
+  .cert-lbl { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; }
+  .cert-tile.c .cert-lbl { color: var(--green); }
+  .cert-tile.p .cert-lbl { color: var(--amber); }
+  .cert-tile.q .cert-lbl { color: var(--red); }
+  .cert-desc { font-size: 9px; color: #64748b; line-height: 1.3; }
+  .cert-action { font-size: 9px; font-weight: 700; margin-top: 4px; }
+  .cert-tile.c .cert-action { color: var(--green); }
+  .cert-tile.p .cert-action { color: var(--amber); }
+  .cert-tile.q .cert-action { color: var(--red); }
+
+  /* ── S3 PATHS ── */
+  .path-row { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; border-bottom: 1px solid rgba(26,42,63,0.4); }
+  .path-row:last-child { border-bottom: none; }
+  .path-key { font-size: 10px; color: var(--accent); font-family: 'SF Mono', monospace; flex: 2.5; }
+  .path-fmt { font-size: 9px; color: var(--muted); flex: 1; }
+  .path-status { font-size: 9px; flex: 0.8; text-align: right; }
+
+  /* ── COALESCE BLOCK ── */
+  .coalesce-box {
+    background: #060a12; border: 1px solid var(--border);
+    border-radius: 4px; padding: 8px 10px; font-family: 'SF Mono', monospace;
+    font-size: 10px; line-height: 1.6; color: #94a3b8; margin-top: 6px;
+  }
+  .kw { color: #7c3aed; }
+  .fn { color: var(--accent); }
+  .str { color: var(--green); }
+  .cm { color: #2a4060; }
+
+  /* ── SIGNAL TABLE ── */
+  .sig-row { display: flex; align-items: baseline; gap: 6px; padding: 3px 0; border-bottom: 1px solid rgba(26,42,63,0.4); }
+  .sig-row:last-child { border-bottom: none; }
+  .sig-n { font-size: 9px; font-weight: 700; color: #a78bfa; width: 130px; flex-shrink: 0; }
+  .sig-desc { font-size: 9px; color: var(--muted); flex: 1; }
+  .sig-v { font-size: 9px; font-weight: 700; flex-shrink: 0; padding: 1px 5px; border-radius: 3px; }
+  .sig-v.fail { background: rgba(239,68,68,0.15); color: var(--red); }
+  .sig-v.warn { background: rgba(245,158,11,0.15); color: var(--amber); }
+
+  /* ── RULES ── */
+  .rule-row { display: flex; align-items: flex-start; gap: 6px; padding: 3px 0; }
+  .rule-id { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; flex-shrink: 0; margin-top: 1px; }
+  .rule-id.hard { background: rgba(239,68,68,0.2); color: var(--red); }
+  .rule-id.ok { background: rgba(16,185,129,0.2); color: var(--green); }
+  .rule-id.soft { background: rgba(245,158,11,0.2); color: var(--amber); }
+  .rule-text { font-size: 10px; color: var(--text); }
+  .rule-text span { color: var(--muted); font-size: 9px; display: block; }
+
+  /* ── PHASE TIMELINE ── */
+  .phase-list { display: flex; flex-direction: column; gap: 4px; }
+  .phase-item { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 1px solid rgba(26,42,63,0.4); }
+  .phase-item:last-child { border-bottom: none; }
+  .phase-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 3px; flex-shrink: 0; }
+  .phase-dot.live { background: var(--green); box-shadow: 0 0 5px var(--green); }
+  .phase-dot.coming { background: var(--amber); }
+  .phase-dot.plan { background: var(--muted); }
+  .phase-name { font-size: 10px; font-weight: 700; }
+  .phase-name.live { color: var(--green); }
+  .phase-name.coming { color: var(--amber); }
+  .phase-name.plan { color: var(--muted); }
+  .phase-desc { font-size: 9px; color: var(--muted); line-height: 1.3; }
+
+  /* ── ADR LIST ── */
+  .adr-row { display: flex; gap: 6px; padding: 3px 0; border-bottom: 1px solid rgba(26,42,63,0.3); align-items: baseline; }
+  .adr-row:last-child { border-bottom: none; }
+  .adr-tag { font-size: 8px; font-weight: 700; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2); color: var(--accent); padding: 1px 4px; border-radius: 2px; flex-shrink: 0; }
+  .adr-text { font-size: 10px; font-weight: 600; }
+  .adr-sub { font-size: 9px; color: var(--muted); }
+
+  /* ── BOTTOM BAR ── */
+  .botbar {
+    border-top: 1px solid var(--border); padding-top: 8px; margin-top: 6px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .botbar-left { display: flex; gap: 12px; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 9px; color: var(--muted); }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+
+  .full-width { grid-column: 1 / -1; }
+  .span-2 { grid-column: span 2; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div style="width:28px;height:28px;background:linear-gradient(135deg,#00d4ff,#7c3aed);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;color:#fff;font-family:sans-serif;">SM</div>
+    <div>
+      <div class="title">Data Orchestration · Matching &amp; Certification</div>
+      <div class="subtitle">Identity spine · S3 lake · Wikidata fusion · Gracenote eval · SCD2</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:6px;align-items:center;">
+    <span class="badge badge-live">Phase 1 Live</span>
+    <span class="badge badge-coming">1b Coming</span>
+    <span class="badge badge-plan">2a/2b Planned</span>
+    <div class="ts" style="margin-left:6px;">Updated Jun 2026</div>
+  </div>
+</div>
+
+<!-- STAT ROW -->
+<div class="stat-row">
+  <div class="stat"><span class="v">589K+</span><span class="l">Parent Keys</span></div>
+  <div class="stat"><span class="v">11</span><span class="l">Scrapers</span></div>
+  <div class="stat"><span class="v">4</span><span class="l">RSG Consumers</span></div>
+  <div class="stat"><span class="v">5</span><span class="l">ID Systems</span></div>
+  <div class="stat"><span class="v">3</span><span class="l">Cert Tiers</span></div>
+  <div class="stat"><span class="v">SCD2</span><span class="l">Spine Pattern</span></div>
+  <div class="stat"><span class="v">ZSTD</span><span class="l">Compression</span></div>
+  <div class="stat"><span class="v">v1</span><span class="l">Schema</span></div>
+</div>
+
+<!-- PIPELINE STRIP -->
+<div class="pipe-strip">
+  <div class="pipe-seg done"><div class="ps-label">Sources</div><div class="ps-val">IMDB · TMDB · Wiki · EIDR · RSG</div></div>
+  <div class="pipe-seg done"><div class="ps-label">Scrapers (11+4)</div><div class="ps-val">NDJSON → S3 raw</div></div>
+  <div class="pipe-seg active"><div class="ps-label">Raw Lake</div><div class="ps-val">sasmaster-2026</div></div>
+  <div class="pipe-seg active"><div class="ps-label">Delta Gate</div><div class="ps-val">EXCEPT → new+changed</div></div>
+  <div class="pipe-seg cert"><div class="ps-label">Matching + Cert</div><div class="ps-val">5-signal · CERT/PROV/QUAR</div></div>
+  <div class="pipe-seg cert"><div class="ps-label">Parent Key Mint</div><div class="ps-val">COALESCE(imdb,tmdb)</div></div>
+  <div class="pipe-seg spine"><div class="ps-label">Spine · SCD2</div><div class="ps-val">parent_keys/v1/ · 589K+</div></div>
+  <div class="pipe-seg done"><div class="ps-label">Fusion + Marts</div><div class="ps-val">Portal · Analytics</div></div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="grid">
+
+  <!-- DATA SOURCES -->
+  <div class="p">
+    <div class="p-head"><span class="dot dot-live"></span>Data Sources — Phase Status</div>
+    <div class="src-row">
+      <div class="dot dot-live" style="width:6px;height:6px;border-radius:50%;flex-shrink:0;"></div>
+      <div class="src-name" style="color:#93c5fd;">IMDB</div>
+      <div class="src-detail">9 datasets · TSV.gz daily · datasets.imdbws.com</div>
+      <div class="src-path">imdb_prd/ + imdb/&lt;ds&gt;/YYYY-MM-DD/</div>
+      <span class="badge badge-live">LIVE</span>
+    </div>
+    <div class="src-row">
+      <div class="dot dot-live" style="width:6px;height:6px;border-radius:50%;flex-shrink:0;"></div>
+      <div class="src-name" style="color:#6ee7b7;">TMDB</div>
+      <div class="src-detail">API v3 · bulk + 14-day delta</div>
+      <div class="src-path">tmdb_dev/ + tmdb_dev/deltas/</div>
+      <span class="badge badge-live">LIVE</span>
+    </div>
+    <div class="src-row">
+      <div class="dot dot-live" style="width:6px;height:6px;border-radius:50%;flex-shrink:0;"></div>
+      <div class="src-name" style="color:#c4b5fd;">Wikidata</div>
+      <div class="src-detail">SPARQL · QID super-anchor · alt IDs</div>
+      <div class="src-path">wikidata_prd/raw|fusion|quarantine|alt_ids/</div>
+      <span class="badge badge-live">LIVE</span>
+    </div>
+    <div class="src-row">
+      <div class="dot dot-coming" style="width:6px;height:6px;border-radius:50%;flex-shrink:0;"></div>
+      <div class="src-name" style="color:#6ee7b7;opacity:0.6;">EIDR</div>
+      <div class="src-detail" style="opacity:0.6;">Registry API · eidr_id backfill</div>
+      <div class="src-path" style="opacity:0.5;">eidr/YYYY-MM-DD/</div>
+      <span class="badge badge-coming">1b</span>
+    </div>
+    <div class="src-row">
+      <div class="dot dot-plan" style="width:6px;height:6px;border-radius:50%;flex-shrink:0;"></div>
+      <div class="src-name" style="color:#64748b;">RSG Bridge</div>
+      <div class="src-detail" style="opacity:0.5;">Nielsen · Gracenote · FYI · Opus · INTERIM</div>
+      <div class="src-path" style="opacity:0.5;">rsg_snap/ (2a) → direct license (2b)</div>
+      <span class="badge badge-plan">2a/2b</span>
+    </div>
+    <div class="src-row">
+      <div class="dot dot-plan" style="width:6px;height:6px;border-radius:50%;flex-shrink:0;border:1px solid #ef4444;background:transparent;"></div>
+      <div class="src-name" style="color:#ef4444;">Gracenote Eval</div>
+      <div class="src-detail" style="color:#ef4444;opacity:0.7;">Trial wall · NEVER ships to spine</div>
+      <div class="src-path" style="opacity:0.5;">gracenote_eval/ · provenance = trial_eval</div>
+      <span class="badge" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);font-size:9px;padding:3px 8px;border-radius:3px;">WALL</span>
+    </div>
+  </div>
+
+  <!-- S3 LOCKED PATHS -->
+  <div class="p">
+    <div class="p-head"><span class="dot" style="background:var(--accent);"></span>S3 Locked Paths · sasmaster-2026</div>
+    <div class="path-row">
+      <div class="path-key">imdb_prd/*.tsv.gz</div>
+      <div class="path-fmt">TSV.gz pass-thru</div>
+      <div class="path-status" style="color:var(--green);">● LIVE</div>
+    </div>
+    <div class="path-row">
+      <div class="path-key">imdb/&lt;ds&gt;/YYYY-MM-DD/data.parquet</div>
+      <div class="path-fmt">Parquet · ZSTD</div>
+      <div class="path-status" style="color:var(--green);">● LIVE</div>
+    </div>
+    <div class="path-row">
+      <div class="path-key">tmdb_dev/YYYY-MM-DD/</div>
+      <div class="path-fmt">NDJSON.gz</div>
+      <div class="path-status" style="color:var(--green);">● LIVE</div>
+    </div>
+    <div class="path-row">
+      <div class="path-key">tmdb_dev/deltas/</div>
+      <div class="path-fmt">NDJSON.gz · 14d</div>
+      <div class="path-status" style="color:var(--green);">● LIVE</div>
+    </div>
+    <div class="path-row">
+      <div class="path-key">wikidata_prd/raw|fusion|alt_ids/</div>
+      <div class="path-fmt">NDJSON → Parquet</div>
+      <div class="path-status" style="color:var(--green);">● LIVE</div>
+    </div>
+    <div class="path-row">
+      <div class="path-key">wikidata_prd/quarantine/</div>
+      <div class="path-fmt">Parquet · ZSTD</div>
+      <div class="path-status" style="color:#a78bfa;">● ADJUDIC</div>
+    </div>
+    <div class="path-row">
+      <div class="path-key">parent_keys/v1/YYYY-MM-DD/</div>
+      <div class="path-fmt">movies + tv · ZSTD</div>
+      <div class="path-status" style="color:var(--accent);">● SPINE</div>
+    </div>
+    <div class="path-row">
+      <div class="path-key">eidr/YYYY-MM-DD/</div>
+      <div class="path-fmt">Parquet</div>
+      <div class="path-status" style="color:var(--amber);">○ 1b</div>
+    </div>
+    <div class="path-row">
+      <div class="path-key">rsg_snap/</div>
+      <div class="path-fmt">NDJSON (interim)</div>
+      <div class="path-status" style="color:var(--muted);">○ 2a</div>
+    </div>
+    <div class="path-row">
+      <div class="path-key">gracenote_eval/</div>
+      <div class="path-fmt">Parquet · EVAL ONLY</div>
+      <div class="path-status" style="color:var(--red);">🔒 WALL</div>
+    </div>
+    <hr class="divider">
+    <div style="font-size:9px;color:var(--muted);">Lifecycle: raw NDJSON → Glacier @90d → delete @2yr · Parquet retained forever · scratch/dev delete @30d</div>
+  </div>
+
+</div>
+
+<!-- PARENT KEY + CERTIFICATION -->
+<div class="grid">
+
+  <!-- PARENT KEY FORMULA -->
+  <div class="p">
+    <div class="p-head"><span class="dot" style="background:var(--accent);"></span>Parent Key Formula — v1</div>
+    <div class="coalesce-box">
+<span class="cm"># Movies</span>
+parent_key = <span class="fn">COALESCE</span>(
+    imdb_tconst,                <span class="cm"># preferred: 'tt1234567'</span>
+    <span class="str">'tmdb_mov_'</span> + str(tmdb_id) <span class="cm"># fallback</span>
+)
+<span class="cm"># TV Series</span>
+parent_key = <span class="fn">COALESCE</span>(
+    imdb_tconst,
+    <span class="str">'tmdb_tv_'</span>  + str(tmdb_id)
+)
+<span class="cm"># Invariants:
+# - parent_key NEVER NULL
+# - eidr_id NULL in v1 (Phase 1b populates)
+# - Computed at WRITE TIME — never in query
+# - Movies + TV always SEPARATE Parquet files
+# - SCD2: INSERT only, never TRUNCATE</span>
+    </div>
+  </div>
+
+  <!-- WIKIDATA 5-SIGNAL MODEL -->
+  <div class="p">
+    <div class="p-head"><span class="dot" style="background:#a78bfa;"></span>Wikidata 5-Signal Certification Model</div>
+    <div class="sig-row">
+      <div class="sig-n">Rank (wikibase:rank)</div>
+      <div class="sig-desc">Claim deprecated? Blocks immediately.</div>
+      <div class="sig-v fail">QUARANTINE</div>
+    </div>
+    <div class="sig-row">
+      <div class="sig-n">Entity Cardinality</div>
+      <div class="sig-desc">QID carries &gt;1 distinct IMDB ID?</div>
+      <div class="sig-v fail">QUARANTINE</div>
+    </div>
+    <div class="sig-row">
+      <div class="sig-n">Cross-Entity Cardinality</div>
+      <div class="sig-desc">One IMDB claimed by &gt;1 QID? Merge candidate.</div>
+      <div class="sig-v fail">QUARANTINE</div>
+    </div>
+    <div class="sig-row">
+      <div class="sig-n">Type Agreement (P31)</div>
+      <div class="sig-desc">Entity is film/TV? Guards nm/ch trap (Q5=human).</div>
+      <div class="sig-v fail">QUARANTINE</div>
+    </div>
+    <div class="sig-row">
+      <div class="sig-n">Sourcing / Corroboration</div>
+      <div class="sig-desc">Referenced + ≥2 corroborating systems? (non-blocking)</div>
+      <div class="sig-v warn">PROVISIONAL</div>
+    </div>
+    <hr class="divider">
+    <!-- CERT TIERS -->
+    <div class="cert-row">
+      <div class="cert-tile c">
+        <div class="cert-lbl">✓ CERTIFIED</div>
+        <div class="cert-desc">All 5 pass · sourced · ≥2 corroborators</div>
+        <div class="cert-action">→ Auto spine + eidr backfill</div>
+      </div>
+      <div class="cert-tile p">
+        <div class="cert-lbl">~ PROVISIONAL</div>
+        <div class="cert-desc">Clean but unsourced / sparse</div>
+        <div class="cert-action">→ Hold · sample audit first</div>
+      </div>
+      <div class="cert-tile q">
+        <div class="cert-lbl">✗ QUARANTINE</div>
+        <div class="cert-desc">Any blocking flag → adjudication queue</div>
+        <div class="cert-action">→ Human only · never auto-promoted</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM GRID: RULES + GN VALIDATION + PHASE TIMELINE + ADRs -->
+<div class="grid-3">
+
+  <!-- SCRAPER CARDINAL RULES -->
+  <div class="p">
+    <div class="p-head"><span class="dot" style="background:var(--red);"></span>Scraper Cardinal Rules</div>
+    <div class="rule-row"><div class="rule-id hard">R1</div><div class="rule-text">No silent failures<span>Every error → Slack #builds immediately</span></div></div>
+    <div class="rule-row"><div class="rule-id hard">R2</div><div class="rule-text">Rate limit by default<span>1 req/sec floor · Throttler on every source</span></div></div>
+    <div class="rule-row"><div class="rule-id hard">R3</div><div class="rule-text">Idempotent S3 writes<span>Date-stamped paths · re-run = overwrite same key</span></div></div>
+    <div class="rule-row"><div class="rule-id hard">R4</div><div class="rule-text">NDJSON output standard<span>One JSON per line · never CSV · DuckDB converts to Parquet</span></div></div>
+    <div class="rule-row"><div class="rule-id hard">R5</div><div class="rule-text">No credentials in code<span>All keys from env vars · .env gitignored · gitleaks pre-commit</span></div></div>
+    <div class="rule-row"><div class="rule-id hard">R6</div><div class="rule-text">RSG bridge is INTERIM<span>Phase 2a only · never build permanent logic on bridge</span></div></div>
+    <hr class="divider">
+    <div class="p-head"><span class="dot" style="background:var(--red);"></span>S3 Anti-Patterns</div>
+    <div class="rule-row"><div class="rule-id hard">✗</div><div class="rule-text">New prefix without registry update</div></div>
+    <div class="rule-row"><div class="rule-id hard">✗</div><div class="rule-text">Compute parent_key in a query<span>Always at write time</span></div></div>
+    <div class="rule-row"><div class="rule-id hard">✗</div><div class="rule-text">Mix movies + tv_series in one file</div></div>
+    <div class="rule-row"><div class="rule-id hard">✗</div><div class="rule-text">Snappy compression · latest/ aliases</div></div>
+  </div>
+
+  <!-- GN VALIDATION + SCHEMA RULES -->
+  <div class="p">
+    <div class="p-head"><span class="dot" style="background:var(--red);"></span>Gracenote Validation — Held IDs</div>
+    <div class="sig-row">
+      <div class="sig-n">R1 · ID Format</div>
+      <div class="sig-desc">SH/EP/MV/SP + numeric prefix</div>
+      <div class="sig-v" style="background:rgba(16,185,129,0.15);color:var(--green);">PASS/FAIL</div>
+    </div>
+    <div class="sig-row">
+      <div class="sig-n">R2 · Prefix↔Class ⚠️</div>
+      <div class="sig-desc">SH must bind TV, not movie. Highest yield.</div>
+      <div class="sig-v fail">HARD FAIL</div>
+    </div>
+    <div class="sig-row">
+      <div class="sig-n">R3 · rootId binding</div>
+      <div class="sig-desc">parent_key ↔ rootId. Never tmsId (version-specific).</div>
+      <div class="sig-v fail">HARD FAIL</div>
+    </div>
+    <div class="sig-row">
+      <div class="sig-n">R4 · Date plausibility</div>
+      <div class="sig-desc">Air dates within expected range for type</div>
+      <div class="sig-v warn">WARN</div>
+    </div>
+    <div class="sig-row">
+      <div class="sig-n">R5 · AKA corroboration</div>
+      <div class="sig-desc">Title is corroborator not key · AKA union check</div>
+      <div class="sig-v warn">WARN</div>
+    </div>
+    <div style="font-size:9px;color:var(--red);margin-top:6px;padding:4px 6px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);border-radius:3px;">
+      Provenance wall: trial-observed TMS IDs → gracenote_eval/ ONLY. Never reach parent_keys or any shippable surface.
+    </div>
+    <hr class="divider">
+    <div class="p-head"><span class="dot" style="background:var(--accent);"></span>Schema Evolution</div>
+    <div class="rule-row"><div class="rule-id ok">✓</div><div class="rule-text">Add nullable column · widen type · new date partition</div></div>
+    <div class="rule-row"><div class="rule-id hard">v2</div><div class="rule-text">Remove/rename column · type change · COALESCE order change</div></div>
+    <div class="rule-row"><div class="rule-id hard">v1b</div><div class="rule-text">Populate eidr_id dataset-wide → triggers v1b bump</div></div>
+    <div style="font-size:9px;color:var(--muted);margin-top:6px;">Bump protocol: write v2 → run v1+v2 parallel ≥30d → migrate readers → flip v1 to Glacier</div>
+  </div>
+
+  <!-- PHASE TIMELINE + ADRs -->
+  <div class="p">
+    <div class="p-head"><span class="dot" style="background:var(--amber);"></span>Phase Roadmap</div>
+    <div class="phase-list">
+      <div class="phase-item">
+        <div class="phase-dot live"></div>
+        <div>
+          <div class="phase-name live">Phase 1 · LIVE</div>
+          <div class="phase-desc">IMDB (9 ds) + TMDB bulk/delta + Wikidata SPARQL fusion → Parent Key v1 (589K+) → Portal-v8 · SCD2 spine · 3-tier cert</div>
+        </div>
+      </div>
+      <div class="phase-item">
+        <div class="phase-dot coming"></div>
+        <div>
+          <div class="phase-name coming">Phase 1b · EIDR Backfill</div>
+          <div class="phase-desc">eidr_id NULL → populated via Wikidata P2704 + EIDR API · triggers v1b schema bump</div>
+        </div>
+      </div>
+      <div class="phase-item">
+        <div class="phase-dot plan"></div>
+        <div>
+          <div class="phase-name plan">Phase 2a · RSG Bridge</div>
+          <div class="phase-desc">Nielsen + Gracenote + FYI + Opus via ra-linear-analytics-bundle · rsg_snap/ · INTERIM</div>
+        </div>
+      </div>
+      <div class="phase-item">
+        <div class="phase-dot plan"></div>
+        <div>
+          <div class="phase-name plan">Phase 2b · Direct Nielsen</div>
+          <div class="phase-desc">45M+ panel · C3/C7 · A18-49 · audience mart → spine via parent_key ↔ TMS rootId bridge · replaces RSG</div>
+        </div>
+      </div>
+    </div>
+    <hr class="divider">
+    <div class="p-head"><span class="dot" style="background:var(--accent);"></span>Architecture Decision Records</div>
+    <div class="adr-row"><span class="adr-tag">ADR</span><div><div class="adr-text">IMDB tconst = canonical key</div><div class="adr-sub">More stable than TMDB IDs, wider adoption</div></div></div>
+    <div class="adr-row"><span class="adr-tag">ADR</span><div><div class="adr-text">DuckDB = sole compute engine</div><div class="adr-sub">No Spark · httpfs S3 reads · native ZSTD</div></div></div>
+    <div class="adr-row"><span class="adr-tag">ADR</span><div><div class="adr-text">TALL alt-ID format</div><div class="adr-sub">One row per (key, system, value) · zero schema changes for new sources</div></div></div>
+    <div class="adr-row"><span class="adr-tag">ADR</span><div><div class="adr-text">Gracenote: rootId not tmsId</div><div class="adr-sub">tmsId is version-specific · bind parent_key ↔ rootId</div></div></div>
+    <div class="adr-row"><span class="adr-tag">ADR</span><div><div class="adr-text">SCD2 append-only spine</div><div class="adr-sub">Never truncate · MAX(ingested_at) = current state</div></div></div>
+    <div class="adr-row"><span class="adr-tag">ADR</span><div><div class="adr-text">CERTIFIED only → product</div><div class="adr-sub">PROVISIONAL held · QUARANTINE human-only</div></div></div>
+  </div>
+
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="botbar">
+  <div class="botbar-left">
+    <div class="legend-item"><span class="dot dot-live" style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px;"></span>Phase 1 LIVE</div>
+    <div class="legend-item"><span class="dot dot-coming" style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px;"></span>Phase 1b coming</div>
+    <div class="legend-item"><span class="dot dot-plan" style="width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px;"></span>Phase 2 planned</div>
+    <div class="legend-item" style="color:var(--red);">🔒 = Provenance wall (eval-only, never ships)</div>
+  </div>
+  <div style="font-size:9px;color:var(--muted);">
+    War Room · sasmaster-status.vercel.app · sasmaster-2026 (us-east-1)
+  </div>
+</div>
+
+</body>
+</html>
