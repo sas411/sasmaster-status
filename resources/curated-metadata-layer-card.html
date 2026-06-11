@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curated Metadata Layer — SaSMaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+/* ============ SASMASTER DARK (signature) ============ */
+:root, [data-theme="dark"] {
+  --bg-base:#0a0a0f; --bg-surface:#12121a; --bg-elevated:#1a1a2e; --bg-panel:#0d0d16; --bg-inset:#0e0e18;
+  --lavender:#a78bfa; --teal-bright:#22d3ee; --gold:#f59e0b;
+  --red-alert:#ef4444; --green-signal:#10b981;
+  --lav-dim:rgba(167,139,250,0.14); --lav-border:rgba(167,139,250,0.10);
+  --lav-active:rgba(167,139,250,0.35); --teal-dim:rgba(34,211,238,0.12);
+  --gold-dim:rgba(245,158,11,0.10); --red-dim:rgba(239,68,68,0.12); --green-dim:rgba(16,185,129,0.12);
+  --text-primary:#f8f8ff; --text-secondary:#94a3b8; --text-dim:#4b5563;
+  --border:rgba(167,139,250,0.10); --border-active:rgba(167,139,250,0.35);
+  --border-subtle:rgba(255,255,255,0.04); --border-strong:rgba(167,139,250,0.50);
+  --shadow1:0 2px 8px rgba(0,0,0,0.4); --shadow2:0 4px 24px rgba(0,0,0,0.6);
+  --grad:linear-gradient(90deg,#a78bfa,#22d3ee);
+}
+/* ============ SASMASTER LIGHT ============ */
+[data-theme="light"] {
+  --bg-base:#f4f4fb; --bg-surface:#ffffff; --bg-elevated:#ffffff; --bg-panel:#ecebf6; --bg-inset:#f6f5fc;
+  --lavender:#7c3aed; --teal-bright:#0891b2; --gold:#c2740a;
+  --red-alert:#dc2626; --green-signal:#059669;
+  --lav-dim:rgba(124,58,237,0.08); --lav-border:rgba(124,58,237,0.14);
+  --lav-active:rgba(124,58,237,0.40); --teal-dim:rgba(8,145,178,0.08);
+  --gold-dim:rgba(194,116,10,0.10); --red-dim:rgba(220,38,38,0.08); --green-dim:rgba(5,150,105,0.10);
+  --text-primary:#16162a; --text-secondary:#4b5365; --text-dim:#8a90a2;
+  --border:rgba(124,58,237,0.16); --border-active:rgba(124,58,237,0.40);
+  --border-subtle:rgba(22,22,42,0.07); --border-strong:rgba(124,58,237,0.50);
+  --shadow1:0 2px 8px rgba(22,22,42,0.07); --shadow2:0 4px 24px rgba(22,22,42,0.10);
+  --grad:linear-gradient(90deg,#7c3aed,#0891b2);
+}
+body { background:var(--bg-base); color:var(--text-primary); font-family:'Barlow Condensed',sans-serif; min-height:100vh; overflow-x:hidden;
+  transition:background .3s, color .3s; }
+* { scrollbar-width:thin; scrollbar-color:var(--lav-active) transparent; }
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-thumb { background:var(--lav-active); border-radius:4px; }
+.wrap { max-width:1480px; margin:0 auto; padding:48px 40px 80px; }
+
+/* hero */
+.hero { text-align:center; padding:24px 0 8px; position:relative; }
+.hero .eyebrow { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--teal-bright); }
+.hero h1 { font-family:'Bebas Neue',sans-serif; font-size:56px; letter-spacing:4px; margin:10px 0 6px;
+  background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.hero .sub { font-size:17px; font-weight:300; color:var(--text-secondary); max-width:960px; margin:0 auto; line-height:1.6; }
+.hero .sub b { color:var(--text-primary); font-weight:600; }
+.toggle { position:absolute; top:0; right:0; cursor:pointer; font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:1px;
+  padding:8px 14px; border-radius:8px; border:1px solid var(--lav-active); color:var(--lavender); background:var(--lav-dim);
+  transition:all .15s cubic-bezier(0.16,1,0.3,1); }
+.toggle:hover { background:var(--lavender); color:var(--bg-surface); }
+
+/* asset banner */
+.assets { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:34px 0 8px; }
+.asset { background:var(--bg-surface); border:1px solid var(--border); border-radius:10px; padding:20px 14px; text-align:center;
+  box-shadow:var(--shadow1); position:relative; overflow:hidden; }
+.asset::before { content:''; position:absolute; inset:0 0 auto 0; height:3px; background:var(--grad); opacity:.8; }
+.asset .v { font-family:'Bebas Neue',sans-serif; font-size:42px; letter-spacing:2px; }
+.asset .l { font-size:12.5px; font-weight:600; letter-spacing:1px; color:var(--text-secondary); text-transform:uppercase; }
+.asset .c { font-family:'Share Tech Mono',monospace; font-size:9.5px; color:var(--green-signal); margin-top:6px; letter-spacing:.5px; }
+.asset .c.gold { color:var(--gold); } .asset .c.teal { color:var(--teal-bright); }
+.asset .bk { font-family:'Share Tech Mono',monospace; font-size:9.5px; color:var(--text-dim); margin-top:4px; letter-spacing:.3px; }
+.asset.mv .v { color:var(--lavender); } .asset.tv .v { color:var(--teal-bright); }
+.asset.ep .v { color:var(--gold); } .asset.pp .v { color:var(--green-signal); }
+.banner-note { text-align:center; font-family:'Share Tech Mono',monospace; font-size:9.5px; letter-spacing:1px; color:var(--text-dim); margin:8px 0 40px; }
+
+/* section headers */
+.sec { margin:64px 0 24px; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+.sec .num { font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--teal-bright); letter-spacing:2px; }
+.sec h2 { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:2.5px; }
+.sec .note { font-size:13px; color:var(--text-dim); font-weight:400; }
+
+/* two-tier position */
+.twotier { display:grid; grid-template-columns:1fr 60px 1fr; gap:0; align-items:stretch; }
+.tierbox { border-radius:12px; padding:22px 24px; box-shadow:var(--shadow2); }
+.tierbox.t1 { background:var(--bg-surface); border:1px solid var(--border); }
+.tierbox.t2 { background:linear-gradient(180deg, var(--lav-dim), var(--bg-surface) 70%); border:1px solid var(--border-strong); }
+.tierbox .tt { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; }
+.tierbox.t1 .tt { color:var(--teal-bright); } .tierbox.t2 .tt { color:var(--lavender); }
+.tierbox h3 { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:2px; margin:4px 0 4px; }
+.tierbox .desc { font-size:14px; color:var(--text-secondary); line-height:1.6; margin-bottom:14px; }
+.tierbox .desc b { color:var(--text-primary); }
+.chipgrid { display:flex; flex-wrap:wrap; gap:8px; }
+.chip { font-family:'Share Tech Mono',monospace; font-size:10.5px; letter-spacing:.5px; padding:6px 10px; border-radius:6px;
+  background:var(--bg-inset); border:1px solid var(--border-subtle); color:var(--text-secondary); }
+.chip.hot { border-color:var(--lav-active); color:var(--lavender); background:var(--lav-dim); }
+.chip.teal { border-color:var(--teal-bright); color:var(--teal-bright); background:var(--teal-dim); }
+.chip.gold { border-color:var(--gold); color:var(--gold); background:var(--gold-dim); }
+.chip.this { border-color:var(--lavender); color:var(--bg-surface); background:var(--lavender); font-weight:600; }
+.shead { font-family:'Share Tech Mono',monospace; font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); margin:14px 0 8px; }
+.midarrow { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+.midarrow .a { color:var(--lavender); font-size:24px; }
+.midarrow .t { font-family:'Share Tech Mono',monospace; font-size:8.5px; letter-spacing:1px; color:var(--text-dim); writing-mode:vertical-rl; }
+
+/* pipeline */
+.pipe { display:grid; grid-template-columns:repeat(6,1fr); gap:0; align-items:stretch; }
+.stage { position:relative; background:var(--bg-surface); border:1px solid var(--border); border-radius:10px; padding:18px 16px 16px; margin-right:26px;
+  box-shadow:var(--shadow1); transition:border-color .15s, box-shadow .15s; }
+.stage:hover { border-color:var(--border-active); }
+.stage:last-child { margin-right:0; }
+.stage::after { content:'▸'; position:absolute; right:-21px; top:50%; transform:translateY(-50%); color:var(--lavender); font-size:18px; opacity:.7; }
+.stage:last-child::after { display:none; }
+.stage .tag { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); }
+.stage h3 { font-family:'Bebas Neue',sans-serif; font-size:21px; letter-spacing:1.5px; margin:5px 0 8px; }
+.stage ul { list-style:none; }
+.stage li { font-size:13px; color:var(--text-secondary); line-height:1.55; padding-left:12px; position:relative; }
+.stage li::before { content:''; position:absolute; left:0; top:9px; width:5px; height:5px; border-radius:50%; background:var(--lavender); opacity:.6; }
+.stage li b { color:var(--text-primary); }
+.stage .mono { font-family:'Share Tech Mono',monospace; font-size:10.5px; color:var(--teal-bright); }
+.stage.hl { border-color:var(--border-strong); background:linear-gradient(180deg, var(--lav-dim), var(--bg-surface) 60%); }
+.stage .pill { display:inline-block; font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px; padding:2px 8px; border-radius:20px; margin-top:8px; }
+.pill.live { background:var(--green-dim); color:var(--green-signal); border:1px solid var(--green-signal); }
+.pill.gate { background:var(--gold-dim); color:var(--gold); border:1px solid var(--gold); }
+.pill.t2p { background:var(--lav-dim); color:var(--lavender); border:1px solid var(--lav-active); }
+.pill.teal2 { background:var(--teal-dim); color:var(--teal-bright); border:1px solid var(--teal-bright); }
+
+/* gate policy */
+.gatewrap { display:grid; grid-template-columns:1.5fr 1fr; gap:20px; }
+.panel { background:var(--bg-surface); border:1px solid var(--border); border-radius:12px; padding:24px; box-shadow:var(--shadow2); }
+.panel h3 { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:2px; margin-bottom:12px; color:var(--lavender); }
+.panel p { font-size:14px; color:var(--text-secondary); line-height:1.65; margin-bottom:10px; }
+.panel p b { color:var(--text-primary); }
+.wx { border:1px solid var(--border-subtle); border-radius:8px; overflow:hidden; margin-top:4px; }
+.wx .r { display:grid; grid-template-columns:1.5fr 1.4fr .7fr .6fr; align-items:center; }
+.wx .r.h div { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); background:var(--bg-panel); }
+.wx .r div { padding:9px 12px; border-bottom:1px solid var(--border-subtle); font-size:13px; }
+.wx .r:last-child div { border-bottom:none; }
+.wx .a { font-family:'Share Tech Mono',monospace; font-size:11.5px; color:var(--text-secondary); }
+.wx .cnd { color:var(--text-secondary); }
+.wx .in { font-family:'Share Tech Mono',monospace; }
+.in.y { color:var(--green-signal); } .in.n { color:var(--red-alert); }
+.band { display:inline-block; font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px; padding:3px 9px; border-radius:20px; }
+.band.cert { background:var(--green-dim); color:var(--green-signal); border:1px solid var(--green-signal); }
+.band.conf2 { background:var(--teal-dim); color:var(--teal-bright); border:1px solid var(--teal-bright); }
+.band.prov { background:var(--gold-dim); color:var(--gold); border:1px solid var(--gold); }
+.band.held { background:var(--red-dim); color:var(--red-alert); border:1px solid var(--red-alert); }
+.rulebox { border-left:3px solid var(--green-signal); background:var(--green-dim); border-radius:0 8px 8px 0; padding:10px 14px; margin-bottom:8px;
+  font-size:13.5px; color:var(--text-secondary); line-height:1.5; }
+.rulebox b { color:var(--text-primary); }
+.rulebox.warn { border-left-color:var(--red-alert); background:var(--red-dim); }
+.rulebox .mono { font-family:'Share Tech Mono',monospace; color:var(--gold); font-size:12px; }
+
+/* product cards */
+.products { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.prod { background:var(--bg-surface); border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:var(--shadow1);
+  transition:border-color .15s, transform .15s cubic-bezier(0.16,1,0.3,1); }
+.prod:hover { border-color:var(--border-active); transform:translateY(-2px); }
+.prod h3 { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1.5px; }
+.prod .grain { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--teal-bright); margin:3px 0 10px; letter-spacing:.5px; }
+.prod .n { font-family:'Bebas Neue',sans-serif; font-size:36px; color:var(--lavender); letter-spacing:1px; }
+.prod .nl { font-family:'Share Tech Mono',monospace; font-size:9.5px; color:var(--text-dim); margin-bottom:10px; letter-spacing:.5px; }
+.prod p { font-size:13.5px; color:var(--text-secondary); line-height:1.55; }
+.prod p b { color:var(--text-primary); }
+.prod .chipgrid { margin-top:10px; }
+.prod.fut { border-style:dashed; opacity:.78; }
+.prod.fut .n { color:var(--gold); }
+
+/* QA + telemetry */
+.audit { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.feat { display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; }
+.feat .ic { width:22px; height:22px; flex:0 0 22px; border-radius:50%; background:var(--green-dim); border:1px solid var(--green-signal);
+  display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--green-signal); font-family:'Share Tech Mono',monospace; }
+.feat .tx { font-size:13.5px; color:var(--text-secondary); line-height:1.5; }
+.feat .tx b { color:var(--text-primary); }
+.feat .tx .mono { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--teal-bright); }
+.feat.tl .ic { background:var(--teal-dim); border-color:var(--teal-bright); color:var(--teal-bright); }
+.feat.rd .ic { background:var(--red-dim); border-color:var(--red-alert); color:var(--red-alert); }
+.slack { border:1px solid var(--border-subtle); border-radius:8px; background:var(--bg-inset); padding:14px; margin-top:14px; }
+.slack .sh { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.slack .dot { width:8px; height:8px; border-radius:50%; background:var(--green-signal); }
+.slack .ch { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--teal-bright); }
+.slack .msg { font-family:'Share Tech Mono',monospace; font-size:11px; line-height:1.8; color:var(--text-secondary); }
+.slack .msg b { color:var(--text-primary); font-weight:400; }
+.slack .msg .g { color:var(--green-signal); } .slack .msg .y { color:var(--gold); }
+.loop { margin-top:16px; background:linear-gradient(90deg, var(--lav-dim), transparent 70%); border:1px solid var(--lav-border); border-radius:10px;
+  padding:16px 22px; display:flex; align-items:center; gap:18px; }
+.loop .arr { font-size:22px; color:var(--lavender); }
+.loop .tx { font-size:14.5px; color:var(--text-secondary); line-height:1.55; }
+.loop .tx b { color:var(--text-primary); }
+
+/* governance */
+.gov { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.gv { background:var(--bg-surface); border:1px solid var(--border); border-radius:8px; padding:16px; box-shadow:var(--shadow1); }
+.gv .t { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+.gv .d { font-size:13px; color:var(--text-secondary); line-height:1.5; }
+.gv.green .t { color:var(--green-signal); } .gv.red .t { color:var(--red-alert); }
+.gv.teal .t { color:var(--teal-bright); } .gv.gold .t { color:var(--gold); }
+
+footer { margin-top:64px; text-align:center; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); }
+.rv { opacity:0; transform:translateY(14px); transition:opacity .6s cubic-bezier(0.16,1,0.3,1), transform .6s cubic-bezier(0.16,1,0.3,1); }
+.rv.in { opacity:1; transform:none; }
+
+@media (max-width:1100px){
+  .assets{grid-template-columns:repeat(2,1fr);} .twotier{grid-template-columns:1fr;} .midarrow{display:none;}
+  .gatewrap,.audit{grid-template-columns:1fr;}
+  .pipe{grid-template-columns:repeat(2,1fr); gap:26px;} .stage{margin-right:0;} .stage::after{display:none;}
+  .products{grid-template-columns:1fr;} .gov{grid-template-columns:repeat(2,1fr);}
+  .toggle{position:static; margin-top:12px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= HERO ================= -->
+  <div class="hero rv">
+    <button class="toggle" id="themeToggle">◐ DARK</button>
+    <div class="eyebrow">SaSMaster · Tier 2 Data Products · June 2026 · v1</div>
+    <h1>Curated Metadata Layer</h1>
+    <p class="sub">The <b>Tier 2 certified consumable layer</b> made real: after every Parent Key certification run, an autonomous agent
+      projects the spine into <b>business-facing master tables</b> — Movie, TV Series and People — every row carrying its
+      <b>SASMASTER PID, confidence band and provenance</b>. QA-gated, telemetry-reported, rebuilt fresh on every cert cycle.</p>
+  </div>
+
+  <!-- asset banner -->
+  <div class="assets">
+    <div class="asset mv rv"><div class="v">903.1K</div><div class="l">Movie Master</div>
+      <div class="c">VALIDATED · LIVE SPINE 06-11</div><div class="bk">movie 747,931 · tvMovie 155,006 · +123 prov</div></div>
+    <div class="asset tv rv"><div class="v">370.7K</div><div class="l">TV Series Master</div>
+      <div class="c">VALIDATED · SERIES LEVEL ONLY</div><div class="bk">tvSeries 300,140 · tvMiniSeries 70,588 · +1 prov</div></div>
+    <div class="asset pp rv"><div class="v">PEOPLE</div><div class="l">People Master</div>
+      <div class="c teal">VIA nconst · S3 PRINCIPALS</div><div class="bk">cast · crew · talent in eligible titles</div></div>
+    <div class="asset ep rv"><div class="v">9.68M</div><div class="l">Episodic Nested</div>
+      <div class="c gold">FUTURE · CID HIERARCHY READY</div><div class="bk">tvEpisode CIDs already certified on spine</div></div>
+  </div>
+  <div class="banner-note rv">COUNTS VALIDATED READ-ONLY AGAINST sasmaster.prod.parent_key_current · 2026-06-11 · 0 KEY DUPLICATES · IMDB META COVERAGE 99.99%</div>
+
+  <!-- ================= 01 · POSITION ================= -->
+  <div class="sec rv"><span class="num">01</span><h2>Where This Sits · Tier 2 of the Orchestration Layer</h2><span class="note">— Stage 5 of the end-to-end flow · downstream of Match · Mint · Certify</span></div>
+  <div class="twotier">
+    <div class="tierbox t1 rv">
+      <div class="tt">Upstream · Certified Spine</div>
+      <h3>Match · Mint · Certify</h3>
+      <div class="desc">The matching cascade resolves every record to a <b>SASMASTER PID</b> (title-level) with <b>CIDs</b> nested beneath
+        (episodes · versions · airings). Every match carries an anchor-based confidence score and band. The spine is SCD2, append-only.</div>
+      <div class="chipgrid">
+        <span class="chip hot">prod.parent_key_current</span><span class="chip">10.95M rows · is_current</span><span class="chip">PID + CID</span>
+      </div>
+      <div class="shead">Trigger Ledger</div>
+      <div class="chipgrid">
+        <span class="chip teal">ops.cert_run</span><span class="chip">CERT-MOVIES-… · CERT-TV-…</span><span class="chip">MAX(run_ts) = watermark</span>
+      </div>
+    </div>
+    <div class="midarrow rv"><span class="a">⇒</span><span class="t">GATE · ENRICH · QA · SERVE</span><span class="a">⇒</span></div>
+    <div class="tierbox t2 rv">
+      <div class="tt">Tier 2 · Certified Consumable Layer</div>
+      <h3>Curated Data Products</h3>
+      <div class="desc">The only tier products, analytics and partners consume. This build delivers the <b>three master metadata tables</b>;
+        Episodic Nested and the Airings/Audience marts join the same family next.</div>
+      <div class="chipgrid">
+        <span class="chip this">MOVIE MASTER</span><span class="chip this">TV SERIES MASTER</span><span class="chip this">PEOPLE MASTER</span>
+        <span class="chip gold">EPISODIC NESTED · NEXT</span><span class="chip gold">AIRINGS / AUDIENCE MART</span>
+      </div>
+      <div class="shead">Contract</div>
+      <div class="chipgrid">
+        <span class="chip">derived layer · full rebuild per cert run</span><span class="chip">cert_band on every row</span><span class="chip">JOIN via PID only</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 02 · FLOW ================= -->
+  <div class="sec rv"><span class="num">02</span><h2>The Curated Build Flow</h2><span class="note">— cert run lands → agent wakes → gate → enrich → QA → serve · idempotent, cron-safe</span></div>
+  <div class="pipe">
+    <div class="stage rv">
+      <div class="tag">Stage A</div><h3>Certified Spine</h3>
+      <ul>
+        <li><span class="mono">prod.parent_key_current</span></li>
+        <li>10.95M current rows · SCD2</li>
+        <li>PID minted at write time</li>
+        <li>bands scored at certification</li>
+      </ul>
+      <span class="pill live">● UPSTREAM · LIVE</span>
+    </div>
+    <div class="stage rv">
+      <div class="tag">Stage B</div><h3>Trigger</h3>
+      <ul>
+        <li><span class="mono">ops.cert_run</span> watermark vs <span class="mono">curated.build_log</span></li>
+        <li>new cert run → full rebuild</li>
+        <li>no new run → <b>no-op exit 0</b></li>
+        <li>O(derived) — cheap to recompute</li>
+      </ul>
+      <span class="pill live">● AGENT</span>
+    </div>
+    <div class="stage rv">
+      <div class="tag">Stage C</div><h3>Eligibility Gate</h3>
+      <ul>
+        <li>✓ CERTIFIED · ✓ CONFIRMED</li>
+        <li>✓ PROVISIONAL <b>with IMDB anchor</b></li>
+        <li>✗ HELD · tmdb orphans</li>
+        <li>✗ quarantine — never</li>
+      </ul>
+      <span class="pill gate">◈ BAND-GATED</span>
+    </div>
+    <div class="stage rv">
+      <div class="tag">Stage D</div><h3>Enrich · Joins</h3>
+      <ul>
+        <li>IMDB titles · <span class="mono">99.99%</span> hit</li>
+        <li>TMDB movies / tv · <span class="mono">47%</span> hit</li>
+        <li>S3 principals → actors · directors</li>
+        <li>Opus · social → typed NULL until landed</li>
+      </ul>
+      <span class="pill teal2">DUCKDB COMPUTE</span>
+    </div>
+    <div class="stage rv">
+      <div class="tag">Stage E</div><h3>QA Gates</h3>
+      <ul>
+        <li><b>G1</b> · every row anchored + banded</li>
+        <li><b>G2</b> · unique PID / nconst · counts tie out</li>
+        <li><b>G3</b> · idempotent + telemetry honest</li>
+        <li>FAIL → snapshot withheld · 🔴 alert</li>
+      </ul>
+      <span class="pill live">● NO SELF-CERTIFY</span>
+    </div>
+    <div class="stage hl rv">
+      <div class="tag">Stage F · Tier 2</div><h3>Serve</h3>
+      <ul>
+        <li>MotherDuck <span class="mono">curated.*</span> — serving</li>
+        <li>S3 <span class="mono">curated/v1/YYYY-MM-DD/</span></li>
+        <li>Parquet ZSTD · immutable snapshot</li>
+        <li>Slack #builds + War Room cards</li>
+      </ul>
+      <span class="pill t2p">TIER 2 · CONSUMABLE</span>
+    </div>
+  </div>
+
+  <!-- ================= 03 · GATE POLICY ================= -->
+  <div class="sec rv"><span class="num">03</span><h2>Band-Based Admission · The Unmatched-IMDB Policy</h2><span class="note">— aligned to the v2 confidence model · certified is EIDR-gated · consumers choose their rigor</span></div>
+  <div class="gatewrap">
+    <div class="panel rv">
+      <h3>Who Gets Into the Curated Layer</h3>
+      <div class="wx">
+        <div class="r h"><div>Spine source</div><div>Condition</div><div>cert_band</div><div>Curated?</div></div>
+        <div class="r"><div class="a">prod.parent_key_current</div><div class="cnd">score ≥ 0.90 · EIDR-gated</div><div><span class="band cert">CERTIFIED</span></div><div class="in y">✓ IN</div></div>
+        <div class="r"><div class="a">prod.parent_key_current</div><div class="cnd">0.80–0.90 · e.g. imdb + tmdb</div><div><span class="band conf2">CONFIRMED</span></div><div class="in y">✓ IN</div></div>
+        <div class="r"><div class="a">review.parent_key</div><div class="cnd">0.50–0.80 · <b>IMDB anchor present</b></div><div><span class="band prov">PROVISIONAL</span></div><div class="in y">✓ IN · tagged</div></div>
+        <div class="r"><div class="a">review.parent_key</div><div class="cnd">no IMDB anchor</div><div>—</div><div class="in n">✗ waits</div></div>
+        <div class="r"><div class="a">tmdb orphans</div><div class="cnd">&lt; 0.50 · synthetic key · rekeyable</div><div><span class="band held">HELD</span></div><div class="in n">✗ until promoted</div></div>
+        <div class="r"><div class="a">quarantine.parent_key</div><div class="cnd">conflict · adjudication queue</div><div>—</div><div class="in n">✗ never</div></div>
+      </div>
+      <p style="margin-top:12px; font-size:12px; color:var(--text-dim)">Today's live spine is 100% CERTIFIED tier (fusion v1); the CONFIRMED row activates as scoring v2 bands land on the spine. The gate logic is band-driven, so no curated-layer change is needed.</p>
+    </div>
+    <div class="panel rv">
+      <h3>Why the IMDB Exception Is Safe</h3>
+      <div class="rulebox"><b>imdb_tconst is the mint anchor — immutable.</b> An IMDB-only record (score <span class="mono">0.50</span>) can only ever be
+        <b>enriched</b> when TMDB / EIDR corroboration lands later. It is never rekeyed. Admitting it adds long-tail coverage with zero join risk.</div>
+      <div class="rulebox warn"><b>TMDB orphans are the opposite.</b> Their synthetic <span class="mono">tmdb_mov_ / tmdb_tv_</span> keys
+        CAN be rekeyed when an IMDB match arrives — which would break every downstream join. They stay HELD until promoted.</div>
+      <p><b>Every curated row carries</b> <span style="font-family:'Share Tech Mono',monospace; font-size:11.5px; color:var(--teal-bright)">cert_band · anchor_basis · match_class</span>
+        — so product surfaces filter Certified-only (the governance contract), while analytics opts into Confirmed + Provisional for maximum coverage. The choice moves to the consumer; the provenance never leaves the row.</p>
+    </div>
+  </div>
+
+  <!-- ================= 04 · DATA PRODUCTS ================= -->
+  <div class="sec rv"><span class="num">04</span><h2>The Master Tables · v1 Data Products</h2><span class="note">— grain = 1 row per SASMASTER PID · people on nconst · episodic on CID next</span></div>
+  <div class="products">
+    <div class="prod rv">
+      <h3>curated.movie_master</h3>
+      <div class="grain">GRAIN · 1 ROW PER MOVIE PID</div>
+      <div class="n">903,060</div><div class="nl">902,937 CERT + 123 PROV · movie + tvMovie</div>
+      <p>IMDB core (title · year · runtime · genres) + TMDB enrichment (release · popularity · votes) + <b>actors[] · directors[]</b> from S3 principals
+        + Opus (distributor · franchise) when pathed.</p>
+      <div class="chipgrid"><span class="chip hot">sasmaster_pkid</span><span class="chip">imdb_id</span><span class="chip">tmdb_id</span><span class="chip">eidr_id</span><span class="chip">cert_band</span></div>
+    </div>
+    <div class="prod rv">
+      <h3>curated.tv_series_master</h3>
+      <div class="grain">GRAIN · 1 ROW PER SERIES PID · SERIES SHELL ONLY</div>
+      <div class="n">370,729</div><div class="nl">370,728 CERT + 1 PROV · tvSeries + tvMiniSeries</div>
+      <p>The series PID is a <b>shell</b> — this table is series-level metadata only: seasons/episode counts, air-date window, status,
+        in_production. Episode granularity lives with CIDs in the Episodic Nested layer.</p>
+      <div class="chipgrid"><span class="chip hot">number_of_seasons</span><span class="chip">first/last_air_date</span><span class="chip">series_status</span><span class="chip">cert_band</span></div>
+    </div>
+    <div class="prod rv">
+      <h3>curated.people_master</h3>
+      <div class="grain">GRAIN · 1 ROW PER nconst</div>
+      <div class="n">S3-GATED</div><div class="nl">BUILT WHEN imdb PRINCIPALS READABLE</div>
+      <p>Every person in cast/crew of an <b>eligible curated title</b> — name_basics core + appearance counts split by cert band.
+        TMDB person enrichment + socials backfill additively.</p>
+      <div class="chipgrid"><span class="chip hot">nconst</span><span class="chip">curated_title_count</span><span class="chip">professions</span><span class="chip">known_for</span></div>
+    </div>
+    <div class="prod fut rv">
+      <h3>Episodic Nested · CID Layer</h3>
+      <div class="grain">FUTURE · SERIES → SEASON → EPISODE</div>
+      <div class="n">9.68M</div><div class="nl">EPISODE CIDs ALREADY CERTIFIED ON SPINE</div>
+      <p>Every episode CID nests under its series PID via <b>series · season · episode</b> association. Activates when season/episode
+        TMDB metadata lands in the lake. Viewership binds to CID; metadata rolls up to PID.</p>
+    </div>
+    <div class="prod fut rv">
+      <h3>Awards Metadata</h3>
+      <div class="grain">FUTURE · ADDITIVE BACKFILL</div>
+      <div class="n">NULL→</div><div class="nl">TYPED PLACEHOLDER ALREADY IN SCHEMA</div>
+      <p>The <b>awards</b> column ships typed-NULL on all three masters today. Populates in place when an awards source is licensed
+        and landed — additive, no version bump, no reader migration.</p>
+    </div>
+    <div class="prod fut rv">
+      <h3>Master Alt-ID Mapping</h3>
+      <div class="grain">FUTURE · TALL FORMAT · CERTIFIED ONLY</div>
+      <div class="n">0→</div><div class="nl">prod.alt_ids BUILT · AWAITING WIKIDATA FUSION</div>
+      <p>One row per <span style="font-family:'Share Tech Mono',monospace; font-size:11px">(PID · id_system · id_value)</span> — EIDR, OPUS, GN rootId, Nielsen,
+        Netflix, TheTVDB. Zero schema change per new system. Only CERTIFIED alt-IDs reach product.</p>
+    </div>
+  </div>
+
+  <!-- ================= 05 · QA + TELEMETRY ================= -->
+  <div class="sec rv"><span class="num">05</span><h2>QA Gates &amp; Telemetry</h2><span class="note">— no self-certification · communication is key · every build leaves a trail</span></div>
+  <div class="audit">
+    <div class="panel rv">
+      <h3>Three Gates · Pass or No Snapshot</h3>
+      <div class="feat"><div class="ic">G1</div><div class="tx"><b>Gate integrity</b> — zero curated rows without an <span class="mono">imdb / eidr</span> anchor;
+        every row carries a valid <span class="mono">cert_band</span>. The HELD wall is verified, not assumed.</div></div>
+      <div class="feat"><div class="ic">G2</div><div class="tx"><b>Key integrity</b> — <span class="mono">imdb_id</span> unique per title master, <span class="mono">nconst</span> unique in people;
+        table counts tie out exactly to the eligibility gate. Validated 06-11: <b>0 duplicates</b> across 1.27M title rows.</div></div>
+      <div class="feat"><div class="ic">G3</div><div class="tx"><b>Idempotency + honest telemetry</b> — re-run without a new cert run is a no-op;
+        every build logged to <span class="mono">curated.build_log</span>; Slack-posted counts must equal actual table counts.</div></div>
+      <div class="loop">
+        <span class="arr">⟳</span>
+        <span class="tx"><b>Fail-closed by design:</b> any gate failure marks the build FAILED, withholds the S3 snapshot, keeps the previous
+          good tables serving, and pages <b>#builds</b>. A broken build can never silently replace a good one.</span>
+      </div>
+    </div>
+    <div class="panel rv">
+      <h3>Slack · #builds via JARVIS</h3>
+      <div class="feat tl"><div class="ic">📡</div><div class="tx"><b>Run summaries</b> — every curated build posts table counts, band mix, spine watermark and snapshot path.</div></div>
+      <div class="feat tl"><div class="ic">⚠</div><div class="tx"><b>Anomaly alerts</b> — count swings vs prior build, enrichment-coverage drops, gate failures page immediately. No silent failures, ever.</div></div>
+      <div class="feat rd"><div class="ic">✋</div><div class="tx"><b>War Room sync</b> — after each successful build, the data-orchestration card numbers and the curated data cards update from <span class="mono">build_log</span>.</div></div>
+      <div class="slack">
+        <div class="sh"><span class="dot"></span><span class="ch">#builds · JARVIS</span></div>
+        <div class="msg">
+          <b>✅ CURATED METADATA LAYER · CURATED-20260611T0530</b><br>
+          movie_master <span class="g">903,060</span> · tv_series_master <span class="g">370,729</span> · people_master <span class="g">—</span><br>
+          bands · CERT 1,273,665 · <span class="y">PROV 124</span> · dupes 0 · gates G1 G2 G3 <span class="g">PASS</span><br>
+          spine watermark 2026-06-09 01:16 · snapshot s3://…/curated/v1/2026-06-11/
+        </div>
+      </div>
+      <p style="margin-top:10px;font-size:11.5px;color:var(--text-dim)">Illustrative format — values stream from curated.build_log at run time.</p>
+    </div>
+  </div>
+
+  <!-- ================= 06 · GOVERNANCE ================= -->
+  <div class="sec rv"><span class="num">06</span><h2>Governance &amp; Guarantees</h2><span class="note">— same contract as the spine · extended to the consumable layer</span></div>
+  <div class="gov">
+    <div class="gv green rv"><div class="t">✓ Band on Every Row</div><div class="d">cert_band · anchor_basis · match_class travel with every record. Product filters Certified-only; analytics chooses coverage. Provenance never leaves the row.</div></div>
+    <div class="gv red rv"><div class="t">✗ Held Never Enters</div><div class="d">TMDB orphans and quarantine are excluded by construction — rekeyable synthetic keys cannot pollute business joins. Promotion is the only door in.</div></div>
+    <div class="gv teal rv"><div class="t">⛁ Derived, Never Patched</div><div class="d">Full rebuild from the certified spine each cert run. SCD2 history stays on the spine; curated is always its freshest projection. No drift possible.</div></div>
+    <div class="gv gold rv"><div class="t">⚖ Fail-Closed QA</div><div class="d">Three gates run as SQL assertions inside the build. Failure = no snapshot, previous tables keep serving, immediate page. The agent never self-certifies.</div></div>
+  </div>
+
+  <footer>SASMASTER · CURATED METADATA LAYER v1 · TIER 2 CONSUMABLE · DUCKDB COMPUTE · MOTHERDUCK SERVING · S3 LAKE OF RECORD · VALIDATED 2026-06-11</footer>
+</div>
+
+<script>
+document.fonts.ready.then(() => {
+  /* theme — light default for this card, persisted toggle, both themes first-class */
+  const btn = document.getElementById('themeToggle');
+  const apply = t => { document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('sasmaster-theme', t);
+    btn.textContent = t === 'light' ? '◐ DARK' : '◑ LIGHT'; };
+  apply(localStorage.getItem('sasmaster-theme') || 'light');
+  btn.addEventListener('click', () =>
+    apply(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
+
+  /* reveal */
+  const els = document.querySelectorAll('.rv');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  els.forEach((el, i) => { el.style.transitionDelay = `${(i % 6) * 50}ms`; io.observe(el); });
+});
+</script>
+</body>
+</html>
