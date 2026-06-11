@@ -1289,7 +1289,7 @@ a{color:inherit}
       <!-- ─── NIELSEN DATASETS (WAR-ROOM-DATA-NIELSEN-001) ─── -->
       <div class="sph" style="margin-top:10px">
         <span class="sph-label">Nielsen Datasets</span>
-        <span class="sph-sub" id="nielsenSyncStamp">S3 confirmed 2026-06-09</span>
+        <span class="sph-sub" id="nielsenSyncStamp">S3 confirmed 2026-06-11</span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 20px 16px">
 
@@ -1302,10 +1302,10 @@ a{color:inherit}
               <span class="nf-badge nf-completed" id="nfBadge-amrld">COMPLETED</span>
               <span class="nf-tiny-warn">tiny-files</span>
             </div>
-            <div class="nf-gb" id="nfGB-amrld"><span>571.5 GB</span></div>
+            <div class="nf-gb" id="nfGB-amrld"><span>~633 GB</span></div>
             <div class="nf-meta-row">
-              <span>104,777 files</span><span class="nf-dot">·</span>
-              <span>6 sub-tables</span><span class="nf-dot">·</span>
+              <span>~100K files</span><span class="nf-dot">·</span>
+              <span>10 sub-tables</span><span class="nf-dot">·</span>
               <span>REC 20/24/25/26/30/36</span>
             </div>
             <div class="nf-meta-row" style="margin-top:3px">
@@ -1317,12 +1317,16 @@ a{color:inherit}
             <table class="nf-tbl">
               <thead><tr><th>Table</th><th>GB</th><th>Files</th></tr></thead>
               <tbody>
-                <tr><td>viewership_amrld_program <span class="nf-tiny-badge">tiny</span></td><td>330.2</td><td>78,939</td></tr>
-                <tr><td>amrld_etl</td><td>83.9</td><td>34</td></tr>
-                <tr><td>viewership_met_lsd</td><td>56.2</td><td>944</td></tr>
-                <tr><td>viewership_met_lv</td><td>49.6</td><td>923</td></tr>
-                <tr><td>viewership_met_l3</td><td>25.8</td><td>10,539</td></tr>
-                <tr><td>viewership_met_l7</td><td>25.8</td><td>13,398</td></tr>
+                <tr><td>viewership_amrld_program <span class="nf-tiny-badge">tiny</span></td><td>~330</td><td>~80K</td></tr>
+                <tr><td>amrld_etl (11 sub-tables)</td><td>74.9</td><td>3,558</td></tr>
+                <tr><td>viewership_met_lsd</td><td>60.4</td><td>944</td></tr>
+                <tr><td>viewership_met_lv</td><td>53.2</td><td>923</td></tr>
+                <tr><td>viewership_met_l3</td><td>27.7</td><td>13,398</td></tr>
+                <tr><td>viewership_met_l7</td><td>27.7</td><td>10,539</td></tr>
+                <tr><td>viewership_met_tp_lsd</td><td>17.5</td><td>678</td></tr>
+                <tr><td>viewership_met_tp_lv</td><td>17.5</td><td>678</td></tr>
+                <tr><td>viewership_met_tp_l3</td><td>17.5</td><td>678</td></tr>
+                <tr><td>viewership_met_tp_l7</td><td>6.6</td><td>226</td></tr>
               </tbody>
             </table>
             <div class="nf-drill-meta">
@@ -1340,10 +1344,10 @@ a{color:inherit}
               <span class="nf-title">MIT</span>
               <span class="nf-badge nf-completed" id="nfBadge-mit">COMPLETED</span>
             </div>
-            <div class="nf-gb" id="nfGB-mit"><span>4.5 GB</span></div>
+            <div class="nf-gb" id="nfGB-mit"><span>14.8 GB</span></div>
             <div class="nf-meta-row">
-              <span>412 files</span><span class="nf-dot">·</span>
-              <span>12 file types</span>
+              <span>716 files</span><span class="nf-dot">·</span>
+              <span>2 feeds (03h + 05p)</span>
             </div>
             <div class="nf-meta-row" style="margin-top:3px">
               <span>09/01/2014 – 06/09/2026</span>
@@ -1355,18 +1359,15 @@ a{color:inherit}
           </div>
           <div class="nf-drill" id="nfDrill-mit">
             <table class="nf-tbl">
-              <thead><tr><th>File Type</th></tr></thead>
+              <thead><tr><th>Feed</th><th>GB</th><th>Files</th></tr></thead>
               <tbody>
-                <tr><td>HR_ID_DESC · NHI_MIT_00</td></tr>
-                <tr><td>NHI_MIT_01_UES_H/P</td></tr>
-                <tr><td>NHI_MIT_02_INT_H/P</td></tr>
-                <tr><td>NHI_MIT_03_TVU_H/P</td></tr>
-                <tr><td>NHI_MIT_04_D/H/P</td></tr>
-                <tr><td>NHI_MIT_05_H/P · ACM_06_C/P=C3</td></tr>
+                <tr><td>mit_03h (3-hour)</td><td>2.0</td><td>460</td></tr>
+                <tr><td>mit_05p (5-plus)</td><td>12.8</td><td>256</td></tr>
+                <tr><td colspan="3" style="color:#6B7280;font-size:10px">File types: HR_ID_DESC · NHI_MIT_00–05 · ACM_06</td></tr>
               </tbody>
             </table>
             <div class="nf-drill-meta">
-              <span>s3://sasmaster-2026/nielsen/mit/</span>
+              <span>s3://sasmaster-2026/nielsen/viewership/mit_03h/ + mit_05p/</span>
             </div>
           </div>
         </div>
@@ -1379,7 +1380,7 @@ a{color:inherit}
               <span class="nf-title">Ad Intel</span>
               <span class="nf-badge nf-completed" id="nfBadge-adintel">COMPLETED</span>
             </div>
-            <div class="nf-gb" id="nfGB-adintel"><span>20.5 GB</span></div>
+            <div class="nf-gb" id="nfGB-adintel"><span>22.0 GB</span></div>
             <div class="nf-meta-row">
               <span>1,750 files</span><span class="nf-dot">·</span>
               <span>38 tables</span>
@@ -1413,9 +1414,9 @@ a{color:inherit}
               <span class="nf-title">MRI</span>
               <span class="nf-badge nf-completed" id="nfBadge-mri">COMPLETED</span>
             </div>
-            <div class="nf-gb" id="nfGB-mri"><span>69.7 GB</span></div>
+            <div class="nf-gb" id="nfGB-mri"><span>4.8 GB</span></div>
             <div class="nf-meta-row">
-              <span>3,542 files</span><span class="nf-dot">·</span>
+              <span>412 files</span><span class="nf-dot">·</span>
               <span>29 tables</span>
             </div>
             <div class="nf-meta-row" style="margin-top:3px">
