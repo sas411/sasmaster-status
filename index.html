@@ -1286,6 +1286,161 @@ a{color:inherit}
         </span>
       </div>
 
+      <!-- ─── NIELSEN DATASETS (WAR-ROOM-DATA-NIELSEN-001) ─── -->
+      <div class="sph" style="margin-top:10px">
+        <span class="sph-label">Nielsen Datasets</span>
+        <span class="sph-sub" id="nielsenSyncStamp">S3 confirmed 2026-06-09</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 20px 16px">
+
+        <!-- AMRLD card -->
+        <div class="nf-card">
+          <div class="nf-card-top" onclick="toggleNFDrill('amrld')">
+            <div class="nf-hdr">
+              <span class="nf-icon">📊</span>
+              <span class="nf-title">AMRLD</span>
+              <span class="nf-badge nf-completed" id="nfBadge-amrld">COMPLETED</span>
+              <span class="nf-tiny-warn">tiny-files</span>
+            </div>
+            <div class="nf-gb" id="nfGB-amrld"><span>571.5 GB</span></div>
+            <div class="nf-meta-row">
+              <span>104,777 files</span><span class="nf-dot">·</span>
+              <span>6 sub-tables</span><span class="nf-dot">·</span>
+              <span>REC 20/24/25/26/30/36</span>
+            </div>
+            <div class="nf-meta-row" style="margin-top:3px">
+              <span>12/31/2012 – 06/08/2026</span>
+            </div>
+            <div class="nf-drill-arrow" id="nfArrow-amrld">▾ drill-down</div>
+          </div>
+          <div class="nf-drill" id="nfDrill-amrld">
+            <table class="nf-tbl">
+              <thead><tr><th>Table</th><th>GB</th><th>Files</th></tr></thead>
+              <tbody>
+                <tr><td>viewership_amrld_program <span class="nf-tiny-badge">tiny</span></td><td>330.2</td><td>78,939</td></tr>
+                <tr><td>amrld_etl</td><td>83.9</td><td>34</td></tr>
+                <tr><td>viewership_met_lsd</td><td>56.2</td><td>944</td></tr>
+                <tr><td>viewership_met_lv</td><td>49.6</td><td>923</td></tr>
+                <tr><td>viewership_met_l3</td><td>25.8</td><td>10,539</td></tr>
+                <tr><td>viewership_met_l7</td><td>25.8</td><td>13,398</td></tr>
+              </tbody>
+            </table>
+            <div class="nf-drill-meta">
+              <span>RunID 389712485342468</span>
+              <span>s3://sasmaster-2026/nielsen/viewership/ · amrld_etl/</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MIT card -->
+        <div class="nf-card">
+          <div class="nf-card-top" onclick="toggleNFDrill('mit')">
+            <div class="nf-hdr">
+              <span class="nf-icon">📡</span>
+              <span class="nf-title">MIT</span>
+              <span class="nf-badge nf-completed" id="nfBadge-mit">COMPLETED</span>
+            </div>
+            <div class="nf-gb" id="nfGB-mit"><span>4.5 GB</span></div>
+            <div class="nf-meta-row">
+              <span>412 files</span><span class="nf-dot">·</span>
+              <span>12 file types</span>
+            </div>
+            <div class="nf-meta-row" style="margin-top:3px">
+              <span>09/01/2014 – 06/09/2026</span>
+            </div>
+            <div class="nf-meta-row" style="margin-top:3px;color:#D97706">
+              <span>⚑ Broadcast TP gap: cuts 11/30/2022; Cable = current</span>
+            </div>
+            <div class="nf-drill-arrow" id="nfArrow-mit">▾ drill-down</div>
+          </div>
+          <div class="nf-drill" id="nfDrill-mit">
+            <table class="nf-tbl">
+              <thead><tr><th>File Type</th></tr></thead>
+              <tbody>
+                <tr><td>HR_ID_DESC · NHI_MIT_00</td></tr>
+                <tr><td>NHI_MIT_01_UES_H/P</td></tr>
+                <tr><td>NHI_MIT_02_INT_H/P</td></tr>
+                <tr><td>NHI_MIT_03_TVU_H/P</td></tr>
+                <tr><td>NHI_MIT_04_D/H/P</td></tr>
+                <tr><td>NHI_MIT_05_H/P · ACM_06_C/P=C3</td></tr>
+              </tbody>
+            </table>
+            <div class="nf-drill-meta">
+              <span>s3://sasmaster-2026/nielsen/mit/</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ad Intel card -->
+        <div class="nf-card">
+          <div class="nf-card-top" onclick="toggleNFDrill('adintel')">
+            <div class="nf-hdr">
+              <span class="nf-icon">📺</span>
+              <span class="nf-title">Ad Intel</span>
+              <span class="nf-badge nf-completed" id="nfBadge-adintel">COMPLETED</span>
+            </div>
+            <div class="nf-gb" id="nfGB-adintel"><span>20.5 GB</span></div>
+            <div class="nf-meta-row">
+              <span>1,750 files</span><span class="nf-dot">·</span>
+              <span>38 tables</span>
+            </div>
+            <div class="nf-meta-row" style="margin-top:3px">
+              <span>Coverage: extract manifests</span>
+            </div>
+            <div class="nf-drill-arrow" id="nfArrow-adintel">▾ drill-down</div>
+          </div>
+          <div class="nf-drill" id="nfDrill-adintel">
+            <table class="nf-tbl">
+              <thead><tr><th>Breakdown</th><th>Detail</th></tr></thead>
+              <tbody>
+                <tr><td>Windowed tables</td><td>23</td></tr>
+                <tr><td>Reference tables</td><td>15</td></tr>
+                <tr><td>Largest: ad_intel_occ_sp</td><td>517M rows</td></tr>
+              </tbody>
+            </table>
+            <div class="nf-drill-meta">
+              <span>RunID 311933490455064</span>
+              <span>s3://sasmaster-2026/nielsen/ad_intel/</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MRI card -->
+        <div class="nf-card">
+          <div class="nf-card-top" onclick="toggleNFDrill('mri')">
+            <div class="nf-hdr">
+              <span class="nf-icon">👥</span>
+              <span class="nf-title">MRI</span>
+              <span class="nf-badge nf-completed" id="nfBadge-mri">COMPLETED</span>
+            </div>
+            <div class="nf-gb" id="nfGB-mri"><span>69.7 GB</span></div>
+            <div class="nf-meta-row">
+              <span>3,542 files</span><span class="nf-dot">·</span>
+              <span>29 tables</span>
+            </div>
+            <div class="nf-meta-row" style="margin-top:3px">
+              <span>Coverage: extract manifests</span>
+            </div>
+            <div class="nf-drill-arrow" id="nfArrow-mri">▾ drill-down</div>
+          </div>
+          <div class="nf-drill" id="nfDrill-mri">
+            <table class="nf-tbl">
+              <thead><tr><th>Breakdown</th><th>Detail</th></tr></thead>
+              <tbody>
+                <tr><td>Persons windowed</td><td>3 tables</td></tr>
+                <tr><td>Survey segments</td><td>26 tables</td></tr>
+              </tbody>
+            </table>
+            <div class="nf-drill-meta">
+              <span>RunID 437697692979913</span>
+              <span>s3://sasmaster-2026/nielsen/mri/</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- END NIELSEN DATASETS -->
+
       <!-- ─── DATA HEALTH PANEL (DATA-OBSERVE-001) ─── -->
       <div class="sph" style="margin-top:16px">
         <span class="sph-label">Data Health</span>
@@ -1296,19 +1451,53 @@ a{color:inherit}
       <!-- Feed decay pills row (FEED-DECAY-001) -->
       <div id="feedDecayRow" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:10px"></div>
 
-      <!-- Plane row counts — horizontal bar chart -->
-      <div id="dataHealthBars" style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px"></div>
+      <!-- Visual A — Production Spine (parent_keys/ registry cardinality) -->
+      <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">PRODUCTION SPINE — parent_keys/ <span style="color:#16A34A;margin-left:6px">LIVE · matches parent_keys card</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:10px;font-size:10px;font-family:'DM Mono',monospace">
+            <span style="width:80px;text-align:right;color:var(--text);font-weight:600">TV Episodes</span>
+            <div style="flex:1;background:var(--bdr);border-radius:3px;height:14px;overflow:hidden"><div style="width:100%;height:100%;background:#a78bfa;opacity:.85"></div></div>
+            <span style="width:72px;color:var(--text);font-weight:700">10,050,000</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:10px;font-family:'DM Mono',monospace">
+            <span style="width:80px;text-align:right;color:var(--text);font-weight:600">Movies</span>
+            <div style="flex:1;background:var(--bdr);border-radius:3px;height:14px;overflow:hidden"><div style="width:9%;height:100%;background:#22d3ee;opacity:.85"></div></div>
+            <span style="width:72px;color:var(--text);font-weight:700">902,937</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:10px;font-family:'DM Mono',monospace">
+            <span style="width:80px;text-align:right;color:var(--text);font-weight:600">TV Series</span>
+            <div style="flex:1;background:var(--bdr);border-radius:3px;height:14px;overflow:hidden"><div style="width:3.7%;height:100%;background:#f59e0b;opacity:.85"></div></div>
+            <span style="width:72px;color:var(--text);font-weight:700">370,728</span>
+          </div>
+        </div>
+        <div style="font-size:9px;color:var(--text-3);font-family:'DM Mono',monospace;margin-top:6px">Certified, minted UUIDv5 keys. Bar = registry cardinality. The number the rest of the platform builds on.</div>
+      </div>
 
-      <!-- Confidence distribution + manifest hashes -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="dataHealthMeta">
-        <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px">
-          <div style="font-size:10px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Confidence Tiers — product mart</div>
-          <div id="dataHealthConf" style="font-size:11px;color:var(--text-2);font-family:'DM Mono',monospace"></div>
-        </div>
-        <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px">
-          <div style="font-size:10px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Lineage Trace</div>
-          <div id="dataHealthLineage" style="font-size:11px;color:var(--text-2);font-family:'DM Mono',monospace"></div>
-        </div>
+      <!-- Visual B — Match Confidence Worked Examples -->
+      <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;margin-bottom:8px">
+        <div style="font-size:9px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">MATCH CONFIDENCE — WORKED EXAMPLES</div>
+        <table style="width:100%;border-collapse:collapse;font-size:10px;font-family:'DM Mono',monospace">
+          <thead>
+            <tr style="border-bottom:1px solid var(--bdr)">
+              <th style="text-align:left;color:var(--text-3);font-size:8.5px;padding:2px 6px 5px;text-transform:uppercase;letter-spacing:.4px">Signal combo</th>
+              <th style="text-align:center;color:var(--text-3);font-size:8.5px;padding:2px 6px 5px;text-transform:uppercase;letter-spacing:.4px">Score</th>
+              <th style="text-align:left;color:var(--text-3);font-size:8.5px;padding:2px 6px 5px;text-transform:uppercase;letter-spacing:.4px">Band</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:3px 6px;color:var(--text-2)">eidr alone</td><td style="padding:3px 6px;text-align:center;color:var(--text)">0.95</td><td style="padding:3px 6px"><span style="background:rgba(22,163,74,.15);color:#16A34A;border-radius:3px;padding:1px 6px;font-size:8.5px;font-weight:700">Certified</span></td></tr>
+            <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:3px 6px;color:var(--text-2)">imdb + eidr + tmdb</td><td style="padding:3px 6px;text-align:center;color:var(--text)">1.00</td><td style="padding:3px 6px"><span style="background:rgba(22,163,74,.15);color:#16A34A;border-radius:3px;padding:1px 6px;font-size:8.5px;font-weight:700">Certified</span></td></tr>
+            <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:3px 6px;color:var(--text-2)">imdb + eidr</td><td style="padding:3px 6px;text-align:center;color:var(--text)">1.00</td><td style="padding:3px 6px"><span style="background:rgba(22,163,74,.15);color:#16A34A;border-radius:3px;padding:1px 6px;font-size:8.5px;font-weight:700">Certified</span></td></tr>
+            <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:3px 6px;color:var(--text-2)">imdb + tmdb + gracenote</td><td style="padding:3px 6px;text-align:center;color:var(--text)">0.89*</td><td style="padding:3px 6px"><span style="background:rgba(37,99,235,.12);color:#2563EB;border-radius:3px;padding:1px 6px;font-size:8.5px;font-weight:700">Confirmed</span></td></tr>
+            <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:3px 6px;color:var(--text-2)">imdb + tmdb + fyi</td><td style="padding:3px 6px;text-align:center;color:var(--text)">0.89*</td><td style="padding:3px 6px"><span style="background:rgba(37,99,235,.12);color:#2563EB;border-radius:3px;padding:1px 6px;font-size:8.5px;font-weight:700">Confirmed</span></td></tr>
+            <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:3px 6px;color:var(--text-2)">imdb + tmdb</td><td style="padding:3px 6px;text-align:center;color:var(--text)">0.82</td><td style="padding:3px 6px"><span style="background:rgba(37,99,235,.12);color:#2563EB;border-radius:3px;padding:1px 6px;font-size:8.5px;font-weight:700">Confirmed</span></td></tr>
+            <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:3px 6px;color:var(--text-2)">imdb only</td><td style="padding:3px 6px;text-align:center;color:var(--text)">0.50</td><td style="padding:3px 6px"><span style="background:rgba(245,158,11,.12);color:#D97706;border-radius:3px;padding:1px 6px;font-size:8.5px;font-weight:700">Provisional</span></td></tr>
+            <tr style="border-bottom:1px solid rgba(0,0,0,.04)"><td style="padding:3px 6px;color:var(--text-2)">imdb + tmdb · conflict</td><td style="padding:3px 6px;text-align:center;color:var(--text)">0.52</td><td style="padding:3px 6px"><span style="background:rgba(245,158,11,.12);color:#D97706;border-radius:3px;padding:1px 6px;font-size:8.5px;font-weight:700">Provisional→flag</span></td></tr>
+            <tr><td style="padding:3px 6px;color:var(--text-2)">tmdb orphan</td><td style="padding:3px 6px;text-align:center;color:var(--text)">0.30</td><td style="padding:3px 6px"><span style="background:rgba(107,114,128,.1);color:#6B7280;border-radius:3px;padding:1px 6px;font-size:8.5px;font-weight:700">Held</span></td></tr>
+          </tbody>
+        </table>
+        <div style="font-size:9px;color:var(--text-3);font-family:'DM Mono',monospace;margin-top:6px">* raw sum 0.97, capped at 0.89 by the EIDR gate. Bands: Certified ≥0.90 · Confirmed 0.80–0.90 · Provisional 0.50–0.80 · Held &lt;0.50.</div>
       </div>
 
       <!-- Failed assertions (if any) -->
@@ -2948,17 +3137,28 @@ function populateS3Grid(d) {
     const et = b.entity_type;
 
     if (et === 'entity') {
-      // Per-type count table
+      // Per-type count table — grouped by dataset if schedule_data present
       const TYPE_LABELS = {movies:'Movies', tv_series:'TV Series', episodes:'Episodes', people:'People', sports:'Sports', other:'Other', telecasts:'Telecasts'};
       const ents = b.entities || {};
       const hasAny = Object.values(ents).some(v => v != null);
+      const hasSched = !!b.schedule_data;
+      if (hasSched) {
+        entRows = `<div style="font-size:8.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px;margin:2px 0 3px">Program / Title Metadata</div>`;
+      }
       if (hasAny) {
-        entRows = Object.entries(TYPE_LABELS)
+        entRows += Object.entries(TYPE_LABELS)
           .map(([k, label]) => {
             const v = ents[k];
             if (v == null) return '';
             return `<div class="s3-rows"><span>${label}</span><span class="s3-row-val">${fmtNum(v)}</span></div>`;
           }).join('');
+      }
+      if (hasSched) {
+        const sd = b.schedule_data;
+        entRows += `<div style="font-size:8.5px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px;margin:6px 0 3px">TV Schedule Data</div>`;
+        entRows += `<div class="s3-rows"><span>Grain</span><span class="s3-row-val" style="font-size:9px">${escHtml(sd.grain || '—')}</span></div>`;
+        entRows += `<div class="s3-rows"><span>Tables</span><span class="s3-row-val" style="font-size:9px">${escHtml((sd.tables||[]).join(', '))}</span></div>`;
+        entRows += `<div class="s3-rows"><span>Count</span><span class="s3-row-val" style="color:#D97706;font-style:italic">${escHtml(sd.note || 'pending')}</span></div>`;
       }
       if (b.flag) entRows += `<div class="s3-note" style="color:#f59e0b;margin-top:4px">⚑ ${escHtml(b.flag)}</div>`;
 
