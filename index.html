@@ -1442,6 +1442,117 @@ a{color:inherit}
       </div>
       <!-- END NIELSEN DATASETS -->
 
+      <!-- ─── BARB DATASETS (BARB-EXTRACT-001) ─── -->
+      <div class="sph" style="margin-top:10px">
+        <span class="sph-label">BARB Datasets <span style="font-size:9px;color:var(--text-3);font-weight:400">UK Broadcasters' Audience Research Board</span></span>
+        <span class="sph-sub" id="barbSyncStamp">Inventory in progress · 2026-06-11</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 20px 16px">
+
+        <!-- BARB Reference card -->
+        <div class="nf-card">
+          <div class="nf-card-top" onclick="toggleNFDrill('barb-ref')">
+            <div class="nf-hdr">
+              <span class="nf-icon">📋</span>
+              <span class="nf-title">BARB Reference</span>
+              <span class="nf-badge" id="nfBadge-barb-ref" style="background:#1e3a5f;color:#60a5fa">INVENTORY</span>
+            </div>
+            <div class="nf-gb" id="nfGB-barb-ref"><span>— GB</span></div>
+            <div class="nf-meta-row">
+              <span id="barb-ref-tables">barb_ref_dev (ALL) + snp_channel</span>
+            </div>
+            <div class="nf-meta-row" style="margin-top:3px">
+              <span id="barb-ref-dates">Date range: pending inventory</span>
+            </div>
+            <div class="nf-drill-arrow" id="nfArrow-barb-ref">▾ drill-down</div>
+          </div>
+          <div class="nf-drill" id="nfDrill-barb-ref">
+            <table class="nf-tbl">
+              <thead><tr><th>Table</th><th>GB</th><th>Min Date</th><th>Max Date</th></tr></thead>
+              <tbody id="barb-ref-tbody">
+                <tr><td colspan="4" style="color:var(--text-3);font-style:italic">Inventory running — results populate after Step 0</td></tr>
+              </tbody>
+            </table>
+            <div class="nf-drill-meta">
+              <span>s3://sasmaster-2026/barb/barb_ref_dev/ · brb_app_dev/snp_channel/</span>
+              <span>Batch A · single-shot per table (no year chunking)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BARB Schedule card -->
+        <div class="nf-card">
+          <div class="nf-card-top" onclick="toggleNFDrill('barb-sched')">
+            <div class="nf-hdr">
+              <span class="nf-icon">📅</span>
+              <span class="nf-title">BARB Schedule</span>
+              <span class="nf-badge" id="nfBadge-barb-sched" style="background:#1e3a5f;color:#60a5fa">INVENTORY</span>
+            </div>
+            <div class="nf-gb" id="nfGB-barb-sched"><span>— GB</span></div>
+            <div class="nf-meta-row">
+              <span>stl_scheduled_episode + 3 barb_ml_qa7</span>
+            </div>
+            <div class="nf-meta-row" style="margin-top:3px">
+              <span id="barb-sched-dates">Date range: pending inventory</span>
+            </div>
+            <div class="nf-drill-arrow" id="nfArrow-barb-sched">▾ drill-down</div>
+          </div>
+          <div class="nf-drill" id="nfDrill-barb-sched">
+            <table class="nf-tbl">
+              <thead><tr><th>Table</th><th>GB</th><th>Min Date</th><th>Max Date</th></tr></thead>
+              <tbody id="barb-sched-tbody">
+                <tr><td>stl_scheduled_episode</td><td>—</td><td>—</td><td>—</td></tr>
+                <tr><td>barb_ml_qa7.barb_break_program_schedule</td><td>—</td><td>—</td><td>—</td></tr>
+                <tr><td>barb_ml_qa7.barb_break_schedule</td><td>—</td><td>—</td><td>—</td></tr>
+                <tr><td>barb_ml_qa7.barb_pgm_brk_schedule</td><td>—</td><td>—</td><td>—</td></tr>
+              </tbody>
+            </table>
+            <div class="nf-drill-meta">
+              <span>s3://sasmaster-2026/barb/brb_app_dev/ · barb_ml_qa7/</span>
+              <span>Batch B · year-chunked where date col found</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BARB Audience card -->
+        <div class="nf-card">
+          <div class="nf-card-top" onclick="toggleNFDrill('barb-tx')">
+            <div class="nf-hdr">
+              <span class="nf-icon">📺</span>
+              <span class="nf-title">BARB Audience</span>
+              <span class="nf-badge" id="nfBadge-barb-tx" style="background:#1e3a5f;color:#60a5fa">INVENTORY</span>
+            </div>
+            <div class="nf-gb" id="nfGB-barb-tx"><span>— GB</span></div>
+            <div class="nf-meta-row">
+              <span>6 transactional tables · year-chunked</span>
+            </div>
+            <div class="nf-meta-row" style="margin-top:3px">
+              <span id="barb-tx-dates">Date range: pending inventory</span>
+            </div>
+            <div class="nf-drill-arrow" id="nfArrow-barb-tx">▾ drill-down</div>
+          </div>
+          <div class="nf-drill" id="nfDrill-barb-tx">
+            <table class="nf-tbl">
+              <thead><tr><th>Table</th><th>Rows</th><th>GB</th><th>Min–Max</th></tr></thead>
+              <tbody id="barb-tx-tbody">
+                <tr><td>snp_break</td><td>—</td><td>—</td><td>—</td></tr>
+                <tr><td>snp_audience</td><td>—</td><td>—</td><td>—</td></tr>
+                <tr><td>snp_txbase</td><td>—</td><td>—</td><td>—</td></tr>
+                <tr><td>snp_txlevel</td><td>—</td><td>—</td><td>—</td></tr>
+                <tr><td>snp_breakaudiencetxlevel</td><td>—</td><td>—</td><td>—</td></tr>
+                <tr><td>snp_audiencetxlevel <span style="color:#D97706;font-size:9px">★ heavy</span></td><td>—</td><td>—</td><td>—</td></tr>
+              </tbody>
+            </table>
+            <div class="nf-drill-meta">
+              <span>s3://sasmaster-2026/barb/brb_app_dev/</span>
+              <span>Batch C · resumable year-chunks · _SUCCESS gate</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- END BARB DATASETS -->
+
       <!-- ─── DATA HEALTH PANEL (DATA-OBSERVE-001) ─── -->
       <div class="sph" style="margin-top:16px">
         <span class="sph-label">Data Health</span>
