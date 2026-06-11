@@ -1286,138 +1286,6 @@ a{color:inherit}
         </span>
       </div>
 
-      <!-- Nielsen Feed Monitor — WAR-ROOM-DATA-NIELSEN-001 -->
-      <div class="sph" style="margin-top:14px">
-        <span class="sph-label">Nielsen Feed</span>
-        <span class="sph-sub">MIT · AMRLD · Ad Intel · MRI</span>
-        <span class="sph-ml" id="nielsenFreshPill"></span>
-        <span id="nielsenSyncStamp" style="font-size:9px;color:var(--text-3);font-family:var(--mono)">S3 confirmed 2026-06-10</span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px" id="nielsenCards">
-
-        <!-- MIT Card -->
-        <div class="nf-card" id="nfCard-mit">
-          <div class="nf-card-top" onclick="toggleNFDrill('mit')">
-            <div class="nf-hdr">
-              <span class="nf-icon">≡</span>
-              <span class="nf-title">MIT</span>
-              <span class="nf-badge nf-live" id="nfBadge-mit"><span class="nf-pulse nf-pulse-live"></span>LIVE</span>
-            </div>
-            <div class="nf-gb" id="nfGB-mit">13.75 GB</div>
-            <div class="nf-meta-row">
-              <span id="nfFiles-mit">716 files</span><span class="nf-dot">·</span>
-              <span>2021–2025</span><span class="nf-dot">·</span>
-              <span style="color:var(--text-3)">mit_05p + mit_03h</span>
-            </div>
-            <div class="nf-drill-arrow" id="nfArrow-mit">▾ 2 tables</div>
-          </div>
-          <div class="nf-drill" id="nfDrill-mit">
-            <table class="nf-tbl">
-              <thead><tr><th>Table</th><th>Size</th><th>Files</th><th>Record Types</th></tr></thead>
-              <tbody>
-                <tr><td>mit_05p</td><td>11.88 GB</td><td>256</td><td>05_P · 05_H · ACM_06_C/P</td></tr>
-                <tr><td>mit_03h</td><td>1.87 GB</td><td>460</td><td>04_D · 04_H</td></tr>
-              </tbody>
-            </table>
-            <div class="nf-drill-meta">
-              <span>Coverage: 2021–2025 · NHI_MIT_00 → ACM_06_P series</span>
-              <span>S3: s3://sasmaster-2026/nielsen/viewership/mit_05p/ + mit_03h/</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- AMRLD Card -->
-        <div class="nf-card" id="nfCard-amrld">
-          <div class="nf-card-top" onclick="toggleNFDrill('amrld')">
-            <div class="nf-hdr">
-              <span class="nf-icon">⌘</span>
-              <span class="nf-title">AMRLD</span>
-              <span class="nf-badge nf-completed" id="nfBadge-amrld">COMPLETED</span>
-              <span class="nf-tiny-warn">⚠ tiny files</span>
-            </div>
-            <div class="nf-gb" id="nfGB-amrld">571.4 GB</div>
-            <div class="nf-meta-row">
-              <span id="nfFiles-amrld">104,777 files</span><span class="nf-dot">·</span>
-              <span>2016–2026</span><span class="nf-dot">·</span>
-              <span style="color:var(--text-3)">REC20/24/25/26/30/36</span>
-            </div>
-            <div class="nf-drill-arrow" id="nfArrow-amrld">▾ 6 tables</div>
-          </div>
-          <div class="nf-drill" id="nfDrill-amrld">
-            <table class="nf-tbl">
-              <thead><tr><th>Table</th><th>Size</th><th>Files</th><th>Flag</th></tr></thead>
-              <tbody>
-                <tr><td>viewership_amrld_program</td><td>330.2 GB</td><td>78,939</td><td><span class="nf-tiny-badge">⚠ COMPACT NEEDED</span></td></tr>
-                <tr><td>march_2026 (raw)</td><td>83.8 GB</td><td>34</td><td>—</td></tr>
-                <tr><td>viewership_met_lsd</td><td>56.2 GB</td><td>944</td><td>—</td></tr>
-                <tr><td>viewership_met_lv</td><td>49.6 GB</td><td>923</td><td>—</td></tr>
-                <tr><td>viewership_met_l3</td><td>25.8 GB</td><td>13,398</td><td>—</td></tr>
-                <tr><td>viewership_met_l7</td><td>25.8 GB</td><td>10,539</td><td>—</td></tr>
-              </tbody>
-            </table>
-            <div class="nf-drill-meta">
-              <span>RunID: 389712485342468 · amrld-extract</span>
-              <span>Debt: AMRLD-COMPACT-001 — viewership_amrld_program has 78,939 tiny files (target: &lt;500 files)</span>
-              <span>S3: s3://sasmaster-2026/nielsen/viewership/ + march_2026/</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Ad Intel Card -->
-        <div class="nf-card" id="nfCard-adintel">
-          <div class="nf-card-top" onclick="toggleNFDrill('adintel')">
-            <div class="nf-hdr">
-              <span class="nf-icon">⊞</span>
-              <span class="nf-title">Ad Intel</span>
-              <span class="nf-badge nf-running" id="nfBadge-adintel"><span class="nf-pulse nf-pulse-run"></span>RUNNING</span>
-            </div>
-            <div class="nf-gb" id="nfGB-adintel">20.5 GB <span style="font-size:10px;color:var(--text-3);font-weight:400">/ est ~48 GB</span></div>
-            <div class="nf-meta-row">
-              <span id="nfFiles-adintel">1,750 files</span><span class="nf-dot">·</span>
-              <span>38 tables</span><span class="nf-dot">·</span>
-              <span style="color:var(--text-3)">windowed by year</span>
-            </div>
-            <div class="nf-drill-arrow" id="nfArrow-adintel">▾ details</div>
-          </div>
-          <div class="nf-drill" id="nfDrill-adintel">
-            <div class="nf-progress"><div class="nf-progress-bar" style="width:43%"></div></div>
-            <div class="nf-drill-meta" style="margin-top:8px">
-              <span>38 tables · windowed by year partitions + /all/ ref tables</span>
-              <span>Confirmed: 20.5 GB / 1,750 files · Est final: ~48 GB (extraction in progress)</span>
-              <span>RunID: 311933490455064 · adintel-extract</span>
-              <span>S3: s3://sasmaster-2026/nielsen/ad_intel/</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- MRI Card -->
-        <div class="nf-card" id="nfCard-mri">
-          <div class="nf-card-top" onclick="toggleNFDrill('mri')">
-            <div class="nf-hdr">
-              <span class="nf-icon">⊙</span>
-              <span class="nf-title">MRI</span>
-              <span class="nf-badge nf-completed" id="nfBadge-mri">COMPLETED</span>
-            </div>
-            <div class="nf-gb" id="nfGB-mri">69.7 GB</div>
-            <div class="nf-meta-row">
-              <span id="nfFiles-mri">3,542 files</span><span class="nf-dot">·</span>
-              <span>29 tables</span><span class="nf-dot">·</span>
-              <span style="color:var(--text-3)">3 persons + 26 survey</span>
-            </div>
-            <div class="nf-drill-arrow" id="nfArrow-mri">▾ details</div>
-          </div>
-          <div class="nf-drill" id="nfDrill-mri">
-            <div class="nf-drill-meta">
-              <span>3 persons tables + 26 survey segment tables = 29 total</span>
-              <span>Final: 69.7 GB / 3,542 files (vs ~32 GB est — extraction completed above estimate)</span>
-              <span>RunID: 437697692979913 · mri-extract</span>
-              <span>S3: s3://sasmaster-2026/nielsen/mri/</span>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /nielsenCards -->
-
       <!-- ─── DATA HEALTH PANEL (DATA-OBSERVE-001) ─── -->
       <div class="sph" style="margin-top:16px">
         <span class="sph-label">Data Health</span>
@@ -3059,7 +2927,7 @@ function populateS3Grid(d) {
 
   const el = document.getElementById('s3Grid');
   el.innerHTML = lake.map(b => {
-    const stCls = b.status === 'live' ? 'st ok' : b.status === 'landing' ? 'st land' : b.status === 'queued' ? 'st que' : b.status === 'running' ? 'st run' : 'st des';
+    const stCls = b.status === 'live' ? 'st ok' : b.status === 'landing' ? 'st land' : b.status === 'queued' ? 'st que' : b.status === 'running' ? 'st run' : b.status === 'feed-off' ? 'st des' : 'st des';
     const upd = b.last_updated ? relTime(b.last_updated) : '—';
     const renderTime = new Date().toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit',hour12:false}) + ' local';
     const dataAsOf  = b.computed_at
@@ -3093,6 +2961,34 @@ function populateS3Grid(d) {
           }).join('');
       }
       if (b.flag) entRows += `<div class="s3-note" style="color:#f59e0b;margin-top:4px">⚑ ${escHtml(b.flag)}</div>`;
+
+    } else if (et === 'confidence_tiers') {
+      // PARENTKEY-CONFIDENCE-001 — 3-tier confidence per class
+      const ct = b.confidence_tiers || {};
+      const CLASS_LABELS = { movies: 'Movies', tv_series: 'TV Series', tv_episode: 'TV Episodic' };
+      entRows = Object.entries(CLASS_LABELS).map(([k, label]) => {
+        const row = ct[k];
+        if (!row) return '';
+        if (row.pending) {
+          return `<div class="s3-rows"><span>${label}</span><span class="s3-row-val" style="color:var(--text-3);font-style:italic">${escHtml(row.pending)}</span></div>`;
+        }
+        const total = row.total || 0;
+        const certPct = total > 0 ? (row.certified / total * 100).toFixed(1) : '0.0';
+        return `<div style="margin:3px 0">
+          <div style="display:flex;justify-content:space-between;font-size:10px;font-family:'DM Mono',monospace;margin-bottom:2px">
+            <span style="color:var(--text);font-weight:600">${label}</span>
+            <span style="color:var(--text-3)">${fmtNum(total)} total</span>
+          </div>
+          <div style="display:flex;gap:4px;align-items:center;font-size:9px;font-family:'DM Mono',monospace">
+            <span style="background:rgba(22,163,74,.15);color:#16A34A;border-radius:3px;padding:1px 5px">✓ ${fmtNum(row.confirmed)} confirmed</span>
+            <span style="background:rgba(245,158,11,.12);color:#D97706;border-radius:3px;padding:1px 5px">~ ${fmtNum(row.partial)} partial</span>
+            ${row.no_match > 0 ? `<span style="background:rgba(220,38,38,.1);color:#DC2626;border-radius:3px;padding:1px 5px">✗ ${fmtNum(row.no_match)} no-match</span>` : ''}
+            <span style="color:var(--text-3);margin-left:auto">EIDR: ${fmtNum(row.certified)} (${certPct}%)</span>
+          </div>
+        </div>`;
+      }).join('');
+      if (ct.tv_episode?.conflict > 0)
+        entRows += `<div class="s3-note" style="color:#f59e0b;margin-top:4px">⚑ ${fmtNum(ct.tv_episode.conflict)} conflict rows flagged for manual review</div>`;
 
     } else if (et === 'entity_funnel') {
       // Current-vs-target funnel per type
