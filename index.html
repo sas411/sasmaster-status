@@ -355,6 +355,40 @@ a{color:inherit}
 .dep-card.stalled{border-color:var(--warn);background:var(--warn-bg)}.dep-card.blocked{border-color:var(--crit);background:var(--crit-bg)}.dep-card.designed{border-color:var(--border);background:var(--surface-2);opacity:.6}
 .dep-card-name{font-size:11px;font-weight:700;margin-bottom:2px}.dep-card-sub{font-size:9.5px;color:var(--text-3)}
 
+/* NIELSEN FEED CARDS — WAR-ROOM-DATA-NIELSEN-001 */
+.nf-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.nf-card:hover{border-color:var(--acc-bd);box-shadow:var(--shadow)}
+.nf-card-top{padding:12px 14px;cursor:pointer;user-select:none}
+.nf-hdr{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.nf-icon{font-size:13px;color:var(--text-3);width:16px;text-align:center;flex-shrink:0}
+.nf-title{font-family:var(--display);font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--text);flex:1}
+.nf-badge{font-size:9px;font-weight:700;font-family:var(--mono);padding:2px 7px;border-radius:10px;display:inline-flex;align-items:center;gap:4px;flex-shrink:0}
+.nf-live{background:rgba(16,163,74,.15);color:#16A34A;border:1px solid rgba(16,163,74,.3)}
+.nf-running{background:rgba(245,158,11,.15);color:#D97706;border:1px solid rgba(245,158,11,.3)}
+.nf-completed{background:rgba(99,102,241,.12);color:#6366F1;border:1px solid rgba(99,102,241,.3)}
+.nf-error{background:rgba(239,68,68,.15);color:#DC2626;border:1px solid rgba(239,68,68,.3)}
+.nf-pulse{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
+.nf-pulse-live{background:#16A34A;animation:nfPulseLive 1.8s ease-in-out infinite}
+.nf-pulse-run{background:#D97706;animation:nfPulseRun 1s ease-in-out infinite}
+@keyframes nfPulseLive{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.65)}}
+@keyframes nfPulseRun{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.35)}}
+.nf-tiny-warn{font-size:9px;background:rgba(251,191,36,.15);color:#D97706;border:1px solid rgba(251,191,36,.3);border-radius:4px;padding:1px 5px;font-family:var(--mono);flex-shrink:0}
+.nf-gb{font-family:var(--display);font-size:22px;font-weight:700;letter-spacing:.3px;color:var(--text);margin-bottom:4px;line-height:1.1}
+.nf-meta-row{font-size:9px;color:var(--text-2);font-family:var(--mono);display:flex;flex-wrap:wrap;gap:3px;align-items:center}
+.nf-dot{color:var(--text-3)}
+.nf-drill-arrow{font-size:9px;color:var(--text-3);margin-top:8px;display:flex;align-items:center;gap:3px;transition:color .15s}
+.nf-card:hover .nf-drill-arrow{color:var(--text-2)}
+.nf-drill{border-top:1px solid var(--border-sub);padding:0 14px;background:var(--bg2);max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease}
+.nf-drill.open{max-height:420px;padding:10px 14px}
+.nf-tbl{width:100%;border-collapse:collapse;font-size:10px;font-family:var(--mono)}
+.nf-tbl th{color:var(--text-3);text-align:left;font-size:8.5px;text-transform:uppercase;letter-spacing:.5px;padding:3px 6px 5px;border-bottom:1px solid var(--border-sub)}
+.nf-tbl td{padding:4px 6px;color:var(--text-2);border-bottom:1px solid rgba(0,0,0,.035)}
+.nf-tbl tr:last-child td{border-bottom:none}
+.nf-tiny-badge{font-size:8px;background:rgba(245,158,11,.15);color:#D97706;border:1px solid rgba(245,158,11,.3);border-radius:3px;padding:1px 4px}
+.nf-drill-meta{display:flex;flex-direction:column;gap:3px;margin-top:8px;font-size:9px;color:var(--text-3);font-family:var(--mono)}
+.nf-progress{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:4px}
+.nf-progress-bar{height:100%;background:#D97706;border-radius:2px}
+
 /* QUEUE TAB */
 .queue-toolbar{display:flex;align-items:center;gap:8px;padding:12px 20px;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;background:var(--surface)}
 .qt-filters{display:flex;gap:4px;flex:1}
@@ -1252,54 +1286,134 @@ a{color:inherit}
         </span>
       </div>
 
-      <!-- Nielsen Feed Monitor -->
+      <!-- Nielsen Feed Monitor — WAR-ROOM-DATA-NIELSEN-001 -->
       <div class="sph" style="margin-top:14px">
         <span class="sph-label">Nielsen Feed</span>
-        <span class="sph-sub">MIT + AMRLD · Tue 5PM puller</span>
+        <span class="sph-sub">MIT · AMRLD · Ad Intel · MRI</span>
         <span class="sph-ml" id="nielsenFreshPill"></span>
+        <span id="nielsenSyncStamp" style="font-size:9px;color:var(--text-3);font-family:var(--mono)">S3 confirmed 2026-06-10</span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px" id="nielsenCards">
 
         <!-- MIT Card -->
-        <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;font-family:'DM Sans',sans-serif">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-size:12px;font-weight:700;color:var(--text);letter-spacing:.4px">MIT</span>
-            <span id="mitFreshPill" style="font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;font-family:'DM Mono',monospace;background:rgba(245,158,11,.15);color:#D97706">CHECKING</span>
-          </div>
-          <div style="display:flex;gap:16px;margin-bottom:6px">
-            <div>
-              <div style="font-size:20px;font-weight:700;color:var(--text)" id="mitTableCount">--/15</div>
-              <div style="font-size:9px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px">Tables</div>
+        <div class="nf-card" id="nfCard-mit">
+          <div class="nf-card-top" onclick="toggleNFDrill('mit')">
+            <div class="nf-hdr">
+              <span class="nf-icon">≡</span>
+              <span class="nf-title">MIT</span>
+              <span class="nf-badge nf-live" id="nfBadge-mit"><span class="nf-pulse nf-pulse-live"></span>LIVE</span>
             </div>
-            <div>
-              <div style="font-size:20px;font-weight:700;color:var(--text)" id="mitLastPull">--</div>
-              <div style="font-size:9px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px">Last Pull</div>
+            <div class="nf-gb" id="nfGB-mit">13.75 GB</div>
+            <div class="nf-meta-row">
+              <span id="nfFiles-mit">716 files</span><span class="nf-dot">·</span>
+              <span>2021–2025</span><span class="nf-dot">·</span>
+              <span style="color:var(--text-3)">mit_05p + mit_03h</span>
+            </div>
+            <div class="nf-drill-arrow" id="nfArrow-mit">▾ 2 tables</div>
+          </div>
+          <div class="nf-drill" id="nfDrill-mit">
+            <table class="nf-tbl">
+              <thead><tr><th>Table</th><th>Size</th><th>Files</th><th>Record Types</th></tr></thead>
+              <tbody>
+                <tr><td>mit_05p</td><td>11.88 GB</td><td>256</td><td>05_P · 05_H · ACM_06_C/P</td></tr>
+                <tr><td>mit_03h</td><td>1.87 GB</td><td>460</td><td>04_D · 04_H</td></tr>
+              </tbody>
+            </table>
+            <div class="nf-drill-meta">
+              <span>Coverage: 2021–2025 · NHI_MIT_00 → ACM_06_P series</span>
+              <span>S3: s3://sasmaster-2026/nielsen/viewership/mit_05p/ + mit_03h/</span>
             </div>
           </div>
-          <div style="font-size:9px;color:var(--text-2);font-family:'DM Mono',monospace">ACM_06_C/P · 04_D/P · 05_H/P</div>
         </div>
 
         <!-- AMRLD Card -->
-        <div style="background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;font-family:'DM Sans',sans-serif">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-size:12px;font-weight:700;color:var(--text);letter-spacing:.4px">AMRLD</span>
-            <span id="amrldFreshPill" style="font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;font-family:'DM Mono',monospace;background:rgba(245,158,11,.15);color:#D97706">CHECKING</span>
+        <div class="nf-card" id="nfCard-amrld">
+          <div class="nf-card-top" onclick="toggleNFDrill('amrld')">
+            <div class="nf-hdr">
+              <span class="nf-icon">⌘</span>
+              <span class="nf-title">AMRLD</span>
+              <span class="nf-badge nf-completed" id="nfBadge-amrld">COMPLETED</span>
+              <span class="nf-tiny-warn">⚠ tiny files</span>
+            </div>
+            <div class="nf-gb" id="nfGB-amrld">571.4 GB</div>
+            <div class="nf-meta-row">
+              <span id="nfFiles-amrld">104,777 files</span><span class="nf-dot">·</span>
+              <span>2016–2026</span><span class="nf-dot">·</span>
+              <span style="color:var(--text-3)">REC20/24/25/26/30/36</span>
+            </div>
+            <div class="nf-drill-arrow" id="nfArrow-amrld">▾ 6 tables</div>
           </div>
-          <div style="display:flex;gap:16px;margin-bottom:6px">
-            <div>
-              <div style="font-size:20px;font-weight:700;color:var(--text)" id="amrldRecCount">--/15</div>
-              <div style="font-size:9px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px">Rec Types</div>
-            </div>
-            <div>
-              <div style="font-size:20px;font-weight:700;color:var(--text)" id="amrldLastPull">--</div>
-              <div style="font-size:9px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px">Last Pull</div>
-            </div>
-            <div>
-              <div style="font-size:20px;font-weight:700;color:var(--text)" id="amrldWeeklyFlag">--</div>
-              <div style="font-size:9px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px">Tue Weekly</div>
+          <div class="nf-drill" id="nfDrill-amrld">
+            <table class="nf-tbl">
+              <thead><tr><th>Table</th><th>Size</th><th>Files</th><th>Flag</th></tr></thead>
+              <tbody>
+                <tr><td>viewership_amrld_program</td><td>330.2 GB</td><td>78,939</td><td><span class="nf-tiny-badge">⚠ COMPACT NEEDED</span></td></tr>
+                <tr><td>march_2026 (raw)</td><td>83.8 GB</td><td>34</td><td>—</td></tr>
+                <tr><td>viewership_met_lsd</td><td>56.2 GB</td><td>944</td><td>—</td></tr>
+                <tr><td>viewership_met_lv</td><td>49.6 GB</td><td>923</td><td>—</td></tr>
+                <tr><td>viewership_met_l3</td><td>25.8 GB</td><td>13,398</td><td>—</td></tr>
+                <tr><td>viewership_met_l7</td><td>25.8 GB</td><td>10,539</td><td>—</td></tr>
+              </tbody>
+            </table>
+            <div class="nf-drill-meta">
+              <span>RunID: 389712485342468 · amrld-extract</span>
+              <span>Debt: AMRLD-COMPACT-001 — viewership_amrld_program has 78,939 tiny files (target: &lt;500 files)</span>
+              <span>S3: s3://sasmaster-2026/nielsen/viewership/ + march_2026/</span>
             </div>
           </div>
-          <div style="font-size:9px;color:var(--text-2);font-family:'DM Mono',monospace">T1×10 · T2×5 · T3×12 · NEW×9 · REC24/47/48 CPP</div>
+        </div>
+
+        <!-- Ad Intel Card -->
+        <div class="nf-card" id="nfCard-adintel">
+          <div class="nf-card-top" onclick="toggleNFDrill('adintel')">
+            <div class="nf-hdr">
+              <span class="nf-icon">⊞</span>
+              <span class="nf-title">Ad Intel</span>
+              <span class="nf-badge nf-running" id="nfBadge-adintel"><span class="nf-pulse nf-pulse-run"></span>RUNNING</span>
+            </div>
+            <div class="nf-gb" id="nfGB-adintel">20.5 GB <span style="font-size:10px;color:var(--text-3);font-weight:400">/ est ~48 GB</span></div>
+            <div class="nf-meta-row">
+              <span id="nfFiles-adintel">1,750 files</span><span class="nf-dot">·</span>
+              <span>38 tables</span><span class="nf-dot">·</span>
+              <span style="color:var(--text-3)">windowed by year</span>
+            </div>
+            <div class="nf-drill-arrow" id="nfArrow-adintel">▾ details</div>
+          </div>
+          <div class="nf-drill" id="nfDrill-adintel">
+            <div class="nf-progress"><div class="nf-progress-bar" style="width:43%"></div></div>
+            <div class="nf-drill-meta" style="margin-top:8px">
+              <span>38 tables · windowed by year partitions + /all/ ref tables</span>
+              <span>Confirmed: 20.5 GB / 1,750 files · Est final: ~48 GB (extraction in progress)</span>
+              <span>RunID: 311933490455064 · adintel-extract</span>
+              <span>S3: s3://sasmaster-2026/nielsen/ad_intel/</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MRI Card -->
+        <div class="nf-card" id="nfCard-mri">
+          <div class="nf-card-top" onclick="toggleNFDrill('mri')">
+            <div class="nf-hdr">
+              <span class="nf-icon">⊙</span>
+              <span class="nf-title">MRI</span>
+              <span class="nf-badge nf-completed" id="nfBadge-mri">COMPLETED</span>
+            </div>
+            <div class="nf-gb" id="nfGB-mri">69.7 GB</div>
+            <div class="nf-meta-row">
+              <span id="nfFiles-mri">3,542 files</span><span class="nf-dot">·</span>
+              <span>29 tables</span><span class="nf-dot">·</span>
+              <span style="color:var(--text-3)">3 persons + 26 survey</span>
+            </div>
+            <div class="nf-drill-arrow" id="nfArrow-mri">▾ details</div>
+          </div>
+          <div class="nf-drill" id="nfDrill-mri">
+            <div class="nf-drill-meta">
+              <span>3 persons tables + 26 survey segment tables = 29 total</span>
+              <span>Final: 69.7 GB / 3,542 files (vs ~32 GB est — extraction completed above estimate)</span>
+              <span>RunID: 437697692979913 · mri-extract</span>
+              <span>S3: s3://sasmaster-2026/nielsen/mri/</span>
+            </div>
+          </div>
         </div>
 
       </div><!-- /nielsenCards -->
@@ -5605,49 +5719,70 @@ function setText(id, val) {
   if (el) el.textContent = val;
 }
 
-// ── Nielsen Feed Monitor ──────────────────────────────────────────────────────
+// ── Nielsen Feed Cards — WAR-ROOM-DATA-NIELSEN-001 ───────────────────────────
+function toggleNFDrill(id) {
+  const drill = document.getElementById('nfDrill-' + id);
+  const arrow = document.getElementById('nfArrow-' + id);
+  if (!drill) return;
+  const isOpen = drill.classList.contains('open');
+  document.querySelectorAll('.nf-drill.open').forEach(el => {
+    el.classList.remove('open');
+    const key = el.id.replace('nfDrill-', '');
+    const a = document.getElementById('nfArrow-' + key);
+    if (a) a.textContent = a.textContent.replace('▴', '▾');
+  });
+  if (!isOpen) {
+    drill.classList.add('open');
+    if (arrow) arrow.textContent = arrow.textContent.replace('▾', '▴');
+  }
+}
+
+async function pollNielsenJobStatus() {
+  const runs = [
+    { key: 'amrld',   runId: '389712485342468' },
+    { key: 'adintel', runId: '311933490455064' },
+    { key: 'mri',     runId: '437697692979913' },
+  ];
+  for (const run of runs) {
+    try {
+      const r = await fetch('https://api.sasmaster.dev/databricks/run-status?run_id=' + run.runId, {
+        signal: AbortSignal.timeout(5000)
+      });
+      if (!r.ok) continue;
+      const data = await r.json();
+      const state = (data.state || '').toUpperCase();
+      const badgeEl = document.getElementById('nfBadge-' + run.key);
+      if (!badgeEl) continue;
+      if (state === 'SUCCESS' || state === 'TERMINATED') {
+        badgeEl.innerHTML = 'COMPLETED';
+        badgeEl.className = 'nf-badge nf-completed';
+      } else if (state === 'RUNNING') {
+        badgeEl.innerHTML = '<span class="nf-pulse nf-pulse-run"></span>RUNNING';
+        badgeEl.className = 'nf-badge nf-running';
+      } else if (state === 'FAILED' || state === 'ERROR') {
+        badgeEl.innerHTML = 'ERROR';
+        badgeEl.className = 'nf-badge nf-error';
+      }
+    } catch (_) { /* Railway proxy may not have this endpoint yet — silently skip */ }
+  }
+}
+
 function populateNielsenCards(d) {
   const nielsen = (d && d.nielsen) || {};
-  const STALE_DAYS = 8;
-  const now = Date.now();
-
-  function freshPill(lastPullIso) {
-    if (!lastPullIso) return { label: 'NO DATA', cls: 'background:rgba(239,68,68,.15);color:#DC2626' };
-    const days = (now - new Date(lastPullIso).getTime()) / 864e5;
-    if (days > STALE_DAYS) return { label: 'STALE', cls: 'background:rgba(239,68,68,.15);color:#DC2626' };
-    if (days > 3) return { label: 'AGING', cls: 'background:rgba(245,158,11,.15);color:#D97706' };
-    return { label: 'FRESH', cls: 'background:rgba(16,185,129,.15);color:#059669' };
+  if (nielsen.last_sync) {
+    const el = document.getElementById('nielsenSyncStamp');
+    if (el) el.textContent = 'S3 confirmed ' + nielsen.last_sync.slice(0, 10);
   }
-
-  // MIT card
-  const mitLast = nielsen.mit_last_pull || null;
-  const mitCount = nielsen.mit_tables_pulled || '--';
-  const mitPill = freshPill(mitLast);
-  const mitPillEl = document.getElementById('mitFreshPill');
-  if (mitPillEl) { mitPillEl.textContent = mitPill.label; mitPillEl.setAttribute('style', mitPillEl.getAttribute('style').replace(/background[^;]+;color[^"]+/, mitPill.cls)); }
-  const mitTC = document.getElementById('mitTableCount');
-  if (mitTC) mitTC.textContent = mitCount + '/15';
-  const mitLP = document.getElementById('mitLastPull');
-  if (mitLP) mitLP.textContent = mitLast ? mitLast.slice(5, 10) : '--';
-
-  // AMRLD card
-  const amrldLast = nielsen.amrld_last_pull || null;
-  const amrldCount = nielsen.amrld_recs_pulled || '--';
-  const amrldWeekly = nielsen.amrld_tuesday_weekly || false;
-  const amrldPill = freshPill(amrldLast);
-  const amrldPillEl = document.getElementById('amrldFreshPill');
-  if (amrldPillEl) { amrldPillEl.textContent = amrldPill.label; amrldPillEl.setAttribute('style', amrldPillEl.getAttribute('style').replace(/background[^;]+;color[^"]+/, amrldPill.cls)); }
-  const amrldRC = document.getElementById('amrldRecCount');
-  if (amrldRC) amrldRC.textContent = amrldCount + '/36';
-  const amrldLP = document.getElementById('amrldLastPull');
-  if (amrldLP) amrldLP.textContent = amrldLast ? amrldLast.slice(5, 10) : '--';
-  const amrldWF = document.getElementById('amrldWeeklyFlag');
-  if (amrldWF) { amrldWF.textContent = amrldWeekly ? '✓' : '--'; amrldWF.style.color = amrldWeekly ? 'var(--ok)' : 'var(--text-2)'; }
-
-  // Tuesday heavy-day alert
-  if (nielsen.amrld_tuesday_gb !== undefined && nielsen.amrld_tuesday_gb < 8) {
-    console.warn('[Nielsen] Tuesday AMRLD pull < 8GB (' + nielsen.amrld_tuesday_gb + 'GB) — may be incomplete');
+  // Override GB values from status.json manifest if present (future live feed)
+  const overrides = { mit: 'mit_gb', amrld: 'amrld_gb', adintel: 'adintel_gb', mri: 'mri_gb' };
+  for (const [key, field] of Object.entries(overrides)) {
+    if (nielsen[field] != null) {
+      const el = document.getElementById('nfGB-' + key);
+      if (el) el.firstChild.textContent = nielsen[field] + ' GB';
+    }
   }
+  // Poll Databricks for live job statuses (best-effort, fails gracefully)
+  pollNielsenJobStatus();
 }
 
 // ─── Bless Queue Counter ──────────────────────────────────────────────────────
