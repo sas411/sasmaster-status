@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster ASK — Audience Signal Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F4F7FB;--surface:#FFFFFF;--inset:#EEF2F8;
+  --text:#0E1726;--text2:#54627A;--text3:#9AA7BC;--border:#E5EAF1;--border2:#D8DFEA;
+  --accent:#0EA5E9;--up:#10B981;--down:#EF4444;
+  --c-trend:#0EA5E9;--c-price:#F43F5E;--c-supply:#8B5CF6;--c-identity:#6366F1;--c-social:#F59E0B;--c-audience:#14B8A6;
+  --shadow:0 2px 8px rgba(14,23,38,.05),0 14px 36px rgba(14,23,38,.06);
+  --sans:'Plus Jakarta Sans',system-ui,sans-serif;
+}
+[data-theme="dark"]{--bg:#0B0F16;--surface:#141A23;--inset:#10151D;--text:#EAF0F8;--text2:#A0AEC2;--text3:#5F6E84;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);--shadow:0 2px 10px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5)}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;transition:background .4s,color .4s}
+::-webkit-scrollbar{width:9px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:8px}
+
+/* brandbar */
+.brandbar{display:flex;align-items:center;gap:12px;padding:18px 36px}
+.bm{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#7C5CFC,#22d3ee);display:flex;align-items:center;justify-content:center}
+.brandbar h1{font-size:16px;font-weight:700;letter-spacing:-.2px}.brandbar h1 span{color:var(--text3);font-weight:500}
+.brandbar .sub{font-size:12.5px;color:var(--text2);margin-top:1px}
+.tog{margin-left:auto;display:flex;background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:4px;box-shadow:var(--shadow)}
+.tog button{border:none;background:transparent;color:var(--text3);font-family:var(--sans);font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer}
+.tog button.on{background:var(--accent);color:#fff}
+
+/* ===== CLAIMS TICKER (stock-ticker) ===== */
+.ticker{display:flex;align-items:center;gap:0;background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);height:48px;overflow:hidden;position:relative}
+.ticker-tag{flex-shrink:0;display:flex;align-items:center;gap:8px;height:100%;padding:0 18px;background:var(--text);color:#fff;font-size:11.5px;font-weight:700;letter-spacing:.6px}
+.ticker-tag .d{width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 8px #34d399;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.ticker-track{display:flex;align-items:center;white-space:nowrap;animation:scroll 60s linear infinite}
+.ticker:hover .ticker-track{animation-play-state:paused}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.claim{display:inline-flex;align-items:center;gap:8px;padding:0 22px;border-right:1px solid var(--border);font-size:13px;cursor:pointer}
+.claim .ar{font-weight:700;font-variant-numeric:tabular-nums}
+.claim .ar.up{color:var(--up)}.claim .ar.dn{color:var(--down)}.claim .ar.fl{color:var(--text3)}
+.claim b{font-weight:700}.claim .ds{color:var(--text2)}.claim .dl{font-weight:700;font-variant-numeric:tabular-nums}
+.claim .dl.up{color:var(--up)}.claim .dl.dn{color:var(--down)}
+
+/* layout */
+.wrap{max-width:1180px;margin:0 auto;padding:46px 36px 90px}
+
+/* hero search (Google Trends style) */
+.hero{text-align:center;margin-bottom:54px}
+.hero .eye{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.3px}
+.hero h2{font-size:46px;font-weight:800;letter-spacing:-1.4px;line-height:1.06;margin:12px auto 8px;max-width:680px}
+.hero h2 .hl{background:linear-gradient(120deg,rgba(124,92,252,.18),rgba(34,211,238,.18));border-radius:8px;padding:0 8px;box-decoration-break:clone}
+.hero .lede{font-size:15.5px;color:var(--text2);max-width:520px;margin:0 auto 26px}
+.searchbox{display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid var(--border2);border-radius:18px;padding:10px 10px 10px 22px;box-shadow:var(--shadow);max-width:680px;margin:0 auto;transition:border-color .2s,box-shadow .2s}
+.searchbox:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px rgba(14,165,233,.12),var(--shadow)}
+.searchbox .mag{color:var(--text3);font-size:19px}
+.searchbox input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--sans);font-size:17px;font-weight:500}
+.searchbox input::placeholder{color:var(--text3)}
+.searchbox .go{padding:11px 22px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer}
+.trend-chip{display:inline-flex;align-items:center;gap:9px;margin-top:16px;font-size:13px;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:7px 15px;box-shadow:var(--shadow)}
+.trend-chip .dot{width:7px;height:7px;border-radius:50%;background:var(--c-trend)}
+.trend-chip b{color:var(--text);font-weight:700}
+
+/* section label */
+.slabel{display:flex;align-items:baseline;gap:10px;margin:0 0 16px}
+.slabel h3{font-size:19px;font-weight:700;letter-spacing:-.3px}
+.slabel span{font-size:13px;color:var(--text3)}
+
+/* featured today */
+.featured{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;margin-bottom:50px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.fviz{padding:22px 24px}
+.fviz .tag{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--c-supply);letter-spacing:.2px;text-transform:uppercase}
+.fviz .tag .dot{width:7px;height:7px;border-radius:50%;background:var(--c-supply)}
+.fviz h4{font-size:23px;font-weight:800;letter-spacing:-.5px;margin:10px 0 4px}
+.fviz p{font-size:13.5px;color:var(--text2);line-height:1.5;max-width:460px}
+.fviz .chart{margin-top:10px;height:200px}
+.finsight{padding:24px 26px;display:flex;flex-direction:column;border-left:4px solid var(--c-trend)}
+.finsight .tag{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--c-trend);letter-spacing:.2px;text-transform:uppercase}
+.finsight .tag .dot{width:7px;height:7px;border-radius:50%;background:var(--c-trend)}
+.finsight .big{font-size:40px;font-weight:800;letter-spacing:-1px;line-height:1;margin:14px 0 6px;font-variant-numeric:tabular-nums}
+.finsight h4{font-size:18px;font-weight:700;letter-spacing:-.3px;margin-bottom:8px}
+.finsight p{font-size:14px;color:var(--text2);line-height:1.55}
+.finsight .cta{margin-top:auto;padding-top:16px;font-size:13px;font-weight:700;color:var(--c-trend);cursor:pointer}
+
+/* 6 levels */
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.lvl{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;cursor:pointer;box-shadow:var(--shadow);transition:all .2s cubic-bezier(.16,1,.3,1)}
+.lvl:hover{transform:translateY(-3px);border-color:var(--border2)}
+.lvl .ic{width:38px;height:38px;border-radius:11px;background:var(--inset);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+.lvl h5{font-size:15.5px;font-weight:700;letter-spacing:-.2px;margin-bottom:4px}
+.lvl p{font-size:12.5px;color:var(--text2);line-height:1.45}
+.lvl .n{margin-top:10px;font-size:11.5px;font-weight:600;color:var(--accent)}
+
+/* Dr. Scoop corner */
+.scoop-corner{position:fixed;bottom:26px;right:26px;z-index:40;display:flex;align-items:flex-end;gap:12px}
+.speech{background:var(--surface);border:1px solid var(--border);border-radius:16px;border-bottom-right-radius:5px;padding:12px 16px;font-size:13.5px;font-weight:500;max-width:240px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);transition:all .35s}
+.speech.show{opacity:1;transform:none}.speech b{color:var(--accent);font-weight:700}
+.sc{position:relative;width:64px;height:64px;cursor:pointer}
+.sc .rings i{position:absolute;inset:-4px;border-radius:50%;border:1.5px solid var(--accent);animation:ring 2.6s ease-out infinite;opacity:0}
+.sc .rings i:nth-child(2){animation-delay:1.3s}
+@keyframes ring{0%{transform:scale(.55);opacity:.6}100%{transform:scale(1.5);opacity:0}}
+.sc .orb{position:absolute;inset:5px;border-radius:50%;background:linear-gradient(135deg,#7C5CFC,#22d3ee);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.sc:hover .orb{transform:scale(1.08)}
+</style>
+</head>
+<body data-theme="light">
+
+<div class="brandbar">
+  <div class="bm"><svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="1.6"/><circle cx="12" cy="12" r="3.2" fill="#fff"/><circle cx="12" cy="12" r="6" stroke="#fff" stroke-width="1.2" opacity=".5"/></svg></div>
+  <div><h1>Audience Signal <span>Intelligence</span></h1><div class="sub">Curated for you, Shiv — generated live from your data.</div></div>
+  <div class="tog"><button class="on" id="tgL" onclick="theme('light')">☀ Light</button><button id="tgD" onclick="theme('dark')">◐ Dark</button></div>
+</div>
+
+<!-- CLAIMS TICKER -->
+<div class="ticker">
+  <div class="ticker-tag"><span class="d"></span>LIVE CLAIMS</div>
+  <div class="ticker-track" id="track"></div>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO SEARCH -->
+  <div class="hero">
+    <div class="eye">Audience Signal Intelligence</div>
+    <h2>Explore what your audience is <span class="hl">doing right now</span></h2>
+    <div class="lede">Ask in plain English. Dr. Scoop generates governed, defensible claims and visualizations from 10.96M titles and your viewership data.</div>
+    <div class="searchbox"><span class="mag">⌕</span><input id="q" placeholder=""><button class="go">Explore</button></div>
+    <div class="trend-chip"><span class="dot"></span><span>Trending now: <b id="trendQ">how is drama performing this quarter?</b></span></div>
+  </div>
+
+  <!-- FEATURED TODAY -->
+  <div class="slabel"><h3>Featured today</h3><span>· refreshed every morning by Dr. Scoop</span></div>
+  <div class="featured">
+    <div class="card fviz">
+      <div class="tag"><span class="dot"></span>Visualization of the day</div>
+      <h4>The content supply explosion</h4>
+      <p>New movies added to the catalog by decade — the streaming era reshaped supply. The 2010s alone added 205,000 titles, 3.4× the 1990s.</p>
+      <div class="chart"><svg id="fchart" viewBox="0 0 560 200" preserveAspectRatio="none" style="width:100%;height:100%"></svg></div>
+    </div>
+    <div class="card finsight">
+      <div class="tag"><span class="dot"></span>Insight of the day</div>
+      <div class="big">+205K</div>
+      <h4>The 2010s were the supply boom</h4>
+      <p>The 2010s added more movies than the prior three decades combined — then a visible 2020 dip (COVID) recovered fully by 2022's all-time peak of 23,423.</p>
+      <div class="cta">See the full breakdown →</div>
+    </div>
+  </div>
+
+  <!-- 6 DATA LEVELS -->
+  <div class="slabel"><h3>Explore by level</h3><span>· every signal can be sliced six ways</span></div>
+  <div class="levels" id="levels"></div>
+
+</div>
+
+<div class="scoop-corner">
+  <div class="speech" id="speech">I refreshed your claims this morning, <b>Shiv</b>.</div>
+  <div class="sc" id="scoop"><div class="rings"><i></i><i></i></div><div class="orb"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#0a0a12" stroke-width="1.7"/><circle cx="9" cy="10" r="1.5" fill="#0a0a12"/><circle cx="15" cy="10" r="1.5" fill="#0a0a12"/><path d="M8 15 Q12 18 16 15" stroke="#0a0a12" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg></div></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+function theme(m){document.body.dataset.theme=m;$('tgL').classList.toggle('on',m==='light');$('tgD').classList.toggle('on',m==='dark');}
+
+/* ---- CLAIMS (governed template grammar; real catalog + illustrative ratings) ---- */
+const CLAIMS=[
+  {d:'up',e:'The White Lotus',ds:'#1 drama by reach · A18-34F',dl:'+22.1% WoW'},
+  {d:'fl',e:'EIDR coverage',ds:'227,395 movies certified',dl:'25% of catalog'},
+  {d:'up',e:'2022',ds:'peak content supply · 23,423 new titles',dl:'all-time high'},
+  {d:'up',e:'Documentary',ds:'#2 genre · 177,923 titles',dl:'streaming surge'},
+  {d:'up',e:'Primetime A',ds:'CPM $34.2',dl:'+$3.8 vs LM'},
+  {d:'dn',e:'Linear share',ds:'38% of viewing',dl:'−4 pts'},
+  {d:'up',e:'Streaming SOV',ds:'social share of voice',dl:'+18% WoW'},
+  {d:'up',e:'A18-34F',ds:'over-indexing late prime',dl:'index 148'},
+  {d:'fl',e:'Drama',ds:'largest genre in catalog',dl:'224,812 titles'},
+  {d:'up',e:'The Super Mario Galaxy Movie',ds:'#1 by TMDB popularity · 2026',dl:'743.5'}
+];
+function renderTicker(){const one=CLAIMS.map(c=>{const ar=c.d==='up'?'▲':c.d==='dn'?'▼':'◆';
+  return `<span class="claim"><span class="ar ${c.d}">${ar}</span><b>${c.e}</b><span class="ds">${c.ds}</span><span class="dl ${c.d}">${c.dl}</span></span>`;}).join('');
+  $('track').innerHTML=one+one;}
+renderTicker();
+
+/* ---- trending query rotator ---- */
+const TQ=["how is drama performing this quarter?","which 2026 movies are breaking out?","what's our EIDR coverage by decade?","how is supply trending vs last year?","which genres are gaining fastest?"];
+let tqi=0;setInterval(()=>{tqi=(tqi+1)%TQ.length;const el=$('trendQ');el.style.opacity=0;setTimeout(()=>{el.textContent=TQ[tqi];el.style.opacity=1;},250);},3400);
+$('trendQ').style.transition='opacity .25s';
+/* search placeholder rotator */
+const PH=['Ask anything — "compare drama vs comedy supply since 2015"','Ask anything — "which networks lead A18-49?"','Ask anything — "how is EIDR coverage trending?"'];
+let phi=0;function rotPH(){const el=$('q');if(document.activeElement===el)return;el.placeholder=PH[phi];phi=(phi+1)%PH.length;}
+rotPH();setInterval(rotPH,3000);$('q').addEventListener('focus',()=>$('q').placeholder='Ask Dr. Scoop anything about your audience…');
+
+/* ---- featured viz: real decade supply curve ---- */
+const DEC={labels:['1950s','1960s','1970s','1980s','1990s','2000s','2010s','2020s'],data:[30234,45439,55172,60586,65182,111107,205162,143882]};
+(function(){const w=560,h=200,p=8,a=DEC.data,mx=Math.max(...a),mn=0;
+  const P=a.map((v,i)=>[p+i/(a.length-1)*(w-2*p),h-22-((v-mn)/(mx-mn))*(h-40)]);
+  const line=P.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ');
+  $('fchart').innerHTML=`<defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8B5CF6" stop-opacity=".22"/><stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/></linearGradient></defs>
+    <path d="${line} L${w-p} ${h-22} L${p} ${h-22} Z" fill="url(#fg)"/>
+    <path d="${line}" fill="none" stroke="#8B5CF6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1400" stroke-dashoffset="1400"><animate attributeName="stroke-dashoffset" from="1400" to="0" dur="1.1s" fill="freeze"/></path>
+    ${P.map((q,i)=>`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="3" fill="#8B5CF6"/><text x="${q[0].toFixed(1)}" y="${h-6}" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="10" fill="#9AA7BC">${DEC.labels[i]}</text>`).join('')}`;})();
+
+/* ---- 6 data levels ---- */
+const LEVELS=[
+  {ic:'🌐',h:'Overall Market',p:'Universe-level insights + cross-platform viewership — linear vs non-linear.',n:'10.96M titles'},
+  {ic:'🏢',h:'Corporate Network Group',p:'Roll up to the parent group — share, rank and trends across the portfolio.',n:'group view'},
+  {ic:'📡',h:'All Networks',p:'Every network including competitors — head-to-head ranking and reach.',n:'incl. competitors'},
+  {ic:'👥',h:'Audience Segment',p:'Slice by demo — P18-49, A18-34F, and your custom segments.',n:'demo lens'},
+  {ic:'🎬',h:'Programming',p:'Genre, premieres & non-repeats — performance at the title level.',n:'903K movies · 371K series'},
+  {ic:'🕑',h:'Time Slot',p:'Daypart and slot-level — when your audience actually shows up.',n:'daypart view'}
+];
+$('levels').innerHTML=LEVELS.map(l=>`<div class="lvl"><div class="ic">${l.ic}</div><h5>${l.h}</h5><p>${l.p}</p><div class="n">${l.n} →</div></div>`).join('');
+
+/* ---- Dr. Scoop ---- */
+setTimeout(()=>{$('speech').classList.add('show');setTimeout(()=>$('speech').classList.remove('show'),4600);},1400);
+$('scoop').onclick=()=>$('q').focus();
+</script>
+</body>
+</html>
