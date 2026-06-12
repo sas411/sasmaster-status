@@ -1330,20 +1330,25 @@ async function loadResources(){
   return _resData;
 }
 
+let _resFilter='all';
 async function renderResources(){
   const resources=await loadResources();
   const stars=new Set(JSON.parse(localStorage.getItem('wr-stars')||'[]'));
   const resgrid=document.getElementById('resgrid');
   if(!resgrid) return;
 
-  const toShow=resources.length>0?resources:DEMO_DATA_RES;
+  const base=resources.length>0?resources:DEMO_DATA_RES;
+  let toShow=base;
+  if(_resFilter==='starred') toShow=base.filter(r=>stars.has(r.id));
+  else if(_resFilter!=='all') toShow=base.filter(r=>(r.category||'').toLowerCase()===_resFilter);
 
   resgrid.innerHTML=toShow.map(r=>{
     const starred=stars.has(r.id);
-    const primaryFile=(r.files||[]).find(f=>f.primary)||r.files&&r.files[0];
+    const files=r.files||[];
+    const primaryFile=files.find(f=>f.primary)||files[0];
     return `<div class="rescard" data-resid="${r.id}">
       <span class="star" style="cursor:pointer" onclick="toggleStar('${r.id}')">${starred?'★':'☆'}</span>
-      <div class="rt">${r.title}</div>
+      <div class="rt">${r.title||''}</div>
       <span class="cat">${(r.category||'').toUpperCase()}</span>
       ${r.badge?`<span class="badge b-new" style="margin-left:6px">${r.badge}</span>`:''}
       <div class="rd">${r.description||r.subtitle||''}</div>
@@ -1355,7 +1360,7 @@ async function renderResources(){
     </div>`;
   }).join('');
 
-  // Star filter chip
+  // Update Starred chip with live count
   const starChip=document.querySelector('#v-resources .chip:nth-child(2)');
   if(starChip) starChip.textContent='★ Starred ('+stars.size+')';
 }
@@ -1381,7 +1386,7 @@ function renderCosts(vm){
   // cost strip
   const strip=document.querySelector('#v-costs .coststrip');
   if(strip){
-    const cells=strip.querySelectorAll('div');
+    const cells=strip.querySelectorAll(':scope > div');
     const total=cs.total_cost_usd!=null?'$'+cs.total_cost_usd.toFixed(2):'$34.96';
     const aiCost=cu&&cu.claudeai&&cu.claudeai.mtd_cost?'$'+Number(cu.claudeai.mtd_cost).toFixed(2):'$20.00';
     const codeCost=cu&&cu.claudecode&&cu.claudecode.mtd_cost?'$'+Number(cu.claudecode.mtd_cost).toFixed(2):'$0.00';
@@ -1553,7 +1558,7 @@ function renderFinance(vm){
   const tp=vm.tokenProjection;
   const strip=document.querySelector('#v-finance .coststrip');
   if(strip){
-    const cells=strip.querySelectorAll('div');
+    const cells=strip.querySelectorAll(':scope > div');
     const apiCost=cs.total_cost_usd?'$'+cs.total_cost_usd.toFixed(2):'$0.00';
     if(cells[0]) cells[0].querySelector('.v').textContent=apiCost;
   }
@@ -1629,21 +1634,29 @@ async function loadAndRender(){
   renderAgents(vm);
   renderData(vm);
   renderQueue(vm);
-  renderCosts(vm);
-  renderFinance(vm);
+  try{renderCosts(vm);}catch(e){console.error('[renderCosts]',e);}
+  try{renderFinance(vm);}catch(e){console.error('[renderFinance]',e);}
   renderTelemetry(vm);
   updateStatusBar(vm);
-  // async tabs
-  renderResources();
+  // async tabs — isolated so one failure never blocks others
+  renderResources().catch(e=>console.error('[renderResources]',e));
   renderFintel();
 }
 
-/* ============ chip filter (generic) ============ */
+/* ============ chip filter (generic + resources filter) ============ */
 document.querySelectorAll('.chips').forEach(group=>{
+  const inResources=group.closest('#v-resources');
   group.querySelectorAll('.chip').forEach(chip=>{
     chip.addEventListener('click',()=>{
       group.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
       chip.classList.add('on');
+      if(inResources){
+        const label=chip.textContent.trim();
+        if(label==='All') _resFilter='all';
+        else if(label.startsWith('★')) _resFilter='starred';
+        else _resFilter=label.toLowerCase();
+        renderResources().catch(e=>console.error('[renderResources]',e));
+      }
     });
   });
 });
