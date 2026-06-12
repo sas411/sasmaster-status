@@ -1444,8 +1444,8 @@ a{color:inherit}
 
       <!-- ─── BARB DATASETS (BARB-EXTRACT-001) ─── -->
       <div class="sph" style="margin-top:10px">
-        <span class="sph-label">BARB Datasets <span style="font-size:9px;color:var(--text-3);font-weight:400">UK Broadcasters' Audience Research Board</span></span>
-        <span class="sph-sub" id="barbSyncStamp">Inventory in progress · 2026-06-11</span>
+        <span class="sph-label">BARB Datasets <span style="font-size:9px;color:var(--text-3);font-weight:400">UK Broadcasters' Audience Research Board · RSG S3 external tables</span></span>
+        <span class="sph-sub" id="barbSyncStamp">Extraction in progress · 2026-06-11</span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 20px 16px">
 
@@ -1455,97 +1455,104 @@ a{color:inherit}
             <div class="nf-hdr">
               <span class="nf-icon">📋</span>
               <span class="nf-title">BARB Reference</span>
-              <span class="nf-badge" id="nfBadge-barb-ref" style="background:#1e3a5f;color:#60a5fa">INVENTORY</span>
+              <span class="nf-badge" id="nfBadge-barb-ref" style="background:#1e3a5f;color:#60a5fa">EXTRACTING</span>
             </div>
             <div class="nf-gb" id="nfGB-barb-ref"><span>— GB</span></div>
             <div class="nf-meta-row">
-              <span id="barb-ref-tables">barb_ref_dev (ALL) + snp_channel</span>
+              <span>barb_ref_dev · 37 dimension tables</span>
             </div>
             <div class="nf-meta-row" style="margin-top:3px">
-              <span id="barb-ref-dates">Date range: pending inventory</span>
+              <span id="barb-ref-dates">AP01–AP28 appendix reference tables</span>
             </div>
             <div class="nf-drill-arrow" id="nfArrow-barb-ref">▾ drill-down</div>
           </div>
           <div class="nf-drill" id="nfDrill-barb-ref">
             <table class="nf-tbl">
-              <thead><tr><th>Table</th><th>GB</th><th>Min Date</th><th>Max Date</th></tr></thead>
+              <thead><tr><th>Table</th><th>Rows</th><th>Description</th></tr></thead>
               <tbody id="barb-ref-tbody">
-                <tr><td colspan="4" style="color:var(--text-3);font-style:italic">Inventory running — results populate after Step 0</td></tr>
+                <tr><td>ap01_panel_reporting_area_codes</td><td>64</td><td>Panel/area codes</td></tr>
+                <tr><td>ap04_db2_reporting_codes</td><td>2,115</td><td>Station reporting codes</td></tr>
+                <tr><td>ap05_audience_category_codes_db2</td><td>60</td><td>Demographic categories</td></tr>
+                <tr><td>ap13_genre_classification</td><td>188</td><td>Genre codes</td></tr>
+                <tr><td>ap07_transmission_codes_*</td><td>706+232</td><td>Campaign/spot codes</td></tr>
+                <tr><td>ap20_vod_*</td><td>6+2</td><td>VOD provider/service codes</td></tr>
+                <tr><td>+ 31 more ap* tables</td><td>—</td><td>—</td></tr>
               </tbody>
             </table>
             <div class="nf-drill-meta">
-              <span>s3://sasmaster-2026/barb/barb_ref_dev/ · brb_app_dev/snp_channel/</span>
-              <span>Batch A · single-shot per table (no year chunking)</span>
+              <span>s3://sasmaster-2026/barb/barb_ref_dev/ · single-shot (no chunking)</span>
+              <span>Source: hive_metastore.barb_ref_dev · RSG S3 external</span>
             </div>
           </div>
         </div>
 
-        <!-- BARB Schedule card -->
+        <!-- BARB ETL QA card -->
         <div class="nf-card">
           <div class="nf-card-top" onclick="toggleNFDrill('barb-sched')">
             <div class="nf-hdr">
-              <span class="nf-icon">📅</span>
-              <span class="nf-title">BARB Schedule</span>
-              <span class="nf-badge" id="nfBadge-barb-sched" style="background:#1e3a5f;color:#60a5fa">INVENTORY</span>
+              <span class="nf-icon">📡</span>
+              <span class="nf-title">BARB ETL QA</span>
+              <span class="nf-badge" id="nfBadge-barb-sched" style="background:#1e3a5f;color:#60a5fa">EXTRACTING</span>
             </div>
             <div class="nf-gb" id="nfGB-barb-sched"><span>— GB</span></div>
             <div class="nf-meta-row">
-              <span>stl_scheduled_episode + 3 barb_ml_qa7</span>
+              <span>barb_etl_qa · 102 tables</span>
             </div>
             <div class="nf-meta-row" style="margin-top:3px">
-              <span id="barb-sched-dates">Date range: pending inventory</span>
+              <span id="barb-sched-dates">2018-01-01 – 2019-09-18 · SRC_FILE_DATE</span>
             </div>
             <div class="nf-drill-arrow" id="nfArrow-barb-sched">▾ drill-down</div>
           </div>
           <div class="nf-drill" id="nfDrill-barb-sched">
             <table class="nf-tbl">
-              <thead><tr><th>Table</th><th>GB</th><th>Min Date</th><th>Max Date</th></tr></thead>
+              <thead><tr><th>Table group</th><th>Count</th><th>Rows (sample)</th></tr></thead>
               <tbody id="barb-sched-tbody">
-                <tr><td>stl_scheduled_episode</td><td>—</td><td>—</td><td>—</td></tr>
-                <tr><td>barb_ml_qa7.barb_break_program_schedule</td><td>—</td><td>—</td><td>—</td></tr>
-                <tr><td>barb_ml_qa7.barb_break_schedule</td><td>—</td><td>—</td><td>—</td></tr>
-                <tr><td>barb_ml_qa7.barb_pgm_brk_schedule</td><td>—</td><td>—</td><td>—</td></tr>
+                <tr><td>content_cdmf_2 / _3 <span style="color:#ef4444;font-size:9px">★ 975M each</span></td><td>975M ×2</td><td>2018–2019</td></tr>
+                <tr><td>impact2_01c/l/s/v_3 <span style="color:#ef4444;font-size:9px">★ 350-635M</span></td><td>~4×600M</td><td>2018–2019</td></tr>
+                <tr><td>pas_master_pmf_2</td><td>261M</td><td>2018–2019</td></tr>
+                <tr><td>broadcast_link_abc_2</td><td>316M</td><td>2018-07 – 2019-09</td></tr>
+                <tr><td>impact2_05*/impact_*05</td><td>~700M total</td><td>2018–2019</td></tr>
+                <tr><td>panel_pv2_2–7,16,17,36,37</td><td>~156M total</td><td>2018–2019</td></tr>
+                <tr><td>master_mas_2–19</td><td>~10M total</td><td>2018–2019</td></tr>
+                <tr><td>pgm_int_pea_2/3 + pgm_*</td><td>47M+</td><td>2018–2019</td></tr>
+                <tr><td>comm_br_bra/brk, non_linear, spot_*</td><td>~17M</td><td>2018–2019</td></tr>
+                <tr><td>panel_pvx_*, impact2_15_*, base_stg</td><td>0 rows</td><td>—</td></tr>
               </tbody>
             </table>
             <div class="nf-drill-meta">
-              <span>s3://sasmaster-2026/barb/brb_app_dev/ · barb_ml_qa7/</span>
-              <span>Batch B · year-chunked where date col found</span>
+              <span>s3://sasmaster-2026/barb/barb_etl_qa/ · year-chunked where date col found</span>
+              <span>Source: hive_metastore.barb_etl_qa · RSG S3 external tables</span>
             </div>
           </div>
         </div>
 
-        <!-- BARB Audience card -->
+        <!-- BARB ETL Dev card -->
         <div class="nf-card">
           <div class="nf-card-top" onclick="toggleNFDrill('barb-tx')">
             <div class="nf-hdr">
-              <span class="nf-icon">📺</span>
-              <span class="nf-title">BARB Audience</span>
-              <span class="nf-badge" id="nfBadge-barb-tx" style="background:#1e3a5f;color:#60a5fa">INVENTORY</span>
+              <span class="nf-icon">🔬</span>
+              <span class="nf-title">BARB ETL Dev</span>
+              <span class="nf-badge" id="nfBadge-barb-tx" style="background:#1e3a5f;color:#60a5fa">EXTRACTING</span>
             </div>
             <div class="nf-gb" id="nfGB-barb-tx"><span>— GB</span></div>
             <div class="nf-meta-row">
-              <span>6 transactional tables · year-chunked</span>
+              <span>barb_etl_dev · 1 table</span>
             </div>
             <div class="nf-meta-row" style="margin-top:3px">
-              <span id="barb-tx-dates">Date range: pending inventory</span>
+              <span id="barb-tx-dates">2018-01-01 – 2019-09-18 (confirmed)</span>
             </div>
             <div class="nf-drill-arrow" id="nfArrow-barb-tx">▾ drill-down</div>
           </div>
           <div class="nf-drill" id="nfDrill-barb-tx">
             <table class="nf-tbl">
-              <thead><tr><th>Table</th><th>Rows</th><th>GB</th><th>Min–Max</th></tr></thead>
+              <thead><tr><th>Table</th><th>Rows</th><th>Date Col</th><th>Date Range</th></tr></thead>
               <tbody id="barb-tx-tbody">
-                <tr><td>snp_break</td><td>—</td><td>—</td><td>—</td></tr>
-                <tr><td>snp_audience</td><td>—</td><td>—</td><td>—</td></tr>
-                <tr><td>snp_txbase</td><td>—</td><td>—</td><td>—</td></tr>
-                <tr><td>snp_txlevel</td><td>—</td><td>—</td><td>—</td></tr>
-                <tr><td>snp_breakaudiencetxlevel</td><td>—</td><td>—</td><td>—</td></tr>
-                <tr><td>snp_audiencetxlevel <span style="color:#D97706;font-size:9px">★ heavy</span></td><td>—</td><td>—</td><td>—</td></tr>
+                <tr><td>base_stg_table_oct1</td><td>102M</td><td>SRC_FILE_DATE</td><td>2018 – 2019</td></tr>
               </tbody>
             </table>
             <div class="nf-drill-meta">
-              <span>s3://sasmaster-2026/barb/brb_app_dev/</span>
-              <span>Batch C · resumable year-chunks · _SUCCESS gate</span>
+              <span>s3://sasmaster-2026/barb/barb_etl_dev/ · year-chunked</span>
+              <span>Batch D · dev/staging copy of ETL pipeline · _SUCCESS gate</span>
             </div>
           </div>
         </div>
