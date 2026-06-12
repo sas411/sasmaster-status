@@ -1,0 +1,158 @@
+/**
+ * signal-system.css — SaSMaster design token authority v1
+ * ONE FILE IS THE LAW (SIGNAL-SYSTEM-001, 2026-06-12).
+ *
+ * Every surface (warroom, ask, gallery, canvas pieces) imports this file.
+ * Surface-local CSS handles layout and component structure only.
+ * NEVER override tokens defined here in surface-local files.
+ *
+ * Two themes: editorial-light (ASK, Gallery, external), cinematic-dark (War Room OPS).
+ * Three density tiers: .density-glance | .density-work | .density-deep
+ *
+ * Version: --signal-version: v1
+ * Governance: new token proposals go through the improver-proposes path.
+ * Drift prevention: pre-build lint checks for surface-local color/type/spacing tokens.
+ */
+
+:root {
+  --signal-version: v1;
+
+  /* ── Primitive palette — do NOT use directly in components ─────────────────── */
+  --p-white:   #FFFFFF;
+  --p-gray-50: #F9FAFB;
+  --p-gray-100:#F3F4F6;
+  --p-gray-200:#E5E7EB;
+  --p-gray-300:#D1D5DB;
+  --p-gray-400:#9CA3AF;
+  --p-gray-500:#6B7280;
+  --p-gray-600:#4B5563;
+  --p-gray-700:#374151;
+  --p-gray-800:#1F2937;
+  --p-gray-900:#111827;
+
+  --p-green-50: #F0FDF4;  --p-green-200:#BBF7D0;  --p-green-600:#16A34A;  --p-green-700:#15803D;
+  --p-blue-50:  #EFF6FF;  --p-blue-200: #BFDBFE;  --p-blue-600: #2563EB;  --p-blue-700: #1D4ED8;
+  --p-amber-50: #FFFBEB;  --p-amber-200:#FDE68A;  --p-amber-600:#D97706;  --p-amber-700:#B45309;
+  --p-red-50:   #FEF2F2;  --p-red-200:  #FECACA;  --p-red-600:  #DC2626;  --p-red-700:  #B91C1C;
+  --p-purple-50:#F5F3FF;  --p-purple-200:#DDD6FE; --p-purple-600:#7C3AED; --p-purple-700:#6D28D9;
+  --p-cyan-50:  #ECFEFF;  --p-cyan-200: #A5F3FC;  --p-cyan-600: #0891B2;  --p-cyan-700: #0E7490;
+  --p-slate-50: #F8FAFC;  --p-slate-200:#E2E8F0;  --p-slate-500:#64748B;  --p-slate-700:#334155;
+
+  /* Dark palette primitives */
+  --p-dark-bg:    #0B1017;
+  --p-dark-surf:  #151D27;
+  --p-dark-surf2: #1A2333;
+  --p-dark-bdr:   #1E2D3D;
+  --p-dark-bdr2:  #243040;
+  --p-dark-text:  #E2E8F0;
+  --p-dark-muted: #64748B;
+  --p-dark-dim:   #475569;
+
+  /* ── Semantic tokens — editorial-light theme (default) ─────────────────────── */
+  --bg:       var(--p-gray-100);
+  --surface:  var(--p-white);
+  --surface-2:var(--p-gray-50);
+  --border:   var(--p-gray-200);
+  --border-sub:var(--p-gray-100);
+  --text:     var(--p-gray-900);
+  --muted:    var(--p-gray-500);
+  --dim:      var(--p-gray-400);
+
+  /* Status semantic */
+  --green:  var(--p-green-600);  --gbg:var(--p-green-50);  --gbd:var(--p-green-200);
+  --blue:   var(--p-blue-600);   --bbg:var(--p-blue-50);   --bbd:var(--p-blue-200);
+  --amber:  var(--p-amber-600);  --abg:var(--p-amber-50);  --abd:var(--p-amber-200);
+  --red:    var(--p-red-600);    --rbg:var(--p-red-50);    --rbd:var(--p-red-200);
+  --purple: var(--p-purple-600); --pbg:var(--p-purple-50); --pbd:var(--p-purple-200);
+  --cyan:   var(--p-cyan-600);   --cbg:var(--p-cyan-50);   --cbd:var(--p-cyan-200);
+  --slate:  var(--p-slate-500);  --slbg:var(--p-slate-50); --slbd:var(--p-slate-200);
+
+  /* Accent */
+  --acc:    var(--purple);       --acc-2:var(--blue);
+  --acc-bg: var(--pbg);          --acc-bd:var(--pbd);
+  /* Status aliases */
+  --ok:     var(--green);        --ok-bg:var(--gbg);  --ok-bd:var(--gbd);
+  --warn:   var(--amber);        --warn-bg:var(--abg);--warn-bd:var(--abd);
+  --crit:   var(--red);          --crit-bg:var(--rbg);--crit-bd:var(--rbd);
+  /* Compat aliases */
+  --dark:      var(--p-gray-900);
+  --text-2:    var(--muted);
+  --text-3:    var(--dim);
+  --surface-alt:var(--surface-2);
+  --purple-bg: var(--pbg);
+  --purple-bd: var(--pbd);
+  --ticker:    var(--dark);
+
+  /* ── Typography ─────────────────────────────────────────────────────────────── */
+  --sans:    'DM Sans', sans-serif;
+  --mono:    'DM Mono', monospace;
+  --cond:    'Barlow Condensed', sans-serif;
+  --display: var(--cond);
+
+  /* ── Elevation / shadow ─────────────────────────────────────────────────────── */
+  --shadow:    0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.12);
+
+  /* ── Shape ──────────────────────────────────────────────────────────────────── */
+  --r:  6px;
+  --r2: 6px;
+  --r-lg: 12px;
+}
+
+/* ── Cinematic-dark theme (War Room OPS surfaces) ────────────────────────────── */
+[data-theme="cinematic-dark"] {
+  --bg:        var(--p-dark-bg);
+  --surface:   var(--p-dark-surf);
+  --surface-2: var(--p-dark-surf2);
+  --border:    var(--p-dark-bdr);
+  --border-sub:var(--p-dark-bdr2);
+  --text:      var(--p-dark-text);
+  --muted:     var(--p-dark-muted);
+  --dim:       var(--p-dark-dim);
+  --shadow:    0 1px 3px rgba(0,0,0,.3), 0 1px 2px rgba(0,0,0,.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.4);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.5);
+}
+
+/* ── Density tiers ───────────────────────────────────────────────────────────── */
+/* .density-glance: KPI strip, memory bar — highest information density */
+.density-glance {
+  --d-lh:   1.2;
+  --d-fs:   11px;
+  --d-p:    4px 8px;
+  --d-gap:  4px;
+}
+
+/* .density-work: panels, agent cards — default reading density */
+.density-work {
+  --d-lh:   1.4;
+  --d-fs:   13px;
+  --d-p:    8px 12px;
+  --d-gap:  8px;
+}
+
+/* .density-deep: telemetry feed, financial intel table — compact mono */
+.density-deep {
+  --d-lh:   1.3;
+  --d-fs:   11.5px;
+  --d-p:    4px 10px;
+  --d-gap:  3px;
+  --d-font: var(--mono);
+}
+
+/* ── Governance note ─────────────────────────────────────────────────────────── */
+/*
+ * ADDING A TOKEN:
+ *   1. Add to the primitives section first.
+ *   2. Add semantic mapping for both themes.
+ *   3. PR description must name: what surface needs it and why no existing token works.
+ *
+ * DAILY-CANVAS-001 BUILD GATE:
+ *   Every canvas piece MUST declare `data-theme` and a `.density-*` class.
+ *   A piece without both fails the build gate.
+ *
+ * SURFACE-LOCAL LINT RULE:
+ *   CI blocks any surface-local CSS file that declares a hex color, font family,
+ *   or spacing value that already exists in this file (SIGNAL-SYSTEM-001 §5).
+ */

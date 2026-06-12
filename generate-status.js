@@ -404,9 +404,11 @@ function parseEidrProgress() {
 }
 
 // ── S3 Freshness (age in hours per key prefix) ───────────────────────────────
-// Uses `aws s3 ls --recursive` on each prefix, picks the most-recent object.
-// Returns a map: { 'tmdb_dev/': { age_hours: 3.2, fresh: true }, ... }
-// Safe — returns empty map if aws CLI unavailable or any prefix times out.
+// ONE-SOURCE-001: this function is the SINGLE authority for S3 prefix freshness.
+// The DATA tab stale badge, the War Room KPI freshness chip, and the health score
+// freshness component ALL read from s3_lake[].fresh (computed here).
+// No other freshness logic for S3 prefixes exists in this file.
+// Authority source: aws s3 ls --recursive per prefix, most-recent object timestamp.
 function getS3Freshness(prefixes = []) {
   const result = {};
   for (const prefix of prefixes) {
@@ -1172,7 +1174,15 @@ function buildMergedActivity(intelFeed, recentBuilds, scrapers, buildEvents) {
 }
 
 // ── Cost summary from logs/cost-log.jsonl ────────────────────────────────────
-let costSummary = { total_cost_usd: 0, entry_count: 0, model_breakdown: {} };
+// ONE-SOURCE-001: cost-log.jsonl is the SINGLE authority for all cost figures.
+// ALL cost surfaces (KPI "Build Cost", COSTS tab MTD total, FINANCE tab burn) MUST
+// read from this structure with different aggregations — never from separate sources.
+// Root cause of $34.96 vs $0.08 discrepancy: "Build Cost" sometimes fetched from
+// Railway /api/costs (MTD session cost) and sometimes fell back to cost_summary
+// (all-time total from log). Fix: cost_summary.total_cost_usd = ALL-TIME from log;
+// cost_summary.mtd_cost_usd = current month; token_projection.week_cost_usd = this week.
+// Frontend MUST label these correctly and never swap them.
+let costSummary = { total_cost_usd: 0, mtd_cost_usd: 0, entry_count: 0, model_breakdown: {} };
 try {
   const costLines = fs.readFileSync(path.join(SASMASTER, 'logs', 'cost-log.jsonl'), 'utf8')
     .trim().split('\n').filter(Boolean);
@@ -1187,10 +1197,23 @@ try {
       costModels[m] = (costModels[m] || 0) + c;
     } catch {}
   }
+  // Compute MTD separately — same log, different lens
+  const nowMtd  = new Date();
+  const mtdStart = new Date(nowMtd.getFullYear(), nowMtd.getMonth(), 1).getTime();
+  let mtdTotal = 0;
+  for (const cl of costLines) {
+    try {
+      const ce = JSON.parse(cl);
+      const ts = new Date(ce.ts || ce.timestamp || '').getTime();
+      if (ts >= mtdStart) mtdTotal += (ce.cost_usd || 0);
+    } catch {}
+  }
   costSummary = {
-    total_cost_usd: Math.round(costTotal * 10000) / 10000,
+    total_cost_usd: Math.round(costTotal * 10000) / 10000,   // ALL-TIME — used for lifetime view
+    mtd_cost_usd:   Math.round(mtdTotal  * 10000) / 10000,   // MTD — used for COSTS tab header
     entry_count: costLines.length,
     model_breakdown: costModels,
+    authority: 'cost-log.jsonl',  // ONE-SOURCE-001: single authority tag
   };
 } catch {}
 
@@ -1599,6 +1622,126 @@ function alertStaleSources(freshness) {
 
 alertStaleSources(sourceFreshness);
 
+// ── TRUTHFUL-VITALS-001 ───────────────────────────────────────────────────────
+// Health formula is DATA, not code. Edit HEALTH_FORMULA to change weights/thresholds.
+// This block is the SOLE authority for all health scoring. No caching, no carry-forward.
+// Authority: computed fresh every cycle from first principles.
+
+const CANARY_STATE_FILE = path.join(SASMASTER, 'status', 'canary-state.json');
+
+// Known-fail canaries are excluded from canary_health denominator (CANARIES.yaml).
+const KNOWN_FAIL_CANARIES = new Set(['gracenote_onconnect', 'eidr_query_api']);
+
+// HEALTH_FORMULA config block — reviewable in 30 seconds, changeable without deploy.
+const HEALTH_FORMULA = {
+  formula_version: 'v1',
+  weights: {
+    agents:    0.35,  // healthy live-cron agents / total live-cron agents
+    canaries:  0.30,  // pass / (pass + fail) where known_fail excluded from denominator
+    freshness: 0.25,  // ok+warn sources / (ok+warn+stale) from source_freshness
+    cron:      0.10,  // 1 - (missed_non_weekly_today / scheduled_non_weekly_today)
+  },
+  amber_floor_rule: 'any component at 0% forces health ring to amber minimum regardless of aggregate',
+  thresholds: { green: 85, amber: 60 },  // score out of 100
+};
+
+function computeHealthScore(agentList, freshnessList, cronList) {
+  // ── Component 1: agents (35%) — live/cron type only ──
+  const liveAgents  = agentList.filter(a => !a.type || a.type === 'live');
+  const agentTotal  = liveAgents.length;
+  const agentHealthy = liveAgents.filter(a => a.status === 'healthy' || a.status === 'routing').length;
+  const agentPct    = agentTotal > 0 ? agentHealthy / agentTotal : 1;
+
+  // ── Component 2: canaries (30%) — unexpected fails only (known_fail excluded) ──
+  let canaryPct = 1;
+  try {
+    const state   = JSON.parse(fs.readFileSync(CANARY_STATE_FILE, 'utf8'));
+    const entries = Object.entries(state).filter(([name]) => !KNOWN_FAIL_CANARIES.has(name));
+    const pass    = entries.filter(([, v]) => v.ok).length;
+    canaryPct     = entries.length > 0 ? pass / entries.length : 1;
+  } catch { /* canary-state.json missing — score 1.0, do not block */ }
+
+  // ── Component 3: freshness (25%) — from source_freshness (single authority) ──
+  const known = (freshnessList || []).filter(s => s.status !== 'unknown');
+  const notStale = known.filter(s => s.status === 'ok' || s.status === 'warn').length;
+  const freshnessPct = known.length > 0 ? notStale / known.length : 1;
+
+  // ── Component 4: cron (10%) — non-weekly jobs scheduled today ──
+  const nonWeeklyToday = (cronList || []).filter(c => !c.weekly);
+  const missedToday    = nonWeeklyToday.filter(c => c.status === 'pending').length;
+  const cronPct        = nonWeeklyToday.length > 0 ? Math.max(0, 1 - (missedToday / nonWeeklyToday.length)) : 1;
+
+  const w        = HEALTH_FORMULA.weights;
+  const rawScore = (agentPct * w.agents) + (canaryPct * w.canaries) + (freshnessPct * w.freshness) + (cronPct * w.cron);
+  const score    = Math.round(rawScore * 100);
+
+  const components = {
+    agents:    Math.round(agentPct    * 100),
+    canaries:  Math.round(canaryPct   * 100),
+    freshness: Math.round(freshnessPct * 100),
+    cron:      Math.round(cronPct      * 100),
+  };
+
+  // Override rule: any component at 0% → amber floor regardless of aggregate score
+  const anyZero = Object.values(components).some(v => v === 0);
+  const floor   = anyZero ? 'amber' : null;
+  // Raw grade from score
+  const rawGrade = score >= HEALTH_FORMULA.thresholds.green ? 'green'
+                 : score >= HEALTH_FORMULA.thresholds.amber ? 'amber'
+                 : 'red';
+  // Apply floor: amber floor means grade can't be 'green' if any component is 0%
+  const grade = (floor === 'amber' && rawGrade === 'green') ? 'amber' : rawGrade;
+
+  return {
+    score,
+    grade,
+    floor,
+    components,
+    formula_version: HEALTH_FORMULA.formula_version,
+    formula: HEALTH_FORMULA,
+    computed_at: new Date().toISOString(),
+  };
+}
+
+// Follow-up = COUNT of: ERROR agents + unexpected canary fails + freshness breaches + blocked tasks
+// Authority: real-state query every cycle — no manual field, no carry-forward.
+function computeFollowUp(agentList, freshnessList, blockedTasks) {
+  let count = 0;
+  const items = [];
+
+  // 1. Agents in ERROR state (live/cron agents only)
+  const liveAgents  = agentList.filter(a => !a.type || a.type === 'live');
+  liveAgents.filter(a => a.status === 'error').forEach(a => {
+    count++;
+    items.push({ type: 'agent_error', name: a.name });
+  });
+
+  // 2. Unexpected canary fails (known_fail excluded — those are tracked, not followed-up)
+  try {
+    const state = JSON.parse(fs.readFileSync(CANARY_STATE_FILE, 'utf8'));
+    Object.entries(state)
+      .filter(([name, v]) => !KNOWN_FAIL_CANARIES.has(name) && !v.ok)
+      .forEach(([name]) => { count++; items.push({ type: 'canary_fail', name }); });
+  } catch {}
+
+  // 3. Freshness breaches (stale status from source_freshness — single authority)
+  (freshnessList || []).filter(s => s.status === 'stale').forEach(s => {
+    count++;
+    items.push({ type: 'freshness_breach', name: s.source });
+  });
+
+  // 4. Blocked tasks from TASKS.md
+  (blockedTasks || []).forEach(t => {
+    count++;
+    items.push({ type: 'blocked_task', name: (t.text || '').slice(0, 60) });
+  });
+
+  return { count, items };
+}
+
+const healthResult  = computeHealthScore(agents, sourceFreshness, cron);
+const followUpResult = computeFollowUp(agents, sourceFreshness, tasks.blockedItems);
+
 // ── Portal coverage — reads latest report from ~/SaSMaster/reports/ ──────────
 function loadPortalCoverage() {
   try {
@@ -1672,6 +1815,15 @@ const status = {
   usage_state: usageState,
   token_projection: tokenProjection,
   source_freshness: sourceFreshness,
+
+  // ── TRUTHFUL-VITALS-001 — derived from first principles every cycle ──────────
+  // health.score / health.grade / health.components are the SINGLE authoritative
+  // health truth. Frontend reads d.health.score — never computes its own formula.
+  health:          healthResult,
+  // follow_up_count is the SINGLE authoritative follow-up count.
+  // Frontend reads d.follow_up_count — never derives its own count from kanban.
+  follow_up_count: followUpResult.count,
+  follow_up_items: followUpResult.items,
 };
 
 fs.writeFileSync(OUT, JSON.stringify(status, null, 2));

@@ -355,6 +355,15 @@ a{color:inherit}
 .dep-card.stalled{border-color:var(--warn);background:var(--warn-bg)}.dep-card.blocked{border-color:var(--crit);background:var(--crit-bg)}.dep-card.designed{border-color:var(--border);background:var(--surface-2);opacity:.6}
 .dep-card-name{font-size:11px;font-weight:700;margin-bottom:2px}.dep-card-sub{font-size:9.5px;color:var(--text-3)}
 
+/* EKG strip — DATA-PULSE-001 */
+.ekg-row{display:flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid var(--bdr);border-radius:10px;font-size:10px;background:var(--surface)}
+.ekg-name{font-weight:600;color:var(--text);font-size:10px;white-space:nowrap}
+.ekg-age{color:var(--text-3);font-family:var(--mono);font-size:10px}
+.ekg-row.ekg-fresh .nf-pulse{background:#16A34A}
+.ekg-row.ekg-warn .nf-pulse{background:#D97706}
+.ekg-row.ekg-stale .nf-pulse{background:#DC2626}
+.ekg-row.ekg-unknown .nf-pulse{background:#94A3B8}
+
 /* NIELSEN FEED CARDS — WAR-ROOM-DATA-NIELSEN-001 */
 .nf-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .15s,box-shadow .15s}
 .nf-card:hover{border-color:var(--acc-bd);box-shadow:var(--shadow)}
@@ -1011,13 +1020,15 @@ a{color:inherit}
   </div>
   <div class="health-score" id="healthWidget" onclick="toggleHealth()">
     <span class="hl">HEALTH</span>
-    <div class="hbar-w"><div class="hbar-f" id="healthBar" style="width:71%"></div></div>
-    <span class="hpct" id="healthPct">71%</span>
+    <div class="hbar-w"><div class="hbar-f" id="healthBar" style="width:0%"></div></div>
+    <span class="hpct" id="healthPct">--</span>
     <div class="hbd" id="healthDropdown">
-      <div class="hbd-title">System Health</div>
-      <div class="hbd-row"><span class="hbd-label">Agents</span><div class="hbd-bw"><div class="hbd-bf" id="hbd-agents" style="background:var(--ok);width:70%"></div></div><span class="hbd-pct ok" id="hbd-agents-pct">70%</span></div>
-      <div class="hbd-row"><span class="hbd-label">S3 Data</span><div class="hbd-bw"><div class="hbd-bf" id="hbd-s3" style="background:var(--warn);width:60%"></div></div><span class="hbd-pct warn" id="hbd-s3-pct">60%</span></div>
-      <div class="hbd-row"><span class="hbd-label">Scrapers</span><div class="hbd-bw"><div class="hbd-bf" id="hbd-scrapers" style="background:var(--ok);width:80%"></div></div><span class="hbd-pct ok" id="hbd-scrapers-pct">80%</span></div>
+      <div class="hbd-title">System Health <span id="hbd-formula-ver" style="font-size:9px;font-weight:400;color:var(--dim);font-family:var(--mono)">v1</span></div>
+      <div class="hbd-row"><span class="hbd-label">Agents 35%</span><div class="hbd-bw"><div class="hbd-bf" id="hbd-agents" style="background:var(--ok);width:0%"></div></div><span class="hbd-pct" id="hbd-agents-pct">--%</span></div>
+      <div class="hbd-row"><span class="hbd-label">Canaries 30%</span><div class="hbd-bw"><div class="hbd-bf" id="hbd-canaries" style="background:var(--ok);width:0%"></div></div><span class="hbd-pct" id="hbd-canaries-pct">--%</span></div>
+      <div class="hbd-row"><span class="hbd-label">Freshness 25%</span><div class="hbd-bw"><div class="hbd-bf" id="hbd-freshness" style="background:var(--ok);width:0%"></div></div><span class="hbd-pct" id="hbd-freshness-pct">--%</span></div>
+      <div class="hbd-row"><span class="hbd-label">Cron 10%</span><div class="hbd-bw"><div class="hbd-bf" id="hbd-cron" style="background:var(--ok);width:0%"></div></div><span class="hbd-pct" id="hbd-cron-pct">--%</span></div>
+      <div id="hbd-floor-note" style="display:none;margin-top:6px;font-size:9.5px;color:var(--amber);font-family:var(--mono)">⚠ amber floor: component at 0%</div>
       <div class="hbd-foot" id="hbd-foot">Last synced just now</div>
     </div>
   </div>
@@ -1257,6 +1268,54 @@ a{color:inherit}
          DATA TAB
     ═══════════════════════════════════════════════════ -->
     <div class="tab-panel" id="tab-data">
+      <!-- ─── DATA FRESHNESS EKG (DATA-PULSE-001) ─── -->
+      <div class="sph" style="margin-top:0">
+        <span class="sph-label">Data Freshness EKG</span>
+        <span class="sph-sub" id="ekgLastCheck">checking...</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 20px 14px" id="ekgStrip">
+        <!-- populated by renderEKG() -->
+        <div class="ekg-row" data-source="tmdb_deltas" data-slo="26">
+          <span class="nf-pulse nf-pulse-live" id="ekgDot-tmdb_deltas"></span>
+          <span class="ekg-name">TMDB Δ</span>
+          <span class="ekg-age" id="ekgAge-tmdb_deltas">—</span>
+        </div>
+        <div class="ekg-row" data-source="imdb_snapshots" data-slo="192">
+          <span class="nf-pulse" id="ekgDot-imdb_snapshots"></span>
+          <span class="ekg-name">IMDB</span>
+          <span class="ekg-age" id="ekgAge-imdb_snapshots">—</span>
+        </div>
+        <div class="ekg-row" data-source="social_posts" data-slo="26">
+          <span class="nf-pulse" id="ekgDot-social_posts"></span>
+          <span class="ekg-name">Social</span>
+          <span class="ekg-age" id="ekgAge-social_posts">—</span>
+        </div>
+        <div class="ekg-row" data-source="trend_mart" data-slo="26">
+          <span class="nf-pulse" id="ekgDot-trend_mart"></span>
+          <span class="ekg-name">Trend Mart</span>
+          <span class="ekg-age" id="ekgAge-trend_mart">—</span>
+        </div>
+        <div class="ekg-row" data-source="nielsen_rsg_snap" data-slo="384">
+          <span class="nf-pulse" id="ekgDot-nielsen_rsg_snap"></span>
+          <span class="ekg-name">Nielsen RSG</span>
+          <span class="ekg-age" id="ekgAge-nielsen_rsg_snap">—</span>
+        </div>
+        <div class="ekg-row" data-source="parent_keys_spine" data-slo="192">
+          <span class="nf-pulse" id="ekgDot-parent_keys_spine"></span>
+          <span class="ekg-name">Parent Keys</span>
+          <span class="ekg-age" id="ekgAge-parent_keys_spine">—</span>
+        </div>
+        <div class="ekg-row" data-source="gracenote_resolves" data-slo="216">
+          <span class="nf-pulse" id="ekgDot-gracenote_resolves"></span>
+          <span class="ekg-name">Gracenote</span>
+          <span class="ekg-age" id="ekgAge-gracenote_resolves">—</span>
+        </div>
+        <div class="ekg-row" data-source="eidr" data-slo="840">
+          <span class="nf-pulse" id="ekgDot-eidr"></span>
+          <span class="ekg-name">EIDR</span>
+          <span class="ekg-age" id="ekgAge-eidr">—</span>
+        </div>
+      </div>
       <!-- Scrapers -->
       <div class="sph">
         <span class="sph-label">Scrapers</span>
@@ -1441,6 +1500,40 @@ a{color:inherit}
 
       </div>
       <!-- END NIELSEN DATASETS -->
+
+      <!-- ─── SOCIAL PULSE — TREND MART (SOCIAL-PULSE-001) ─── -->
+      <div class="sph" style="margin-top:10px">
+        <span class="sph-label">Social Pulse — Top Movers</span>
+        <span class="sph-sub" id="socialPulseSub">loading...</span>
+      </div>
+      <div style="padding:0 20px 16px">
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <thead>
+              <tr style="border-bottom:1px solid var(--bdr)">
+                <th style="text-align:left;padding:4px 8px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3)">#</th>
+                <th style="text-align:left;padding:4px 8px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3)">Title</th>
+                <th style="text-align:right;padding:4px 8px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3)">Score</th>
+                <th style="text-align:right;padding:4px 8px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3)">X Engmt</th>
+                <th style="text-align:right;padding:4px 8px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3)">YT Vel.</th>
+                <th style="text-align:right;padding:4px 8px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-3)">Δ7d</th>
+              </tr>
+            </thead>
+            <tbody id="trendMartRows">
+              <tr><td colspan="6" style="padding:12px 8px;color:var(--text-3);font-size:11px">No trend data yet — social collectors pending bless</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;font-size:10px;color:var(--text-3);font-family:var(--mono)">
+          <span id="socialPulseDate">—</span>
+          <span>·</span>
+          <span id="socialPulseCount">—</span>
+          <span style="margin-left:auto;display:flex;gap:6px">
+            <span id="socialPulseXBadge" style="background:rgba(0,0,0,.06);border:1px solid var(--bdr);border-radius:10px;padding:1px 7px">X: <span id="socialPulseXStatus">pending</span></span>
+            <span id="socialPulseYTBadge" style="background:rgba(0,0,0,.06);border:1px solid var(--bdr);border-radius:10px;padding:1px 7px">YT: <span id="socialPulseYTStatus">pending</span></span>
+          </span>
+        </div>
+      </div>
 
       <!-- ─── BARB DATASETS (BARB-EXTRACT-001) ─── -->
       <div class="sph" style="margin-top:10px">
@@ -2449,12 +2542,16 @@ async function loadKanbanLive() {
 // Data Health fetch — DATA-OBSERVE-001 + FEED-DECAY-001 panels
 async function loadDataHealth() {
   try {
-    const [healthRes, decayRes] = await Promise.all([
-      fetch('/observe-health.json?t=' + Date.now()),
-      fetch('/feed-decay.json?t='   + Date.now()),
+    const [healthRes, decayRes, ekgRes, trendRes] = await Promise.all([
+      fetch('/observe-health.json?t='        + Date.now()),
+      fetch('/feed-decay.json?t='            + Date.now()),
+      fetch('/freshness-report.json?t='      + Date.now()),
+      fetch('/trend-mart-summary.json?t='    + Date.now()),
     ]);
     if (healthRes.ok) renderDataHealth(await healthRes.json());
     if (decayRes.ok)  renderFeedDecay(await decayRes.json());
+    if (ekgRes.ok)    renderEKG(await ekgRes.json());
+    if (trendRes.ok)  renderTrendMart(await trendRes.json());
   } catch (_) {}
 }
 
@@ -2813,12 +2910,14 @@ function populateKPIs(d) {
   const gb = k.s3_gb || 0;
   document.getElementById('kpiS3').textContent = gb.toFixed(1) + ' GB';
 
-  // Follow Up Items — REVIEW + BLOCKED tasks from TASKS.md (real kanban state)
-  const kb = d.kanban || {};
-  const followUp = (kb.counts?.review || 0) + (kb.counts?.blocked || 0);
+  // Follow Up Items — authoritative count from d.follow_up_count (TRUTHFUL-VITALS-001).
+  // Counts: ERROR agents + unexpected canary fails + freshness breaches + blocked tasks.
+  // Never derived locally — always read from the server-computed field.
+  const followUp = typeof d.follow_up_count === 'number' ? d.follow_up_count
+                 : (d.kanban?.counts?.blocked || 0);  // fallback if status.json predates TRUTHFUL-VITALS-001
   document.getElementById('kpiImdb').textContent = followUp;
-  document.getElementById('kpiImdb').className = 'kpi-val ' + (followUp === 0 ? 'ok' : followUp <= 5 ? 'warn' : 'crit');
-  document.getElementById('kpiImdbSub').textContent = followUp === 0 ? 'all clear' : followUp + ' need attention';
+  document.getElementById('kpiImdb').className = 'kpi-val ' + (followUp === 0 ? 'ok' : followUp <= 3 ? 'warn' : 'crit');
+  document.getElementById('kpiImdbSub').textContent = followUp === 0 ? 'all clear' : followUp + ' item' + (followUp === 1 ? '' : 's') + ' need attention';
 
   // Ready To Run — HIGH priority BACKLOG tasks from TASKS.md
   const readyToRun = d.queue?.high || (d.queue?.highItems || []).length || 0;
@@ -2840,32 +2939,71 @@ function populateKPIs(d) {
 }
 
 function updateHealthScore(d) {
-  const k = d.kpis || {};
-  const running = k.agents_running || 0;
-  const liveTotal = k.agents_live_total || k.agents_total || 10;
-  const pct = liveTotal > 0 ? Math.round(running / liveTotal * 100) : 71;
+  // TRUTHFUL-VITALS-001: read authoritative health from server-computed d.health.
+  // d.health is computed by generate-status.js every cycle from first principles:
+  //   score = 35% agents + 30% canaries + 25% freshness + 10% cron
+  //   override: any component at 0% → amber floor regardless of aggregate
+  const h    = d.health || {};
+  const pct  = typeof h.score === 'number' ? h.score : (() => {
+    // Fallback for status.json predating TRUTHFUL-VITALS-001 — agents ratio only
+    const k = d.kpis || {};
+    const running  = k.agents_running || 0;
+    const liveTotal = k.agents_live_total || k.agents_total || 10;
+    return liveTotal > 0 ? Math.round(running / liveTotal * 100) : 0;
+  })();
 
+  const grade = h.grade || (pct >= 85 ? 'green' : pct >= 60 ? 'amber' : 'red');
+  const barColor = grade === 'green' ? 'linear-gradient(90deg,var(--acc),var(--acc-2))'
+                 : grade === 'amber' ? 'linear-gradient(90deg,#D97706,#F59E0B)'
+                 : 'linear-gradient(90deg,#DC2626,#EF4444)';
   document.getElementById('healthBar').style.width = pct + '%';
+  document.getElementById('healthBar').style.background = barColor;
   document.getElementById('healthPct').textContent = pct + '%';
+  document.getElementById('healthPct').style.color = grade === 'green' ? '' : grade === 'amber' ? 'var(--amber)' : 'var(--red)';
+  if (h.floor) {
+    const badge = document.getElementById('healthPct');
+    badge.title = 'Amber floor active: one or more components at 0%';
+  }
 
   // Monkey state
   updateMonkeyState(pct);
 
-  // Dropdown breakdown (health bar uses live/cron ratio, not full fleet)
-  const agPct = pct;
+  // Dropdown breakdown — use d.health.components if available
+  const comp  = h.components || {};
+  const agPct = typeof comp.agents === 'number' ? comp.agents
+              : (() => { const k = d.kpis || {}; const r = k.agents_running || 0; const t = k.agents_live_total || 10; return Math.round(r/t*100); })();
   document.getElementById('hbd-agents').style.width = agPct + '%';
   document.getElementById('hbd-agents-pct').textContent = agPct + '%';
   document.getElementById('hbd-agents-pct').className = 'hbd-pct ' + (agPct >= 80 ? 'ok' : agPct >= 60 ? 'warn' : 'crit');
 
-  const s3Count = (d.s3_lake || []).filter(s => s.status === 'live').length;
-  const s3Total = (d.s3_lake || []).length || 1;
-  const s3Pct = Math.round(s3Count / s3Total * 100);
-  document.getElementById('hbd-s3').style.width = s3Pct + '%';
-  document.getElementById('hbd-s3-pct').textContent = s3Pct + '%';
+  // Canaries component
+  const canPct = typeof comp.canaries === 'number' ? comp.canaries : 100;
+  document.getElementById('hbd-canaries').style.width = canPct + '%';
+  document.getElementById('hbd-canaries').style.background = canPct >= 80 ? 'var(--ok)' : canPct >= 60 ? 'var(--warn)' : 'var(--crit)';
+  document.getElementById('hbd-canaries-pct').textContent = canPct + '%';
+  document.getElementById('hbd-canaries-pct').className = 'hbd-pct ' + (canPct >= 80 ? 'ok' : canPct >= 60 ? 'warn' : 'crit');
 
-  const scrPct = k.scrapers_live && k.scrapers_total ? Math.round(k.scrapers_live/k.scrapers_total*100) : 80;
-  document.getElementById('hbd-scrapers').style.width = scrPct + '%';
-  document.getElementById('hbd-scrapers-pct').textContent = scrPct + '%';
+  // Freshness component
+  const frPct = typeof comp.freshness === 'number' ? comp.freshness : 100;
+  document.getElementById('hbd-freshness').style.width = frPct + '%';
+  document.getElementById('hbd-freshness').style.background = frPct >= 80 ? 'var(--ok)' : frPct >= 60 ? 'var(--warn)' : 'var(--crit)';
+  document.getElementById('hbd-freshness-pct').textContent = frPct + '%';
+  document.getElementById('hbd-freshness-pct').className = 'hbd-pct ' + (frPct >= 80 ? 'ok' : frPct >= 60 ? 'warn' : 'crit');
+
+  // Cron component
+  const crPct = typeof comp.cron === 'number' ? comp.cron : 100;
+  document.getElementById('hbd-cron').style.width = crPct + '%';
+  document.getElementById('hbd-cron').style.background = crPct >= 80 ? 'var(--ok)' : crPct >= 60 ? 'var(--warn)' : 'var(--crit)';
+  document.getElementById('hbd-cron-pct').textContent = crPct + '%';
+  document.getElementById('hbd-cron-pct').className = 'hbd-pct ' + (crPct >= 80 ? 'ok' : crPct >= 60 ? 'warn' : 'crit');
+
+  // Floor note
+  const floorNote = document.getElementById('hbd-floor-note');
+  if (floorNote) floorNote.style.display = h.floor ? 'block' : 'none';
+
+  // Formula version badge
+  const verBadge = document.getElementById('hbd-formula-ver');
+  if (verBadge && h.formula_version) verBadge.textContent = h.formula_version;
 }
 
 function updateMonkeyState(pct) {
@@ -5980,6 +6118,68 @@ async function pollNielsenJobStatus() {
       }
     } catch (_) { /* Railway proxy may not have this endpoint yet — silently skip */ }
   }
+}
+
+// ── Data Freshness EKG — DATA-PULSE-001 ──────────────────────────────────────
+function renderEKG(freshnessReport) {
+  if (!freshnessReport || !freshnessReport.sources) return;
+  const lastCheck = document.getElementById('ekgLastCheck');
+  if (lastCheck) lastCheck.textContent = 'checked ' + new Date(freshnessReport.generated_at).toLocaleTimeString();
+  freshnessReport.sources.forEach(src => {
+    const dot = document.getElementById('ekgDot-' + src.name);
+    const age = document.getElementById('ekgAge-' + src.name);
+    const row = dot && dot.closest('.ekg-row');
+    if (!dot || !row) return;
+    dot.className = 'nf-pulse';
+    row.classList.remove('ekg-fresh','ekg-warn','ekg-stale','ekg-unknown');
+    if (src.state === 'UNKNOWN') {
+      row.classList.add('ekg-unknown');
+      if (age) age.textContent = '⚪ unknown';
+    } else if (src.state === 'STALE') {
+      row.classList.add('ekg-stale');
+      dot.classList.add('nf-pulse-run');
+      if (age) age.textContent = '🔴 ' + (src.age_hours ? src.age_hours.toFixed(0) + 'h' : '?');
+    } else if (src.state === 'WARN') {
+      row.classList.add('ekg-warn');
+      dot.classList.add('nf-pulse-run');
+      if (age) age.textContent = '🟡 ' + (src.age_hours ? src.age_hours.toFixed(0) + 'h' : '?');
+    } else {
+      row.classList.add('ekg-fresh');
+      dot.classList.add('nf-pulse-live');
+      if (age) age.textContent = src.age_hours ? src.age_hours.toFixed(0) + 'h' : '—';
+    }
+  });
+}
+
+function renderTrendMart(trendData) {
+  const tbody = document.getElementById('trendMartRows');
+  const sub = document.getElementById('socialPulseSub');
+  if (!tbody || !trendData || !trendData.top10) return;
+  if (sub && trendData.date) sub.textContent = trendData.date + ' · ' + trendData.total_titles + ' titles tracked';
+  const dateEl = document.getElementById('socialPulseDate');
+  const countEl = document.getElementById('socialPulseCount');
+  const xStat = document.getElementById('socialPulseXStatus');
+  const ytStat = document.getElementById('socialPulseYTStatus');
+  if (dateEl && trendData.date) dateEl.textContent = trendData.date;
+  if (countEl && trendData.total_titles) countEl.textContent = trendData.total_titles + ' titles';
+  if (xStat) xStat.textContent = trendData.x_collector_status || 'pending';
+  if (ytStat) ytStat.textContent = trendData.yt_collector_status || 'pending';
+  if (!trendData.top10.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="padding:12px 8px;color:var(--text-3)">No trend data yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = trendData.top10.map((r, i) => {
+    const m7c = r.momentum_7d > 0.05 ? '#10B981' : r.momentum_7d < -0.05 ? '#EF4444' : '#94A3B8';
+    const m7t = r.momentum_7d > 0 ? '+' + (r.momentum_7d*100).toFixed(0)+'%' : (r.momentum_7d*100).toFixed(0)+'%';
+    return '<tr style="border-bottom:1px solid var(--bdr)">' +
+      '<td style="padding:5px 8px;color:var(--text-3);font-family:var(--mono)">' + (i+1) + '</td>' +
+      '<td style="padding:5px 8px;font-weight:600">' + (r.title || r.parent_key) + '</td>' +
+      '<td style="padding:5px 8px;text-align:right;font-family:var(--mono);font-weight:700">' + r.trend_score.toFixed(1) + '</td>' +
+      '<td style="padding:5px 8px;text-align:right;font-family:var(--mono)">' + (r.x_engagement ? r.x_engagement.toLocaleString() : '—') + '</td>' +
+      '<td style="padding:5px 8px;text-align:right;font-family:var(--mono)">' + (r.yt_view_velocity ? r.yt_view_velocity.toFixed(0)+'k' : '—') + '</td>' +
+      '<td style="padding:5px 8px;text-align:right;font-family:var(--mono);color:' + m7c + '">' + m7t + '</td>' +
+    '</tr>';
+  }).join('');
 }
 
 function populateNielsenCards(d) {
