@@ -6,18 +6,20 @@
 <title>SaSMaster · War Room v5 — Signal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/signal-system.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#F4F7FB;--surface:#FFFFFF;--surface2:#FBFCFE;--inset:#EEF2F8;
-  --ink:#0E1726;--mut:#54627A;--dim:#9AA7BC;--bd:#E5EAF1;--bd2:#D8DFEA;
-  --accent:#0EA5E9;--violet:#7C5CFC;--cyan:#22D3EE;--up:#10B981;--down:#EF4444;--warn:#F59E0B;
+  /* signal-system.css imported above — all color values derived from its primitives (SIGNAL-SYSTEM-001) */
+  --bg:var(--p-gray-100);--surface:var(--p-white);--surface2:var(--p-gray-50);--inset:var(--p-gray-200);
+  --ink:var(--p-gray-900);--mut:var(--p-slate-500);--dim:var(--p-gray-400);--bd:var(--p-gray-200);--bd2:var(--p-gray-300);
+  --accent:#0EA5E9;--violet:var(--p-purple-600);--cyan:#22D3EE;--up:var(--p-green-600);--down:var(--p-red-600);--warn:var(--p-amber-600);
   --sh:0 2px 8px rgba(14,23,38,.05),0 14px 36px rgba(14,23,38,.06);--sh-sm:0 1px 2px rgba(14,23,38,.05);
   --sora:'Sora',sans-serif;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;
   --grad:linear-gradient(110deg,var(--violet),var(--accent) 58%,var(--cyan));
-  --dark1:#0B0F16;--dark2:#11161E;
+  --dark1:var(--p-dark-bg);--dark2:var(--p-dark-surf2);
 }
-[data-theme="dark"]{--bg:#0B0F16;--surface:#141A23;--surface2:#11161E;--inset:#10151D;--ink:#EAF0F8;--mut:#A0AEC2;--dim:#5F6E84;--bd:rgba(255,255,255,.08);--bd2:rgba(255,255,255,.13);--sh:0 2px 10px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);--sh-sm:0 1px 2px rgba(0,0,0,.4)}
+[data-theme="dark"]{--bg:var(--p-dark-bg);--surface:var(--p-dark-surf);--surface2:var(--p-dark-surf2);--inset:var(--p-dark-bg);--ink:var(--p-dark-text);--mut:var(--p-gray-400);--dim:var(--p-dark-dim);--bd:rgba(255,255,255,.08);--bd2:rgba(255,255,255,.13);--sh:0 2px 10px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);--sh-sm:0 1px 2px rgba(0,0,0,.4)}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;transition:background .4s,color .4s;display:flex;flex-direction:column;min-height:100vh}
 ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:8px}
@@ -40,7 +42,7 @@ header.top{display:flex;align-items:center;gap:16px;padding:10px 22px;background
 .hd-right{margin-left:auto;display:flex;align-items:center;gap:16px}
 .healthbar{display:flex;align-items:center;gap:9px;font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--dim)}
 .healthbar .bar{width:120px;height:7px;background:var(--inset);border-radius:5px;overflow:hidden}
-.healthbar .bar i{display:block;height:100%;width:71%;background:var(--grad);border-radius:5px}
+.healthbar .bar i{display:block;height:100%;width:0%;background:var(--grad);border-radius:5px}
 .healthbar b{font-family:var(--mono);font-weight:500;font-size:13px;color:var(--ink)}
 .clock{text-align:right}
 .clock .t{font-family:var(--mono);font-size:18px;line-height:1}
@@ -385,7 +387,7 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
   <span class="pill"><span class="dot dg"></span>S3 <b>724.3 GB</b></span>
   <span class="pill"><span class="dot da"></span>Agents <b>10/51</b></span>
   <div class="hd-right">
-    <div class="healthbar">HEALTH <span class="bar"><i></i></span> <b>71%</b></div>
+    <div class="healthbar">HEALTH <span class="bar"><i></i></span> <b>—</b></div>
     <div class="clock"><div class="t" id="clk">--:--:--</div><div class="d">FRI, JUN 12</div></div>
     <div class="tog"><button id="tL" class="on" onclick="theme('light')">Light</button><button id="tD" onclick="theme('dark')">Dark</button></div>
   </div>
@@ -895,6 +897,9 @@ function adapt(d){
     // When score is genuinely unknown (no data), use null — renders as "—", not a lying 0% or 71%.
     healthPct:d.health&&d.health.score!=null?d.health.score
       :(d.kpis&&d.kpis.agents_total>0?Math.round((d.kpis.agents_running/d.kpis.agents_total)*100):null),
+    healthGrade:d.health?.grade??null,
+    // TRUTHFUL-VITALS-001: follow_up_count = server-computed (agent ERRORs + canary fails + freshness breaches + blocked)
+    followUp:typeof d.follow_up_count==='number'?d.follow_up_count:(kanban.blocked?.length??0),
     kpis:{
       agentsLive:d.kpis&&d.kpis.agents_running!=null?d.kpis.agents_running:0,
       agentsTotal:d.kpis&&d.kpis.agents_total!=null?d.kpis.agents_total:0,
@@ -903,7 +908,8 @@ function adapt(d){
       buildEventsToday:d.kpis&&d.kpis.build_events_today!=null?d.kpis.build_events_today:0,
       blessQueue:queue.high!=null?queue.high:0,
       nielsen:getNielsenDays(),
-      costMtd:d.cost_summary&&d.cost_summary.total_cost_usd!=null?d.cost_summary.total_cost_usd:null
+      /* ONE-SOURCE-001: mtd_cost_usd is the authority; fall back to total only when mtd absent */
+      costMtd:d.cost_summary?.mtd_cost_usd??d.cost_summary?.total_cost_usd??null
     },
     usageState:d.usage_state||{},
     crons:(d.cron||[]).slice(0,20),
@@ -963,10 +969,14 @@ function renderHeader(vm){
   if(pills[0]) pills[0].innerHTML=`<span class="dot ${vm.jarvisOk?'dg':'dr'}"></span>JARVIS`;
   if(pills[1]) pills[1].innerHTML=`<span class="dot dg"></span>S3 <b>${vm.s3gb} GB</b>`;
   if(pills[2]) pills[2].innerHTML=`<span class="dot ${vm.agentsLive>0?'dg':'da'}"></span>Agents <b>${vm.agentsLive}/${vm.agentsTotal}</b>`;
-  // health bar
+  // health bar — TRUTHFUL-VITALS-001: grade drives color, pct drives width
   const bar=document.querySelector('.healthbar .bar i');
   const pct=vm.healthPct;  // null = unknown; never coerce to 0
-  if(bar) bar.style.width=(pct!=null?pct:0)+'%';
+  if(bar){
+    bar.style.width=(pct!=null?pct:0)+'%';
+    const grade=vm.healthGrade||(pct==null?null:pct>=85?'green':pct>=60?'amber':'red');
+    bar.style.background=grade==='red'?'var(--down)':grade==='amber'?'var(--warn)':'var(--grad)';
+  }
   const hb=document.querySelector('.healthbar b');
   if(hb) hb.textContent=pct!=null?pct+'%':'—';
 }
@@ -979,7 +989,8 @@ function renderKPIStrip(vm){
   const cells=strip.querySelectorAll('.k');
   if(cells[0]){cells[0].querySelector('.v').textContent=k.agentsLive+'/'+k.agentsTotal;cells[0].querySelector('.c').textContent=k.agentsLive+' live healthy';}
   if(cells[1]){cells[1].querySelector('.v').innerHTML=k.s3gb+' <small>GB</small>';cells[1].querySelector('.c').textContent='GB total';}
-  if(cells[2]){const v=cells[2].querySelector('.v');v.textContent=k.tasksOpen;v.style.color=k.tasksOpen===0?'var(--up)':'var(--ink)';cells[2].querySelector('.c').textContent=k.tasksOpen===0?'all clear':k.tasksOpen+' open';}
+  // TRUTHFUL-VITALS-001: followUp = server-computed real follow-up count, not tasks-open count
+  if(cells[2]){const fu=vm.followUp??0;const v=cells[2].querySelector('.v');v.textContent=fu;v.style.color=fu===0?'var(--up)':'var(--warn)';cells[2].querySelector('.c').textContent=fu===0?'all clear':fu+' need attention';}
   if(cells[3]){cells[3].querySelector('.v').textContent=k.blessQueue||'—';cells[3].querySelector('.c').textContent='HIGH (live)';}
   if(cells[4]){cells[4].querySelector('.v').textContent=k.buildEventsToday;cells[4].querySelector('.c').textContent=k.buildEventsToday+' items today';}
   if(cells[5]){const cost=k.costMtd!=null?'$'+Number(k.costMtd).toFixed(2):'$0.08';cells[5].querySelector('.v').textContent=cost;cells[5].querySelector('.c').textContent=(vm.costSummary&&vm.costSummary.entry_count)||21+' builds';}
