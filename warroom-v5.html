@@ -1451,8 +1451,8 @@ function renderTelemetry(vm){
       evfeed.innerHTML=items.map(ev=>{
         const ts=ev.ts?new Date(ev.ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';
         const tagCls=ev.type==='pipeline'||ev.type==='build'?'tg-stor':ev.type==='intel'?'tg-data':'tg-trig';
-        const tagLabel=(ev.type||'EVENT').toUpperCase().substring(0,7);
-        return `<div class="evrow"><span class="t">${ts}</span><span class="tag ${tagCls}">${tagLabel}</span><span class="e">${(ev.text||'').substring(0,60)}</span></div>`;
+        const tagLabel=String(ev.type||'EVENT').toUpperCase().substring(0,7);
+        return `<div class="evrow"><span class="t">${ts}</span><span class="tag ${tagCls}">${tagLabel}</span><span class="e">${String(ev.text||'').substring(0,60)}</span></div>`;
       }).join('');
     }
   }
@@ -1626,18 +1626,19 @@ async function loadAndRender(){
     showToast('⚡ Live data unavailable — showing demo snapshot',3000);
     vm=DEMO_DATA;
   }
-  renderHeader(vm);
-  renderKPIStrip(vm);
-  renderMemoryBar(vm);
-  renderSidebar(vm);
-  renderOPS(vm);
-  renderAgents(vm);
-  renderData(vm);
-  renderQueue(vm);
-  try{renderCosts(vm);}catch(e){console.error('[renderCosts]',e);}
-  try{renderFinance(vm);}catch(e){console.error('[renderFinance]',e);}
-  renderTelemetry(vm);
-  updateStatusBar(vm);
+  const guard=(fn,label)=>{try{fn();}catch(e){console.error('['+label+']',e);}};
+  guard(()=>renderHeader(vm),'renderHeader');
+  guard(()=>renderKPIStrip(vm),'renderKPIStrip');
+  guard(()=>renderMemoryBar(vm),'renderMemoryBar');
+  guard(()=>renderSidebar(vm),'renderSidebar');
+  guard(()=>renderOPS(vm),'renderOPS');
+  guard(()=>renderAgents(vm),'renderAgents');
+  guard(()=>renderData(vm),'renderData');
+  guard(()=>renderQueue(vm),'renderQueue');
+  guard(()=>renderCosts(vm),'renderCosts');
+  guard(()=>renderFinance(vm),'renderFinance');
+  guard(()=>renderTelemetry(vm),'renderTelemetry');
+  guard(()=>updateStatusBar(vm),'updateStatusBar');
   // async tabs — isolated so one failure never blocks others
   renderResources().catch(e=>console.error('[renderResources]',e));
   renderFintel();
