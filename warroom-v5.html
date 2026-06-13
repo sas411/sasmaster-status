@@ -376,6 +376,48 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 .canvas-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .canvas-toast.ok{color:var(--up)}.canvas-toast.err{color:var(--down)}.canvas-toast.info{color:var(--accent)}
 @media(max-width:1240px){.canvas-layout{grid-template-columns:1fr}.canvas-archive-layout{grid-template-columns:1fr}}
+
+/* ================= DRILL-DOWN DRAWER (Phase A) ================= */
+.dd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:79;display:none}
+.dd-overlay.open{display:block}
+.drilldown{position:fixed;top:0;right:0;bottom:0;width:400px;background:var(--surface);border-left:1px solid var(--bd);box-shadow:-10px 0 44px rgba(0,0,0,.18);z-index:80;display:flex;flex-direction:column;transform:translateX(105%);transition:transform .32s cubic-bezier(.16,1,.3,1)}
+.drilldown.open{transform:none}
+.drilldown .dd-head{display:flex;align-items:center;gap:10px;padding:15px 18px 13px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.drilldown .dd-type{font-family:var(--sora);font-size:8.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);background:rgba(14,165,233,.1);border-radius:8px;padding:3px 9px}
+.drilldown .dd-title{font-family:var(--sora);font-size:15px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drilldown .dd-close{font-size:20px;cursor:pointer;color:var(--dim);background:none;border:none;padding:0 2px;line-height:1;transition:color .15s}
+.drilldown .dd-close:hover{color:var(--ink)}
+.drilldown .dd-body{flex:1;overflow-y:auto;padding:16px 18px 24px}
+.dd-sec{margin-bottom:18px}
+.dd-sec .dd-sl{font-family:var(--sora);font-size:8.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.dd-kv{display:grid;grid-template-columns:110px 1fr;gap:6px 8px;font-size:12.5px;margin-bottom:10px}
+.dd-kv .k{color:var(--mut);font-weight:600}
+.dd-kv .v{font-family:var(--mono);font-size:12px}
+.dd-sowhat{background:linear-gradient(110deg,rgba(14,165,233,.07),rgba(124,92,252,.07));border:1px solid rgba(14,165,233,.2);border-radius:11px;padding:11px 14px;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:10px;line-height:1.5}
+.dd-nowwhat{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:11px;padding:11px 14px;font-size:12.5px;line-height:1.55}
+.dd-nowwhat b{color:var(--up)}
+.dd-nowwhat .nw-lbl{font-family:var(--sora);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--up);display:block;margin-bottom:5px}
+.dd-blocked{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.22);border-radius:11px;padding:11px 14px;font-size:12.5px;line-height:1.55}
+.dd-blocked .nw-lbl{font-family:var(--sora);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--down);display:block;margin-bottom:5px}
+.dd-logbox{background:var(--dark2);color:#A0AEC2;font-family:var(--mono);font-size:11px;border-radius:9px;padding:10px 13px;line-height:1.65;max-height:110px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+
+/* guard tab error badges (Phase C) */
+.tab .g-err{background:var(--down);color:#fff;font-family:var(--mono);font-size:7.5px;font-weight:700;border-radius:5px;padding:1.5px 5px;margin-left:4px;vertical-align:middle;letter-spacing:.04em}
+
+/* character image in refcard (Phase E) */
+.refcard .av.char-av{background:transparent;border-radius:50%;overflow:hidden;padding:0}
+.refcard .av.char-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+/* Dr. Scoop image orb */
+.orb2 img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+/* monkey health popup */
+.monkey-health{position:fixed;left:16px;top:50%;transform:translateY(-50%);z-index:85;background:var(--surface);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh);padding:16px 18px;width:260px;display:none}
+.monkey-health.open{display:block}
+.monkey-health .mh-head{font-family:var(--sora);font-size:12px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.monkey-health .mh-close{margin-left:auto;cursor:pointer;color:var(--dim);font-size:16px;background:none;border:none}
+.monkey-health .mh-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--bd);font-size:12px}
+.monkey-health .mh-row:last-child{border-bottom:none}
+.monkey-health .mh-row .mk{color:var(--mut);font-weight:600}
+.monkey-health .mh-row .mv{font-family:var(--mono);font-size:11.5px}
 </style>
 </head>
 <body>
@@ -420,7 +462,7 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 <div class="shell" id="shell">
 <aside>
   <h4>Reference System</h4>
-  <div class="refcard"><div class="av">🧟</div><div><div class="n">Frankenstein</div><div class="s">⚡ Local Ref</div></div></div>
+  <div class="refcard" id="monkey-refcard" style="cursor:pointer" title="Click for local-ref health"><div class="av char-av"><img src="assets/characters/frankenstein-monkey.jpg" alt="Frankenstein" onerror="this.parentElement.classList.remove('char-av');this.parentElement.textContent='🧟'"></div><div><div class="n">Frankenstein</div><div class="s">⚡ Local Ref</div></div></div>
 
   <h4>Activity</h4>
   <div class="actgrid"><i class="a2"></i><i class="a1"></i><i></i><i class="a1"></i><i class="a2"></i><i class="a2"></i><i class="a1"></i><i></i><i class="a2"></i><i class="a2"></i></div>
@@ -807,6 +849,29 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 <!-- ================= CANVAS TOAST ================= -->
 <div class="canvas-toast" id="canvas-toast"></div>
 
+<!-- ================= DRILL-DOWN DRAWER (Phase A) ================= -->
+<div class="dd-overlay" id="dd-overlay" onclick="closeDrillDown()"></div>
+<div class="drilldown" id="drill-panel">
+  <div class="dd-head">
+    <span class="dd-type" id="dd-type-label">AGENT</span>
+    <span class="dd-title" id="dd-title">—</span>
+    <button class="dd-close" onclick="closeDrillDown()">✕</button>
+  </div>
+  <div class="dd-body" id="dd-body"></div>
+</div>
+
+<!-- ================= MONKEY LOCAL-REF HEALTH (Phase E) ================= -->
+<div class="monkey-health" id="monkey-health">
+  <div class="mh-head">🧟 Local Ref Health <button class="mh-close" onclick="closeMonkeyHealth()">✕</button></div>
+  <div id="monkey-health-body">
+    <div class="mh-row"><span class="mk">JARVIS</span><span class="mv" id="mh-jarvis">—</span></div>
+    <div class="mh-row"><span class="mk">Heartbeat</span><span class="mv" id="mh-hb">—</span></div>
+    <div class="mh-row"><span class="mk">Last sync</span><span class="mv" id="mh-sync">—</span></div>
+    <div class="mh-row"><span class="mk">S3 Lake</span><span class="mv" id="mh-s3">—</span></div>
+    <div class="mh-row"><span class="mk">Railway</span><span class="mv" id="mh-rwy">—</span></div>
+  </div>
+</div>
+
 <!-- ================= STATUS BAR ================= -->
 <div class="statusbar">
   <span class="live">● LIVE QUEUE</span><span>— TASKS.MD VIA COMMAND API</span>
@@ -821,7 +886,7 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
   <div class="bub" id="scoopbub"><b>Ask Dr. Scoop</b> — opens the SaSMaster ASK research surface</div>
   <div class="orbwrap2">
     <i class="ringz"></i>
-    <div class="orb2" id="scoopOrb" title="Ask Dr. Scoop — launch SaSMaster ASK">🍦</div>
+    <div class="orb2" id="scoopOrb" title="Ask Dr. Scoop — launch SaSMaster ASK"><img src="assets/characters/dr-scoop.jpg" alt="Dr. Scoop" onerror="this.outerHTML='<span style=\'font-size:25px\'>🍦</span>'"></div>
   </div>
 </div>
 
@@ -845,6 +910,156 @@ function showToast(msg,ms=3000){
     document.body.appendChild(el);}
   el.textContent=msg; el.style.opacity='1';
   clearTimeout(el._t); el._t=setTimeout(()=>el.style.opacity='0',ms);
+}
+
+/* ============ DRILL-DOWN PANEL (Phase A) ============ */
+function openDrillDown(type, data){
+  const panel=document.getElementById('drill-panel');
+  const overlay=document.getElementById('dd-overlay');
+  const typeLabel=document.getElementById('dd-type-label');
+  const titleEl=document.getElementById('dd-title');
+  const body=document.getElementById('dd-body');
+  if(!panel) return;
+  typeLabel.textContent=type.toUpperCase();
+  titleEl.textContent=data._title||'Detail';
+  body.innerHTML=buildDrillBody(type, data);
+  panel.classList.add('open');
+  overlay.classList.add('open');
+}
+function closeDrillDown(){
+  const panel=document.getElementById('drill-panel');
+  const overlay=document.getElementById('dd-overlay');
+  if(panel) panel.classList.remove('open');
+  if(overlay) overlay.classList.remove('open');
+}
+function buildDrillBody(type, d){
+  if(type==='agent') return buildAgentDrill(d);
+  if(type==='data') return buildDataDrill(d);
+  if(type==='queue') return buildQueueDrill(d);
+  return '<div style="color:var(--dim);font-size:13px">No detail available.</div>';
+}
+function buildAgentDrill(a){
+  const ok=a.status==='healthy';
+  const lastRun=a.lastRun?timeSince(a.lastRun):'never';
+  const verdict=ok
+    ?`Running on schedule. Last output: ${(a.lastOutput||a.descOverride||'—').substring(0,80)}`
+    :`Error state detected. Last known output: ${(a.lastOutput||a.log||'—').substring(0,80)}`;
+  const nowWhat=ok
+    ?'<span class="nw-lbl">NOW WHAT</span>No action needed. Monitor next scheduled run.'
+    :`<span class="nw-lbl">NOW WHAT</span>1. Check logs via <b>📄 Logs</b> button on the card.<br>2. Verify schedule is active in crontab.<br>3. Re-run manually if last run > 24h.`;
+  const nowClass=ok?'dd-nowwhat':'dd-blocked';
+  return `
+  <div class="dd-sec">
+    <div class="dd-sl">STATUS OVERVIEW</div>
+    <div class="dd-kv">
+      <span class="k">Status</span><span class="v ${ok?'pos':'neg'}">${ok?'● HEALTHY':'● ERROR'}</span>
+      <span class="k">Last run</span><span class="v">${lastRun}</span>
+      <span class="k">Schedule</span><span class="v">${a.schedule||'—'}</span>
+      <span class="k">Next run</span><span class="v">${a.nextRun||'—'}</span>
+      <span class="k">Channel</span><span class="v">${a.channel||'—'}</span>
+      <span class="k">Log</span><span class="v" style="color:var(--violet)">${a.log||'—'}</span>
+    </div>
+  </div>
+  <div class="dd-sec">
+    <div class="dd-sl">SO WHAT</div>
+    <div class="dd-sowhat">${verdict}</div>
+  </div>
+  <div class="dd-sec">
+    <div class="${nowClass}">${nowWhat}</div>
+  </div>
+  ${a.lastOutput?`<div class="dd-sec"><div class="dd-sl">LAST OUTPUT</div><div class="dd-logbox">${a.lastOutput}</div></div>`:''}
+  <div style="display:flex;gap:8px;margin-top:4px">
+    <button class="btn bp" onclick="runAgent('${(a.name||'').replace(/'/g,"\\'")}');closeDrillDown()">▶ Run now</button>
+    <button class="btn bs" onclick="viewLogs('${(a.name||'').replace(/'/g,"\\'")}')">📄 Logs</button>
+  </div>`;
+}
+function buildDataDrill(d){
+  const statusOk=['live','running'].includes(d.status||'');
+  const ents=d.entities||{};
+  const entLines=Object.entries(ents).map(([k,v])=>`<span class="k">${k.charAt(0).toUpperCase()+k.slice(1)}</span><span class="v">${fmtN(v)}</span>`).join('');
+  const freshness=d.last_updated?timeSince(d.last_updated):'unknown';
+  const verdict=statusOk
+    ?`Data is live at <b>${d.size_gb!=null?d.size_gb.toFixed(2)+' GB':'—'}</b> · ${fmtN(d.object_count)} objects.`
+    :`Prefix is in <b>${(d.status||'unknown').toUpperCase()}</b> state — check scraper.`;
+  const nowWhat=statusOk
+    ?'<span class="nw-lbl">NOW WHAT</span>Prefix healthy. Verify freshness matches expected cron cadence.'
+    :'<span class="nw-lbl">NOW WHAT</span>1. Check scraper status in <b>OPS → Running now</b>.<br>2. Re-trigger via command bar if stale > 48h.';
+  return `
+  <div class="dd-sec">
+    <div class="dd-sl">PREFIX STATS</div>
+    <div class="dd-kv">
+      <span class="k">Path</span><span class="v">${d.prefix||d.path||'—'}</span>
+      <span class="k">Size</span><span class="v">${d.size_gb!=null?d.size_gb.toFixed(2)+' GB':'—'}</span>
+      <span class="k">Objects</span><span class="v">${d.object_count!=null?fmtN(d.object_count):'—'}</span>
+      <span class="k">Status</span><span class="v ${statusOk?'pos':'neg'}">${(d.status||'?').toUpperCase()}</span>
+      <span class="k">Last seen</span><span class="v">${freshness}</span>
+      ${entLines}
+    </div>
+  </div>
+  <div class="dd-sec">
+    <div class="dd-sl">SO WHAT</div>
+    <div class="dd-sowhat">${verdict} ${d.note?'<br><span style="color:var(--mut);font-size:12px">'+d.note+'</span>':''}</div>
+  </div>
+  <div class="${statusOk?'dd-nowwhat':'dd-blocked'}">${nowWhat}</div>`;
+}
+function buildQueueDrill(c){
+  const fullText=c.text||c.full||'No description';
+  const priority=c.priority||'MED';
+  const tag=c.tag||'—';
+  const colMap={'backlog':'Backlog','inProgress':'In Progress','blocked':'⛔ BLOCKED','review':'Review','done':'✓ Done'};
+  const col=colMap[c._col]||c._col||'—';
+  const isBlocked=c._col==='blocked';
+  const nowWhat=isBlocked
+    ?'<span class="nw-lbl">NOW WHAT (BLOCKED)</span>Identify and resolve the blocker. Add blocker context to this task and escalate if needed.'
+    :c._col==='review'?'<span class="nw-lbl">NOW WHAT</span>Review is pending. Complete review, then move to Done or back to In Progress.'
+    :c._col==='done'?'<span class="nw-lbl">NOW WHAT</span>Task complete. Archive if no follow-up actions needed.'
+    :'<span class="nw-lbl">NOW WHAT</span>Pick up this task or assign. Move to In Progress when starting.';
+  return `
+  <div class="dd-sec">
+    <div class="dd-sl">TASK DETAIL</div>
+    <div class="dd-kv">
+      <span class="k">Tag</span><span class="v">${tag}</span>
+      <span class="k">Priority</span><span class="v ${priority==='HIGH'?'neg':priority==='MED'?'wrn':''}">${priority}</span>
+      <span class="k">Column</span><span class="v">${col}</span>
+    </div>
+    <div style="background:var(--inset);border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.6;word-break:break-word">${fullText}</div>
+  </div>
+  <div class="dd-sec">
+    <div class="dd-sl">SO WHAT</div>
+    <div class="dd-sowhat">${isBlocked?'This task is <b>blocked</b> — it cannot proceed until the blocker is resolved.':'Priority: <b>'+priority+'</b> · Tag: <b>'+tag+'</b>'}</div>
+  </div>
+  <div class="${isBlocked?'dd-blocked':'dd-nowwhat'}">${nowWhat}</div>`;
+}
+
+/* ============ MONKEY LOCAL-REF HEALTH (Phase E) ============ */
+let _lastVm=null;
+function openMonkeyHealth(){
+  const el=document.getElementById('monkey-health');
+  if(!el) return;
+  const vm=_lastVm;
+  if(vm){
+    const freshness=vm.sourceFreshness||[];
+    const hb=freshness.find(f=>f.source&&f.source.includes('heartbeat'));
+    const s3=freshness.find(f=>f.source&&f.source.toLowerCase().includes('s3'));
+    const rwy=freshness.find(f=>f.source&&f.source.toLowerCase().includes('railway'));
+    const fmt=f=>f?(f.age_mins<60?Math.round(f.age_mins)+'m ago':Math.round(f.age_mins/60)+'h ago'):'—';
+    const dot=f=>f&&f.status==='ok'?'<span style="color:var(--up)">●</span>':'<span style="color:var(--warn)">●</span>';
+    const jarvisEl=document.getElementById('mh-jarvis');
+    const hbEl=document.getElementById('mh-hb');
+    const syncEl=document.getElementById('mh-sync');
+    const s3El=document.getElementById('mh-s3');
+    const rwyEl=document.getElementById('mh-rwy');
+    if(jarvisEl) jarvisEl.innerHTML=(vm.jarvisOk?'<span style="color:var(--up)">● ALIVE</span>':'<span style="color:var(--down)">● DOWN</span>');
+    if(hbEl) hbEl.innerHTML=hb?`${dot(hb)} ${fmt(hb)}`:'<span style="color:var(--dim)">—</span>';
+    if(syncEl) syncEl.textContent=vm.generatedAt?timeSince(vm.generatedAt):'—';
+    if(s3El) s3El.innerHTML=s3?`${dot(s3)} ${vm.s3gb} GB`:`<span style="color:var(--ink)">${vm.s3gb} GB</span>`;
+    if(rwyEl) rwyEl.innerHTML=rwy?`${dot(rwy)} ${fmt(rwy)}`:'<span style="color:var(--dim)">—</span>';
+  }
+  el.classList.add('open');
+}
+function closeMonkeyHealth(){
+  const el=document.getElementById('monkey-health');
+  if(el) el.classList.remove('open');
 }
 
 /* ============ DEMO DATA (fallback) ============ */
@@ -953,7 +1168,15 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
   t.classList.add('on');document.getElementById('v-'+t.dataset.v).classList.add('on');
+  closeDrillDown(); // Phase A: close drill-down on tab switch
+  closeMonkeyHealth(); // Phase E: close monkey panel on tab switch
 }));
+
+/* ============ monkey refcard click (Phase E) ============ */
+document.addEventListener('DOMContentLoaded',()=>{
+  const mc=document.getElementById('monkey-refcard');
+  if(mc) mc.addEventListener('click',openMonkeyHealth);
+});
 
 /* ============ Dr. Scoop ============ */
 const orb=document.getElementById('scoopOrb'),bub=document.getElementById('scoopbub');
@@ -1177,12 +1400,12 @@ function renderAgents(vm){
   const hdr2=document.querySelector('#v-agents .sec-h .right');
   if(hdr2) hdr2.textContent='LIVE & CRON AGENTS · '+vm.agentsLiveTotal;
 
-  fleet.innerHTML=agents.map(a=>{
+  fleet.innerHTML=agents.map((a,idx)=>{
     const ok=a.status==='healthy';
     const lastRunStr=a.lastRun?timeSince(a.lastRun):'never';
     const console_out=(a.lastOutput||a.descOverride||a.log||'').substring(0,120);
     const name=a.name||'—';
-    return `<div class="acard ${ok?'':'err'}">
+    return `<div class="acard ${ok?'':'err'}" data-agent-idx="${idx}" style="cursor:pointer">
       <div class="ah"><span>${a.icon||'🤖'}</span><span class="nm">${name}</span><span class="badge ${ok?'b-ok':'b-err'}">${ok?'HEALTHY':'ERROR'}</span></div>
       <div class="meta">
         <div><div class="l">Last run</div><div class="v" style="color:${ok?'var(--up)':'var(--down)'}">${lastRunStr}</div></div>
@@ -1193,11 +1416,21 @@ function renderAgents(vm){
       <div class="chan">→ ${a.channel||'—'}</div>
       <div class="console ${ok?'':'errline'}">${console_out}</div>
       <div class="acts">
-        <button class="btn ${ok?'bp':'bs'}" onclick="runAgent('${name}')">▶ Run</button>
-        <button class="btn bs" onclick="viewLogs('${name}')">📄 Logs</button>
+        <button class="btn ${ok?'bp':'bs'}" onclick="event.stopPropagation();runAgent('${name}')">▶ Run</button>
+        <button class="btn bs" onclick="event.stopPropagation();viewLogs('${name}')">📄 Logs</button>
       </div>
     </div>`;
   }).join('');
+
+  // wire drill-down on card click (Phase A)
+  const _agents=agents;
+  fleet.querySelectorAll('.acard[data-agent-idx]').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const idx=parseInt(card.dataset.agentIdx);
+      const a=_agents[idx];
+      if(a) openDrillDown('agent',{...a,_title:a.name||'Agent'});
+    });
+  });
 }
 
 async function runAgent(name){
@@ -1214,20 +1447,27 @@ function viewLogs(name){
 function renderData(vm){
   const dsgrid=document.getElementById('dsgrid');
   if(dsgrid&&vm.s3prefixes.length>0){
-    // non-nielsen prefixes
     const nonNielsen=vm.s3prefixes.filter(p=>!p.prefix.startsWith('nielsen/amrld')&&!p.prefix.startsWith('nielsen/')&&!p.prefix.startsWith('barb'));
-    dsgrid.innerHTML=nonNielsen.map(d=>{
+    const _prefixes=nonNielsen;
+    dsgrid.innerHTML=nonNielsen.map((d,idx)=>{
       const statusClass=d.status==='live'?'b-ok':d.status==='running'?'b-run':d.status==='error'?'b-err':'b-warn';
       const statusLabel=(d.status||'?').toUpperCase();
       const ents=d.entities||{};
       const entStr=[['Movies',ents.movies],['TV',ents.tv_series],['Ep',ents.episodes],['People',ents.people]].filter(([,v])=>v).map(([k,v])=>`<b>${k}</b> ${fmtN(v)}`).join(' · ');
-      return `<div class="ds">
+      return `<div class="ds" data-prefix-idx="${idx}" style="cursor:pointer">
         <div class="dh"><span class="p">${d.prefix||d.path}</span><span class="badge ${statusClass}">${statusLabel}</span></div>
         <div class="gb">${d.size_gb!=null?d.size_gb.toFixed(2)+' GB':'— GB'}</div>
         <div class="ob">${d.object_count!=null?fmtN(d.object_count)+' objects':'—'}</div>
-        <div class="note">${entStr?entStr+' · ':''}${d.note||''}</div>
+        <div class="note">${entStr?entStr+' · ':''}${d.note||''}<br><span style="color:var(--accent);font-size:11px">▾ drill-down</span></div>
       </div>`;
     }).join('');
+    // wire drill-down (Phase A)
+    dsgrid.querySelectorAll('.ds[data-prefix-idx]').forEach(card=>{
+      card.addEventListener('click',()=>{
+        const d=_prefixes[parseInt(card.dataset.prefixIdx)];
+        if(d) openDrillDown('data',{...d,_title:d.prefix||d.path||'Prefix'});
+      });
+    });
   }
 }
 
@@ -1258,19 +1498,29 @@ function renderQueue(vm){
     {key:'review',label:'REVIEW',items:vm.kanban.review},
     {key:'done',label:'DONE',items:vm.kanban.done}
   ];
+  const _allKanbanItems=[];
   kan.innerHTML=cols.map(col=>{
     const items=col.items||[];
     const cards=items.slice(0,8).map(c=>{
+      const globalIdx=_allKanbanItems.length;
+      _allKanbanItems.push({...c,_col:col.key});
       const txt=(c.text||c.full||'').substring(0,120);
       const tag=c.tag||'';
       const done=col.key==='done';
-      return `<div class="kcard ${done?'done':''}"><span class="kt">${tag}</span><div>${txt}</div></div>`;
+      return `<div class="kcard ${done?'done':''}" data-kcard-idx="${globalIdx}" style="cursor:pointer"><span class="kt">${tag}</span><div>${txt}</div></div>`;
     }).join('');
     return `<div class="kcol">
       <div class="kh">${col.label} <span class="n">${items.length}</span></div>
       ${cards||'<div class="kempty">Empty</div>'}
     </div>`;
   }).join('');
+  // wire drill-down (Phase A)
+  kan.querySelectorAll('.kcard[data-kcard-idx]').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const item=_allKanbanItems[parseInt(card.dataset.kcardIdx)];
+      if(item) openDrillDown('queue',{...item,_title:(item.tag?item.tag+' — ':'')+((item.text||item.full||'Task').substring(0,40))});
+    });
+  });
 
   // +Add Task button wiring
   const addBtn=document.querySelector('#v-queue .btn.bp');
@@ -1482,7 +1732,7 @@ async function loadFintel(){
 
 async function renderFintel(){
   const data=await loadFintel();
-  if(!data) return;
+  if(!data) return Promise.resolve();
   // keep demo table if no data structured as expected
   const fitab=document.getElementById('fitab');
   if(!fitab) return;
@@ -1626,22 +1876,41 @@ async function loadAndRender(){
     showToast('⚡ Live data unavailable — showing demo snapshot',3000);
     vm=DEMO_DATA;
   }
-  const guard=(fn,label)=>{try{fn();}catch(e){console.error('['+label+']',e);}};
+  _lastVm=vm; // Phase E — expose to monkey health popup
+
+  /* Phase C: guard with per-tab error badge */
+  function markTabErr(tabId){
+    const tab=document.querySelector('.tab[data-v="'+tabId+'"]');
+    if(!tab||tab.querySelector('.g-err')) return;
+    const badge=document.createElement('span');
+    badge.className='g-err';badge.textContent='ERR';
+    tab.appendChild(badge);
+  }
+  const guard=(fn,label,tabId)=>{
+    try{fn();}
+    catch(e){
+      console.error('['+label+']',e);
+      if(tabId) markTabErr(tabId);
+    }
+  };
+  // clear stale err badges each cycle
+  document.querySelectorAll('.tab .g-err').forEach(b=>b.remove());
+
   guard(()=>renderHeader(vm),'renderHeader');
   guard(()=>renderKPIStrip(vm),'renderKPIStrip');
   guard(()=>renderMemoryBar(vm),'renderMemoryBar');
   guard(()=>renderSidebar(vm),'renderSidebar');
-  guard(()=>renderOPS(vm),'renderOPS');
-  guard(()=>renderAgents(vm),'renderAgents');
-  guard(()=>renderData(vm),'renderData');
-  guard(()=>renderQueue(vm),'renderQueue');
-  guard(()=>renderCosts(vm),'renderCosts');
-  guard(()=>renderFinance(vm),'renderFinance');
-  guard(()=>renderTelemetry(vm),'renderTelemetry');
+  guard(()=>renderOPS(vm),'renderOPS','ops');
+  guard(()=>renderAgents(vm),'renderAgents','agents');
+  guard(()=>renderData(vm),'renderData','data');
+  guard(()=>renderQueue(vm),'renderQueue','queue');
+  guard(()=>renderCosts(vm),'renderCosts','costs');
+  guard(()=>renderFinance(vm),'renderFinance','finance');
+  guard(()=>renderTelemetry(vm),'renderTelemetry','telemetry');
   guard(()=>updateStatusBar(vm),'updateStatusBar');
   // async tabs — isolated so one failure never blocks others
-  renderResources().catch(e=>console.error('[renderResources]',e));
-  renderFintel();
+  renderResources().catch(e=>{console.error('[renderResources]',e);markTabErr('resources');});
+  renderFintel().catch(e=>{console.error('[renderFintel]',e);markTabErr('fintel');});
 }
 
 /* ============ chip filter (generic + resources filter) ============ */
