@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster — Audience Signal Intelligence (full flow v3)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Permanent+Marker&family=Caveat:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/signal-system.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* signal-system.css imported above — all color values derived from its primitives (SIGNAL-SYSTEM-001) */
+  --bg:var(--p-gray-100);--surface:var(--p-white);--surface2:var(--p-gray-50);--inset:var(--p-gray-200);
+  --ink:var(--p-gray-900);--mut:var(--p-slate-500);--dim:var(--p-gray-400);--bd:var(--p-gray-200);--bd2:var(--p-gray-300);
+  --accent:#0EA5E9;--violet:var(--p-purple-600);--cyan:#22D3EE;--up:var(--p-green-600);--down:var(--p-red-600);
+  --sh:0 2px 8px rgba(14,23,38,.05),0 14px 36px rgba(14,23,38,.06);--sh-sm:0 1px 2px rgba(14,23,38,.05);
+  --sora:'Sora',sans-serif;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+[data-theme="dark"]{--bg:var(--p-dark-bg);--surface:var(--p-dark-surf);--surface2:var(--p-dark-surf2);--inset:var(--p-dark-bg);--ink:var(--p-dark-text);--mut:var(--p-gray-400);--dim:var(--p-dark-dim);--bd:rgba(255,255,255,.08);--bd2:rgba(255,255,255,.13);--sh:0 2px 10px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);--sh-sm:0 1px 2px rgba(0,0,0,.4)}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;transition:background .5s,color .5s}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:8px}
+#sigbg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#sigbg svg{position:absolute;inset:0;width:100%;height:100%}
+
+.ctl{position:fixed;top:16px;right:18px;z-index:60;display:flex;gap:8px;align-items:center}
+.tog{display:flex;background:var(--surface);border:1px solid var(--bd);border-radius:24px;padding:4px;box-shadow:var(--sh-sm)}
+.tog button{border:none;background:transparent;color:var(--dim);font-family:var(--sans);font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer}
+.tog button.on{background:var(--accent);color:#fff}
+.ctl .lnk{background:var(--surface);border:1px solid var(--bd);color:var(--mut);font-size:11.5px;font-weight:600;padding:7px 12px;border-radius:24px;cursor:pointer;box-shadow:var(--sh-sm)}
+
+.wm{font-family:var(--sora);font-weight:700;letter-spacing:-.02em;display:inline-flex;align-items:center;color:var(--ink);line-height:1}
+.wm .amark{height:.98em;width:auto;margin-right:.04em}
+.wm .sig{position:relative;display:inline-block;background:linear-gradient(110deg,var(--violet),var(--accent) 55%,var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:0 .03em;overflow:hidden}
+.wm .sig::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:34%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-14deg);animation:scan 3.4s ease-in-out infinite;mix-blend-mode:overlay}
+@keyframes scan{0%{left:-40%}55%,100%{left:120%}}
+
+#boot{position:fixed;inset:0;z-index:50;background:#0a0c11;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;transition:opacity .7s}
+#boot.gone{opacity:0;pointer-events:none}
+.scoop{width:116px;height:116px;position:relative}
+.scoop .rings i{position:absolute;inset:0;border-radius:50%;border:1.5px solid #7C5CFC;animation:ring 2.4s ease-out infinite;opacity:0}
+.scoop .rings i:nth-child(2){animation-delay:.8s}.scoop .rings i:nth-child(3){animation-delay:1.6s}
+@keyframes ring{0%{transform:scale(.5);opacity:.7}100%{transform:scale(1.6);opacity:0}}
+.scoop .ant{position:absolute;top:0;left:50%;width:2px;height:15px;background:#7C5CFC;transform:translateX(-50%)}
+.scoop .ant::after{content:"";position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:7px;height:7px;border-radius:50%;background:#22d3ee;box-shadow:0 0 10px #22d3ee;animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.scoop .orb{position:absolute;inset:18px;border-radius:28px;background:linear-gradient(135deg,#7C5CFC,#22d3ee);display:flex;align-items:center;justify-content:center;box-shadow:0 0 44px rgba(124,92,252,.5);animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.face{width:60px;height:46px;border-radius:13px;background:#0a0a12;display:flex;align-items:center;justify-content:center;gap:11px;position:relative}
+.beye{width:9px;height:9px;border-radius:50%;background:#22d3ee;box-shadow:0 0 8px #22d3ee;animation:look 4s infinite}
+@keyframes look{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}70%{transform:translateX(-3px)}}
+.smile{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:22px;height:9px;border:2px solid #7C5CFC;border-top:none;border-radius:0 0 12px 12px}
+.boot-greet{font-size:18px;color:#A8B0BD;min-height:24px;font-weight:500}.boot-greet b{color:#fff;font-weight:700}
+.cursor{display:inline-block;width:8px;height:17px;background:#7C5CFC;margin-left:2px;animation:cur .8s steps(1) infinite;vertical-align:middle}
+@keyframes cur{50%{opacity:0}}
+#initlog{width:min(560px,86vw);background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:15px 20px;font-family:var(--mono);font-size:12px;opacity:0;transition:opacity .5s;position:relative;overflow:hidden}
+#initlog.show{opacity:1}
+.scan-l{position:absolute;left:0;right:0;height:44px;background:linear-gradient(180deg,transparent,rgba(34,211,238,.08),transparent);animation:scl 2.2s linear infinite}
+@keyframes scl{0%{top:-44px}100%{top:100%}}
+.lg{display:flex;align-items:center;gap:10px;padding:3px 0;color:#A8B0BD;opacity:0;transform:translateX(-6px);transition:all .35s}
+.lg.in{opacity:1;transform:none}.lg .ck{color:#34d399}.lg .n{margin-left:auto;color:#fff}.lg .ld{color:#7C5CFC}
+
+#app{opacity:0;transition:opacity .8s;position:relative;z-index:1}
+#app.show{opacity:1}
+.brandbar{display:flex;align-items:center;gap:12px;padding:11px 30px 6px}
+.brandbar .wm{font-size:19px}
+.brandbar .tagline{font-size:12.5px;color:var(--mut);border-left:1px solid var(--bd);padding-left:12px;margin-left:4px}
+
+.ticker{display:flex;align-items:stretch;background:var(--surface);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);height:46px}
+.ticker-tag{flex-shrink:0;z-index:2;display:flex;align-items:center;gap:8px;padding:0 18px;background:var(--ink);color:#fff;font-size:11px;font-weight:700;letter-spacing:.6px}
+.ticker-tag .d{width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 8px #34d399;animation:blink 1.4s infinite}
+.ticker-view{flex:1;overflow:hidden;position:relative;display:flex;align-items:center}
+.ticker-track{display:flex;align-items:center;white-space:nowrap;animation:scroll 95s linear infinite}
+.ticker-view:hover .ticker-track{animation-play-state:paused}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.claim{display:inline-flex;align-items:center;gap:8px;padding:0 22px;border-right:1px solid var(--bd);font-size:13px;cursor:pointer}
+.claim .ar.up{color:var(--up)}.claim .ar.dn{color:var(--down)}.claim .ar.fl{color:var(--dim)}
+.claim b{font-weight:700}.claim .ds{color:var(--mut)}.claim .dl{font-weight:700}.claim .dl.up{color:var(--up)}.claim .dl.dn{color:var(--down)}
+
+.wrap{max-width:1240px;margin:0 auto;padding:0 30px}
+.hero{display:grid;grid-template-columns:1.02fr .98fr;gap:32px;align-items:center;padding:18px 0 12px}
+.hero .eyebrow{font-family:var(--sora);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);white-space:nowrap;display:block;margin-bottom:6px}
+.hero h1{font-family:var(--sora);font-size:38px;font-weight:800;letter-spacing:-1.2px;line-height:1.04;margin:6px 0 10px}
+.hero h1 .g{background:linear-gradient(110deg,var(--violet),var(--accent) 60%,var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero .lede{font-size:15.5px;line-height:1.6;color:var(--mut);max-width:560px}
+.hero .lede b{color:var(--ink);font-weight:600}
+.hero .auto{margin-top:10px;font-size:13.5px;line-height:1.5;color:var(--mut);max-width:560px;padding-left:14px;border-left:3px solid var(--violet)}
+.hero .auto b{color:var(--ink);font-weight:600}
+.hero .kick{margin-top:10px;font-family:var(--sora);font-size:15px;font-weight:700;color:var(--ink)}
+.hero .kick span{color:var(--dim);font-weight:400}
+.searchrow{display:flex;align-items:center;gap:14px;margin-top:16px}
+.searchbox{flex:1;display:flex;align-items:center;gap:11px;background:var(--surface);border:1.5px solid var(--bd2);border-radius:15px;padding:9px 9px 9px 18px;box-shadow:var(--sh);transition:border-color .2s,box-shadow .2s}
+.searchbox:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px rgba(14,165,233,.12),var(--sh)}
+.searchbox .mag{color:var(--dim);font-size:18px}
+.searchbox input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:var(--sans);font-size:15.5px;font-weight:500}
+.searchbox input::placeholder{color:var(--dim)}
+.searchbox .go{padding:10px 18px;border-radius:11px;border:none;background:linear-gradient(110deg,var(--violet),var(--accent));color:#fff;font-family:var(--sans);font-weight:700;font-size:14px;cursor:pointer}
+.scoop-sb{position:relative;width:58px;height:58px;flex-shrink:0;cursor:pointer}
+.scoop-sb .rings i{position:absolute;inset:-3px;border-radius:50%;border:1.5px solid var(--accent);animation:ring 2.6s ease-out infinite;opacity:0}.scoop-sb .rings i:nth-child(2){animation-delay:1.3s}
+.scoop-sb .orb{position:absolute;inset:4px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan));display:flex;align-items:center;justify-content:center;box-shadow:var(--sh);animation:bob 3s ease-in-out infinite}
+.scoop-sb:hover .orb{transform:scale(1.08)}
+
+/* HERO VIZ — streamgraph card (replaces old ambient hviz) */
+.sg-card{position:relative;background:var(--surface);border:1px solid var(--bd);border-radius:22px;box-shadow:var(--sh);overflow:hidden}
+.sg-hd{display:flex;align-items:center;gap:9px;padding:14px 18px 0}
+.sg-hd .live{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--mut);letter-spacing:.4px}
+.sg-hd .live .d{width:7px;height:7px;border-radius:50%;background:var(--up);box-shadow:0 0 8px var(--up);animation:blink 1.6s infinite}
+.sg-hd .ttl{font-family:var(--sora);font-size:14px;font-weight:700}
+.sg-hd .ttl b{color:var(--accent)}
+.sg-wrap{position:relative;height:236px;margin-top:4px}
+.sg-wrap svg{width:100%;height:100%;display:block}
+.sg-band{cursor:pointer;transition:opacity .2s}
+.sg-wrap.dimmed .sg-band:not(.hot){opacity:.2}
+.sg-yr{font-family:var(--mono);font-size:9.5px;fill:var(--dim)}
+.sg-legend{display:flex;flex-wrap:wrap;gap:5px 13px;padding:6px 18px 13px}
+.sg-lg{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mut);font-weight:600;cursor:pointer}
+.sg-lg .sw{width:10px;height:10px;border-radius:3px}
+.sg-comment{position:absolute;left:15px;bottom:13px;max-width:286px;display:flex;gap:10px;align-items:flex-start;background:var(--surface2);border:1px solid var(--bd);border-radius:14px;border-bottom-left-radius:5px;padding:9px 12px;box-shadow:var(--sh);transition:opacity .45s}
+.sg-comment .av{flex-shrink:0;width:29px;height:29px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan));display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm)}
+.sg-comment .who{font-size:10px;font-weight:700;color:var(--violet);letter-spacing:.3px;margin-bottom:2px;display:flex;align-items:center;gap:5px}
+.sg-comment .who .pip{width:5px;height:5px;border-radius:50%;background:var(--up);animation:blink 1.6s infinite}
+.sg-comment .tx{font-size:11.5px;line-height:1.4;color:var(--ink)}
+.sg-comment .tx b{font-weight:700}
+
+.sec{padding:6px 0 4px}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+.sec-h h2{font-family:'Permanent Marker',cursive;font-size:27px;font-weight:400;letter-spacing:.2px;line-height:1.05;background:linear-gradient(110deg,var(--violet),var(--accent) 58%,var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:2px .06em 0 0}
+.sec-h span{font-size:13px;color:var(--dim)}
+.sec-h .more{margin-left:auto;font-size:13px;font-weight:600;color:var(--accent);cursor:pointer}
+
+.rail{display:flex;gap:16px;overflow-x:auto;padding:4px 2px 14px;scroll-snap-type:x mandatory}
+.rail::-webkit-scrollbar{height:6px}
+.tcard{scroll-snap-align:start;flex:0 0 290px;background:var(--surface);border:1px solid var(--bd);border-radius:18px;overflow:hidden;box-shadow:var(--sh-sm);cursor:pointer;transition:all .25s cubic-bezier(.16,1,.3,1)}
+.tcard:hover{transform:translateY(-4px);box-shadow:var(--sh)}
+.tcover{height:116px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:12px 14px}
+.tcover .kind{position:absolute;top:12px;left:14px;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:rgba(255,255,255,.92);color:var(--ink);padding:4px 9px;border-radius:20px}
+.tcover svg.mini{position:absolute;right:0;bottom:0;width:70%;height:90px;opacity:.9}
+.tbody{padding:14px 16px}
+.tbody h3{font-size:15.5px;font-weight:700;letter-spacing:-.2px;line-height:1.25;margin-bottom:6px}
+.tbody p{font-size:12.5px;color:var(--mut);line-height:1.4}
+.tbody .meta{margin-top:10px;font-size:11.5px;color:var(--dim);font-weight:600}
+
+.scoop-band{background:linear-gradient(120deg,#7C5CFC,#0EA5E9 60%,#22D3EE);border-radius:22px;padding:24px 26px;margin:6px 0 10px;display:flex;align-items:center;gap:20px;box-shadow:var(--sh)}
+.scoop-logo{flex-shrink:0;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.6);border-radius:14px;padding:10px 16px;color:#fff;font-family:var(--sora);font-weight:800;line-height:.95;text-align:center}
+.scoop-logo .t{font-size:13px;font-weight:600;opacity:.9}.scoop-logo .b{font-size:26px;letter-spacing:1px}
+.scoop-band .txt{color:#fff}.scoop-band .txt h2{font-family:var(--sora);font-size:21px;font-weight:800;margin-bottom:3px}
+.scoop-band .txt p{font-size:13.5px;opacity:.92}
+.scoop-band .arts{margin-left:auto;display:flex;gap:14px}
+.art{width:200px;background:rgba(255,255,255,.96);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .2s}
+.art:hover{transform:translateY(-3px)}
+.art .ac{height:84px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--sora);font-weight:800;font-size:13px;text-align:center;padding:0 12px}
+.art .ab{padding:10px 12px}.art .ab h4{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.25}.art .ab p{font-size:11px;color:var(--mut);margin-top:3px}
+
+.brands{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;background:var(--surface);border:1px solid var(--bd);border-radius:20px;padding:24px;box-shadow:var(--sh-sm)}
+.bubbles{position:relative;height:280px}
+.bub{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;box-shadow:var(--sh-sm);font-family:var(--sora);text-align:center;line-height:1;animation:fl 6s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.btab table{width:100%;border-collapse:collapse}
+.btab th{text-align:left;font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.4px;padding:8px 10px}
+.btab th.r,.btab td.r{text-align:right;font-variant-numeric:tabular-nums}
+.btab td{padding:9px 10px;border-top:1px solid var(--bd);font-size:13px}
+.btab tr:hover td{background:var(--inset)}
+.btab .nm{font-weight:700}.btab .cat{font-size:11px;color:var(--dim)}
+
+.levels{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;padding-bottom:60px}
+.lvl{background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:14px;cursor:pointer;box-shadow:var(--sh-sm);transition:all .2s}
+.lvl:hover{transform:translateY(-3px);border-color:var(--bd2)}
+.lvl .ic{width:32px;height:32px;border-radius:9px;background:var(--inset);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:9px}
+.lvl h5{font-size:13px;font-weight:700;letter-spacing:-.1px;line-height:1.2;margin-bottom:3px}
+.lvl p{font-size:11px;color:var(--mut);line-height:1.35}
+
+.navdots{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:45;display:flex;flex-direction:column;gap:14px;opacity:0;transition:opacity .5s}
+.navdots.show{opacity:1}
+.navdots a{position:relative;display:flex;align-items:center;justify-content:flex-end;cursor:pointer;height:14px}
+.navdots i{width:8px;height:8px;border-radius:50%;background:var(--bd2);transition:all .25s}
+.navdots a:hover i{background:var(--accent)}
+.navdots a.on i{height:22px;border-radius:5px;background:linear-gradient(180deg,var(--violet),var(--cyan))}
+.navdots .lab{position:absolute;right:18px;white-space:nowrap;font-size:11px;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--bd);border-radius:8px;padding:4px 9px;box-shadow:var(--sh-sm);opacity:0;transform:translateX(6px);transition:all .2s;pointer-events:none}
+.navdots a:hover .lab{opacity:1;transform:none}
+.hero-copy{max-height:520px;overflow:hidden;transition:opacity .45s,max-height .55s,margin .45s}
+.hero.cond .hero-copy{opacity:0;max-height:0;margin:0;pointer-events:none}
+.hero-prompt{font-family:var(--sora);font-size:30px;font-weight:800;letter-spacing:-.7px;color:var(--ink);opacity:0;max-height:0;overflow:hidden;transition:opacity .5s .25s,max-height .5s .25s,margin .4s}
+.hero.cond .hero-prompt{opacity:1;max-height:120px;margin-bottom:8px}
+.hand{font-family:'Permanent Marker',cursive;font-size:1.12em;background:linear-gradient(110deg,var(--violet),var(--accent) 58%,var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:0 .04em}
+.hero.cond .searchbox{padding:13px 12px 13px 22px}
+.hero.cond .searchbox input{font-size:18px}
+.hero.cond .searchbox .go{padding:13px 24px;font-size:15px}
+@media(max-width:880px){.hero{grid-template-columns:1fr}.hero h1{font-size:32px}.brands{grid-template-columns:1fr}.levels{grid-template-columns:repeat(3,1fr)}}
+
+/* Expand-to-Explore modal — Dr. Scoop reads the report + recommends what's next */
+.sg-card{cursor:pointer}
+.sg-expand{position:absolute;top:12px;right:14px;z-index:4;font-size:11px;font-weight:700;color:var(--mut);background:var(--surface2);border:1px solid var(--bd);border-radius:8px;padding:4px 9px;opacity:0;transition:opacity .2s}
+.sg-card:hover .sg-expand{opacity:1}
+#mx{position:fixed;inset:0;z-index:80;background:rgba(8,12,20,.55);display:none;align-items:center;justify-content:center;padding:28px;opacity:0;transition:opacity .3s}
+#mx.show{display:flex;opacity:1}
+.mx-panel{position:relative;display:grid;grid-template-columns:1fr 340px;width:min(1180px,96vw);height:min(720px,92vh);background:var(--surface);border:1px solid var(--bd);border-radius:22px;box-shadow:var(--sh);overflow:hidden;transform:translateY(10px) scale(.99);transition:transform .3s}
+#mx.show .mx-panel{transform:none}
+.mx-close{position:absolute;top:15px;right:16px;z-index:6;width:32px;height:32px;border-radius:50%;border:1px solid var(--bd);background:var(--surface);color:var(--mut);cursor:pointer;font-size:14px}
+.mx-main{display:flex;flex-direction:column;padding:22px 24px;min-width:0}
+.mx-eyebrow{font-family:var(--sora);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.mx-title{font-family:var(--sora);font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1.1;margin-top:3px}
+.mx-sub{font-size:12.5px;color:var(--mut);margin-top:3px}
+.mx-chart{flex:1;min-height:0;position:relative;margin-top:12px}
+.mx-chart svg{width:100%;height:100%;display:block}
+.mx-foot{font-size:11px;color:var(--dim);margin-top:8px}
+.mx-side{background:var(--surface2);border-left:1px solid var(--bd);padding:22px 20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
+.mx-scoop{display:flex;align-items:center;gap:11px}
+.mx-scoop .orb{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan));display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm);animation:bob 3s ease-in-out infinite;flex-shrink:0}
+.mx-scoop b{font-family:var(--sora);font-size:14px;font-weight:700}.mx-scoop span{font-size:11.5px;color:var(--mut);display:block}
+.mx-h{font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--dim);margin-bottom:9px}
+.mx-ins{font-size:13px;line-height:1.5;color:var(--ink);margin-bottom:9px;padding-left:13px;border-left:2px solid var(--violet)}
+.mx-ins b{font-weight:700}.mx-ins i{font-style:normal;color:var(--accent)}
+.mx-rec{display:flex;flex-direction:column;gap:8px}
+.mx-rec button{text-align:left;background:var(--surface);border:1px solid var(--bd);border-radius:12px;padding:9px 12px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:10px}
+.mx-rec button:hover{border-color:var(--accent);transform:translateX(2px);box-shadow:var(--sh-sm)}
+.mx-rec .ic{width:28px;height:28px;border-radius:8px;background:var(--inset);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.mx-rec .nm{font-size:12.5px;font-weight:700;display:block}.mx-rec .ds{font-size:10.5px;color:var(--mut)}
+.mx-rec button.cur{border-color:var(--accent);background:var(--accent)}
+.mx-rec button.cur .nm{color:#fff}.mx-rec button.cur .ds{color:rgba(255,255,255,.82)}.mx-rec button.cur .ic{background:rgba(255,255,255,.2)}
+.mx-pager{display:flex;align-items:center;gap:12px;margin-top:12px}
+.mx-arw{width:30px;height:30px;border-radius:50%;border:1px solid var(--bd);background:var(--surface);color:var(--mut);cursor:pointer;font-size:15px;flex-shrink:0}
+.mx-arw:hover{border-color:var(--accent);color:var(--accent)}
+.mx-dots{display:flex;gap:7px}
+.mx-dots i{width:8px;height:8px;border-radius:50%;background:var(--bd2);cursor:pointer;transition:all .2s}
+.mx-dots i.on{width:22px;border-radius:4px;background:linear-gradient(90deg,var(--violet),var(--cyan))}
+.mx-pglabel{margin-left:auto;font-size:11.5px;color:var(--dim);font-weight:600}
+
+/* trending category toggle (TMDB-style) */
+.trend-tog{display:inline-flex;gap:4px;background:var(--surface);border:1px solid var(--bd);border-radius:24px;padding:4px;margin-bottom:12px;box-shadow:var(--sh-sm)}
+.trend-tog button{border:none;background:transparent;color:var(--mut);font-family:var(--sans);font-size:12.5px;font-weight:700;padding:6px 14px;border-radius:20px;cursor:pointer;transition:all .15s}
+.trend-tog button.on{background:linear-gradient(110deg,var(--violet),var(--accent));color:#fff}
+/* trending titles (movies/tv/people) carousel */
+.tm-head{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.tm-time{margin-left:auto;display:inline-flex;gap:4px;background:var(--surface);border:1px solid var(--bd);border-radius:24px;padding:4px;box-shadow:var(--sh-sm)}
+.tm-time button{border:none;background:transparent;color:var(--mut);font-family:var(--sans);font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;cursor:pointer}
+.tm-time button.on{background:var(--accent);color:#fff}
+.tm-rail{display:flex;gap:16px;overflow-x:auto;padding:14px 2px 16px;scroll-snap-type:x mandatory}
+.tm-rail::-webkit-scrollbar{height:6px}
+.tm-card{scroll-snap-align:start;flex:0 0 156px;cursor:pointer;transition:transform .25s cubic-bezier(.16,1,.3,1)}
+.tm-card:hover{transform:translateY(-5px)}
+.tm-poster{position:relative;height:216px;border-radius:16px;overflow:hidden;box-shadow:var(--sh);display:flex;align-items:flex-end;padding:12px;background:#172033;background-size:cover;background-position:center}
+.tm-poster .tag{position:absolute;top:10px;left:10px;font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;background:rgba(255,255,255,.92);color:#0E1726;padding:3px 7px;border-radius:12px;z-index:2}
+.tm-poster .scrim{position:absolute;inset:0;background:linear-gradient(180deg,transparent 42%,rgba(0,0,0,.6))}
+.tm-poster .art{position:absolute;inset:0;width:100%;height:100%}
+.tm-poster .pttl{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tm-poster .pttl{position:relative;color:#fff;font-family:var(--sora);font-weight:800;font-size:16px;line-height:1.08;letter-spacing:-.3px;text-shadow:0 2px 8px rgba(0,0,0,.45)}
+.tm-score{position:absolute;bottom:-13px;right:11px;width:34px;height:34px;border-radius:50%;background:var(--ink);border:2px solid var(--surface);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--mono);font-size:11px;font-weight:700;z-index:3}
+.tm-meta{padding:17px 3px 0}.tm-meta h4{font-size:13.5px;font-weight:700;line-height:1.2}.tm-meta p{font-size:11.5px;color:var(--dim);margin-top:2px}
+.tm-card.person .tm-poster{height:156px;width:156px;border-radius:50%;align-items:center;justify-content:center;padding:0}
+.tm-card.person .tm-ava{color:#fff;font-family:var(--sora);font-weight:800;font-size:42px;text-shadow:0 2px 8px rgba(0,0,0,.3)}
+.tm-card.person .tm-meta{text-align:center}
+
+/* ===== RESULT VIEW (Ask → research → Table/Viz/Article) ===== */
+#rs{display:none}#rs.show{display:block;position:relative;z-index:30}
+.rs-top{display:flex;align-items:center;gap:16px;padding:13px 30px;border-bottom:1px solid var(--bd);background:var(--surface);position:sticky;top:0;z-index:40}
+.rs-back{background:var(--surface2);border:1px solid var(--bd);color:var(--mut);font-family:var(--sans);font-size:12.5px;font-weight:700;padding:8px 13px;border-radius:11px;cursor:pointer}
+.rs-back:hover{border-color:var(--accent);color:var(--accent)}
+.rs-search{flex:1;max-width:640px;display:flex;align-items:center;gap:10px;background:var(--surface2);border:1.5px solid var(--bd2);border-radius:13px;padding:7px 7px 7px 16px;transition:border-color .2s,box-shadow .2s}
+.rs-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px rgba(14,165,233,.12)}
+.rs-search .mag{color:var(--dim);font-size:17px}
+.rs-search input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:var(--sans);font-size:15px;font-weight:500}
+.rs-search .go{padding:8px 16px;border-radius:9px;border:none;background:linear-gradient(110deg,var(--violet),var(--accent));color:#fff;font-weight:700;font-size:13.5px;cursor:pointer}
+.rs-orb{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan));display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm);flex-shrink:0;animation:bob 3s ease-in-out infinite}
+.rs-wrap{max-width:1080px;margin:0 auto;padding:22px 30px 80px}
+#rsWork{position:fixed;inset:0;z-index:55;background:rgba(244,247,251,.86);display:flex;align-items:center;justify-content:center;transition:opacity .5s}
+[data-theme="dark"] #rsWork{background:rgba(11,15,22,.86)}
+#rsWork.gone{opacity:0;pointer-events:none}
+.rs-workcard{width:min(460px,92vw);background:var(--surface);border:1px solid var(--bd);border-radius:20px;box-shadow:var(--sh);padding:26px 28px}
+.rs-workhd{display:flex;align-items:center;gap:13px;margin-bottom:16px}
+.rs-workhd .orb{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan));display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm);animation:bob 3s ease-in-out infinite}
+.rs-workhd b{font-family:var(--sora);font-size:15px}.rs-workhd span{font-size:12.5px;color:var(--mut);display:block}
+.rs-step{display:flex;align-items:center;gap:11px;padding:7px 0;font-size:13.5px;color:var(--dim);opacity:.4;transition:all .35s}
+.rs-step.on{opacity:1;color:var(--ink)}
+.rs-step .ck{width:20px;height:20px;border-radius:50%;border:2px solid var(--bd2);display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;flex-shrink:0;transition:all .3s}
+.rs-step.done .ck{background:var(--up);border-color:var(--up);color:#fff}
+.rs-step.on:not(.done) .ck{border-color:var(--accent);border-top-color:transparent;animation:rsspin .7s linear infinite}
+@keyframes rsspin{to{transform:rotate(360deg)}}
+#rsResult{opacity:0;transition:opacity .6s}#rsResult.show{opacity:1}
+.rs-q{display:flex;align-items:flex-start;gap:13px;margin-bottom:16px}
+.rs-q .orb{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan));display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm);flex-shrink:0;margin-top:2px}
+.rs-q .ask{font-family:var(--sora);font-size:23px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
+.rs-q .by{font-size:12.5px;color:var(--mut);margin-top:5px}.rs-q .by b{color:var(--violet);font-weight:700}
+.rs-tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--bd)}
+.rs-tab{display:flex;align-items:center;gap:8px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--mut);font-family:var(--sans);font-size:14px;font-weight:700;padding:9px 6px 11px;cursor:pointer;margin-bottom:-1px}
+.rs-tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.rs-tab .rec{font-size:9.5px;font-weight:700;letter-spacing:.3px;background:var(--violet);color:#fff;padding:2px 6px;border-radius:10px}
+.rs-grid{display:grid;grid-template-columns:1fr 312px;gap:22px;align-items:start}
+.rs-panel{background:var(--surface);border:1px solid var(--bd);border-radius:18px;box-shadow:var(--sh-sm);overflow:hidden}
+.rs-mode{display:none}.rs-mode.on{display:block}
+.rs-th{padding:16px 20px 4px}.rs-th h3{font-family:var(--sora);font-size:16px;font-weight:700}.rs-th p{font-size:12.5px;color:var(--mut);margin-top:3px;line-height:1.5}
+table.rs-t{width:100%;border-collapse:collapse;margin-top:8px}
+table.rs-t th{text-align:left;font-size:10.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;padding:9px 20px;border-bottom:1px solid var(--bd)}
+table.rs-t th.r,table.rs-t td.r{text-align:right;font-variant-numeric:tabular-nums}
+table.rs-t td{padding:11px 20px;border-bottom:1px solid var(--bd);font-size:13.5px}
+table.rs-t tr:hover td{background:var(--inset)}
+table.rs-t .nm{font-weight:700}table.rs-t .nt{font-size:11.5px;color:var(--dim)}table.rs-t .mono{font-family:var(--mono);font-weight:700}
+table.rs-t tr.total td{background:var(--surface2);font-weight:800;border-top:2px solid var(--bd2)}
+.rs-tfoot{padding:11px 20px;font-size:11px;color:var(--dim);display:flex;gap:14px}.rs-tfoot .dl{margin-left:auto;color:var(--accent);font-weight:600;cursor:pointer}
+.rs-vizbody{padding:18px 20px}.rs-vizbody h3{font-family:var(--sora);font-size:16px;font-weight:700;margin-bottom:14px}
+.rs-bars{display:flex;flex-direction:column;gap:11px}
+.rs-bar{display:grid;grid-template-columns:120px 1fr 92px;align-items:center;gap:10px}
+.rs-bar .lab{font-size:12.5px;font-weight:600}.rs-bar .track{height:16px;background:var(--inset);border-radius:8px;overflow:hidden}
+.rs-bar .fill{height:100%;border-radius:8px;transform-origin:left;animation:rsgrow 1s cubic-bezier(.16,1,.3,1) forwards;transform:scaleX(0)}
+@keyframes rsgrow{to{transform:scaleX(1)}}
+.rs-bar .val{font-family:var(--mono);font-size:12.5px;font-weight:700;text-align:right}
+.rs-vizrow{display:flex;gap:18px;align-items:center;margin-top:18px;padding-top:16px;border-top:1px solid var(--bd)}
+.rs-donut{width:120px;height:120px;flex-shrink:0}.rs-donut .lbl{font-family:var(--sora);font-size:22px;font-weight:800;fill:var(--ink)}.rs-donut .lbl2{font-size:8px;fill:var(--dim);font-weight:600}
+.rs-art{padding:30px 38px 34px;max-width:680px}
+.rs-art .kicker{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--accent)}
+.rs-art h1{font-family:var(--sora);font-size:30px;font-weight:800;letter-spacing:-.8px;line-height:1.1;margin:8px 0 12px}
+.rs-art .byline{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--mut);padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--bd)}
+.rs-art .byline .av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan))}.rs-art .byline b{color:var(--ink)}
+.rs-art .lede{font-size:17px;line-height:1.6;color:var(--ink);font-weight:500;margin-bottom:16px}
+.rs-art p{font-size:15px;line-height:1.72;color:var(--mut);margin-bottom:15px}.rs-art p b{color:var(--ink);font-weight:600}
+.rs-art h2{font-family:var(--sora);font-size:18px;font-weight:700;margin:22px 0 8px}
+.rs-art .pull{font-family:var(--sora);font-size:19px;font-weight:700;line-height:1.35;color:var(--ink);border-left:4px solid var(--violet);padding-left:16px;margin:20px 0}
+.rs-side{display:flex;flex-direction:column;gap:16px;position:sticky;top:84px}
+.rs-cardx{background:var(--surface);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh-sm);padding:16px 17px}
+.rs-cardx .h{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--dim);margin-bottom:11px}
+.rs-cardx .h .o{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan));display:flex;align-items:center;justify-content:center}
+.rs-ins{font-size:13px;line-height:1.5;color:var(--ink);margin-bottom:9px;padding-left:12px;border-left:2px solid var(--violet)}.rs-ins b{font-weight:700}
+.rs-claim{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 0;border-top:1px solid var(--bd)}.rs-claim:first-of-type{border-top:none}
+.rs-claim .ck{width:16px;height:16px;border-radius:50%;background:var(--up);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0}
+.rs-claim b{font-family:var(--mono);font-weight:700}.rs-claim .src{margin-left:auto;font-size:10px;color:var(--dim)}
+.rs-next{display:flex;flex-direction:column;gap:7px}
+.rs-next button{text-align:left;background:var(--surface2);border:1px solid var(--bd);border-radius:11px;padding:9px 11px;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--ink);transition:all .15s;display:flex;align-items:center;gap:9px}
+.rs-next button:hover{border-color:var(--accent);transform:translateX(2px)}
+.rs-next .ic{width:24px;height:24px;border-radius:7px;background:var(--inset);display:flex;align-items:center;justify-content:center;font-size:13px}
+.rs-export{display:flex;gap:8px}.rs-export button{flex:1;background:var(--ink);color:#fff;border:none;border-radius:11px;padding:11px;font-family:var(--sans);font-weight:700;font-size:13px;cursor:pointer}
+.rs-export button.ghost{background:var(--surface);color:var(--mut);border:1px solid var(--bd)}
+@media(max-width:880px){.rs-grid{grid-template-columns:1fr}.rs-side{position:static}}
+</style>
+</head>
+<body data-theme="light">
+
+<div class="ctl">
+  <div class="tog"><button class="on" id="tgL" onclick="theme('light')">☀ Light</button><button id="tgD" onclick="theme('dark')">◐ Dark</button></div>
+  <button class="lnk" id="replay">↻ Replay</button><button class="lnk" id="skip">Skip →</button>
+</div>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <linearGradient id="ag" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#7C5CFC"/><stop offset=".55" stop-color="#0EA5E9"/><stop offset="1" stop-color="#22D3EE"/></linearGradient>
+  <clipPath id="aclip"><path d="M50 8 L88 92 L12 92 Z M50 47 L68 80 L32 80 Z" clip-rule="evenodd"/></clipPath>
+</defs></svg>
+
+<div id="sigbg" aria-hidden="true"><svg id="sigsvg"></svg></div>
+
+<div id="boot">
+  <div class="scoop"><div class="rings"><i></i><i></i><i></i></div><div class="ant"></div>
+    <div class="orb"><div class="face"><div class="beye"></div><div class="beye"></div><div class="smile"></div></div></div></div>
+  <div class="boot-greet" id="greet"></div>
+  <div id="initlog"><div class="scan-l"></div><div id="logrows"></div></div>
+</div>
+
+<div id="app">
+  <div class="brandbar">
+    <span class="wm">
+      <svg class="amark" viewBox="0 0 110 110"><rect x="4" y="4" width="102" height="102" rx="24" fill="#0E1726"/><g transform="translate(5 5) scale(.9)"><path d="M50 8 L88 92 L12 92 Z M50 47 L68 80 L32 80 Z" fill="#F4F7FB" fill-rule="evenodd"/><g clip-path="url(#aclip)"><path d="M6 66 C26 50 42 80 58 62 S86 50 96 60" fill="none" stroke="url(#ag)" stroke-width="11" stroke-linecap="round"/></g></g></svg>udience&nbsp;<span class="sig">Signal</span>&nbsp;Intelligence
+    </span>
+    <span class="tagline">Curated for you, Shiv — generated live from your data.</span>
+  </div>
+
+  <div class="ticker">
+    <div class="ticker-tag"><span class="d"></span>LIVE CLAIMS</div>
+    <div class="ticker-view"><div class="ticker-track" id="track"></div></div>
+  </div>
+
+  <div class="wrap">
+
+    <div class="hero" id="s0">
+      <div class="hero-l">
+        <div class="hero-copy" id="heroCopy">
+          <div class="eyebrow">Audience Signal Intelligence</div>
+          <h1>Every answer is a signal.<br><span class="g">Every signal is sourced.</span></h1>
+          <div class="lede">Ask in plain English — Dr. Scoop decodes <b>10.96M media assets</b>: their audience engagement, advertising exposure, and social signals.</div>
+          <div class="auto">The industry's <b>first autonomous research platform for media</b> — it plans the research, runs the analysis, renders the visuals, verifies every claim, and writes the executive summary.</div>
+          <div class="kick">You just ask. <span>Soon, you won't even have to.</span></div>
+        </div>
+        <div class="hero-prompt" id="heroPrompt">Let's build <span class="hand">Audience Stories</span></div>
+        <div class="searchrow">
+          <div class="searchbox"><span class="mag">⌕</span><input id="q" placeholder=""><button class="go" id="heroGo">Explore</button></div>
+          <div class="scoop-sb" id="scoopSB"><div class="rings"><i></i><i></i></div>
+            <div class="orb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="1.7"/><circle cx="9" cy="10" r="1.5" fill="#fff"/><circle cx="15" cy="10" r="1.5" fill="#fff"/><path d="M8 15 Q12 18 16 15" stroke="#fff" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sg-card" id="sgCard" title="Click to expand">
+        <div class="sg-expand">⤢ Expand</div>
+        <div class="sg-hd"><span class="live"><span class="d"></span>SIGNAL OF THE DAY</span><span class="ttl">Theatrical Box Office Revenue <b>· by genre, 1995–2026</b></span></div>
+        <div class="sg-wrap" id="sgwrap">
+          <svg id="sgstream" viewBox="0 0 620 236" preserveAspectRatio="xMidYMid meet"></svg>
+          <div class="sg-comment" id="sgcomment">
+            <div class="av"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="1.8"/><circle cx="9" cy="10" r="1.5" fill="#fff"/><circle cx="15" cy="10" r="1.5" fill="#fff"/><path d="M8 15 Q12 18 16 15" stroke="#fff" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></div>
+            <div><div class="who"><span class="pip"></span>DR. SCOOP</div><div class="tx" id="sgcommenttx"></div></div>
+          </div>
+        </div>
+        <div class="sg-legend" id="sglegend"></div>
+      </div>
+    </div>
+
+    <div class="sec" id="s1">
+      <div class="sec-h"><h2>Trending research</h2><span>· stories &amp; visualizations Dr. Scoop ran for you</span><span class="more">View all →</span></div>
+      <div class="trend-tog" id="trendTog"><button class="on" data-dom="all">All</button><button data-dom="Programming">Programming</button><button data-dom="Advertising">Advertising</button><button data-dom="Marketing">Marketing</button><button data-dom="Media Tech">Media Tech</button></div>
+      <div class="rail" id="rail"></div>
+    </div>
+
+    <div class="sec" id="s2">
+      <div class="scoop-band">
+        <div class="scoop-logo"><div class="t">The</div><div class="b">SCOOP</div></div>
+        <div class="txt"><h2>Featured stories</h2><p>Published intelligence from the SaSMaster desk.</p></div>
+        <div class="arts">
+          <div class="art"><div class="ac" style="background:linear-gradient(135deg,#0E1726,#475569)">HOLLYWOOD</div><div class="ab"><h4>Media Freakonomics: The Genre Arbitrage</h4><p>7 min read</p></div></div>
+          <div class="art"><div class="ac" style="background:linear-gradient(135deg,#7C5CFC,#22D3EE)">MEDIA UNIVERSE</div><div class="ab"><h4>The Merger Paradox: Scale Without a Brain</h4><p>5 min read</p></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" id="s2b">
+      <div class="tm-head">
+        <div class="sec-h" style="margin-bottom:0"><h2>Trending</h2><span>· what audiences are watching right now</span></div>
+        <div class="tm-time"><button class="on">Today</button><button>This Week</button></div>
+      </div>
+      <div class="trend-tog" id="tmTog" style="margin-bottom:0"><button class="on" data-t="movies">Movies</button><button data-t="tv">TV Series</button><button data-t="people">People</button></div>
+      <div class="tm-rail" id="tmRail"></div>
+    </div>
+
+    <div class="sec" id="s3">
+      <div class="sec-h"><h2>Audience brand affinity</h2><span>· what your audience actually buys</span><span class="more">Full report →</span></div>
+      <div class="brands">
+        <div class="bubbles" id="bubbles"></div>
+        <div class="btab"><table><thead><tr><th>#</th><th>Brand</th><th class="r">Penetration</th><th class="r">Reach</th><th class="r">Affinity</th></tr></thead><tbody id="btab"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="sec" id="s4">
+      <div class="sec-h"><h2>Explore by level</h2><span>· every signal slices six ways</span></div>
+      <div class="levels" id="levels"></div>
+    </div>
+
+  </div>
+</div>
+
+<div id="rs">
+  <div class="rs-top">
+    <button class="rs-back" onclick="closeResult()">‹ Back</button>
+    <span class="wm" style="cursor:pointer;font-size:18px" onclick="closeResult()"><span class="sig">A</span>SK</span>
+    <div class="rs-search"><span class="mag">⌕</span><input id="rsQ" value="Show me the SASMASTER Parent Key" onkeydown="if(event.key==='Enter')rsExplore()"><button class="go" onclick="rsExplore()">Explore</button></div>
+    <div class="rs-orb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="1.7"/><circle cx="9" cy="10" r="1.5" fill="#fff"/><circle cx="15" cy="10" r="1.5" fill="#fff"/><path d="M8 15 Q12 18 16 15" stroke="#fff" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg></div>
+  </div>
+  <div id="rsWork"><div class="rs-workcard">
+    <div class="rs-workhd"><div class="orb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="1.7"/><circle cx="9" cy="10" r="1.5" fill="#fff"/><circle cx="15" cy="10" r="1.5" fill="#fff"/><path d="M8 15 Q12 18 16 15" stroke="#fff" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg></div>
+      <div><b>Dr. Scoop is researching…</b><span id="rsWorkQ">"Show me the SASMASTER Parent Key"</span></div></div>
+    <div id="rsSteps"></div>
+  </div></div>
+  <div id="rsResult"><div class="rs-wrap">
+    <div class="rs-q">
+      <div class="orb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="1.7"/><circle cx="9" cy="10" r="1.5" fill="#fff"/><circle cx="15" cy="10" r="1.5" fill="#fff"/><path d="M8 15 Q12 18 16 15" stroke="#fff" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg></div>
+      <div><div class="ask" id="liveAskTitle">The Parent Key — one spine for 10.96M identities</div>
+        <div class="by" id="liveAskBy"><b>Dr. Scoop</b> · researched across the spine · verified 3 claims · led with the <b>table</b> since you asked to see it — flip to a chart or read the explainer anytime.</div></div>
+    </div>
+    <div class="rs-tabs">
+      <button class="rs-tab on" data-m="table">▦ Table <span class="rec">DR. SCOOP PICK</span></button>
+      <button class="rs-tab" data-m="viz">📊 Visualization</button>
+      <button class="rs-tab" data-m="article">📄 Article</button>
+    </div>
+    <div class="rs-grid">
+      <div>
+        <div class="rs-mode on" data-m="table"><div class="rs-panel" id="liveTablePanel">
+          <div class="rs-th"><h3 id="liveTableTitle">The Parent Key spine</h3><p id="liveTableDesc">One resolved identity for every title, episode, and person — a single key that unifies every external identifier into one spine.</p></div>
+          <table class="rs-t" id="liveTable"><thead><tr><th>Entity</th><th class="r">In spine</th><th class="r">Coverage</th></tr></thead><tbody>
+            <tr><td><div class="nm">Movies</div><div class="nt">feature + TV films</div></td><td class="r mono">903,060</td><td class="r">227,395 EIDR-certified · 25%</td></tr>
+            <tr><td><div class="nm">TV series</div><div class="nt">titles with season structure</div></td><td class="r mono">370,729</td><td class="r">—</td></tr>
+            <tr><td><div class="nm">Episodes</div><div class="nt">linked to series + season</div></td><td class="r mono">9,681,539</td><td class="r">series-resolved</td></tr>
+            <tr><td><div class="nm">People</div><div class="nt">cast + crew</div></td><td class="r mono">3,220,202</td><td class="r">—</td></tr>
+            <tr><td><div class="nm">Alternate IDs linked</div><div class="nt">cross-system identifier bridges</div></td><td class="r mono">33,003</td><td class="r">EIDR-anchored 32,953</td></tr>
+            <tr class="total"><td>Parent Key spine</td><td class="r mono">10,955,204</td><td class="r">one resolved key</td></tr>
+          </tbody></table>
+          <div class="rs-tfoot"><span id="liveRefreshTs">Refreshed today · 06:00</span><span class="dl">⤓ Export CSV</span></div>
+        </div></div>
+        <div class="rs-mode" data-m="viz"><div class="rs-panel"><div class="rs-vizbody">
+          <h3>What the spine is made of</h3><div class="rs-bars" id="rsBars"></div>
+          <div class="rs-vizrow">
+            <svg class="rs-donut" viewBox="0 0 120 120"><circle cx="60" cy="60" r="46" fill="none" stroke="var(--inset)" stroke-width="14"/><circle cx="60" cy="60" r="46" fill="none" stroke="#0EA5E9" stroke-width="14" stroke-linecap="round" stroke-dasharray="72 217" transform="rotate(-90 60 60)"/><text class="lbl" x="60" y="60" text-anchor="middle" dominant-baseline="middle">25%</text><text class="lbl2" x="60" y="76" text-anchor="middle">EIDR-certified</text></svg>
+            <div style="font-size:13.5px;line-height:1.55;color:var(--mut)"><b style="color:var(--ink)">Episodes dominate by volume</b> (9.7M of the spine), but identity value concentrates in the 903K movies — only <b style="color:var(--ink)">a quarter are EIDR-certified</b>. The uncertified 75% is the clearance opportunity.</div>
+          </div>
+        </div></div></div>
+        <div class="rs-mode" data-m="article"><div class="rs-panel"><div class="rs-art" id="liveArticle">
+          <div class="kicker">The Scoop · Identity Desk</div>
+          <h1>The Parent Key: one spine for 10.96 million identities</h1>
+          <div class="byline"><span class="av"></span><span>By <b>Dr. Scoop</b> · SaSMaster Identity Desk · 6 min read · refreshed today</span></div>
+          <p class="lede">Every audience question starts with the same hidden problem: is this the same title? The Parent Key is how SaSMaster answers it — one resolved identity per title, episode, and person, stitched from a dozen disagreeing identifier systems.</p>
+          <p>The catalog the industry runs on is a patchwork. The same film carries one number in one registry, a different number in another, a third in a rights system — and none agree on whether the 4K re-release is "the same movie." Before you can measure an audience, price an ad, or clear a right, you have to decide <b>what counts as one thing</b>.</p>
+          <div class="pull">A claim is only as trustworthy as the identity beneath it. The Parent Key is that identity.</div>
+          <h2>One key, many aliases</h2>
+          <p>The Parent Key resolves <b>10,955,204</b> entities into a single spine: 903,060 movies, 370,729 series, 9,681,539 episodes, and 3,220,202 people. Around each key we link <b>alternate identifiers</b> — 33,003 cross-system bridges so far, the large majority anchored to a certified EIDR.</p>
+          <h2>Why certification matters</h2>
+          <p>Of the movies in the spine, <b>227,395 are EIDR-certified</b> — roughly a quarter. Certification is what lets a claim travel: a certified title matches across audience, advertising, and rights without guesswork. The uncertified three-quarters is both a risk and an opportunity. Built clean-room, from first principles — the spine is the foundation every Audience Story stands on.</p>
+        </div></div></div>
+      </div>
+      <div class="rs-side">
+        <div class="rs-cardx"><div class="h"><span class="o"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="2"/><circle cx="9" cy="10" r="1.6" fill="#fff"/><circle cx="15" cy="10" r="1.6" fill="#fff"/><path d="M8 15 Q12 18 16 15" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/></svg></span>Dr. Scoop · key insights</div>
+          <div id="liveInsights">
+          <div class="rs-ins"><b>10.96M</b> entities resolve to <b>one</b> spine — that's the whole point.</div>
+          <div class="rs-ins">Episodes are 88% of the volume but movies carry the identity value.</div>
+          <div class="rs-ins"><b>EIDR at 25%</b> — the uncertified 75% is your clearance opportunity.</div>
+          </div>
+        </div>
+        <div class="rs-cardx"><div class="h">Verified claims <span id="liveBadge" style="display:none;margin-left:6px;background:#22d3ee;color:#0a0f1e;font-size:8px;font-weight:800;padding:2px 5px;border-radius:3px;letter-spacing:.08em">LIVE</span></div>
+          <div id="liveClaims">
+          <div class="rs-claim"><span class="ck">✓</span><b>10,955,204</b> in spine <span class="src">sourced</span></div>
+          <div class="rs-claim"><span class="ck">✓</span><b>227,395</b> EIDR-certified <span class="src">sourced</span></div>
+          <div class="rs-claim"><span class="ck">✓</span><b>33,003</b> alt-IDs linked <span class="src">sourced</span></div>
+          </div>
+        </div>
+        <div class="rs-cardx"><div class="h">Run these next</div><div class="rs-next">
+          <button onclick="openMX('genre')"><span class="ic">🌊</span>Theatrical revenue by genre</button>
+          <button><span class="ic">◔</span>EIDR coverage by decade</button>
+          <button><span class="ic">🔗</span>Alternate-ID bridges</button>
+        </div></div>
+        <div class="rs-export"><button>＋ Save to a Story</button><button class="ghost">⤓ Export</button></div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<div id="mx"><div class="mx-panel">
+  <button class="mx-close" id="mxClose">✕</button>
+  <div class="mx-main">
+    <div class="mx-eyebrow" id="mxEye">EXPANDED REPORT</div>
+    <div class="mx-title" id="mxTitle"></div>
+    <div class="mx-sub" id="mxSub"></div>
+    <div class="mx-chart" id="mxChart"></div>
+    <div class="mx-pager"><button class="mx-arw" id="mxPrev">‹</button><div class="mx-dots" id="mxDots"></div><button class="mx-arw" id="mxNext">›</button><div class="mx-pglabel" id="mxPgLabel"></div></div>
+    <div class="mx-foot" id="mxFoot"></div>
+  </div>
+  <div class="mx-side">
+    <div class="mx-scoop"><div class="orb"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="1.7"/><circle cx="9" cy="10" r="1.5" fill="#fff"/><circle cx="15" cy="10" r="1.5" fill="#fff"/><path d="M8 15 Q12 18 16 15" stroke="#fff" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg></div><div><b>Dr. Scoop</b><span>walking you through this story</span></div></div>
+    <div><div class="mx-h">Key takeaways</div><div id="mxIns"></div></div>
+    <div><div class="mx-h">In this story · the box-office thread</div><div class="mx-rec" id="mxRec"></div></div>
+  </div>
+</div></div>
+
+<div class="navdots" id="navdots">
+  <a data-i="0"><i></i><span class="lab">Overview</span></a>
+  <a data-i="1"><i></i><span class="lab">Trending research</span></a>
+  <a data-i="2"><i></i><span class="lab">The Scoop</span></a>
+  <a data-i="3"><i></i><span class="lab">Trending titles</span></a>
+  <a data-i="4"><i></i><span class="lab">Brand affinity</span></a>
+  <a data-i="5"><i></i><span class="lab">Explore by level</span></a>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ===== LIVE ASK BACKEND ===== */
+const ASK_SERVER = 'http://localhost:8765';
+async function fetchAsk(q) {
+  try {
+    const res = await fetch(`${ASK_SERVER}/ask`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({question: q}),
+      signal: AbortSignal.timeout(10000)
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+function renderLiveResult(data, q) {
+  const fmt = n => typeof n === 'number' ? n.toLocaleString() : String(n ?? '—');
+  // header
+  if ($('liveAskTitle')) $('liveAskTitle').textContent = q || data.plan?.view || 'Result';
+  if ($('liveAskBy') && data.prose) $('liveAskBy').innerHTML = `<b>Dr. Scoop</b> · live query · ${data.row_count ?? ''} row${data.row_count === 1 ? '' : 's'} · ${data.query_ms ?? ''}ms`;
+  // table
+  if (data.rows && data.rows.length && $('liveTable')) {
+    const cols = data.columns || Object.keys(data.rows[0]);
+    const hdr = cols.map(c=>`<th class="r">${c}</th>`).join('');
+    const body = data.rows.map(r=>`<tr>${cols.map(c=>`<td class="r mono">${fmt(r[c])}</td>`).join('')}</tr>`).join('');
+    $('liveTable').innerHTML = `<thead><tr><th>—</th>${hdr}</tr></thead><tbody>${body}</tbody>`;
+    if ($('liveTableTitle')) $('liveTableTitle').textContent = q;
+    if ($('liveTableDesc')) $('liveTableDesc').textContent = '';
+  }
+  if ($('liveRefreshTs')) $('liveRefreshTs').textContent = 'Live · ' + new Date().toLocaleTimeString();
+  // article
+  if (data.prose && $('liveArticle')) {
+    $('liveArticle').innerHTML = `<div class="kicker">The Scoop · Live Query</div><h1>${q}</h1><div class="byline"><span class="av"></span><span>By <b>Dr. Scoop</b> · MotherDuck query · ${data.query_ms ?? ''}ms</span></div><p class="lede">${data.prose}</p>`;
+  }
+  // sidebar insights from prose sentences
+  if (data.prose && $('liveInsights')) {
+    const sentences = data.prose.replace(/\.\s+/g,'.|').split('|').filter(s=>s.trim().length > 10).slice(0,3);
+    $('liveInsights').innerHTML = sentences.map(s=>`<div class="rs-ins">${s.trim()}</div>`).join('');
+  }
+  // claims from rows
+  if (data.rows && data.rows.length && $('liveClaims')) {
+    const cols = data.columns || Object.keys(data.rows[0]);
+    const row = data.rows[0];
+    $('liveClaims').innerHTML = cols.map(c=>`<div class="rs-claim"><span class="ck">✓</span><b>${fmt(row[c])}</b> <span style="color:var(--dim)">${c}</span> <span class="src">live</span></div>`).join('');
+  }
+  // live badge
+  if ($('liveBadge')) $('liveBadge').style.display = 'inline';
+}
+
+function theme(m){document.body.dataset.theme=m;$('tgL').classList.toggle('on',m==='light');$('tgD').classList.toggle('on',m==='dark');}
+
+/* drifting signal background */
+(function(){const svg=$('sigsvg');if(!svg)return;svg.setAttribute('viewBox','0 0 2400 800');svg.setAttribute('preserveAspectRatio','none');
+  const waves=[{y:220,amp:54,wl:520,col:'url(#sga)',op:.06,dur:30},{y:410,amp:84,wl:660,col:'url(#sgb)',op:.05,dur:42},{y:600,amp:46,wl:430,col:'url(#sga)',op:.05,dur:24}];
+  let s='<defs><linearGradient id="sga" x1="0" x2="1"><stop offset="0" stop-color="#7C5CFC"/><stop offset="1" stop-color="#22D3EE"/></linearGradient><linearGradient id="sgb" x1="0" x2="1"><stop offset="0" stop-color="#0EA5E9"/><stop offset="1" stop-color="#7C5CFC"/></linearGradient></defs>';
+  waves.forEach(w=>{let d=`M-800 ${w.y}`;for(let x=-800;x<=3200;x+=10){d+=` L${x} ${(w.y+Math.sin(x/w.wl*6.2832)*w.amp).toFixed(1)}`;}
+    s+=`<g><path d="${d}" fill="none" stroke="${w.col}" stroke-width="2.2" opacity="${w.op}"/><animateTransform attributeName="transform" type="translate" from="0 0" to="${-w.wl} 0" dur="${w.dur}s" repeatCount="indefinite"/></g>`;});
+  svg.innerHTML=s;})();
+
+const LOG=[['Connecting to the data lake',' sasmaster.prod',null],['Loading movies','',903060],['Loading TV series','',370729],['Resolving episodes','',9681539],['Resolving people','',3220202],['Building Parent-Key spine','',10955204],['Certifying EIDR','',227395],['Linking alt-IDs','',33003],['Loading audience viewership','','679.9 GB'],['Loading ad occurrences','','20.5 GB'],['Initializing social footprint','','online'],['Loading box office','','online'],['Calibrating advisors',' Dr. Scoop + cast',null],['Personalizing for Shiv',' ✓ ready',null]];
+async function runLog(){const w=$('logrows');w.innerHTML='';for(const[l,t,v] of LOG){const isN=typeof v==='number',isS=typeof v==='string';const r=isN?`<span class="n" data-n="${v}">0</span>`:isS?`<span class="n" style="color:#22d3ee">${v}</span>`:`<span class="n ck">●</span>`;const row=document.createElement('div');row.className='lg';row.innerHTML=`<span class="ld">▸</span><span>${l}${t?`<span style="color:#6B7480">${t}</span>`:''}</span>`+r;w.appendChild(row);await sleep(42);row.classList.add('in');if(isN)await countTo(row.querySelector('[data-n]'),v,320);await sleep(isS?210:120);}}
+function countTo(el,t,d){return new Promise(res=>{const s=performance.now();(function f(n){const p=Math.min(1,(n-s)/d),e=1-Math.pow(1-p,3);el.textContent=Math.round(t*e).toLocaleString();p<1?requestAnimationFrame(f):res();})(s);});}
+function typew(el,txt,sp=27){return new Promise(res=>{el.innerHTML='';let i=0;const c=document.createElement('span');c.className='cursor';el.appendChild(c);(function t(){if(i<txt.length){c.insertAdjacentHTML('beforebegin',txt[i]==='*'?'':txt[i]);i++;setTimeout(t,sp);}else{setTimeout(()=>c.remove(),500);res();}})();});}
+
+const CLAIMS=[{d:'up',e:'The White Lotus',ds:'#1 drama by reach · A18-34F',dl:'+22.1% WoW'},{d:'fl',e:'EIDR coverage',ds:'227,395 movies certified',dl:'25% of catalog'},{d:'up',e:'2022',ds:'peak content supply · 23,423 new titles',dl:'all-time high'},{d:'up',e:'Documentary',ds:'#2 genre · 177,923 titles',dl:'streaming surge'},{d:'up',e:'Primetime A',ds:'CPM $34.2',dl:'+$3.8 vs LM'},{d:'dn',e:'Linear share',ds:'38% of viewing',dl:'−4 pts'},{d:'up',e:'Streaming SOV',ds:'social share of voice',dl:'+18% WoW'},{d:'up',e:'A18-34F',ds:'over-indexing late prime',dl:'index 148'},{d:'fl',e:'Drama',ds:'largest genre',dl:'224,812 titles'}];
+$('track').innerHTML=(()=>{const o=CLAIMS.map(c=>{const a=c.d==='up'?'▲':c.d==='dn'?'▼':'◆';return `<span class="claim"><span class="ar ${c.d}">${a}</span><b>${c.e}</b><span class="ds">${c.ds}</span><span class="dl ${c.d}">${c.dl}</span></span>`;}).join('');return o+o;})();
+
+const PH=['Ask anything — "compare drama vs comedy supply since 2015"','Ask anything — "which networks lead A18-49?"','Ask anything — "how is EIDR coverage trending?"','Ask anything — "what is my audience watching tonight?"'];
+let phi=0;function rotPH(){const el=$('q');if(document.activeElement===el)return;el.placeholder=PH[phi];phi=(phi+1)%PH.length;}
+rotPH();setInterval(rotPH,3000);$('q').addEventListener('focus',()=>$('q').placeholder='Ask Dr. Scoop anything about your audience…');
+
+/* ===== STREAMGRAPH hero — Theatrical Box Office Revenue by genre (ThemeRiver) ===== */
+const YEARS=[];for(let _y=1995;_y<=2026;_y++)YEARS.push(_y);
+/* market revenue curve 1995–2026: funnel growth → 2008–2011 downturn → recovery → 2020 shock → pick back up */
+const MKT=[0.26,0.30,0.35,0.40,0.46,0.54,0.60,0.67,0.74,0.82,0.90,0.96,1.00,0.92,0.82,0.74,0.80,0.88,0.93,0.97,1.00,1.03,1.05,1.07,1.09,0.42,0.60,0.83,0.93,0.98,0.95,0.92];
+const GMETA=[
+  {name:'Action',col:'#7C5CFC',base:60,trend:0.5,seed:0.2},
+  {name:'Adventure',col:'#0EA5E9',base:50,trend:0.7,seed:1.1},
+  {name:'Comedy',col:'#F59E0B',base:55,trend:-0.2,seed:2.3},
+  {name:'Drama',col:'#6366F1',base:48,trend:-0.1,seed:0.7},
+  {name:'Sci-Fi & Fantasy',col:'#101DD4',base:26,trend:0.9,seed:0.4},
+  {name:'Documentary',col:'#22D3EE',base:12,trend:2.2,seed:3.1},
+  {name:'Thriller',col:'#F43F5E',base:30,trend:0.3,seed:1.7},
+  {name:'Horror',col:'#88068A',base:22,trend:0.6,seed:2.9},
+  {name:'Animation',col:'#14B8A6',base:24,trend:0.8,seed:1.3},
+  {name:'Romantic Comedy',col:'#AF7BC9',base:28,trend:-0.5,seed:2.1},
+  {name:'Musical',col:'#71D3CB',base:14,trend:-0.3,seed:3.7},
+  {name:'Western',col:'#295769',base:10,trend:-0.4,seed:0.9},
+  {name:'Concert & Reality',col:'#3EF3A4',base:9,trend:0.4,seed:2.5},
+  {name:'Other',col:'#94A3B8',base:16,trend:0,seed:1.9}
+];
+const _N=YEARS.length;
+const GENRES=GMETA.map(m=>({name:m.name,col:m.col,v:YEARS.map((y,i)=>Math.max(2,Math.round(m.base*MKT[i]*(1+m.trend*(i/(_N-1)))*(0.9+0.2*(0.5+0.5*Math.sin(i*1.7+m.seed))))))}));
+const SW=620,SH=236,padT=14,padB=22,padX=12,n=YEARS.length;
+const totals=YEARS.map((_,i)=>GENRES.reduce((s,g)=>s+g.v[i],0)),maxTotal=Math.max(...totals),scale=(SH-padT-padB)/maxTotal;
+const X=i=>padX+(SW-2*padX)*i/(n-1);
+function smooth(pts){let d=`M${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;for(let i=1;i<pts.length;i++){const p0=pts[i-1],p1=pts[i],pm=pts[i-2]||p0,pn=pts[i+1]||p1;const c1x=p0.x+(p1.x-pm.x)/6,c1y=p0.y+(p1.y-pm.y)/6,c2x=p1.x-(pn.x-p0.x)/6,c2y=p1.y-(pn.y-p0.y)/6;d+=` C${c1x.toFixed(1)} ${c1y.toFixed(1)} ${c2x.toFixed(1)} ${c2y.toFixed(1)} ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}`;}return d;}
+const off=YEARS.map((_,i)=>padT+(SH-padT-padB-totals[i]*scale)/2),run=off.slice(),bands=[];
+GENRES.forEach(g=>{const top=[],bot=[];for(let i=0;i<n;i++){top.push({x:X(i),y:run[i]});run[i]+=g.v[i]*scale;bot.push({x:X(i),y:run[i]});}bands.push({g,d:smooth(top.concat(bot.slice().reverse()))+' Z'});});
+let si='<defs><clipPath id="sgreveal"><rect id="sgrevealrect" x="0" y="0" width="0" height="'+SH+'"/></clipPath></defs><g clip-path="url(#sgreveal)">';
+bands.forEach((b,i)=>{si+=`<path class="sg-band" data-i="${i}" d="${b.d}" fill="${b.g.col}" fill-opacity=".9"/>`;});si+='</g>';
+[1995,2002,2008,2011,2016,2020,2024].forEach(y=>{const i=YEARS.indexOf(y);if(i<0)return;si+=`<text class="sg-yr" x="${X(i).toFixed(0)}" y="${SH-6}" text-anchor="middle">${y}</text>`;});
+function buildStream(){$('sgstream').innerHTML=si;const rect=$('sgrevealrect'),t0=performance.now(),dur=950;(function step(now){const p=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-p,3);rect.setAttribute('width',(SW*e).toFixed(1));p<1&&requestAnimationFrame(step);})(t0);
+  const wrap=$('sgwrap');document.querySelectorAll('.sg-band').forEach(p=>{p.addEventListener('mouseenter',()=>{wrap.classList.add('dimmed');p.classList.add('hot');});p.addEventListener('mouseleave',()=>{wrap.classList.remove('dimmed');p.classList.remove('hot');});});
+  $('sglegend').innerHTML=GENRES.map((g,i)=>`<span class="sg-lg" data-i="${i}"><span class="sw" style="background:${g.col}"></span>${g.name}</span>`).join('');
+  document.querySelectorAll('.sg-lg').forEach(l=>{const i=l.dataset.i,band=document.querySelector(`.sg-band[data-i="${i}"]`);l.addEventListener('mouseenter',()=>{wrap.classList.add('dimmed');band.classList.add('hot');});l.addEventListener('mouseleave',()=>{wrap.classList.remove('dimmed');band.classList.remove('hot');});});}
+const TAKES=['<b>The funnel, then the floor.</b> Theatrical revenue swelled into 2007, fell through the 2008–2011 downturn, then picked back up. <i>Click to expand →</i>','<b>2020 reset the board.</b> The pandemic gutted box office; the climb back since is real but uneven across genres.','<b>Documentary is the long-run climber</b>; <b>Western</b> & <b>Musical</b> keep fading. <i>Click to explore by studio →</i>'];
+let tki=0;function rotTake(){$('sgcommenttx').innerHTML=TAKES[tki];tki=(tki+1)%TAKES.length;}
+let takeTimer=null;function startTakes(){rotTake();clearInterval(takeTimer);takeTimer=setInterval(()=>{const c=$('sgcomment');c.style.opacity=0;setTimeout(()=>{rotTake();c.style.opacity=1;},420);},6500);}
+
+const TREND=[
+ {dom:'Programming',kind:'Visualization',cat:'Supply',col:'#8B5CF6',t:'The content supply explosion',p:'Titles added by year — the streaming-era reshape.',chart:'line'},
+ {dom:'Programming',kind:'Story',cat:'Trending',col:'#0EA5E9',t:'The White Lotus breakout',p:'Fastest 6-month ramp; A18-34F over-indexing at 148.',chart:'spark'},
+ {dom:'Programming',kind:'Visualization',cat:'Box office',col:'#7C5CFC',t:'Theatrical revenue by genre',p:'The funnel, the 2008–2011 drop, the rebound.',chart:'line'},
+ {dom:'Advertising',kind:'Story',cat:'Pricing',col:'#F43F5E',t:'Primetime CPM spike',p:'$34.2 avg, up $3.8 — premium drama driving it.',chart:'bars'},
+ {dom:'Advertising',kind:'Visualization',cat:'Exposure',col:'#F97316',t:'Make-good exposure gap',p:'Under-delivery concentrated in late prime.',chart:'bars'},
+ {dom:'Marketing',kind:'Visualization',cat:'Audience',col:'#14B8A6',t:'Brand affinity radar',p:'What your core demo actually buys.',chart:'bubble'},
+ {dom:'Marketing',kind:'Story',cat:'Social',col:'#F59E0B',t:'Streaming buzz surging',p:'+18% share of voice WoW across the slate.',chart:'spark'},
+ {dom:'Media Tech',kind:'Visualization',cat:'Identity',col:'#6366F1',t:'EIDR coverage gap',p:'25% certified — the uncertified 75% is opportunity.',chart:'donut'},
+ {dom:'Media Tech',kind:'Story',cat:'Pipeline',col:'#22D3EE',t:'Identity resolution at scale',p:'10.96M entities resolve to one spine.',chart:'line'}
+];
+function miniChart(kind,col){if(kind==='donut')return `<svg class="mini" viewBox="0 0 110 100"><circle cx="65" cy="55" r="30" fill="none" stroke="${col}" stroke-opacity=".25" stroke-width="12"/><circle cx="65" cy="55" r="30" fill="none" stroke="${col}" stroke-width="12" stroke-dasharray="47 188" transform="rotate(-90 65 55)" stroke-linecap="round"/></svg>`;
+  if(kind==='bars'){let b='';[40,62,50,78,90].forEach((v,i)=>b+=`<rect x="${20+i*16}" y="${92-v}" width="10" height="${v}" rx="2" fill="${col}" opacity="${.5+i*.1}"/>`);return `<svg class="mini" viewBox="0 0 120 100">${b}</svg>`;}
+  if(kind==='bubble'){let c='';[[35,55,16],[65,40,12],[85,65,10],[50,75,8]].forEach(p=>c+=`<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}" fill="${col}" opacity=".5"/>`);return `<svg class="mini" viewBox="0 0 110 100">${c}</svg>`;}
+  const pts=kind==='line'?[80,70,66,60,55,30,8,22]:[70,64,60,52,44,36,26,12];const P=pts.map((v,i)=>`${i*15},${v}`).join(' ');
+  return `<svg class="mini" viewBox="0 0 110 90"><polyline points="${P}" fill="none" stroke="${col}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
+function renderTrend(dom){const list=dom==='all'?TREND:TREND.filter(t=>t.dom===dom);
+  $('rail').innerHTML=list.map(t=>`<div class="tcard" data-col="${t.col}"><div class="tcover" style="background:linear-gradient(135deg,${t.col}22,${t.col}0a)"><span class="kind">${t.dom} · ${t.cat}</span>${miniChart(t.chart,t.col)}</div><div class="tbody"><h3>${t.t}</h3><p>${t.p}</p><div class="meta">Dr. Scoop · refreshed today</div></div></div>`).join('');
+  document.querySelectorAll('.tcard').forEach(c=>c.onclick=()=>openResult(c.querySelector('h3').textContent));}
+renderTrend('all');
+document.querySelectorAll('#trendTog button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#trendTog button').forEach(x=>x.classList.toggle('on',x===b));renderTrend(b.dataset.dom);});
+
+const BR=[['KitKat','#D2231F','KK',67.28,11.12,6.17],['Pringles','#E2231A','P',61.80,15.86,5.67],['Doritos','#1A1A1A','D',55.94,13.60,5.13],['KFC','#A5122A','KFC',51.32,17.57,4.71],['Burger King','#D62300','BK',51.18,18.76,4.69],['Starburst','#E51937','S',46.85,20.29,4.30],["Lay's",'#F2C200','L',45.87,13.56,4.21],['Skittles','#5B2A86','Sk',45.49,28.20,4.17]];
+const POS=[[120,90,52],[245,70,40],[60,180,34],[180,170,46],[300,160,30],[110,240,26],[262,222,30],[340,95,24]];
+$('bubbles').innerHTML=BR.map((b,i)=>{const[x,y,r]=POS[i];return `<div class="bub" style="left:${x-r}px;top:${y-r}px;width:${r*2}px;height:${r*2}px;background:${b[1]};font-size:${(r/1.7).toFixed(0)}px;animation-delay:${i*.4}s">${b[2]}</div>`;}).join('');
+$('btab').innerHTML=BR.slice(0,6).map((b,i)=>`<tr><td>${i+1}</td><td><div class="nm">${b[0]}</div><div class="cat">Food &amp; Drink</div></td><td class="r">${b[3].toFixed(2)}%</td><td class="r">${b[4].toFixed(2)}%</td><td class="r"><b>${b[5].toFixed(2)}x</b></td></tr>`).join('');
+
+const LV=[['🌐','Overall Market','Universe + linear vs non-linear'],['🏢','Network Group','Corporate roll-up'],['📡','All Networks','Incl. competitors'],['👥','Audience Segment','Demo lens'],['🎬','Programming','Genre · premieres'],['🕑','Time Slot','Daypart level']];
+$('levels').innerHTML=LV.map(l=>`<div class="lvl"><div class="ic">${l[0]}</div><h5>${l[1]}</h5><p>${l[2]}</p></div>`).join('');
+
+/* ===== Expand-to-Explore modal: Dr. Scoop reads the report + recommends next (Movie Money flow) ===== */
+function mxStream(){const W=760,H=400,pT=20,pB=34,pX=20;const tot=YEARS.map((_,i)=>GENRES.reduce((s,g)=>s+g.v[i],0)),mt=Math.max(...tot),sc=(H-pT-pB)/mt;const xf=i=>pX+(W-2*pX)*i/(n-1);const o=YEARS.map((_,i)=>pT+(H-pT-pB-tot[i]*sc)/2),rn=o.slice();let s='';GENRES.forEach(g=>{const top=[],bot=[];for(let i=0;i<n;i++){top.push({x:xf(i),y:rn[i]});rn[i]+=g.v[i]*sc;bot.push({x:xf(i),y:rn[i]});}s+=`<path d="${smooth(top.concat(bot.slice().reverse()))} Z" fill="${g.col}" fill-opacity=".9"/>`;});[1995,2000,2005,2008,2011,2015,2019,2022,2026].forEach(y=>{const i=YEARS.indexOf(y);if(i<0)return;s+=`<text class="sg-yr" x="${xf(i)}" y="${H-12}" text-anchor="middle">${y}</text>`;});return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${s}</svg>`;}
+const STUDIOS=[['Walt Disney',3829,'#7C5CFC'],['Warner Bros.',1397,'#0EA5E9'],['Universal',1359,'#22D3EE'],['Sony',1302,'#14B8A6'],['Lionsgate',813,'#10B981'],['Paramount',506,'#6366F1'],['20th Century',485,'#F59E0B'],['STX',313,'#F43F5E'],['United Artists',210,'#94A3B8'],['Focus',182,'#8B5CF6']];
+function hbars(data,opt){const W=760,H=400,pL=opt.pL,pR=70,pT=12,pB=14,bh=(H-pT-pB)/data.length,mx=Math.max(...data.map(d=>d[1]));let s='';data.forEach((d,i)=>{const y=pT+i*bh,w=(W-pL-pR)*d[1]/mx;s+=`<text x="${pL-10}" y="${y+bh/2}" text-anchor="end" dominant-baseline="middle" font-size="${opt.fs}" font-family="var(--sans)" style="fill:var(--mut)">${d[0]}</text><rect x="${pL}" y="${y+4}" width="${w.toFixed(1)}" height="${bh-9}" rx="5" fill="${d[2]}"/><text x="${(pL+w+8).toFixed(1)}" y="${y+bh/2}" dominant-baseline="middle" font-size="11.5" font-family="var(--mono)" font-weight="700" style="fill:var(--ink)">$${d[1].toLocaleString()}M</text>`;});return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${s}</svg>`;}
+function mxStudio(){return hbars(STUDIOS,{pL:118,fs:12});}
+const TOP=[['Avengers: Endgame',858,'#7C5CFC'],['The Lion King',544,'#7C5CFC'],['Star Wars: Rise of Skywalker',504,'#7C5CFC'],['Frozen II',471,'#7C5CFC'],['Toy Story 4',434,'#7C5CFC'],['Captain Marvel',427,'#7C5CFC'],['Spider-Man: Far From Home',391,'#0EA5E9'],['Aladdin',356,'#7C5CFC'],['Joker',335,'#0EA5E9'],['Jumanji: The Next Level',285,'#14B8A6'],['It Chapter Two',212,'#0EA5E9'],['Us',175,'#22D3EE']];
+function mxTop20(){return hbars(TOP,{pL:198,fs:11});}
+const KW=[['Superhero',2100,'#7C5CFC'],['Sequel / Franchise',1820,'#0EA5E9'],['Animation',1240,'#22D3EE'],['Based on a Book',640,'#14B8A6'],['Original Screenplay',430,'#F59E0B'],['Remake',290,'#6366F1']];
+function mxKeyword(){return hbars(KW,{pL:150,fs:12});}
+const SCAT=[['Disney',10,3829,30],['Warner',38,1397,16],['Universal',42,1359,15],['Sony',45,1302,14],['Lionsgate',60,813,11],['Paramount',40,506,9],['Fox',35,485,9],['STX',22,313,8],['Focus',30,182,7],['Fathom',116,53,6]];
+function mxScatter(){const W=760,H=400,pL=58,pR=24,pT=18,pB=40;const xf=v=>pL+(W-pL-pR)*v/120,yf=v=>H-pB-(H-pT-pB)*v/4000;let s=`<line x1="${pL}" y1="${H-pB}" x2="${W-pR}" y2="${H-pB}" stroke="var(--bd2)"/><line x1="${pL}" y1="${pT}" x2="${pL}" y2="${H-pB}" stroke="var(--bd2)"/>`;[0,1000,2000,3000,4000].forEach(g=>{s+=`<text class="sg-yr" x="${pL-8}" y="${yf(g)}" text-anchor="end" dominant-baseline="middle">$${g/1000}B</text>`;});[0,40,80,120].forEach(g=>{s+=`<text class="sg-yr" x="${xf(g)}" y="${H-pB+16}" text-anchor="middle">${g}</text>`;});s+=`<text class="sg-yr" x="${(pL+W-pR)/2}" y="${H-6}" text-anchor="middle">number of releases</text>`;SCAT.forEach(d=>{s+=`<circle cx="${xf(d[1]).toFixed(1)}" cy="${yf(d[2]).toFixed(1)}" r="${d[3]}" fill="#0EA5E9" fill-opacity=".45" stroke="#0EA5E9"/>`;});s+=`<text x="${(xf(SCAT[0][1])+SCAT[0][3]+6).toFixed(1)}" y="${yf(SCAT[0][2]).toFixed(1)}" dominant-baseline="middle" font-size="11.5" font-family="var(--sans)" font-weight="700" style="fill:var(--ink)">Disney · few films, top gross</text>`;s+=`<text x="${(xf(SCAT[9][1])-6).toFixed(1)}" y="${(yf(SCAT[9][2])-12).toFixed(1)}" text-anchor="end" font-size="10.5" font-family="var(--sans)" style="fill:var(--mut)">high volume, low gross</text>`;return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${s}</svg>`;}
+/* the box-office research thread — order a programmer/SME naturally follows (from ATLAS Reporting Catalog) */
+const STORY={label:'Theatrical Box Office',order:['genre','studio','scatter','top20','keyword']};
+const RECMETA={genre:['🌊','By genre','revenue streamgraph'],studio:['🏛','By studio','distributor gross'],scatter:['◔','Releases vs gross','efficiency scatter'],top20:['🏆','Top 20 grossing','title → studio'],keyword:['🔑','By keyword','theme-level gross']};
+const REPORTS={
+  genre:{eye:'BOX-OFFICE STORY · 1 of 5',title:'Theatrical Box Office Revenue by Genre',sub:'1995–2026 · domestic gross share',foot:'Each band = a genre\'s share of theatrical revenue over time.',render:mxStream,ins:['<b>The funnel & the floor</b> — revenue swelled to 2007, fell through 2008–2011, then recovered.','<b>2020 was a cliff</b>; the climb back is real but uneven by genre.','<b>Documentary</b> is the long-run climber; <b>Western/Musical</b> fade.']},
+  studio:{eye:'BOX-OFFICE STORY · 2 of 5',title:'Box Office by Studio',sub:'domestic gross by distributor',foot:'Top distributors ranked by total domestic gross.',render:mxStudio,ins:['<b>Disney ran the table</b> — $3.8B, more than the next two combined.','The <b>top 5 studios</b> captured the lion\'s share of all gross.','Mid-majors (STX, A24) compete on <b>gross-per-release</b>, not volume.']},
+  scatter:{eye:'BOX-OFFICE STORY · 3 of 5',title:'Releases vs Total Gross',sub:'by studio · bubble = avg gross / release',foot:'Volume vs. revenue — efficiency lives in the upper-left.',render:mxScatter,ins:['<b>More releases ≠ more gross.</b> Disney proves quality beats volume.','High-volume distributors sit near <b>zero gross</b> (bottom-right).','Upper-left = <b>efficient</b>: few films, high revenue per release.']},
+  top20:{eye:'BOX-OFFICE STORY · 4 of 5',title:'Top 20 Grossing → Studio',sub:'highest-grossing titles by distributor',foot:'Every top-20 film came from a top-5 studio.',render:mxTop20,ins:['<b>Avengers: Endgame</b> — highest-grossing film of all time ($858M).','The <b>top 6</b> were all Disney releases.','Blockbusters <b>cluster</b> in a handful of studios — concentration risk.']},
+  keyword:{eye:'BOX-OFFICE STORY · 5 of 5',title:'Box Office by Keyword',sub:'theatrical gross by theme tag',foot:'Keyword/theme tags aggregated across the slate.',render:mxKeyword,ins:['<b>Superhero</b> & <b>franchise</b> tags dominate gross — the IP economy.','<b>Original screenplays</b> punch below their count on revenue.','Theme tags reveal the <b>green-light bias</b> toward known IP.']}
+};
+let mxIdx=0;
+function renderReport(k){const r=REPORTS[k];mxIdx=STORY.order.indexOf(k);
+  $('mxEye').textContent=r.eye;$('mxTitle').textContent=r.title;$('mxSub').textContent=r.sub;$('mxFoot').textContent=r.foot;$('mxChart').innerHTML=r.render();
+  $('mxIns').innerHTML=r.ins.map(t=>`<div class="mx-ins">${t}</div>`).join('');
+  $('mxDots').innerHTML=STORY.order.map((_,i)=>`<i class="${i===mxIdx?'on':''}" data-i="${i}"></i>`).join('');
+  $('mxDots').querySelectorAll('i').forEach(d=>d.onclick=()=>renderReport(STORY.order[+d.dataset.i]));
+  $('mxPgLabel').textContent=`${STORY.label} · report ${mxIdx+1} of ${STORY.order.length}`;
+  $('mxRec').innerHTML=STORY.order.map(key=>{const m=RECMETA[key];return `<button data-k="${key}" class="${key===k?'cur':''}"><span class="ic">${m[0]}</span><span><span class="nm">${m[1]}</span><span class="ds">${m[2]}</span></span></button>`;}).join('');
+  $('mxRec').querySelectorAll('button').forEach(b=>b.onclick=()=>renderReport(b.dataset.k));}
+function mxStep(d){const i=(mxIdx+d+STORY.order.length)%STORY.order.length;renderReport(STORY.order[i]);}
+$('mxPrev').onclick=()=>mxStep(-1);$('mxNext').onclick=()=>mxStep(1);
+function openMX(k){renderReport(k||'genre');$('mx').classList.add('show');}
+$('sgCard').onclick=()=>openMX('genre');
+$('mxClose').onclick=()=>$('mx').classList.remove('show');
+$('mx').addEventListener('click',e=>{if(e.target.id==='mx')$('mx').classList.remove('show');});
+addEventListener('keydown',e=>{if(!$('mx').classList.contains('show'))return;if(e.key==='Escape')$('mx').classList.remove('show');else if(e.key==='ArrowRight')mxStep(1);else if(e.key==='ArrowLeft')mxStep(-1);});
+
+/* ===== TRENDING TITLES carousel (movies / tv / people) ===== */
+const IMG='https://image.tmdb.org/t/p/w342',IMGP='https://image.tmdb.org/t/p/w185';
+const TM_MOV=[['Disclosure Day','Jun 10, 2026','Sci-Fi',74,'/259wnijEJoJLPuZuscxDTqwnypw.jpg'],['Michael','Apr 22, 2026','Biopic',85,'/zm0KAbOjlt9eR5y7vDiL2dEOwMl.jpg'],['Obsession','May 13, 2026','Horror',79,'/bRwnj8WEKBCvmfeUNOukJPwB43K.jpg'],['The Super Mario Galaxy Movie','Apr 1, 2026','Animation',82,'/eJGWx219ZcEMVQJhAgMiqo8tYY.jpg'],['Mortal Kombat II','May 6, 2026','Action',80,'/hwRdDFIhaEmpRgoki805YvyyjZf.jpg'],['Project Hail Mary','Mar 15, 2026','Sci-Fi',87,'/yihdXomYb5kTeSivtFndMy5iDmf.jpg'],['Masters of the Universe','Jun 3, 2026','Action',74,'/3YMd9Ogae4rDKLWuAZFuse9xhc5.jpg'],['Backrooms','May 27, 2026','Horror',68,'/rhGx6E3qRNMgj3i5su2oukNHwIQ.jpg']];
+const TM_TV=[['Off Campus','May 13, 2026','Drama',90,'/cbODFqkcmRgrYH8NkG4Q4Hcg8Z1.jpg'],['Dutton Ranch','May 15, 2026','Western',93,'/xsiecCxd8lkcAluw0wWwbW5CwSv.jpg'],['Spider-Noir','May 25, 2026','Crime',86,'/oD8WSVqz84ZRfelkr7JPeJwR9Iv.jpg'],['Teach You a Lesson','Jun 5, 2026','Comedy',94,'/fMECSPrTmRClSViMsXFYmiYIcWP.jpg'],['The Boys','Jul 25, 2019','Action',85,'/in1R2dDc421JxsoRWaIIAqVI2KE.jpg'],['Every Year After','Jun 10, 2026','Romance',83,'/nZGf0jnSJNXLf8o7iSzzX8qxHX9.jpg'],['FROM','Feb 20, 2022','Mystery',85,'/pRtJagIxpfODzzb0T0NAvZSzErC.jpg'],['Euphoria','Jun 16, 2019','Drama',83,'/aJrG7OkoTMPWG5c8opz8a93AZPY.jpg']];
+const TM_PPL=[['Steven Spielberg','Directing','/tZxcg19YQ3e8fJ0pOs7hjlnmmr6.jpg'],['Tom Hanks','Acting','/oFvZoKI6lvU03n4YoNGAll9rkas.jpg'],['Tom Cruise','Acting','/p17SLq4wabXwIYyjXF1Wf5cNnAm.jpg'],['Brad Pitt','Acting','/m09Y1YfPPeNYYUSHnnVqahkrC1o.jpg'],['Walt Disney','Production','/fnB3Yt4dPiVODHzfLwntISAvbhw.jpg'],['Yoon Yool','Acting','/21kdujBeL2hrJ50RyMxmuEsHZAT.jpg'],['Kim Ji-ah','Acting','/kTBZUhZRnyKgpHJDBj68M3WOANa.jpg'],['Lee Chae-dam','Acting','/27qVJm4vpUKBXC9zyW2CbEiyfgG.jpg']];
+function gaStar(cx,cy,n,len){let s='';for(let i=0;i<n;i++){const a=i/n*Math.PI*2;s+=`<line x1="${cx}" y1="${cy}" x2="${(cx+Math.cos(a)*len).toFixed(0)}" y2="${(cy+Math.sin(a)*len).toFixed(0)}" stroke="#fff" stroke-opacity=".16" stroke-width="3"/>`;}return s;}
+function genreArt(g,ac){const w=o=>`fill="#fff" fill-opacity="${o}"`,b=o=>`fill="#000" fill-opacity="${o}"`;switch(g){
+  case 'Sci-Fi':return `<circle cx="116" cy="56" r="40" ${w(.22)}/><ellipse cx="116" cy="56" rx="58" ry="17" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width="3"/><circle cx="38" cy="40" r="3" ${w(.8)}/><circle cx="62" cy="24" r="2.2" ${w(.6)}/><circle cx="24" cy="78" r="2.2" ${w(.6)}/><circle cx="48" cy="112" r="2" ${w(.5)}/>`;
+  case 'Thriller':return `<path d="M78 -28 L130 150 L26 150 Z" ${w(.16)}/><circle cx="78" cy="118" r="12" ${b(.34)}/><rect x="67" y="126" width="22" height="58" rx="11" ${b(.34)}/>`;
+  case 'Biopic':return `<circle cx="78" cy="82" r="54" ${w(.16)}/><circle cx="78" cy="74" r="30" ${b(.3)}/><path d="M30 154 Q78 100 126 154 Z" ${b(.3)}/>`;
+  case 'Action':return `${gaStar(78,94,18,104)}<circle cx="78" cy="94" r="26" fill="${ac}" fill-opacity=".6"/><circle cx="78" cy="94" r="12" ${w(.45)}/>`;
+  case 'Horror':return `<circle cx="110" cy="50" r="38" ${w(.24)}/><circle cx="96" cy="44" r="38" ${b(.18)}/><path d="M12 0 v44 a9 9 0 0 0 18 0 V0 Z M50 0 v28 a8 8 0 0 0 16 0 V0 Z M122 0 v54 a9 9 0 0 0 18 0 V0 Z" ${b(.26)}/>`;
+  case 'Drama':return `<circle cx="112" cy="58" r="34" ${w(.2)}/><path d="M0 146 Q44 104 92 140 T156 124 V216 H0 Z" ${b(.24)}/><path d="M0 176 Q60 144 110 170 T156 160 V216 H0 Z" ${b(.16)}/>`;
+  case 'Romance':return `<path d="M78 152 C36 116 32 74 56 60 C72 51 78 68 78 78 C78 68 84 51 100 60 C124 74 120 116 78 152 Z" ${w(.26)}/>`;
+  case 'Mystery':return `<circle cx="68" cy="80" r="32" fill="none" stroke="#fff" stroke-opacity=".42" stroke-width="8"/><rect x="92" y="102" width="13" height="48" rx="6" transform="rotate(45 98 126)" ${w(.36)}/><circle cx="120" cy="56" r="2.5" ${w(.5)}/>`;
+  case 'Crime':return `<g ${b(.3)}>${[[14,112,26],[44,90,30],[80,128,22],[104,80,34],[140,108,24]].map(c=>`<rect x="${c[0]}" y="${c[1]}" width="${c[2]}" height="${216-c[1]}"/>`).join('')}</g><path d="M120 -6 L156 76 L84 76 Z" ${w(.16)}/>`;
+  case 'Comedy':return `<path d="M40 62 Q78 108 116 62" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width="8" stroke-linecap="round"/><g>${[[26,36],[122,46],[56,150],[114,136],[36,106]].map((c,i)=>`<rect x="${c[0]}" y="${c[1]}" width="13" height="13" rx="3" transform="rotate(${i*40} ${c[0]} ${c[1]})" fill="${i%2?ac:'#fff'}" fill-opacity=".5"/>`).join('')}</g>`;
+  default:return `<circle cx="78" cy="100" r="56" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="5"/><circle cx="78" cy="100" r="34" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="5"/>`;}}
+function tmPoster(d){return `<div class="tm-card"><div class="tm-poster" style="background-image:url('${IMG}${d[4]}')"><span class="tag">${d[2]}</span><div class="tm-score">${d[3]}</div></div><div class="tm-meta"><h4>${d[0]}</h4><p>${d[1]}</p></div></div>`;}
+function tmPerson(d){return `<div class="tm-card person"><div class="tm-poster" style="background-image:url('${IMGP}${d[2]}')"></div><div class="tm-meta"><h4>${d[0]}</h4><p>${d[1]}</p></div></div>`;}
+function tmRender(type){$('tmRail').innerHTML=type==='people'?TM_PPL.map(tmPerson).join(''):(type==='tv'?TM_TV:TM_MOV).map(tmPoster).join('');document.querySelectorAll('#tmRail .tm-card').forEach(c=>c.onclick=()=>openResult(c.querySelector('h4').textContent));}
+tmRender('movies');
+document.querySelectorAll('#tmTog button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tmTog button').forEach(x=>x.classList.toggle('on',x===b));tmRender(b.dataset.t);});
+document.querySelectorAll('.tm-time button').forEach(b=>b.onclick=()=>document.querySelectorAll('.tm-time button').forEach(x=>x.classList.toggle('on',x===b)));
+
+/* ===== RESULT VIEW routing + behavior ===== */
+const RSSPINE=[['Episodes',9681539,'#7C5CFC'],['People',3220202,'#0EA5E9'],['Movies',903060,'#22D3EE'],['TV series',370729,'#14B8A6'],['Alt-IDs',33003,'#F59E0B']];
+function drawRsBars(){const mx=Math.max(...RSSPINE.map(s=>s[1]));$('rsBars').innerHTML=RSSPINE.map((s,i)=>{const w=Math.max(3,Math.sqrt(s[1]/mx)*100);return `<div class="rs-bar"><div class="lab">${s[0]}</div><div class="track"><div class="fill" style="width:${w.toFixed(1)}%;background:${s[2]};animation-delay:${i*.08}s"></div></div><div class="val">${s[1].toLocaleString()}</div></div>`;}).join('');}
+document.querySelectorAll('.rs-tab').forEach(t=>t.onclick=()=>{const m=t.dataset.m;document.querySelectorAll('.rs-tab').forEach(x=>x.classList.toggle('on',x===t));document.querySelectorAll('.rs-mode').forEach(x=>x.classList.toggle('on',x.dataset.m===m));if(m==='viz')drawRsBars();});
+const RSSTEPS=[['Planning the research','Resolving your question to the spine'],['Querying the data lake','Counting entities + coverage'],['Rendering the view','Building table, chart & explainer'],['Verifying each claim','Counts checked against source'],['Writing the summary','Key insights + so-what']];
+function buildRsSteps(){$('rsSteps').innerHTML=RSSTEPS.map((s,i)=>`<div class="rs-step" data-i="${i}"><span class="ck">✓</span><div><div style="font-weight:700">${s[0]}</div><div style="font-size:11.5px;color:var(--dim)">${s[1]}</div></div></div>`).join('');}
+async function runRsWork(){
+  buildRsSteps();$('rsWork').classList.remove('gone');$('rsResult').classList.remove('show');
+  const q = $('rsQ')?.value || $('q')?.value || '';
+  const [_,liveData] = await Promise.all([
+    (async()=>{const rows=[...document.querySelectorAll('.rs-step')];await sleep(280);for(let i=0;i<rows.length;i++){rows[i].classList.add('on');await sleep(420);rows[i].classList.add('done');await sleep(150);}})(),
+    fetchAsk(q)
+  ]);
+  if(liveData && !liveData.error) renderLiveResult(liveData, q);
+  await sleep(260);$('rsWork').classList.add('gone');await sleep(380);$('rsResult').classList.add('show');
+}
+function openResult(q){if(q)$('rsQ').value=q;$('rsWorkQ').textContent='"'+$('rsQ').value+'"';$('app').style.display='none';$('navdots').style.display='none';$('rs').classList.add('show');window.scrollTo(0,0);runRsWork();}
+function closeResult(){$('rs').classList.remove('show');$('app').style.display='';$('navdots').style.display='';window.scrollTo(0,0);}
+function rsExplore(){$('rsWorkQ').textContent='"'+$('rsQ').value+'"';runRsWork();}
+$('heroGo').onclick=()=>openResult($('q').value||'Show me the SASMASTER Parent Key');
+$('q').addEventListener('keydown',e=>{if(e.key==='Enter')openResult($('q').value||'Show me the SASMASTER Parent Key');});
+
+$('scoopSB').onclick=()=>$('q').focus();
+
+const SECS=['s0','s1','s2','s2b','s3','s4'];
+document.querySelectorAll('#navdots a').forEach(a=>a.onclick=()=>{const el=$(SECS[+a.dataset.i]);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});
+function activeDot(){let idx=0;for(let i=0;i<SECS.length;i++){const el=$(SECS[i]);if(el&&el.getBoundingClientRect().top<=innerHeight*0.42)idx=i;}document.querySelectorAll('#navdots a').forEach((a,i)=>a.classList.toggle('on',i===idx));}
+addEventListener('scroll',activeDot,{passive:true});
+
+let condensed=false,condTimer=null;
+function condense(){if(condensed)return;condensed=true;document.querySelector('.hero').classList.add('cond');}
+$('q').addEventListener('focus',condense);
+
+async function intro(){$('boot').classList.remove('gone');$('app').classList.remove('show');$('initlog').classList.remove('show');await sleep(360);
+  await typew($('greet'),"Hi, I'm *Dr. Scoop. Let me wake up your data…",27);await sleep(200);
+  $('initlog').classList.add('show');await runLog();await sleep(420);
+  $('boot').classList.add('gone');await sleep(550);$('app').classList.add('show');
+  buildStream();startTakes();
+  $('navdots').classList.add('show');activeDot();condTimer=setTimeout(condense,15000);}
+$('skip').onclick=()=>{$('boot').classList.add('gone');$('app').classList.add('show');buildStream();startTakes();$('navdots').classList.add('show');activeDot();condTimer=setTimeout(condense,15000);};
+$('replay').onclick=intro;
+intro();
+</script>
+</body>
+</html>
