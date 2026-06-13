@@ -1824,6 +1824,13 @@ const status = {
   // Frontend reads d.follow_up_count — never derives its own count from kanban.
   follow_up_count: followUpResult.count,
   follow_up_items: followUpResult.items,
+
+  // ASK platform config — key flows from env, never committed to source
+  ask: {
+    url:     process.env.ASK_RAILWAY_URL || 'https://sasmaster-ask-production.up.railway.app',
+    key:     process.env.ASK_API_KEY     || '',  // set in .env locally; Railway injects in prod
+    enabled: Boolean(process.env.ASK_API_KEY),
+  },
 };
 
 fs.writeFileSync(OUT, JSON.stringify(status, null, 2));

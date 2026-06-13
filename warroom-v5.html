@@ -892,7 +892,13 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 
 <script>
 /* ============ CONFIG ============ */
-const ASK_URL = 'sasmaster-ask-v3.html';
+// ASK URL is built from status.json config (key flows through status, never hardcoded)
+let ASK_URL = 'sasmaster-ask-v3.html';
+function buildAskUrl(vm) {
+  const cfg = vm?.ask;
+  if (!cfg?.enabled || !cfg?.key) return 'sasmaster-ask-v3.html';
+  return `sasmaster-ask-v3.html?ask_key=${encodeURIComponent(cfg.key)}&ask_url=${encodeURIComponent(cfg.url)}`;
+}
 const API_BASE = '/api/command';
 function apiUrl(path){ return API_BASE + '?path=' + encodeURIComponent(path); }
 function authHeaders(){ const t=localStorage.getItem('wr-api-token')||''; return t?{'Authorization':'Bearer '+t}:{}; }
@@ -1183,7 +1189,7 @@ const orb=document.getElementById('scoopOrb'),bub=document.getElementById('scoop
 document.fonts.ready.then(()=>{setTimeout(()=>bub.classList.add('show'),900);setTimeout(()=>bub.classList.remove('show'),6500)});
 orb.addEventListener('mouseenter',()=>bub.classList.add('show'));
 orb.addEventListener('mouseleave',()=>bub.classList.remove('show'));
-orb.addEventListener('click',()=>{window.open(ASK_URL,'_blank')});
+orb.addEventListener('click',()=>{window.open(buildAskUrl(_lastVm),'_blank')});
 
 /* ============ renderHeader ============ */
 function renderHeader(vm){
