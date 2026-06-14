@@ -401,6 +401,28 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 .dd-blocked .nw-lbl{font-family:var(--sora);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--down);display:block;margin-bottom:5px}
 .dd-logbox{background:var(--dark2);color:#A0AEC2;font-family:var(--mono);font-size:11px;border-radius:9px;padding:10px 13px;line-height:1.65;max-height:110px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
 
+/* ── MEASUREMENT DRILL-DOWN (WARROOM-DRILLDOWN-MEASUREMENT-001) ── */
+.drilldown.wide{width:680px}
+.rt-header{background:var(--inset);border-radius:11px;padding:12px 14px;margin-bottom:14px}
+.rt-header .rth-label{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--dim);margin-bottom:3px}
+.rt-header .rth-coverage{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--accent)}
+.rt-header .rth-meta{font-size:11px;color:var(--mut);margin-top:4px}
+.rt-table-wrap{overflow-x:auto;border-radius:11px;border:1px solid var(--bd)}
+.rt-table{width:100%;border-collapse:collapse;font-size:11px}
+.rt-table th{font-family:var(--sora);font-size:8px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);padding:7px 9px;border-bottom:1px solid var(--bd);background:var(--surface2);text-align:left;white-space:nowrap}
+.rt-table td{padding:6px 9px;border-bottom:1px solid rgba(45,55,72,.4);vertical-align:top;line-height:1.4}
+.rt-table tr:last-child td{border-bottom:none}
+.rt-table tr.unprocessed td{opacity:.42}
+.rt-id{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink);white-space:nowrap}
+.rt-desc{font-size:10.5px;color:var(--mut)}
+.rt-type{font-family:var(--mono);font-size:9.5px;background:rgba(124,92,252,.1);color:var(--violet);padding:2px 5px;border-radius:4px;white-space:nowrap}
+.rt-date{font-family:var(--mono);font-size:10px;color:var(--mut);white-space:nowrap}
+.rt-count{font-family:var(--mono);font-size:10px;color:var(--ink);white-space:nowrap}
+.rt-note{font-size:9px;color:var(--warn);margin-top:1px}
+.rt-sep{background:rgba(245,158,11,.05)}
+.rt-sep td{padding:5px 9px;font-family:var(--sora);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,158,11,.7);border-bottom:1px solid rgba(245,158,11,.15)!important}
+.rt-extra{margin-top:12px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:9px;padding:10px 13px;font-size:11.5px;color:var(--warn)}
+
 /* guard tab error badges (Phase C) */
 .tab .g-err{background:var(--down);color:#fff;font-family:var(--mono);font-size:7.5px;font-weight:700;border-radius:5px;padding:1.5px 5px;margin-left:4px;vertical-align:middle;letter-spacing:.04em}
 
@@ -935,13 +957,14 @@ function openDrillDown(type, data){
 function closeDrillDown(){
   const panel=document.getElementById('drill-panel');
   const overlay=document.getElementById('dd-overlay');
-  if(panel) panel.classList.remove('open');
+  if(panel){ panel.classList.remove('open'); panel.classList.remove('wide'); }
   if(overlay) overlay.classList.remove('open');
 }
 function buildDrillBody(type, d){
   if(type==='agent') return buildAgentDrill(d);
   if(type==='data') return buildDataDrill(d);
   if(type==='queue') return buildQueueDrill(d);
+  if(type==='measurement') return buildMeasurementDrill(d._src);
   return '<div style="color:var(--dim);font-size:13px">No detail available.</div>';
 }
 function buildAgentDrill(a){
@@ -1035,6 +1058,96 @@ function buildQueueDrill(c){
     <div class="dd-sowhat">${isBlocked?'This task is <b>blocked</b> — it cannot proceed until the blocker is resolved.':'Priority: <b>'+priority+'</b> · Tag: <b>'+tag+'</b>'}</div>
   </div>
   <div class="${isBlocked?'dd-blocked':'dd-nowwhat'}">${nowWhat}</div>`;
+}
+
+/* ============ MEASUREMENT DRILL-DOWN (WARROOM-DRILLDOWN-MEASUREMENT-001) ============ */
+let _nielsenManifest=null,_barbManifest=null;
+
+async function openMeasurementDrill(measType, schemaKey, title){
+  // lazy-fetch manifest
+  if(measType==='nielsen'&&!_nielsenManifest){
+    try{ const r=await fetch('data/nielsen_recordtypes.json?t='+Date.now()); _nielsenManifest=await r.json(); }
+    catch(e){ console.warn('[measurement] nielsen manifest fetch failed',e); }
+  }
+  if(measType==='barb'&&!_barbManifest){
+    try{ const r=await fetch('data/barb_recordtypes.json?t='+Date.now()); _barbManifest=await r.json(); }
+    catch(e){ console.warn('[measurement] barb manifest fetch failed',e); }
+  }
+  const manifest=measType==='nielsen'?_nielsenManifest:_barbManifest;
+  const src=manifest&&manifest.sources?manifest.sources[schemaKey]:null;
+
+  const panel=document.getElementById('drill-panel');
+  const overlay=document.getElementById('dd-overlay');
+  if(!panel) return;
+  panel.classList.add('wide');
+  document.getElementById('dd-type-label').textContent=measType.toUpperCase();
+  document.getElementById('dd-title').textContent=title;
+  document.getElementById('dd-body').innerHTML=buildMeasurementDrill(src,title);
+  panel.classList.add('open');
+  overlay.classList.add('open');
+}
+
+function buildMeasurementDrill(src,fallbackTitle){
+  if(!src||!src.record_types||!src.record_types.length){
+    return `<div style="padding:20px;color:var(--dim);font-size:13px;line-height:1.6">
+      <b style="color:var(--ink)">${fallbackTitle||'Measurement Data'}</b><br><br>
+      Manifest not populated yet. Run <span style="font-family:var(--mono);color:var(--accent)">scripts/generate_recordtypes_manifest.py</span> to write record-type stats from the Databricks pipeline.
+    </div>`;
+  }
+
+  const rts=src.record_types;
+  const processed=rts.filter(r=>r.processed);
+  const notIngested=rts.filter(r=>!r.processed&&r.defined_not_ingested);
+  const definedPending=rts.filter(r=>!r.processed&&!r.defined_not_ingested);
+  const totalPresent=processed.length;
+  const totalDefined=rts.length;
+  const minDate=src.overall_min||'—';
+  const maxDate=src.overall_max||'—';
+  const lastRun=src.last_processed||'—';
+
+  const header=`<div class="rt-header">
+    <div class="rth-label">${src.s3_prefix||src.label||''}</div>
+    <div class="rth-coverage">${minDate} → ${maxDate}</div>
+    <div class="rth-meta">${totalPresent} present / ${totalDefined} defined · ${src.note||''} · last run ${lastRun}</div>
+  </div>`;
+
+  function rtRow(rt,unproc){
+    const cls=unproc?'unprocessed':'';
+    const minD=rt.min_date?rt.min_date.slice(0,10):'—';
+    const maxD=rt.max_date?rt.max_date.slice(0,10):'—';
+    const cnt=rt.row_count!=null?fmtN(rt.row_count):'—';
+    const lp=rt.last_processed?rt.last_processed.slice(0,10):'—';
+    const noteHtml=rt.note?`<div class="rt-note">⚡ ${rt.note}</div>`:'';
+    const statusIcon=rt.processed?'<span style="color:var(--up)">✅</span>':'<span style="color:var(--dim)">⚪</span>';
+    return `<tr class="${cls}">
+      <td><div class="rt-id">${rt.id}</div>${noteHtml}</td>
+      <td><div class="rt-desc">${rt.description||'—'}</div></td>
+      <td><span class="rt-type">${rt.file_type||'—'}</span></td>
+      <td style="text-align:center">${statusIcon}</td>
+      <td><span class="rt-date">${minD}</span></td>
+      <td><span class="rt-date">${maxD}</span></td>
+      <td><span class="rt-count">${cnt}</span></td>
+      <td><span class="rt-date">${lp}</span></td>
+    </tr>`;
+  }
+  const sepRow=label=>`<tr class="rt-sep"><td colspan="8">${label}</td></tr>`;
+
+  let rows=processed.map(r=>rtRow(r,false)).join('');
+  if(definedPending.length){rows+=sepRow('DEFINED — INGESTION PENDING');rows+=definedPending.map(r=>rtRow(r,true)).join('');}
+  if(notIngested.length){rows+=sepRow('CATALOG DEFINED — NOT INGESTED');rows+=notIngested.map(r=>rtRow(r,true)).join('');}
+
+  const table=`<div class="rt-table-wrap"><table class="rt-table">
+    <thead><tr>
+      <th>Record Type</th><th>Description</th><th>File Type</th>
+      <th>Status</th><th>Min Date</th><th>Max Date</th><th>Rows</th><th>Last Run</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+
+  const extra=src.discovered_additional?`<div class="rt-extra">⚡ ${src.discovered_additional} additional table${src.discovered_additional!==1?'s':''} schema-discovered from S3. ${src.note_additional||'Send catalog to curate descriptions.'}</div>`:'';
+  const openItem=src.open_item?`<div class="rt-extra" style="margin-top:8px;background:rgba(14,165,233,.06);border-color:rgba(14,165,233,.25);color:var(--accent)">📋 Open item: ${src.open_item}</div>`:'';
+
+  return header+table+extra+openItem;
 }
 
 /* ============ MONKEY LOCAL-REF HEALTH (Phase E) ============ */
@@ -1822,24 +1935,47 @@ function renderFinance(vm){
 
 /* ============ DATA: static sections preserved ============ */
 function renderDataStatic(){
+  // Nielsen cards — AMRLD + MIT get measurement drill-down; Ad Intel + MRI get generic
   const NLS=[
-   {ic:'📊',n:'AMRLD',gb:'~633 GB',d:'~100K files · 10 sub-tables · REC 20/24/25/26/30/36 · 12/31/2012 – 06/08/2026',bl:'COMPLETED',extra:'<span class="badge b-warn">tiny-files</span>'},
-   {ic:'📺',n:'MIT',gb:'14.8 GB',d:'716 files · 2 feeds (03h + 05p) · 09/01/2014 – 06/09/2026 · <span style="color:var(--down)">⚑ Broadcast TP gap: cuts 11/30/2022; Cable = current</span>',bl:'COMPLETED',extra:''},
-   {ic:'📡',n:'Ad Intel',gb:'22.0 GB',d:'1,750 files · 38 tables',bl:'COMPLETED',extra:''},
-   {ic:'👥',n:'MRI',gb:'4.8 GB',d:'412 files · 29 tables',bl:'COMPLETED',extra:''}];
+   {ic:'📊',n:'AMRLD',gb:'~633 GB',d:'~100K files · 10 sub-tables · REC 20/24/25/26/30/36 · 12/31/2012 – 06/08/2026',bl:'COMPLETED',extra:'<span class="badge b-warn">tiny-files</span>',measType:'nielsen',schemaKey:'amrld'},
+   {ic:'📺',n:'MIT',gb:'14.8 GB',d:'716 files · 2 feeds (03h + 05p) · 09/01/2014 – 06/09/2026 · <span style="color:var(--down)">⚑ Broadcast TP gap: cuts 11/30/2022; Cable = current</span>',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'mit'},
+   {ic:'📡',n:'Ad Intel',gb:'22.0 GB',d:'1,750 files · 38 tables',bl:'COMPLETED',extra:'',measType:null},
+   {ic:'👥',n:'MRI',gb:'4.8 GB',d:'412 files · 29 tables',bl:'COMPLETED',extra:'',measType:null}];
   const ng=document.getElementById('nielsengrid');
-  if(ng) ng.innerHTML=NLS.map(d=>`
-   <div class="ds"><div class="dh"><span>${d.ic}</span><span class="p">${d.n}</span><span class="badge b-sec">${d.bl}</span>${d.extra}</div>
-   <div class="gb">${d.gb}</div><div class="note" style="border:none;padding-top:4px;margin-top:4px">${d.d}<br><span style="color:var(--accent);cursor:pointer">▾ drill-down</span></div></div>`).join('');
+  if(ng){
+    ng.innerHTML=NLS.map((d,i)=>`
+     <div class="ds" data-nls-idx="${i}" style="cursor:pointer">
+       <div class="dh"><span>${d.ic}</span><span class="p">${d.n}</span><span class="badge b-sec">${d.bl}</span>${d.extra}</div>
+       <div class="gb">${d.gb}</div>
+       <div class="note" style="border:none;padding-top:4px;margin-top:4px">${d.d}<br><span style="color:var(--accent)">▾ drill-down</span></div>
+     </div>`).join('');
+    ng.querySelectorAll('.ds[data-nls-idx]').forEach(card=>{
+      const d=NLS[parseInt(card.dataset.nlsIdx)];
+      card.addEventListener('click',()=>{
+        if(d.measType) openMeasurementDrill(d.measType,d.schemaKey,d.n);
+        else openDrillDown('data',{prefix:d.n,size_gb:parseFloat(d.gb)||null,status:'live',_title:d.n});
+      });
+    });
+  }
 
+  // BARB cards — all get measurement drill-down
   const BARB=[
-   {ic:'📒',n:'BARB Reference',d:'barb_ref_dev · 37 dimension tables · AP01–AP28 appendix reference tables'},
-   {ic:'🧪',n:'BARB ETL QA',d:'barb_etl_qa · 102 tables · 2018-01-01 – 2019-09-18 · SRC_FILE_DATE'},
-   {ic:'🛠',n:'BARB ETL Dev',d:'barb_etl_dev · 1 table · 2018-01-01 – 2019-09-18 (confirmed)'}];
+   {ic:'📒',n:'BARB Reference',d:'barb_ref_dev · 37 dimension tables · AP01–AP28 appendix reference tables',schemaKey:'barb_ref_dev'},
+   {ic:'🧪',n:'BARB ETL QA',d:'barb_etl_qa · 102 tables · 2018-01-01 – 2019-09-18 · SRC_FILE_DATE',schemaKey:'barb_etl_qa'},
+   {ic:'🛠',n:'BARB ETL Dev',d:'barb_etl_dev · 1 table · 2018-01-01 – 2019-09-18 (confirmed)',schemaKey:'barb_etl_dev'}];
   const bg=document.getElementById('barbgrid');
-  if(bg) bg.innerHTML=BARB.map(d=>`
-   <div class="ds"><div class="dh"><span>${d.ic}</span><span class="p">${d.n}</span><span class="badge b-ok">DONE</span></div>
-   <div class="gb">— GB</div><div class="note" style="border:none;padding-top:4px;margin-top:4px">${d.d}<br><span style="color:var(--accent);cursor:pointer">▾ drill-down</span></div></div>`).join('');
+  if(bg){
+    bg.innerHTML=BARB.map((d,i)=>`
+     <div class="ds" data-barb-idx="${i}" style="cursor:pointer">
+       <div class="dh"><span>${d.ic}</span><span class="p">${d.n}</span><span class="badge b-ok">DONE</span></div>
+       <div class="gb">— GB</div>
+       <div class="note" style="border:none;padding-top:4px;margin-top:4px">${d.d}<br><span style="color:var(--accent)">▾ drill-down</span></div>
+     </div>`).join('');
+    bg.querySelectorAll('.ds[data-barb-idx]').forEach(card=>{
+      const d=BARB[parseInt(card.dataset.barbIdx)];
+      card.addEventListener('click',()=>openMeasurementDrill('barb',d.schemaKey,d.n));
+    });
+  }
 }
 
 /* ============ FINANCIAL INTEL table (static) ============ */
