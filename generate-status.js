@@ -354,7 +354,7 @@ function parseS3Inventory() {
 function parseS3EntityCounts() {
   // Try S3 primary first
   try {
-    const raw = safeExec('aws s3 cp s3://sasmaster-2026/warroom/counts.json - 2>/dev/null');
+    const raw = safeExec('/opt/homebrew/bin/aws s3 cp s3://sasmaster-2026/warroom/counts.json - 2>/dev/null');
     if (raw) return JSON.parse(raw);
   } catch {}
   // Local fallback
@@ -414,7 +414,7 @@ function getS3Freshness(prefixes = []) {
   for (const prefix of prefixes) {
     try {
       const out = execSync(
-        `aws s3 ls s3://sasmaster-2026/${prefix} --recursive | sort | tail -1`,
+        `/opt/homebrew/bin/aws s3 ls s3://sasmaster-2026/${prefix} --recursive | sort | tail -1`,
         { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], timeout: 8000 }
       );
       const match = out.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/);
@@ -1838,13 +1838,13 @@ console.log(`[generate-status] wrote status.json — ${new Date().toISOString()}
 
 // Push to S3 — two paths so Railway heartbeat can promote without cross-prefix IAM
 try {
-  execSync(`aws s3 cp "${OUT}" s3://sasmaster-2026/status/status.json --content-type application/json`, { stdio: 'pipe' });
+  execSync(`/opt/homebrew/bin/aws s3 cp "${OUT}" s3://sasmaster-2026/status/status.json --content-type application/json`, { stdio: 'pipe' });
   console.log(`[generate-status] pushed to s3://sasmaster-2026/status/status.json`);
 } catch (e) {
   console.warn(`[generate-status] S3 push failed (non-fatal): ${e.message}`);
 }
 try {
-  execSync(`aws s3 cp "${OUT}" s3://sasmaster-2026/cache/api/status.json --content-type application/json`, { stdio: 'pipe' });
+  execSync(`/opt/homebrew/bin/aws s3 cp "${OUT}" s3://sasmaster-2026/cache/api/status.json --content-type application/json`, { stdio: 'pipe' });
   console.log(`[generate-status] pushed to s3://sasmaster-2026/cache/api/status.json`);
 } catch (e) {
   console.warn(`[generate-status] S3 cache/api push failed (non-fatal): ${e.message}`);
@@ -1856,7 +1856,7 @@ const MANIFEST_SRC = path.join(__dirname, 'resources', 'skills-manifest.json');
 if (fs.existsSync(MANIFEST_SRC)) {
   try {
     execSync(
-      `aws s3 cp "${MANIFEST_SRC}" s3://sasmaster-public/skills-manifest.json --content-type application/json`,
+      `/opt/homebrew/bin/aws s3 cp "${MANIFEST_SRC}" s3://sasmaster-public/skills-manifest.json --content-type application/json`,
       { stdio: 'pipe' }
     );
     console.log(`[generate-status] pushed skills manifest to s3://sasmaster-public/skills-manifest.json`);
