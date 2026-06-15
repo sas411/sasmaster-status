@@ -947,6 +947,9 @@ a{color:inherit}
 .scoop-ctx.has-ctx{opacity:1;animation:ctxpulse 2s ease}
 @keyframes ctxpulse{0%{background:var(--abg);border-color:var(--abd)}100%{background:var(--pbg);border-color:var(--pbd)}}
 
+/* KPI fold toggle — button only visible on mobile */
+.kpi-more-btn{display:none}
+
 /* ══ RESPONSIVE — MOBILE + TABLET ══ */
 @media(max-width:1200px){
   .agent-full-grid{grid-template-columns:1fr 1fr}
@@ -988,6 +991,49 @@ a{color:inherit}
   .tab-btn{padding:0 8px;font-size:9.5px;white-space:nowrap}
   .modal-sm{width:calc(100vw - 24px)}
   .diag-panel{width:calc(100vw - 24px)}
+}
+
+/* ══ MOBILE ≤600px — WARROOM-MOBILE-RESPONSIVE-001 ══ */
+@media(max-width:600px){
+  /* P1 — Kill overflow */
+  body{overflow-x:hidden;max-width:100vw}
+  .htime{min-width:auto}
+  .htime .tm{font-size:14px}
+  /* Modals: overlay uses flex justify-content:center so width constraint is enough */
+  .modal-sm,.modal-lg,.diag-panel,.doc-modal{width:calc(100vw - 24px);max-width:calc(100vw - 24px)}
+  /* Diagnostic drawer: shrink to fit, keep slide-in working */
+  #diagDrawer{width:calc(100vw - 12px) !important;right:calc(12px - 100vw) !important}
+  #diagDrawer.open{right:0 !important}
+  /* Timeline: allow horizontal scroll within, don't force page-level overflow */
+  .tl-track{min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  /* Kanban: single column on mobile */
+  .kanban-board{grid-template-columns:1fr !important}
+  /* Tab row: scrollable, edges don't clip */
+  .tab-nav{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 6px}
+  .tab-nav::-webkit-scrollbar{display:none}
+  .tab-btn{padding:0 8px;font-size:9.5px;white-space:nowrap;flex-shrink:0}
+  /* P2 — KPI dense 2-col rail (~56px cells) */
+  .kpi-strip{grid-template-columns:repeat(2,1fr);padding:5px 8px;gap:4px}
+  /* Reset nth-child hide rules from larger breakpoints for the 4 pinned cards */
+  .kpi-strip .kpi-card{display:block;padding:5px 7px;min-height:0}
+  .kpi-val{font-size:clamp(20px,6vw,26px)}
+  .kpi-lbl{font-size:7px;letter-spacing:.1em}
+  .kpi-sub{font-size:8px}
+  /* P3 — secondary KPIs hidden by default; revealed by toggle */
+  .kpi-secondary{display:none !important}
+  .kpi-strip.kpi-more-open .kpi-secondary{display:block !important}
+  /* Toggle button */
+  .kpi-more-btn{
+    display:flex;grid-column:1/-1;justify-content:center;align-items:center;
+    background:none;border:1px dashed var(--border);border-radius:var(--r);
+    padding:4px 0;font-size:10px;font-weight:600;color:var(--muted);
+    cursor:pointer;width:100%;font-family:var(--sans);letter-spacing:.3px;
+    transition:border-color .15s,color .15s
+  }
+  .kpi-more-btn:hover{border-color:var(--acc-bd);color:var(--acc)}
+  /* P4 — bottom bar slim line */
+  .bottom-bar{height:20px;padding:0 10px}
+  .bottom-bar .bb-right{display:none}
 }
 
 .kb-sortable-ghost{opacity:.35;background:rgba(96,165,250,.15);border:1px dashed #60a5fa !important}
@@ -1051,12 +1097,12 @@ a{color:inherit}
     <div class="kpi-val ok" id="kpiAgents">--/--</div>
     <div class="kpi-sub" id="kpiAgentsSub">loading...</div>
   </div>
-  <div class="kpi-card" onclick="switchTab('data')">
+  <div class="kpi-card kpi-secondary" onclick="switchTab('data')">
     <div class="kpi-lbl">S3 LAKE</div>
     <div class="kpi-val" id="kpiS3">--</div>
     <div class="kpi-sub" id="kpiS3Sub">GB total</div>
   </div>
-  <div class="kpi-card" onclick="switchTab('queue')">
+  <div class="kpi-card kpi-secondary" onclick="switchTab('queue')">
     <div class="kpi-lbl">FOLLOW UP ITEMS</div>
     <div class="kpi-val" id="kpiImdb">--</div>
     <div class="kpi-sub" id="kpiImdbSub">needing attention</div>
@@ -1066,7 +1112,7 @@ a{color:inherit}
     <div class="kpi-val" id="kpiParent">--</div>
     <div class="kpi-sub" id="kpiParentSub">HIGH priority</div>
   </div>
-  <div class="kpi-card" onclick="switchTab('queue')">
+  <div class="kpi-card kpi-secondary" onclick="switchTab('queue')">
     <div class="kpi-lbl">DEPLOYED TODAY</div>
     <div class="kpi-val" id="kpiTmdb">--</div>
     <div class="kpi-sub" id="kpiTmdbSub">past 24 hours</div>
@@ -1081,6 +1127,7 @@ a{color:inherit}
     <div class="kpi-val" id="kpiBless">--</div>
     <div class="kpi-sub" id="kpiBlessSub">pending decisions</div>
   </div>
+  <button class="kpi-more-btn" id="kpiMoreBtn" onclick="(function(b){var s=document.getElementById('kpiStrip');var open=s.classList.toggle('kpi-more-open');b.textContent=open?'— less stats':'+ 3 more stats'})(this)">+ 3 more stats</button>
 </div>
 
 <!-- FETCH ERROR BANNER -->
