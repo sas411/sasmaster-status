@@ -592,30 +592,28 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
     <div class="sec-h"><h2>BARB datasets</h2><span>UK Broadcasters' Audience Research Board · RSG S3 external tables · all 4 batches complete · 2026-06-12</span></div>
     <div class="dsgrid" style="grid-template-columns:repeat(3,1fr)" id="barbgrid"></div>
 
-    <div class="sec-h"><h2>Data health</h2><span>run 2026-06-11</span><span class="badge b-ok" style="margin-left:auto">GATE PASS · 11 assertions</span></div>
+    <div class="sec-h"><h2>Data health</h2><span id="data-health-run">—</span><span class="badge b-ok" style="margin-left:auto">GATE PASS · 11 assertions</span></div>
     <div class="panel">
       <div class="freshchips">
-        <span class="fchip"><span class="dot dg"></span>GN_PARENT_KEY_MASTER · FRESH</span>
         <span class="fchip"><span class="dot dg"></span>IMDB · FRESH</span>
         <span class="fchip"><span class="dot dg"></span>TMDB · FRESH</span>
         <span class="fchip"><span class="dot dg"></span>EIDR · FRESH</span>
-        <span class="mono" style="font-size:11px;color:var(--down)">no_eidr: 100.0%&nbsp; no_gn: 99.1%</span>
-        <span class="mono" style="font-size:11px;color:var(--mut)">· 6K held / 6K attempted&nbsp; no_imdb: 32.8%</span>
+        <span class="mono" id="eidr-coverage-live" style="font-size:11px;color:var(--mut)">—% EIDR coverage</span>
       </div>
-      <div class="sec-h" style="margin-top:14px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">PRODUCTION SPINE — PARENT_KEYS/</span><span class="badge b-ok">LIVE · MATCHES PARENT_KEYS CARD</span></div>
+      <div class="sec-h" style="margin-top:14px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">IMDB UNIVERSE — imdb/</span><span class="badge b-ok">LIVE</span></div>
       <div class="spine">
-        <div class="srow"><span class="n">TV Episodes</span><div class="sbar"><i style="width:100%;background:var(--violet)"></i></div><span class="v">10,050,000</span></div>
-        <div class="srow"><span class="n">Movies</span><div class="sbar"><i style="width:9%;background:var(--cyan)"></i></div><span class="v">902,937</span></div>
-        <div class="srow"><span class="n">TV Series</span><div class="sbar"><i style="width:3.7%;background:var(--warn)"></i></div><span class="v">370,728</span></div>
+        <div class="srow"><span class="n">TV Episodes</span><div class="sbar"><i id="spine-ep-bar" style="width:100%;background:var(--violet)"></i></div><span class="v" id="spine-ep-val">—</span></div>
+        <div class="srow"><span class="n">Movies</span><div class="sbar"><i id="spine-mv-bar" style="width:9%;background:var(--cyan)"></i></div><span class="v" id="spine-mv-val">—</span></div>
+        <div class="srow"><span class="n">TV Series</span><div class="sbar"><i id="spine-tv-bar" style="width:3.7%;background:var(--warn)"></i></div><span class="v" id="spine-tv-val">—</span></div>
       </div>
-      <div style="font-size:11px;color:var(--dim);margin-top:6px">Certified, minted UUIDv5 keys. Bar = registry cardinality. The number the rest of the platform builds on.</div>
+      <div style="font-size:11px;color:var(--dim);margin-top:6px">IMDB reference universe. Bar = relative cardinality. Parent key spine total: <b id="pk-total-val">—</b> minted UUIDv5 keys.</div>
 
-      <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">MATCH CONFIDENCE — WORKED EXAMPLES</span></div>
+      <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">MATCH CONFIDENCE — TIER THRESHOLDS</span></div>
       <table class="dt">
-        <tr><th>Signal combo</th><th>Score</th><th>Band</th></tr>
-        <tr><td class="mono">eidr alone</td><td class="mono">0.95</td><td><span class="badge b-ok">Certified</span></td></tr>
-        <tr><td class="mono">imdb + eidr + tmdb</td><td class="mono">1.00</td><td><span class="badge b-ok">Certified</span></td></tr>
-        <tr><td class="mono">imdb + eidr</td><td class="mono">1.00</td><td><span class="badge b-ok">Certified</span></td></tr>
+        <tr><th>Signal combo</th><th>Score</th><th>Tier</th></tr>
+        <tr><td class="mono">imdb + eidr + tmdb + full name</td><td class="mono">100</td><td><span class="badge b-ok">GOLD</span></td></tr>
+        <tr><td class="mono">imdb + eidr (any combo ≥ 65)</td><td class="mono">65</td><td><span class="badge b-warn">SILVER</span></td></tr>
+        <tr><td class="mono">imdb only (≥ 30)</td><td class="mono">30</td><td><span class="badge b-sec">BRONZE</span></td></tr>
       </table>
     </div>
   </section>
@@ -1243,6 +1241,9 @@ function adapt(d){
       buildEventsToday:d.kpis&&d.kpis.build_events_today!=null?d.kpis.build_events_today:0,
       blessQueue:queue.high!=null?queue.high:0,
       nielsen:getNielsenDays(),
+      parent_key_rows:d.kpis?.parent_key_rows??null,
+      eidr_coverage_pct:d.kpis?.eidr_coverage_pct??null,
+      eidr_matched_rows:d.kpis?.eidr_matched_rows??null,
       /* ONE-SOURCE-001: mtd_cost_usd is the authority; fall back to total only when mtd absent */
       costMtd:d.cost_summary?.mtd_cost_usd??d.cost_summary?.total_cost_usd??null
     },
@@ -1565,9 +1566,19 @@ function viewLogs(name){
 
 /* ============ renderData ============ */
 function renderData(vm){
+  // stale legacy paths — removed from live grid
+  const EXCLUDE_PREFIXES=['imdb_prd/','progress/'];
+  // near-empty feeds demoted to static upcoming section
+  const UPCOMING_PREFIXES=['gracenote/','fyi/','opus/'];
+
   const dsgrid=document.getElementById('dsgrid');
   if(dsgrid&&vm.s3prefixes.length>0){
-    const nonNielsen=vm.s3prefixes.filter(p=>!p.prefix.startsWith('nielsen/amrld')&&!p.prefix.startsWith('nielsen/')&&!p.prefix.startsWith('barb'));
+    const nonNielsen=vm.s3prefixes.filter(p=>
+      !p.prefix.startsWith('nielsen/')&&
+      !p.prefix.startsWith('barb')&&
+      !EXCLUDE_PREFIXES.includes(p.prefix)&&
+      !UPCOMING_PREFIXES.includes(p.prefix)
+    );
     const _prefixes=nonNielsen;
     dsgrid.innerHTML=nonNielsen.map((d,idx)=>{
       const statusClass=d.status==='live'?'b-ok':d.status==='running'?'b-run':d.status==='error'?'b-err':'b-warn';
@@ -1581,13 +1592,67 @@ function renderData(vm){
         <div class="note">${entStr?entStr+' · ':''}${d.note||''}<br><span style="color:var(--accent);font-size:11px">▾ drill-down</span></div>
       </div>`;
     }).join('');
-    // wire drill-down (Phase A)
     dsgrid.querySelectorAll('.ds[data-prefix-idx]').forEach(card=>{
       card.addEventListener('click',()=>{
         const d=_prefixes[parseInt(card.dataset.prefixIdx)];
         if(d) openDrillDown('data',{...d,_title:d.prefix||d.path||'Prefix'});
       });
     });
+
+    // Upcoming (demoted) feeds — render once, static
+    let upcoming=document.getElementById('upcoming-feeds');
+    if(!upcoming){
+      upcoming=document.createElement('div');
+      upcoming.id='upcoming-feeds';
+      upcoming.style.cssText='margin-top:14px';
+      dsgrid.parentNode.insertBefore(upcoming,dsgrid.nextSibling);
+    }
+    const upFeeds=vm.s3prefixes.filter(p=>UPCOMING_PREFIXES.includes(p.prefix));
+    if(upFeeds.length){
+      upcoming.innerHTML=`<div class="sec-h" style="margin-top:4px"><h2>Upcoming datasets</h2><span>pending ingest · static</span></div>
+      <div class="dsgrid">${upFeeds.map(d=>`
+        <div class="ds">
+          <div class="dh"><span class="p">${d.prefix}</span><span class="badge b-warn">PENDING</span></div>
+          <div class="gb">${d.size_gb!=null&&d.size_gb>0?d.size_gb.toFixed(2)+' GB':'— GB'}</div>
+          <div class="note">${d.note||'Ingest not yet started'}</div>
+        </div>`).join('')}</div>`;
+    }
+  }
+
+  // Wire spine entity counts from imdb/ reference universe
+  const imdbEntry=vm.s3prefixes.find(p=>p.prefix==='imdb/');
+  if(imdbEntry&&imdbEntry.entities){
+    const {movies,tv_series,episodes}=imdbEntry.entities;
+    const maxEnt=Math.max(movies||0,tv_series||0,episodes||0);
+    const pct=v=>maxEnt?Math.max(1,Math.round((v/maxEnt)*100))+'%':'100%';
+    const epV=document.getElementById('spine-ep-val');
+    const mvV=document.getElementById('spine-mv-val');
+    const tvV=document.getElementById('spine-tv-val');
+    const epB=document.getElementById('spine-ep-bar');
+    const mvB=document.getElementById('spine-mv-bar');
+    const tvB=document.getElementById('spine-tv-bar');
+    if(epV&&episodes){epV.textContent=fmtN(episodes);if(epB)epB.style.width=pct(episodes);}
+    if(mvV&&movies){mvV.textContent=fmtN(movies);if(mvB)mvB.style.width=pct(movies);}
+    if(tvV&&tv_series){tvV.textContent=fmtN(tv_series);if(tvB)tvB.style.width=pct(tv_series);}
+  }
+
+  // Wire live EIDR coverage from kpis
+  const eidrEl=document.getElementById('eidr-coverage-live');
+  if(eidrEl&&vm.kpis&&vm.kpis.eidr_coverage_pct!=null){
+    eidrEl.textContent=vm.kpis.eidr_coverage_pct.toFixed(1)+'% EIDR coverage · '+fmtN(vm.kpis.eidr_matched_rows||0)+' matched';
+  }
+
+  // Wire parent key total
+  const pkEl=document.getElementById('pk-total-val');
+  if(pkEl&&vm.kpis&&vm.kpis.parent_key_rows){
+    pkEl.textContent=fmtN(vm.kpis.parent_key_rows);
+  }
+
+  // Wire data health run date
+  const runEl=document.getElementById('data-health-run');
+  if(runEl&&vm.generatedAt){
+    const d=new Date(vm.generatedAt);
+    runEl.textContent='updated '+d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   }
 }
 
