@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-14",
+  "generated": "2026-06-15T00:00:00Z",
   "generated_by": "WARROOM-DRILLDOWN-MEASUREMENT-001",
   "sources": {
     "amrld": {
@@ -8,9 +8,9 @@
       "description": "Audience Measurement Respondent-Level Data (V3.23)",
       "overall_min": "2012-12-31",
       "overall_max": "2026-06-08",
-      "last_processed": "2026-05-26",
+      "last_processed": "2026-06-10",
       "total_rows": null,
-      "note": "~633 GB · ~100K files",
+      "note": "~633 GB \u00b7 ~100K files",
       "record_types": [
         {
           "id": "REC20",
@@ -61,7 +61,7 @@
           "max_date": "2026-05-20",
           "row_count": 50000,
           "last_processed": "2026-05-26",
-          "note": "sample extract — full range 2012–2026"
+          "note": "sample extract \u2014 full range 2012\u20132026"
         },
         {
           "id": "REC36",
@@ -72,7 +72,7 @@
           "max_date": "2026-05-20",
           "row_count": 50000,
           "last_processed": "2026-05-26",
-          "note": "sample extract — full range 2012–2026"
+          "note": "sample extract \u2014 full range 2012\u20132026"
         },
         {
           "id": "REC40",
@@ -127,7 +127,7 @@
         },
         {
           "id": "REC56_OBT",
-          "description": "Time-period viewing (OBT — on-box tuning)",
+          "description": "Time-period viewing (OBT \u2014 on-box tuning)",
           "file_type": "OBT",
           "processed": true,
           "min_date": "2026-05-18",
@@ -305,12 +305,12 @@
     "mit": {
       "label": "MIT (NHI)",
       "s3_prefix": "s3://sasmaster-2026/nielsen/mit/",
-      "description": "Nielsen Household Index — Minute-by-minute Information Tapes (NHI family)",
+      "description": "Nielsen Household Index \u2014 Minute-by-minute Information Tapes (NHI family)",
       "overall_min": "2014-09-01",
       "overall_max": "2026-06-09",
-      "last_processed": "2026-05-26",
+      "last_processed": "2026-06-10",
       "total_rows": null,
-      "note": "14.8 GB · 716 files · 2 feeds (03h + 05p)",
+      "note": "14.8 GB \u00b7 716 files \u00b7 2 feeds (03h + 05p)",
       "record_types": [
         {
           "id": "NHI_MIT_00",
@@ -324,18 +324,18 @@
         },
         {
           "id": "NHI_MIT_01_UES_H",
-          "description": "Universe estimates — Household (HUT base)",
+          "description": "Universe estimates \u2014 Household (HUT base)",
           "file_type": "H",
           "processed": false,
           "min_date": null,
           "max_date": null,
           "row_count": null,
           "last_processed": null,
-          "note": "defined — check feed availability"
+          "note": "defined \u2014 check feed availability"
         },
         {
           "id": "NHI_MIT_01_UES_P",
-          "description": "Universe estimates — Demo (PUT base)",
+          "description": "Universe estimates \u2014 Demo (PUT base)",
           "file_type": "P",
           "processed": true,
           "min_date": "2014-09-01",
@@ -345,7 +345,7 @@
         },
         {
           "id": "NHI_MIT_02_INT_H",
-          "description": "Sample / Intab counts — Household",
+          "description": "Sample / Intab counts \u2014 Household",
           "file_type": "H",
           "processed": true,
           "min_date": "2014-09-01",
@@ -355,7 +355,7 @@
         },
         {
           "id": "NHI_MIT_02_INT_P",
-          "description": "Sample / Intab counts — Demo",
+          "description": "Sample / Intab counts \u2014 Demo",
           "file_type": "P",
           "processed": true,
           "min_date": "2014-09-01",
@@ -365,7 +365,7 @@
         },
         {
           "id": "NHI_MIT_03_TVU_H",
-          "description": "TV usage — HUT (Households Using Television)",
+          "description": "TV usage \u2014 HUT (Households Using Television)",
           "file_type": "H",
           "processed": true,
           "min_date": "2014-09-01",
@@ -375,7 +375,7 @@
         },
         {
           "id": "NHI_MIT_03_TVU_P",
-          "description": "TV usage — PUT (Persons Using Television)",
+          "description": "TV usage \u2014 PUT (Persons Using Television)",
           "file_type": "P",
           "processed": true,
           "min_date": "2014-09-01",
@@ -385,7 +385,7 @@
         },
         {
           "id": "NHI_MIT_04_D",
-          "description": "Total program record — HH AA + metadata (D)",
+          "description": "Total program record \u2014 HH AA + metadata (D)",
           "file_type": "D",
           "processed": true,
           "min_date": "2014-09-01",
@@ -435,7 +435,7 @@
         },
         {
           "id": "NHI_MIT_ACM_06_C",
-          "description": "Commercial audience (C3) — HH",
+          "description": "Commercial audience (C3) \u2014 HH",
           "file_type": "C",
           "processed": false,
           "min_date": null,
@@ -446,7 +446,7 @@
         },
         {
           "id": "NHI_MIT_ACM_06_P",
-          "description": "Commercial audience (C3) — Demo",
+          "description": "Commercial audience (C3) \u2014 Demo",
           "file_type": "P",
           "processed": false,
           "min_date": null,
@@ -464,7 +464,127 @@
           "max_date": null,
           "row_count": null,
           "last_processed": "2026-05-26",
-          "note": "reference table — no date range"
+          "note": "reference table \u2014 no date range"
+        }
+      ]
+    },
+    "ad_intel": {
+      "label": "Ad Intel",
+      "s3_prefix": "nielsen/amrld_etl/ad_intel/",
+      "note": "38 tables / 1,750 files / ~22 GB",
+      "last_processed": "2026-06-10",
+      "overall_min": "2018-01-01",
+      "overall_max": "2026-06-10",
+      "record_types": [
+        {
+          "id": "AD_INTEL_MAIN",
+          "description": "Advertising intelligence \u2014 brand/product/media placement data",
+          "file_type": "parquet",
+          "processed": true,
+          "min_date": "2018-01-01",
+          "max_date": "2026-06-10",
+          "row_count": null,
+          "last_processed": "2026-06-10"
+        },
+        {
+          "id": "AD_INTEL_BRAND",
+          "description": "Brand-level advertising spend and share",
+          "file_type": "parquet",
+          "processed": true,
+          "min_date": "2018-01-01",
+          "max_date": "2026-06-10",
+          "row_count": null,
+          "last_processed": "2026-06-10"
+        },
+        {
+          "id": "AD_INTEL_PRODUCT",
+          "description": "Product/SKU-level placements by medium",
+          "file_type": "parquet",
+          "processed": true,
+          "min_date": "2018-01-01",
+          "max_date": "2026-06-10",
+          "row_count": null,
+          "last_processed": "2026-06-10"
+        },
+        {
+          "id": "AD_INTEL_MEDIA",
+          "description": "Media vehicle cross-reference table",
+          "file_type": "parquet",
+          "processed": true,
+          "min_date": "2018-01-01",
+          "max_date": "2026-06-10",
+          "row_count": null,
+          "last_processed": "2026-06-10"
+        },
+        {
+          "id": "AD_INTEL_OCCURRENCES",
+          "description": "Ad occurrence-level detail (38 sub-tables)",
+          "file_type": "parquet",
+          "processed": true,
+          "min_date": "2018-01-01",
+          "max_date": "2026-06-10",
+          "row_count": null,
+          "last_processed": "2026-06-10"
+        }
+      ]
+    },
+    "mri": {
+      "label": "MRI (Survey of the American Consumer)",
+      "s3_prefix": "nielsen/amrld_etl/mri/",
+      "note": "29 tables / 412 files / ~5 GB",
+      "last_processed": "2026-06-10",
+      "overall_min": "2019-01-01",
+      "overall_max": "2026-06-10",
+      "record_types": [
+        {
+          "id": "MRI_MEDIA",
+          "description": "Media consumption behaviour by respondent",
+          "file_type": "parquet",
+          "processed": true,
+          "min_date": "2019-01-01",
+          "max_date": "2026-06-10",
+          "row_count": null,
+          "last_processed": "2026-06-10"
+        },
+        {
+          "id": "MRI_PRODUCT",
+          "description": "Product usage and brand preference",
+          "file_type": "parquet",
+          "processed": true,
+          "min_date": "2019-01-01",
+          "max_date": "2026-06-10",
+          "row_count": null,
+          "last_processed": "2026-06-10"
+        },
+        {
+          "id": "MRI_DEMO",
+          "description": "Respondent demographics and lifestyle attributes",
+          "file_type": "parquet",
+          "processed": true,
+          "min_date": "2019-01-01",
+          "max_date": "2026-06-10",
+          "row_count": null,
+          "last_processed": "2026-06-10"
+        },
+        {
+          "id": "MRI_WEIGHT",
+          "description": "Survey weighting and projection factors",
+          "file_type": "parquet",
+          "processed": true,
+          "min_date": "2019-01-01",
+          "max_date": "2026-06-10",
+          "row_count": null,
+          "last_processed": "2026-06-10"
+        },
+        {
+          "id": "MRI_SURVEY_ATTRS",
+          "description": "Survey attribute flags (29 sub-tables \u2014 note: date-looking fields are flags, not ISO dates)",
+          "file_type": "parquet",
+          "processed": true,
+          "min_date": "2019-01-01",
+          "max_date": "2026-06-10",
+          "row_count": null,
+          "last_processed": "2026-06-10"
         }
       ]
     }
