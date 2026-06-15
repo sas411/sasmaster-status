@@ -995,10 +995,18 @@ a{color:inherit}
 
 /* ══ MOBILE ≤600px — WARROOM-MOBILE-RESPONSIVE-001 ══ */
 @media(max-width:600px){
-  /* P1 — Kill overflow */
-  body{overflow-x:hidden;max-width:100vw}
-  .htime{min-width:auto}
-  .htime .tm{font-size:14px}
+  /* P1 — Kill overflow (html must be clamped too; body alone leaks via html element) */
+  html,body{overflow-x:hidden;max-width:100vw}
+  /* Header: hide settings gear + cap time to prevent flex row blowout */
+  .settings-btn{display:none}
+  .htime{min-width:auto;max-width:72px;overflow:hidden}
+  .htime .tm{font-size:13px}
+  .logo-area{min-width:0;flex-shrink:1}
+  /* Agent mini-grid: collapse to 1-col, cards full-width */
+  .agent-mini-grid{grid-template-columns:1fr !important}
+  .ac{width:100% !important;max-width:100% !important;box-sizing:border-box}
+  /* Bottom bar stats: wrap instead of blowing past edge */
+  .bb-stat{flex-wrap:wrap}
   /* Modals: overlay uses flex justify-content:center so width constraint is enough */
   .modal-sm,.modal-lg,.diag-panel,.doc-modal{width:calc(100vw - 24px);max-width:calc(100vw - 24px)}
   /* Diagnostic drawer: shrink to fit, keep slide-in working */
