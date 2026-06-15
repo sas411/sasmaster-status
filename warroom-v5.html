@@ -914,12 +914,13 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 
 <script>
 /* ============ CONFIG ============ */
-// ASK URL is built from status.json config (key flows through status, never hardcoded)
+// ASK URL — routes through /api/ask Vercel proxy; key is server-side only, never in client
 let ASK_URL = 'sasmaster-ask-v3.html';
 function buildAskUrl(vm) {
   const cfg = vm?.ask;
-  if (!cfg?.enabled || !cfg?.key) return 'sasmaster-ask-v3.html';
-  return `sasmaster-ask-v3.html?ask_key=${encodeURIComponent(cfg.key)}&ask_url=${encodeURIComponent(cfg.url)}`;
+  if (!cfg?.enabled) return 'sasmaster-ask-v3.html';
+  // proxy URL (/api/ask) passed so sasmaster-ask-v3.html POSTs through Vercel, not Railway directly
+  return `sasmaster-ask-v3.html?ask_url=${encodeURIComponent(cfg.url || '/api/ask')}`;
 }
 const API_BASE = '/api/command';
 function apiUrl(path){ return API_BASE + '?path=' + encodeURIComponent(path); }

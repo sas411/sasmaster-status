@@ -1825,11 +1825,11 @@ const status = {
   follow_up_count: followUpResult.count,
   follow_up_items: followUpResult.items,
 
-  // ASK platform config — key flows from env, never committed to source
+  // ASK platform config — key is server-side only (Vercel env), never in status.json
+  // War Room calls /api/ask (Vercel proxy) which holds the key; no key flows to client.
   ask: {
-    url:     process.env.ASK_RAILWAY_URL || 'https://sasmaster-ask-production.up.railway.app',
-    key:     process.env.ASK_API_KEY     || '',  // set in .env locally; Railway injects in prod
-    enabled: Boolean(process.env.ASK_API_KEY),
+    url:     '/api/ask',  // always the Vercel proxy — never Railway URL directly
+    enabled: true,        // proxy is always wired; Railway liveness is its own check
   },
 };
 
