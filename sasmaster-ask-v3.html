@@ -554,18 +554,21 @@ table.rs-t tr.total td{background:var(--surface2);font-weight:800;border-top:2px
 const $=id=>document.getElementById(id);const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 /* ===== LIVE ASK BACKEND ===== */
-// Key + URL injected by War Room as URL params; fallback to localhost in dev
+// URL injected by War Room as URL param; key is server-side (Vercel proxy handles auth)
 const _askParams = new URLSearchParams(window.location.search);
 const ASK_SERVER = _askParams.get('ask_url')
   || (window.location.hostname === 'localhost' || window.location.protocol === 'file:'
       ? 'http://localhost:8765'
-      : 'https://sasmaster-ask-production.up.railway.app');
-const ASK_KEY = _askParams.get('ask_key') || '';
+      : '/api/ask');
+// ASK_KEY intentionally removed — no client-side key; /api/ask proxy injects x-api-key
 async function fetchAsk(q) {
   try {
     const headers = {'Content-Type':'application/json'};
-    if (ASK_KEY) headers['x-api-key'] = ASK_KEY;
-    const res = await fetch(`${ASK_SERVER}/ask`, {
+    // For localhost dev, optionally read key from localStorage only
+    const devKey = window.location.hostname === 'localhost'
+      ? (localStorage.getItem('ask_dev_key') || '') : '';
+    if (devKey) headers['x-api-key'] = devKey;
+    const res = await fetch(`${ASK_SERVER}`, {
       method: 'POST', headers,
       body: JSON.stringify({question: q}),
       signal: AbortSignal.timeout(10000)
