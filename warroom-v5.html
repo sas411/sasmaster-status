@@ -586,11 +586,25 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
     <div class="sec-h"><h2>S3 prefixes</h2><span>live dataset cards · WARROOM-FULL-RECOMPUTE</span></div>
     <div class="dsgrid" id="dsgrid"></div>
 
-    <div class="sec-h"><h2>Nielsen datasets</h2><span>S3 confirmed 2026-06-11</span></div>
+    <div class="sec-h"><h2>Nielsen datasets</h2><span>S3 confirmed 2026-06-10 · ~926 GB total</span></div>
     <div class="dsgrid" id="nielsengrid"></div>
 
     <div class="sec-h"><h2>BARB datasets</h2><span>UK Broadcasters' Audience Research Board · RSG S3 external tables · all 4 batches complete · 2026-06-12</span></div>
     <div class="dsgrid" style="grid-template-columns:repeat(3,1fr)" id="barbgrid"></div>
+
+    <div class="sec-h"><h2>External schedule data</h2><span>TV schedule + API sources</span></div>
+    <div class="dsgrid" style="grid-template-columns:repeat(2,1fr)" id="schedulegrid">
+      <div class="ds">
+        <div class="dh"><span>📺</span><span class="p">Gracenote API</span><span class="badge b-ok">LIVE</span></div>
+        <div class="gb">Public Plan</div>
+        <div class="note">movies/showings → 200 OK · tmsId + rootId resolved · programs/search needs Sample Plan upgrade · no S3 ingest yet — query-on-demand via API key</div>
+      </div>
+      <div class="ds">
+        <div class="dh"><span>📅</span><span class="p">FYI TV Schedule</span><span class="badge b-warn">PENDING</span></div>
+        <div class="gb">fyi/ · 0.01 GB</div>
+        <div class="note">TV schedule data · S3 prefix provisioned · ingest pipeline not yet started · depends on Gracenote Sample Plan upgrade for full schedule coverage</div>
+      </div>
+    </div>
 
     <div class="sec-h"><h2>Data health</h2><span id="data-health-run">—</span><span class="badge b-ok" style="margin-left:auto">GATE PASS · 11 assertions</span></div>
     <div class="panel">
@@ -608,13 +622,13 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
       </div>
       <div style="font-size:11px;color:var(--dim);margin-top:6px">IMDB reference universe. Bar = relative cardinality. Parent key spine total: <b id="pk-total-val">—</b> minted UUIDv5 keys.</div>
 
-      <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">MATCH CONFIDENCE — TIER THRESHOLDS</span></div>
-      <table class="dt">
-        <tr><th>Signal combo</th><th>Score</th><th>Tier</th></tr>
-        <tr><td class="mono">imdb + eidr + tmdb + full name</td><td class="mono">100</td><td><span class="badge b-ok">GOLD</span></td></tr>
-        <tr><td class="mono">imdb + eidr (any combo ≥ 65)</td><td class="mono">65</td><td><span class="badge b-warn">SILVER</span></td></tr>
-        <tr><td class="mono">imdb only (≥ 30)</td><td class="mono">30</td><td><span class="badge b-sec">BRONZE</span></td></tr>
-      </table>
+      <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">MATCH CONFIDENCE — TIER DISTRIBUTION</span><span class="mono" style="font-size:10px;color:var(--dim);margin-left:auto">21M rows · parent_key table</span></div>
+      <div class="spine" style="margin-top:8px">
+        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-ok" style="font-size:9px;padding:2px 6px">GOLD</span></span><div class="sbar"><i style="width:0.02%;background:#22c55e"></i></div><span class="v mono" style="font-size:11px">3,398</span><span style="font-size:10px;color:var(--dim);margin-left:6px">score 100 · imdb+eidr+tmdb+full</span></div>
+        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-warn" style="font-size:9px;padding:2px 6px">SILVER</span></span><div class="sbar"><i style="width:1.8%;background:#f59e0b"></i></div><span class="v mono" style="font-size:11px">379,609</span><span style="font-size:10px;color:var(--dim);margin-left:6px">score 65 · imdb+eidr or imdb+tmdb</span></div>
+        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-sec" style="font-size:9px;padding:2px 6px">BRONZE</span></span><div class="sbar"><i style="width:97%;background:var(--accent)"></i></div><span class="v mono" style="font-size:11px">20,378,871</span><span style="font-size:10px;color:var(--dim);margin-left:6px">score 30 · imdb only (TV episodes)</span></div>
+      </div>
+      <div style="font-size:10.5px;color:var(--dim);margin-top:6px">Formula: imdb(+30) + eidr(+35) + tmdb(+15) + full_name_match(+20). BRONZE dominant = EIDR/TMDB episode coverage pending.</div>
     </div>
   </section>
 
@@ -2004,9 +2018,9 @@ function renderDataStatic(){
   // Nielsen cards — AMRLD + MIT get measurement drill-down; Ad Intel + MRI get generic
   const NLS=[
    {ic:'📊',n:'AMRLD',gb:'~633 GB',d:'~100K files · 10 sub-tables · REC 20/24/25/26/30/36 · 12/31/2012 – 06/08/2026',bl:'COMPLETED',extra:'<span class="badge b-warn">tiny-files</span>',measType:'nielsen',schemaKey:'amrld'},
-   {ic:'📺',n:'MIT',gb:'14.8 GB',d:'716 files · 2 feeds (03h + 05p) · 09/01/2014 – 06/09/2026 · <span style="color:var(--down)">⚑ Broadcast TP gap: cuts 11/30/2022; Cable = current</span>',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'mit'},
-   {ic:'📡',n:'Ad Intel',gb:'22.0 GB',d:'1,750 files · 38 tables',bl:'COMPLETED',extra:'',measType:null},
-   {ic:'👥',n:'MRI',gb:'4.8 GB',d:'412 files · 29 tables',bl:'COMPLETED',extra:'',measType:null}];
+   {ic:'📺',n:'MIT',gb:'181.2 GB',d:'1,227 files · 2 feeds (03h + 05p) · 09/01/2014 – 06/09/2026 · <span style="color:var(--down)">⚑ Broadcast TP gap: cuts 11/30/2022; Cable = current</span>',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'mit'},
+   {ic:'📡',n:'Ad Intel',gb:'22.0 GB',d:'1,750 files · 38 tables · 2018-01-01 – 2026-06-10',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'ad_intel'},
+   {ic:'👥',n:'MRI',gb:'4.8 GB',d:'412 files · 29 tables · 2019-01-01 – 2026-06-10',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'mri'}];
   const ng=document.getElementById('nielsengrid');
   if(ng){
     ng.innerHTML=NLS.map((d,i)=>`
