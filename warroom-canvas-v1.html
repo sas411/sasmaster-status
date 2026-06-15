@@ -990,6 +990,8 @@ function showToast(msg,type='info'){
   setTimeout(()=>t.classList.remove('show'),3200);
 }
 
+const CATALOG_BASE='https://sasmaster-public.s3.amazonaws.com';
+
 /* ---- state ---- */
 let CV={
   piece_date:today(),
@@ -998,6 +1000,8 @@ let CV={
   critique:null,
   takeaways:[],
   pieceExists:false,
+  _piece_url:null,
+  _empty:false,
   pollingTimer:null,
   archiveMonth:new Date(),
   archiveData:{},   // key: YYYY-MM-DD, val: {status}
@@ -1005,18 +1009,7 @@ let CV={
   showAllTakeaways:false
 };
 
-/* ---- DEMO fallback data ---- */
-const DEMO_MANIFEST={status:'pending',note:'',actor:null,ts:null};
-const DEMO_SPEC={title:'Media Streaming Competitive Landscape',query:'Top streaming services by subscriber growth Q1 2026',run_id:'run_20260612_050217',generated_at:'2026-06-12T05:02:17Z',provenance_flagged:false};
-const DEMO_CRITIQUE={accuracy:8.5,hierarchy:7.0,insight:9.0,aesthetics:8.0,novelty:7.5,relevance:9.5,composite:8.3};
-const DEMO_TAKEAWAYS=[
-  'Netflix leads subscriber growth with +4.2M net adds, driven by ad-tier expansion.',
-  'Disney+ stabilizes after content-cost normalization; ESPN bundling accelerating.',
-  'Amazon Prime Video ad launch drives +18% engagement among 18–34 demo.',
-  'Peacock Q1 churn highest among legacy-network DTC entrants at 22% annual rate.',
-  'Max (WBD) Q1 revenue up but free cash flow remains constrained by debt service.',
-  'Spotify video pivot is expanding total engaged hours but margin pressure is real.'
-];
+/* ---- catalog demo archive data (ARCHIVE sub-view fallback — replaced in CATALOG-002) ---- */
 const DEMO_ARCHIVE={
   '2026-06-11':{status:'blessed'},
   '2026-06-10':{status:'blessed'},
@@ -1060,31 +1053,33 @@ function parseTakeaways(md){
 
 /* ---- fetch today's piece ---- */
 async function fetchTodayPiece(){
-  const d=CV.piece_date;
-  const base=`gallery/${d}`;
-  const [manifest,spec,critique,takedownText]=await Promise.all([
-    safeFetch(`${base}/_manifest.json`),
-    safeFetch(`${base}/spec.json`),
-    safeFetch(`${base}/critique.json`),
-    safeFetchText(`${base}/takeaways.md`)
-  ]);
-  const exists=manifest!==null||spec!==null;
-  if(!exists){
-    // demo mode
-    CV.manifest=DEMO_MANIFEST;
-    CV.spec=DEMO_SPEC;
-    CV.critique=DEMO_CRITIQUE;
-    CV.takeaways=DEMO_TAKEAWAYS;
-    CV.pieceExists=true;
-    CV._demo=true;
-  } else {
-    CV.manifest=manifest||{status:'failed',error:'Manifest missing'};
-    CV.spec=spec||{};
-    CV.critique=critique||null;
-    CV.takeaways=parseTakeaways(takedownText);
-    CV.pieceExists=true;
+  const idx=await safeFetch(`${CATALOG_BASE}/catalog/index.json`);
+  if(!idx||!Array.isArray(idx.entries)||!idx.entries.length){
+    CV.pieceExists=false;
+    CV._empty=true;
     CV._demo=false;
+    updateBadge();
+    renderToday();
+    return;
   }
+  const certified=idx.entries.filter(e=>e.status==='certified');
+  if(!certified.length){
+    CV.pieceExists=false;
+    CV._empty=true;
+    CV._demo=false;
+    updateBadge();
+    renderToday();
+    return;
+  }
+  const entry=certified.sort((a,b)=>b.certified_at.localeCompare(a.certified_at))[0];
+  CV.manifest={status:'blessed',note:'',actor:'catalog',ts:entry.certified_at};
+  CV.spec={title:entry.query,query:entry.query,run_id:entry.certified_id,generated_at:entry.built_at,provenance_flagged:false};
+  CV.critique=entry.rubric||null;
+  CV.takeaways=entry.takeaways||[];
+  CV.pieceExists=true;
+  CV._piece_url=entry.piece_url;
+  CV._empty=false;
+  CV._demo=false;
   updateBadge();
   renderToday();
 }
@@ -1106,6 +1101,11 @@ function renderToday(){
   const s=CV.spec||{};
   const c=CV.critique||null;
 
+  // empty catalog state
+  if(CV._empty){
+    el.innerHTML=`<div class="canvas-empty-panel"><div class="cep-ico">🎨</div><div>No certified pieces yet — run Daily Visuals and BLESS a piece to populate the catalog.</div></div>`;
+    return;
+  }
   // error / failed state
   if(m.status==='failed'||(!CV.pieceExists)){
     el.innerHTML=renderErrorPanel(m,s);
@@ -1116,9 +1116,8 @@ function renderToday(){
   const statusClass={'pending':'csb-pending','blessed':'csb-blessed','redirected':'csb-redirected','killed':'csb-killed'}[m.status]||'csb-pending';
   const statusLabel={'pending':'⏳ PENDING REVIEW','blessed':'✓ BLESSED','redirected':'↩ REDIRECTED','killed':'✕ KILLED'}[m.status]||'UNKNOWN';
   const isSettled=m.status==='blessed'||m.status==='redirected'||m.status==='killed';
-  const iframeHtml=CV._demo
-    ?`<div style="display:flex;align-items:center;justify-content:center;height:520px;background:var(--dark2);color:var(--dim);font-family:var(--mono);font-size:12px;flex-direction:column;gap:12px"><div style="font-size:32px">🎨</div><div>DEMO MODE — piece.html not found</div><div style="font-size:10px;color:var(--dim)">gallery/${CV.piece_date}/piece.html</div></div>`
-    :`<iframe src="gallery/${CV.piece_date}/piece.html" title="Daily Canvas Piece" onerror="document.getElementById('canvas-iframe-err').style.display='flex'" id="canvas-frame-${CV.piece_date}"></iframe><div id="canvas-iframe-err" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:var(--dark2);color:var(--dim);font-family:var(--mono);font-size:12px;flex-direction:column;gap:10px"><div>iframe load error</div><div style="font-size:10px">gallery/${CV.piece_date}/piece.html</div></div>`;
+  const certId=CV.spec&&CV.spec.run_id?CV.spec.run_id:'piece';
+  const iframeHtml=`<iframe src="${CV._piece_url}" title="Daily Canvas Piece" onerror="document.getElementById('canvas-iframe-err').style.display='flex'" id="canvas-frame-${certId}"></iframe><div id="canvas-iframe-err" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:var(--dark2);color:var(--dim);font-family:var(--mono);font-size:12px;flex-direction:column;gap:10px"><div>iframe load error</div><div style="font-size:10px">${CV._piece_url||'—'}</div></div>`;
 
   el.innerHTML=`
 <div class="canvas-layout">
@@ -1275,16 +1274,17 @@ async function canvasAction(action,note=''){
   }
 }
 
-/* ---- poll today's manifest every 60s ---- */
+/* ---- poll catalog for new entries every 60s ---- */
 function startPolling(){
   stopPolling();
   CV.pollingTimer=setInterval(async()=>{
-    if(!CV._demo){
-      const m=await safeFetch(`gallery/${CV.piece_date}/_manifest.json`);
-      if(m&&m.status!==CV.manifest?.status){
-        CV.manifest=m;updateBadge();renderToday();
-        showToast('Piece status updated from external source','info');
-      }
+    const idx=await safeFetch(`${CATALOG_BASE}/catalog/index.json`);
+    if(!idx||!Array.isArray(idx.entries))return;
+    const certified=idx.entries.filter(e=>e.status==='certified');
+    const newest=certified.sort((a,b)=>b.certified_at.localeCompare(a.certified_at))[0];
+    if(newest&&newest.certified_id!==CV.spec?.run_id){
+      await fetchTodayPiece();
+      showToast('New certified piece available','info');
     }
   },60000);
 }
