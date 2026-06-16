@@ -373,6 +373,12 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 .canvas-toast{position:fixed;bottom:64px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--surface);border:1px solid var(--bd);border-radius:12px;box-shadow:var(--sh);padding:10px 20px;font-size:13px;font-weight:600;opacity:0;transition:all .3s cubic-bezier(.16,1,.3,1);z-index:90;pointer-events:none;white-space:nowrap}
 .canvas-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .canvas-toast.ok{color:var(--up)}.canvas-toast.err{color:var(--down)}.canvas-toast.info{color:var(--accent)}
+.canvas-theme-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.ctr-lbl{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase;margin-right:4px;white-space:nowrap}
+.canvas-theme-btn{padding:3px 10px;border:1px solid var(--bd);border-radius:4px;font-family:var(--mono);font-size:9px;letter-spacing:.5px;color:var(--mut);background:transparent;cursor:pointer;transition:all 150ms}
+.canvas-theme-btn:hover{border-color:var(--accent);color:var(--ink)}
+.canvas-theme-btn.ctb-on{border-color:var(--accent);color:var(--accent);background:rgba(14,165,233,.06)}
+.truth-gate-msg{font-family:var(--mono);font-size:10px;letter-spacing:.3px;color:var(--down);background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:6px;padding:6px 10px;margin-bottom:8px}
 @media(max-width:1240px){.canvas-layout{grid-template-columns:1fr}.canvas-archive-layout{grid-template-columns:1fr}}
 </style>
 </head>
@@ -1002,9 +1008,11 @@ let CV={
   pieceExists:false,
   _piece_url:null,
   _empty:false,
+  _theme:'terminal',
+  _certifiable:true,
   pollingTimer:null,
   archiveMonth:new Date(),
-  archiveData:{},   // key: YYYY-MM-DD, val: {status}
+  archiveData:{},
   archiveFilter:'all',
   showAllTakeaways:false
 };
@@ -1055,31 +1063,23 @@ function parseTakeaways(md){
 async function fetchTodayPiece(){
   const idx=await safeFetch(`${CATALOG_BASE}/catalog/index.json`);
   if(!idx||!Array.isArray(idx.entries)||!idx.entries.length){
-    CV.pieceExists=false;
-    CV._empty=true;
-    CV._demo=false;
-    updateBadge();
-    renderToday();
-    return;
+    CV.pieceExists=false; CV._empty=true; updateBadge(); renderToday(); return;
   }
-  const certified=idx.entries.filter(e=>e.status==='certified');
-  if(!certified.length){
-    CV.pieceExists=false;
-    CV._empty=true;
-    CV._demo=false;
-    updateBadge();
-    renderToday();
-    return;
+  const pending=idx.entries.filter(e=>e.status==='pending').sort((a,b)=>(b.built_at||'').localeCompare(a.built_at||''));
+  const certified=idx.entries.filter(e=>e.status==='certified').sort((a,b)=>(b.certified_at||'').localeCompare(a.certified_at||''));
+  const entry=pending.length?pending[0]:(certified.length?certified[0]:null);
+  if(!entry){
+    CV.pieceExists=false; CV._empty=true; updateBadge(); renderToday(); return;
   }
-  const entry=certified.sort((a,b)=>b.certified_at.localeCompare(a.certified_at))[0];
-  CV.manifest={status:'blessed',note:'',actor:'catalog',ts:entry.certified_at};
+  const isAlreadySettled=entry.status==='certified'||entry.status==='killed'||entry.status==='redirected';
+  CV.manifest={status:isAlreadySettled?'blessed':entry.status,note:'',actor:'catalog',ts:entry.certified_at||entry.built_at};
   CV.spec={title:entry.query,query:entry.query,run_id:entry.certified_id,generated_at:entry.built_at,provenance_flagged:false};
   CV.critique=entry.rubric||null;
   CV.takeaways=entry.takeaways||[];
   CV.pieceExists=true;
   CV._piece_url=entry.piece_url;
+  CV._certifiable=entry.certifiable!==false;
   CV._empty=false;
-  CV._demo=false;
   updateBadge();
   renderToday();
 }
@@ -1133,7 +1133,7 @@ function renderToday(){
     ${c?renderRubric(c):'<div class="rubric-panel"><div class="rp-h">CRITIQUE RUBRIC</div><div style="font-size:11px;color:var(--dim)">critique.json not available</div></div>'}
     ${renderTakeaways(CV.takeaways,CV.showAllTakeaways)}
     ${renderLineage(s)}
-    ${renderActionRow(m.status,isSettled)}
+    ${renderActionRow(m.status,isSettled,CV._certifiable)}
   </div>
 </div>`;
 
@@ -1194,13 +1194,18 @@ function renderLineage(s){
 }
 
 /* ---- render action row ---- */
-function renderActionRow(status,settled){
-  const blessDisabled=settled?'disabled':'';
+function renderActionRow(status,settled,certifiable=true){
+  const gateBlocked=!settled&&!certifiable;
+  const blessDisabled=(settled||gateBlocked)?'disabled':'';
   const redirectDisabled=settled?'disabled':'';
   const killDisabled=settled?'disabled':'';
+  const themeBtns=['terminal','ember','aurora'].map(t=>`<button class="canvas-theme-btn${CV._theme===t?' ctb-on':''}" data-atheme="${t}">${t.toUpperCase()}</button>`).join('');
+  const gateMsg=gateBlocked?`<div class="truth-gate-msg">⛔ TRUTH GATE — unprovenanced figures block bless. Every figure needs source + tier before this piece can be certified.</div>`:'';
   return `<div>
+    <div class="canvas-theme-row"><span class="ctr-lbl">Theme</span>${themeBtns}</div>
+    ${gateMsg}
     <div class="action-row">
-      <button class="bless-btn" id="canvas-bless-btn" ${blessDisabled}>🟢 BLESS</button>
+      <button class="bless-btn" id="canvas-bless-btn" ${blessDisabled} ${gateBlocked?'title="Truth gate — unprovenanced figures"':''}>🟢 BLESS</button>
       <button class="redirect-btn" id="canvas-redirect-btn" ${redirectDisabled}>🟡 REDIRECT</button>
       <button class="kill-btn" id="canvas-kill-btn" ${killDisabled}>🔴 KILL</button>
     </div>
@@ -1242,6 +1247,15 @@ function wireActionRow(status){
     const note=document.getElementById('canvas-redirect-note');
     if(!note||!note.value.trim()){showToast('Note is required for redirect','err');return;}
     canvasAction('redirect',note.value.trim());
+  });
+  document.querySelectorAll('.canvas-theme-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const t=btn.dataset.atheme;
+      CV._theme=t;
+      const fr=document.querySelector('#canvas-today-content iframe');
+      if(fr&&fr.contentWindow)fr.contentWindow.postMessage({type:'applyTheme',theme:t},CATALOG_BASE);
+      document.querySelectorAll('.canvas-theme-btn').forEach(b=>b.classList.toggle('ctb-on',b.dataset.atheme===t));
+    });
   });
 }
 
