@@ -2360,7 +2360,7 @@ function renderToday(){
   const statusLabel={'pending':'⏳ PENDING REVIEW','blessed':'✓ BLESSED','redirected':'↩ REDIRECTED','killed':'✕ KILLED'}[m.status]||'UNKNOWN';
   const isSettled=m.status==='blessed'||m.status==='redirected'||m.status==='killed';
   const certId=CV.spec&&CV.spec.run_id?CV.spec.run_id:'piece';
-  const iframeHtml=`<iframe src="${CV._piece_url}" title="Daily Canvas Piece" onerror="document.getElementById('canvas-iframe-err').style.display='flex'" id="canvas-frame-${certId}"></iframe><div id="canvas-iframe-err" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:var(--dark2);color:var(--dim);font-family:var(--mono);font-size:12px;flex-direction:column;gap:10px"><div>iframe load error</div><div style="font-size:10px">${CV._piece_url||'—'}</div></div>`;
+  const iframeHtml=`<iframe src="${CV._piece_url}#theme=${CV._theme}" title="Daily Canvas Piece" onerror="document.getElementById('canvas-iframe-err').style.display='flex'" id="canvas-frame-${certId}"></iframe><div id="canvas-iframe-err" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:var(--dark2);color:var(--dim);font-family:var(--mono);font-size:12px;flex-direction:column;gap:10px"><div>iframe load error</div><div style="font-size:10px">${CV._piece_url||'—'}</div></div>`;
 
   el.innerHTML=`
 <div class="canvas-layout">
@@ -2497,7 +2497,7 @@ function wireActionRow(status){
       const t=btn.dataset.atheme;
       CV._theme=t;
       const fr=document.querySelector('#canvas-today-content iframe');
-      if(fr&&fr.contentWindow)fr.contentWindow.postMessage({type:'applyTheme',theme:t},CATALOG_BASE);
+      if(fr&&fr.contentWindow)fr.contentWindow.postMessage({type:'sasmaster:theme',theme:t},'*');
       document.querySelectorAll('.canvas-theme-btn').forEach(b=>b.classList.toggle('ctb-on',b.dataset.atheme===t));
     });
   });
