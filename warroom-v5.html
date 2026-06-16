@@ -70,12 +70,15 @@ header.top{display:flex;align-items:center;gap:16px;padding:10px 22px;background
 .membar .upd{margin-left:auto;color:#5F6E84;font-size:10px}
 
 /* ================= LAYOUT ================= */
-.shell{display:grid;grid-template-columns:240px 1fr;flex:1;min-height:0}
-.shell.collapsed{grid-template-columns:0 1fr}
-.shell.collapsed aside{display:none}
+.shell{display:grid;grid-template-columns:240px 1fr;flex:1;min-height:0;transition:grid-template-columns .2s ease}
+.shell.collapsed{grid-template-columns:48px 1fr}
+.shell.collapsed aside{overflow:hidden;padding:8px 6px}
+.shell.collapsed aside>*:not(#sidebar-toggle){display:none}
 
 /* sidebar */
-aside{background:var(--surface);border-right:1px solid var(--bd);padding:16px 16px 80px;overflow-y:auto}
+aside{position:relative;background:var(--surface);border-right:1px solid var(--bd);padding:16px 16px 80px;overflow-y:auto;overflow-x:hidden}
+#sidebar-toggle{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;background:var(--surface2);border:1px solid var(--bd);color:var(--mut);font-size:13px;cursor:pointer;transition:all .15s;margin-left:auto;margin-bottom:10px}
+#sidebar-toggle:hover{color:var(--ink);border-color:var(--accent)}
 aside h4{font-family:var(--sora);font-size:9.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:18px 0 8px}
 aside h4:first-child{margin-top:0}
 .refcard{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--bd);border-radius:12px;padding:10px 12px}
@@ -290,12 +293,17 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 @media(max-width:1240px){.kstrip{grid-template-columns:repeat(4,1fr)}.fleet{grid-template-columns:repeat(2,1fr)}.dsgrid{grid-template-columns:repeat(2,1fr)}.resgrid{grid-template-columns:repeat(2,1fr)}.kan{grid-template-columns:repeat(2,1fr)}.coststrip,.fistrip{grid-template-columns:repeat(3,1fr)}.tel2,.fin2{grid-template-columns:1fr}.shell{grid-template-columns:1fr}aside{display:none}}
 
 /* ================= CANVAS TAB ================= */
-.canvas-layout{display:grid;grid-template-columns:65% 35%;gap:16px;align-items:start}
-.canvas-iframe-wrap{position:relative;background:var(--dark2);border-radius:14px;overflow:hidden;min-height:0}
-.canvas-iframe-wrap iframe{width:100%;height:calc(100dvh - 370px);min-height:380px;border:none;display:block}
+/* canvas flex chain — no more calc() hacks; parent chain owns the height */
+main.canvas-mode{overflow:hidden}
+#v-canvas.on{display:flex;flex-direction:column;height:100%}
+#v-canvas #csv-today{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+#v-canvas #canvas-today-content{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.canvas-layout{display:grid;grid-template-columns:65% 35%;gap:16px;align-items:stretch;min-height:0;height:100%}
+.canvas-iframe-wrap{position:relative;background:var(--dark2);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.canvas-iframe-wrap iframe{width:100%;flex:1;min-height:0;border:none;display:block}
 .canvas-prov-banner{position:absolute;top:0;left:0;right:0;background:rgba(245,107,11,.92);color:#fff;font-family:var(--mono);font-size:11px;font-weight:700;padding:7px 14px;letter-spacing:.08em;z-index:5;display:flex;align-items:center;gap:8px}
 .canvas-prov-banner .pb-icon{font-size:14px}
-.canvas-right{display:flex;flex-direction:column;gap:12px;max-height:calc(100dvh - 370px);overflow-y:auto}
+.canvas-right{display:flex;flex-direction:column;gap:12px;overflow-y:auto;min-height:0}
 .canvas-status-badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--sora);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:6px 14px;border-radius:20px}
 .csb-pending{background:rgba(245,158,11,.15);color:#B97D0C;border:1px solid rgba(245,158,11,.35)}
 .csb-blessed{background:rgba(16,185,129,.13);color:var(--up);border:1px solid rgba(16,185,129,.3)}
@@ -316,6 +324,31 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 .rubric-composite .rc-lbl{font-size:11px;font-weight:700;color:var(--mut)}
 .rubric-composite .rc-v{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--ink)}
 .rubric-composite .rc-sub{font-size:10.5px;color:var(--dim)}
+/* critique checks (new format) */
+.crit-check-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--inset)}
+.crit-check-row:last-child{border-bottom:none}
+.crit-icon{font-size:13px;flex-shrink:0;margin-top:1px}
+.crit-lbl{font-size:11.5px;font-weight:600;color:var(--ink);flex:1}
+.crit-detail{font-size:10.5px;color:var(--dim);margin-top:2px}
+.crit-banner{padding:7px 12px;border-radius:8px;font-family:var(--sora);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+.crit-pass{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#22C55E}
+.crit-fail{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#EF4444}
+.crit-warn{background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.3);color:#EAB308}
+/* annotations panel */
+.annot-panel{background:var(--surface2);border:1px solid var(--bd);border-radius:12px;padding:12px 14px}
+.annot-panel .ap-h{font-family:var(--sora);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.annot-panel .ap-saved{font-size:9px;color:var(--up);font-family:var(--mono);letter-spacing:0;font-weight:400}
+.annot-ta{width:100%;background:var(--inset);border:1px solid var(--bd);border-radius:8px;color:var(--ink);font-family:var(--mono);font-size:11.5px;padding:8px 10px;resize:vertical;min-height:70px;outline:none;box-sizing:border-box}
+.annot-ta:focus{border-color:var(--accent)}
+.annot-ta:read-only{opacity:.65;cursor:default}
+.annot-foot{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.annot-char{font-size:10px;color:var(--dim);font-family:var(--mono)}
+.annot-lock{font-size:10px;color:var(--dim)}
+/* archive blessed record */
+.blessed-record{display:flex;flex-direction:column;gap:10px}
+.br-meta{font-size:11px;color:var(--dim);font-family:var(--mono)}
+.br-annot{background:var(--inset);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--mut);font-style:italic;position:relative}
+.br-crit-sum{font-size:11.5px;color:var(--ink)}
 .takeaways-panel{background:var(--surface2);border:1px solid var(--bd);border-radius:12px;padding:12px 14px}
 .takeaways-panel .tp-h{font-family:var(--sora);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
 .takeaways-panel ul{padding-left:16px;font-size:12.5px;color:var(--mut);line-height:1.65}
@@ -549,6 +582,7 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 <!-- ================= SHELL: SIDEBAR + MAIN ================= -->
 <div class="shell" id="shell">
 <aside>
+  <button id="sidebar-toggle" title="Collapse sidebar" onclick="sidebarToggle()">‹</button>
   <h4>Reference System</h4>
   <div class="refcard" id="monkey-refcard" style="cursor:pointer" title="Click for local-ref health"><div class="av char-av"><img src="assets/characters/frankenstein-monkey.jpg" alt="Frankenstein" onerror="this.parentElement.classList.remove('char-av');this.parentElement.textContent='🧟'"></div><div><div class="n">Frankenstein</div><div class="s">⚡ Local Ref</div></div></div>
 
@@ -1365,13 +1399,34 @@ const p=n=>String(n).padStart(2,'0');
 setInterval(()=>{const d=new Date();document.getElementById('clk').textContent=`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`},1000);
 
 /* ============ tabs ============ */
+const mainEl=document.querySelector('main');
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
   t.classList.add('on');document.getElementById('v-'+t.dataset.v).classList.add('on');
+  mainEl.classList.toggle('canvas-mode',t.dataset.v==='canvas');
   closeDrillDown(); // Phase A: close drill-down on tab switch
   closeMonkeyHealth(); // Phase E: close monkey panel on tab switch
 }));
+
+/* ============ sidebar toggle ============ */
+function sidebarToggle(){
+  const shell=document.getElementById('shell');
+  const btn=document.getElementById('sidebar-toggle');
+  const collapsed=shell.classList.toggle('collapsed');
+  btn.textContent=collapsed?'›':'‹';
+  btn.title=collapsed?'Expand sidebar':'Collapse sidebar';
+  localStorage.setItem('warroom-sidebar-collapsed',collapsed?'1':'0');
+}
+// restore on load
+(function(){
+  if(localStorage.getItem('warroom-sidebar-collapsed')==='1'){
+    const shell=document.getElementById('shell');
+    const btn=document.getElementById('sidebar-toggle');
+    shell.classList.add('collapsed');
+    if(btn){btn.textContent='›';btn.title='Expand sidebar';}
+  }
+})();
 
 /* ============ monkey refcard click (Phase E) ============ */
 document.addEventListener('DOMContentLoaded',()=>{
@@ -2256,7 +2311,11 @@ let CV={
   archiveMonth:new Date(),
   archiveData:{},
   archiveFilter:'all',
-  showAllTakeaways:false
+  showAllTakeaways:false,
+  annotation:'',
+  _annotSaving:false,
+  _annotTimer:null,
+  _critique:null,
 };
 
 /* ---- catalog demo archive data (ARCHIVE sub-view fallback — replaced in CATALOG-002) ---- */
@@ -2294,6 +2353,14 @@ async function safeFetchText(url){
   }catch(e){return null;}
 }
 
+async function fetchCritique(run_id){
+  try{
+    const r=await fetch(`/api/command?path=/canvas/critique/${encodeURIComponent(run_id)}`,{cache:'no-store'});
+    if(!r.ok)return null;
+    return await r.json();
+  }catch(e){return null;}
+}
+
 /* ---- parse takeaways markdown ---- */
 function parseTakeaways(md){
   if(!md)return[];
@@ -2325,6 +2392,17 @@ async function fetchTodayPiece(){
   CV._empty=false;
   updateBadge();
   renderToday();
+  // Fetch critique.json for this entry (async, non-blocking)
+  if(entry.certified_id){
+    fetchCritique(entry.certified_id).then(c=>{
+      CV._critique=c;
+      // re-render only the rubric section, not the whole panel
+      const rp=document.querySelector('.rubric-panel');
+      if(rp)rp.outerHTML=c?renderRubric(c):'<div class="rubric-panel"><div class="rp-h">CRITIQUE RUBRIC</div><div style="font-size:11px;color:var(--dim)">critique.json not available</div></div>';
+    });
+  }
+  // Also load saved annotation from catalog entry
+  CV.annotation = entry.annotation || '';
 }
 
 /* ---- update badge ---- */
@@ -2373,10 +2451,11 @@ function renderToday(){
       <span class="canvas-status-badge ${statusClass}">${statusLabel}</span>
       ${m.status==='redirected'&&m.note?`<span style="font-size:11px;color:var(--mut);font-style:italic;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"${m.note}"</span>`:''}
     </div>
-    ${c?renderRubric(c):'<div class="rubric-panel"><div class="rp-h">CRITIQUE RUBRIC</div><div style="font-size:11px;color:var(--dim)">critique.json not available</div></div>'}
+    ${renderRubric(CV._critique||c)}
+    ${renderAnnotations(m.status)}
     ${renderTakeaways(CV.takeaways,CV.showAllTakeaways)}
     ${renderLineage(s)}
-    ${renderActionRow(m.status,isSettled,CV._certifiable)}
+    ${renderActionRow(m.status,isSettled,CV._certifiable,CV._critique)}
   </div>
 </div>`;
 
@@ -2387,18 +2466,27 @@ function renderToday(){
 
 /* ---- render rubric ---- */
 function renderRubric(c){
-  const metrics=[
-    {k:'accuracy',l:'Accuracy'},
-    {k:'hierarchy',l:'Hierarchy'},
-    {k:'insight',l:'Insight'},
-    {k:'aesthetics',l:'Aesthetics'},
-    {k:'novelty',l:'Novelty'},
-    {k:'relevance',l:'Relevance'}
-  ];
-  const rows=metrics.map(m=>{
-    const v=c[m.k]||0;
-    const pct=Math.round((v/10)*100);
-    const isAcc=m.k==='accuracy';
+  if(!c)return '<div class="rubric-panel"><div class="rp-h">CRITIQUE RUBRIC</div><div style="font-size:11px;color:var(--dim)">critique.json not available</div></div>';
+  // New format: has checks array
+  if(Array.isArray(c.checks)){
+    const overall=c.overall||'UNKNOWN';
+    const bannerClass=overall==='PASS'?'crit-pass':overall==='FAIL'?'crit-fail':'crit-warn';
+    const bannerLabel=overall==='PASS'?'✓ All checks passed':`⚠ ${c.gate_failures||0} check${c.gate_failures!==1?'s':''} failed`;
+    const rows=c.checks.map(ch=>`<div class="crit-check-row">
+      <span class="crit-icon">${ch.pass?'✅':'❌'}</span>
+      <div><div class="crit-lbl">${ch.label}</div><div class="crit-detail">${ch.detail||''}</div></div>
+    </div>`).join('');
+    const rubricVer=c.rubric_version?`<span style="font-size:9px;color:var(--dim);margin-left:auto">v${c.rubric_version}</span>`:'';
+    return `<div class="rubric-panel">
+      <div class="rp-h" style="display:flex;align-items:center">CRITIQUE RUBRIC ${rubricVer}</div>
+      <div class="crit-banner ${bannerClass}">${bannerLabel}</div>
+      ${rows}
+    </div>`;
+  }
+  // Old format: 0-10 score bars (keep existing logic)
+  const metrics=[{k:'accuracy',l:'Accuracy'},{k:'hierarchy',l:'Hierarchy'},{k:'insight',l:'Insight'},{k:'aesthetics',l:'Aesthetics'},{k:'novelty',l:'Novelty'},{k:'relevance',l:'Relevance'}];
+  const rows2=metrics.map(m=>{
+    const v=c[m.k]||0;const pct=Math.round((v/10)*100);const isAcc=m.k==='accuracy';
     return `<div class="rubric-row ${isAcc?'rubric-accuracy':''}">
       <span class="rl">${m.l}</span>
       <div class="rubric-bar-wrap"><span class="rubric-bar" style="width:${pct}%"></span></div>
@@ -2406,7 +2494,7 @@ function renderRubric(c){
     </div>`;
   }).join('');
   const comp=c.composite||((c.accuracy+c.hierarchy+c.insight+c.aesthetics+c.novelty+c.relevance)/6);
-  return `<div class="rubric-panel"><div class="rp-h">CRITIQUE RUBRIC — 0–10</div>${rows}
+  return `<div class="rubric-panel"><div class="rp-h">CRITIQUE RUBRIC — 0–10</div>${rows2}
     <div class="rubric-composite"><span class="rc-lbl">COMPOSITE</span><span class="rc-v">${comp.toFixed(1)}</span><span class="rc-sub">/ 10</span></div>
   </div>`;
 }
@@ -2436,19 +2524,43 @@ function renderLineage(s){
   </div>`;
 }
 
+/* ---- render annotations panel ---- */
+function renderAnnotations(status){
+  const settled=status==='blessed'||status==='redirected'||status==='killed';
+  const val=CV.annotation||'';
+  const chars=val.length;
+  if(settled){
+    return `<div class="annot-panel">
+      <div class="ap-h">ANNOTATIONS <span class="annot-lock">🔒 locked at bless time</span></div>
+      ${val?`<div class="br-annot">"${val}"</div>`:'<div style="font-size:11px;color:var(--dim)">No annotation added.</div>'}
+    </div>`;
+  }
+  return `<div class="annot-panel">
+    <div class="ap-h">ANNOTATIONS <span id="annot-saved-indicator" class="ap-saved" style="display:none">— saved</span></div>
+    <textarea class="annot-ta" id="annot-textarea" maxlength="1000" rows="4" placeholder="Add context, caveats, or distribution notes...">${val}</textarea>
+    <div class="annot-foot">
+      <span class="annot-char" id="annot-char">${chars} / 1000</span>
+    </div>
+  </div>`;
+}
+
 /* ---- render action row ---- */
-function renderActionRow(status,settled,certifiable=true){
+function renderActionRow(status,settled,certifiable=true,critique=null){
   const gateBlocked=!settled&&!certifiable;
-  const blessDisabled=(settled||gateBlocked)?'disabled':'';
+  const critiqueGate=critique&&Array.isArray(critique.checks)&&critique.overall!=='PASS';
+  const blessDisabled=(settled||gateBlocked||critiqueGate||CV._annotSaving)?'disabled':'';
   const redirectDisabled=settled?'disabled':'';
   const killDisabled=settled?'disabled':'';
   const themeBtns=['terminal','ember','aurora'].map(t=>`<button class="canvas-theme-btn${CV._theme===t?' ctb-on':''}" data-atheme="${t}">${t.toUpperCase()}</button>`).join('');
   const gateMsg=gateBlocked?`<div class="truth-gate-msg">⛔ TRUTH GATE — unprovenanced figures block bless. Every figure needs source + tier before this piece can be certified.</div>`:'';
+  const critiqueGateMsg=critiqueGate?`<div class="truth-gate-msg">⛔ QA gate failed — review critique before blessing</div>`:'';
+  const blessTitle=gateBlocked?'title="Truth gate — unprovenanced figures"':critiqueGate?'title="QA gate failed — critique must pass"':CV._annotSaving?'title="Annotation saving…"':'';
   return `<div>
     <div class="canvas-theme-row"><span class="ctr-lbl">Theme</span>${themeBtns}</div>
     ${gateMsg}
+    ${critiqueGateMsg}
     <div class="action-row">
-      <button class="bless-btn" id="canvas-bless-btn" ${blessDisabled} ${gateBlocked?'title="Truth gate — unprovenanced figures"':''}>🟢 BLESS</button>
+      <button class="bless-btn" id="canvas-bless-btn" ${blessDisabled} ${blessTitle}>🟢 BLESS</button>
       <button class="redirect-btn" id="canvas-redirect-btn" ${redirectDisabled}>🟡 REDIRECT</button>
       <button class="kill-btn" id="canvas-kill-btn" ${killDisabled}>🔴 KILL</button>
     </div>
@@ -2491,6 +2603,31 @@ function wireActionRow(status){
     if(!note||!note.value.trim()){showToast('Note is required for redirect','err');return;}
     canvasAction('redirect',note.value.trim());
   });
+  // wire annotation textarea
+  const ta=document.getElementById('annot-textarea');
+  const charEl=document.getElementById('annot-char');
+  const savedEl=document.getElementById('annot-saved-indicator');
+  if(ta){
+    ta.addEventListener('input',()=>{
+      const v=ta.value;
+      CV.annotation=v;
+      if(charEl)charEl.textContent=`${v.length} / 1000`;
+      if(savedEl)savedEl.style.display='none';
+      // update BLESS button state while saving
+      const bBtn=document.getElementById('canvas-bless-btn');
+      if(CV._annotTimer)clearTimeout(CV._annotTimer);
+      CV._annotSaving=true;
+      if(bBtn)bBtn.disabled=true;
+      CV._annotTimer=setTimeout(async()=>{
+        await saveAnnotation(CV.annotation);
+        CV._annotSaving=false;
+        if(bBtn&&!document.getElementById('canvas-bless-btn')?.getAttribute('data-gate-blocked')){
+          bBtn.disabled=false;
+        }
+        if(savedEl){savedEl.style.display='';setTimeout(()=>{if(savedEl)savedEl.style.display='none';},2500);}
+      },1000);
+    });
+  }
   // theme picker — postMessage to iframe
   document.querySelectorAll('.canvas-theme-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
@@ -2505,7 +2642,7 @@ function wireActionRow(status){
 
 /* ---- perform action ---- */
 async function canvasAction(action,note=''){
-  const body={piece_date:CV.piece_date,action,note};
+  const body={piece_date:CV.piece_date,action,note,annotation:CV.annotation||'',critique_overall:CV._critique?.overall||'',critique_gate_failures:CV._critique?.gate_failures??0};
   showToast(`Sending ${action}…`,'info');
   if(CV._demo){
     // demo mode: simulate
@@ -2530,6 +2667,18 @@ async function canvasAction(action,note=''){
   }catch(e){
     showToast('Network error — action not sent','err');
   }
+}
+
+/* ---- save annotation to catalog via /canvas/annotate ---- */
+async function saveAnnotation(text){
+  if(!CV.spec||!CV.spec.run_id)return;
+  if(CV._demo)return;
+  try{
+    await fetch('/api/command?path=/canvas/annotate',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({run_id:CV.spec.run_id,annotation:text})
+    });
+  }catch(e){}
 }
 
 /* ---- poll catalog for new entries every 60s ---- */
@@ -2662,13 +2811,32 @@ function showArchiveDetail(ds,info){
   if(!body)return;
   const st=info.status;
   const statusClass={blessed:'csb-blessed',redirected:'csb-redirected',killed:'csb-killed',failed:'csb-failed',pending:'csb-pending'}[st]||'csb-pending';
+  const ts=info.ts||info.certified_at||'';
+  const tsLabel=ts?new Date(ts).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+
+  let detailHtml='';
+  if(st==='blessed'){
+    const annot=info.annotation||'';
+    const critPass=info.critique_gate_failures===0&&info.critique_overall==='PASS';
+    const critCount=info.critique_check_count||0;
+    detailHtml=`<div class="blessed-record">
+      <div class="br-meta">blessed ${tsLabel}${info.actor?' by '+info.actor:''}</div>
+      ${annot?`<div><div class="rp-h" style="margin-bottom:4px">ANNOTATION</div><div class="br-annot">"${annot}"</div></div>`:''}
+      ${info.critique_overall?`<div class="br-crit-sum">${critPass?'✅':'⚠'} ${critCount?critCount+'/'+critCount+' checks':'Critique'} ${critPass?'passed':'partial'} · rubric v${info.critique_rubric_version||'1.0'}</div>`:''}
+      <div style="font-size:11px;color:var(--dim);margin-top:4px">Archive view — no further actions.</div>
+    </div>`;
+  } else {
+    detailHtml=`<div style="font-size:11.5px;color:var(--dim)">Status: ${st} · ${ds}</div>
+      ${info.note?`<div style="font-size:11px;color:var(--dim);margin-top:8px;font-style:italic">"${info.note}"</div>`:''}
+      <div style="font-size:11px;color:var(--dim);margin-top:8px">No further actions.</div>`;
+  }
+
   body.innerHTML=`
-    <div style="margin-bottom:10px"><span class="canvas-status-badge ${statusClass} ">${st.toUpperCase()}</span> <span style="font-family:var(--mono);font-size:11px;color:var(--dim)">${ds}</span></div>
+    <div style="margin-bottom:10px"><span class="canvas-status-badge ${statusClass}">${st.toUpperCase()}</span> <span style="font-family:var(--mono);font-size:11px;color:var(--dim)">${ds}</span></div>
     <div style="background:var(--dark2);border-radius:10px;overflow:hidden;margin-bottom:10px">
-      <iframe src="gallery/${ds}/piece.html" style="width:100%;height:220px;border:none;display:block" title="Archive piece ${ds}"></iframe>
+      <iframe src="gallery/${ds}/piece.html" style="width:100%;height:200px;border:none;display:block" title="Archive piece ${ds}"></iframe>
     </div>
-    <div style="font-size:11.5px;color:var(--mut)">This is a past piece — no actions available.</div>
-    ${info.note?`<div style="font-size:11px;color:var(--dim);margin-top:8px;font-style:italic">"${info.note}"</div>`:''}`;
+    ${detailHtml}`;
 }
 
 /* ---- failed list ---- */
