@@ -1227,13 +1227,13 @@ function buildMeasurementDrill(src,fallbackTitle){
   const lastRun=src.last_processed||'—';
 
   const tinyFilesHtml=src.tiny_files
-    ?`<div class="rth-tinyfiles">⚠ tiny-files mode — record dates reflect sample extract window, not full archive</div>`
+    ?`<div class="rth-tinyfiles">⚠ Sample extract only — these dates reflect ingested sample files, not the full archive coverage. Full date range may differ.</div>`
     :'';
   const header=`<div class="rt-header">
     <div class="rth-label">${src.s3_prefix||src.label||''}</div>
     <div class="rth-coverage">${minDate} → ${maxDate}</div>
-    <div class="rth-meta">${totalPresent} present / ${totalDefined} defined · ${src.note||''} · last run ${lastRun}</div>
     ${tinyFilesHtml}
+    <div class="rth-meta">${totalPresent} present / ${totalDefined} defined · ${src.note||''} · last run ${lastRun}</div>
   </div>`;
 
   function rtRow(rt,unproc){
