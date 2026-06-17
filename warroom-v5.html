@@ -461,6 +461,13 @@ main.canvas-mode{overflow:hidden}
 .rt-note{font-size:9px;color:var(--warn);margin-top:1px}
 .rt-sep{background:rgba(245,158,11,.05)}
 .rt-sep td{padding:5px 9px;font-family:var(--sora);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,158,11,.7);border-bottom:1px solid rgba(245,158,11,.15)!important}
+.rt-type-etl2{font-family:var(--mono);font-size:9.5px;background:rgba(16,185,129,.1);color:#10b981;padding:2px 5px;border-radius:4px;white-space:nowrap}
+.rt-etl2-block{margin-top:18px}
+.rt-etl2-header{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);border-radius:8px;padding:10px 14px;margin-bottom:10px}
+.etl2-badge{display:inline-block;font-family:var(--mono);font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(16,185,129,.15);color:#10b981;border-radius:4px;padding:2px 6px;margin-right:6px}
+.etl2-label{font-size:11px;color:var(--mut)}
+.rt-sep-etl2{background:rgba(14,165,233,.05)}
+.rt-sep-etl2 td{padding:5px 9px;font-family:var(--sora);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(14,165,233,.7);border-bottom:1px solid rgba(14,165,233,.15)!important}
 .rt-extra{margin-top:12px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);border-radius:9px;padding:10px 13px;font-size:11.5px;color:var(--warn)}
 
 /* guard tab error badges (Phase C) */
@@ -1265,7 +1272,43 @@ function buildMeasurementDrill(src,fallbackTitle){
   const extra=src.discovered_additional?`<div class="rt-extra">⚡ ${src.discovered_additional} additional table${src.discovered_additional!==1?'s':''} schema-discovered from S3. ${src.note_additional||'Send catalog to curate descriptions.'}</div>`:'';
   const openItem=src.open_item?`<div class="rt-extra" style="margin-top:8px;background:rgba(14,165,233,.06);border-color:rgba(14,165,233,.25);color:var(--accent)">📋 Open item: ${src.open_item}</div>`:'';
 
-  return header+table+extra+openItem;
+  let etl2Html='';
+  if(src.etl2_tables&&src.etl2_tables.length){
+    const etl2Tables=src.etl2_tables;
+    const noteHtml2=src.etl2_note?`<div class="rt-etl2-header"><span class="etl2-badge">ETL 2</span><span class="etl2-label">${src.etl2_note}</span></div>`:'';
+    const hasTp=etl2Tables.some(t=>t.id&&t.id.includes('_tp_'));
+    function etl2Row(t){
+      const minD=t.min_date?t.min_date.slice(0,10):'—';
+      const maxD=t.max_date?t.max_date.slice(0,10):'—';
+      const cnt=t.row_count!=null?fmtN(t.row_count):'—';
+      const lp=t.last_processed?t.last_processed.slice(0,10):'—';
+      const tnote=t.note?`<div class="rt-note">⚡ ${t.note}</div>`:'';
+      return `<tr><td><div class="rt-id">${t.id}</div>${tnote}</td>
+        <td><div class="rt-desc">${t.description||'—'}</div></td>
+        <td><span class="rt-type-etl2">${t.file_type||'ETL2'}</span></td>
+        <td style="text-align:center"><span style="color:var(--up)">✅</span></td>
+        <td><span class="rt-date">${minD}</span></td>
+        <td><span class="rt-date">${maxD}</span></td>
+        <td><span class="rt-count">${cnt}</span></td>
+        <td><span class="rt-date">${lp}</span></td></tr>`;
+    }
+    const sepRowEtl2=label=>`<tr class="rt-sep-etl2"><td colspan="8">${label}</td></tr>`;
+    let etl2Rows='';
+    if(hasTp){
+      const prog=etl2Tables.filter(t=>!t.id.includes('_tp_'));
+      const tp=etl2Tables.filter(t=>t.id.includes('_tp_'));
+      if(prog.length){etl2Rows+=sepRowEtl2('PROGRAM-LEVEL');etl2Rows+=prog.map(etl2Row).join('');}
+      if(tp.length){etl2Rows+=sepRowEtl2('TIME-PERIOD');etl2Rows+=tp.map(etl2Row).join('');}
+    } else {
+      etl2Rows=etl2Tables.map(etl2Row).join('');
+    }
+    const etl2Table=`<div class="rt-table-wrap"><table class="rt-table"><thead><tr>
+      <th>Table</th><th>Description</th><th>Type</th><th>Status</th><th>Min Date</th><th>Max Date</th><th>Rows</th><th>Last Run</th>
+    </tr></thead><tbody>${etl2Rows}</tbody></table></div>`;
+    etl2Html=`<div class="rt-etl2-block">${noteHtml2}${etl2Table}</div>`;
+  }
+
+  return header+table+extra+openItem+etl2Html;
 }
 
 /* ============ MONKEY LOCAL-REF HEALTH (Phase E) ============ */
