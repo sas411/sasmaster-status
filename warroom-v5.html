@@ -446,6 +446,7 @@ main.canvas-mode{overflow:hidden}
 .rt-header .rth-label{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--dim);margin-bottom:3px}
 .rt-header .rth-coverage{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--accent)}
 .rt-header .rth-meta{font-size:11px;color:var(--mut);margin-top:4px}
+.rt-header .rth-tinyfiles{margin-top:7px;font-size:10.5px;color:var(--warn);background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);border-radius:5px;padding:4px 8px}
 .rt-table-wrap{overflow-x:auto;border-radius:11px;border:1px solid var(--bd)}
 .rt-table{width:100%;border-collapse:collapse;font-size:11px}
 .rt-table th{font-family:var(--sora);font-size:8px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);padding:7px 9px;border-bottom:1px solid var(--bd);background:var(--surface2);text-align:left;white-space:nowrap}
@@ -1218,10 +1219,14 @@ function buildMeasurementDrill(src,fallbackTitle){
   const maxDate=src.overall_max||'—';
   const lastRun=src.last_processed||'—';
 
+  const tinyFilesHtml=src.tiny_files
+    ?`<div class="rth-tinyfiles">⚠ tiny-files mode — record dates reflect sample extract window, not full archive</div>`
+    :'';
   const header=`<div class="rt-header">
     <div class="rth-label">${src.s3_prefix||src.label||''}</div>
     <div class="rth-coverage">${minDate} → ${maxDate}</div>
     <div class="rth-meta">${totalPresent} present / ${totalDefined} defined · ${src.note||''} · last run ${lastRun}</div>
+    ${tinyFilesHtml}
   </div>`;
 
   function rtRow(rt,unproc){
