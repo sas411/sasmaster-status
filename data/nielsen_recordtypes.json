@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-15T00:00:00Z",
-  "generated_by": "WARROOM-DRILLDOWN-MEASUREMENT-001",
+  "generated": "2026-06-17T00:00:00Z",
+  "generated_by": "WARROOM-DRILLDOWN-ETL2-001",
   "sources": {
     "amrld": {
       "label": "AMRLD",
@@ -126,7 +126,7 @@
           "max_date": "2026-06-08",
           "row_count": 50000,
           "last_processed": "2026-05-26",
-          "note": "tiny-files (50K sample) · archive floor/ceiling from header"
+          "note": "tiny-files (50K sample) \u00b7 archive floor/ceiling from header"
         },
         {
           "id": "REC56_OBT",
@@ -148,7 +148,7 @@
           "max_date": "2026-06-08",
           "row_count": 50000,
           "last_processed": "2026-05-26",
-          "note": "tiny-files (50K sample) · archive floor/ceiling from header"
+          "note": "tiny-files (50K sample) \u00b7 archive floor/ceiling from header"
         },
         {
           "id": "REC67",
@@ -159,7 +159,7 @@
           "max_date": "2026-06-08",
           "row_count": 50000,
           "last_processed": "2026-05-26",
-          "note": "tiny-files (50K sample) · archive floor/ceiling from header"
+          "note": "tiny-files (50K sample) \u00b7 archive floor/ceiling from header"
         },
         {
           "id": "REC68",
@@ -170,7 +170,7 @@
           "max_date": "2026-06-08",
           "row_count": 50000,
           "last_processed": "2026-05-26",
-          "note": "tiny-files (50K sample) · archive floor/ceiling from header"
+          "note": "tiny-files (50K sample) \u00b7 archive floor/ceiling from header"
         },
         {
           "id": "REC70",
@@ -191,7 +191,7 @@
           "max_date": "2021-12-25",
           "row_count": 50000,
           "last_processed": "2026-06-16",
-          "note": "ST_EFF_DATE (universe estimate effective date — cadence differs from broadcast records)"
+          "note": "ST_EFF_DATE (universe estimate effective date \u2014 cadence differs from broadcast records)"
         },
         {
           "id": "REC10",
@@ -303,7 +303,22 @@
           "last_processed": null,
           "defined_not_ingested": true
         }
-      ]
+      ],
+      "etl2_tables": [
+        {
+          "id": "amrld_program_view",
+          "description": "ETL 2 \u2014 Person-level program viewing aggregate (Live/L+SD/L+3/L+7) derived from REC36 APW",
+          "file_type": "ETL2",
+          "processed": true,
+          "min_date": "2012-12-31",
+          "max_date": "2026-06-08",
+          "row_count": null,
+          "last_processed": "2026-05-26",
+          "note": "Derived from amrld_pgm_view (REC36). Grain: PID + program_code + broadcast_week. Includes viewer_weight, viewing_minutes, Live+SD/L+3/L+7 flags. Source of AA ratings computation.",
+          "etl_tier": 2
+        }
+      ],
+      "etl2_note": "ETL 2 tables are curated/aggregated analytics outputs derived from ETL 1 raw record types above. These are the primary query surfaces for audience analytics."
     },
     "mit": {
       "label": "MIT (NHI)",
@@ -469,7 +484,106 @@
           "last_processed": "2026-05-26",
           "note": "reference table \u2014 no date range"
         }
-      ]
+      ],
+      "etl2_tables": [
+        {
+          "id": "mit_viewership_l",
+          "description": "ETL 2 \u2014 Program-level Live audience (viewing type: Live w/ VCR). Grain: program_code + network + air_date.",
+          "file_type": "ETL2",
+          "processed": true,
+          "min_date": "2014-09-01",
+          "max_date": "2026-06-09",
+          "row_count": null,
+          "last_processed": "2026-05-26",
+          "note": "Derived from NHI_MIT_04_D + NHI_MIT_04_P. HH AA + demo AA projections. Live viewing only (no DVR playback).",
+          "etl_tier": 2
+        },
+        {
+          "id": "mit_viewership_lsd",
+          "description": "ETL 2 \u2014 Program-level Live + Same Day audience (L+SD). Overnight currency. Grain: program_code + network + air_date.",
+          "file_type": "ETL2",
+          "processed": true,
+          "min_date": "2014-09-01",
+          "max_date": "2026-06-09",
+          "row_count": null,
+          "last_processed": "2026-05-26",
+          "note": "Derived from NHI_MIT_04_D + NHI_MIT_04_P (viewing_type=LS). Includes same-day DVR playback. Standard overnight metric.",
+          "etl_tier": 2
+        },
+        {
+          "id": "mit_viewership_l3",
+          "description": "ETL 2 \u2014 Program-level Live + 3-day audience (C3 window, 75-hour DVR). Ad sales currency. Grain: program_code + network + air_date.",
+          "file_type": "ETL2",
+          "processed": true,
+          "min_date": "2014-09-01",
+          "max_date": "2026-06-09",
+          "row_count": null,
+          "last_processed": "2026-05-26",
+          "note": "Derived from NHI_MIT_04_D + NHI_MIT_04_P (viewing_type=L3/A). C3 standard \u2014 primary national TV ad currency. 75-hour DVR playback window.",
+          "etl_tier": 2
+        },
+        {
+          "id": "mit_viewership_l7",
+          "description": "ETL 2 \u2014 Program-level Live + 7-day audience (C7 window). Premium metric. Grain: program_code + network + air_date.",
+          "file_type": "ETL2",
+          "processed": true,
+          "min_date": "2014-09-01",
+          "max_date": "2026-06-09",
+          "row_count": null,
+          "last_processed": "2026-05-26",
+          "note": "Derived from NHI_MIT_04_D + NHI_MIT_04_P (viewing_type=L7/4). C7 window \u2014 premium metric for digital-first/streaming-adjacent programming.",
+          "etl_tier": 2
+        },
+        {
+          "id": "mit_viewership_tp_l",
+          "description": "ETL 2 \u2014 Time-period Live audience (half-hour grain). HUT/PUT base. Grain: network + daypart + half_hour_id + air_date.",
+          "file_type": "ETL2",
+          "processed": true,
+          "min_date": "2014-09-01",
+          "max_date": "2026-06-09",
+          "row_count": null,
+          "last_processed": "2026-05-26",
+          "note": "Derived from NHI_MIT_03_TVU_H/P + NHI_MIT_05_H/P. Half-hour time-period audience \u2014 HUT/PUT calculation base. 48 half-hours per broadcast day (6AM anchor).",
+          "etl_tier": 2
+        },
+        {
+          "id": "mit_viewership_tp_lsd",
+          "description": "ETL 2 \u2014 Time-period Live + Same Day audience (half-hour grain). Grain: network + daypart + half_hour_id + air_date.",
+          "file_type": "ETL2",
+          "processed": true,
+          "min_date": "2014-09-01",
+          "max_date": "2026-06-09",
+          "row_count": null,
+          "last_processed": "2026-05-26",
+          "note": "Derived from NHI_MIT_04_H/P (viewing_type=LS). Time-period L+SD \u2014 used for same-day competitive scheduling analysis.",
+          "etl_tier": 2
+        },
+        {
+          "id": "mit_viewership_tp_l3",
+          "description": "ETL 2 \u2014 Time-period Live + 3-day audience (half-hour grain). C3 window at TP level. Grain: network + daypart + half_hour_id + air_date.",
+          "file_type": "ETL2",
+          "processed": true,
+          "min_date": "2014-09-01",
+          "max_date": "2026-06-09",
+          "row_count": null,
+          "last_processed": "2026-05-26",
+          "note": "Derived from NHI_MIT_04_H/P (viewing_type=L3/A). Time-period C3 \u2014 used for daypart-level commercial rating analysis and lead-in/lead-out performance.",
+          "etl_tier": 2
+        },
+        {
+          "id": "mit_viewership_tp_l7",
+          "description": "ETL 2 \u2014 Time-period Live + 7-day audience (half-hour grain). C7 window at TP level. Grain: network + daypart + half_hour_id + air_date.",
+          "file_type": "ETL2",
+          "processed": true,
+          "min_date": "2014-09-01",
+          "max_date": "2026-06-09",
+          "row_count": null,
+          "last_processed": "2026-05-26",
+          "note": "Derived from NHI_MIT_04_H/P (viewing_type=L7/4). Time-period C7 \u2014 premium extended-window time slot analysis. Broadcast gap applies: cuts 11/30/2022 for Broadcast TP records.",
+          "etl_tier": 2
+        }
+      ],
+      "etl2_note": "ETL 2 tables are curated viewership outputs aggregated from the MIT raw record types above. Program-level tables (mit_viewership_*) derive from 04-D/P records. Time-period tables (mit_viewership_tp_*) derive from 03-H/P and 04-H/P records. Both sets cover Live / L+SD / L+3 / L+7 viewing windows."
     },
     "ad_intel": {
       "label": "Ad Intel",
