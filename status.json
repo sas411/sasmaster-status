@@ -1,9 +1,9 @@
 {
-  "generated": "2026-06-18T13:31:04.814Z",
-  "generated_at": "2026-06-18T13:31:04.814Z",
+  "generated": "2026-06-19T17:21:29.066Z",
+  "generated_at": "2026-06-19T17:21:29.066Z",
   "system": {
     "jarvis": {
-      "alive": true
+      "alive": false
     }
   },
   "queue": {
@@ -1563,6 +1563,46 @@
     "done": [
       {
         "id": "done-0",
+        "text": "SECURITY-001 / KB-INTEGRITY-001",
+        "full": "SECURITY-001 / KB-INTEGRITY-001",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-1",
+        "text": "ASK-PORTAL-WIRE-001 (R7)",
+        "full": "ASK-PORTAL-WIRE-001 (R7)",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-2",
+        "text": "ASK-DRSCOOP-ORCHESTRATOR-001 (V3 P1)",
+        "full": "ASK-DRSCOOP-ORCHESTRATOR-001 (V3 P1)",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-3",
+        "text": "ASK-REPORT-TEMPLATES-001 (V2)",
+        "full": "ASK-REPORT-TEMPLATES-001 (V2)",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-4",
+        "text": "ASK-RAILWAY-DEPLOY-001 (R6) — Docker + Railway readiness",
+        "full": "ASK-RAILWAY-DEPLOY-001 (R6) — Docker + Railway readiness",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-5",
         "text": "CANVAS-REAL-CHARTS-001 — Ph3-Ph5 deploy + theme QA",
         "full": "CANVAS-REAL-CHARTS-001 — Ph3-Ph5 deploy + theme QA",
         "sprint": "",
@@ -1608,6 +1648,7 @@
     }
   },
   "heatmap": {
+    "2026-06-19": 10,
     "2026-06-17": 3
   },
   "target10": [],
@@ -1657,7 +1698,7 @@
       "log": "donelog-analyst.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": "2026-06-17T16:00:04.105Z",
+      "lastRun": "2026-06-19T16:00:02.608Z",
       "lastOutput": "Fatal error: An API error occurred: invalid_arguments",
       "status": "error"
     },
@@ -1753,8 +1794,8 @@
       "log": "railway-monitor.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": "2026-06-18T13:30:05.249Z",
-      "lastOutput": "✅ All healthy — uptime streak: 36h 53m",
+      "lastRun": "2026-06-19T17:15:11.042Z",
+      "lastOutput": "Breaker is tripped — suppressing alert. Reset via POST /watchdog/reset.",
       "status": "healthy"
     },
     {
@@ -1864,7 +1905,7 @@
       "jobId": null,
       "type": "subagent",
       "descOverride": "Mac 64GB compute worker. Polls Railway /tasks/pending-compute. Capabilities: duckdb / scraper / claude-code / ml.",
-      "lastRun": "2026-06-18T13:29:54.843Z",
+      "lastRun": "2026-06-19T17:20:15.027Z",
       "lastOutput": "Mac 64GB compute worker. Polls Railway /tasks/pending-compute. Capabilities: duckdb / scraper / claude-code / ml.",
       "status": "healthy"
     },
@@ -2367,6 +2408,36 @@
   ],
   "recentBuilds": [
     {
+      "task": "SECURITY-001 / KB-INTEGRITY-001",
+      "date": "2026-06-19 async",
+      "notes": "SECURITY-001: no hardcoded credentials found in lib/ or portal/ files; .env exists and gitignored; gitleaks check clean ",
+      "status": "DONE"
+    },
+    {
+      "task": "ASK-PORTAL-WIRE-001 (R7)",
+      "date": "2026-06-19 async",
+      "notes": "portal/sasmaster-ask-drscoop.html wired to real POST /ask endpoint. ASK_ENDPOINT const at top (set to Railway URL patter",
+      "status": "DONE"
+    },
+    {
+      "task": "ASK-DRSCOOP-ORCHESTRATOR-001 (V3 P1)",
+      "date": "2026-06-19 async",
+      "notes": "Built lib/ask_orchestrator.py (260 lines). Session state in KV (Upstash, drscoop:session: namespace, 24h TTL, 20-turn ro",
+      "status": "DONE"
+    },
+    {
+      "task": "ASK-REPORT-TEMPLATES-001 (V2)",
+      "date": "2026-06-19 async",
+      "notes": "Built lib/report_templates.py (193 lines). 5 APPROVED_TEMPLATES (overview/distribution/identity_coverage/research/compar",
+      "status": "DONE"
+    },
+    {
+      "task": "ASK-RAILWAY-DEPLOY-001 (R6) — Docker + Railway readiness",
+      "date": "2026-06-19 async",
+      "notes": "Created .dockerignore to exclude 1.2GB build context (node_modules/knowledge-bank/venv). Dockerfile references scripts/a",
+      "status": "DONE"
+    },
+    {
       "task": "CANVAS-REAL-CHARTS-001 — Ph3-Ph5 deploy + theme QA",
       "date": "2026-06-17 11:55",
       "notes": "Ran deploy_canvas_pieces.sh — all 5 assets (EXEM-FEATURE-AUDIENCE-FLOW: piece.html/manifest.json/data.json; EXEM-HOUSE-G",
@@ -2617,8 +2688,8 @@
       "size_gb": 34.2,
       "object_count": 7986,
       "last_updated": "2026-06-18T02:01:22.000Z",
-      "fresh": true,
-      "age_hours": 11.5,
+      "fresh": false,
+      "age_hours": null,
       "entity_type": "entity",
       "entities": {
         "movies": 1199613,
@@ -2646,7 +2717,7 @@
       "object_count": 28,
       "last_updated": "2026-06-09T08:21:57.000Z",
       "fresh": false,
-      "age_hours": 221.1,
+      "age_hours": null,
       "entity_type": "entity",
       "entities": {
         "movies": 2374753,
@@ -2674,7 +2745,7 @@
       "object_count": 7,
       "last_updated": "2026-06-09T08:19:56.000Z",
       "fresh": false,
-      "age_hours": 221.2,
+      "age_hours": null,
       "entity_type": "na",
       "entities": {
         "movies": null,
@@ -2702,7 +2773,7 @@
       "object_count": 20,
       "last_updated": "2026-06-08T07:05:56.000Z",
       "fresh": false,
-      "age_hours": 246.4,
+      "age_hours": null,
       "entity_type": "entity_funnel",
       "entities": {
         "movies": null,
@@ -2777,7 +2848,7 @@
       "object_count": 9,
       "last_updated": "2026-06-11T02:03:21.000Z",
       "fresh": false,
-      "age_hours": 179.5,
+      "age_hours": null,
       "entity_type": "entity",
       "entities": {
         "movies": 31049,
@@ -2805,7 +2876,7 @@
       "object_count": 16,
       "last_updated": "2026-06-11T02:03:21.000Z",
       "fresh": false,
-      "age_hours": 179.5,
+      "age_hours": null,
       "entity_type": "entity",
       "entities": {
         "movies": 18948,
@@ -2833,7 +2904,7 @@
       "object_count": 12,
       "last_updated": "2026-06-05T08:59:40.000Z",
       "fresh": false,
-      "age_hours": 316.5,
+      "age_hours": null,
       "entity_type": "entity",
       "entities": {
         "movies": 33924,
@@ -2861,7 +2932,7 @@
       "object_count": 19,
       "last_updated": "2026-06-11T02:03:23.000Z",
       "fresh": false,
-      "age_hours": 179.5,
+      "age_hours": null,
       "entity_type": "na",
       "entities": {
         "movies": null,
@@ -2889,7 +2960,7 @@
       "object_count": 11,
       "last_updated": "2026-06-16T09:33:28.000Z",
       "fresh": false,
-      "age_hours": 52,
+      "age_hours": null,
       "entity_type": "na",
       "entities": {
         "movies": null,
@@ -2916,8 +2987,8 @@
       "size_gb": 0,
       "object_count": 3,
       "last_updated": "2026-06-18T02:05:10.000Z",
-      "fresh": true,
-      "age_hours": 11.4,
+      "fresh": false,
+      "age_hours": null,
       "entity_type": "na",
       "entities": {
         "movies": null,
@@ -2945,7 +3016,7 @@
       "object_count": 1292,
       "last_updated": "2026-06-15T19:04:19.000Z",
       "fresh": false,
-      "age_hours": 66.4,
+      "age_hours": null,
       "entity_type": null,
       "entities": {
         "movies": null,
@@ -2973,7 +3044,7 @@
       "object_count": 8,
       "last_updated": "2026-05-26T09:02:31.000Z",
       "fresh": false,
-      "age_hours": 556.5,
+      "age_hours": null,
       "entity_type": null,
       "entities": {
         "movies": null,
@@ -3011,7 +3082,7 @@
     "s3_gb": 1153.7,
     "parent_key_rows": 861878,
     "tasks_open": 64,
-    "build_events_today": 0,
+    "build_events_today": 1,
     "model_routing": "haiku+sonnet+opus",
     "haiku_pct_today": 0,
     "eidr_coverage_pct": 28.7,
@@ -3021,13 +3092,45 @@
   },
   "build_trends": {
     "avg_cost_usd": 0,
-    "avg_duration_s": 902.3,
+    "avg_duration_s": 869.5,
     "error_rate": 0,
-    "total_features_7d": 3,
+    "total_features_7d": 4,
     "builds_7d": 0,
     "trend": "stable"
   },
   "recent_activity": [
+    {
+      "type": "build",
+      "text": "✅  — ",
+      "ts": "",
+      "layer": "APP",
+      "component": "build-auto"
+    },
+    {
+      "type": "build",
+      "text": "SECURITY-001 / KB-INTEGRITY-001",
+      "ts": "2026-06-19 async"
+    },
+    {
+      "type": "build",
+      "text": "ASK-PORTAL-WIRE-001 (R7)",
+      "ts": "2026-06-19 async"
+    },
+    {
+      "type": "build",
+      "text": "ASK-DRSCOOP-ORCHESTRATOR-001 (V3 P1)",
+      "ts": "2026-06-19 async"
+    },
+    {
+      "type": "build",
+      "text": "ASK-REPORT-TEMPLATES-001 (V2)",
+      "ts": "2026-06-19 async"
+    },
+    {
+      "type": "build",
+      "text": "ASK-RAILWAY-DEPLOY-001 (R6) — Docker + Railway readiness",
+      "ts": "2026-06-19 async"
+    },
     {
       "type": "build",
       "text": "CANVAS-REAL-CHARTS-001 — Ph3-Ph5 deploy + theme QA",
@@ -3061,7 +3164,7 @@
       "command": "/Users/shivashish/SaSMaster/scripts/sasmaster-build.sh >> /Users/shivashish/SaSMaster/logs/cron.log 2>&1",
       "channel": "#sasmaster-builds",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "12:00 AM",
@@ -3165,7 +3268,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/load-tmdb-to-s3.js all >> /Users/shivashish/SaSMaster/logs/tmdb-load.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "2:00 AM",
@@ -3189,7 +3292,7 @@
       "command": "/opt/homebrew/bin/python3 /Users/shivashish/SaSMaster/pil-trim-sweep.py >> /Users/shivashish/SaSMaster/logs/pil-trim-sweep.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "2:30 AM",
@@ -3221,7 +3324,7 @@
       "command": "/usr/bin/env python3 /Users/shivashish/SaSMaster/scripts/spine_forge.py --class movies >> /Users/shivashish/SaSMaster/logs/spine-forge.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "4:30 AM",
@@ -3229,7 +3332,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/sync-memory-warm.js >> /Users/shivashish/SaSMaster/logs/memory-warm-sync.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "4:55 AM",
@@ -3237,7 +3340,7 @@
       "command": "/usr/bin/env python3 /Users/shivashish/SaSMaster/scripts/cache-metrics.py >> /Users/shivashish/SaSMaster/logs/cache-metrics.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "4:58 AM",
@@ -3261,7 +3364,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/tmdb-daily-agent.js >> /Users/shivashish/SaSMaster/logs/tmdb-agent.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "5:00 AM",
@@ -3277,7 +3380,7 @@
       "command": "TZ=America/New_York bash /Users/shivashish/SaSMaster/scripts/integrity-check.sh >> /Users/shivashish/SaSMaster/logs/integrity-check.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "5:02 AM",
@@ -3293,7 +3396,7 @@
       "command": "/usr/bin/env python3 /Users/shivashish/SaSMaster/financial_agent/builder.py >> /Users/shivashish/SaSMaster/financial_agent/builder.log 2>&1",
       "channel": "#sasmaster-builds",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:00 AM",
@@ -3301,7 +3404,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/media-intel-agent.js >> /Users/shivashish/SaSMaster/logs/media-intel.log 2>&1",
       "channel": "#sasmaster-intel",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:00 AM",
@@ -3309,7 +3412,7 @@
       "command": "bash /Users/shivashish/SaSMaster/scripts/schema-drift-monitor.sh >> /Users/shivashish/SaSMaster/logs/schema-drift-monitor.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:00 AM",
@@ -3317,7 +3420,7 @@
       "command": "node /Users/shivashish/SaSMaster/scripts/portal-nielsen-summary.js >> /Users/shivashish/SaSMaster/logs/portal-nielsen-summary.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:00 AM",
@@ -3333,7 +3436,7 @@
       "command": "bash /Users/shivashish/SaSMaster/scripts/morning-package.sh >> /Users/shivashish/SaSMaster/logs/morning-package.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:15 AM",
@@ -3341,7 +3444,7 @@
       "command": "/usr/bin/env python3 /Users/shivashish/SaSMaster/scripts/tn_scraper.py daily >> /Users/shivashish/SaSMaster/logs/boxoffice-daily.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:15 AM",
@@ -3357,7 +3460,7 @@
       "command": "/usr/bin/env python3 /Users/shivashish/SaSMaster/scripts/tn_resolver.py daily_chart >> /Users/shivashish/SaSMaster/logs/boxoffice-resolver-daily.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:30 AM",
@@ -3365,7 +3468,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/edgar-scraper.js >> /Users/shivashish/SaSMaster/logs/sec-edgar.log 2>&1",
       "channel": "#sasmaster-intel",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:30 AM",
@@ -3477,7 +3580,7 @@
       "command": "cd /Users/shivashish/sasmaster-status && set -a && source /Users/shivashish/SaSMaster/.env && set +a && /opt/homebrew/opt/node@20/bin/node scripts/parity-gate.js >> /Users/shivashish/SaSMaster/logs/parity-gate.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "9:05 AM",
@@ -3493,7 +3596,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/security-watchdog.js >> /Users/shivashish/SaSMaster/logs/security-watchdog.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "9:30 AM",
@@ -3525,7 +3628,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/donelog-analyst.js >> /Users/shivashish/SaSMaster/logs/donelog-analyst.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "pending"
+      "status": "done"
     },
     {
       "time": "2:00 PM",
@@ -4090,6 +4193,41 @@
       "est": "—"
     },
     {
+      "title": "SECURITY-001 / KB-INTEGRITY-001",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
+    },
+    {
+      "title": "ASK-PORTAL-WIRE-001 (R7)",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
+    },
+    {
+      "title": "ASK-DRSCOOP-ORCHESTRATOR-001 (V3 P1)",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
+    },
+    {
+      "title": "ASK-REPORT-TEMPLATES-001 (V2)",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
+    },
+    {
+      "title": "ASK-RAILWAY-DEPLOY-001 (R6) — Docker + Railway readiness",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
+    },
+    {
       "title": "CANVAS-REAL-CHARTS-001 — Ph3-Ph5 deploy + theme QA",
       "status": "DONE",
       "priority": "DONE",
@@ -4098,6 +4236,36 @@
     }
   ],
   "recent_completions": [
+    {
+      "title": "SECURITY-001 / KB-INTEGRITY-001",
+      "category": "Build",
+      "path": "",
+      "completed_at": "2026-06-19 async"
+    },
+    {
+      "title": "ASK-PORTAL-WIRE-001 (R7)",
+      "category": "Portal",
+      "path": "",
+      "completed_at": "2026-06-19 async"
+    },
+    {
+      "title": "ASK-DRSCOOP-ORCHESTRATOR-001 (V3 P1)",
+      "category": "Build",
+      "path": "",
+      "completed_at": "2026-06-19 async"
+    },
+    {
+      "title": "ASK-REPORT-TEMPLATES-001 (V2)",
+      "category": "Build",
+      "path": "",
+      "completed_at": "2026-06-19 async"
+    },
+    {
+      "title": "ASK-RAILWAY-DEPLOY-001 (R6) — Docker + Railway readiness",
+      "category": "Build",
+      "path": "",
+      "completed_at": "2026-06-19 async"
+    },
     {
       "title": "CANVAS-REAL-CHARTS-001 — Ph3-Ph5 deploy + theme QA",
       "category": "Build",
@@ -4111,10 +4279,10 @@
     "content": []
   },
   "cost_summary": {
-    "total_cost_usd": 23.6265,
-    "entry_count": 24,
+    "total_cost_usd": 36.8086,
+    "entry_count": 25,
     "model_breakdown": {
-      "claude-sonnet-4-6": 23.622799999999998,
+      "claude-sonnet-4-6": 36.804899999999996,
       "claude-haiku-4-5-20251001": 0.0037272,
       "none": 0
     }
@@ -4161,17 +4329,24 @@
     "_tier_logic": "today_spend<15 NORMAL | 15-25 WARN (slack, normal routing) | 25-40 FALLBACK (Sonnet exec->Haiku; model-pinned exempt) | >=40 PAUSE (halt Sonnet, only Haiku+Opus-pinned run, requires human resume). MTD>=400 MONTHLY_PACE_WARN regardless of daily tier; MTD>=500 align to console hard cap."
   },
   "token_projection": {
-    "week_cost_usd": 23.5428,
+    "week_cost_usd": 36.7249,
     "week_tokens": 0,
-    "projected_week_cost_usd": 23.5428,
+    "projected_week_cost_usd": 36.7249,
     "pct_elapsed": 100,
     "daily_cost": {
-      "2026-06-17": 23.5428
+      "2026-06-17": 23.5428,
+      "2026-06-19": 13.1821
     },
     "top_consumers": [
       {
         "id": "TASK-20260617-01",
         "cost_usd": 23.5428,
+        "tokens": 0,
+        "model": "unknown"
+      },
+      {
+        "id": "TASK-20260619-01",
+        "cost_usd": 13.1821,
         "tokens": 0,
         "model": "unknown"
       }
@@ -4181,14 +4356,14 @@
         "type": "caching",
         "agent": "all-agents",
         "action": "Prompt caching wired on intel agents + Dr. Scoop — verify first cache_creation_input_tokens > 0 on next cron run",
-        "est_save_usd_wk": 11.77,
+        "est_save_usd_wk": 18.36,
         "severity": "amber"
       },
       {
         "type": "batching",
         "agent": "build-loop",
         "action": "Batch short tasks (<5K token context) into single Claude Code sessions to amortize system-prompt overhead — reduces per-task input tokens by ~30%",
-        "est_save_usd_wk": 7.06,
+        "est_save_usd_wk": 11.02,
         "severity": "amber"
       },
       {
@@ -4205,24 +4380,24 @@
   "source_freshness": [
     {
       "source": "JARVIS / Railway heartbeat",
-      "last_updated": "2026-06-18T13:31:04.809Z",
+      "last_updated": null,
       "threshold_mins": 10,
-      "age_mins": 0,
-      "status": "ok"
+      "age_mins": null,
+      "status": "unknown"
     },
     {
       "source": "TMDB scraper",
       "last_updated": "2026-06-18T06:05:20.985Z",
       "threshold_mins": 1500,
-      "age_mins": 446,
-      "status": "ok"
+      "age_mins": 2116,
+      "status": "stale"
     },
     {
       "source": "S3 Lake sizes",
       "last_updated": "2026-06-18T06:19:42.858Z",
       "threshold_mins": 1560,
-      "age_mins": 431,
-      "status": "ok"
+      "age_mins": 2102,
+      "status": "stale"
     },
     {
       "source": "Nielsen VIEWERSHIP",
@@ -4233,28 +4408,28 @@
     },
     {
       "source": "Build events log",
-      "last_updated": null,
+      "last_updated": "2026-06-19T17:20:48.904Z",
       "threshold_mins": 240,
-      "age_mins": null,
-      "status": "unknown"
+      "age_mins": 1,
+      "status": "ok"
     },
     {
       "source": "Token refresh",
-      "last_updated": "2026-06-18T08:45:33.000Z",
+      "last_updated": "2026-06-19T15:23:39.000Z",
       "threshold_mins": 300,
-      "age_mins": 286,
-      "status": "warn"
+      "age_mins": 118,
+      "status": "ok"
     }
   ],
   "health": {
-    "score": 81,
+    "score": 66,
     "grade": "amber",
     "floor": null,
     "components": {
       "agents": 64,
       "canaries": 100,
-      "freshness": 100,
-      "cron": 39
+      "freshness": 50,
+      "cron": 6
     },
     "formula_version": "v1",
     "formula": {
@@ -4271,9 +4446,9 @@
         "amber": 60
       }
     },
-    "computed_at": "2026-06-18T13:31:04.812Z"
+    "computed_at": "2026-06-19T17:21:29.066Z"
   },
-  "follow_up_count": 4,
+  "follow_up_count": 6,
   "follow_up_items": [
     {
       "type": "agent_error",
@@ -4290,38 +4465,28 @@
     {
       "type": "agent_error",
       "name": "IAB Intel"
+    },
+    {
+      "type": "freshness_breach",
+      "name": "TMDB scraper"
+    },
+    {
+      "type": "freshness_breach",
+      "name": "S3 Lake sizes"
     }
   ],
   "ask": {
     "url": "/api/ask",
     "enabled": true
   },
-  "last_updated": "2026-06-18T13:31:07.088Z",
+  "last_updated": "2026-06-19T17:21:34.625Z",
   "overnight_debrief": {
-    "date": "Thu Jun 18 2026",
+    "date": "Fri Jun 19 2026",
     "ran": [
       {
-        "time": "02:05",
-        "agent": "TMDB Bulk Load",
-        "result": "All phases complete → s3://sasmaster-2026/tmdb_dev/",
-        "status": "ok"
-      },
-      {
-        "time": "05:00",
-        "agent": "TMDB Daily Agent",
-        "result": "12 endpoints → #sasmaster-intel",
-        "status": "ok"
-      },
-      {
-        "time": "05:02",
-        "agent": "Daily Visuals",
-        "result": "Board + Architecture screenshots posted to Slack",
-        "status": "ok"
-      },
-      {
-        "time": "06:30",
-        "agent": "EDGAR Scraper v2",
-        "result": "16/16 companies | 0 with new filings",
+        "time": "13:20",
+        "agent": "Nightly Build",
+        "result": "12m 51s",
         "status": "ok"
       }
     ],
