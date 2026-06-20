@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theme 05 — Animated Handsketch · SaSMaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Patrick+Hand:wght@400&family=Raleway:ital,wght@0,200;0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/roughjs@4.6.6/bundled/rough.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow-x:hidden;}
+
+/* ── [R#01] NAV — theme-aware fonts ── */
+.switcher{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:54px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 40px;
+  background:rgba(250,248,242,0.94);
+  backdrop-filter:blur(14px);
+  border-bottom:2px solid #e8ddd0;
+  transition:background .4s,border-color .4s;
+}
+.switcher.bp{
+  background:rgba(30,52,100,0.96);
+  border-bottom:1px solid rgba(140,200,255,0.25);
+}
+.switcher.sk{
+  background:rgba(255,249,240,0.96);
+  border-bottom:2px solid #c56a2d;
+}
+/* Logo — each theme font */
+.sw-logo{
+  font-family:'Caveat',cursive;font-size:20px;font-weight:700;
+  color:#2d2420;letter-spacing:.02em;transition:color .3s,font-family .3s;
+}
+.switcher.bp .sw-logo{
+  font-family:'Raleway',sans-serif;font-size:13px;font-weight:300;
+  letter-spacing:.25em;text-transform:uppercase;color:rgba(180,220,255,0.85);
+}
+.switcher.sk .sw-logo{
+  font-family:'Patrick Hand',cursive;font-size:20px;font-weight:400;
+  color:#1a1410;
+}
+/* Tabs */
+.sw-tabs{display:flex;gap:4px;padding:4px;border-radius:8px;background:rgba(0,0,0,0.05);transition:background .3s;}
+.switcher.bp .sw-tabs{background:rgba(255,255,255,0.06);}
+.switcher.sk .sw-tabs{background:rgba(0,0,0,0.04);}
+.sw-tab{
+  padding:6px 18px;border-radius:6px;font-size:14px;font-weight:700;
+  cursor:pointer;border:none;background:transparent;
+  color:#8a7060;font-family:'Caveat',cursive;letter-spacing:.02em;
+  transition:all .2s;
+}
+.switcher.bp .sw-tab{font-family:'Raleway',sans-serif;font-size:11px;font-weight:400;letter-spacing:.15em;text-transform:uppercase;color:rgba(140,190,255,0.5);}
+.switcher.sk .sw-tab{font-family:'Patrick Hand',cursive;font-size:14px;color:#9b8878;}
+.sw-tab.active{background:white;color:#2d2420;box-shadow:0 1px 4px rgba(0,0,0,0.1);}
+.switcher.bp .sw-tab.active{
+  background:rgba(100,160,255,0.15);color:rgba(200,230,255,0.95);
+  box-shadow:none;border-bottom:2px solid rgba(140,200,255,0.6);border-radius:4px 4px 0 0;
+}
+.switcher.sk .sw-tab.active{
+  background:white;color:#1a1410;
+  box-shadow:0 1px 4px rgba(0,0,0,0.08);
+  border-bottom:2px solid #c56a2d;border-radius:4px 4px 0 0;
+}
+
+/* ── PAGES ── */
+.theme-page{display:none;min-height:100vh;padding-top:54px;}
+.theme-page.active{display:block;}
+
+/* ══════════════════════════
+   THEME A — ANALYST'S NOTEBOOK
+══════════════════════════ */
+.page-a{font-family:'Caveat',cursive;}
+/* [R#08] paper grain texture */
+.page-a{
+  background:
+    repeating-linear-gradient(transparent,transparent 27px,#ddd8cc 27px,#ddd8cc 28px),
+    repeating-linear-gradient(90deg,rgba(200,190,170,0.03),rgba(200,190,170,0.03) 1px,transparent 1px,transparent 7px),
+    #faf8f2;
+}
+.margin-line{position:fixed;top:54px;left:72px;bottom:0;width:2px;background:rgba(210,90,90,0.35);pointer-events:none;z-index:0;}
+.a-content{position:relative;z-index:1;padding:32px 48px 60px 88px;max-width:1280px;margin:0 auto;}
+.a-header{margin-bottom:28px;}
+.a-title{font-family:'Caveat',cursive;font-size:36px;font-weight:700;color:#2d2420;border-bottom:3px solid #e05555;display:inline-block;padding-bottom:4px;margin-bottom:6px;}
+.a-subtitle{font-family:'Caveat',cursive;font-size:15px;color:#8a7060;}
+
+/* [R#02] KPI cards with delta */
+.a-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.a-kpi{
+  background:rgba(255,255,255,0.72);border:1.5px solid #c8bfb0;
+  padding:14px 16px;border-radius:2px;position:relative;overflow:hidden;
+}
+.a-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#e05555;}
+.a-kpi::after{content:'';position:absolute;bottom:-3px;right:-3px;width:100%;height:100%;border:1.5px solid #c8bfb0;border-radius:2px;z-index:-1;}
+.a-kpi-val{font-family:'Caveat',cursive;font-size:30px;font-weight:700;color:#2d2420;line-height:1.1;}
+.a-kpi-label{font-family:'Caveat',cursive;font-size:11px;color:#8a7060;margin-top:2px;}
+.a-kpi-delta{font-family:'Caveat',cursive;font-size:12px;color:#1D9E75;margin-top:3px;}
+.a-kpi-delta.neg{color:#c84040;}
+
+.a-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
+.a-full{margin-bottom:24px;}
+.a-card{background:rgba(255,255,255,0.65);border:1.5px solid #c8bfb0;border-radius:3px;padding:18px;position:relative;}
+/* [R#03] sticky note */
+.a-sticky{position:absolute;top:-10px;right:14px;background:#fde68a;border:1px solid #c8a820;padding:3px 10px;font-size:11px;color:#7a5a10;transform:rotate(1.8deg);font-family:'Caveat',cursive;box-shadow:1px 2px 4px rgba(0,0,0,0.1);}
+/* [R#03] rich annotations */
+.a-ann{font-family:'Caveat',cursive;font-size:13px;color:#e05555;margin-top:10px;display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap;}
+.a-ann-circle{display:inline-block;border:2px solid #e05555;border-radius:50%;padding:0 6px;line-height:1.6;font-size:12px;flex-shrink:0;}
+.a-ann-arrow{font-size:16px;transform:rotate(15deg);display:inline-block;flex-shrink:0;}
+canvas.sketch{display:block;width:100%;}
+
+/* ══════════════════════════
+   THEME B — BLUEPRINT DRAFT
+══════════════════════════ */
+.page-b{
+  background:#253c6e;
+  font-family:'Raleway',sans-serif;
+}
+/* [R#08] blueprint vignette */
+.bp-vignette{position:fixed;top:54px;left:0;right:0;bottom:0;
+  background:radial-gradient(ellipse at center,transparent 40%,rgba(10,20,50,0.45) 100%);
+  pointer-events:none;z-index:1;}
+.bp-grid-bg{position:fixed;top:54px;left:0;right:0;bottom:0;
+  background-image:linear-gradient(rgba(130,190,255,0.16) 1px,transparent 1px),linear-gradient(90deg,rgba(130,190,255,0.16) 1px,transparent 1px);
+  background-size:32px 32px;pointer-events:none;z-index:0;}
+.bp-major-grid{position:fixed;top:54px;left:0;right:0;bottom:0;
+  background-image:linear-gradient(rgba(130,190,255,0.30) 1px,transparent 1px),linear-gradient(90deg,rgba(130,190,255,0.30) 1px,transparent 1px);
+  background-size:160px 160px;pointer-events:none;z-index:0;}
+.b-content{position:relative;z-index:2;padding:32px 48px 60px;max-width:1280px;margin:0 auto;}
+.b-header{margin-bottom:24px;border-bottom:1px solid rgba(140,200,255,0.2);padding-bottom:14px;}
+.b-stamp{font-size:9px;letter-spacing:.3em;color:rgba(140,200,255,0.5);text-transform:uppercase;margin-bottom:5px;}
+.b-title{font-family:'Raleway',sans-serif;font-size:26px;font-weight:200;letter-spacing:.18em;text-transform:uppercase;color:rgba(200,230,255,0.92);}
+.b-title span{color:rgba(140,200,255,0.5);}
+.b-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+.b-full{margin-bottom:20px;}
+/* [R#04] panel bg darker for contrast */
+.b-panel{border:1px solid rgba(130,190,255,0.35);background:rgba(10,25,65,0.55);padding:16px;position:relative;}
+.b-panel::before{content:'';position:absolute;top:-1px;left:12px;width:48px;height:2px;background:rgba(140,200,255,0.6);}
+.b-panel-title{font-size:8px;font-weight:400;letter-spacing:.28em;text-transform:uppercase;color:rgba(180,220,255,0.8);margin-bottom:12px;}
+.b-ref{position:absolute;top:8px;right:12px;font-size:8px;color:rgba(140,200,255,0.4);letter-spacing:.1em;}
+.b-callout{font-size:9px;letter-spacing:.1em;color:rgba(160,210,255,0.55);margin-top:8px;border-top:0.5px solid rgba(140,200,255,0.15);padding-top:7px;}
+/* [R#02] blueprint KPIs */
+.b-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.b-kpi{border:1px solid rgba(140,200,255,0.25);background:rgba(10,30,80,0.55);padding:14px;position:relative;}
+.b-kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,rgba(140,200,255,0.55),transparent);}
+.b-kpi-val{font-family:'Raleway',sans-serif;font-size:26px;font-weight:200;letter-spacing:.04em;color:rgba(210,240,255,0.95);line-height:1.1;}
+.b-kpi-label{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:rgba(140,200,255,0.5);margin-top:4px;}
+.b-kpi-delta{font-size:9px;letter-spacing:.08em;color:rgba(80,255,160,0.8);margin-top:3px;}
+
+/* ══════════════════════════
+   THEME C — STUDIO SKETCHBOOK
+══════════════════════════ */
+.page-c{font-family:'Patrick Hand',cursive;}
+/* [R#08] canvas paper texture */
+.page-c{
+  background:
+    repeating-linear-gradient(90deg,rgba(160,130,100,0.03),rgba(160,130,100,0.03) 1px,transparent 1px,transparent 8px),
+    radial-gradient(ellipse at 20% 30%,rgba(197,106,45,0.05) 0%,transparent 55%),
+    radial-gradient(ellipse at 80% 70%,rgba(90,122,191,0.05) 0%,transparent 55%),
+    #fff9f0;
+}
+.c-content{position:relative;z-index:1;padding:32px 48px 60px;max-width:1280px;margin:0 auto;}
+.c-header{margin-bottom:26px;}
+.c-title{font-family:'Patrick Hand',cursive;font-size:40px;color:#1a1410;margin-bottom:3px;}
+.c-title span{color:#c56a2d;}
+.c-subtitle{font-family:'Patrick Hand',cursive;font-size:15px;color:#9b8878;}
+.c-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
+.c-full{margin-bottom:24px;}
+.c-card{background:rgba(255,255,255,0.82);border:2px solid #1a1410;border-radius:4px;padding:16px;position:relative;box-shadow:4px 4px 0 rgba(26,20,16,0.1);}
+.c-tag{display:inline-block;padding:2px 10px;border-radius:100px;font-family:'Patrick Hand',cursive;font-size:11px;font-weight:700;border:1.5px solid currentColor;margin-bottom:8px;}
+.c-card-title{font-family:'Patrick Hand',cursive;font-size:15px;font-weight:700;color:#1a1410;margin-bottom:10px;}
+.c-note{font-family:'Patrick Hand',cursive;font-size:13px;color:#c56a2d;margin-top:8px;}
+/* [R#02] sketchbook KPIs */
+.c-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px;}
+.c-kpi{background:rgba(255,255,255,0.9);border:2px solid #1a1410;border-radius:4px;padding:14px;text-align:center;box-shadow:3px 3px 0 rgba(26,20,16,0.09);position:relative;overflow:hidden;}
+.c-kpi-stripe{position:absolute;top:0;left:0;right:0;height:4px;}
+.c-kpi-val{font-family:'Patrick Hand',cursive;font-size:28px;color:#1a1410;line-height:1.1;}
+.c-kpi-label{font-family:'Patrick Hand',cursive;font-size:11px;color:#7a6a5a;margin-top:2px;}
+.c-kpi-delta{font-family:'Patrick Hand',cursive;font-size:12px;color:#4a8c6f;margin-top:3px;}
+
+/* ── [R#06] THEMED TOOLTIPS ── */
+/* Notebook — sticky note */
+.tip-a{
+  position:fixed;background:#fde68a;color:#2d2420;
+  border:1px solid #c8a820;padding:8px 12px;
+  border-radius:3px;font-family:'Caveat',cursive;font-size:14px;
+  line-height:1.5;pointer-events:none;opacity:0;
+  transition:opacity .15s;z-index:500;min-width:140px;
+  box-shadow:3px 3px 0 rgba(0,0,0,0.12);
+  transform:rotate(-1deg);
+  border-left:4px solid #e05555;
+}
+/* Blueprint — dark panel */
+.tip-b{
+  position:fixed;background:rgba(8,20,60,0.96);color:rgba(200,230,255,0.95);
+  border:1px solid rgba(140,200,255,0.35);padding:8px 12px;
+  font-family:'Raleway',sans-serif;font-size:11px;letter-spacing:.04em;
+  line-height:1.6;pointer-events:none;opacity:0;
+  transition:opacity .15s;z-index:500;min-width:140px;
+  border-top:2px solid rgba(140,200,255,0.6);
+}
+/* Sketchbook — ink card */
+.tip-c{
+  position:fixed;background:white;color:#1a1410;
+  border:2px solid #1a1410;padding:8px 12px;border-radius:4px;
+  font-family:'Patrick Hand',cursive;font-size:14px;
+  line-height:1.5;pointer-events:none;opacity:0;
+  transition:opacity .15s;z-index:500;min-width:140px;
+  box-shadow:3px 3px 0 rgba(26,20,16,0.15);
+}
+.tip-a.on,.tip-b.on,.tip-c.on{opacity:1;}
+.tip-a strong{color:#2d2420;font-weight:700;font-size:15px;display:block;margin-bottom:1px;}
+.tip-b strong{color:rgba(220,240,255,1);font-weight:600;display:block;margin-bottom:2px;font-size:12px;}
+.tip-c strong{color:#1a1410;font-weight:700;font-size:15px;display:block;margin-bottom:1px;}
+.tip-a .roi,.tip-c .roi{color:#1D9E75;font-size:12px;}
+.tip-b .roi{color:rgba(80,255,160,0.85);font-size:10px;}
+</style>
+</head>
+<body>
+
+<div class="tip-a" id="tip-a"></div>
+<div class="tip-b" id="tip-b"></div>
+<div class="tip-c" id="tip-c"></div>
+
+<nav class="switcher" id="nav">
+  <div class="sw-logo" id="sw-logo">SaSMaster · Sketch</div>
+  <div class="sw-tabs">
+    <button class="sw-tab active" onclick="switchTheme('a',this)">Analyst's Notebook</button>
+    <button class="sw-tab" onclick="switchTheme('b',this)">Blueprint Draft</button>
+    <button class="sw-tab" onclick="switchTheme('c',this)">Studio Sketchbook</button>
+  </div>
+</nav>
+
+<!-- ══ PAGE A ══ -->
+<div class="theme-page page-a active" id="page-a">
+  <div class="margin-line"></div>
+  <div class="a-content">
+    <div class="a-header">
+      <div class="a-title">Box Office Intelligence — 2024 Season</div>
+      <div class="a-subtitle">Notes & Analysis · SaSMaster Research · Last updated June 20 2026</div>
+    </div>
+    <div class="a-kpi-grid">
+      <div class="a-kpi"><div class="a-kpi-val" id="a-k1">$0B</div><div class="a-kpi-label">Domestic Gross</div><div class="a-kpi-delta" id="a-d1">↑ +14% vs 2023</div></div>
+      <div class="a-kpi"><div class="a-kpi-val" id="a-k2">0</div><div class="a-kpi-label">Wide Releases</div><div class="a-kpi-delta" id="a-d2">↑ +11 titles vs LY</div></div>
+      <div class="a-kpi"><div class="a-kpi-val" id="a-k3">$0M</div><div class="a-kpi-label">Avg Opening Weekend</div><div class="a-kpi-delta neg">↓ −$4M vs 2023</div></div>
+      <div class="a-kpi"><div class="a-kpi-val" id="a-k4">0.0×</div><div class="a-kpi-label">Avg Budget ROI</div><div class="a-kpi-delta" id="a-d4">↑ best since 2019</div></div>
+    </div>
+    <div class="a-grid">
+      <div class="a-card">
+        <div class="a-sticky">see also: pg 4</div>
+        <canvas id="a-bar" class="sketch" height="200"></canvas>
+        <div class="a-ann"><span class="a-ann-arrow">↗</span> Disney edges Universal by ~$350M this year</div>
+      </div>
+      <div class="a-card">
+        <canvas id="a-scatter" class="sketch" height="260"></canvas>
+        <div class="a-ann"><span class="a-ann-circle">!</span><span class="a-ann-arrow">↖</span> Horror ROI outliers — <em>Terrifier 3: $2M budget → $68M</em></div>
+      </div>
+    </div>
+    <div class="a-grid">
+      <div class="a-card">
+        <canvas id="a-donut" class="sketch" height="220"></canvas>
+      </div>
+      <div class="a-card">
+        <canvas id="a-line" class="sketch" height="220"></canvas>
+        <div class="a-ann">↓ mid-season dip — summer counterprogramming wks 8–12</div>
+      </div>
+    </div>
+    <div class="a-full a-card">
+      <canvas id="a-bubble" class="sketch" height="320"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE B ══ -->
+<div class="theme-page page-b" id="page-b">
+  <div class="bp-grid-bg"></div>
+  <div class="bp-major-grid"></div>
+  <div class="bp-vignette"></div>
+  <div class="b-content">
+    <div class="b-header">
+      <div class="b-stamp">SaSMaster Intelligence · REF-2024-BO-001 · DRAFT</div>
+      <div class="b-title">Theatrical <span>///</span> Box Office <span>///</span> Analysis</div>
+    </div>
+    <div class="b-kpi-grid">
+      <div class="b-kpi"><div class="b-kpi-val" id="b-k1">$0B</div><div class="b-kpi-label">Domestic Gross</div><div class="b-kpi-delta">+14.2% YOY</div></div>
+      <div class="b-kpi"><div class="b-kpi-val" id="b-k2">0</div><div class="b-kpi-label">Wide Releases</div><div class="b-kpi-delta">+11 vs prior year</div></div>
+      <div class="b-kpi"><div class="b-kpi-val" id="b-k3">$0M</div><div class="b-kpi-label">Avg Opening</div><div class="b-kpi-delta" style="color:rgba(255,140,120,0.8);">−$4M YOY</div></div>
+      <div class="b-kpi"><div class="b-kpi-val" id="b-k4">0.0×</div><div class="b-kpi-label">ROI Multiple</div><div class="b-kpi-delta">Best since 2019</div></div>
+    </div>
+    <div class="b-grid">
+      <div class="b-panel"><div class="b-ref">FIG-01</div><div class="b-panel-title">Studio Performance — Domestic Gross $M</div><canvas id="b-bar" class="sketch" height="200"></canvas><div class="b-callout">DATA SOURCE: Box Office Mojo + Luminate · 2024</div></div>
+      <div class="b-panel"><div class="b-ref">FIG-02</div><div class="b-panel-title">Budget × Gross Correlation Analysis</div><canvas id="b-scatter" class="sketch" height="260"></canvas><div class="b-callout">NOTE: Horror quadrant flagged — see annotation sheet</div></div>
+    </div>
+    <div class="b-grid">
+      <div class="b-panel"><div class="b-ref">FIG-03</div><div class="b-panel-title">Genre Distribution — Market Share</div><canvas id="b-donut" class="sketch" height="220"></canvas></div>
+      <div class="b-panel"><div class="b-ref">FIG-04</div><div class="b-panel-title">Weekly Performance Index — Live+SD A18-49</div><canvas id="b-line" class="sketch" height="220"></canvas><div class="b-callout">SERIES: NBC 21-episode arc · mid-season drop weeks 8–12</div></div>
+    </div>
+    <div class="b-full b-panel"><div class="b-ref">FIG-05</div><div class="b-panel-title">Complete Film Mapping — Scale = Gross · Color = Studio</div><canvas id="b-bubble" class="sketch" height="320"></canvas></div>
+  </div>
+</div>
+
+<!-- ══ PAGE C ══ -->
+<div class="theme-page page-c" id="page-c">
+  <div class="c-content">
+    <div class="c-header">
+      <div class="c-title">Box Office <span>2024</span></div>
+      <div class="c-subtitle">Studio sketches + quick analysis · SaSMaster</div>
+    </div>
+    <div class="c-kpi-grid">
+      <div class="c-kpi"><div class="c-kpi-stripe" style="background:#5a7abf;"></div><div class="c-kpi-val" id="c-k1">$0B</div><div class="c-kpi-label">Domestic Gross</div><div class="c-kpi-delta">↑ +14% vs last year</div></div>
+      <div class="c-kpi"><div class="c-kpi-stripe" style="background:#c56a2d;"></div><div class="c-kpi-val" id="c-k2">0</div><div class="c-kpi-label">Wide Releases</div><div class="c-kpi-delta">↑ 11 more titles</div></div>
+      <div class="c-kpi"><div class="c-kpi-stripe" style="background:#4a8c6f;"></div><div class="c-kpi-val" id="c-k3">$0M</div><div class="c-kpi-label">Avg Opening</div><div class="c-kpi-delta" style="color:#c56a2d;">↓ −$4M vs 2023</div></div>
+      <div class="c-kpi"><div class="c-kpi-stripe" style="background:#9b5abf;"></div><div class="c-kpi-val" id="c-k4">0.0×</div><div class="c-kpi-label">Avg ROI</div><div class="c-kpi-delta">↑ best since 2019</div></div>
+    </div>
+    <div class="c-grid">
+      <div class="c-card"><span class="c-tag" style="color:#c56a2d;">Studios</span><div class="c-card-title">Gross by Studio</div><canvas id="c-bar" class="sketch" height="200"></canvas><div class="c-note">↑ Disney + Universal own 62% of domestic market</div></div>
+      <div class="c-card"><span class="c-tag" style="color:#5a7abf;">Analysis</span><div class="c-card-title">Budget vs. Return</div><canvas id="c-scatter" class="sketch" height="260"></canvas><div class="c-note">↑ Horror = best ROI. $2M → $68M. Action can't match that.</div></div>
+    </div>
+    <div class="c-grid">
+      <div class="c-card"><span class="c-tag" style="color:#4a8c6f;">Genres</span><div class="c-card-title">Market Share by Genre</div><canvas id="c-donut" class="sketch" height="220"></canvas></div>
+      <div class="c-card"><span class="c-tag" style="color:#9b5abf;">Trends</span><div class="c-card-title">Weekly Ratings Curve — A18-49</div><canvas id="c-line" class="sketch" height="220"></canvas><div class="c-note">↑ summer bounce wks 6–10, dip wks 13–15</div></div>
+    </div>
+    <div class="c-full c-card"><span class="c-tag" style="color:#1a1410;">All Films</span><div class="c-card-title">Every film — size = gross — hover to explore</div><canvas id="c-bubble" class="sketch" height="320"></canvas></div>
+  </div>
+</div>
+
+<script>
+/* ═══════ DATA ═══════ */
+const STUDIOS=['Disney','Universal','Warner','Paramount','Sony','Other'];
+const STUDIO_GROSS=[2890,3240,1560,840,890,810];
+const GENRES=['Action','Animation','Sci-Fi','Drama','Horror','Comedy','Family','Other'];
+const GENRE_DATA=[3820,2064,1340,890,730,740,560,2956];
+const FILMS=[
+  {t:'Inside Out 2',s:0,gross:652,budget:200,genre:'Animation'},
+  {t:'Deadpool & Wolverine',s:0,gross:636,budget:200,genre:'Action'},
+  {t:'Moana 2',s:0,gross:439,budget:150,genre:'Animation'},
+  {t:'Despicable Me 4',s:1,gross:360,budget:100,genre:'Animation'},
+  {t:'Wicked',s:1,gross:290,budget:145,genre:'Drama'},
+  {t:'Beetlejuice 2',s:2,gross:296,budget:100,genre:'Comedy'},
+  {t:'Dune 2',s:2,gross:283,budget:190,genre:'Sci-Fi'},
+  {t:'Twisters',s:1,gross:273,budget:155,genre:'Action'},
+  {t:'Wild Robot',s:1,gross:245,budget:78,genre:'Animation'},
+  {t:'A Quiet Place 3',s:3,gross:261,budget:67,genre:'Horror'},
+  {t:'Bob Marley',s:3,gross:180,budget:70,genre:'Drama'},
+  {t:'Bad Boys RORD',s:4,gross:183,budget:115,genre:'Action'},
+  {t:'Alien: Romulus',s:0,gross:347,budget:65,genre:'Sci-Fi'},
+  {t:'Godzilla × Kong',s:2,gross:196,budget:150,genre:'Action'},
+  {t:'Venom 3',s:4,gross:139,budget:120,genre:'Action'},
+  {t:'Kingdom Planet',s:0,gross:171,budget:160,genre:'Action'},
+  {t:'Terrifier 3',s:5,gross:68,budget:2,genre:'Horror'},
+  {t:'Longlegs',s:5,gross:73,budget:10,genre:'Horror'},
+  {t:'Furiosa',s:2,gross:68,budget:168,genre:'Action'},
+  {t:'Joker 2',s:2,gross:57,budget:190,genre:'Drama'},
+  {t:'Mean Girls',s:3,gross:78,budget:36,genre:'Comedy'},
+  {t:'Megalopolis',s:5,gross:4,budget:120,genre:'Drama'},
+];
+const RATINGS=[2.4,2.6,2.5,2.9,3.1,2.8,3.2,3.0,2.8,2.7,3.1,3.4,3.2,3.0,2.9,3.3,3.5,3.2,3.0,2.8,3.1];
+
+/* ═══════ THEME COLORS ═══════ */
+const TC={
+  a:{
+    studios:['rgba(45,36,32,0.68)','rgba(80,60,50,0.58)','rgba(224,85,85,0.52)','rgba(45,36,32,0.42)','rgba(45,36,32,0.32)','rgba(45,36,32,0.22)'],
+    studiosStroke:['#2d2420','#4a3830','#c84040','#6a5040','#8a7060','#b0a090'],
+    genres:['rgba(200,70,70,0.5)','rgba(80,120,190,0.5)','rgba(100,160,100,0.45)','rgba(190,140,60,0.45)','rgba(160,80,160,0.4)','rgba(60,160,160,0.4)','rgba(200,120,60,0.4)','rgba(140,130,120,0.3)'],
+    line:'#2d2420',lineFill:'rgba(45,36,32,0.06)',
+    scatter:['#c84040','#4a7abf','#c56a2d','#4a8c6f','#9b5abf','#c8a030'],
+    bubble:['rgba(200,70,70,0.72)','rgba(80,120,190,0.7)','rgba(60,160,160,0.7)','rgba(190,140,60,0.7)','rgba(200,120,160,0.7)','rgba(160,80,160,0.7)'],
+    roughness:1.8,fillStyle:'hachure',strokeWidth:1.4,
+    font:'Caveat',labelColor:'#2d2420',mutedColor:'#8a7060',
+  },
+  b:{
+    studios:['rgba(80,200,255,0.58)','rgba(120,160,255,0.52)','rgba(80,240,210,0.50)','rgba(255,220,80,0.50)','rgba(255,140,180,0.47)','rgba(200,160,255,0.44)'],
+    studiosStroke:['#50c8ff','#78a0ff','#50f0d2','#ffd850','#ff8cb4','#c8a0ff'],
+    genres:['rgba(80,200,255,0.72)','rgba(180,120,255,0.68)','rgba(50,230,210,0.65)','rgba(255,215,60,0.65)','rgba(255,100,110,0.62)','rgba(80,255,180,0.60)','rgba(255,165,60,0.58)','rgba(160,180,220,0.50)'],
+    line:'rgba(80,220,255,1)',lineFill:'rgba(80,180,255,0.10)',
+    scatter:['#50c8ff','#b478ff','#50f0d2','#ffd850','#ff6470','#50ffb4'],
+    bubble:['rgba(80,200,255,0.82)','rgba(120,160,255,0.78)','rgba(50,230,210,0.78)','rgba(255,215,80,0.78)','rgba(255,140,180,0.75)','rgba(180,140,255,0.75)'],
+    roughness:0.8,fillStyle:'zigzag',strokeWidth:0.9,
+    font:'Raleway',labelColor:'rgba(220,240,255,0.95)',mutedColor:'rgba(150,200,255,0.60)',
+  },
+  c:{
+    studios:['rgba(90,122,191,0.45)','rgba(74,140,111,0.40)','rgba(197,106,45,0.40)','rgba(90,122,191,0.30)','rgba(155,90,191,0.30)','rgba(200,160,80,0.30)'],
+    studiosStroke:['#5a7abf','#4a8c6f','#c56a2d','#5a7abf','#9b5abf','#c8a030'],
+    genres:['rgba(224,84,84,0.55)','rgba(90,122,191,0.50)','rgba(74,140,111,0.45)','rgba(197,106,45,0.45)','rgba(155,90,191,0.40)','rgba(60,170,170,0.40)','rgba(200,140,60,0.35)','rgba(160,150,140,0.30)'],
+    line:'#c56a2d',lineFill:'rgba(197,106,45,0.08)',
+    scatter:['#e05555','#5a7abf','#c56a2d','#4a8c6f','#9b5abf','#c8a030'],
+    bubble:['rgba(224,84,84,0.75)','rgba(90,122,191,0.70)','rgba(74,140,111,0.70)','rgba(197,106,45,0.70)','rgba(155,90,191,0.65)','rgba(200,160,80,0.65)'],
+    roughness:2.2,fillStyle:'cross-hatch',strokeWidth:1.8,
+    font:'Patrick Hand',labelColor:'#1a1410',mutedColor:'#9b8878',
+  }
+};
+
+/* ═══════ TOOLTIP — R#06 themed ═══════ */
+let tipTimeout;
+function showTip(e,html,theme){
+  clearTimeout(tipTimeout);
+  ['a','b','c'].forEach(x=>document.getElementById('tip-'+x).classList.remove('on'));
+  const el=document.getElementById('tip-'+theme);
+  el.innerHTML=html;
+  const vw=window.innerWidth,tw=180;
+  el.style.left=Math.min(e.clientX+14,vw-tw-8)+'px';
+  el.style.top=Math.max(e.clientY-10,8)+'px';
+  el.classList.add('on');
+}
+function hideTip(){tipTimeout=setTimeout(()=>['a','b','c'].forEach(x=>document.getElementById('tip-'+x).classList.remove('on')),140);}
+
+/* ═══════ COUNTER ═══════ */
+function animCount(el,to,pre,suf,dec,dur){
+  const t0=performance.now();
+  (function tick(now){
+    const p=Math.min((now-t0)/dur,1),ease=1-Math.pow(1-p,3),v=to*ease;
+    el.textContent=pre+(dec?v.toFixed(dec):Math.round(v))+suf;
+    p<1&&requestAnimationFrame(tick);
+  })(t0);
+}
+function animCounters(t){
+  const cfg=[['$',1,'B',11.8],['','0','',142],['$',0,'M',48],['','1','×',2.4]];
+  cfg.forEach(([pre,dec,suf,to],i)=>{
+    const el=document.getElementById(t+'-k'+(i+1));
+    if(el) animCount(el,to,pre,suf,+dec,1800);
+  });
+}
+
+/* ═══════ CANVAS SETUP ═══════ */
+const DPR=()=>window.devicePixelRatio||1;
+function setupCanvas(id){
+  const c=document.getElementById(id);
+  const W=c.parentElement.clientWidth-24;
+  const H=+c.getAttribute('height')||200;
+  c.style.width=W+'px'; c.style.height=H+'px';
+  c.width=Math.round(W*DPR()); c.height=Math.round(H*DPR());
+  const ctx=c.getContext('2d');
+  ctx.scale(DPR(),DPR());
+  return{c,ctx,W,H};
+}
+
+/* ═══════ [R#05] CHART TITLE drawn on canvas ═══════ */
+function drawChartTitle(ctx,text,T,W){
+  ctx.fillStyle=T.labelColor;
+  ctx.font=`bold 15px ${T.font}`;
+  ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText(text,0,0);
+  /* dashed underline */
+  ctx.save();
+  ctx.setLineDash([4,4]);
+  ctx.strokeStyle=T.mutedColor;
+  ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(0,18); ctx.lineTo(W*0.7,18);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* ═══════ DRAW ALL — [R#07] re-triggers animations ═══════ */
+function drawAll(t){
+  /* reset all chart anim state */
+  ['bar','scatter','donut','line'].forEach(chart=>{
+    const fn=window['anim_'+t+'_'+chart];
+    if(fn) fn.t0=null;
+  });
+  animCounters(t);
+  const T=TC[t];
+  drawBar(t,T);
+  drawScatter(t,T);
+  drawDonut(t,T);
+  drawLine(t,T);
+  drawBubble(t,T);
+}
+
+/* ═══════ [R#01] THEME SWITCH ═══════ */
+let currentTheme='a';
+function switchTheme(t,btn){
+  document.querySelectorAll('.theme-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sw-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+t).classList.add('active');
+  btn.classList.add('active');
+  const nav=document.getElementById('nav');
+  const logo=document.getElementById('sw-logo');
+  nav.className='switcher'+(t==='b'?' bp':t==='c'?' sk':'');
+  logo.textContent=t==='a'?'SaSMaster · Sketch':t==='b'?'SASMASTER · SKETCH':' SaSMaster · Sketch';
+  currentTheme=t;
+  /* [R#07] small delay lets page paint before redraw fires */
+  setTimeout(()=>drawAll(t),60);
+}
+
+/* ═══════ BAR CHART ═══════ */
+function drawBar(t,T){
+  const{c,ctx,W,H}=setupCanvas(t+'-bar');
+  const rc=rough.canvas(c);
+  const maxG=Math.max(...STUDIO_GROSS);
+  const TITLE_H=24;
+  const pad={l:14,r:10,t:TITLE_H+10,b:32};
+  const bW=Math.floor((W-pad.l-pad.r)/STUDIOS.length)-8;
+  const chartH=H-pad.t-pad.b;
+  const bars=STUDIOS.map((s,i)=>({s,i,x:pad.l+i*(bW+8),targetH:(STUDIO_GROSS[i]/maxG)*chartH,fill:T.studios[i],stroke:T.studiosStroke[i]}));
+
+  function animBar(ts){
+    if(!animBar.t0) animBar.t0=ts;
+    const prog=Math.min((ts-animBar.t0)/1100,1);
+    const e=1-Math.pow(1-prog,3);
+    ctx.clearRect(0,0,W,H);
+    drawChartTitle(ctx,'STUDIO GROSS RANKING',T,W);
+    rc.line(pad.l,H-pad.b,W-pad.r,H-pad.b,{stroke:T.labelColor,strokeWidth:T.strokeWidth*0.6,roughness:T.roughness*0.4});
+    bars.forEach(b=>{
+      const bH=b.targetH*e, y=H-pad.b-bH;
+      if(bH>2) rc.rectangle(b.x,y,bW,bH,{fill:b.fill,stroke:b.stroke,strokeWidth:T.strokeWidth,roughness:T.roughness,fillStyle:T.fillStyle,fillWeight:T.strokeWidth*0.8,seed:b.i*10+42});
+      ctx.fillStyle=T.mutedColor; ctx.font=`12px ${T.font}`; ctx.textAlign='center';
+      ctx.fillText(b.s.slice(0,4),b.x+bW/2,H-pad.b+16);
+      if(bH>22){ctx.fillStyle=T.labelColor;ctx.font=`bold 11px ${T.font}`;ctx.fillText('$'+(STUDIO_GROSS[b.i]/1000).toFixed(1)+'B',b.x+bW/2,y-4);}
+    });
+    if(prog<1) requestAnimationFrame(animBar);
+  }
+  window['anim_'+t+'_bar']=animBar;
+  requestAnimationFrame(ts=>{animBar.t0=null;animBar(ts);});
+  c.onmousemove=ev=>{
+    const r=c.getBoundingClientRect(),mx=(ev.clientX-r.left)*(W/r.width);
+    const hit=bars.find(b=>mx>=b.x&&mx<=b.x+bW);
+    if(hit) showTip(ev,`<strong>${hit.s}</strong>$${(STUDIO_GROSS[hit.i]/1000).toFixed(1)}B domestic`,t);
+    else hideTip();
+  };
+  c.onmouseleave=hideTip;
+}
+
+/* ═══════ SCATTER CHART ═══════ */
+function drawScatter(t,T){
+  const{c,ctx,W,H}=setupCanvas(t+'-scatter');
+  const rc=rough.canvas(c);
+  const TITLE_H=24;
+  const pad={l:44,r:12,t:TITLE_H+10,b:32};
+  const maxB=220,maxG=700;
+  const sx=b=>pad.l+(b/maxB)*(W-pad.l-pad.r);
+  const sy=g=>H-pad.b-(g/maxG)*(H-pad.t-pad.b);
+  const dots=FILMS.filter(f=>f.budget>0&&f.gross>0).map(f=>({...f,alpha:0,tx:sx(f.budget),ty:sy(f.gross)}));
+
+  function animSc(ts){
+    if(!animSc.t0) animSc.t0=ts;
+    const prog=Math.min((ts-animSc.t0)/1400,1);
+    ctx.clearRect(0,0,W,H);
+    drawChartTitle(ctx,'BUDGET vs. RETURN',T,W);
+    [0,200,400,600].forEach(v=>{
+      rc.line(pad.l,sy(v),W-pad.r,sy(v),{stroke:T.mutedColor,strokeWidth:0.4,roughness:T.roughness*0.3});
+      ctx.fillStyle=T.mutedColor;ctx.font=`9px ${T.font}`;ctx.textAlign='right';
+      ctx.fillText('$'+v+'M',pad.l-4,sy(v)+3);
+    });
+    rc.line(sx(0),sy(0),sx(200),sy(200),{stroke:T.mutedColor,strokeWidth:0.9,roughness:T.roughness*0.5,strokeLineDash:[5,5]});
+    ctx.fillStyle=T.mutedColor;ctx.font=`9px ${T.font}`;ctx.textAlign='left';
+    ctx.fillText('breakeven',sx(60)+4,sy(60)-5);
+    dots.forEach((d,i)=>{
+      const delay=i/dots.length*0.65;
+      const dp=Math.max(0,Math.min(1,(prog-delay)/(1-delay)*1.5));
+      d.alpha=1-Math.pow(1-dp,3);
+      if(d.alpha>0.02) rc.circle(d.tx,d.ty,18*d.alpha,{fill:T.scatter[d.s]||T.scatter[0],stroke:T.studiosStroke[d.s]||T.studiosStroke[0],strokeWidth:T.strokeWidth*0.8,roughness:T.roughness*0.8,fillStyle:'solid',seed:i*7+1});
+    });
+    if(prog<1) requestAnimationFrame(animSc);
+  }
+  window['anim_'+t+'_scatter']=animSc;
+  requestAnimationFrame(ts=>{animSc.t0=null;animSc(ts);});
+  c.onmousemove=ev=>{
+    const r=c.getBoundingClientRect(),mx=(ev.clientX-r.left)*(W/r.width),my=(ev.clientY-r.top)*(H/r.height);
+    const hit=dots.find(d=>Math.hypot(d.tx-mx,d.ty-my)<14);
+    if(hit){const roi=(hit.gross/hit.budget).toFixed(1);showTip(ev,`<strong>${hit.t}</strong>Budget $${hit.budget}M → $${hit.gross}M<br><span class="roi">${roi}× ROI · ${hit.genre}</span>`,t);}
+    else hideTip();
+  };
+  c.onmouseleave=hideTip;
+}
+
+/* ═══════ DONUT CHART ═══════ */
+function drawDonut(t,T){
+  const{c,ctx,W,H}=setupCanvas(t+'-donut');
+  const rc=rough.canvas(c);
+  const TITLE_H=24;
+  const total=GENRE_DATA.reduce((a,b)=>a+b,0);
+  const cx=W*0.36, cy=(H+TITLE_H)/2, outerR=Math.min((H-TITLE_H)*0.44,85), innerR=outerR*0.54;
+
+  function animDonut(ts){
+    if(!animDonut.t0) animDonut.t0=ts;
+    const prog=Math.min((ts-animDonut.t0)/1300,1);
+    const e=1-Math.pow(1-prog,3);
+    ctx.clearRect(0,0,W,H);
+    drawChartTitle(ctx,'GENRE MARKET SHARE',T,W);
+    let startAngle=-Math.PI/2;
+    GENRE_DATA.forEach((v,i)=>{
+      const slice=(v/total)*Math.PI*2*e;
+      if(slice>0.01){
+        const path=describeArc(cx,cy,outerR,innerR,startAngle,startAngle+slice);
+        rc.path(path,{fill:T.genres[i],stroke:T.studiosStroke[i%T.studiosStroke.length],strokeWidth:T.strokeWidth*0.7,roughness:T.roughness*0.7,fillStyle:T.fillStyle,seed:i*13});
+      }
+      startAngle+=slice;
+    });
+    ctx.fillStyle=T.labelColor;ctx.font=`bold 17px ${T.font}`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(Math.round(e*8),cx,cy-6);
+    ctx.font=`10px ${T.font}`;ctx.fillStyle=T.mutedColor;ctx.fillText('genres',cx,cy+11);
+    const lx=W*0.65,ly=TITLE_H+6;
+    GENRES.forEach((g,i)=>{
+      const y=ly+i*(H-TITLE_H-8)/GENRES.length;
+      rc.rectangle(lx,y,10,10,{fill:T.genres[i],stroke:T.studiosStroke[i%6],strokeWidth:0.8,roughness:1,fillStyle:'solid',seed:i*5});
+      ctx.fillStyle=T.labelColor;ctx.font=`11px ${T.font}`;ctx.textAlign='left';ctx.textBaseline='top';
+      ctx.fillText(g,lx+14,y+1);
+      ctx.fillStyle=T.mutedColor;ctx.font=`10px ${T.font}`;ctx.textAlign='right';
+      ctx.fillText((GENRE_DATA[i]/total*100).toFixed(0)+'%',W-4,y+1);
+    });
+    if(prog<1) requestAnimationFrame(animDonut);
+  }
+  window['anim_'+t+'_donut']=animDonut;
+  requestAnimationFrame(ts=>{animDonut.t0=null;animDonut(ts);});
+}
+function describeArc(cx,cy,outerR,innerR,a0,a1){
+  const x1=cx+outerR*Math.cos(a0),y1=cy+outerR*Math.sin(a0);
+  const x2=cx+outerR*Math.cos(a1),y2=cy+outerR*Math.sin(a1);
+  const x3=cx+innerR*Math.cos(a1),y3=cy+innerR*Math.sin(a1);
+  const x4=cx+innerR*Math.cos(a0),y4=cy+innerR*Math.sin(a0);
+  const lg=a1-a0>Math.PI?1:0;
+  return`M${x1},${y1} A${outerR},${outerR} 0 ${lg} 1 ${x2},${y2} L${x3},${y3} A${innerR},${innerR} 0 ${lg} 0 ${x4},${y4} Z`;
+}
+
+/* ═══════ LINE CHART ═══════ */
+function drawLine(t,T){
+  const{c,ctx,W,H}=setupCanvas(t+'-line');
+  const rc=rough.canvas(c);
+  const TITLE_H=24;
+  const pad={l:32,r:12,t:TITLE_H+12,b:28};
+  const minR=2.0,maxR=3.8;
+  const sx=i=>pad.l+i/(RATINGS.length-1)*(W-pad.l-pad.r);
+  const sy=v=>H-pad.b-(v-minR)/(maxR-minR)*(H-pad.t-pad.b);
+
+  function animLine(ts){
+    if(!animLine.t0) animLine.t0=ts;
+    const prog=Math.min((ts-animLine.t0)/1500,1);
+    const e=1-Math.pow(1-prog,3);
+    ctx.clearRect(0,0,W,H);
+    drawChartTitle(ctx,'WEEKLY RATINGS — A18-49',T,W);
+    const numPts=Math.max(2,Math.floor(RATINGS.length*e));
+    [2.5,3.0,3.5].forEach(v=>{
+      rc.line(pad.l,sy(v),W-pad.r,sy(v),{stroke:T.mutedColor,strokeWidth:0.4,roughness:T.roughness*0.35});
+      ctx.fillStyle=T.mutedColor;ctx.font=`9px ${T.font}`;ctx.textAlign='right';
+      ctx.fillText(v.toFixed(1),pad.l-3,sy(v)+3);
+    });
+    if(numPts>1){
+      ctx.save();ctx.beginPath();
+      ctx.moveTo(sx(0),sy(RATINGS[0]));
+      for(let i=1;i<numPts;i++) ctx.lineTo(sx(i),sy(RATINGS[i]));
+      ctx.lineTo(sx(numPts-1),H-pad.b);ctx.lineTo(sx(0),H-pad.b);ctx.closePath();
+      ctx.fillStyle=T.lineFill;ctx.fill();ctx.restore();
+      for(let i=0;i<numPts-1;i++) rc.line(sx(i),sy(RATINGS[i]),sx(i+1),sy(RATINGS[i+1]),{stroke:T.line,strokeWidth:T.strokeWidth*1.3,roughness:T.roughness*0.55,seed:i*3+99});
+    }
+    for(let i=0;i<numPts;i++) rc.circle(sx(i),sy(RATINGS[i]),6,{fill:T.line,stroke:T.line,strokeWidth:0.8,roughness:1,fillStyle:'solid',seed:i*5});
+    ctx.fillStyle=T.mutedColor;ctx.font=`9px ${T.font}`;ctx.textAlign='center';
+    RATINGS.forEach((_,i)=>{if(i%5===0||i===RATINGS.length-1) ctx.fillText('E'+(i+1),sx(i),H-pad.b+14);});
+    if(prog<1) requestAnimationFrame(animLine);
+  }
+  window['anim_'+t+'_line']=animLine;
+  requestAnimationFrame(ts=>{animLine.t0=null;animLine(ts);});
+  c.onmousemove=ev=>{
+    const r=c.getBoundingClientRect(),mx=(ev.clientX-r.left)*(W/r.width);
+    const i=Math.round((mx-pad.l)/(W-pad.l-pad.r)*(RATINGS.length-1));
+    if(i>=0&&i<RATINGS.length) showTip(ev,`<strong>Episode ${i+1}</strong>Rating: ${RATINGS[i]} A18-49`,t);
+    else hideTip();
+  };
+  c.onmouseleave=hideTip;
+}
+
+/* ═══════ BUBBLE CHART ═══════ */
+const bubbleRafs={};
+function drawBubble(t,T){
+  if(bubbleRafs[t]) cancelAnimationFrame(bubbleRafs[t]);
+  const{c,ctx,W,H}=setupCanvas(t+'-bubble');
+  const rc=rough.canvas(c);
+  const maxG=Math.max(...FILMS.map(f=>f.gross));
+  const TITLE_H=24;
+  const bubbles=FILMS.map((f,i)=>({
+    ...f,
+    r:Math.max(16,Math.sqrt(f.gross/maxG)*88),
+    x:W*0.1+Math.random()*(W*0.8),y:TITLE_H+20+Math.random()*(H-TITLE_H-40),
+    vx:(Math.random()-.5)*0.35,vy:(Math.random()-.5)*0.35,
+    alpha:0,seed:i*17+3,
+    fill:T.bubble[f.s]||T.bubble[0],stroke:T.studiosStroke[f.s]||T.studiosStroke[0],
+  }));
+  let start=null,hov=null;
+  function animBubble(ts){
+    if(!start) start=ts;
+    const elapsed=ts-start;
+    ctx.clearRect(0,0,W,H);
+    drawChartTitle(ctx,'ALL FILMS · SIZE = GROSS · HOVER TO EXPLORE',T,W);
+    for(let i=0;i<bubbles.length;i++) for(let j=i+1;j<bubbles.length;j++){
+      const a=bubbles[i],b=bubbles[j];
+      const dx=b.x-a.x,dy=b.y-a.y,dist=Math.hypot(dx,dy);
+      const min=a.r+b.r+2;
+      if(dist<min&&dist>0){const f=(min-dist)*0.03,ang=Math.atan2(dy,dx);a.vx-=Math.cos(ang)*f;a.vy-=Math.sin(ang)*f;b.vx+=Math.cos(ang)*f;b.vy+=Math.sin(ang)*f;}
+    }
+    bubbles.forEach((b,i)=>{
+      b.alpha=Math.max(0,Math.min(1,(elapsed-i*35)/650));
+      b.x+=b.vx; b.y+=b.vy; b.vx*=0.992; b.vy*=0.992;
+      const p=b.r;
+      if(b.x<p){b.x=p;b.vx*=-0.65;} if(b.x>W-p){b.x=W-p;b.vx*=-0.65;}
+      if(b.y<TITLE_H+p){b.y=TITLE_H+p;b.vy*=-0.65;} if(b.y>H-p){b.y=H-p;b.vy*=-0.65;}
+      const isH=b===hov,dr=b.r*(isH?1.1:1);
+      ctx.save();ctx.globalAlpha=b.alpha*(isH?1:0.84);
+      rc.circle(b.x,b.y,dr*2,{fill:b.fill,stroke:b.stroke,strokeWidth:T.strokeWidth*(isH?1.6:1),roughness:T.roughness,fillStyle:T.fillStyle,fillWeight:T.strokeWidth*0.6,seed:b.seed});
+      if(b.r>20&&b.alpha>0.6){
+        ctx.fillStyle=T.labelColor;
+        ctx.font=`bold ${Math.min(12,b.r*0.32)}px ${T.font}`;
+        ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(b.t.length>12?b.t.slice(0,11)+'…':b.t,b.x,b.y-(b.r>36?6:0));
+        if(b.r>36){ctx.font=`${Math.min(10,b.r*0.26)}px ${T.font}`;ctx.fillStyle=T.mutedColor;ctx.fillText('$'+b.gross+'M',b.x,b.y+9);}
+      }
+      ctx.restore();
+    });
+    bubbleRafs[t]=requestAnimationFrame(animBubble);
+  }
+  bubbleRafs[t]=requestAnimationFrame(animBubble);
+  c.onmousemove=ev=>{
+    const r=c.getBoundingClientRect(),mx=(ev.clientX-r.left)*(W/r.width),my=(ev.clientY-r.top)*(H/r.height);
+    hov=bubbles.find(b=>Math.hypot(b.x-mx,b.y-my)<=b.r)||null;
+    if(hov) showTip(ev,`<strong>${hov.t}</strong>$${hov.gross}M domestic<br><span class="roi">${STUDIOS[hov.s]} · ${hov.genre}</span>`,t);
+    else hideTip();
+  };
+  c.onmouseleave=()=>{hov=null;hideTip();};
+}
+
+/* ═══════ INIT ═══════ */
+window.addEventListener('load',()=>drawAll('a'));
+window.addEventListener('resize',()=>drawAll(currentTheme));
+</script>
+</body>
+</html>
