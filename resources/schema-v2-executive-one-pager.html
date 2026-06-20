@@ -1,0 +1,267 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--surface:#12121a;--elevated:#1a1a2e;--panel:#0d0d16;
+  --lav:#a78bfa;--teal:#22d3ee;--gold:#f59e0b;--green:#10b981;--red:#ef4444;
+  --lav-dim:rgba(167,139,250,0.12);--lav-border:rgba(167,139,250,0.18);
+  --teal-dim:rgba(34,211,238,0.10);--gold-dim:rgba(245,158,11,0.10);
+  --green-dim:rgba(16,185,129,0.10);
+  --text:#f8f8ff;--muted:#94a3b8;--dim:#4b5563;
+  --border:rgba(167,139,250,0.10);
+}
+body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;padding:32px 28px;max-width:900px;margin:0 auto}
+.logo-line{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.logo-mark{font-family:'Bebas Neue';font-size:22px;letter-spacing:3px;color:var(--lav)}
+.doc-type{font-size:11px;font-weight:500;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.hero-title{font-family:'Bebas Neue';font-size:42px;letter-spacing:3px;color:var(--text);line-height:1;margin-bottom:6px}
+.hero-sub{font-size:15px;font-weight:400;color:var(--muted);margin-bottom:6px}
+.hero-meta{font-family:'Share Tech Mono';font-size:11px;color:var(--dim);letter-spacing:1px}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.kpi-val{font-family:'Bebas Neue';font-size:32px;letter-spacing:2px;line-height:1}
+.kpi-label{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:0.5px;margin-top:4px;text-transform:uppercase}
+.kpi-note{font-family:'Share Tech Mono';font-size:10px;color:var(--dim);margin-top:3px}
+.lav{color:var(--lav)}
+.teal{color:var(--teal)}
+.gold{color:var(--gold)}
+.green{color:var(--green)}
+.section-label{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--lav);text-transform:uppercase;margin-bottom:12px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px}
+.card-title{font-family:'Bebas Neue';font-size:16px;letter-spacing:1.5px;color:var(--lav);margin-bottom:10px}
+.item{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid rgba(167,139,250,0.06);font-size:13px}
+.item:last-child{border-bottom:none}
+.item-label{color:var(--muted)}
+.item-val{font-family:'Share Tech Mono';font-size:12px;color:var(--text)}
+.pipeline{display:flex;align-items:stretch;gap:0;margin-bottom:20px;overflow:hidden;border-radius:8px;border:1px solid var(--border)}
+.pipe-step{flex:1;background:var(--surface);padding:14px 12px;text-align:center;position:relative}
+.pipe-step+.pipe-step::before{content:'›';position:absolute;left:-10px;top:50%;transform:translateY(-50%);color:var(--lav);font-size:18px;z-index:2}
+.pipe-step.done{border-bottom:2px solid var(--green)}
+.pipe-step.staged{border-bottom:2px solid var(--gold)}
+.pipe-step.pending{border-bottom:2px solid var(--dim)}
+.pipe-num{font-family:'Bebas Neue';font-size:22px;letter-spacing:1px}
+.pipe-name{font-size:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.pipe-status{font-family:'Share Tech Mono';font-size:9px;margin-top:4px;letter-spacing:1px}
+.status-done{color:var(--green)}
+.status-staged{color:var(--gold)}
+.status-pending{color:var(--dim)}
+.confidence-bar{margin-bottom:20px}
+.band-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.band-label{font-size:12px;font-weight:600;letter-spacing:0.5px;min-width:100px}
+.band-bar-wrap{flex:1;height:20px;background:rgba(255,255,255,0.04);border-radius:4px;overflow:hidden;position:relative}
+.band-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 8px}
+.band-fill-val{font-family:'Share Tech Mono';font-size:10px;font-weight:700}
+.band-count{font-family:'Share Tech Mono';font-size:11px;min-width:90px;text-align:right;color:var(--muted)}
+.decisions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.decision{background:var(--surface);border-left:3px solid var(--lav);border-radius:0 6px 6px 0;padding:10px 14px}
+.decision-title{font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--lav);margin-bottom:4px}
+.decision-body{font-size:12px;color:var(--muted);line-height:1.5}
+.decision-body code{font-family:'Share Tech Mono';font-size:11px;color:var(--teal)}
+.next-steps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+.next{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.next-badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;padding:2px 8px;border-radius:3px;margin-bottom:8px;text-transform:uppercase}
+.badge-high{background:rgba(239,68,68,0.15);color:var(--red)}
+.badge-med{background:var(--gold-dim);color:var(--gold)}
+.badge-low{background:var(--green-dim);color:var(--green)}
+.next-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.next-body{font-size:12px;color:var(--muted);line-height:1.5}
+.command-block{background:var(--panel);border:1px solid var(--lav-border);border-radius:6px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.cmd-label{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--lav);text-transform:uppercase;white-space:nowrap}
+.cmd-text{font-family:'Share Tech Mono';font-size:13px;color:var(--teal)}
+.footer-line{display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid var(--border)}
+.footer-left{font-size:11px;color:var(--dim)}
+.footer-right{font-family:'Share Tech Mono';font-size:10px;color:var(--dim);letter-spacing:1px}
+</style>
+
+<div class="logo-line">
+  <span class="logo-mark">SaSMaster</span>
+  <span class="doc-type">Executive Brief</span>
+</div>
+
+<h1 class="hero-title">Schema v2.0 Migration</h1>
+<div class="hero-sub">Bloomberg Terminal for Media — Identity Spine, Production Certified</div>
+<div class="hero-meta">SESSION: 2026-06-20 · 04:00–07:45 AM ET · 11 TASK CARDS · SOLO FOUNDER BUILD</div>
+
+<hr class="divider">
+
+<div class="kpi-grid">
+  <div class="kpi">
+    <div class="kpi-val lav">12.9M</div>
+    <div class="kpi-label">Spine Rows Minted</div>
+    <div class="kpi-note">3.3M titles · 9.7M episode CIDs</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val teal">332K</div>
+    <div class="kpi-label">Titles Queued → CERTIFIED</div>
+    <div class="kpi-note">one command on EIDR credentials</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val gold">25.5M</div>
+    <div class="kpi-label">Source Rows Loaded</div>
+    <div class="kpi-note">12.5M IMDB · 13M TMDB</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-val green">ZERO</div>
+    <div class="kpi-label">Data Loss</div>
+    <div class="kpi-note">v1 cold-archived · parity PASS</div>
+  </div>
+</div>
+
+<div class="section-label">End-to-End Pipeline</div>
+<div class="pipeline">
+  <div class="pipe-step done">
+    <div class="pipe-num lav">7</div>
+    <div class="pipe-name">Sources</div>
+    <div class="pipe-status status-done">IMDB · TMDB</div>
+  </div>
+  <div class="pipe-step done">
+    <div class="pipe-num teal">5</div>
+    <div class="pipe-name">Match Tiers</div>
+    <div class="pipe-status status-done">CASCADE</div>
+  </div>
+  <div class="pipe-step done">
+    <div class="pipe-num lav">UUIDv5</div>
+    <div class="pipe-name">ID Mint</div>
+    <div class="pipe-status status-done">FROZEN NS</div>
+  </div>
+  <div class="pipe-step done">
+    <div class="pipe-num gold">344K</div>
+    <div class="pipe-name">Alt-IDs</div>
+    <div class="pipe-status status-done">WIKIDATA</div>
+  </div>
+  <div class="pipe-step done">
+    <div class="pipe-num teal">16M+</div>
+    <div class="pipe-name">Curated</div>
+    <div class="pipe-status status-done">LIVE</div>
+  </div>
+  <div class="pipe-step staged">
+    <div class="pipe-num gold">332K</div>
+    <div class="pipe-name">EIDR</div>
+    <div class="pipe-status status-staged">STAGED</div>
+  </div>
+  <div class="pipe-step pending">
+    <div class="pipe-num" style="color:var(--dim)">625K</div>
+    <div class="pipe-name">Fuzzy</div>
+    <div class="pipe-status status-pending">T4 NEXT</div>
+  </div>
+</div>
+
+<div class="two-col">
+  <div>
+    <div class="section-label">Confidence Band Distribution</div>
+    <div class="confidence-bar">
+      <div class="band-row">
+        <div class="band-label" style="color:var(--lav)">CERTIFIED</div>
+        <div class="band-bar-wrap">
+          <div class="band-fill" style="width:0%;background:rgba(167,139,250,0.25)">
+            <span class="band-fill-val" style="color:var(--lav)"></span>
+          </div>
+        </div>
+        <div class="band-count lav">0 → 332K pending</div>
+      </div>
+      <div class="band-row">
+        <div class="band-label" style="color:var(--teal)">CONFIRMED</div>
+        <div class="band-bar-wrap">
+          <div class="band-fill" style="width:5.6%;background:rgba(34,211,238,0.20)">
+            <span class="band-fill-val" style="color:var(--teal)">0.82</span>
+          </div>
+        </div>
+        <div class="band-count teal">729,259</div>
+      </div>
+      <div class="band-row">
+        <div class="band-label" style="color:var(--muted)">PROVISIONAL</div>
+        <div class="band-bar-wrap">
+          <div class="band-fill" style="width:89.7%;background:rgba(148,163,184,0.12)">
+            <span class="band-fill-val" style="color:var(--muted)">0.50</span>
+          </div>
+        </div>
+        <div class="band-count">11.6M</div>
+      </div>
+      <div class="band-row">
+        <div class="band-label" style="color:var(--dim)">HELD</div>
+        <div class="band-bar-wrap">
+          <div class="band-fill" style="width:4.8%;background:rgba(75,85,99,0.20)">
+            <span class="band-fill-val" style="color:var(--dim)">0.30</span>
+          </div>
+        </div>
+        <div class="band-count" style="color:var(--dim)">625,130</div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label">Production Tables — Live</div>
+    <div class="card">
+      <div class="item"><span class="item-label">source.imdb_master</span><span class="item-val">12,556,219</span></div>
+      <div class="item"><span class="item-label">source.tmdb_movies</span><span class="item-val">1,201,723</span></div>
+      <div class="item"><span class="item-label">source.tmdb_tv_series</span><span class="item-val">221,894</span></div>
+      <div class="item"><span class="item-label">source.tmdb_tv_episodes</span><span class="item-val">6,131,072</span></div>
+      <div class="item"><span class="item-label">curated.movie_master</span><span class="item-val">2,319,749</span></div>
+      <div class="item"><span class="item-label">curated.tv_series_master</span><span class="item-val">341,362</span></div>
+      <div class="item"><span class="item-label">curated.people_master</span><span class="item-val">4,740,390</span></div>
+      <div class="item"><span class="item-label">curated.episodic_nested</span><span class="item-val">9,669,554</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="section-label">Architecture Decisions Locked</div>
+<div class="decisions">
+  <div class="decision">
+    <div class="decision-title">Dual Surrogate Key Pairs</div>
+    <div class="decision-body"><code>pk_sk</code> BIGINT (internal joins) + <code>SASMASTER_PKID</code> UUIDv5 (public, licensable, frozen). Same asset = same ID on every rerun. Frozen namespace: <code>7b7b4ce5</code>.</div>
+  </div>
+  <div class="decision">
+    <div class="decision-title">Five-Table Spine</div>
+    <div class="decision-body">parent_key · pk_gn_xref · nielsen_telecast · alt_ids · coverage_summary. One identity resolution, no recompute at query time. SCD2 append-only.</div>
+  </div>
+  <div class="decision">
+    <div class="decision-title">EIDR-Gated CERTIFIED Band</div>
+    <div class="decision-body">Non-EIDR hard cap: 0.89. CERTIFIED requires <code>eidr_id IS NOT NULL</code> + score ≥ 0.90. No EIDR present = no product-grade certification. Enforced by CHECK constraint.</div>
+  </div>
+  <div class="decision">
+    <div class="decision-title">Person-Prefix Collision Prevention</div>
+    <div class="decision-body">People PKIDs minted with <code>person:{nconst}</code> anchor so a person's nconst and a title's tconst can never hash to the same UUID. 4.7M people deterministic.</div>
+  </div>
+  <div class="decision">
+    <div class="decision-title">Tall Alt-ID Catalog</div>
+    <div class="decision-body">172+ domains. Zero DDL for new sources. 344,945 Wikidata IDs reattached via anchor-join. Audit verdict: BENIGN — all 344K rows <code>id_verified=TRUE</code>.</div>
+  </div>
+  <div class="decision">
+    <div class="decision-title">v1 Archived, Never Destroyed</div>
+    <div class="decision-body">21M v1 spine rows cold-archived to S3 before any DROP. Parity gate: 176,630 losses (1.61%), all explained, zero unexplained. v1 retired only after PASS.</div>
+  </div>
+</div>
+
+<div class="section-label">One Command From CERTIFIED</div>
+<div class="command-block">
+  <span class="cmd-label">Part B — EIDR Live</span>
+  <span class="cmd-text">python3 scripts/eidr/apply_eidr_backfill.py --live</span>
+</div>
+
+<div class="section-label">What's Next</div>
+<div class="next-steps">
+  <div class="next">
+    <div class="next-badge badge-high">High · End of June</div>
+    <div class="next-title">SCHEMA-EIDR-001 Part B</div>
+    <div class="next-body">Wire EIDR credentials. 332K titles flip from CONFIRMED → CERTIFIED. First commercially product-grade titles in the spine.</div>
+  </div>
+  <div class="next">
+    <div class="next-badge badge-med">Med · July</div>
+    <div class="next-title">SCHEMA-T4-FUZZY-001</div>
+    <div class="next-body">Recover 625K TMDB orphans (HELD 0.30) via TMDB Search title+year + Levenshtein. Real long-tail coverage gain.</div>
+  </div>
+  <div class="next">
+    <div class="next-badge badge-low">Low · Anytime</div>
+    <div class="next-title">Walkthrough Reconciliation</div>
+    <div class="next-body">Update Vercel resource cards from v1 2-table schema to v2.0 five-table architecture. External-facing docs are stale.</div>
+  </div>
+</div>
+
+<div class="footer-line">
+  <span class="footer-left">SaSMaster v8 · Solo founder build · Shiv Ashish Sehgal</span>
+  <span class="footer-right">SCHEMA-V2.0 · 2026-06-20 · 11 CARDS · MOTHERDUCK PRODUCTION</span>
+</div>

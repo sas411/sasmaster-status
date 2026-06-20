@@ -1,6 +1,35 @@
 {
     "resources": [
         {
+            "id": "schema-v2-executive-one-pager",
+            "title": "Schema v2.0 Migration — Executive Brief",
+            "category": "architecture",
+            "badge": "LATEST",
+            "subtitle": "12.9M spine rows · 332K CERTIFIED staged · 25.5M source rows · ZERO data loss · 2026-06-20",
+            "description": "Solo-founder executive brief on the Schema v2.0 migration. 11 task cards, 04:00–07:45 AM ET build session. Five-table spine (parent_key · pk_gn_xref · nielsen_telecast · alt_ids · coverage_summary), dual surrogate key pairs (pk_sk BIGINT + SASMASTER_PKID UUIDv5, frozen namespace 7b7b4ce5), EIDR-gated CERTIFIED band (eidr_id NOT NULL + score ≥ 0.90), tall Alt-ID catalog (172+ domains, 344K Wikidata IDs), person-prefix collision prevention. v1 cold-archived with parity PASS before any DROP. One command from CERTIFIED: python3 scripts/eidr/apply_eidr_backfill.py --live.",
+            "date": "2026-06-20",
+            "latest": true,
+            "status": "LIVE",
+            "files": [
+                {
+                    "label": "View Brief",
+                    "type": "html",
+                    "url": "/resources/schema-v2-executive-one-pager.html",
+                    "primary": true
+                }
+            ],
+            "tags": [
+                "ARCHITECTURE",
+                "SCHEMA",
+                "PARENT-KEY",
+                "SPINE",
+                "EIDR",
+                "CERTIFICATION",
+                "DATA-ORCH",
+                "MOTHERDUCK"
+            ]
+        },
+        {
             "id": "sasmaster-ask-landing",
             "title": "SaSMaster ASK — Audience Signal Intelligence",
             "category": "product",
