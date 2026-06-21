@@ -629,7 +629,7 @@ main.canvas-mode{overflow:hidden}
 <header class="top">
   <div class="wm">WAR <span class="sig">ROOM</span> <small>SASMASTER · MEDIA INTELLIGENCE</small></div>
   <span class="pill"><span class="dot dg"></span>JARVIS</span>
-  <span class="pill"><span class="dot dg"></span>S3 <b>724.3 GB</b></span>
+  <span class="pill"><span class="dot dg"></span>S3 <b>1.62 TB</b></span>
   <span class="pill"><span class="dot da"></span>Agents <b>10/51</b></span>
   <div class="hd-right">
     <div class="healthbar">HEALTH <span class="bar"><i></i></span> <b>—</b></div>
@@ -645,7 +645,7 @@ main.canvas-mode{overflow:hidden}
 </button>
 <div class="kstrip collapse-section is-expanded" id="kpi-section">
   <div class="k"><div class="e">Agents</div><div class="v">10/51</div><div class="c">10 live healthy</div></div>
-  <div class="k"><div class="e">S3 Lake</div><div class="v">724.3 <small>GB</small></div><div class="c">GB total</div></div>
+  <div class="k"><div class="e">S3 Lake</div><div class="v">1.62 <small>TB</small></div><div class="c">TB total</div></div>
   <div class="k"><div class="e">Follow-up Items</div><div class="v goodv" style="color:var(--up)">0</div><div class="c">all clear</div></div>
   <div class="k"><div class="e">Ready to Run</div><div class="v">—</div><div class="c">HIGH (live)</div></div>
   <div class="k"><div class="e">Deployed Today</div><div class="v">0</div><div class="c">0 items today</div></div>
@@ -687,11 +687,16 @@ main.canvas-mode{overflow:hidden}
   <div class="cronrow"><span class="t">*:*</span><span class="d2"></span>process jobs.sh</div>
 
   <h4>S3 Lake</h4>
-  <div class="lakerow"><span class="p">tmdb_dev/</span><span class="g">33.8GB</span></div>
+  <div class="lakerow"><span class="p">barb/</span><span class="g">702.3GB</span></div>
+  <div class="lakerow"><span class="p">nielsen/viewership/</span><span class="g">566.1GB</span></div>
+  <div class="lakerow"><span class="p">nielsen/mit/</span><span class="g">197.1GB</span></div>
+  <div class="lakerow"><span class="p">nielsen/amrld_etl/</span><span class="g">70.6GB</span></div>
+  <div class="lakerow"><span class="p">nielsen/amrld/</span><span class="g">7.6GB</span></div>
+  <div class="lakerow"><span class="p">nielsen/ad_intel/</span><span class="g">22.0GB</span></div>
+  <div class="lakerow"><span class="p">nielsen/mri/</span><span class="g">4.8GB</span></div>
+  <div class="lakerow"><span class="p">tmdb_dev/</span><span class="g">34.3GB</span></div>
   <div class="lakerow"><span class="p">imdb/</span><span class="g">5.7GB</span></div>
-  <div class="lakerow"><span class="p">imdb_prd/</span><span class="g">1.8GB</span></div>
   <div class="lakerow"><span class="p">parent_keys/</span><span class="g">1.7GB</span></div>
-  <div class="lakerow"><span class="p">nielsen/</span><span class="g">679.9GB</span></div>
 
   <h4>Scrapers</h4>
   <div class="scraperrow">TMDB bulk loader <span class="tagchip tc-live">live</span></div>
@@ -1434,9 +1439,9 @@ function closeMonkeyHealth(){
 
 /* ============ DEMO DATA (fallback) ============ */
 const DEMO_DATA = {
-  generatedAt:'demo', jarvisOk:true, s3gb:1151.7,
+  generatedAt:'demo', jarvisOk:true, s3gb:1619,
   agentsLive:10, agentsTotal:51, agentsLiveTotal:14, healthPct:71,
-  kpis:{agentsLive:10,agentsTotal:51,s3gb:1151.7,tasksOpen:13,buildEventsToday:0,blessQueue:4,nielsen:{days:13,warn:true}},
+  kpis:{agentsLive:10,agentsTotal:51,s3gb:1619,tasksOpen:13,buildEventsToday:0,blessQueue:4,nielsen:{days:13,warn:true}},
   usageState:{session_used_pct:44,weekly_all_models_pct:63,weekly_sonnet_pct:0,weekly_claude_design_pct:23,cache_hit_rate_pct:100,weekly_resets_at:''},
   crons:[{time:'12:00 AM',name:'async build',status:'done'},{time:'12:00 AM',name:'tmdb delta biweekly',status:'pending'},{time:'*:*/5',name:'build auto reaper',status:'pending'},{time:'*:*/5',name:'generate status.js',status:'pending'}],
   s3lake:[{prefix:'tmdb_dev/',size_gb:33.9,status:'running'},{prefix:'imdb/',size_gb:5.7,status:'live'},{prefix:'nielsen/',size_gb:679.9,status:'live'}],
@@ -1584,7 +1589,7 @@ function renderHeader(vm){
   // pills
   const pills=document.querySelectorAll('header.top .pill');
   if(pills[0]) pills[0].innerHTML=`<span class="dot ${vm.jarvisOk?'dg':'dr'}"></span>JARVIS`;
-  if(pills[1]) pills[1].innerHTML=`<span class="dot dg"></span>S3 <b>${vm.s3gb} GB</b>`;
+  if(pills[1]){const s3v=vm.s3gb;const s3disp=s3v>=1000?`${(s3v/1000).toFixed(2)} TB`:`${s3v} GB`;pills[1].innerHTML=`<span class="dot dg"></span>S3 <b>${s3disp}</b>`;}
   if(pills[2]) pills[2].innerHTML=`<span class="dot ${vm.agentsLive>0?'dg':'da'}"></span>Agents <b>${vm.agentsLive}/${vm.agentsTotal}</b>`;
   // health bar — TRUTHFUL-VITALS-001: grade drives color, pct drives width
   const bar=document.querySelector('.healthbar .bar i');
@@ -1605,7 +1610,7 @@ function renderKPIStrip(vm){
   if(!strip) return;
   const cells=strip.querySelectorAll('.k');
   if(cells[0]){cells[0].querySelector('.v').textContent=k.agentsLive+'/'+k.agentsTotal;cells[0].querySelector('.c').textContent=k.agentsLive+' live healthy';}
-  if(cells[1]){cells[1].querySelector('.v').innerHTML=k.s3gb+' <small>GB</small>';cells[1].querySelector('.c').textContent='GB total';}
+  if(cells[1]){const sv=k.s3gb;const isTB=sv>=1000;cells[1].querySelector('.v').innerHTML=isTB?`${(sv/1000).toFixed(2)} <small>TB</small>`:sv+' <small>GB</small>';cells[1].querySelector('.c').textContent=isTB?'TB total':'GB total';}
   // TRUTHFUL-VITALS-001: followUp = server-computed real follow-up count, not tasks-open count
   if(cells[2]){const fu=vm.followUp??0;const v=cells[2].querySelector('.v');v.textContent=fu;v.style.color=fu===0?'var(--up)':'var(--warn)';cells[2].querySelector('.c').textContent=fu===0?'all clear':fu+' need attention';}
   if(cells[3]){cells[3].querySelector('.v').textContent=k.blessQueue||'—';cells[3].querySelector('.c').textContent='HIGH (live)';}
