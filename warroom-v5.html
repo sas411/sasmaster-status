@@ -547,6 +547,53 @@ main.canvas-mode{overflow:hidden}
   .botbar{padding:0 10px;font-size:10px}
   .botbar .brt{display:none}
 }
+
+/* ── COLLAPSIBLE SECTIONS — MOBILE ONLY ────────────────────────── */
+@media (max-width: 767px) {
+  .collapse-section {
+    overflow: hidden;
+    transition: max-height 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .collapse-section.is-expanded {
+    max-height: 1200px;
+  }
+  .collapse-section.is-collapsed {
+    max-height: 0;
+  }
+  .collapse-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 16px;
+    background: rgba(167, 139, 250, 0.06);
+    border: 1px solid rgba(167, 139, 250, 0.18);
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 150ms ease;
+  }
+  .collapse-toggle:active { background: rgba(167, 139, 250, 0.12); }
+  .collapse-toggle .section-label { color: #a78bfa; }
+  .collapse-toggle .chevron {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #a78bfa;
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .collapse-toggle.is-collapsed .chevron { transform: rotate(-90deg); }
+}
+@media (min-width: 768px) {
+  .collapse-toggle { display: none !important; }
+  .collapse-section { max-height: none !important; overflow: visible !important; }
+}
 </style>
 </head>
 <body>
@@ -565,7 +612,11 @@ main.canvas-mode{overflow:hidden}
 </header>
 
 <!-- ================= KPI STRIP ================= -->
-<div class="kstrip">
+<button class="collapse-toggle" data-target="kpi-section" aria-expanded="true">
+  <span class="section-label">KPI METRICS</span>
+  <span class="chevron">▼</span>
+</button>
+<div class="kstrip collapse-section is-expanded" id="kpi-section">
   <div class="k"><div class="e">Agents</div><div class="v">10/51</div><div class="c">10 live healthy</div></div>
   <div class="k"><div class="e">S3 Lake</div><div class="v">724.3 <small>GB</small></div><div class="c">GB total</div></div>
   <div class="k"><div class="e">Follow-up Items</div><div class="v goodv" style="color:var(--up)">0</div><div class="c">all clear</div></div>
@@ -678,7 +729,11 @@ main.canvas-mode{overflow:hidden}
     </div>
 
     <div class="sec-h" style="margin-top:18px"><h2>24-hour agent timeline</h2><span>All times ET · live crontab</span></div>
-    <div class="panel tl">
+    <button class="collapse-toggle" data-target="timeline-section" aria-expanded="true">
+      <span class="section-label">BUILD STATUS</span>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="panel tl collapse-section is-expanded" id="timeline-section">
       <div class="tlgrid" id="tlgrid"></div>
     </div>
   </section>
@@ -686,7 +741,11 @@ main.canvas-mode{overflow:hidden}
   <!-- ================= AGENTS ================= -->
   <section class="view" id="v-agents">
     <div class="sec-h"><h2>Agent fleet</h2><span>51 agents · 11 healthy</span><span class="right">LIVE & CRON AGENTS · 14</span></div>
-    <div class="fleet" id="fleet"></div>
+    <button class="collapse-toggle" data-target="fleet" aria-expanded="true">
+      <span class="section-label">AGENT STATUS</span>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="fleet collapse-section is-expanded" id="fleet"></div>
   </section>
 
   <!-- ================= DATA ================= -->
@@ -752,7 +811,7 @@ main.canvas-mode{overflow:hidden}
     </div>
     <div class="phasechips">
       <span class="pch live">● PHASE 1 · LIVE — TMDB+IMDB scrapers+Parent Key resolver</span>
-      <span class="pch prog">● PHASE 1B · IN_PROGRESS — EIDR backfill (auth gate pending)</span>
+      <span class="pch live">● PHASE 1B · COMPLETE — Schema v2.0 locked, 332K CERTIFIED staged</span>
       <span class="pch next">● PHASE 2A · NEXT — RSG API snapshots</span>
     </div>
     <div class="kan" id="kan"></div>
@@ -777,7 +836,11 @@ main.canvas-mode{overflow:hidden}
       <div><div class="l">Cache Hit</div><div class="v gold">—</div><div class="s">MTD read tokens</div></div>
     </div>
     <div class="sec-h" style="margin-top:16px"><h2>Token quota</h2><span class="badge b-ok">SONNET 0%</span><span>Resets in RESET NOW</span></div>
-    <div class="quota4">
+    <button class="collapse-toggle" data-target="costs-section" aria-expanded="true">
+      <span class="section-label">COST BREAKDOWN</span>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="quota4 collapse-section is-expanded" id="costs-section">
       <div class="q4"><div class="l">Session quota</div><div class="v">44%</div><div class="qb"><i style="width:44%"></i></div></div>
       <div class="q4"><div class="l">Weekly Sonnet</div><div class="v">0%</div><div class="qb"><i style="width:2%"></i></div></div>
       <div class="q4"><div class="l">Weekly all models</div><div class="v">63%</div><div class="qb"><i style="width:63%"></i></div></div>
@@ -2947,6 +3010,69 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 })(); // end CANVAS IIFE
+</script>
+
+<script>
+/* ── COLLAPSIBLE SECTIONS ─────────────────────────────────────── */
+(function() {
+  var STORAGE_KEY = 'sasmaster.warroom.sections';
+  var MOBILE_BP   = 767;
+
+  function isMobile() {
+    return window.innerWidth <= MOBILE_BP;
+  }
+
+  function getState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    catch(e) { return {}; }
+  }
+
+  function saveState(state) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch(e) {}
+  }
+
+  function applyState(btn, section, expanded) {
+    if (expanded) {
+      section.classList.add('is-expanded');
+      section.classList.remove('is-collapsed');
+      btn.classList.remove('is-collapsed');
+      btn.setAttribute('aria-expanded', 'true');
+    } else {
+      section.classList.remove('is-expanded');
+      section.classList.add('is-collapsed');
+      btn.classList.add('is-collapsed');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  function init() {
+    var toggles = document.querySelectorAll('.collapse-toggle');
+    if (!toggles.length) return;
+    var state = getState();
+    toggles.forEach(function(btn) {
+      var targetId = btn.getAttribute('data-target');
+      var section  = document.getElementById(targetId);
+      if (!section) return;
+      var defaultExpanded = (targetId.indexOf('kpi') !== -1);
+      var isExpanded = (state[targetId] !== undefined) ? state[targetId] : defaultExpanded;
+      applyState(btn, section, isExpanded);
+      btn.addEventListener('click', function() {
+        var nowExpanded = section.classList.contains('is-expanded');
+        var nextState   = !nowExpanded;
+        applyState(btn, section, nextState);
+        state[targetId] = nextState;
+        saveState(state);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
 </script>
 </body>
 </html>
