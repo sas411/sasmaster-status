@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster v17 — Operator Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/roughjs/4.6.6/rough.umd.min.js"></script>
+<style>
+:root{
+  --bg:#F0F4F8;--surface:#FFFFFF;--surface2:#F7F9FB;
+  --border:rgba(14,165,233,0.12);--border2:rgba(14,165,233,0.22);
+  --sky:#0EA5E9;--sky-dim:rgba(14,165,233,0.10);--sky-dim2:rgba(14,165,233,0.18);
+  --violet:#7C3AED;--violet-dim:rgba(124,58,237,0.10);
+  --amber:#F59E0B;--amber-dim:rgba(245,158,11,0.10);
+  --emerald:#10B981;--em-dim:rgba(16,185,129,0.10);
+  --rose:#F43F5E;--rose-dim:rgba(244,63,94,0.10);
+  --ink:#0F172A;--muted:#64748B;--faint:#CBD5E1;
+  --grotesk:'Space Grotesk',system-ui,sans-serif;
+  --inter:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--inter);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6}
+
+.topbar{position:sticky;top:0;z-index:100;background:rgba(240,244,248,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border2);height:52px;display:flex;align-items:center;padding:0 28px;gap:4px}
+.brand{font-family:var(--grotesk);font-weight:700;font-size:15px;color:var(--sky);margin-right:20px;white-space:nowrap;letter-spacing:-0.02em}
+.brand em{color:var(--violet);font-style:normal}
+.topbar a{font-size:12px;font-weight:500;color:var(--muted);text-decoration:none;padding:5px 10px;border-radius:6px;transition:all .15s;white-space:nowrap}
+.topbar a:hover{color:var(--sky);background:var(--sky-dim)}
+.vnew{display:inline-block;font-size:9px;font-weight:700;background:var(--emerald);color:#fff;border-radius:3px;padding:1px 5px;margin-left:3px;vertical-align:middle;letter-spacing:.04em}
+.track-toggle{margin-left:auto;display:flex;gap:4px}
+.trk{font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;border:1.5px solid var(--faint);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
+.trk.on{background:var(--sky);border-color:var(--sky);color:#fff}
+
+.page{max-width:1120px;margin:0 auto;padding:0 28px 96px}
+
+/* HERO */
+.hero{padding:72px 0 56px;text-align:center;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.18}
+.hero-orb.a{width:500px;height:500px;background:var(--sky);top:-120px;left:50%;transform:translateX(-50%)}
+.hero-orb.b{width:300px;height:300px;background:var(--violet);top:20px;right:10%}
+.hero-orb.c{width:240px;height:240px;background:var(--amber);top:40px;left:5%}
+.hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--sky);margin-bottom:16px;position:relative}
+.hero-title{font-family:var(--grotesk);font-size:clamp(40px,6vw,68px);font-weight:700;line-height:1.08;letter-spacing:-0.03em;margin-bottom:20px;position:relative}
+.hero-title .hl{background:linear-gradient(135deg,var(--sky),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:17px;color:var(--muted);max-width:600px;margin:0 auto 36px;line-height:1.7;position:relative}
+.hero-ns{background:var(--surface);border:1.5px solid var(--border2);border-radius:14px;padding:18px 28px;display:inline-block;font-size:13px;color:var(--muted);max-width:740px;line-height:1.7;position:relative;box-shadow:0 4px 24px rgba(14,165,233,0.08)}
+.hero-ns strong{color:var(--sky);font-weight:600}
+
+/* DATA SOURCE BADGE */
+.data-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(16,185,129,0.12);color:var(--emerald);border:1px solid rgba(16,185,129,0.25);font-family:var(--mono);margin-left:8px;letter-spacing:.04em}
+.data-badge::before{content:'◉';font-size:8px}
+
+/* SNAP */
+.snap{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:16px 24px;display:flex;flex-wrap:wrap;gap:28px;align-items:center;margin:40px 0 60px;box-shadow:0 2px 16px rgba(14,165,233,0.06)}
+.sn{display:flex;flex-direction:column;gap:2px}
+.sn-lbl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sn-val{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink)}
+.sn-val.sky{color:var(--sky)}
+.sn-val.em{color:var(--emerald)}
+.pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;display:inline-block;margin-right:4px}
+.pill.live{background:var(--em-dim);color:var(--emerald)}
+.pill.prog{background:var(--amber-dim);color:var(--amber)}
+.pill.next{background:var(--sky-dim);color:var(--sky)}
+.pill.new{background:var(--violet-dim);color:var(--violet)}
+.pill.gated{background:var(--rose-dim);color:var(--rose)}
+
+/* SECTION */
+.section{margin-bottom:72px;padding-top:12px}
+.sec-header{display:flex;align-items:flex-end;gap:16px;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid var(--border2)}
+.sec-num{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--sky);letter-spacing:.06em;padding:4px 10px;background:var(--sky-dim);border-radius:6px}
+.sec-title{font-family:var(--grotesk);font-size:24px;font-weight:700;letter-spacing:-0.02em}
+.sec-desc{font-size:14px;color:var(--muted);max-width:760px;line-height:1.75;margin-bottom:24px}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;box-shadow:0 1px 8px rgba(0,0,0,0.04)}
+.card+.card{margin-top:14px}
+.card-title{font-size:13px;font-weight:600;color:var(--sky);margin-bottom:8px;font-family:var(--grotesk)}
+.card-body{font-size:13px;color:var(--muted);line-height:1.75}
+.card-body strong{color:var(--ink);font-weight:600}
+.card.accent{border-left:4px solid var(--sky)}
+.card.violet{border-left:4px solid var(--violet)}
+.card.emerald{border-left:4px solid var(--emerald)}
+.card.rose{border-left:4px solid var(--rose)}
+.card.new-card::before{content:'NEW IN v17';font-size:9px;font-weight:700;color:var(--emerald);letter-spacing:.1em;display:block;margin-bottom:8px}
+.card.new-card{border-color:var(--emerald)}
+.card.lesson::before{content:'LESSON LEARNED';font-size:9px;font-weight:700;color:var(--rose);letter-spacing:.1em;display:block;margin-bottom:8px}
+.card.lesson{border-color:var(--rose);border-left:4px solid var(--rose)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:660px){.g2,.g3{grid-template-columns:1fr}}
+
+/* NORTH STAR VISUAL */
+.ns-visual{background:linear-gradient(135deg,#0c1445 0%,#0f2060 40%,#1a1060 100%);border-radius:16px;padding:32px;display:flex;gap:24px;align-items:center;margin-bottom:24px;box-shadow:0 8px 40px rgba(14,165,233,0.15);overflow:hidden;position:relative}
+.ns-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(124,58,237,0.3),transparent 60%),radial-gradient(circle at 30% 80%,rgba(14,165,233,0.25),transparent 50%);pointer-events:none}
+.ns-moat{flex:1;position:relative}
+.ns-moat-title{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:14px}
+.moat-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.moat-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.moat-text-wrap{flex:1}
+.moat-bar-outer{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin-top:4px;overflow:hidden}
+.moat-bar-fill{height:100%;border-radius:3px}
+.moat-label{font-size:12px;font-weight:600;color:rgba(255,255,255,0.85)}
+.moat-sub{font-size:10px;color:rgba(255,255,255,0.45)}
+.ns-north{flex:1;position:relative}
+.ns-north-box{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:12px;padding:20px 22px}
+.ns-north-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(14,165,233,0.8);margin-bottom:10px}
+.ns-north-text{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7}
+.ns-north-text strong{color:#fff}
+
+/* FLYWHEEL */
+.flywheel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.fw-card{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;transition:all .2s}
+.fw-card:hover{box-shadow:0 4px 20px rgba(14,165,233,0.12);border-color:var(--border2)}
+.fw-card.wired{border-color:rgba(16,185,129,0.35)}
+.fw-card::before{content:attr(data-n);position:absolute;top:12px;right:14px;font-family:var(--mono);font-size:28px;font-weight:700;opacity:.06;color:var(--sky)}
+.fw-num{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--sky);margin-bottom:6px}
+.fw-name{font-family:var(--grotesk);font-size:14px;font-weight:700;color:var(--ink);margin-bottom:5px}
+.fw-desc{font-size:12px;color:var(--muted);line-height:1.6}
+.fw-badge{display:inline-block;margin-top:8px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:var(--em-dim);color:var(--emerald)}
+.fw-badge.open{background:var(--amber-dim);color:var(--amber)}
+@media(max-width:660px){.flywheel-grid{grid-template-columns:1fr}}
+
+/* STACK LAYERS */
+.layer-viz{display:flex;flex-direction:column;gap:0;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,0.08);margin-bottom:24px}
+.lv{padding:18px 28px;display:flex;align-items:center;gap:18px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.lv:last-child{border-bottom:none}
+.lv-icon{font-size:20px;flex-shrink:0;width:36px;text-align:center}
+.lv-body{flex:1}
+.lv-name{font-family:var(--grotesk);font-size:13px;font-weight:700;margin-bottom:3px}
+.lv-desc{font-size:12px;opacity:.72;line-height:1.55}
+.lv-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.lv-pill{font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px}
+.lv.products{background:#0c1445;color:#fff}.lv.products .lv-name{color:#93c5fd}
+.lv.control{background:#0c2240;color:#fff}.lv.control .lv-name{color:#67e8f9}
+.lv.agents{background:#0a2514;color:#fff}.lv.agents .lv-name{color:#6ee7b7}
+.lv.insight{background:#231506;color:#fff}.lv.insight .lv-name{color:#fde68a}
+.lv.memory{background:#1a0a2e;color:#fff}.lv.memory .lv-name{color:#d8b4fe}
+.lv.data{background:#001a40;color:#fff}.lv.data .lv-name{color:#bae6fd}
+.lv-pill.sky{background:rgba(14,165,233,0.25);color:#93c5fd}
+.lv-pill.em{background:rgba(16,185,129,0.25);color:#6ee7b7}
+.lv-pill.am{background:rgba(245,158,11,0.25);color:#fde68a}
+.lv-pill.vi{background:rgba(124,58,237,0.25);color:#d8b4fe}
+.lv-pill.new{background:rgba(16,185,129,0.35);color:#a7f3d0;font-weight:800}
+
+/* DATA SECTION */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;color:var(--muted);font-weight:600;padding:9px 12px;border-bottom:1.5px solid var(--faint);font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--sky-dim)}
+.mono{font-family:var(--mono);font-size:11px;color:var(--sky);font-weight:500}
+
+/* STAT CARDS */
+.kb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:600px){.kb-grid{grid-template-columns:repeat(2,1fr)}}
+.kb-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;text-align:center;transition:all .2s}
+.kb-card:hover{border-color:var(--sky);box-shadow:0 4px 16px rgba(14,165,233,0.10)}
+.kb-icon{font-size:26px;margin-bottom:8px}
+.kb-val{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--sky);margin-bottom:4px}
+.kb-val.big{font-size:18px}
+.kb-lbl{font-size:11px;color:var(--muted);font-weight:500}
+
+/* CONFIDENCE BAND VISUAL */
+.band-viz{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:16px}
+.band-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.band-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.band-label{font-family:var(--mono);font-size:10px;font-weight:700;width:90px;flex-shrink:0}
+.band-bar-outer{flex:1;height:8px;background:var(--faint);border-radius:4px;overflow:hidden}
+.band-bar-fill{height:100%;border-radius:4px}
+.band-count{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:80px;text-align:right}
+.band-pct{font-family:var(--mono);font-size:10px;color:var(--muted);min-width:44px;text-align:right}
+
+/* MEMORY */
+.mem-tiers{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.mem-tier{display:flex;align-items:center;gap:0;border-radius:10px;overflow:hidden;background:var(--surface);border:1px solid var(--border);box-shadow:0 1px 6px rgba(0,0,0,0.04)}
+.mt-badge{padding:14px 16px;font-size:11px;font-weight:800;letter-spacing:.08em;min-width:80px;text-align:center;flex-shrink:0}
+.mt-badge.hot1{background:linear-gradient(135deg,#7C3AED,#0EA5E9);color:#fff}
+.mt-badge.hot2{background:linear-gradient(135deg,#0EA5E9,#06b6d4);color:#fff}
+.mt-badge.warm{background:#F59E0B;color:#fff}
+.mt-badge.cold{background:#64748B;color:#fff}
+.mt-badge.arch{background:#0F172A;color:#fff}
+.mt-body{flex:1;padding:12px 18px}
+.mt-name{font-weight:700;font-size:13px;color:var(--ink);font-family:var(--grotesk)}
+.mt-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.mt-right{padding:12px 16px;display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:100px}
+.mt-latency{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--sky)}
+
+/* AGENT INTELLIGENCE */
+.ai-diagram{background:linear-gradient(160deg,#f0f9ff 0%,#e0f2fe 50%,#ede9fe 100%);border:1.5px solid var(--border2);border-radius:20px;padding:32px;box-shadow:0 8px 48px rgba(14,165,233,0.10)}
+.ai-layer-label{text-align:center;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.ai-files{background:#fff;border:1.5px solid rgba(124,58,237,0.25);border-radius:12px;padding:18px 22px;margin-bottom:8px;box-shadow:0 2px 12px rgba(124,58,237,0.06)}
+.ai-files-title{font-family:var(--grotesk);font-size:12px;font-weight:700;color:var(--violet);margin-bottom:10px}
+.skill-pills{display:flex;flex-wrap:wrap;gap:6px}
+.skill-pill{font-size:10px;font-weight:600;background:rgba(124,58,237,0.08);color:var(--violet);border:1px solid rgba(124,58,237,0.2);border-radius:5px;padding:3px 9px;font-family:var(--mono)}
+.ai-arrow{text-align:center;padding:6px 0;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:8px}
+.ai-arrow span{font-size:10px;font-weight:600;letter-spacing:.04em}
+.ai-arrow::before,.ai-arrow::after{content:'';flex:1;height:1px;background:var(--faint);max-width:120px}
+.agents-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px}
+.agent-box{border-radius:12px;padding:18px 20px;border:1.5px solid}
+.agent-box.jarvis{background:linear-gradient(135deg,rgba(14,165,233,0.06),rgba(14,165,233,0.02));border-color:rgba(14,165,233,0.35)}
+.agent-box.scoop{background:linear-gradient(135deg,rgba(245,158,11,0.06),rgba(245,158,11,0.02));border-color:rgba(245,158,11,0.35)}
+.ab-name{font-family:var(--grotesk);font-size:15px;font-weight:700;margin-bottom:3px}
+.jarvis .ab-name{color:var(--sky)}
+.scoop .ab-name{color:var(--amber)}
+.ab-id{font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:10px}
+.ab-row{font-size:11px;color:var(--muted);margin-bottom:3px;display:flex;gap:6px}
+.ab-row span{color:var(--ink);font-weight:500}
+.mem-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px}
+.mem-box{border-radius:12px;padding:14px 18px;border:1.5px solid}
+.mem-box.jm{background:rgba(14,165,233,0.04);border-color:rgba(14,165,233,0.25)}
+.mem-box.sm{background:rgba(245,158,11,0.04);border-color:rgba(245,158,11,0.25)}
+.mb-name{font-family:var(--grotesk);font-size:13px;font-weight:700;margin-bottom:2px}
+.jm .mb-name{color:var(--sky)}.sm .mb-name{color:var(--amber)}
+.mb-id{font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:8px}
+.mb-item{font-size:11px;color:var(--muted);padding:2px 0;border-bottom:1px solid var(--border)}
+.mb-item:last-child{border:none}
+.mb-item::before{content:'·  ';color:var(--sky)}
+.webhook-box{background:#fffbeb;border:1.5px dashed rgba(245,158,11,0.4);border-radius:12px;padding:16px 20px;margin-bottom:8px}
+.wh-title{font-size:12px;font-weight:700;color:var(--amber);margin-bottom:6px;font-family:var(--grotesk)}
+.wh-body{font-size:12px;color:var(--muted)}
+.wh-body code{font-family:var(--mono);color:var(--amber);font-size:10px}
+.outcome-box{background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(16,185,129,0.02));border:1.5px solid rgba(16,185,129,0.3);border-radius:12px;padding:18px 22px}
+.ob-title{font-size:12px;font-weight:700;color:var(--emerald);margin-bottom:12px;font-family:var(--grotesk)}
+.ob-item{font-size:12px;color:var(--muted);margin-bottom:7px;padding-left:18px;position:relative}
+.ob-item::before{content:'✓';position:absolute;left:0;color:var(--emerald);font-size:10px;top:2px;font-weight:700}
+.ob-item strong{color:var(--ink)}
+
+/* SKILLS */
+.skill-galaxy{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.skill-tag{font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;border:1.5px solid;transition:all .15s;cursor:default}
+.skill-tag:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.10)}
+.skill-tag.domain{background:var(--sky-dim);border-color:rgba(14,165,233,.35);color:var(--sky)}
+.skill-tag.build{background:var(--violet-dim);border-color:rgba(124,58,237,.35);color:var(--violet)}
+.skill-tag.media{background:var(--amber-dim);border-color:rgba(245,158,11,.35);color:var(--amber)}
+.skill-tag.ops{background:var(--em-dim);border-color:rgba(16,185,129,.35);color:var(--emerald)}
+
+/* TOKEN */
+.token-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:600px){.token-strip{grid-template-columns:repeat(2,1fr)}}
+.ts-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;position:relative;overflow:hidden}
+.ts-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
+.ts-card.sky::after{background:var(--sky)}
+.ts-card.violet::after{background:var(--violet)}
+.ts-card.amber::after{background:var(--amber)}
+.ts-card.em::after{background:var(--emerald)}
+.ts-val{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.ts-lbl{font-size:11px;color:var(--muted)}
+
+/* MODEL ROUTING */
+.model-route{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.mr-row{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.mr-model{padding:14px 18px;font-family:var(--mono);font-size:11px;font-weight:700;min-width:180px;color:#fff}
+.mr-model.opus{background:linear-gradient(135deg,#7C3AED,#5b21b6)}
+.mr-model.sonnet{background:linear-gradient(135deg,#0EA5E9,#0284c7)}
+.mr-model.haiku{background:linear-gradient(135deg,#10B981,#059669)}
+.mr-role{padding:14px 16px;font-size:12px;font-weight:600;color:var(--muted);min-width:110px;border-right:1px solid var(--border)}
+.mr-uses{padding:12px 16px;font-size:12px;color:var(--ink);flex:1}
+
+/* COMPUTE */
+.compute-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:700px){.compute-grid{grid-template-columns:repeat(2,1fr)}}
+.ct-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 16px;text-align:center;transition:all .2s}
+.ct-card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.08);transform:translateY(-2px)}
+.ct-icon{font-size:32px;margin-bottom:10px}
+.ct-name{font-family:var(--grotesk);font-size:13px;font-weight:700;color:var(--ink);margin-bottom:5px}
+.ct-role{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:8px;display:inline-block;margin-bottom:8px}
+.ct-card.railway .ct-role{background:var(--em-dim);color:var(--emerald)}
+.ct-card.mac .ct-role{background:var(--sky-dim);color:var(--sky)}
+.ct-card.gha .ct-role{background:var(--violet-dim);color:var(--violet)}
+.ct-card.claude .ct-role{background:var(--amber-dim);color:var(--amber)}
+.ct-desc{font-size:11px;color:var(--muted);line-height:1.6}
+
+/* ROADMAP */
+.rmap{display:flex;flex-direction:column;gap:0}
+.rm-item{display:flex;gap:20px;padding:20px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.rm-item:last-child{border-bottom:none}
+.rm-left{display:flex;flex-direction:column;gap:6px;align-items:center;min-width:90px}
+.rm-right strong{font-family:var(--grotesk);font-size:14px;font-weight:700;color:var(--ink);display:block;margin-bottom:6px}
+.rm-right p{font-size:12px;color:var(--muted);line-height:1.7}
+
+/* FOOTER */
+.footer{border-top:2px solid var(--border2);padding:32px 0;text-align:center;color:var(--muted);font-size:12px;line-height:2}
+.footer strong{color:var(--sky)}
+
+/* ── FEATURE SPOTLIGHT INFOGRAPHICS — 5 BRAND THEMES ── */
+.spotlight-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+@media(max-width:760px){.spotlight-grid{grid-template-columns:1fr}}
+.spot{border-radius:18px;padding:24px;overflow:hidden;position:relative}
+.spot.wide{grid-column:1 / -1}
+.spot-glow{position:absolute;border-radius:50%;filter:blur(60px);opacity:.22;pointer-events:none}
+.spot-theme-tag{position:absolute;top:14px;right:14px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:20px;z-index:3}
+.spot-eyebrow{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px;position:relative}
+.spot-title{font-size:21px;font-weight:700;margin-bottom:6px;letter-spacing:-0.01em;position:relative}
+.spot-sub{font-size:12px;line-height:1.6;margin-bottom:18px;position:relative;max-width:92%}
+.spot-svg-wrap{position:relative;display:flex;justify-content:center;align-items:center;min-height:200px}
+.spot-foot{margin-top:16px;padding-top:14px;border-top:1px solid;display:flex;gap:8px;flex-wrap:wrap;position:relative}
+.spot-stat{font-size:10px;font-weight:600;padding:3px 9px;border-radius:6px;border:1px solid}
+
+/* THEME 1 — DARK CINEMATIC TERMINAL */
+.spot.t-dark{background:linear-gradient(160deg,#0a0a0f 0%,#12121a 55%,#1a0f24 100%);border:1px solid rgba(167,139,250,0.25);box-shadow:0 8px 40px rgba(10,10,20,0.4)}
+.t-dark .spot-eyebrow{color:#22d3ee;font-family:'Share Tech Mono',monospace}
+.t-dark .spot-title{font-family:'Bebas Neue',sans-serif;color:#f0f0ff;font-size:30px;letter-spacing:.02em}
+.t-dark .spot-sub{color:#8888aa;font-family:'Barlow Condensed',sans-serif;font-size:13px}
+.t-dark .spot-foot{border-color:rgba(255,255,255,0.08)}
+.t-dark .spot-stat{font-family:'Share Tech Mono',monospace;background:rgba(167,139,250,0.08);color:#c4c4e8;border-color:rgba(167,139,250,0.2)}
+.t-dark .spot-stat b{color:#a78bfa}
+.t-dark .spot-theme-tag{background:rgba(167,139,250,0.15);color:#a78bfa;font-family:'Share Tech Mono',monospace}
+.t-dark text{font-family:'Barlow Condensed',sans-serif}
+
+/* THEME 2 — LIGHT PROGRAMMING INTELLIGENCE */
+.spot.t-light{background:linear-gradient(160deg,#FFFFFF 0%,#F0F4F8 60%,#E8EEF5 100%);border:1px solid rgba(14,165,233,0.22);box-shadow:0 4px 24px rgba(14,165,233,0.08)}
+.t-light .spot-eyebrow{color:#0EA5E9;font-family:'JetBrains Mono',monospace}
+.t-light .spot-title{font-family:'Space Grotesk',sans-serif;color:#0F172A}
+.t-light .spot-sub{color:#64748B;font-family:'Inter',sans-serif}
+.t-light .spot-foot{border-color:rgba(14,165,233,0.15)}
+.t-light .spot-stat{font-family:'JetBrains Mono',monospace;background:rgba(14,165,233,0.08);color:#0c4a6e;border-color:rgba(14,165,233,0.2)}
+.t-light .spot-stat b{color:#0EA5E9}
+.t-light .spot-theme-tag{background:rgba(14,165,233,0.12);color:#0369a1;font-family:'JetBrains Mono',monospace}
+.t-light text{font-family:'Inter',sans-serif}
+
+/* THEME 3 — MEDIA MANTRA SCOOP LEGACY */
+.spot.t-mantra{background:linear-gradient(160deg,#1e0a3c 0%,#2d1155 55%,#3b1668 100%);border:1px solid rgba(192,132,252,0.3);box-shadow:0 8px 40px rgba(30,10,60,0.45)}
+.t-mantra .spot-eyebrow{color:#f0abfc;font-family:'Inter',sans-serif;font-weight:700}
+.t-mantra .spot-title{font-family:'Space Grotesk',sans-serif;color:#fdf4ff;font-weight:700}
+.t-mantra .spot-sub{color:#d8b4fe;font-family:'Inter',sans-serif}
+.t-mantra .spot-foot{border-color:rgba(192,132,252,0.18)}
+.t-mantra .spot-stat{font-family:'Inter',sans-serif;background:rgba(192,132,252,0.12);color:#f5d0fe;border-color:rgba(192,132,252,0.25)}
+.t-mantra .spot-stat b{color:#f0abfc}
+.t-mantra .spot-theme-tag{background:rgba(240,171,252,0.18);color:#f5d0fe;font-family:'Inter',sans-serif}
+.t-mantra text{font-family:'Inter',sans-serif}
+
+/* THEME 4 — DATA NARRATIVE EDITORIAL (Clever°Franke) */
+.spot.t-narrative{background:#fafaf8;border:1px solid #d4cfc4;box-shadow:0 2px 16px rgba(60,50,40,0.06)}
+.t-narrative .spot-eyebrow{color:#a8763e;font-family:'Inter',sans-serif;font-weight:600;letter-spacing:.18em}
+.t-narrative .spot-title{font-family:'DM Serif Display',serif;color:#1a1a17;font-size:26px;font-weight:400}
+.t-narrative .spot-sub{color:#5c574d;font-family:'Inter',sans-serif}
+.t-narrative .spot-foot{border-color:#e0dad0}
+.t-narrative .spot-stat{font-family:'Inter',sans-serif;background:#f0ece3;color:#5c4a30;border-color:#d8cfc0}
+.t-narrative .spot-stat b{color:#a8763e}
+.t-narrative .spot-theme-tag{background:#efe8db;color:#8a6a3a;font-family:'DM Serif Display',serif;text-transform:none;letter-spacing:0;font-style:italic}
+.t-narrative text{font-family:'Inter',sans-serif}
+
+/* THEME 5 — HANDSKETCH (RoughJS) */
+.spot.t-sketch{background:#fdfcf7;border:2px solid #2b2b2b;box-shadow:4px 4px 0 rgba(43,43,43,0.12)}
+.t-sketch .spot-eyebrow{color:#c0392b;font-family:'Inter',sans-serif;font-weight:600}
+.t-sketch .spot-title{font-family:'Space Grotesk',sans-serif;color:#2b2b2b;font-weight:600}
+.t-sketch .spot-sub{color:#555;font-family:'Inter',sans-serif}
+.t-sketch .spot-foot{border-color:#d8d4c8;border-top-style:dashed}
+.t-sketch .spot-stat{font-family:'Inter',sans-serif;background:#f4f1e8;color:#3a3a3a;border-color:#c8c2b2;border-style:dashed}
+.t-sketch .spot-stat b{color:#c0392b}
+.t-sketch .spot-theme-tag{background:#fff;color:#2b2b2b;border:1.5px solid #2b2b2b;font-family:'Inter',sans-serif}
+.t-sketch text{font-family:'Inter',sans-serif}
+
+.spot-mono{font-family:'JetBrains Mono',monospace}
+
+/* spotlight keyframes — transform + opacity only */
+@keyframes pulse-node{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes flow-dash{to{stroke-dashoffset:-24}}
+@keyframes orbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes orbit-rev{from{transform:rotate(360deg)}to{transform:rotate(0deg)}}
+@keyframes rise-fall{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes blip{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.9}}
+@keyframes radar-sweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes sketch-wobble{0%,100%{transform:rotate(-0.4deg)}50%{transform:rotate(0.4deg)}}
+@media(prefers-reduced-motion:reduce){.spot-svg *{animation:none !important}}
+
+.flow-path{stroke-dasharray:6 6;animation:flow-dash 1.4s linear infinite}
+.mem-node{animation:pulse-node 2.4s ease-in-out infinite}
+.orbit-g{transform-origin:center;animation:orbit 14s linear infinite}
+.orbit-g-rev{transform-origin:center;animation:orbit-rev 20s linear infinite}
+.float-y{animation:rise-fall 3s ease-in-out infinite}
+.blip{animation:blip 1.8s ease-in-out infinite}
+.twk{animation:twinkle 2.6s ease-in-out infinite}
+.sketch-wob{animation:sketch-wobble 4s ease-in-out infinite}
+
+body.business .technical-only{display:none}
+body.technical .business-only{display:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.section{animation:fadeUp .4s ease both}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">SaS<em>Master</em> v17</div>
+  <a href="#north">Mission</a>
+  <a href="#flywheel">Flywheel</a>
+  <a href="#stack">Stack</a>
+  <a href="#data">Data</a>
+  <a href="#memory">Memory</a>
+  <a href="#agents">Intelligence <span class="vnew">NEW</span></a>
+  <a href="#spotlight">Spotlight <span class="vnew">NEW</span></a>
+  <a href="#skills">Skills</a>
+  <a href="#token">Tokens</a>
+  <a href="#compute">Compute</a>
+  <a href="#roadmap">Roadmap</a>
+  <a href="#lessons">Lessons</a>
+  <div class="track-toggle">
+    <button class="trk on" onclick="setTrack('both',this)">Both</button>
+    <button class="trk" onclick="setTrack('business',this)">Business</button>
+    <button class="trk" onclick="setTrack('technical',this)">Technical</button>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- HERO -->
+<div class="hero" id="top">
+  <div class="hero-bg">
+    <div class="hero-orb a"></div>
+    <div class="hero-orb b"></div>
+    <div class="hero-orb c"></div>
+  </div>
+  <div class="hero-eyebrow">Operator Reference · v17 · Light Operational · All figures live from MotherDuck + War Room</div>
+  <h1 class="hero-title">The Bloomberg Terminal<br>for <span class="hl">Media Intelligence</span></h1>
+  <p class="hero-sub">One platform decoding audience, content, and rights data into a single decision-grade terminal — powered by a self-learning agent stack that gets smarter every session.</p>
+  <div class="hero-ns">
+    <strong>North Star —</strong> Decode data for radical insights to drive Content, Audiences &amp; Revenue. The industry's first global audience dataset: GenAI-native, currency-agnostic — the terminal where the people who <strong>analyze, price, and trade</strong> content, advertising, and marketing actually work.
+  </div>
+</div>
+
+<!-- SNAPSHOT — ALL FIGURES FROM LIVE SOURCES -->
+<div class="snap">
+  <div class="sn"><div class="sn-lbl">Date</div><div class="sn-val">2026-06-21</div></div>
+  <div class="sn"><div class="sn-lbl">Phase</div><div class="sn-val"><span class="pill live">1 LIVE</span><span class="pill prog">1b IN-PROG</span><span class="pill next">2a NEXT</span></div></div>
+  <div class="sn"><div class="sn-lbl">S3 Lake <span class="data-badge">WAR ROOM</span></div><div class="sn-val sky">1.62 TB</div></div>
+  <div class="sn"><div class="sn-lbl">Spine rows <span class="data-badge">MOTHERDUCK</span></div><div class="sn-val sky">12.96M</div></div>
+  <div class="sn"><div class="sn-lbl">PKIDs / CIDs</div><div class="sn-val">3.29M / 9.67M</div></div>
+  <div class="sn"><div class="sn-lbl">Agents <span class="data-badge">WAR ROOM</span></div><div class="sn-val em">10 live / 51 total</div></div>
+  <div class="sn"><div class="sn-lbl">Skills on disk</div><div class="sn-val">79</div></div>
+  <div class="sn"><div class="sn-lbl">Model</div><div class="sn-val">sonnet-4-6</div></div>
+</div>
+
+<!-- 01 NORTH STAR -->
+<div class="section" id="north">
+  <div class="sec-header"><span class="sec-num">01</span><h2 class="sec-title">North Star &amp; the Unique IP</h2></div>
+  <div class="ns-visual">
+    <div class="ns-moat">
+      <div class="ns-moat-title">The Competitive Moat — 4 Depths</div>
+      <div class="moat-row"><div class="moat-dot" style="background:#F43F5E"></div><div class="moat-text-wrap"><div class="moat-label">Raw Data</div><div class="moat-sub">Anyone with capital can license TMDB / IMDB / Nielsen</div><div class="moat-bar-outer"><div class="moat-bar-fill" style="width:25%;background:#F43F5E"></div></div></div></div>
+      <div class="moat-row"><div class="moat-dot" style="background:#F59E0B"></div><div class="moat-text-wrap"><div class="moat-label">Parent Key Spine</div><div class="moat-sub">12.96M rows · 3.29M PKIDs · 9.67M episode CIDs</div><div class="moat-bar-outer"><div class="moat-bar-fill" style="width:55%;background:#F59E0B"></div></div></div></div>
+      <div class="moat-row"><div class="moat-dot" style="background:#0EA5E9"></div><div class="moat-text-wrap"><div class="moat-label">Certification + Provenance Wall</div><div class="moat-sub">GENERALIZE-TO-PUBLISH · PIL class · certified fusion</div><div class="moat-bar-outer"><div class="moat-bar-fill" style="width:78%;background:#0EA5E9"></div></div></div></div>
+      <div class="moat-row"><div class="moat-dot" style="background:#10B981"></div><div class="moat-text-wrap"><div class="moat-label">Gold Sets + Agent Intelligence</div><div class="moat-sub">1,550 Obsidian files in managed memstores · 79 skills</div><div class="moat-bar-outer"><div class="moat-bar-fill" style="width:95%;background:#10B981"></div></div></div></div>
+    </div>
+    <div class="ns-north">
+      <div class="ns-north-box">
+        <div class="ns-north-eyebrow">The Official Mission</div>
+        <div class="ns-north-text">Decode data for <strong>radical insights</strong> to drive Content, Audiences &amp; Revenue. The industry's first global audience dataset: <strong>GenAI-native, currency-agnostic</strong>, one language for every market.<br><br><em style="opacity:.5;font-size:11px">IP origin: Solo build 2018–2024 · RSG Databricks · Clean IP · Never productized commercially · SaSMaster v8 = first commercial implementation.</em></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 02 FLYWHEEL -->
+<div class="section" id="flywheel">
+  <div class="sec-header"><span class="sec-num">02</span><h2 class="sec-title">The Self-Learning Flywheel</h2></div>
+  <p class="sec-desc">Six work stages on the rim; the control plane at the hub governs every stage. Stages 1–3 are wired with managed agent intelligence. Stages 4–6 close the autonomous loop.</p>
+  <div class="flywheel-grid">
+    <div class="fw-card wired" data-n="1"><div class="fw-num">① QUESTION IN</div><div class="fw-name">User / Intel Agent</div><div class="fw-desc">Dr. Scoop receives query; JARVIS receives task card from Slack #builds.</div><div class="fw-badge">WIRED</div></div>
+    <div class="fw-card wired" data-n="2"><div class="fw-num">② COMPOSE</div><div class="fw-name">Agents + Skills + Spine</div><div class="fw-desc">Managed agents load 79 skill files by file_id. Zero re-upload token cost.</div><div class="fw-badge">WIRED</div></div>
+    <div class="fw-card wired" data-n="3"><div class="fw-num">③ SERVE</div><div class="fw-name">Answer on the wedge</div><div class="fw-desc">Portal surface or Dr. Scoop SSE stream via Railway.</div><div class="fw-badge">WIRED</div></div>
+    <div class="fw-card" data-n="4"><div class="fw-num">④ BLESS = LABEL</div><div class="fw-name">Human Gate</div><div class="fw-desc">Shiv blesses. Catalog entry required to reach DONE.</div><div class="fw-badge open">OPEN</div></div>
+    <div class="fw-card" data-n="5"><div class="fw-num">⑤ DEPOSIT</div><div class="fw-name">Catalog · Gold · Skill</div><div class="fw-desc">DEPOSIT-GATE-001 P1+P2 shipped 2026-06-07.</div><div class="fw-badge open">OPEN</div></div>
+    <div class="fw-card" data-n="6"><div class="fw-num">⑥ PROMOTE</div><div class="fw-name">Pattern ≥3 → Skill</div><div class="fw-desc">SKILL-REGISTRY-002 auto-promotes from LESSONS.md.</div><div class="fw-badge open">OPEN</div></div>
+  </div>
+</div>
+
+<!-- 03 STACK -->
+<div class="section" id="stack">
+  <div class="sec-header"><span class="sec-num">03</span><h2 class="sec-title">The Layered Architecture</h2></div>
+  <p class="sec-desc">Read bottom-up: raw data fused into a certified spine → distributed memory → knowledge → agent + skill fleet with durable API intelligence → governed by JARVIS → products.</p>
+  <div class="layer-viz">
+    <div class="lv products"><div class="lv-icon">🖥</div><div class="lv-body"><div class="lv-name">Products — Terminal &amp; Surfaces</div><div class="lv-desc">Programming Research Portal · Advertising · Marketing · CPG · Exchange · Dr. Scoop companion · paid Substack ($13/mo).</div><div class="lv-badges"><span class="lv-pill sky">5 portals</span><span class="lv-pill am">Substack live</span></div></div></div>
+    <div class="lv control"><div class="lv-icon">🤖</div><div class="lv-body"><div class="lv-name">Control — JARVIS</div><div class="lv-desc">Routes work, governs every stage, meters autonomy. HTTP Events API on Railway. Now a managed API agent with persistent jarvis-memory store.</div><div class="lv-badges"><span class="lv-pill em">10 live healthy</span><span class="lv-pill sky">51 total agents</span><span class="lv-pill new">MANAGED v17</span></div></div></div>
+    <div class="lv agents"><div class="lv-icon">⚡</div><div class="lv-body"><div class="lv-name">Fleet — Managed Agent Intelligence</div><div class="lv-desc">51 agents total (War Room live). JARVIS + Dr. Scoop now managed API agents on claude-sonnet-4-6 with stable IDs. 79 skills on disk, all in Files API by file_id. 2 dedicated memory stores with 1,550-file Obsidian vault syncing live.</div><div class="lv-badges"><span class="lv-pill new">NEW v17</span><span class="lv-pill em">51 agents</span><span class="lv-pill sky">79 skills</span><span class="lv-pill vi">2 managed memstores</span></div></div></div>
+    <div class="lv insight"><div class="lv-icon">🔍</div><div class="lv-body"><div class="lv-name">Insight — Knowledge Bank &amp; Dr. Scoop</div><div class="lv-desc">Nightly KB sync · reporting catalog (P1+P2 shipped) · Dr. Scoop comprehender + claim-verify (fail-closed). Obsidian vault synced into drscoop-memory.</div><div class="lv-badges"><span class="lv-pill am">fail-CLOSED claim-verify</span></div></div></div>
+    <div class="lv memory"><div class="lv-icon">🧠</div><div class="lv-body"><div class="lv-name">Memory — Five-Tier Distributed</div><div class="lv-desc">HOT-1 (Anthropic Memstores) · HOT-2 (claude.ai) · WARM (Upstash Redis) · COLD (S3) · ARCH (Obsidian 1,557 files). CLAUDE_MEMORY.md superseded by managed memstores.</div><div class="lv-badges"><span class="lv-pill new">NEW v17 — HOT-1</span><span class="lv-pill vi">1,550 files syncing</span></div></div></div>
+    <div class="lv data"><div class="lv-icon">💾</div><div class="lv-body"><div class="lv-name">Data — S3 Lake (1.62 TB) &amp; Parent Key Spine</div><div class="lv-desc">sasmaster-2026 · 1.62 TB (War Room live) · locked-paths registry · NDJSON→Parquet ZSTD · certified fusion. 12.96M spine rows (MotherDuck live): 3.29M PKIDs + 9.67M episode CIDs.</div><div class="lv-badges"><span class="lv-pill sky">1.62 TB S3</span><span class="lv-pill am">12.96M spine rows</span><span class="lv-pill em">335K EIDR staged</span></div></div></div>
+  </div>
+</div>
+
+<!-- 04 DATA -->
+<div class="section" id="data">
+  <div class="sec-header"><span class="sec-num">04</span><h2 class="sec-title">Data Management &amp; the Parent Key Spine <span class="data-badge">LIVE · MOTHERDUCK</span></h2></div>
+
+  <!-- KPI cards — all from MotherDuck queries -->
+  <div class="kb-grid">
+    <div class="kb-card"><div class="kb-icon">🗄️</div><div class="kb-val">1.62 TB</div><div class="kb-lbl">S3 Lake · War Room live</div></div>
+    <div class="kb-card"><div class="kb-icon">🔑</div><div class="kb-val">12.96M</div><div class="kb-lbl">Spine rows · prod.parent_key</div></div>
+    <div class="kb-card"><div class="kb-icon">🆔</div><div class="kb-val">3.29M</div><div class="kb-lbl">Content PKIDs (no CID)</div></div>
+    <div class="kb-card"><div class="kb-icon">📺</div><div class="kb-val">9.67M</div><div class="kb-lbl">Episode CIDs</div></div>
+    <div class="kb-card"><div class="kb-icon">🎬</div><div class="kb-val">2.32M</div><div class="kb-lbl">Movie master rows</div></div>
+    <div class="kb-card"><div class="kb-icon">📡</div><div class="kb-val">341K</div><div class="kb-lbl">TV series master rows</div></div>
+    <div class="kb-card"><div class="kb-icon">👤</div><div class="kb-val">4.73M</div><div class="kb-lbl">People master rows</div></div>
+    <div class="kb-card"><div class="kb-icon">🔗</div><div class="kb-val">618.9K</div><div class="kb-lbl">Alt IDs (prod.alt_ids)</div></div>
+    <div class="kb-card"><div class="kb-icon">🆔</div><div class="kb-val">335.2K</div><div class="kb-lbl">EIDR staged · all have IMDB</div></div>
+  </div>
+
+  <!-- Confidence Band Distribution — from MotherDuck -->
+  <div class="band-viz">
+    <div class="band-title">Match Confidence Band Distribution <span class="data-badge">MOTHERDUCK · prod.parent_key · 12,955,795 rows</span></div>
+    <div class="band-row">
+      <div class="band-label" style="color:#F59E0B">PROVISIONAL</div>
+      <div class="band-bar-outer"><div class="band-bar-fill" style="width:89.55%;background:#F59E0B"></div></div>
+      <div class="band-count">11,601,406</div>
+      <div class="band-pct">89.55%</div>
+    </div>
+    <div class="band-row">
+      <div class="band-label" style="color:#0EA5E9">CONFIRMED</div>
+      <div class="band-bar-outer"><div class="band-bar-fill" style="width:5.63%;background:#0EA5E9"></div></div>
+      <div class="band-count">729,259</div>
+      <div class="band-pct">5.63%</div>
+    </div>
+    <div class="band-row">
+      <div class="band-label" style="color:#64748B">HELD</div>
+      <div class="band-bar-outer"><div class="band-bar-fill" style="width:4.83%;background:#64748B"></div></div>
+      <div class="band-count">625,130</div>
+      <div class="band-pct">4.83%</div>
+    </div>
+    <div class="band-row">
+      <div class="band-label" style="color:#10B981">CERTIFIED</div>
+      <div class="band-bar-outer"><div class="band-bar-fill" style="width:0%;background:#10B981"></div></div>
+      <div class="band-count">0</div>
+      <div class="band-pct">0% — EIDR gate</div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">CERTIFIED = 0 rows confirmed · hard cap 0.89 requires EIDR credentials to unlock · 335,175 EIDR records staged and ready in <code class="mono">prod.eidr_staging</code> · EIDR backfill into parent_keys.eidr_id = Phase 1b unlock</div>
+  </div>
+
+  <!-- Source counts -->
+  <div class="card accent technical-only" style="margin-bottom:16px">
+    <div class="card-title">Parent Key v2.0 — LOCKED <span class="data-badge">MOTHERDUCK</span></div>
+    <div class="card-body">
+      <code class="mono" style="display:block;margin-bottom:10px;font-size:12px">parent_key = COALESCE(imdb_tconst, 'tmdb_mov_'||tmdb_movie_id, 'tmdb_tv_'||tmdb_tv_id)</code>
+      Five-table architecture. Dual surrogate key pairs: SASMASTER_PKID/CID (UUIDv5 external) + pk_sk/cid_sk (BIGINT internal). Frozen namespace <code class="mono">7b7b4ce5</code>. Anchor: <code class="mono">imdb_id > eidr_id > tmdb_id</code>.<br><br>
+      <strong>Live spine:</strong> 12,955,795 total rows · 3,286,241 PKIDs · 9,669,554 episode CIDs · 625,130 in quarantine path · 38 in quarantine.parent_key · 10,052,268 in fusion.parent_key.<br>
+      <strong>People:</strong> NOT in parent_key — live in <code class="mono">curated.people_master</code> (4,734,740 rows confirmed).
+    </div>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+    <table>
+      <thead><tr><th>Dataset</th><th>Source</th><th>Rows confirmed</th><th>S3 GB</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">landing.imdb_titles</td><td>IMDB</td><td><strong>12,534,268</strong></td><td>—</td><td>Movies 2,037,313 · TV Series 370,725 · Episodes in separate table</td></tr>
+        <tr><td class="mono">landing.imdb_episodes</td><td>IMDB</td><td><strong>9,681,543</strong></td><td>—</td><td>Episode↔series mapping via parentTconst</td></tr>
+        <tr><td class="mono">landing.tmdb_movies</td><td>TMDB</td><td><strong>1,199,613</strong></td><td>—</td><td>Bulk brute-force ID range</td></tr>
+        <tr><td class="mono">landing.tmdb_tv_series</td><td>TMDB</td><td><strong>221,866</strong></td><td>—</td><td>No imdb_id direct — requires external_ids call</td></tr>
+        <tr><td class="mono">source.tmdb_tv_episodes</td><td>TMDB</td><td><strong>6,131,072</strong></td><td>—</td><td>Parsed episode layer</td></tr>
+        <tr><td class="mono">prod.eidr_staging</td><td>EIDR</td><td><strong>335,175</strong></td><td>—</td><td>All have imdb_id · 334,260 unique · awaiting backfill auth</td></tr>
+        <tr><td class="mono">nielsen/ AMRLD</td><td>Nielsen</td><td>—</td><td><strong>~633 GB</strong></td><td>Databricks-direct · NIELSEN-DBX-001 complete · 100K files · Phase 3 12/13 tables</td></tr>
+        <tr><td class="mono">nielsen/ MIT</td><td>Nielsen</td><td>—</td><td><strong>181.2 GB</strong></td><td>1,227 files · 2 feeds · 09/01/2014–06/09/2026 · TP gap cuts 11/30/2022</td></tr>
+        <tr><td class="mono">nielsen/ Ad Intel</td><td>Nielsen</td><td>—</td><td><strong>22.0 GB</strong></td><td>1,750 files · 38 tables · 2018-01-01–2026-06-10</td></tr>
+        <tr><td class="mono">nielsen/ MRI</td><td>Nielsen</td><td>—</td><td><strong>4.8 GB</strong></td><td>412 files · 29 tables · 2019-01-01–2026-06-10</td></tr>
+        <tr><td class="mono">curated.social_handles</td><td>TMDB seed</td><td><strong>557</strong></td><td>—</td><td>X only · pre-v2.0 format · 0 social domains in prod.alt_ids yet</td></tr>
+        <tr><td class="mono">prod.alt_ids twitter</td><td>X/Twitter</td><td><strong>85,182</strong></td><td>—</td><td>Twitter domain in alt_ids live</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 05 MEMORY -->
+<div class="section" id="memory">
+  <div class="sec-header"><span class="sec-num">05</span><h2 class="sec-title">The Distributed Memory Layer <span class="pill new">UPGRADED v17</span></h2></div>
+  <p class="sec-desc">Five-tier memory. HOT-1 is new in v17 — Anthropic Memory Stores API, agent-bound, durable across restarts. 1,550-file Obsidian vault migrating live into managed memstores.</p>
+  <div class="mem-tiers">
+    <div class="mem-tier"><div class="mt-badge hot1">HOT-1 <span style="font-size:8px">NEW</span></div><div class="mt-body"><div class="mt-name">Anthropic Memory Stores API</div><div class="mt-desc">jarvis-memory + drscoop-memory · 1,550 Obsidian files migrating now · agent-bound · survives Railway restarts</div></div><div class="mt-right"><div class="mt-latency">~ms</div><span class="pill live">MIGRATING</span></div></div>
+    <div class="mem-tier"><div class="mt-badge hot2">HOT-2</div><div class="mt-body"><div class="mt-name">claude.ai Memory Slots</div><div class="mt-desc">Cross-session user context for claude.ai strategy sessions</div></div><div class="mt-right"><div class="mt-latency">~ms</div><span class="pill live">LIVE</span></div></div>
+    <div class="mem-tier"><div class="mt-badge warm">WARM</div><div class="mt-body"><div class="mt-name">Upstash Redis · 6 domain keys</div><div class="mt-desc">Recent pipeline state · agent health · compute presence · TTL 180s</div></div><div class="mt-right"><div class="mt-latency">~sec</div><span class="pill live">LIVE</span></div></div>
+    <div class="mem-tier"><div class="mt-badge cold">COLD</div><div class="mt-body"><div class="mt-name">S3 sasmaster-2026/memory/</div><div class="mt-desc">Durable PIL ledger · done log · gold sets</div></div><div class="mt-right"><div class="mt-latency">~min</div><span class="pill live">LIVE</span></div></div>
+    <div class="mem-tier"><div class="mt-badge arch">ARCH</div><div class="mt-body"><div class="mt-name">Obsidian Vault (MCP)</div><div class="mt-desc">knowledge-bank/ · 1,557 .md files · Claude Desktop MCP live · also feeding HOT-1</div></div><div class="mt-right"><div class="mt-latency">on-demand</div><span class="pill live">LIVE</span></div></div>
+  </div>
+</div>
+
+<!-- 06 AGENT INTELLIGENCE -->
+<div class="section" id="agents">
+  <div class="sec-header"><span class="sec-num">06</span><h2 class="sec-title">Managed Agent Intelligence Stack <span class="pill new">NEW IN v17</span></h2></div>
+  <p class="sec-desc">As of 2026-06-21, JARVIS and Dr. Scoop are first-class managed agents on the Anthropic API. The broader fleet is <strong>51 agents total</strong> (10 live healthy per War Room). This section covers the 2 managed API agents — the new intelligence tier layered on top.</p>
+
+  <div class="ai-diagram">
+    <div class="ai-layer-label">① Files API — 79 SKILL.md files · loaded by file_id · zero re-upload cost · confirmed on disk Jun 5</div>
+    <div class="ai-files">
+      <div class="ai-files-title">Uploaded skill files — Default workspace · platform.claude.com</div>
+      <div class="skill-pills">
+        <span class="skill-pill">wikidata-fusion</span><span class="skill-pill">twitter-x-data</span><span class="skill-pill">tmdb-data</span><span class="skill-pill">nielsen-sme</span><span class="skill-pill">social-intelligence</span><span class="skill-pill">uiux-mastery</span><span class="skill-pill">the-numbers-boxoffice</span><span class="skill-pill">fullstack-architect</span><span class="skill-pill">build-discipline</span><span class="skill-pill">jarvis-ops</span><span class="skill-pill">data-viz</span><span class="skill-pill">scraper-engineer</span><span class="skill-pill">autonomous-ui-designer</span><span class="skill-pill">social-identity</span><span class="skill-pill">instagram-data</span><span class="skill-pill">youtube-data</span><span class="skill-pill">fb-adlibrary</span><span class="skill-pill">gracenote-onconnect</span><span class="skill-pill">gracenote-validate</span><span class="skill-pill">duckdb-parquet</span><span class="skill-pill">aws-infra</span><span class="skill-pill">playwright-debugger</span><span class="skill-pill">platform-scout</span><span class="skill-pill">shiv-executive-profile</span><span class="skill-pill">+ 55 more</span>
+      </div>
+    </div>
+    <div class="ai-arrow"><span>context injection on demand — no re-upload token cost</span></div>
+    <div class="ai-layer-label">② Managed Agents — 2 of 51 total · stable API identities on claude-sonnet-4-6</div>
+    <div class="agents-row">
+      <div class="agent-box jarvis">
+        <div class="ab-name">🤖 JARVIS</div>
+        <div class="ab-id">agent_017DZDvgY4CKuATba6iBK3MC · claude-sonnet-4-6</div>
+        <div class="ab-row">Role: <span>Build orchestrator · task execution</span></div>
+        <div class="ab-row">Channel: <span>Slack #sasmaster-builds</span></div>
+        <div class="ab-row">Runtime: <span>Railway (jarvis-socket.mjs)</span></div>
+        <div class="ab-row">Wire next: <span class="pill prog">MANAGED-AGENTS-001</span></div>
+      </div>
+      <div class="agent-box scoop">
+        <div class="ab-name">🔍 Dr. Scoop</div>
+        <div class="ab-id">agent_0176LT6ShnTQkYd3YvLveAyr · claude-sonnet-4-6</div>
+        <div class="ab-row">Role: <span>Media intelligence · user Q&amp;A</span></div>
+        <div class="ab-row">Surface: <span>SSE stream · portal FAB bottom-right</span></div>
+        <div class="ab-row">Runtime: <span>Railway (services/scoop/chat.js)</span></div>
+        <div class="ab-row">Wire next: <span class="pill prog">MANAGED-AGENTS-001</span></div>
+      </div>
+    </div>
+    <div class="ai-arrow"><span>persistent memory binding — survives Railway restarts</span></div>
+    <div class="ai-layer-label">③ Memory Stores — durable knowledge across all sessions</div>
+    <div class="mem-row">
+      <div class="mem-box jm">
+        <div class="mb-name">jarvis-memory</div>
+        <div class="mb-id">memstore_01MFTdTSBEzC4PKexCf3dwVZ · Active</div>
+        <div class="mb-item">Build task history + done log</div>
+        <div class="mb-item">Architecture decisions + lessons</div>
+        <div class="mb-item">TASKS.md + DONE_LOG.md state</div>
+        <div class="mb-item">Obsidian vault: jarvis domain files</div>
+      </div>
+      <div class="mem-box sm">
+        <div class="mb-name">drscoop-memory</div>
+        <div class="mb-id">memstore_01L57ARvx7Pih7ZuJQ2nHQNA · Active</div>
+        <div class="mb-item">Media domain KB + methodology</div>
+        <div class="mb-item">Nielsen / TMDB / Gracenote schema</div>
+        <div class="mb-item">Insight cache + entity knowledge</div>
+        <div class="mb-item">Obsidian vault: scoop domain files</div>
+      </div>
+    </div>
+    <div class="ai-arrow"><span>obsidian_to_memstore.py · 1,550 files · launchd cron incremental</span></div>
+    <div class="ai-layer-label">④ Webhooks — event-driven auto-writeback (MANAGED-AGENTS-002 · next)</div>
+    <div class="webhook-box">
+      <div class="wh-title">No endpoints wired yet — MANAGED-AGENTS-002 / JARVIS-WRITEBACK-001</div>
+      <div class="wh-body">Next: wire <code>agent.session.completed</code> → Railway endpoint → JARVIS writes session learnings to jarvis-memory. Closes the self-improvement loop. Also: <code>CLAUDE-CODE-VAULT-001</code> — fix Claude Code MCP Obsidian plugin toggle.</div>
+    </div>
+    <div class="outcome-box">
+      <div class="ob-title">Net intelligence gain vs v16</div>
+      <div class="ob-item"><strong>79 skills by file_id</strong> — Files API; no re-upload token cost per session.</div>
+      <div class="ob-item"><strong>Stable agent identity</strong> — consistent persona, centralized logging per agent, no context drift across Railway restarts.</div>
+      <div class="ob-item"><strong>Durable memory</strong> — memstores persist what agents learned. JARVIS remembers builds; Dr. Scoop remembers queries.</div>
+      <div class="ob-item"><strong>1,550-file Obsidian vault</strong> — full knowledge-bank synced into API-native memory. Cold ARCH tier now simultaneously HOT-1.</div>
+      <div class="ob-item"><strong>Webhooks next → closed loop</strong> — auto-writeback removes last manual memory sync step.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 07 PLATFORM TECHNOLOGY SPOTLIGHT -->
+<div class="section" id="spotlight">
+  <div class="sec-header"><span class="sec-num">07</span><h2 class="sec-title">Platform Technology Spotlight <span class="pill new">NEW IN v17</span></h2></div>
+  <p class="sec-desc">Seven signature capabilities — each rendered in a different SaSMaster brand theme. The design system is itself a feature: the same data, beautiful in every mode. Hover and watch the systems move.</p>
+
+  <div class="spotlight-grid">
+
+    <!-- ① DISTRIBUTED MEMORY PLATFORM — THEME: DARK CINEMATIC TERMINAL -->
+    <div class="spot t-dark">
+      <span class="spot-theme-tag">Dark · Cinematic Terminal</span>
+      <div class="spot-glow" style="width:200px;height:200px;background:#a78bfa;top:-60px;right:-40px"></div>
+      <div class="spot-eyebrow">① Distributed Memory Platform</div>
+      <div class="spot-title">FIVE TIERS, ONE RECALL</div>
+      <div class="spot-sub">HOT-1 memstores to ARCH Obsidian — knowledge flows down by durability, surfaces up by latency. Nothing forgotten between sessions.</div>
+      <div class="spot-svg-wrap">
+        <svg class="spot-svg" width="100%" viewBox="0 0 340 210" role="img" aria-label="Five memory tiers stacked from HOT to ARCH">
+          <defs><linearGradient id="memg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs>
+          <rect x="40" y="20"  width="260" height="26" rx="6" fill="url(#memg1)"/><text x="52" y="37" fill="#0a0a0f" font-size="11" font-weight="600">HOT-1 · Anthropic Memstores</text><text x="288" y="37" fill="#0a0a0f" font-size="9" text-anchor="end" class="spot-mono">~ms</text>
+          <rect x="56" y="54" width="228" height="26" rx="6" fill="#22d3ee" opacity="0.85"/><text x="68" y="71" fill="#06222a" font-size="11" font-weight="600">HOT-2 · claude.ai slots</text><text x="272" y="71" fill="#06222a" font-size="9" text-anchor="end" class="spot-mono">~ms</text>
+          <rect x="72" y="88" width="196" height="26" rx="6" fill="#f59e0b" opacity="0.9"/><text x="84" y="105" fill="#1a1000" font-size="11" font-weight="600">WARM · Upstash Redis</text><text x="256" y="105" fill="#1a1000" font-size="9" text-anchor="end" class="spot-mono">~sec</text>
+          <rect x="88" y="122" width="164" height="26" rx="6" fill="#64748B" opacity="0.85"/><text x="100" y="139" fill="#fff" font-size="11" font-weight="600">COLD · S3 lake</text><text x="240" y="139" fill="#e2e8f0" font-size="9" text-anchor="end" class="spot-mono">~min</text>
+          <rect x="104" y="156" width="132" height="26" rx="6" fill="#1a1a2e" stroke="#a78bfa" stroke-width="1"/><text x="116" y="173" fill="#c4b5fd" font-size="11" font-weight="600">ARCH · Obsidian</text>
+          <line x1="30" y1="33" x2="30" y2="169" stroke="#a78bfa" stroke-width="1.5" class="flow-path" opacity="0.6"/>
+          <circle cx="30" cy="33"  r="5" class="mem-node" fill="#a78bfa"/><circle cx="30" cy="67"  r="5" class="mem-node" fill="#22d3ee" style="animation-delay:.4s"/><circle cx="30" cy="101" r="5" class="mem-node" fill="#f59e0b" style="animation-delay:.8s"/><circle cx="30" cy="135" r="5" class="mem-node" fill="#64748B" style="animation-delay:1.2s"/><circle cx="30" cy="169" r="5" class="mem-node" fill="#c4b5fd" style="animation-delay:1.6s"/>
+        </svg>
+      </div>
+      <div class="spot-foot"><span class="spot-stat">HOT-1 <b>2 memstores</b></span><span class="spot-stat">ARCH <b>1,557 files</b></span><span class="spot-stat">WARM <b>6 keys</b></span></div>
+    </div>
+
+    <!-- ② DISTRIBUTED COMPUTE PLATFORM — THEME: LIGHT PROGRAMMING INTELLIGENCE -->
+    <div class="spot t-light">
+      <span class="spot-theme-tag">Light · Programming Intelligence</span>
+      <div class="spot-glow" style="width:200px;height:200px;background:#0EA5E9;top:-50px;left:-50px"></div>
+      <div class="spot-eyebrow">② Distributed Compute Platform</div>
+      <div class="spot-title">Four lanes, presence-aware</div>
+      <div class="spot-sub">A router sends every job to the cheapest lane that can run it — Railway for uptime, the M1 for muscle, GHA for burst, Claude for reasoning.</div>
+      <div class="spot-svg-wrap">
+        <svg class="spot-svg" width="100%" viewBox="0 0 340 210" role="img" aria-label="Four compute lanes with a central router">
+          <circle cx="170" cy="105" r="26" fill="#E0F2FE" stroke="#0EA5E9" stroke-width="1.5"/><text x="170" y="102" fill="#0369a1" font-size="10" font-weight="700" text-anchor="middle">ROUTER</text><text x="170" y="114" fill="#0c4a6e" font-size="7" text-anchor="middle" class="spot-mono">presence-aware</text>
+          <g class="orbit-g" style="transform-origin:170px 105px"><circle cx="170" cy="63" r="3" fill="#0EA5E9"/></g>
+          <g class="float-y"><circle cx="60" cy="50" r="22" fill="#ECFDF5" stroke="#10B981" stroke-width="1.5"/><text x="60" y="48" fill="#047857" font-size="9" font-weight="700" text-anchor="middle">Railway</text><text x="60" y="59" fill="#059669" font-size="7" text-anchor="middle">uptime</text></g>
+          <g class="float-y" style="animation-delay:.6s"><circle cx="280" cy="50" r="22" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/><text x="280" y="48" fill="#1d4ed8" font-size="9" font-weight="700" text-anchor="middle">M1 64GB</text><text x="280" y="59" fill="#2563eb" font-size="7" text-anchor="middle">muscle</text></g>
+          <g class="float-y" style="animation-delay:1.2s"><circle cx="60" cy="160" r="22" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5"/><text x="60" y="158" fill="#6d28d9" font-size="9" font-weight="700" text-anchor="middle">GHA</text><text x="60" y="169" fill="#7c3aed" font-size="7" text-anchor="middle">burst</text></g>
+          <g class="float-y" style="animation-delay:1.8s"><circle cx="280" cy="160" r="22" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/><text x="280" y="158" fill="#b45309" font-size="9" font-weight="700" text-anchor="middle">Claude</text><text x="280" y="169" fill="#d97706" font-size="7" text-anchor="middle">reasoning</text></g>
+          <line x1="148" y1="90"  x2="80"  y2="62"  stroke="#10B981" stroke-width="1.5" class="flow-path"/><line x1="192" y1="90"  x2="260" y2="62"  stroke="#3B82F6" stroke-width="1.5" class="flow-path" style="animation-delay:.35s"/><line x1="148" y1="120" x2="80"  y2="148" stroke="#7C3AED" stroke-width="1.5" class="flow-path" style="animation-delay:.7s"/><line x1="192" y1="120" x2="260" y2="148" stroke="#F59E0B" stroke-width="1.5" class="flow-path" style="animation-delay:1.05s"/>
+        </svg>
+      </div>
+      <div class="spot-foot"><span class="spot-stat">M1 <b>64 GB</b></span><span class="spot-stat">Governor <b>$500/mo</b></span><span class="spot-stat">Presence <b>TTL 180s</b></span></div>
+    </div>
+
+    <!-- ③ CONTROL PLANE — THEME: MEDIA MANTRA SCOOP LEGACY -->
+    <div class="spot wide t-mantra">
+      <span class="spot-theme-tag">Media Mantra · Scoop Legacy</span>
+      <div class="spot-glow" style="width:280px;height:280px;background:#c084fc;top:-100px;left:40%"></div>
+      <div class="spot-eyebrow">③ Control Plane — JARVIS</div>
+      <div class="spot-title">The hub that governs every stage</div>
+      <div class="spot-sub">JARVIS sits at the center of the flywheel — routing tasks, gating quality, metering autonomy. Slack in, Railway out, the whole fleet on call.</div>
+      <div class="spot-svg-wrap" style="min-height:230px">
+        <svg class="spot-svg" width="100%" viewBox="0 0 640 230" role="img" aria-label="JARVIS control plane at center with six governed flywheel stages">
+          <defs><radialGradient id="jcore" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#e9d5ff"/><stop offset="1" stop-color="#9333ea"/></radialGradient></defs>
+          <circle cx="320" cy="115" r="92" fill="none" stroke="rgba(240,171,252,0.22)" stroke-width="1" stroke-dasharray="3 5"/>
+          <g class="orbit-g" style="transform-origin:320px 115px"><circle cx="320" cy="23" r="3.5" fill="#f0abfc"/></g>
+          <g class="orbit-g-rev" style="transform-origin:320px 115px"><circle cx="320" cy="207" r="2.5" fill="#67e8f9"/></g>
+          <g class="blip"><circle cx="320" cy="35" r="17" fill="#2d1155" stroke="#86efac" stroke-width="1"/><text x="320" y="38" fill="#86efac" font-size="8" text-anchor="middle" font-weight="700">QUESTION</text></g>
+          <g class="blip" style="animation-delay:.3s"><circle cx="445" cy="75" r="17" fill="#2d1155" stroke="#86efac" stroke-width="1"/><text x="445" y="78" fill="#86efac" font-size="8" text-anchor="middle" font-weight="700">COMPOSE</text></g>
+          <g class="blip" style="animation-delay:.6s"><circle cx="445" cy="155" r="17" fill="#2d1155" stroke="#86efac" stroke-width="1"/><text x="445" y="158" fill="#86efac" font-size="8" text-anchor="middle" font-weight="700">SERVE</text></g>
+          <g class="blip" style="animation-delay:.9s"><circle cx="320" cy="195" r="17" fill="#2d1155" stroke="#fcd34d" stroke-width="1"/><text x="320" y="198" fill="#fcd34d" font-size="8" text-anchor="middle" font-weight="700">BLESS</text></g>
+          <g class="blip" style="animation-delay:1.2s"><circle cx="195" cy="155" r="17" fill="#2d1155" stroke="#fcd34d" stroke-width="1"/><text x="195" y="158" fill="#fcd34d" font-size="8" text-anchor="middle" font-weight="700">DEPOSIT</text></g>
+          <g class="blip" style="animation-delay:1.5s"><circle cx="195" cy="75" r="17" fill="#2d1155" stroke="#fcd34d" stroke-width="1"/><text x="195" y="78" fill="#fcd34d" font-size="8" text-anchor="middle" font-weight="700">PROMOTE</text></g>
+          <g stroke="rgba(240,171,252,0.4)" stroke-width="1"><line x1="320" y1="80" x2="320" y2="52"/><line x1="358" y1="98" x2="430" y2="82"/><line x1="358" y1="132" x2="430" y2="148"/><line x1="320" y1="150" x2="320" y2="178"/><line x1="282" y1="132" x2="210" y2="148"/><line x1="282" y1="98" x2="210" y2="82"/></g>
+          <circle cx="320" cy="115" r="36" fill="url(#jcore)"/><text x="320" y="111" fill="#3b0764" font-size="15" font-weight="700" text-anchor="middle">JARVIS</text><text x="320" y="126" fill="#6b21a8" font-size="8" text-anchor="middle" class="spot-mono">control plane</text>
+          <text x="100" y="50" fill="#f0abfc" font-size="9" class="spot-mono" text-anchor="middle">Slack #builds →</text><text x="540" y="50" fill="#86efac" font-size="9" class="spot-mono" text-anchor="middle">→ Railway API</text>
+        </svg>
+      </div>
+      <div class="spot-foot"><span class="spot-stat">Quality gate <b>QA agent</b></span><span class="spot-stat">Autonomy <b>supervised</b></span><span class="spot-stat">Fleet <b>51 agents</b></span><span class="spot-stat">Runtime <b>Socket Mode</b></span></div>
+    </div>
+
+    <!-- ④ INTELLIGENT MEMORY QUERYING — THEME: DATA NARRATIVE EDITORIAL -->
+    <div class="spot t-narrative">
+      <span class="spot-theme-tag">Data Narrative · Editorial</span>
+      <div class="spot-eyebrow">④ Intelligent Memory Querying</div>
+      <div class="spot-title">Ask once, recall everywhere</div>
+      <div class="spot-sub">A query fans across all five tiers in parallel; the fastest authoritative answer wins. Agents recall as if they never slept.</div>
+      <div class="spot-svg-wrap">
+        <svg class="spot-svg" width="100%" viewBox="0 0 340 210" role="img" aria-label="A query fanning across memory tiers">
+          <circle cx="40" cy="105" r="18" fill="#f0ece3" stroke="#a8763e" stroke-width="1.5"/><text x="40" y="103" fill="#5c4a30" font-size="8" text-anchor="middle" font-weight="700">QUERY</text><text x="40" y="115" fill="#8a6a3a" font-size="9" text-anchor="middle">?</text>
+          <g>
+            <rect x="200" y="20"  width="110" height="24" rx="3" fill="#f4eee2" stroke="#8a6a3a" stroke-width="0.8"/><text x="212" y="36" fill="#5c4a30" font-size="9" font-weight="600">HOT-1</text>
+            <rect x="200" y="54"  width="110" height="24" rx="3" fill="#f4eee2" stroke="#a8763e" stroke-width="0.8"/><text x="212" y="70" fill="#5c4a30" font-size="9" font-weight="600">HOT-2</text>
+            <rect x="200" y="88"  width="110" height="24" rx="3" fill="#f4eee2" stroke="#b5894a" stroke-width="0.8"/><text x="212" y="104" fill="#5c4a30" font-size="9" font-weight="600">WARM</text>
+            <rect x="200" y="122" width="110" height="24" rx="3" fill="#f4eee2" stroke="#9c8458" stroke-width="0.8"/><text x="212" y="138" fill="#5c4a30" font-size="9" font-weight="600">COLD</text>
+            <rect x="200" y="156" width="110" height="24" rx="3" fill="#efe8db" stroke="#7a6a4a" stroke-width="0.8"/><text x="212" y="172" fill="#5c4a30" font-size="9" font-weight="600">ARCH</text>
+          </g>
+          <g fill="none" stroke-width="1.5">
+            <path d="M58 105 Q130 60 200 32"  stroke="#a8763e" class="flow-path"/>
+            <path d="M58 105 Q130 85 200 66"  stroke="#b5894a" class="flow-path" style="animation-delay:.2s"/>
+            <path d="M58 105 Q130 105 200 100" stroke="#c39a5a" class="flow-path" style="animation-delay:.4s"/>
+            <path d="M58 105 Q130 125 200 134" stroke="#9c8458" class="flow-path" style="animation-delay:.6s"/>
+            <path d="M58 105 Q130 150 200 168" stroke="#8a7a5a" class="flow-path" style="animation-delay:.8s"/>
+          </g>
+          <g class="twk"><circle cx="305" cy="32" r="7" fill="#5c8a3a"/><text x="305" y="35" fill="#fff" font-size="8" text-anchor="middle" font-weight="700">✓</text></g>
+          <text x="305" y="200" fill="#7a6a4a" font-size="8" text-anchor="middle" font-style="italic">fastest wins</text>
+        </svg>
+      </div>
+      <div class="spot-foot"><span class="spot-stat">Fan-out <b>5 tiers</b></span><span class="spot-stat">Win rule <b>fastest authoritative</b></span></div>
+    </div>
+
+    <!-- ⑤ SASMASTER DATA FUSION — THEME: HANDSKETCH (RoughJS) -->
+    <div class="spot t-sketch">
+      <span class="spot-theme-tag">Handsketch · Analyst's Notebook</span>
+      <div class="spot-eyebrow">⑤ SaSMaster Data Fusion</div>
+      <div class="spot-title">Three IDs become one key</div>
+      <div class="spot-sub">IMDB, TMDB and EIDR collapse into a single deterministic Parent Key by precedence. 12.96M rows, one canonical spine — sketched the way an analyst would whiteboard it.</div>
+      <div class="spot-svg-wrap">
+        <svg id="sketch-fusion" class="spot-svg sketch-wob" width="100%" viewBox="0 0 340 210" role="img" aria-label="Three identifiers fusing into one parent key, hand-drawn"></svg>
+      </div>
+      <div class="spot-foot"><span class="spot-stat">Spine <b>12.96M</b></span><span class="spot-stat">Precedence <b>imdb&gt;eidr&gt;tmdb</b></span></div>
+    </div>
+
+    <!-- ⑥ INTELLIGENT AUDITING & MONITORING — THEME: DARK CINEMATIC TERMINAL -->
+    <div class="spot t-dark">
+      <span class="spot-theme-tag">Dark · Cinematic Terminal</span>
+      <div class="spot-glow" style="width:200px;height:200px;background:#f59e0b;bottom:-60px;left:-40px"></div>
+      <div class="spot-eyebrow">⑥ Intelligent Auditing &amp; Monitoring</div>
+      <div class="spot-title">ALWAYS SCANNING, FAIL-CLOSED</div>
+      <div class="spot-sub">Data Guardian sweeps every ingest; claim-verify holds rather than guesses. 11 gate assertions, radar never sleeps.</div>
+      <div class="spot-svg-wrap">
+        <svg class="spot-svg" width="100%" viewBox="0 0 340 210" role="img" aria-label="A radar sweep monitoring data assets">
+          <defs><linearGradient id="radg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f59e0b"/><stop offset="1" stop-color="#f59e0b" stop-opacity="0"/></linearGradient></defs>
+          <g transform="translate(110,105)">
+            <circle r="80" fill="none" stroke="rgba(245,158,11,0.14)" stroke-width="1"/><circle r="54" fill="none" stroke="rgba(245,158,11,0.18)" stroke-width="1"/><circle r="28" fill="none" stroke="rgba(245,158,11,0.22)" stroke-width="1"/>
+            <g style="transform-origin:0 0;animation:radar-sweep 4s linear infinite"><path d="M0 0 L80 0 A80 80 0 0 1 56 56 Z" fill="url(#radg)" opacity="0.3"/></g>
+            <circle cx="34" cy="-20" r="3.5" fill="#34d399" class="blip"/><circle cx="-44" cy="18" r="3.5" fill="#34d399" class="blip" style="animation-delay:.5s"/><circle cx="22" cy="44" r="3.5" fill="#34d399" class="blip" style="animation-delay:1s"/><circle cx="-18" cy="-46" r="3.5" fill="#f43f5e" class="blip" style="animation-delay:1.5s"/><circle cx="60" cy="30" r="3.5" fill="#34d399" class="blip" style="animation-delay:2s"/><circle r="5" fill="#f59e0b"/>
+          </g>
+          <g>
+            <rect x="220" y="40" width="108" height="30" rx="6" fill="rgba(52,211,153,0.1)" stroke="#34d399" stroke-width="0.8"/><text x="232" y="54" fill="#6ee7b7" font-size="9" font-weight="700">GATE PASS</text><text x="232" y="64" fill="#5a8" font-size="7" class="spot-mono">11 assertions</text>
+            <rect x="220" y="80" width="108" height="30" rx="6" fill="rgba(244,63,94,0.1)" stroke="#f43f5e" stroke-width="0.8"/><text x="232" y="94" fill="#fda4af" font-size="9" font-weight="700">CLAIM HELD</text><text x="232" y="104" fill="#c77" font-size="7" class="spot-mono">fail-CLOSED</text>
+            <rect x="220" y="120" width="108" height="30" rx="6" fill="rgba(245,158,11,0.1)" stroke="#f59e0b" stroke-width="0.8"/><text x="232" y="134" fill="#fde68a" font-size="9" font-weight="700">DATA GUARDIAN</text><text x="232" y="144" fill="#b94" font-size="7" class="spot-mono">every ingest</text>
+          </g>
+        </svg>
+      </div>
+      <div class="spot-foot"><span class="spot-stat">Assertions <b>11 pass</b></span><span class="spot-stat">Verify <b>fail-closed</b></span></div>
+    </div>
+
+    <!-- ⑦ ALT ID ROSETTA STONE — THEME: MEDIA MANTRA SCOOP LEGACY (the moat, full width) -->
+    <div class="spot wide t-mantra">
+      <span class="spot-theme-tag">Media Mantra · Scoop Legacy</span>
+      <div class="spot-glow" style="width:300px;height:300px;background:#c084fc;top:-120px;right:30%"></div>
+      <div class="spot-eyebrow">⑦ Alt ID Management — the Industry Rosetta Stone</div>
+      <div class="spot-title">One key, every namespace speaks</div>
+      <div class="spot-sub">Every external ID system in media — IMDB, TMDB, EIDR, Gracenote, Nielsen, Wikidata, social — crosswalks through a single Parent Key. Translate any identifier to any other, instantly. This is the moat.</div>
+      <div class="spot-svg-wrap" style="min-height:240px">
+        <svg class="spot-svg" width="100%" viewBox="0 0 640 240" role="img" aria-label="A central parent key with ten external identifier systems radiating outward">
+          <defs><radialGradient id="rosg" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#f5d0fe"/><stop offset="0.7" stop-color="#c084fc"/><stop offset="1" stop-color="#9333ea"/></radialGradient></defs>
+          <g stroke-width="1.5" fill="none">
+            <line x1="320" y1="120" x2="120" y2="45"  stroke="#93c5fd" class="flow-path"/><line x1="320" y1="120" x2="100" y2="120" stroke="#86efac" class="flow-path" style="animation-delay:.2s"/><line x1="320" y1="120" x2="120" y2="195" stroke="#fcd34d" class="flow-path" style="animation-delay:.4s"/><line x1="320" y1="120" x2="240" y2="35"  stroke="#67e8f9" class="flow-path" style="animation-delay:.6s"/><line x1="320" y1="120" x2="240" y2="205" stroke="#f9a8d4" class="flow-path" style="animation-delay:.8s"/><line x1="320" y1="120" x2="400" y2="35"  stroke="#a5b4fc" class="flow-path" style="animation-delay:1s"/><line x1="320" y1="120" x2="400" y2="205" stroke="#bef264" class="flow-path" style="animation-delay:1.2s"/><line x1="320" y1="120" x2="520" y2="45"  stroke="#fdba74" class="flow-path" style="animation-delay:1.4s"/><line x1="320" y1="120" x2="540" y2="120" stroke="#fde047" class="flow-path" style="animation-delay:1.6s"/><line x1="320" y1="120" x2="520" y2="195" stroke="#5eead4" class="flow-path" style="animation-delay:1.8s"/>
+          </g>
+          <g font-size="9" font-weight="700" text-anchor="middle">
+            <g class="twk"><rect x="78" y="33" width="84" height="24" rx="6" fill="#1e3a5f" stroke="#93c5fd" stroke-width="0.8"/><text x="120" y="49" fill="#bfdbfe">IMDB</text></g>
+            <g class="twk" style="animation-delay:.3s"><rect x="58" y="108" width="84" height="24" rx="6" fill="#14422a" stroke="#86efac" stroke-width="0.8"/><text x="100" y="124" fill="#bbf7d0">TMDB</text></g>
+            <g class="twk" style="animation-delay:.6s"><rect x="78" y="183" width="84" height="24" rx="6" fill="#4a3410" stroke="#fcd34d" stroke-width="0.8"/><text x="120" y="199" fill="#fde68a">EIDR</text></g>
+            <g class="twk" style="animation-delay:.9s"><rect x="198" y="23" width="84" height="24" rx="6" fill="#0e3a44" stroke="#67e8f9" stroke-width="0.8"/><text x="240" y="39" fill="#a5f3fc">Gracenote</text></g>
+            <g class="twk" style="animation-delay:1.2s"><rect x="198" y="193" width="84" height="24" rx="6" fill="#4a1531" stroke="#f9a8d4" stroke-width="0.8"/><text x="240" y="209" fill="#fbcfe8">Nielsen</text></g>
+            <g class="twk" style="animation-delay:1.5s"><rect x="358" y="23" width="84" height="24" rx="6" fill="#262148" stroke="#a5b4fc" stroke-width="0.8"/><text x="400" y="39" fill="#c7d2fe">Wikidata</text></g>
+            <g class="twk" style="animation-delay:1.8s"><rect x="358" y="193" width="84" height="24" rx="6" fill="#2a3810" stroke="#bef264" stroke-width="0.8"/><text x="400" y="209" fill="#d9f99d">FYI</text></g>
+            <g class="twk" style="animation-delay:2.1s"><rect x="478" y="33" width="84" height="24" rx="6" fill="#43240a" stroke="#fdba74" stroke-width="0.8"/><text x="520" y="49" fill="#fed7aa">Box Office</text></g>
+            <g class="twk" style="animation-delay:2.4s"><rect x="498" y="108" width="84" height="24" rx="6" fill="#42390a" stroke="#fde047" stroke-width="0.8"/><text x="540" y="124" fill="#fef08a">Social</text></g>
+            <g class="twk" style="animation-delay:2.7s"><rect x="478" y="183" width="84" height="24" rx="6" fill="#0a423b" stroke="#5eead4" stroke-width="0.8"/><text x="520" y="199" fill="#99f6e4">TheTVDB</text></g>
+          </g>
+          <circle cx="320" cy="120" r="46" fill="url(#rosg)"/><circle cx="320" cy="120" r="46" fill="none" stroke="#f5d0fe" stroke-width="1" opacity="0.6" class="twk"/>
+          <text x="320" y="113" fill="#3b0764" font-size="13" font-weight="700" text-anchor="middle">PARENT KEY</text><text x="320" y="128" fill="#6b21a8" font-size="8" text-anchor="middle" class="spot-mono">SASMASTER_PKID</text><text x="320" y="140" fill="#7e22ce" font-size="7" text-anchor="middle" class="spot-mono">the Rosetta Stone</text>
+        </svg>
+      </div>
+      <div class="spot-foot"><span class="spot-stat">Crosswalk <b>10+ namespaces</b></span><span class="spot-stat">alt_ids <b>618,918 rows</b></span><span class="spot-stat">EIDR staged <b>335,175</b></span><span class="spot-stat">Twitter bound <b>85,182</b></span><span class="spot-stat">Store <b>prod.alt_ids · SCD2</b></span></div>
+    </div>
+
+  </div>
+
+  <div class="card violet" style="margin-top:4px">
+    <div class="card-title" style="color:var(--violet)">Five themes, one design system — and why these seven are the platform</div>
+    <div class="card-body">Each card above is rendered in a different SaSMaster brand mode — <strong>Dark Cinematic Terminal</strong>, <strong>Light Programming Intelligence</strong>, <strong>Media Mantra (Scoop Legacy)</strong>, <strong>Data Narrative (editorial)</strong>, and <strong>Handsketch (Analyst's Notebook, RoughJS)</strong> — proving the same data renders beautifully across every surface. The capabilities themselves are the moat: distributed memory + compute let a solo founder operate like a team; the control plane governs autonomy safely; intelligent querying + fusion turn fragmented IDs into one comparable language; auditing keeps every claim defensible; and the Alt ID Rosetta Stone is the single key that lets the entire media industry's identifier systems finally speak to one another.</div>
+  </div>
+</div>
+
+<!-- 08 SKILLS -->
+<div class="section" id="skills">
+  <div class="sec-header"><span class="sec-num">08</span><h2 class="sec-title">The Skill Fleet — 79 Skills on Disk</h2></div>
+  <p class="sec-desc">Confirmed by Claude Code on Jun 5. Source of truth: architecture-v14.html. Note: claude.ai mount shows ~22 — that is a known mount artifact, not reality.</p>
+  <div class="skill-galaxy">
+    <span class="skill-tag domain">tmdb-data</span><span class="skill-tag domain">nielsen-sme</span><span class="skill-tag domain">gracenote-onconnect</span><span class="skill-tag domain">gracenote-validate</span><span class="skill-tag domain">wikidata-fusion</span><span class="skill-tag domain">media-domain</span><span class="skill-tag domain">duckdb-parquet</span>
+    <span class="skill-tag media">twitter-x-data</span><span class="skill-tag media">instagram-data</span><span class="skill-tag media">youtube-data</span><span class="skill-tag media">fb-adlibrary</span><span class="skill-tag media">social-intelligence</span><span class="skill-tag media">social-identity</span><span class="skill-tag media">the-numbers-boxoffice</span><span class="skill-tag media">programming-researcher</span>
+    <span class="skill-tag build">fullstack-architect</span><span class="skill-tag build">build-discipline</span><span class="skill-tag build">scraper-engineer</span><span class="skill-tag build">aws-infra</span><span class="skill-tag build">playwright-debugger</span><span class="skill-tag build">no-finger-prints</span><span class="skill-tag build">s3-data-architect</span><span class="skill-tag build">mcp-builder</span><span class="skill-tag build">math-mastery</span>
+    <span class="skill-tag ops">jarvis-ops</span><span class="skill-tag ops">qa-agent</span><span class="skill-tag ops">platform-scout</span><span class="skill-tag ops">autonomous-ui-designer</span><span class="skill-tag ops">uiux-mastery</span><span class="skill-tag ops">data-viz</span><span class="skill-tag ops">skill-creator</span><span class="skill-tag ops">linkedin-thought-leader</span><span class="skill-tag ops">sow-consultant</span><span class="skill-tag ops">shiv-executive-profile</span><span class="skill-tag ops">emba-analyst</span><span class="skill-tag ops">ableton-sme</span>
+  </div>
+  <div style="margin-bottom:12px;padding:10px 16px;background:var(--sky-dim);border-radius:8px;font-size:12px;color:var(--muted)">
+    <strong style="color:var(--ink)">Legend:</strong>&nbsp;
+    <span class="skill-tag domain" style="font-size:10px">Blue = Data domain</span>&nbsp;
+    <span class="skill-tag media" style="font-size:10px">Amber = Media/social</span>&nbsp;
+    <span class="skill-tag build" style="font-size:10px">Purple = Engineering</span>&nbsp;
+    <span class="skill-tag ops" style="font-size:10px">Green = Ops/UI</span>
+  </div>
+</div>
+
+<!-- 09 TOKEN -->
+<div class="section" id="token">
+  <div class="sec-header"><span class="sec-num">09</span><h2 class="sec-title">Token Optimization</h2></div>
+  <div class="token-strip">
+    <div class="ts-card sky"><div class="ts-val">$55.54</div><div class="ts-lbl">Build cost · War Room</div></div>
+    <div class="ts-card violet"><div class="ts-val">$500</div><div class="ts-lbl">API governor cap/mo</div></div>
+    <div class="ts-card amber"><div class="ts-val">50%</div><div class="ts-lbl">Batch API discount</div></div>
+    <div class="ts-card em"><div class="ts-val">40–60%</div><div class="ts-lbl">Cache savings est.</div></div>
+  </div>
+  <div class="model-route">
+    <div class="mr-row"><div class="mr-model opus">claude-opus-4-8</div><div class="mr-role">Planning</div><div class="mr-uses">Parent Key fusion decisions · match confidence scoring · architecture design</div></div>
+    <div class="mr-row"><div class="mr-model sonnet">claude-sonnet-4-6</div><div class="mr-role">Execution</div><div class="mr-uses">JARVIS orchestration · Dr. Scoop responses · portal API · managed agents (v17)</div></div>
+    <div class="mr-row"><div class="mr-model haiku">claude-haiku-4-5</div><div class="mr-role">Volume</div><div class="mr-uses">Nielsen scraper validation · batch triage · EIDR lookups · bulk classify</div></div>
+  </div>
+</div>
+
+<!-- 10 COMPUTE -->
+<div class="section" id="compute">
+  <div class="sec-header"><span class="sec-num">10</span><h2 class="sec-title">Compute Architecture</h2></div>
+  <div class="compute-grid">
+    <div class="ct-card railway"><div class="ct-icon">🛤️</div><div class="ct-name">Railway</div><div class="ct-role">Availability</div><div class="ct-desc">Always-on control plane · heartbeat · Dr. Scoop SSE · managed agent webhook receiver (next)</div></div>
+    <div class="ct-card mac"><div class="ct-icon">💻</div><div class="ct-name">Mac M1 64 GB</div><div class="ct-role">Throughput</div><div class="ct-desc">DuckDB joins · fusion · local inference · scraping · launchd plist auto-restart</div></div>
+    <div class="ct-card gha"><div class="ct-icon">⚙️</div><div class="ct-name">GitHub Actions</div><div class="ct-role">Burst / Failover</div><div class="ct-desc">Ephemeral parallel compute · backup watcher · KB nightly sync · queue-heartbeat-watcher</div></div>
+    <div class="ct-card claude"><div class="ct-icon">🧠</div><div class="ct-name">Claude Models</div><div class="ct-role">Reasoning</div><div class="ct-desc">Opus / Sonnet / Haiku by effort · $500/mo governed</div></div>
+  </div>
+  <div class="card rose">
+    <div class="card-title" style="color:var(--rose)">⚠ Reliability gap — reproduced 2026-06-08</div>
+    <div class="card-body">launchd does not fire while Mac is asleep. Schedule-critical crons (5A briefing, 6A intel, 7A/2P self-score) are Mac-local — lid close = silent miss. <strong>COMPUTE-ROUTER-001 Ph2</strong> decouples to Railway/GHA. Ph1 (presence emitter → Upstash SETEX TTL 180s) is LIVE. Ph2 decoupling is the next reliability gate.</div>
+  </div>
+</div>
+
+<!-- 11 ROADMAP -->
+<div class="section" id="roadmap">
+  <div class="sec-header"><span class="sec-num">11</span><h2 class="sec-title">Phase Status &amp; Path Forward</h2></div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px">
+    <div class="rmap">
+      <div class="rm-item"><div class="rm-left"><span class="pill live">LIVE</span><span style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px">PHASE 1</span></div><div class="rm-right"><strong>Spine</strong><p>TMDB + IMDB + Parent Key v2.0. 12.96M spine rows (3.29M PKIDs + 9.67M CIDs). MotherDuck confirmed. Five-table architecture locked.</p></div></div>
+      <div class="rm-item"><div class="rm-left"><span class="pill prog">IN-PROG</span><span style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px">PHASE 1b</span></div><div class="rm-right"><strong>EIDR Backfill</strong><p>335,175 EIDR records staged in prod.eidr_staging — all have imdb_id. Auth gate pending for backfill into parent_keys.eidr_id. CERTIFIED = 0 rows until this lands.</p></div></div>
+      <div class="rm-item"><div class="rm-left"><span class="pill next">NEXT</span><span style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px">PHASE 2a</span></div><div class="rm-right"><strong>Snapshots</strong><p>Nielsen landing in S3: AMRLD ~633 GB · MIT 181.2 GB · Ad Intel 22.0 GB · MRI 4.8 GB · BARB 4 batches complete. NIELSEN-DBX-003 viewership_amrld_timeperiod in active Databricks execution.</p></div></div>
+      <div class="rm-item"><div class="rm-left"><span class="pill new">NEW v17</span><span style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px">AGENTS</span></div><div class="rm-right"><strong>Agent Intelligence Infrastructure</strong><p><strong>MANAGED-AGENTS-001 — NEXT:</strong> Wire agent IDs into jarvis-socket.mjs + services/scoop/chat.js.<br><strong>MANAGED-AGENTS-002:</strong> Webhook writeback → memstore auto-update.<br><strong>JARVIS-WRITEBACK-001 + CLAUDE-CODE-VAULT-001:</strong> queued in #builds.</p></div></div>
+      <div class="rm-item"><div class="rm-left"><span class="pill prog">PRIORITY</span><span style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px">FLYWHEEL</span></div><div class="rm-right"><strong>Close stages 4–6</strong><p>Wire bless-deposit-promote. Make the autonomy dial honest. Everything else upgrades in place behind it.</p></div></div>
+    </div>
+  </div>
+  <div class="card accent" style="margin-top:20px;text-align:center;padding:28px 32px">
+    <div style="font-family:var(--grotesk);font-size:18px;font-weight:700;color:var(--ink);margin-bottom:8px">The one-line test of progress</div>
+    <div class="card-body" style="font-size:15px;max-width:600px;margin:0 auto">Is the share of outputs shipping <strong>untouched</strong> rising, safely, on its own?<br><em style="color:var(--sky);font-style:normal;font-weight:600">v17:</em> Infrastructure is in place. <strong>MANAGED-AGENTS-001</strong> is the single next step.</div>
+  </div>
+</div>
+
+<!-- 12 LESSONS LEARNED -->
+<div class="section" id="lessons">
+  <div class="sec-header"><span class="sec-num">12</span><h2 class="sec-title">Lessons Learned — Architecture Document Integrity</h2></div>
+  <p class="sec-desc">This section exists because v17's first two drafts contained materially wrong data despite live sources being available. That is a failure of intelligence for a platform that calls itself a Bloomberg Terminal. These lessons are permanent.</p>
+
+  <div class="card lesson">
+    <div class="card-title" style="color:var(--rose)">ARCH-LESSON-001 — Never estimate what you can query</div>
+    <div class="card-body">v17 drafts 1 and 2 showed "125.6 GB" and then "~200–400 GB est." for the S3 lake size. The War Room shows <strong>1.62 TB</strong> live. MotherDuck was available the entire time. The failure was not querying before writing. <strong>Rule:</strong> Any number that appears in an architecture document must come from a live query, a War Room screenshot, or a confirmed session result — never from memory or estimation when live access exists.</div>
+  </div>
+
+  <div class="card lesson">
+    <div class="card-title" style="color:var(--rose)">ARCH-LESSON-002 — Parent Key counts have two different meanings; always state which</div>
+    <div class="card-body">The document alternated between "861,878 parent keys" (the v1 IMDB spine count from a May evaluation session) and "12.9M rows" (the v2.0 full spine) without distinguishing them. Both numbers appear in session history. <strong>Rule:</strong> Always specify: spine total rows / PKIDs only (no CID) / episode CIDs / source dataset row counts. These are four different numbers. Query <code class="mono">prod.parent_key</code> with explicit WHERE clauses before writing. Current confirmed: 12,955,795 total · 3,286,241 PKIDs · 9,669,554 CIDs.</div>
+  </div>
+
+  <div class="card lesson">
+    <div class="card-title" style="color:var(--rose)">ARCH-LESSON-003 — Agent and skill counts have a persistent source-of-truth; always check it</div>
+    <div class="card-body">v17 draft showed "50+ skills" and an invented fleet breakdown of "15 native / 31 marketplace." Ground truth: <strong>79 skills</strong> on disk (architecture-v14.html, Claude Code confirmed Jun 5), <strong>51 agents</strong> total (War Room live header). The claude.ai mount shows ~22 skills — this is a known mount artifact. <strong>Rule:</strong> Fleet counts always come from architecture-v14.html or the War Room AGENTS tab header. Never infer from what's visible in the claude.ai skills panel.</div>
+  </div>
+
+  <div class="card lesson">
+    <div class="card-title" style="color:var(--rose)">ARCH-LESSON-004 — Architecture artifacts must cite their data sources inline</div>
+    <div class="card-body">The first drafts presented numbers with no provenance. A reader could not tell if "861,878" came from a live query or a hallucination. <strong>Rule:</strong> Every data point in an architecture document carries a source badge: <code class="mono">MOTHERDUCK · TABLE</code>, <code class="mono">WAR ROOM · TAB</code>, or <code class="mono">SESSION · DATE</code>. If a number cannot be sourced, it is replaced with "pending verification" — never a guess. This document implements this pattern.</div>
+  </div>
+
+  <div class="card lesson">
+    <div class="card-title" style="color:var(--rose)">ARCH-LESSON-005 — The standard for a "Bloomberg Terminal for Media" is higher than average</div>
+    <div class="card-body">The platform's core value proposition is decision-grade data. An architecture document that presents wrong figures undermines that claim before a single line of product code ships. <strong>Rule:</strong> Every session that produces a public-facing artifact (architecture doc, War Room update, investor deck) must begin with a live data pull. The MCP connections (MotherDuck, War Room screenshots, Databricks) exist precisely for this. Using them is not optional — it is the intelligence standard.</div>
+  </div>
+
+  <div class="card emerald" style="margin-top:4px">
+    <div class="card-title" style="color:var(--emerald)">What the live queries confirmed — numbers now locked in this document</div>
+    <div class="card-body">
+      <table style="margin-top:4px">
+        <thead><tr><th>Field</th><th>Source</th><th>Confirmed value</th></tr></thead>
+        <tbody>
+          <tr><td>S3 Lake total</td><td class="mono">War Room header</td><td><strong>1.62 TB</strong></td></tr>
+          <tr><td>Spine total rows</td><td class="mono">prod.parent_key COUNT</td><td><strong>12,955,795</strong></td></tr>
+          <tr><td>Content PKIDs</td><td class="mono">WHERE SASMASTER_CID IS NULL</td><td><strong>3,286,241</strong></td></tr>
+          <tr><td>Episode CIDs</td><td class="mono">WHERE SASMASTER_CID IS NOT NULL</td><td><strong>9,669,554</strong></td></tr>
+          <tr><td>CERTIFIED rows</td><td class="mono">WHERE confidence_band='CERTIFIED'</td><td><strong>0 — EIDR gate</strong></td></tr>
+          <tr><td>CONFIRMED rows</td><td class="mono">WHERE confidence_band='CONFIRMED'</td><td><strong>729,259 (5.63%)</strong></td></tr>
+          <tr><td>PROVISIONAL rows</td><td class="mono">WHERE confidence_band='PROVISIONAL'</td><td><strong>11,601,406 (89.55%)</strong></td></tr>
+          <tr><td>HELD rows</td><td class="mono">WHERE confidence_band='HELD'</td><td><strong>625,130 (4.83%)</strong></td></tr>
+          <tr><td>EIDR staged</td><td class="mono">prod.eidr_staging COUNT</td><td><strong>335,175 (all have imdb_id)</strong></td></tr>
+          <tr><td>Alt IDs total</td><td class="mono">prod.alt_ids COUNT</td><td><strong>618,918</strong></td></tr>
+          <tr><td>Twitter in alt_ids</td><td class="mono">WHERE domain LIKE '%twitter%'</td><td><strong>85,182</strong></td></tr>
+          <tr><td>People master</td><td class="mono">curated.people_master COUNT</td><td><strong>4,734,740</strong></td></tr>
+          <tr><td>Movie master</td><td class="mono">curated.movie_master COUNT</td><td><strong>2,319,749</strong></td></tr>
+          <tr><td>TV series master</td><td class="mono">curated.tv_series_master COUNT</td><td><strong>341,362</strong></td></tr>
+          <tr><td>Skills on disk</td><td class="mono">architecture-v14 + Claude Code Jun5</td><td><strong>79</strong></td></tr>
+          <tr><td>Agents total</td><td class="mono">War Room AGENTS header</td><td><strong>51 (10 live healthy)</strong></td></tr>
+          <tr><td>Nielsen AMRLD</td><td class="mono">War Room DATA tab</td><td><strong>~633 GB</strong></td></tr>
+          <tr><td>Nielsen MIT</td><td class="mono">War Room DATA tab</td><td><strong>181.2 GB</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <strong>SaSMaster v17</strong> · Operator Reference · Light Operational · Space Grotesk / Inter / JetBrains Mono<br>
+  All figures queried live from MotherDuck + War Room · 2026-06-21 · See §11 for data sourcing doctrine<br>
+  Status: <span class="pill live">LIVE</span> <span class="pill prog">IN PROGRESS</span> <span class="pill next">NEXT</span> <span class="pill gated">GATED</span> <span class="pill new">NEW v17</span><br>
+  North Star: Decode data for radical insights to drive Content, Audiences &amp; Revenue
+</div>
+
+</div>
+
+<script>
+function setTrack(t,btn){document.querySelectorAll('.trk').forEach(b=>b.classList.remove('on'));btn.classList.add('on');document.body.className=t==='both'?'':t;}
+
+// ── Handsketch theme: render Data Fusion card with RoughJS ──
+function drawSketchFusion(){
+  var svg = document.getElementById('sketch-fusion');
+  if(!svg || typeof rough === 'undefined') return;
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  var rc = rough.svg(svg);
+  var ink = '#2b2b2b', red = '#c0392b';
+  var sketchOpts = function(stroke, fill){
+    return {stroke:stroke, strokeWidth:1.6, roughness:1.8, bowing:1.5,
+            fill:fill, fillStyle:'hachure', fillWeight:1, hachureGap:4};
+  };
+  // three source boxes
+  var sources = [
+    {x:24,y:30,label:'IMDB',sub:'tconst · #1',c:'#2980b9'},
+    {x:24,y:90,label:'EIDR',sub:'DOI · #2',c:'#27ae60'},
+    {x:24,y:150,label:'TMDB',sub:'id · #3',c:'#e67e22'}
+  ];
+  sources.forEach(function(s){
+    svg.appendChild(rc.rectangle(s.x, s.y, 78, 32, sketchOpts(ink, s.c+'22')));
+  });
+  // converging hand-drawn lines to fusion node
+  svg.appendChild(rc.line(104, 46, 200, 105, {stroke:'#2980b9', strokeWidth:1.6, roughness:2.2, bowing:3}));
+  svg.appendChild(rc.line(104, 106, 200, 105, {stroke:'#27ae60', strokeWidth:1.6, roughness:2.2, bowing:3}));
+  svg.appendChild(rc.line(104, 166, 200, 105, {stroke:'#e67e22', strokeWidth:1.6, roughness:2.2, bowing:3}));
+  // fusion core — double sketched circle
+  svg.appendChild(rc.circle(238, 105, 70, {stroke:red, strokeWidth:2, roughness:1.6, bowing:2}));
+  svg.appendChild(rc.circle(238, 105, 52, sketchOpts(ink, '#9b59b622')));
+  // labels as crisp text on top of sketch shapes
+  var NS='http://www.w3.org/2000/svg';
+  function txt(x,y,s,fill,size,weight){
+    var t=document.createElementNS(NS,'text');
+    t.setAttribute('x',x);t.setAttribute('y',y);t.setAttribute('fill',fill);
+    t.setAttribute('font-size',size);t.setAttribute('font-weight',weight||'600');
+    t.setAttribute('text-anchor','middle');t.setAttribute('font-family',"'Inter',sans-serif");
+    t.textContent=s;svg.appendChild(t);
+  }
+  txt(63,49,'IMDB','#1f5f8b','10','700'); txt(63,59,'tconst · #1','#555','6.5');
+  txt(63,109,'EIDR','#1e7e44','10','700'); txt(63,119,'DOI · #2','#555','6.5');
+  txt(63,169,'TMDB','#a85a18','10','700'); txt(63,179,'id · #3','#555','6.5');
+  txt(238,100,'PARENT','#2b2b2b','10','700'); txt(238,113,'KEY','#2b2b2b','10','700');
+  txt(238,150,'UUIDv5 · 7b7b4ce5','#c0392b','7','600');
+}
+if(typeof rough !== 'undefined'){ drawSketchFusion(); }
+else { window.addEventListener('load', drawSketchFusion); }
+</script>
+</body>
+</html>
