@@ -548,6 +548,33 @@ main.canvas-mode{overflow:hidden}
   .botbar .brt{display:none}
 }
 
+/* ── DRILL-DOWN PANEL — MOBILE FULL-SCREEN ─────────────────────── */
+@media (max-width: 767px) {
+  .drilldown,
+  .drilldown.wide {
+    width: 100vw !important;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    border-left: none;
+    border-radius: 0;
+    transform: translateY(105%);
+    transition: transform .32s cubic-bezier(.16,1,.3,1);
+  }
+  .drilldown.open {
+    transform: translateY(0) !important;
+  }
+  .drilldown .dd-body {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: scroll;
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  .drilldown .dd-head {
+    padding-top: calc(15px + env(safe-area-inset-top, 0px));
+  }
+}
+
 /* ── COLLAPSIBLE SECTIONS — MOBILE ONLY ────────────────────────── */
 @media (max-width: 767px) {
   .collapse-section {
