@@ -651,7 +651,7 @@ main.canvas-mode{overflow:hidden}
   <div class="k"><div class="e">Deployed Today</div><div class="v">0</div><div class="c">0 items today</div></div>
   <div class="k"><div class="e">Build Cost</div><div class="v">$0.08</div><div class="c">21 builds</div></div>
   <div class="k"><div class="e">Bless Queue</div><div class="v" style="color:var(--up)">0</div><div class="c">queue clear ✓</div></div>
-  <div class="k warnK"><div class="e">Nielsen Clock</div><div class="v">13<small>/15d</small></div><div class="c">extract in 2 days</div></div>
+  <div class="k"><div class="e">Nielsen Clock</div><div class="v">0<small>/15d</small></div><div class="c">Databricks-direct ✓</div></div>
 </div>
 
 <!-- ================= MEMORY BAR ================= -->
@@ -709,7 +709,7 @@ main.canvas-mode{overflow:hidden}
   <div class="freshchips" style="flex-direction:column;align-items:stretch;gap:6px">
     <span class="fchip"><span class="dot dg"></span>TMDB · 4h</span>
     <span class="fchip"><span class="dot dg"></span>IMDB · 2d</span>
-    <span class="fchip"><span class="dot da"></span>Nielsen · 13d</span>
+    <span class="fchip"><span class="dot dg"></span>Nielsen · 0d · DBX-direct</span>
     <span class="fchip"><span class="dot da"></span>EIDR · vendor 🎫</span>
   </div>
 </aside>
@@ -785,7 +785,7 @@ main.canvas-mode{overflow:hidden}
     <div class="sec-h"><h2>S3 prefixes</h2><span>live dataset cards · WARROOM-FULL-RECOMPUTE</span></div>
     <div class="dsgrid" id="dsgrid"></div>
 
-    <div class="sec-h"><h2>Nielsen datasets</h2><span>S3 confirmed 2026-06-10 · ~926 GB total</span></div>
+    <div class="sec-h"><h2>Nielsen datasets</h2><span>Databricks-direct · NIELSEN-DBX-001 complete 2026-06-21 · Phase 3 12/13 tables · ~926 GB total</span></div>
     <div class="dsgrid" id="nielsengrid"></div>
 
     <div class="sec-h"><h2>BARB datasets</h2><span>UK Broadcasters' Audience Research Board · RSG S3 external tables · all 4 batches complete · 2026-06-12</span></div>
@@ -1441,7 +1441,7 @@ function closeMonkeyHealth(){
 const DEMO_DATA = {
   generatedAt:'demo', jarvisOk:true, s3gb:1619,
   agentsLive:10, agentsTotal:51, agentsLiveTotal:14, healthPct:71,
-  kpis:{agentsLive:10,agentsTotal:51,s3gb:1619,tasksOpen:13,buildEventsToday:0,blessQueue:4,nielsen:{days:13,warn:true}},
+  kpis:{agentsLive:10,agentsTotal:51,s3gb:1619,tasksOpen:13,buildEventsToday:0,blessQueue:4,nielsen:{days:0,warn:false}},
   usageState:{session_used_pct:44,weekly_all_models_pct:63,weekly_sonnet_pct:0,weekly_claude_design_pct:23,cache_hit_rate_pct:100,weekly_resets_at:''},
   crons:[{time:'12:00 AM',name:'async build',status:'done'},{time:'12:00 AM',name:'tmdb delta biweekly',status:'pending'},{time:'*:*/5',name:'build auto reaper',status:'pending'},{time:'*:*/5',name:'generate status.js',status:'pending'}],
   s3lake:[{prefix:'tmdb_dev/',size_gb:33.9,status:'running'},{prefix:'imdb/',size_gb:5.7,status:'live'},{prefix:'nielsen/',size_gb:679.9,status:'live'}],
