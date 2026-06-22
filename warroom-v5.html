@@ -786,10 +786,10 @@ main.canvas-mode{overflow:hidden}
     <div class="sec-h"><h2>S3 prefixes</h2><span>live dataset cards · WARROOM-FULL-RECOMPUTE</span></div>
     <div class="dsgrid" id="dsgrid"></div>
 
-    <div class="sec-h"><h2>Nielsen datasets</h2><span>Databricks-direct · NIELSEN-DBX-001 complete 2026-06-21 · Phase 3 12/13 tables · ~926 GB total</span></div>
+    <div class="sec-h"><h2>Nielsen datasets</h2><span>Databricks-direct · NIELSEN-DBX-001 complete 2026-06-21 · Phase 3 12/13 tables · 1,736 GB total · LAAPP 805.7 GB · viewership 608.0 GB</span></div>
     <div class="dsgrid" id="nielsengrid"></div>
 
-    <div class="sec-h"><h2>BARB datasets</h2><span>UK Broadcasters' Audience Research Board · RSG S3 external tables · all 4 batches complete · 2026-06-12</span></div>
+    <div class="sec-h"><h2>BARB datasets</h2><span>UK Broadcasters' Audience Research Board · RSG S3 external tables · all 4 batches complete · 754.1 GB total · 2026-06-12</span></div>
     <div class="dsgrid" style="grid-template-columns:repeat(3,1fr)" id="barbgrid"></div>
 
     <div class="sec-h"><h2>External schedule data</h2><span>TV schedule + API sources</span></div>
@@ -863,13 +863,13 @@ main.canvas-mode{overflow:hidden}
       </div>
       <div style="font-size:11px;color:var(--dim);margin-top:6px">IMDB reference universe. Bar = relative cardinality. Parent key spine total: <b id="pk-total-val">—</b> minted UUIDv5 keys.</div>
 
-      <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">MATCH CONFIDENCE — TIER DISTRIBUTION</span><span class="mono" style="font-size:10px;color:var(--dim);margin-left:auto">21M rows · parent_key table</span></div>
+      <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">MATCH CONFIDENCE — TIER DISTRIBUTION</span><span class="mono" style="font-size:10px;color:var(--dim);margin-left:auto">12.99M rows · parent_key table</span></div>
       <div class="spine" style="margin-top:8px">
-        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-ok" style="font-size:9px;padding:2px 6px">GOLD</span></span><div class="sbar"><i style="width:0.02%;background:#22c55e"></i></div><span class="v mono" style="font-size:11px">3,398</span><span style="font-size:10px;color:var(--dim);margin-left:6px">score 100 · imdb+eidr+tmdb+full</span></div>
-        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-warn" style="font-size:9px;padding:2px 6px">SILVER</span></span><div class="sbar"><i style="width:1.8%;background:#f59e0b"></i></div><span class="v mono" style="font-size:11px">379,609</span><span style="font-size:10px;color:var(--dim);margin-left:6px">score 65 · imdb+eidr or imdb+tmdb</span></div>
-        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-sec" style="font-size:9px;padding:2px 6px">BRONZE</span></span><div class="sbar"><i style="width:97%;background:var(--accent)"></i></div><span class="v mono" style="font-size:11px">20,378,871</span><span style="font-size:10px;color:var(--dim);margin-left:6px">score 30 · imdb only (TV episodes)</span></div>
+        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-ok" style="font-size:9px;padding:2px 6px">GOLD</span></span><div class="sbar"><i style="width:0.25%;background:#22c55e"></i></div><span class="v mono" style="font-size:11px">32,886</span><span style="font-size:10px;color:var(--dim);margin-left:6px">≥0.99 · imdb+eidr+tmdb+full</span></div>
+        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-warn" style="font-size:9px;padding:2px 6px">SILVER</span></span><div class="sbar"><i style="width:5.6%;background:#f59e0b"></i></div><span class="v mono" style="font-size:11px">729,259</span><span style="font-size:10px;color:var(--dim);margin-left:6px">≥0.65 · imdb+eidr or imdb+tmdb</span></div>
+        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-sec" style="font-size:9px;padding:2px 6px">BRONZE</span></span><div class="sbar"><i style="width:94.1%;background:var(--accent)"></i></div><span class="v mono" style="font-size:11px">12,226,536</span><span style="font-size:10px;color:var(--dim);margin-left:6px">≥0.30 · imdb only (TV episodes)</span></div>
       </div>
-      <div style="font-size:10.5px;color:var(--dim);margin-top:6px">Formula: imdb(+30) + eidr(+35) + tmdb(+15) + full_name_match(+20). BRONZE dominant = EIDR/TMDB episode coverage pending.</div>
+      <div style="font-size:10.5px;color:var(--dim);margin-top:6px">Formula: imdb(+30) + eidr(+35) + tmdb(+15) + full_name_match(+20). confidence_score DECIMAL(4,3). BRONZE dominant = EIDR/TMDB episode coverage pending.</div>
     </div>
   </section>
 
@@ -2367,10 +2367,11 @@ function renderFinance(vm){
 function renderDataStatic(){
   // Nielsen cards — AMRLD + MIT get measurement drill-down; Ad Intel + MRI get generic
   const NLS=[
-   {ic:'📊',n:'AMRLD',gb:'~633 GB',d:'~100K files · 10 sub-tables · REC 20/24/25/26/30/36 · 12/31/2012 – 06/08/2026',bl:'COMPLETED',extra:'<span class="badge b-warn">tiny-files</span>',measType:'nielsen',schemaKey:'amrld'},
-   {ic:'📺',n:'MIT',gb:'181.2 GB',d:'1,227 files · 2 feeds (03h + 05p) · 09/01/2014 – 06/09/2026 · <span style="color:var(--down)">⚑ Broadcast TP gap: cuts 11/30/2022; Cable = current</span>',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'mit'},
-   {ic:'📡',n:'Ad Intel',gb:'22.0 GB',d:'1,750 files · 38 tables · 2018-01-01 – 2026-06-10',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'ad_intel'},
-   {ic:'👥',n:'MRI',gb:'4.8 GB',d:'412 files · 29 tables · 2019-01-01 – 2026-06-10',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'mri'}];
+   {ic:'📊',n:'AMRLD',gb:'8.2 GB raw · +75.8 GB ETL',d:'60K files raw · 15 sub-folders · REC30/32/36/40/56/56_OBT/65/67/68/71 + LPM_MKT/MOBILE_HH/MOBILE_PERSON/VMVPD_HH/ref · amrld_etl/ 33 computed tables (75.8 GB)',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'amrld'},
+   {ic:'📺',n:'MIT',gb:'211.6 GB',d:'10K+ files · 31 sub-folders · NHI_MIT_* + mit_00–06 record type dirs · 2 feeds (03h + 05p) · 09/01/2014 – 06/09/2026 · <span style="color:var(--down)">⚑ Broadcast TP gap: cuts 11/30/2022; Cable = current</span>',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'mit'},
+   {ic:'📡',n:'Ad Intel',gb:'22.0 GB',d:'1,750 files · 38 sub-folders: impc_ccf/nt/sr · impmb_mb/mbcf · occ_bn/bs/cn/ec/en/lm/ln/ls/nm/nn/nr/ns/ocf/ou/sp/sr · rdc_adv/brd/crt/dis/mag/oda/pcc/pgm/pub · rdu_acu/au/bu/cu/dr · ue_mb/nt/sr · 2018-01-01 – 2026-06-10',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'ad_intel'},
+   {ic:'👥',n:'MRI',gb:'4.8 GB',d:'412 files · 29 consumer segments: auto_transportation/baby_needs/beverages/biz_purchase/candy/clothing/consumer_electronics/dr_visits/financial/food/hba/hh_items_nonfood/home_improvement/influentials/insurance/job_title/leisure_activities/magazines/media/persons/pet_needs/psychographics/shopping/tobacco/toys/travel + bkp/tmp/test · 2019-01-01 – 2026-06-10',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'mri'},
+   {ic:'🏠',n:'LAAPP',gb:'805.7 GB',d:'36 sub-folders · Local Audience Application Platform · viewership_amrld_program/timeperiod · viewership_met_c3/l3/l7/lsd/lv/tp_l3/tp_l7/tp_lsd/tp_lv · viewership_huts/puts/pred_lsd · amrld_all_mkt_brk/household_data/hut/metadata/tp_view · c3_pcd_tn_mints/pcd_tn_mints/pcd_tn_qtr_mints · apw_flat/hh_mkt_brks/mvpd_hh_mkt_brks/all_hhnbr/mkt_brk_univ · gn_future_schedule/pts_avails/svod_hh_mkt_brks/identity/mit_01p_tr',bl:'COMPLETED',extra:'<span class="badge b-warn">S3 only</span>',measType:'nielsen',schemaKey:'laapp'}];
   const ng=document.getElementById('nielsengrid');
   if(ng){
     ng.innerHTML=NLS.map((d,i)=>`
@@ -2390,15 +2391,15 @@ function renderDataStatic(){
 
   // BARB cards — all get measurement drill-down
   const BARB=[
-   {ic:'📒',n:'BARB Reference',d:'barb_ref_dev · 37 dimension tables · AP01–AP28 appendix reference tables',schemaKey:'barb_ref_dev'},
-   {ic:'🧪',n:'BARB ETL QA',d:'barb_etl_qa · 102 tables · 2018-01-01 – 2019-09-18 · SRC_FILE_DATE',schemaKey:'barb_etl_qa'},
-   {ic:'🛠',n:'BARB ETL Dev',d:'barb_etl_dev · 1 table · 2018-01-01 – 2019-09-18 (confirmed)',schemaKey:'barb_etl_dev'}];
+   {ic:'📒',n:'BARB Reference',gb:'0.0 GB',d:'barb_ref_dev · 23 dimension tables · 92 files · AP01–AP28 appendix reference · RSG S3 external tables',schemaKey:'barb_ref_dev'},
+   {ic:'🧪',n:'BARB ETL QA',gb:'747.2 GB',d:'barb_etl_qa · 65 dirs · 9,982 files · 2018-01-01 – 2019-09-18 · SRC_FILE_DATE ISO · 4 batches all SUCCESS',schemaKey:'barb_etl_qa'},
+   {ic:'🛠',n:'BARB ETL Dev',gb:'6.9 GB',d:'barb_etl_dev · 1 table · 78 files · 2018-01-01 – 2019-09-18 (confirmed)',schemaKey:'barb_etl_dev'}];
   const bg=document.getElementById('barbgrid');
   if(bg){
     bg.innerHTML=BARB.map((d,i)=>`
      <div class="ds" data-barb-idx="${i}" style="cursor:pointer">
        <div class="dh"><span>${d.ic}</span><span class="p">${d.n}</span><span class="badge b-ok">DONE</span></div>
-       <div class="gb">— GB</div>
+       <div class="gb">${d.gb||'— GB'}</div>
        <div class="note" style="border:none;padding-top:4px;margin-top:4px">${d.d}<br><span style="color:var(--accent)">▾ drill-down</span></div>
      </div>`).join('');
     bg.querySelectorAll('.ds[data-barb-idx]').forEach(card=>{

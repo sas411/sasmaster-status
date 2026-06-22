@@ -1,0 +1,93 @@
+{
+  "query_ts": "2026-06-22T19:30:00.000000+00:00",
+  "schema_version": "warroom-data-v1",
+  "s3": {
+    "tmdb_dev":           { "source": "S3", "gb": null,  "objects": null },
+    "imdb":               { "source": "S3", "gb": 6.1,   "objects": 28 },
+    "parent_keys":        { "source": "S3", "gb": null,  "objects": null },
+    "eidr":               { "source": "S3", "gb": null,  "objects": null },
+    "eidr_bridge":        { "source": "S3", "gb": null,  "objects": null },
+    "shiv_curated":       { "source": "S3", "gb": null,  "objects": null },
+    "wikidata_prd":       { "source": "S3", "gb": 0.1,   "objects": 41 },
+    "fusion":             { "source": "S3", "gb": null,  "objects": null },
+    "nielsen_ad_intel":   { "source": "S3+MD", "gb": 22.0,  "objects": 1750,    "sub_folders": 38 },
+    "nielsen_amrld":      { "source": "S3+MD", "gb": 8.2,   "objects": 60138,   "sub_folders": 15 },
+    "nielsen_amrld_etl":  { "source": "S3",    "gb": 75.8,  "objects": 3587,    "sub_folders": 33, "layer": "etl" },
+    "nielsen_laapp":      { "source": "S3",    "gb": 805.7, "objects": 5840199, "sub_folders": 36, "layer": "laapp" },
+    "nielsen_mit":        { "source": "S3+MD", "gb": 211.6, "objects": 466594,  "sub_folders": 31 },
+    "nielsen_mri":        { "source": "S3+MD", "gb": 4.8,   "objects": 412,     "sub_folders": 29 },
+    "nielsen_viewership": { "source": "S3+MD", "gb": 608.0, "objects": 108172,  "sub_folders": 12 },
+    "barb_etl_qa":        { "source": "S3", "gb": 747.2, "objects": 9982,  "sub_folders": 65 },
+    "barb_ref_dev":       { "source": "S3", "gb": 0.0,   "objects": 92,    "sub_folders": 23 },
+    "barb_etl_dev":       { "source": "S3", "gb": 6.9,   "objects": 78,    "sub_folders": 1 },
+    "social":             { "source": "S3", "gb": null,  "objects": null },
+    "social_pulse":       { "source": "S3", "gb": null,  "objects": null }
+  },
+  "parent_key": {
+    "source": "MD:sasmaster.prod.parent_key",
+    "total": 12988681,
+    "gold": 32886,
+    "silver": 729259,
+    "bronze": 12226536,
+    "unscored": 0,
+    "eidr_matched": 32886,
+    "eidr_coverage_pct": 0.25,
+    "tmdb_matched": 1387100,
+    "tmdb_coverage_pct": 10.68
+  },
+  "eidr": {
+    "source": "MD:sasmaster.prod.eidr_staging",
+    "staging_total": 335175,
+    "imdb_matched": 335175,
+    "verified": 335175
+  },
+  "alt_ids": {
+    "source": "MD:sasmaster.prod.alt_ids",
+    "total": 622004
+  },
+  "amrld_program": { "source": "MD:sasmaster.viewership.amrld_program", "rows": 0, "note": "provisioned, pending ingest" },
+  "amrld_time_period": { "source": "MD:sasmaster.viewership.amrld_time_period", "rows": 0, "note": "provisioned, pending ingest" },
+  "met_tables": {
+    "source": "MD:sasmaster.viewership",
+    "counts": {
+      "met_l": 0, "met_l3": 0, "met_l7": 0, "met_lsd": 0, "met_tp_c3": 0,
+      "met_tp_l": 0, "met_tp_l3": 0, "met_tp_l7": 0, "met_tp_lsd": 0
+    },
+    "note": "provisioned, pending MIT parse pipeline"
+  },
+  "imdb": {
+    "source": "MD:sasmaster.source.imdb_master",
+    "total": 12486084,
+    "by_type": {
+      "tvEpisode": 9699478,
+      "movie": 631695,
+      "short": 965337,
+      "tvSeries": 233804,
+      "tvMiniSeries": 44556,
+      "tvShort": 104617,
+      "tvMovie": 145571,
+      "tvSpecial": 110561,
+      "video": 163839,
+      "videoGame": 29082
+    }
+  },
+  "curated": {
+    "source": "MD:sasmaster.prod.v_curated_full",
+    "by_type": {
+      "movie": 2319749,
+      "tv_series": 341362
+    }
+  },
+  "nielsen_structure": {
+    "amrld_sub_folders": 15,
+    "amrld_rec_types": ["REC30","REC32","REC36","REC40","REC56","REC56_OBT",
+                        "REC65","REC67","REC68","REC71",
+                        "LPM_MKT","MOBILE_HH","MOBILE_PERSON","VMVPD_HH","ref"],
+    "amrld_etl_sub_folders": 33,
+    "laapp_sub_folders": 36,
+    "mit_sub_folders": 31,
+    "mri_sub_folders": 29,
+    "ad_intel_sub_folders": 38,
+    "viewership_sub_folders": 12
+  }
+}

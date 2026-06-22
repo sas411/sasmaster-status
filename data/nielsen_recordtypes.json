@@ -10,9 +10,9 @@
       "overall_max": "2026-06-08",
       "last_processed": "2026-06-10",
       "total_rows": null,
-      "note": "~633 GB \u00b7 ~100K files",
+      "note": "8.2 GB raw \u00b7 60K files \u00b7 15 sub-folders \u00b7 ETL layer (amrld_etl/): 75.8 GB / 33 computed tables",
       "tiny_files": true,
-      "tiny_files_note": "Record dates reflect sample extract window (50K rows/record). Full archive: 2012-12-31 \u2192 2026-06-08.",
+      "tiny_files_note": "Record dates reflect sample extract window (50K rows/record). Full archive: 2012-12-31 \u2192 2026-06-08. Raw files: 8.2 GB / 60K objects. ETL layer (amrld_etl/): 75.8 GB / 33 computed tables.",
       "scan_run": "2026-06-17",
       "record_types": [
         {
@@ -235,7 +235,56 @@
           "max_date": null,
           "row_count": null,
           "last_processed": null,
-          "defined_not_ingested": true
+          "defined_not_ingested": true,
+          "note": "S3 sub-folder confirmed: amrld/REC32/ — pull not yet scheduled"
+        },
+        {
+          "id": "MOBILE_HH",
+          "description": "Mobile household viewing records",
+          "file_type": "MOBILE",
+          "processed": false,
+          "min_date": null,
+          "max_date": null,
+          "row_count": null,
+          "last_processed": null,
+          "defined_not_ingested": true,
+          "note": "S3 sub-folder confirmed: amrld/MOBILE_HH/"
+        },
+        {
+          "id": "MOBILE_PERSON",
+          "description": "Mobile person-level viewing records",
+          "file_type": "MOBILE",
+          "processed": false,
+          "min_date": null,
+          "max_date": null,
+          "row_count": null,
+          "last_processed": null,
+          "defined_not_ingested": true,
+          "note": "S3 sub-folder confirmed: amrld/MOBILE_PERSON/"
+        },
+        {
+          "id": "LPM_MKT",
+          "description": "Local People Meter market-level household data",
+          "file_type": "EHH",
+          "processed": false,
+          "min_date": null,
+          "max_date": null,
+          "row_count": null,
+          "last_processed": null,
+          "defined_not_ingested": true,
+          "note": "S3 sub-folder confirmed: amrld/LPM_MKT/"
+        },
+        {
+          "id": "VMVPD_HH",
+          "description": "Virtual MVPD household penetration",
+          "file_type": "EHH",
+          "processed": false,
+          "min_date": null,
+          "max_date": null,
+          "row_count": null,
+          "last_processed": null,
+          "defined_not_ingested": true,
+          "note": "S3 sub-folder confirmed: amrld/VMVPD_HH/"
         },
         {
           "id": "REC33",
@@ -328,7 +377,7 @@
       "overall_max": "2026-06-09",
       "last_processed": "2026-06-10",
       "total_rows": null,
-      "note": "14.8 GB \u00b7 716 files \u00b7 2 feeds (03h + 05p)",
+      "note": "211.6 GB \u00b7 466K files \u00b7 31 sub-folders \u00b7 2 feeds (03h + 05p)",
       "record_types": [
         {
           "id": "NHI_MIT_00",
@@ -587,8 +636,8 @@
     },
     "ad_intel": {
       "label": "Ad Intel",
-      "s3_prefix": "nielsen/amrld_etl/ad_intel/",
-      "note": "38 tables / 1,750 files / ~22 GB",
+      "s3_prefix": "s3://sasmaster-2026/nielsen/ad_intel/",
+      "note": "38 sub-folders / 1,750 files / 22.0 GB",
       "last_processed": "2026-06-10",
       "overall_min": "2018-01-01",
       "overall_max": "2026-06-10",
@@ -647,8 +696,8 @@
     },
     "mri": {
       "label": "MRI (Survey of the American Consumer)",
-      "s3_prefix": "nielsen/amrld_etl/mri/",
-      "note": "29 tables / 412 files / ~5 GB",
+      "s3_prefix": "s3://sasmaster-2026/nielsen/mri/",
+      "note": "29 consumer segments / 412 files / 4.8 GB",
       "last_processed": "2026-06-10",
       "overall_min": "2019-01-01",
       "overall_max": "2026-06-10",
