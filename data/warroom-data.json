@@ -1,27 +1,107 @@
 {
-  "query_ts": "2026-06-22T19:30:00.000000+00:00",
+  "query_ts": "2026-06-22T21:21:57.490558+00:00",
   "schema_version": "warroom-data-v1",
   "s3": {
-    "tmdb_dev":           { "source": "S3", "gb": null,  "objects": null },
-    "imdb":               { "source": "S3", "gb": 6.1,   "objects": 28 },
-    "parent_keys":        { "source": "S3", "gb": null,  "objects": null },
-    "eidr":               { "source": "S3", "gb": null,  "objects": null },
-    "eidr_bridge":        { "source": "S3", "gb": null,  "objects": null },
-    "shiv_curated":       { "source": "S3", "gb": null,  "objects": null },
-    "wikidata_prd":       { "source": "S3", "gb": 0.1,   "objects": 41 },
-    "fusion":             { "source": "S3", "gb": null,  "objects": null },
-    "nielsen_ad_intel":   { "source": "S3+MD", "gb": 22.0,  "objects": 1750,    "sub_folders": 38 },
-    "nielsen_amrld":      { "source": "S3+MD", "gb": 8.2,   "objects": 60138,   "sub_folders": 15 },
-    "nielsen_amrld_etl":  { "source": "S3",    "gb": 75.8,  "objects": 3587,    "sub_folders": 33, "layer": "etl" },
-    "nielsen_laapp":      { "source": "S3",    "gb": 805.7, "objects": 5840199, "sub_folders": 36, "layer": "laapp" },
-    "nielsen_mit":        { "source": "S3+MD", "gb": 211.6, "objects": 466594,  "sub_folders": 31 },
-    "nielsen_mri":        { "source": "S3+MD", "gb": 4.8,   "objects": 412,     "sub_folders": 29 },
-    "nielsen_viewership": { "source": "S3+MD", "gb": 608.0, "objects": 108172,  "sub_folders": 12 },
-    "barb_etl_qa":        { "source": "S3", "gb": 747.2, "objects": 9982,  "sub_folders": 65 },
-    "barb_ref_dev":       { "source": "S3", "gb": 0.0,   "objects": 92,    "sub_folders": 23 },
-    "barb_etl_dev":       { "source": "S3", "gb": 6.9,   "objects": 78,    "sub_folders": 1 },
-    "social":             { "source": "S3", "gb": null,  "objects": null },
-    "social_pulse":       { "source": "S3", "gb": null,  "objects": null }
+    "tmdb_dev": {
+      "source": "S3",
+      "gb": 37.0,
+      "objects": 7999
+    },
+    "imdb": {
+      "source": "S3",
+      "gb": 6.1,
+      "objects": 28
+    },
+    "parent_keys": {
+      "source": "S3",
+      "gb": 1.8,
+      "objects": 20
+    },
+    "eidr": {
+      "source": "S3",
+      "gb": 0.5,
+      "objects": 19
+    },
+    "eidr_bridge": {
+      "source": "S3",
+      "gb": 0.0,
+      "objects": 2
+    },
+    "shiv_curated": {
+      "source": "S3",
+      "gb": 1.0,
+      "objects": 11
+    },
+    "wikidata_prd": {
+      "source": "S3",
+      "gb": 0.1,
+      "objects": 41
+    },
+    "fusion": {
+      "source": "S3",
+      "gb": 0.0,
+      "objects": 1
+    },
+    "nielsen_ad_intel": {
+      "source": "S3",
+      "gb": 22.0,
+      "objects": 1750
+    },
+    "nielsen_amrld": {
+      "source": "S3",
+      "gb": 8.2,
+      "objects": 60138
+    },
+    "nielsen_amrld_etl": {
+      "source": "S3",
+      "gb": 75.8,
+      "objects": 3587
+    },
+    "nielsen_laapp": {
+      "source": "S3",
+      "gb": 805.7,
+      "objects": 5840199
+    },
+    "nielsen_mit": {
+      "source": "S3",
+      "gb": 211.6,
+      "objects": 466594
+    },
+    "nielsen_mri": {
+      "source": "S3",
+      "gb": 4.8,
+      "objects": 412
+    },
+    "nielsen_viewership": {
+      "source": "S3",
+      "gb": 608.0,
+      "objects": 108172
+    },
+    "barb_etl_qa": {
+      "source": "S3",
+      "gb": 747.2,
+      "objects": 9982
+    },
+    "barb_ref_dev": {
+      "source": "S3",
+      "gb": 0.0,
+      "objects": 92
+    },
+    "barb_etl_dev": {
+      "source": "S3",
+      "gb": 6.9,
+      "objects": 78
+    },
+    "social": {
+      "source": "S3",
+      "gb": 0.2,
+      "objects": 12
+    },
+    "social_pulse": {
+      "source": "S3",
+      "gb": 0.0,
+      "objects": 24
+    }
   },
   "parent_key": {
     "source": "MD:sasmaster.prod.parent_key",
@@ -45,57 +125,585 @@
     "source": "MD:sasmaster.prod.alt_ids",
     "total": 622004,
     "by_domain": {
-      "instagram": { "count": 120535, "distinct_pks": 120534 },
-      "twitter":   { "count": 73751,  "distinct_pks": 73751  },
-      "facebook":  { "count": 68425,  "distinct_pks": 68425  },
-      "youtube":   { "count": 11,     "distinct_pks": 11     }
+      "instagram": {
+        "count": 120535,
+        "distinct_pks": 120534
+      },
+      "twitter": {
+        "count": 73751,
+        "distinct_pks": 73751
+      },
+      "facebook": {
+        "count": 68425,
+        "distinct_pks": 68425
+      },
+      "the_numbers_id": {
+        "count": 34338,
+        "distinct_pks": 32912
+      },
+      "eidr_content_id": {
+        "count": 32958,
+        "distinct_pks": 32886
+      },
+      "imdb_id": {
+        "count": 32922,
+        "distinct_pks": 32914
+      },
+      "flixster_id": {
+        "count": 18010,
+        "distinct_pks": 17912
+      },
+      "lumiere.obs.coe.int": {
+        "count": 17620,
+        "distinct_pks": 17603
+      },
+      "netflix_id": {
+        "count": 14698,
+        "distinct_pks": 14688
+      },
+      "allocine.fr/film": {
+        "count": 13677,
+        "distinct_pks": 13664
+      },
+      "iva_id": {
+        "count": 13393,
+        "distinct_pks": 12768
+      },
+      "thecinemasource.com": {
+        "count": 12680,
+        "distinct_pks": 12662
+      },
+      "twitter_hashtag": {
+        "count": 11529,
+        "distinct_pks": 28
+      },
+      "isan": {
+        "count": 11015,
+        "distinct_pks": 10959
+      },
+      "sony_product_id": {
+        "count": 10525,
+        "distinct_pks": 10299
+      },
+      "veronicamagazine.nl": {
+        "count": 10177,
+        "distinct_pks": 10170
+      },
+      "amazon_asin": {
+        "count": 9805,
+        "distinct_pks": 8955
+      },
+      "sony_mpm": {
+        "count": 9504,
+        "distinct_pks": 9322
+      },
+      "redbee_id": {
+        "count": 9321,
+        "distinct_pks": 9319
+      },
+      "wikidata_qid": {
+        "count": 9270,
+        "distinct_pks": 9264
+      },
+      "warnerbros_mpm": {
+        "count": 7951,
+        "distinct_pks": 7939
+      },
+      "comcast_id": {
+        "count": 7198,
+        "distinct_pks": 7188
+      },
+      "tcm_id": {
+        "count": 6426,
+        "distinct_pks": 6419
+      },
+      "webedia-group.com": {
+        "count": 5475,
+        "distinct_pks": 5413
+      },
+      "commonsense.org/nid": {
+        "count": 5426,
+        "distinct_pks": 5426
+      },
+      "commonsense.org/uuid": {
+        "count": 5426,
+        "distinct_pks": 5426
+      },
+      "sfi.se": {
+        "count": 4385,
+        "distinct_pks": 4385
+      },
+      "opus_id": {
+        "count": 4309,
+        "distinct_pks": 4304
+      },
+      "tmdb_movie_id": {
+        "count": 3322,
+        "distinct_pks": 3321
+      },
+      "bfi.org.uk": {
+        "count": 2994,
+        "distinct_pks": 2992
+      },
+      "tmdb_id": {
+        "count": 2808,
+        "distinct_pks": 2767
+      },
+      "nbcu_id": {
+        "count": 2673,
+        "distinct_pks": 2673
+      },
+      "dfi.dk/movie": {
+        "count": 2627,
+        "distinct_pks": 2626
+      },
+      "kinopoisk.ru": {
+        "count": 2615,
+        "distinct_pks": 2612
+      },
+      "west10entertainment.com": {
+        "count": 2296,
+        "distinct_pks": 2296
+      },
+      "afidb.com": {
+        "count": 2268,
+        "distinct_pks": 2266
+      },
+      "citwf.com": {
+        "count": 2106,
+        "distinct_pks": 2104
+      },
+      "csfd.cz": {
+        "count": 1974,
+        "distinct_pks": 1974
+      },
+      "vivendi_codemilo": {
+        "count": 1934,
+        "distinct_pks": 1934
+      },
+      "itv_id": {
+        "count": 1607,
+        "distinct_pks": 1604
+      },
+      "decellc.com": {
+        "count": 1548,
+        "distinct_pks": 1293
+      },
+      "paramount_mpm": {
+        "count": 1449,
+        "distinct_pks": 1446
+      },
+      "moviemeter.nl": {
+        "count": 1380,
+        "distinct_pks": 1380
+      },
+      "port.hu": {
+        "count": 978,
+        "distinct_pks": 977
+      },
+      "lg_dx_id": {
+        "count": 695,
+        "distinct_pks": 694
+      },
+      "media-press.tv/contentid": {
+        "count": 645,
+        "distinct_pks": 645
+      },
+      "showtime_movie_id": {
+        "count": 628,
+        "distinct_pks": 628
+      },
+      "cinematheque.qc.ca": {
+        "count": 585,
+        "distinct_pks": 582
+      },
+      "cine.gr": {
+        "count": 581,
+        "distinct_pks": 581
+      },
+      "bfi.org.uk/gifford": {
+        "count": 565,
+        "distinct_pks": 565
+      },
+      "movie.douban.com": {
+        "count": 341,
+        "distinct_pks": 341
+      },
+      "kinenote.com": {
+        "count": 328,
+        "distinct_pks": 328
+      },
+      "foxipedia.com/wprid": {
+        "count": 317,
+        "distinct_pks": 317
+      },
+      "disney_id": {
+        "count": 308,
+        "distinct_pks": 308
+      },
+      "crownmedia_id": {
+        "count": 212,
+        "distinct_pks": 207
+      },
+      "edb.co.il": {
+        "count": 181,
+        "distinct_pks": 181
+      },
+      "moviebuff.com": {
+        "count": 147,
+        "distinct_pks": 147
+      },
+      "variety_insight_id": {
+        "count": 145,
+        "distinct_pks": 145
+      },
+      "ofdb.de": {
+        "count": 132,
+        "distinct_pks": 132
+      },
+      "itunes_id": {
+        "count": 128,
+        "distinct_pks": 128
+      },
+      "cinemagia.ro": {
+        "count": 115,
+        "distinct_pks": 115
+      },
+      "bufvc.ac.uk/trilt/prog": {
+        "count": 107,
+        "distinct_pks": 107
+      },
+      "hkmdb.com": {
+        "count": 83,
+        "distinct_pks": 83
+      },
+      "tvguide_id": {
+        "count": 47,
+        "distinct_pks": 47
+      },
+      "cineuropa.org": {
+        "count": 41,
+        "distinct_pks": 41
+      },
+      "nb.no": {
+        "count": 38,
+        "distinct_pks": 38
+      },
+      "unifrance.org": {
+        "count": 26,
+        "distinct_pks": 26
+      },
+      "giantscreencinema.com": {
+        "count": 26,
+        "distinct_pks": 26
+      },
+      "allocine.fr/series": {
+        "count": 18,
+        "distinct_pks": 18
+      },
+      "amazon.co.uk": {
+        "count": 15,
+        "distinct_pks": 15
+      },
+      "movie.daum.net": {
+        "count": 14,
+        "distinct_pks": 14
+      },
+      "filmpolski.pl": {
+        "count": 14,
+        "distinct_pks": 14
+      },
+      "globaleagle.com": {
+        "count": 13,
+        "distinct_pks": 13
+      },
+      "filmweb.pl": {
+        "count": 12,
+        "distinct_pks": 12
+      },
+      "bbc.co.uk/pid": {
+        "count": 11,
+        "distinct_pks": 11
+      },
+      "youtube": {
+        "count": 11,
+        "distinct_pks": 11
+      },
+      "prisma.de": {
+        "count": 8,
+        "distinct_pks": 8
+      },
+      "sinematurk.com": {
+        "count": 8,
+        "distinct_pks": 8
+      },
+      "pantaya.com": {
+        "count": 7,
+        "distinct_pks": 7
+      },
+      "myanimelist.net": {
+        "count": 7,
+        "distinct_pks": 6
+      },
+      "allocine.fr/episode": {
+        "count": 7,
+        "distinct_pks": 7
+      },
+      "worldcat.org": {
+        "count": 6,
+        "distinct_pks": 6
+      },
+      "foxipedia.com/foxid": {
+        "count": 6,
+        "distinct_pks": 6
+      },
+      "kmdb.or.kr": {
+        "count": 6,
+        "distinct_pks": 6
+      },
+      "hbo_id": {
+        "count": 5,
+        "distinct_pks": 5
+      },
+      "allocine.fr/season": {
+        "count": 5,
+        "distinct_pks": 5
+      },
+      "amazon.co.jp": {
+        "count": 5,
+        "distinct_pks": 5
+      },
+      "bollywoodhungama.com": {
+        "count": 5,
+        "distinct_pks": 5
+      },
+      "sinemalar.com/film": {
+        "count": 4,
+        "distinct_pks": 4
+      },
+      "cine21.com": {
+        "count": 4,
+        "distinct_pks": 4
+      },
+      "jfdb.jp": {
+        "count": 4,
+        "distinct_pks": 4
+      },
+      "mydramalist.com": {
+        "count": 4,
+        "distinct_pks": 4
+      },
+      "amazon.de": {
+        "count": 3,
+        "distinct_pks": 3
+      },
+      "cinematheque.fr": {
+        "count": 3,
+        "distinct_pks": 3
+      },
+      "infoicaa.mecd.es": {
+        "count": 3,
+        "distinct_pks": 3
+      },
+      "tv.rakuten.co.jp": {
+        "count": 3,
+        "distinct_pks": 3
+      },
+      "filmitalia.org": {
+        "count": 2,
+        "distinct_pks": 2
+      },
+      "cfsd.cz": {
+        "count": 2,
+        "distinct_pks": 2
+      },
+      "siamzone.com": {
+        "count": 2,
+        "distinct_pks": 2
+      },
+      "movie.naver.com": {
+        "count": 2,
+        "distinct_pks": 2
+      },
+      "cnc.fr": {
+        "count": 2,
+        "distinct_pks": 2
+      },
+      "movieplayer.it/film": {
+        "count": 2,
+        "distinct_pks": 2
+      },
+      "varietyinsight.com/seriesid": {
+        "count": 2,
+        "distinct_pks": 2
+      },
+      "eiga.com": {
+        "count": 2,
+        "distinct_pks": 2
+      },
+      "animenewsnetwork.com": {
+        "count": 2,
+        "distinct_pks": 2
+      },
+      "vudu_mtid": {
+        "count": 2,
+        "distinct_pks": 2
+      },
+      "filmaffinity.com": {
+        "count": 2,
+        "distinct_pks": 2
+      },
+      "foxipedia.com/vaultversionid": {
+        "count": 2,
+        "distinct_pks": 2
+      },
+      "moviefone.com": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "koreafilm.or.kr": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "kanopy.com": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "thetvdb_movie_id": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "scope.dk": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "kvikmyndir.is": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "bcdb.com": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "google_play_id": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "cinenacional.com": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "elcinema.com": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "dianying.com": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "svenskfilmdatabas.se": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "movieplayer.it": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "africultures.com": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "seecinema.net": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "mubi.com": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "epguides.com": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "tvmaze.com/shows": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "swissfilms.ch": {
+        "count": 1,
+        "distinct_pks": 1
+      },
+      "film-documentaire.fr": {
+        "count": 1,
+        "distinct_pks": 1
+      }
     }
   },
-  "social_handles": {
-    "source": "MD:sasmaster.curated.social_handles",
-    "x_total": 557,
-    "x_active": 471,
-    "social_counts_rows": 19144,
-    "social_counts_updated": "2026-06-22"
+  "amrld_program": {
+    "source": "MD:sasmaster.viewership.amrld_program",
+    "rows": 0
   },
-  "amrld_program": { "source": "MD:sasmaster.viewership.amrld_program", "rows": 0, "note": "provisioned, pending ingest" },
-  "amrld_time_period": { "source": "MD:sasmaster.viewership.amrld_time_period", "rows": 0, "note": "provisioned, pending ingest" },
+  "amrld_time_period": {
+    "source": "MD:sasmaster.viewership.amrld_time_period",
+    "rows": 0
+  },
   "met_tables": {
     "source": "MD:sasmaster.viewership",
     "counts": {
-      "met_l": 0, "met_l3": 0, "met_l7": 0, "met_lsd": 0, "met_tp_c3": 0,
-      "met_tp_l": 0, "met_tp_l3": 0, "met_tp_l7": 0, "met_tp_lsd": 0
-    },
-    "note": "provisioned, pending MIT parse pipeline"
+      "met_l": 0,
+      "met_l3": 0,
+      "met_l7": 0,
+      "met_lsd": 0,
+      "met_tp_c3": 0,
+      "met_tp_l": 0,
+      "met_tp_l3": 0,
+      "met_tp_l7": 0,
+      "met_tp_lsd": 0
+    }
   },
   "imdb": {
     "source": "MD:sasmaster.source.imdb_master",
-    "total": 12486084,
     "by_type": {
       "tvEpisode": 9699478,
-      "movie": 631695,
-      "short": 965337,
-      "tvSeries": 233804,
-      "tvMiniSeries": 44556,
-      "tvShort": 104617,
-      "tvMovie": 145571,
-      "tvSpecial": 110561,
-      "video": 163839,
-      "videoGame": 29082
-    }
+      "short": 1136349,
+      "movie": 748711,
+      "video": 326768,
+      "tvSeries": 300595,
+      "tvMovie": 155086,
+      "tvMiniSeries": 70798,
+      "tvSpecial": 58132,
+      "videoGame": 49299,
+      "tvShort": 11002,
+      "tvPilot": 1
+    },
+    "total": 12556219
   },
   "curated": {
     "source": "MD:sasmaster.prod.v_curated_full",
     "by_type": {
-      "movie": 2319749,
-      "tv_series": 341362
+      "tv_series": 341362,
+      "movie": 2319749
     }
   },
   "nielsen_structure": {
     "amrld_sub_folders": 15,
-    "amrld_rec_types": ["REC30","REC32","REC36","REC40","REC56","REC56_OBT",
-                        "REC65","REC67","REC68","REC71",
-                        "LPM_MKT","MOBILE_HH","MOBILE_PERSON","VMVPD_HH","ref"],
+    "amrld_rec_types": [
+      "REC30",
+      "REC32",
+      "REC36",
+      "REC40",
+      "REC56",
+      "REC56_OBT",
+      "REC65",
+      "REC67",
+      "REC68",
+      "REC71",
+      "LPM_MKT",
+      "MOBILE_HH",
+      "MOBILE_PERSON",
+      "VMVPD_HH",
+      "ref"
+    ],
     "amrld_etl_sub_folders": 33,
     "laapp_sub_folders": 36,
     "mit_sub_folders": 31,
