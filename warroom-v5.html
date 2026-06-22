@@ -189,6 +189,8 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 .ds .gb{font-family:var(--mono);font-size:22px;margin:7px 0 1px}
 .ds .ob{font-size:11px;color:var(--dim)}
 .ds .note{font-size:11.5px;color:var(--mut);margin-top:8px;line-height:1.55;border-top:1px dashed var(--bd);padding-top:8px}
+#nielsengrid .ds .note{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+#barbgrid .ds .note{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .ds .note b{color:var(--ink)}
 .spine .srow{display:grid;grid-template-columns:90px 1fr 110px;gap:12px;align-items:center;padding:6px 0}
 .spine .srow .n{font-size:12.5px;font-weight:700;text-align:right}
@@ -2369,9 +2371,9 @@ function renderDataStatic(){
   const NLS=[
    {ic:'📊',n:'AMRLD',gb:'8.2 GB raw · +75.8 GB ETL',d:'60K files raw · 15 sub-folders · REC30/32/36/40/56/56_OBT/65/67/68/71 + LPM_MKT/MOBILE_HH/MOBILE_PERSON/VMVPD_HH/ref · amrld_etl/ 33 computed tables (75.8 GB)',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'amrld'},
    {ic:'📺',n:'MIT',gb:'211.6 GB',d:'10K+ files · 31 sub-folders · NHI_MIT_* + mit_00–06 record type dirs · 2 feeds (03h + 05p) · 09/01/2014 – 06/09/2026 · <span style="color:var(--down)">⚑ Broadcast TP gap: cuts 11/30/2022; Cable = current</span>',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'mit'},
-   {ic:'📡',n:'Ad Intel',gb:'22.0 GB',d:'1,750 files · 38 sub-folders: impc_ccf/nt/sr · impmb_mb/mbcf · occ_bn/bs/cn/ec/en/lm/ln/ls/nm/nn/nr/ns/ocf/ou/sp/sr · rdc_adv/brd/crt/dis/mag/oda/pcc/pgm/pub · rdu_acu/au/bu/cu/dr · ue_mb/nt/sr · 2018-01-01 – 2026-06-10',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'ad_intel'},
-   {ic:'👥',n:'MRI',gb:'4.8 GB',d:'412 files · 29 consumer segments: auto_transportation/baby_needs/beverages/biz_purchase/candy/clothing/consumer_electronics/dr_visits/financial/food/hba/hh_items_nonfood/home_improvement/influentials/insurance/job_title/leisure_activities/magazines/media/persons/pet_needs/psychographics/shopping/tobacco/toys/travel + bkp/tmp/test · 2019-01-01 – 2026-06-10',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'mri'},
-   {ic:'🏠',n:'LAAPP',gb:'805.7 GB',d:'36 sub-folders · Local Audience Application Platform · viewership_amrld_program/timeperiod · viewership_met_c3/l3/l7/lsd/lv/tp_l3/tp_l7/tp_lsd/tp_lv · viewership_huts/puts/pred_lsd · amrld_all_mkt_brk/household_data/hut/metadata/tp_view · c3_pcd_tn_mints/pcd_tn_mints/pcd_tn_qtr_mints · apw_flat/hh_mkt_brks/mvpd_hh_mkt_brks/all_hhnbr/mkt_brk_univ · gn_future_schedule/pts_avails/svod_hh_mkt_brks/identity/mit_01p_tr',bl:'COMPLETED',extra:'<span class="badge b-warn">S3 only</span>',measType:'nielsen',schemaKey:'laapp'}];
+   {ic:'📡',n:'Ad Intel',gb:'22.0 GB',d:'1,750 files · 38 sub-folders: impc_ccf/nt/sr · impmb_mb/mbcf · occ_bn/bs/cn/ec/en/lm/ln/ls/nm/nn/nr/ns/ocf/ou/sp/sr · rdc_adv/brd/crt/dis/mag/oda/pcc/pgm/pub · rdu_acu/au/bu/cu/dr · ue_mb/nt/sr · 2018–2026',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'ad_intel'},
+   {ic:'👥',n:'MRI',gb:'4.8 GB',d:'412 files · 29 consumer segments: auto/baby/beverages/biz/candy/clothing/consumer_electronics/dr_visits/financial/food/hba/hh_items/home_improvement/influentials/insurance/job_title/leisure/magazines/media/persons/pet/psychographics/shopping/tobacco/toys/travel · 2019–2026',bl:'COMPLETED',extra:'',measType:'nielsen',schemaKey:'mri'},
+   {ic:'🏠',n:'LAAPP',gb:'805.7 GB',d:'36 sub-folders · 5.84M objects · Local Audience Application Platform · viewership_amrld/met_*/huts/puts/pred_lsd · amrld_*_brk/household_data/hut/metadata/tp_view · c3_pcd/pcd_tn_mints/apw_flat/hh_mkt_brks/identity · gn_future_schedule/pts_avails',bl:'COMPLETED',extra:'<span class="badge b-warn">S3 only</span>',measType:'nielsen',schemaKey:'laapp'}];
   const ng=document.getElementById('nielsengrid');
   if(ng){
     ng.innerHTML=NLS.map((d,i)=>`

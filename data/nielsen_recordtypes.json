@@ -753,6 +753,56 @@
           "last_processed": "2026-06-10"
         }
       ]
+    },
+    "laapp": {
+      "label": "LAAPP",
+      "s3_prefix": "s3://sasmaster-2026/nielsen/laapp/",
+      "description": "Local Audience Application Platform — analytics output layer for local market + HUT/PUT + AMRLD + met_* viewership. S3-only (no MD ingest yet). 36 sub-folders / 5.84M objects.",
+      "overall_min": null,
+      "overall_max": null,
+      "last_processed": "2026-06-22",
+      "total_rows": null,
+      "note": "805.7 GB · 5,840,199 files · 36 sub-folders · S3-only analytics platform",
+      "tiny_files": false,
+      "scan_run": "2026-06-22",
+      "record_types": [
+        {"id":"viewership_amrld_program",    "description":"AMRLD program-level viewing (local market grain)","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"viewership_amrld_timeperiod", "description":"AMRLD time-period viewing (local market grain)","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"viewership_met_c3",           "description":"Met C3 (Live+3) program viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"viewership_met_l3",           "description":"Met Live+3 program viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"viewership_met_l7",           "description":"Met Live+7 program viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"viewership_met_lsd",          "description":"Met Live+SD program viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"viewership_met_lv",           "description":"Met Live program viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"viewership_met_tp_l3",        "description":"Met time-period Live+3","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"viewership_met_tp_l7",        "description":"Met time-period Live+7","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"viewership_met_tp_lsd",       "description":"Met time-period Live+SD","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"viewership_met_tp_lv",        "description":"Met time-period Live","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"viewership_huts",             "description":"HUT (Households Using Television) by market","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"viewership_puts",             "description":"PUT (Persons Using Television) by market","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"viewership_pred_lsd",         "description":"Predicted Live+SD viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"amrld_all_mkt_brk",           "description":"AMRLD all-market break aggregate","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"amrld_household_data",        "description":"AMRLD household-level data","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"amrld_hut",                   "description":"AMRLD HUT computations","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"amrld_metadata",              "description":"AMRLD metadata reference","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"amrld_mvpd_mso_household_data","description":"AMRLD MVPD/MSO household penetration","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"amrld_svod_household_data",   "description":"AMRLD SVOD household data","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"amrld_svod_mso_mkt_brk",      "description":"AMRLD SVOD MSO market break","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"amrld_tp_view",               "description":"AMRLD time-period viewing","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"c3_pcd_tn_mints",             "description":"C3 per-commercial-day tune-in minutes","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"pcd_tn_mints",                "description":"Per-commercial-day tune-in minutes","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"pcd_tn_qtr_mints",            "description":"Per-commercial-day quarter-hour tune-in minutes","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"apw_flat",                    "description":"All-program-week flat viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"hh_mkt_brks",                 "description":"Household market breaks","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"mvpd_hh_mkt_brks",            "description":"MVPD household market breaks","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"all_hhnbr",                   "description":"All household number reference","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"mkt_brk_univ",                "description":"Market break universe estimates","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"gn_future_schedule",          "description":"Gracenote future schedule feed","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"pts_avails",                  "description":"Points avails data","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"svod_hh_mkt_brks",            "description":"SVOD household market breaks","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"identity",                    "description":"Identity mapping reference","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"mit_01p_tr",                  "description":"MIT seq-01 person universe estimates (transform)","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
+        {"id":"_hwm",                        "description":"High-water mark control file","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null}
+      ]
     }
   }
 }
