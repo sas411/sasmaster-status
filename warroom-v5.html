@@ -723,6 +723,7 @@ main.canvas-mode{overflow:hidden}
     <div class="tab" data-v="queue">📋 QUEUE <span class="cnt">1</span></div>
     <div class="tab" data-v="resources">📚 RESOURCES</div>
     <div class="tab" data-v="costs">💰 COSTS</div>
+    <div class="tab" data-v="tokens">⚡ TOKENS <span class="new" id="tokens-source-badge" style="display:none">LIVE</span></div>
     <div class="tab" data-v="finance">🏦 FINANCE</div>
     <div class="tab" data-v="telemetry">📡 TELEMETRY</div>
     <div class="tab" data-v="fintel">📈 FINANCIAL INTEL <span class="new">NEW</span></div>
@@ -894,6 +895,50 @@ main.canvas-mode{overflow:hidden}
         <tr><td class="mono">2026-06-01</td><td><b>Claude AI Pro</b></td><td>Monthly Pro subscription (Max plan)</td><td class="mono">$20.00</td><td><span class="badge b-sec">CLAUDE AI</span></td></tr>
         <tr><td class="mono">2026-06-12</td><td><b>AWS S3 · sasmaster-2026</b></td><td>Storage + GET/PUT requests MTD</td><td class="mono">$14.96</td><td><span class="badge b-warn">S3</span></td></tr>
       </table>
+    </div>
+  </section>
+
+  <!-- ================= TOKENS ================= -->
+  <section class="view" id="v-tokens">
+    <div class="coststrip" id="tokens-hero-strip" style="grid-template-columns:repeat(5,1fr)">
+      <div><div class="l">Cache Hit Rate</div><div class="v gold" id="tm-cache-hit">—</div><div class="s" id="tm-cache-hit-sub">pending data</div></div>
+      <div><div class="l">Cache R/W Ratio</div><div class="v" id="tm-cache-rw">—</div><div class="s">reads per write</div></div>
+      <div><div class="l">Daily Cost</div><div class="v" id="tm-daily-cost">—</div><div class="s" id="tm-daily-sub">last 24h</div></div>
+      <div><div class="l">Batch API</div><div class="v" id="tm-batch-pct">—</div><div class="s">% calls via batch</div></div>
+      <div><div class="l">Web Searches</div><div class="v" id="tm-web-search">—</div><div class="s">calls · $10/1k</div></div>
+    </div>
+
+    <div class="sec-h" style="margin-top:16px">
+      <h2>Model spend distribution</h2>
+      <span id="tm-source-line" style="font-family:var(--mono);font-size:10px;color:var(--dim);margin-left:auto">—</span>
+    </div>
+    <div id="tm-model-bars" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px">
+      <div class="q4" id="tm-bar-opus"><div class="l">Opus</div><div class="v">—</div><div class="qb"><i style="width:0%;background:var(--accent)"></i></div><div class="s" style="font-family:var(--mono);font-size:10px;color:var(--dim)">— calls · $—</div></div>
+      <div class="q4" id="tm-bar-sonnet"><div class="l">Sonnet</div><div class="v">—</div><div class="qb"><i style="width:0%;background:#4ade80"></i></div><div class="s" style="font-family:var(--mono);font-size:10px;color:var(--dim)">— calls · $—</div></div>
+      <div class="q4" id="tm-bar-haiku"><div class="l">Haiku</div><div class="v">—</div><div class="qb"><i style="width:0%;background:#38bdf8"></i></div><div class="s" style="font-family:var(--mono);font-size:10px;color:var(--dim)">— calls · $—</div></div>
+    </div>
+
+    <div class="sec-h" style="margin-top:16px"><h2>Avg input tokens by agent type</h2></div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px">
+      <div class="q4"><div class="l">Dr. Scoop</div><div class="v mono" id="tm-scoop-tokens">—</div><div class="s" id="tm-scoop-calls">— calls in window</div></div>
+      <div class="q4"><div class="l">JARVIS</div><div class="v mono" id="tm-jarvis-tokens">—</div><div class="s" id="tm-jarvis-calls">— calls in window</div></div>
+    </div>
+
+    <div class="sec-h" style="margin-top:16px"><h2>Token volume</h2></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px">
+      <div class="q4"><div class="l">Input (total)</div><div class="v mono" id="tm-input-total">—</div><div class="s">last 24h</div></div>
+      <div class="q4"><div class="l">Cache read</div><div class="v mono" id="tm-cache-read">—</div><div class="s">saved tokens</div></div>
+      <div class="q4"><div class="l">Cache write</div><div class="v mono" id="tm-cache-write">—</div><div class="s">breakpoints used</div></div>
+      <div class="q4"><div class="l">Output</div><div class="v mono" id="tm-output-total">—</div><div class="s">last 24h</div></div>
+    </div>
+
+    <div id="tm-alert-row" style="display:none;margin-top:14px">
+      <div class="recrow" id="tm-alert-text" style="background:rgba(239,68,68,.08);border-left:3px solid var(--down)">—</div>
+    </div>
+
+    <div style="margin-top:16px;display:flex;align-items:center;gap:10px">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--dim)" id="tm-last-refresh">Never refreshed</span>
+      <button class="btn bp" style="margin-left:auto;font-size:11px;padding:5px 13px" onclick="tmRefresh()">↻ Refresh</button>
     </div>
   </section>
 
@@ -3104,6 +3149,116 @@ document.addEventListener('DOMContentLoaded',()=>{
   } else {
     init();
   }
+})();
+</script>
+
+<script>
+/* ── TOKEN-METER-001 Ph2 — TOKENS tab renderer ──────────────── */
+(function(){
+  // Reads static file committed nightly by token_metrics_nightly.sh
+  const STATIC_METRICS = 'resources/token_metrics_latest.json';
+
+  function fmt(n){
+    if(n === null || n === undefined) return '—';
+    if(n >= 1e6) return (n/1e6).toFixed(1)+'M';
+    if(n >= 1e3) return (n/1e3).toFixed(1)+'K';
+    return String(n);
+  }
+  function pct(v){ return typeof v === 'number' ? (v*100).toFixed(1)+'%' : '—'; }
+  function el(id){ return document.getElementById(id); }
+  function setEl(id,html){ const e=el(id); if(e) e.innerHTML=html; }
+  function setVal(id,v){ const e=el(id); if(e) e.textContent=v; }
+
+  function renderMetrics(d){
+    // Hero strip
+    const hitRate = typeof d.cache_hit_rate === 'number' ? d.cache_hit_rate : null;
+    const hasCache = d.cache_data_available;
+    setVal('tm-cache-hit', hitRate !== null ? pct(hitRate) : '—');
+    setVal('tm-cache-hit-sub', hasCache ? 'measured · '+d.window_hours+'h window' : 'no cache fields yet');
+    if(el('tm-cache-hit') && hitRate !== null && hitRate >= 0.5) el('tm-cache-hit').style.color='var(--up)';
+    if(el('tm-cache-hit') && hitRate !== null && hitRate < 0.5 && hasCache) el('tm-cache-hit').style.color='var(--down)';
+
+    setVal('tm-cache-rw', typeof d.cache_read_write_ratio === 'number' ? d.cache_read_write_ratio.toFixed(1)+'×' : '—');
+    setVal('tm-daily-cost', typeof d.total_cost_usd === 'number' ? '$'+d.total_cost_usd.toFixed(4) : '—');
+    setVal('tm-daily-sub', d.window_hours+'h window · '+d.total_calls+' calls');
+    setVal('tm-batch-pct', typeof d.pct_calls_via_batch === 'number' ? d.pct_calls_via_batch.toFixed(1)+'%' : '—');
+    setVal('tm-web-search', typeof d.web_search_call_count === 'number' ? d.web_search_call_count : '—');
+
+    // Source badge
+    setEl('tm-source-line', '<span>'+escHtml(d.source||'—')+'</span>');
+    const srcBadge = el('tokens-source-badge');
+    if(srcBadge){ srcBadge.style.display='inline'; srcBadge.textContent = d.source && d.source.startsWith('ANTHROPIC') ? 'API' : 'LOG'; }
+
+    // Model bars
+    const spend = d.pct_spend_by_model || {};
+    ['opus','sonnet','haiku'].forEach(tier => {
+      const m = spend[tier] || {};
+      const pctVal = typeof m.pct_spend === 'number' ? m.pct_spend : 0;
+      const bar = el('tm-bar-'+tier);
+      if(!bar) return;
+      bar.querySelector('.v').textContent = pctVal.toFixed(1)+'%';
+      bar.querySelector('i').style.width = Math.min(pctVal,100)+'%';
+      bar.querySelector('.s').textContent = (m.call_count||0)+' calls · $'+(m.cost_usd||0).toFixed(4);
+    });
+
+    // Agent type tokens
+    const avgIn = d.avg_input_tokens || {};
+    setVal('tm-scoop-tokens', avgIn.dr_scoop ? fmt(avgIn.dr_scoop) : '—');
+    setVal('tm-scoop-calls', (avgIn.scoop_calls||0)+' calls in window');
+    setVal('tm-jarvis-tokens', avgIn.jarvis ? fmt(avgIn.jarvis) : '—');
+    setVal('tm-jarvis-calls', (avgIn.jarvis_calls||0)+' calls in window');
+
+    // Volume
+    const tok = d.total_tokens || {};
+    setVal('tm-input-total', fmt(tok.input));
+    setVal('tm-cache-read', fmt(tok.cache_read));
+    setVal('tm-cache-write', fmt(tok.cache_write));
+    setVal('tm-output-total', fmt(tok.output));
+
+    // Alerts
+    const alertRow = el('tm-alert-row');
+    const alertText = el('tm-alert-text');
+    const alerts = [];
+    if(hasCache && hitRate !== null && hitRate < 0.5)
+      alerts.push('⚠ Cache hit rate '+pct(hitRate)+' < 50% threshold — run CACHE-ENABLE-001');
+    const monthlyRunRate = (d.total_cost_usd||0) * 30;
+    if(monthlyRunRate > 500)
+      alerts.push('🔴 Daily $'+(d.total_cost_usd||0).toFixed(2)+' → projected $'+monthlyRunRate.toFixed(0)+'/mo (cap: $500)');
+    if(!hasCache)
+      alerts.push('ℹ Cache fields not yet in cost-log — upgrade cost-guard.sh to v2 for real cache_hit_rate');
+    if(alertRow && alertText){
+      if(alerts.length){ alertRow.style.display='block'; alertText.textContent=alerts.join(' · '); }
+      else alertRow.style.display='none';
+    }
+
+    // Timestamp
+    const ts = d.generated_at ? new Date(d.generated_at).toLocaleString() : '—';
+    setVal('tm-last-refresh', 'Source: '+escHtml(d.source||'—')+'  ·  Generated: '+ts);
+  }
+
+  function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function todayUTC(){
+    const d = new Date();
+    return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');
+  }
+
+  window.tmRefresh = function(){
+    setVal('tm-last-refresh', 'Loading…');
+    fetch(STATIC_METRICS + '?_='+Date.now())
+      .then(r => r.ok ? r.json() : Promise.reject('not found'))
+      .then(d => renderMetrics(d))
+      .catch(() => {
+        setVal('tm-last-refresh', 'No data yet — nightly job runs at 02:00 ET · run token_metrics_nightly.sh to seed');
+      });
+  };
+
+  // Auto-load when TOKENS tab is activated
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      if(t.dataset.v === 'tokens') window.tmRefresh();
+    });
+  });
 })();
 </script>
 </body>
