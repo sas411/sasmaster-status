@@ -806,6 +806,47 @@ main.canvas-mode{overflow:hidden}
       </div>
     </div>
 
+    <!-- ARTIFACT-PULL-001: Live MotherDuck catalog metrics -->
+    <div class="sec-h" style="margin-top:18px">
+      <span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">SPINE &amp; CATALOG — LIVE MOTHERDUCK COUNTS</span>
+      <span class="badge b-ok" id="artifact-source-badge" style="margin-left:8px">LIVE</span>
+      <span class="mono" style="font-size:10px;color:var(--dim);margin-left:8px" id="artifact-generated-at">—</span>
+    </div>
+    <div class="panel" style="margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:10.5px;font-weight:700;color:var(--mut);margin-bottom:8px;letter-spacing:.08em">PARENT KEY SPINE</div>
+          <div class="spine">
+            <div class="srow"><span class="n">Total PKIDs</span><div class="sbar"><i id="art-pkids-bar" style="width:100%;background:var(--cyan)"></i></div><span class="v" id="art-pkids-val">—</span></div>
+            <div class="srow"><span class="n">EIDR coverage</span><div class="sbar"><i id="art-eidr-bar" style="width:1%;background:#22c55e"></i></div><span class="v" id="art-eidr-val">—</span></div>
+            <div class="srow"><span class="n">TMDB coverage</span><div class="sbar"><i id="art-tmdb-bar" style="width:41%;background:var(--accent)"></i></div><span class="v" id="art-tmdb-val">—</span></div>
+          </div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">
+            <span class="badge b-ok" style="font-size:9px" id="art-cert-val">CERT —</span>
+            <span class="badge b-warn" style="font-size:9px" id="art-conf-val">CONF —</span>
+            <span class="badge b-sec" style="font-size:9px" id="art-prov-val">PROV —</span>
+            <span class="badge" style="font-size:9px;background:var(--inset)" id="art-held-val">HELD —</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:10.5px;font-weight:700;color:var(--mut);margin-bottom:8px;letter-spacing:.08em">CURATED CATALOG</div>
+          <div class="spine">
+            <div class="srow"><span class="n">Movies</span><div class="sbar"><i id="art-mv-bar" style="width:49%;background:var(--cyan)"></i></div><span class="v" id="art-mv-val">—</span></div>
+            <div class="srow"><span class="n">TV Series</span><div class="sbar"><i id="art-tv-bar" style="width:7%;background:var(--violet)"></i></div><span class="v" id="art-tv-val">—</span></div>
+            <div class="srow"><span class="n">People</span><div class="sbar"><i id="art-pp-bar" style="width:100%;background:var(--warn)"></i></div><span class="v" id="art-pp-val">—</span></div>
+            <div class="srow"><span class="n">Episodes</span><div class="sbar"><i id="art-ep-bar" style="width:100%;background:var(--dim)"></i></div><span class="v" id="art-ep-val">—</span></div>
+          </div>
+          <div style="margin-top:8px;font-size:10.5px;color:var(--dim)">EIDR staged: <b id="art-eidr-staged">—</b> &nbsp;·&nbsp; Alt IDs: <b id="art-alt-ids">—</b></div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:10.5px;border-top:1px solid var(--bdr);padding-top:8px">
+        <span style="color:var(--dim);letter-spacing:.06em;font-size:10px">BATCH-FUSION-001 pilots ·</span>
+        <span id="art-bf-eidr" style="margin-left:6px;color:var(--dim)">● EIDR pending</span>
+        <span id="art-bf-held" style="margin-left:10px;color:var(--dim)">● HELD pending</span>
+        <span id="art-bf-tmdb" style="margin-left:10px;color:var(--dim)">● TMDB gaps pending</span>
+      </div>
+    </div>
+
     <div class="sec-h"><h2>Data health</h2><span id="data-health-run">—</span><span class="badge b-ok" style="margin-left:auto">GATE PASS · 11 assertions</span></div>
     <div class="panel">
       <div class="freshchips">
@@ -3257,7 +3298,76 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.querySelectorAll('.tab').forEach(t => {
     t.addEventListener('click', () => {
       if(t.dataset.v === 'tokens') window.tmRefresh();
+      if(t.dataset.v === 'data')   window.artRefresh();
     });
+  });
+})();
+
+/* ============ ARTIFACT-PULL-001: Live MotherDuck catalog metrics ============ */
+(function(){
+  const ARTIFACT_METRICS = 'resources/artifact_metrics_latest.json';
+  const fmtN = n => n >= 1e6 ? (n/1e6).toFixed(2)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : String(n||0);
+  const setEl = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+  const setHTML = (id, v) => { const e = document.getElementById(id); if(e) e.innerHTML = v; };
+  const gate = (pass, label) =>
+    `<span style="color:${pass?'#22c55e':'var(--dim)'}">● ${label} ${pass?'PASS':'pending'}</span>`;
+
+  function renderArtifact(d) {
+    const badge = document.getElementById('artifact-source-badge');
+    if(badge) badge.textContent = d.source === 'motherduck' ? 'LIVE' : 'CACHED';
+    const ts = document.getElementById('artifact-generated-at');
+    if(ts && d.generated_at) ts.textContent = d.generated_at.slice(0,10);
+
+    const sp = d.spine || {};
+    setEl('art-pkids-val', fmtN(sp.total_pkids||0));
+    setEl('art-eidr-val', (sp.eidr_coverage_pct||0).toFixed(1)+'%');
+    const eidrBar = document.getElementById('art-eidr-bar');
+    if(eidrBar) eidrBar.style.width = Math.max(0.5, sp.eidr_coverage_pct||0)+'%';
+    setEl('art-tmdb-val', (sp.tmdb_coverage_pct||0).toFixed(1)+'%');
+    const tmdbBar = document.getElementById('art-tmdb-bar');
+    if(tmdbBar) tmdbBar.style.width = Math.max(0.5, sp.tmdb_coverage_pct||0)+'%';
+    const bc = sp.by_confidence || {};
+    setEl('art-cert-val', 'CERT '+fmtN(bc.CERTIFIED||0));
+    setEl('art-conf-val', 'CONF '+fmtN(bc.CONFIRMED||0));
+    setEl('art-prov-val', 'PROV '+fmtN(bc.PROVISIONAL||0));
+    setEl('art-held-val', 'HELD '+fmtN(bc.HELD||0));
+
+    const cat = d.catalog || {};
+    const maxCat = Math.max(cat.movie_master||1, cat.people_master||1, cat.episodic_nested||1);
+    setEl('art-mv-val', fmtN(cat.movie_master||0));
+    const mvBar = document.getElementById('art-mv-bar');
+    if(mvBar) mvBar.style.width = Math.round((cat.movie_master||0)/maxCat*100)+'%';
+    setEl('art-tv-val', fmtN(cat.tv_series_master||0));
+    const tvBar = document.getElementById('art-tv-bar');
+    if(tvBar) tvBar.style.width = Math.round((cat.tv_series_master||0)/maxCat*100)+'%';
+    setEl('art-pp-val', fmtN(cat.people_master||0));
+    setEl('art-ep-val', fmtN(cat.episodic_nested||0));
+    setEl('art-eidr-staged', fmtN(cat.eidr_staging||0));
+    setEl('art-alt-ids', fmtN(cat.alt_ids||0));
+
+    const bf = d.batch_fusion || {};
+    setHTML('art-bf-eidr',  gate(bf.eidr_pilot_pass,      'EIDR'));
+    setHTML('art-bf-held',  gate(bf.held_pilot_pass,       'HELD'));
+    setHTML('art-bf-tmdb',  gate(bf.tmdb_gaps_pilot_pass,  'TMDB gaps'));
+
+    // Feed legacy kpi elements so existing spine wiring stays live
+    const pkTot = document.getElementById('pk-total-val');
+    if(pkTot) pkTot.textContent = fmtN(sp.total_pkids||0);
+    const eidrEl = document.getElementById('eidr-coverage-live');
+    if(eidrEl) eidrEl.textContent = (sp.eidr_coverage_pct||0).toFixed(1)+'% EIDR · '+fmtN(sp.eidr_matched||0)+' matched';
+  }
+
+  window.artRefresh = function(){
+    fetch(ARTIFACT_METRICS + '?_='+Date.now())
+      .then(r => r.ok ? r.json() : Promise.reject('not found'))
+      .then(d => renderArtifact(d))
+      .catch(e => console.warn('[artifact-metrics] load failed:', e));
+  };
+
+  // Auto-load on DOMContentLoaded if DATA tab is default visible
+  document.addEventListener('DOMContentLoaded', () => {
+    const dataTab = document.querySelector('.tab[data-v="data"]');
+    if(dataTab && dataTab.classList.contains('on')) window.artRefresh();
   });
 })();
 </script>
