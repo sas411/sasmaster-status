@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-21T06:31:21.033Z",
-  "generated_at": "2026-06-21T06:31:21.033Z",
+  "generated": "2026-06-22T08:06:56.165Z",
+  "generated_at": "2026-06-22T08:06:56.165Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -1727,7 +1727,17 @@
     ],
     "inProgress": [],
     "blocked": [],
-    "review": [],
+    "review": [
+      {
+        "id": "review-0",
+        "text": "Weekly Business Review — 2026-06-23 → 2026-06-22",
+        "full": "Weekly Business Review — 2026-06-23 → 2026-06-22",
+        "sprint": "Review",
+        "tag": "PENDING",
+        "priority": "REVIEW",
+        "approvalId": "wbr_mqog8mog"
+      }
+    ],
     "done": [
       {
         "id": "done-0",
@@ -1776,38 +1786,6 @@
         "sprint": "",
         "tag": "DONE",
         "priority": "DONE"
-      },
-      {
-        "id": "done-6",
-        "text": "SCHEMA-PARITY-001 — Prove v2 lost no assets vs v1 baseline",
-        "full": "SCHEMA-PARITY-001 — Prove v2 lost no assets vs v1 baseline",
-        "sprint": "",
-        "tag": "DONE",
-        "priority": "DONE"
-      },
-      {
-        "id": "done-7",
-        "text": "SCHEMA-CURATE-001 — Build 4 curated tables + v_curated_full; portal cutover",
-        "full": "SCHEMA-CURATE-001 — Build 4 curated tables + v_curated_full; portal cutover",
-        "sprint": "",
-        "tag": "DONE",
-        "priority": "DONE"
-      },
-      {
-        "id": "done-8",
-        "text": "SCHEMA-ALTID-MIGRATE-001 — Reattach 345K Wikidata alt-IDs to v2 PKIDs",
-        "full": "SCHEMA-ALTID-MIGRATE-001 — Reattach 345K Wikidata alt-IDs to v2 PKIDs",
-        "sprint": "",
-        "tag": "DONE",
-        "priority": "DONE"
-      },
-      {
-        "id": "done-9",
-        "text": "SCHEMA-MATCH-001 — Mint v2 spine via 5-tier cascade + UUIDv5",
-        "full": "SCHEMA-MATCH-001 — Mint v2 spine via 5-tier cascade + UUIDv5",
-        "sprint": "",
-        "tag": "DONE",
-        "priority": "DONE"
       }
     ],
     "qaDrafts": [],
@@ -1843,15 +1821,14 @@
       "backlog": 71,
       "inProgress": 0,
       "blocked": 0,
-      "review": 0,
+      "review": 1,
       "qaDrafts": 0
     }
   },
   "heatmap": {
+    "** 2026-06": 4,
     "2026-06-21": 2,
-    "2026-06-20": 21,
-    "2026-06-19": 5,
-    "2026-06-17": 2
+    "2026-06-20": 13
   },
   "target10": [],
   "agents": [
@@ -1876,7 +1853,7 @@
       "log": "media-intel.log",
       "channel": "#sasmaster-intel",
       "jobId": "media-intel",
-      "lastRun": "2026-06-20T10:00:25.950Z",
+      "lastRun": "2026-06-21T10:00:22.133Z",
       "lastOutput": "Brief posted to #sasmaster-intel ✅",
       "status": "healthy"
     },
@@ -1888,8 +1865,8 @@
       "log": "tmdb-agent.log",
       "channel": "#sasmaster-intel",
       "jobId": "tmdb-daily",
-      "lastRun": "2026-06-20T09:00:01.972Z",
-      "lastOutput": "Posted digest (1360 chars) to #sasmaster-intel",
+      "lastRun": "2026-06-21T09:00:02.523Z",
+      "lastOutput": "Posted digest (1394 chars) to #sasmaster-intel",
       "status": "healthy"
     },
     {
@@ -1900,7 +1877,7 @@
       "log": "donelog-analyst.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": "2026-06-20T16:00:01.870Z",
+      "lastRun": "2026-06-21T16:00:02.367Z",
       "lastOutput": "Spawned extract-build-lessons.js (non-blocking)",
       "status": "healthy"
     },
@@ -1924,8 +1901,8 @@
       "log": "sec-edgar.log",
       "channel": "#sasmaster-intel",
       "jobId": null,
-      "lastRun": "2026-06-20T10:30:27.423Z",
-      "lastOutput": "═══ Done: 16/16 | 1 companies with new filings ═══",
+      "lastRun": "2026-06-21T10:30:29.391Z",
+      "lastOutput": "═══ Done: 16/16 | 0 companies with new filings ═══",
       "status": "healthy"
     },
     {
@@ -1948,9 +1925,9 @@
       "log": "financial-analyst.log",
       "channel": "#sasmaster-intel",
       "jobId": null,
-      "lastRun": "2026-06-08T00:10:00.586Z",
-      "lastOutput": "ERROR: S3_BUCKET not set — aborting",
-      "status": "error"
+      "lastRun": "2026-06-22T00:11:04.351Z",
+      "lastOutput": "═══ Financial Analyst Agent done ═══",
+      "status": "healthy"
     },
     {
       "name": "Weekly Review",
@@ -1960,9 +1937,9 @@
       "log": "weekly-review.log",
       "channel": "#sasmaster-content",
       "jobId": "weekly-review",
-      "lastRun": "2026-06-15T00:00:08.559Z",
-      "lastOutput": "FATAL: 400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Yo",
-      "status": "error"
+      "lastRun": "2026-06-22T00:00:16.519Z",
+      "lastOutput": "Posted WBR wbr_mqog8mog to Slack",
+      "status": "healthy"
     },
     {
       "name": "IAB Intel",
@@ -1984,7 +1961,7 @@
       "log": "security-watchdog.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": "2026-06-20T13:30:02.104Z",
+      "lastRun": "2026-06-21T13:30:01.575Z",
       "lastOutput": "Security Watchdog complete ✅",
       "status": "healthy"
     },
@@ -1996,8 +1973,8 @@
       "log": "railway-monitor.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": null,
-      "lastOutput": "◇ injected env (43) from SaSMaster/.env // tip: ⌘ override existing { override: ",
+      "lastRun": "2026-06-22T08:00:05.939Z",
+      "lastOutput": "✅ All healthy — uptime streak: 55h 15m",
       "status": "healthy"
     },
     {
@@ -2107,7 +2084,7 @@
       "jobId": null,
       "type": "subagent",
       "descOverride": "Mac 64GB compute worker. Polls Railway /tasks/pending-compute. Capabilities: duckdb / scraper / claude-code / ml.",
-      "lastRun": "2026-06-21T06:27:39.474Z",
+      "lastRun": "2026-06-22T08:05:04.830Z",
       "lastOutput": "Mac 64GB compute worker. Polls Railway /tasks/pending-compute. Capabilities: duckdb / scraper / claude-code / ml.",
       "status": "healthy"
     },
@@ -2644,30 +2621,6 @@
       "date": "2026-06-20",
       "notes": "v1 cold-archived to s3://sasmaster-2026/archive/v1_final/2026-06-20/ (7 parquet+zstd files). Parity gate PASS confirmed ",
       "status": "DONE"
-    },
-    {
-      "task": "SCHEMA-PARITY-001 — Prove v2 lost no assets vs v1 baseline",
-      "date": "2026-06-20",
-      "notes": "Parity report at schema/PARITY_REPORT_2026-06-20.md — verdict PASS. 176,630 losses (1.61% of 10.9M v1 assets) all docume",
-      "status": "DONE"
-    },
-    {
-      "task": "SCHEMA-CURATE-001 — Build 4 curated tables + v_curated_full; portal cutover",
-      "date": "2026-06-20",
-      "notes": "4 curated tables built and live. movie_master 2,319,749 (band gate: CERTIFIED+CONFIRMED+PROVISIONAL, imdb_id NOT NULL, C",
-      "status": "DONE"
-    },
-    {
-      "task": "SCHEMA-ALTID-MIGRATE-001 — Reattach 345K Wikidata alt-IDs to v2 PKIDs",
-      "date": "2026-06-20",
-      "notes": "344,945 Wikidata alt-IDs migrated from prod.alt_ids_v1 → prod.alt_ids by imdb_id anchor join. Anchor lookup from prod.pa",
-      "status": "DONE"
-    },
-    {
-      "task": "SCHEMA-MATCH-001 — Mint v2 spine via 5-tier cascade + UUIDv5",
-      "date": "2026-06-20",
-      "notes": "prod.parent_key minted with 12,955,795 total rows (3,286,241 PKIDs + 9,669,554 episode CIDs). Frozen SASMASTER_NS=7b7b4c",
-      "status": "DONE"
     }
   ],
   "intel_feed": [
@@ -2821,7 +2774,7 @@
       "phase": "1",
       "status": "live",
       "pct": 100,
-      "last_run": "2026-06-20T10:30:27.423Z"
+      "last_run": "2026-06-21T10:30:29.391Z"
     },
     {
       "name": "EIDR scraper",
@@ -2915,7 +2868,7 @@
       "object_count": 7998,
       "last_updated": "2026-06-21T02:00:30.000Z",
       "fresh": true,
-      "age_hours": 4.5,
+      "age_hours": 6,
       "entity_type": "entity",
       "entities": {
         "movies": 1199613,
@@ -2943,7 +2896,7 @@
       "object_count": 28,
       "last_updated": "2026-06-09T08:21:57.000Z",
       "fresh": false,
-      "age_hours": 286.1,
+      "age_hours": 311.7,
       "entity_type": "entity",
       "entities": {
         "movies": 2374753,
@@ -2971,7 +2924,7 @@
       "object_count": 7,
       "last_updated": "2026-06-09T08:19:56.000Z",
       "fresh": false,
-      "age_hours": 286.2,
+      "age_hours": 311.8,
       "entity_type": "na",
       "entities": {
         "movies": null,
@@ -2999,7 +2952,7 @@
       "object_count": 20,
       "last_updated": "2026-06-08T07:05:56.000Z",
       "fresh": false,
-      "age_hours": 311.4,
+      "age_hours": 337,
       "entity_type": "entity_funnel",
       "entities": {
         "movies": null,
@@ -3046,7 +2999,7 @@
       "object_count": 9,
       "last_updated": "2026-06-11T02:03:21.000Z",
       "fresh": false,
-      "age_hours": 244.4,
+      "age_hours": 270,
       "entity_type": "entity",
       "entities": {
         "movies": 31049,
@@ -3074,7 +3027,7 @@
       "object_count": 16,
       "last_updated": "2026-06-11T02:03:21.000Z",
       "fresh": false,
-      "age_hours": 244.4,
+      "age_hours": 270,
       "entity_type": "entity",
       "entities": {
         "movies": 18948,
@@ -3102,7 +3055,7 @@
       "object_count": 12,
       "last_updated": "2026-06-05T08:59:40.000Z",
       "fresh": false,
-      "age_hours": 381.5,
+      "age_hours": 407.1,
       "entity_type": "entity",
       "entities": {
         "movies": 33924,
@@ -3130,7 +3083,7 @@
       "object_count": 19,
       "last_updated": "2026-06-11T02:03:23.000Z",
       "fresh": false,
-      "age_hours": 244.4,
+      "age_hours": 270,
       "entity_type": "na",
       "entities": {
         "movies": null,
@@ -3158,7 +3111,7 @@
       "object_count": 11,
       "last_updated": "2026-06-16T09:33:28.000Z",
       "fresh": false,
-      "age_hours": 116.9,
+      "age_hours": 142.5,
       "entity_type": "na",
       "entities": {
         "movies": null,
@@ -3185,8 +3138,8 @@
       "size_gb": 0,
       "object_count": 3,
       "last_updated": "2026-06-21T02:02:12.000Z",
-      "fresh": true,
-      "age_hours": 4.5,
+      "fresh": false,
+      "age_hours": 30.1,
       "entity_type": "na",
       "entities": {
         "movies": null,
@@ -3298,7 +3251,7 @@
       "object_count": 3587,
       "last_updated": "2026-06-09T00:00:00.000Z",
       "fresh": false,
-      "age_hours": 131.2,
+      "age_hours": 156.8,
       "entity_type": null,
       "entities": {
         "movies": null,
@@ -3326,7 +3279,7 @@
       "object_count": 1750,
       "last_updated": "2026-06-10T00:00:00.000Z",
       "fresh": false,
-      "age_hours": 254.9,
+      "age_hours": 280.4,
       "entity_type": null,
       "entities": {
         "movies": null,
@@ -3354,7 +3307,7 @@
       "object_count": 412,
       "last_updated": "2026-06-10T00:00:00.000Z",
       "fresh": false,
-      "age_hours": 253.2,
+      "age_hours": 278.8,
       "entity_type": null,
       "entities": {
         "movies": null,
@@ -3382,7 +3335,7 @@
       "object_count": 0,
       "last_updated": "2026-06-11T00:00:00.000Z",
       "fresh": false,
-      "age_hours": 219.4,
+      "age_hours": 245,
       "entity_type": null,
       "entities": {
         "movies": null,
@@ -3410,7 +3363,7 @@
       "object_count": 0,
       "last_updated": "2026-06-11T00:00:00.000Z",
       "fresh": false,
-      "age_hours": 224.8,
+      "age_hours": 250.4,
       "entity_type": null,
       "entities": {
         "movies": null,
@@ -3440,7 +3393,7 @@
     "source_job": "WARROOM-FULL-RECOMPUTE"
   },
   "kpis": {
-    "agents_running": 10,
+    "agents_running": 12,
     "agents_total": 51,
     "agents_live_total": 14,
     "scrapers_live": 14,
@@ -3448,7 +3401,7 @@
     "s3_gb": 1615.7,
     "parent_key_rows": 861878,
     "tasks_open": 71,
-    "build_events_today": 1,
+    "build_events_today": 0,
     "model_routing": "haiku+sonnet+opus",
     "haiku_pct_today": 0,
     "eidr_coverage_pct": 28.7,
@@ -3465,13 +3418,6 @@
     "trend": "stable"
   },
   "recent_activity": [
-    {
-      "type": "build",
-      "text": "✅  — ",
-      "ts": "",
-      "layer": "APP",
-      "component": "build-auto"
-    },
     {
       "type": "build",
       "text": "NIELSEN-DBX-003 — AMRLD Phase 3 production resubmit (hardened path assertions, D",
@@ -3538,7 +3484,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/load-tmdb-deltas.js >> /Users/shivashish/SaSMaster/logs/tmdb-deltas.log 2>&1",
       "channel": "—",
       "weekly": true,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "*:*/5",
@@ -4608,6 +4554,13 @@
       "est": "—"
     },
     {
+      "title": "Weekly Business Review — 2026-06-23 → 2026-06-22",
+      "status": "REVIEW",
+      "priority": "REVIEW",
+      "tag": "PENDING",
+      "est": "—"
+    },
+    {
       "title": "NIELSEN-DBX-003 — AMRLD Phase 3 production resubmit (hardened path assertions, DateType fix, post-write validation)",
       "status": "DONE",
       "priority": "DONE",
@@ -4644,34 +4597,6 @@
     },
     {
       "title": "SCHEMA-V1-RETIRE-001 — Cold-archive v1 to S3, drop _v1 tables + broken views",
-      "status": "DONE",
-      "priority": "DONE",
-      "tag": "DONE",
-      "est": "—"
-    },
-    {
-      "title": "SCHEMA-PARITY-001 — Prove v2 lost no assets vs v1 baseline",
-      "status": "DONE",
-      "priority": "DONE",
-      "tag": "DONE",
-      "est": "—"
-    },
-    {
-      "title": "SCHEMA-CURATE-001 — Build 4 curated tables + v_curated_full; portal cutover",
-      "status": "DONE",
-      "priority": "DONE",
-      "tag": "DONE",
-      "est": "—"
-    },
-    {
-      "title": "SCHEMA-ALTID-MIGRATE-001 — Reattach 345K Wikidata alt-IDs to v2 PKIDs",
-      "status": "DONE",
-      "priority": "DONE",
-      "tag": "DONE",
-      "est": "—"
-    },
-    {
-      "title": "SCHEMA-MATCH-001 — Mint v2 spine via 5-tier cascade + UUIDv5",
       "status": "DONE",
       "priority": "DONE",
       "tag": "DONE",
@@ -4714,130 +4639,21 @@
       "category": "Build",
       "path": "",
       "completed_at": "2026-06-20"
-    },
-    {
-      "title": "SCHEMA-PARITY-001 — Prove v2 lost no assets vs v1 baseline",
-      "category": "Build",
-      "path": "",
-      "completed_at": "2026-06-20"
-    },
-    {
-      "title": "SCHEMA-CURATE-001 — Build 4 curated tables + v_curated_full; portal cutover",
-      "category": "Portal",
-      "path": "",
-      "completed_at": "2026-06-20"
-    },
-    {
-      "title": "SCHEMA-ALTID-MIGRATE-001 — Reattach 345K Wikidata alt-IDs to v2 PKIDs",
-      "category": "Build",
-      "path": "",
-      "completed_at": "2026-06-20"
-    },
-    {
-      "title": "SCHEMA-MATCH-001 — Mint v2 spine via 5-tier cascade + UUIDv5",
-      "category": "Build",
-      "path": "",
-      "completed_at": "2026-06-20"
     }
   ],
   "slack_feed": {
-    "builds": [
-      {
-        "ts": "12:06 AM",
-        "text": "✅ NIELSEN-DBX-003 — AMRLD Phase 3 production resubmit (hardened path assertions, DateType fix, post-write validation)"
-      },
-      {
-        "ts": "Jun 19",
-        "text": "✅ SOURCE-QUALITY-001 — Fix source data defects before next delta"
-      },
-      {
-        "ts": "Jun 19",
-        "text": "✅ SCHEMA-EIDR-001 Part A — Wikidata P2704 harvest + staging loader scaffold"
-      },
-      {
-        "ts": "Jun 19",
-        "text": "✅ SCHEMA-ALTID-TIER-AUDIT-001 — Audit CONFIRMED→CERTIFIED promotion in alt_ids"
-      },
-      {
-        "ts": "12:00 PM",
-        "text": "📊 Spawned extract-build-lessons.js (non-blocking)"
-      },
-      {
-        "ts": "12:00 PM",
-        "text": "📊 Spawned extract-build-lessons.js (non-blocking)"
-      }
-    ],
-    "intel": [
-      {
-        "ts": "Apr 20",
-        "text": "📡 36 signals from 10 sources — Evan Shapiro sweep complete"
-      },
-      {
-        "ts": "Apr 20",
-        "text": "📑 10/10 companies fetched — XBRL revenue + YoY delta computed"
-      },
-      {
-        "ts": "Apr 21",
-        "text": "📡 467K/1.18M titles loaded → s3://sasmaster-2026/tmdb_dev/ (39.4%)"
-      },
-      {
-        "ts": "6:00 AM",
-        "text": "📡 Brief posted to #sasmaster-intel ✅"
-      },
-      {
-        "ts": "6:00 AM",
-        "text": "📡 Brief posted to #sasmaster-intel ✅"
-      },
-      {
-        "ts": "6:30 AM",
-        "text": "📑 ═══ Done: 16/16 | 1 companies with new filings ═══"
-      },
-      {
-        "ts": "6:30 AM",
-        "text": "📑 ═══ Done: 16/16 | 1 companies with new filings ═══"
-      }
-    ],
-    "content": [
-      {
-        "ts": "Jun 15",
-        "text": "✍️ Slack unavailable — theme prompt skipped, will retry next scheduled run"
-      },
-      {
-        "ts": "Jun 15",
-        "text": "✍️ Slack unavailable — theme prompt skipped, will retry next scheduled run"
-      },
-      {
-        "ts": "Jun 15",
-        "text": "✍️ Slack post attempt 3/3 failed: An API error occurred: invalid_arguments — giving up"
-      },
-      {
-        "ts": "5:00 AM",
-        "text": "📺 Posted digest (1360 chars) to #sasmaster-intel"
-      },
-      {
-        "ts": "5:00 AM",
-        "text": "📺 TV Series/Top Rated — 20 items"
-      },
-      {
-        "ts": "5:00 AM",
-        "text": "📺 TV Series/Popular — 20 items"
-      },
-      {
-        "ts": "Jun 14",
-        "text": "🗂️ FATAL: 400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Pl"
-      }
-    ]
+    "builds": [],
+    "intel": [],
+    "content": []
   },
   "cost_summary": {
     "total_cost_usd": 55.6261,
-    "mtd_cost_usd": 55.5424,
     "entry_count": 27,
     "model_breakdown": {
       "claude-sonnet-4-6": 55.6224,
       "claude-haiku-4-5-20251001": 0.0037272,
       "none": 0
-    },
-    "authority": "cost-log.jsonl"
+    }
   },
   "portal_coverage": {
     "baseline": "post-react-migration",
@@ -4861,7 +4677,7 @@
     "weekly_claude_design_pct": 23,
     "weekly_resets_at": "2026-05-29T22:00:00-04:00",
     "cache_hit_rate_pct": 100,
-    "cache_hit_updated": "2026-06-20T08:55:00.527027+00:00",
+    "cache_hit_updated": "2026-06-21T08:55:01.516559+00:00",
     "billing_mode": "api_usage",
     "monthly_cap_usd": 500,
     "monthly_pace_warn_usd": 400,
@@ -4881,55 +4697,18 @@
     "_tier_logic": "today_spend<15 NORMAL | 15-25 WARN (slack, normal routing) | 25-40 FALLBACK (Sonnet exec->Haiku; model-pinned exempt) | >=40 PAUSE (halt Sonnet, only Haiku+Opus-pinned run, requires human resume). MTD>=400 MONTHLY_PACE_WARN regardless of daily tier; MTD>=500 align to console hard cap."
   },
   "token_projection": {
-    "week_cost_usd": 55.5424,
+    "week_cost_usd": 0,
     "week_tokens": 0,
-    "projected_week_cost_usd": 55.5424,
+    "projected_week_cost_usd": 0,
     "pct_elapsed": 100,
-    "daily_cost": {
-      "2026-06-17": 23.5428,
-      "2026-06-19": 13.1821,
-      "2026-06-20": 8.8915,
-      "2026-06-21": 9.926
-    },
-    "top_consumers": [
-      {
-        "id": "TASK-20260617-01",
-        "cost_usd": 23.5428,
-        "tokens": 0,
-        "model": "unknown"
-      },
-      {
-        "id": "TASK-20260619-01",
-        "cost_usd": 13.1821,
-        "tokens": 0,
-        "model": "unknown"
-      },
-      {
-        "id": "TASK-20260620-01",
-        "cost_usd": 8.8915,
-        "tokens": 0,
-        "model": "unknown"
-      },
-      {
-        "id": "TASK-20260621-01",
-        "cost_usd": 9.926,
-        "tokens": 0,
-        "model": "unknown"
-      }
-    ],
+    "daily_cost": {},
+    "top_consumers": [],
     "recommendations": [
       {
         "type": "caching",
         "agent": "all-agents",
         "action": "Prompt caching wired on intel agents + Dr. Scoop — verify first cache_creation_input_tokens > 0 on next cron run",
-        "est_save_usd_wk": 27.77,
-        "severity": "amber"
-      },
-      {
-        "type": "batching",
-        "agent": "build-loop",
-        "action": "Batch short tasks (<5K token context) into single Claude Code sessions to amortize system-prompt overhead — reduces per-task input tokens by ~30%",
-        "est_save_usd_wk": 16.66,
+        "est_save_usd_wk": 0,
         "severity": "amber"
       },
       {
@@ -4940,13 +4719,13 @@
         "severity": "green"
       }
     ],
-    "week_start": "2026-06-15T04:00:00.000Z",
+    "week_start": "2026-06-22T04:00:00.000Z",
     "reset_at": "2026-05-30T02:00:00.000Z"
   },
   "source_freshness": [
     {
       "source": "JARVIS / Railway heartbeat",
-      "last_updated": "2026-06-21T06:31:21.028Z",
+      "last_updated": "2026-06-22T08:06:56.164Z",
       "threshold_mins": 10,
       "age_mins": 0,
       "status": "ok"
@@ -4955,15 +4734,15 @@
       "source": "TMDB scraper",
       "last_updated": "2026-06-21T06:02:14.521Z",
       "threshold_mins": 1500,
-      "age_mins": 29,
-      "status": "ok"
+      "age_mins": 1565,
+      "status": "stale"
     },
     {
       "source": "S3 Lake sizes",
       "last_updated": "2026-06-21T06:29:13.675Z",
       "threshold_mins": 1560,
-      "age_mins": 2,
-      "status": "ok"
+      "age_mins": 1538,
+      "status": "warn"
     },
     {
       "source": "Nielsen VIEWERSHIP",
@@ -4974,27 +4753,27 @@
     },
     {
       "source": "Build events log",
-      "last_updated": "2026-06-21T04:09:15.266Z",
+      "last_updated": null,
       "threshold_mins": 240,
-      "age_mins": 142,
-      "status": "warn"
+      "age_mins": null,
+      "status": "unknown"
     },
     {
       "source": "Token refresh",
-      "last_updated": "2026-06-21T06:07:34.000Z",
+      "last_updated": "2026-06-22T07:59:59.000Z",
       "threshold_mins": 300,
-      "age_mins": 24,
+      "age_mins": 7,
       "status": "ok"
     }
   ],
   "health": {
-    "score": 81,
+    "score": 80,
     "grade": "amber",
     "floor": null,
     "components": {
-      "agents": 71,
+      "agents": 86,
       "canaries": 100,
-      "freshness": 100,
+      "freshness": 75,
       "cron": 8
     },
     "formula_version": "v1",
@@ -5012,25 +4791,80 @@
         "amber": 60
       }
     },
-    "computed_at": "2026-06-21T06:31:21.032Z"
+    "computed_at": "2026-06-22T08:06:56.165Z"
   },
-  "follow_up_count": 3,
+  "follow_up_count": 2,
   "follow_up_items": [
     {
       "type": "agent_error",
-      "name": "Financial Analyst"
-    },
-    {
-      "type": "agent_error",
-      "name": "Weekly Review"
-    },
-    {
-      "type": "agent_error",
       "name": "IAB Intel"
+    },
+    {
+      "type": "freshness_breach",
+      "name": "TMDB scraper"
     }
   ],
   "ask": {
     "url": "/api/ask",
     "enabled": true
+  },
+  "last_updated": "2026-06-22T08:06:58.475Z",
+  "overnight_debrief": {
+    "date": "Sun Jun 21 2026",
+    "ran": [
+      {
+        "time": "00:09",
+        "agent": "Nightly Build",
+        "result": "8m 1s",
+        "status": "ok"
+      },
+      {
+        "time": "02:02",
+        "agent": "TMDB Bulk Load",
+        "result": "All phases complete → s3://sasmaster-2026/tmdb_dev/",
+        "status": "ok"
+      },
+      {
+        "time": "05:00",
+        "agent": "TMDB Daily Agent",
+        "result": "12 endpoints → #sasmaster-intel",
+        "status": "ok"
+      },
+      {
+        "time": "05:02",
+        "agent": "Daily Visuals",
+        "result": "Board + Architecture screenshots posted to Slack",
+        "status": "ok"
+      },
+      {
+        "time": "06:00",
+        "agent": "Media Intel Agent",
+        "result": "29 items from 8 sources → #sasmaster-intel",
+        "status": "ok"
+      },
+      {
+        "time": "06:30",
+        "agent": "EDGAR Scraper v2",
+        "result": "16/16 companies | 0 with new filings",
+        "status": "ok"
+      },
+      {
+        "time": "20:11",
+        "agent": "Financial Analyst",
+        "result": "15/16 companies analyzed → S3 + Slack",
+        "status": "ok"
+      }
+    ],
+    "failed": []
+  },
+  "tmdb_progress": {
+    "running": false,
+    "phase": "complete",
+    "phase_total": 3,
+    "complete": 1,
+    "total": 1,
+    "pct": 100,
+    "s3_path": "s3://sasmaster-2026/tmdb_dev/",
+    "last_updated": "2026-06-21T06:02:14.521Z"
   }
 }
