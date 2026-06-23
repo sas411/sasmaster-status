@@ -1,5 +1,5 @@
 {
-  "query_ts": "2026-06-22T21:21:57.490558+00:00",
+  "query_ts": "2026-06-22T20:45:00.000000+00:00",
   "schema_version": "warroom-data-v1",
   "s3": {
     "tmdb_dev": {
@@ -105,15 +105,57 @@
   },
   "parent_key": {
     "source": "MD:sasmaster.prod.parent_key",
-    "total": 12988681,
-    "gold": 32886,
-    "silver": 729259,
-    "bronze": 12226536,
+    "total": 12955801,
+    "total_pkids": 3286247,
+    "total_cids": 9669554,
+    "gold": 204907,
+    "silver": 557723,
+    "bronze": 12193171,
     "unscored": 0,
-    "eidr_matched": 32886,
-    "eidr_coverage_pct": 0.25,
-    "tmdb_matched": 1387100,
-    "tmdb_coverage_pct": 10.68
+    "by_confidence_band": {
+      "CERTIFIED": 204907,
+      "CONFIRMED": 557723,
+      "PROVISIONAL": 1898487,
+      "HELD": 625130
+    },
+    "by_type": {
+      "Movie": {
+        "total": 2319755,
+        "gold": 185413,
+        "silver": 481150,
+        "bronze": 1653192,
+        "eidr_matched": 277009,
+        "tmdb_matched": 638708
+      },
+      "TVSeries": {
+        "total": 341362,
+        "gold": 19494,
+        "silver": 76573,
+        "bronze": 245295,
+        "eidr_matched": 28616,
+        "tmdb_matched": 90557
+      },
+      "Episode": {
+        "total": 9669554,
+        "gold": 0,
+        "silver": 0,
+        "bronze": 9669554,
+        "eidr_matched": 0,
+        "tmdb_matched": 0
+      },
+      "TMDB_Orphan": {
+        "total": 625130,
+        "gold": 0,
+        "silver": 0,
+        "bronze": 625130,
+        "eidr_matched": 0,
+        "tmdb_matched": 625130
+      }
+    },
+    "eidr_matched": 305625,
+    "eidr_coverage_pct": 9.3,
+    "tmdb_matched": 1354395,
+    "tmdb_coverage_pct": 41.21
   },
   "eidr": {
     "source": "MD:sasmaster.prod.eidr_staging",
