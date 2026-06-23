@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-22T23:51:14.499Z",
-  "generated_at": "2026-06-22T23:51:14.500Z",
+  "generated": "2026-06-23T04:12:23.878Z",
+  "generated_at": "2026-06-23T04:12:23.878Z",
   "system": {
     "jarvis": {
       "alive": true
@@ -1738,7 +1738,40 @@
         "approvalId": "wbr_mqog8mog"
       }
     ],
-    "done": [],
+    "done": [
+      {
+        "id": "done-0",
+        "text": "SEARCH-GUARD-001 — web_search spend metering per agent",
+        "full": "SEARCH-GUARD-001 — web_search spend metering per agent",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-1",
+        "text": "MEMSTORE-LEAN-001 — Phase 5 tombstone purge verified clean",
+        "full": "MEMSTORE-LEAN-001 — Phase 5 tombstone purge verified clean",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-2",
+        "text": "MODEL-ROUTE-001 — TASKS.md sync (code already shipped in commit 8d183e73)",
+        "full": "MODEL-ROUTE-001 — TASKS.md sync (code already shipped in commit 8d183e73)",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      },
+      {
+        "id": "done-3",
+        "text": "BATCH-FUSION-001 — parser bug fix + held batch pilot PASS",
+        "full": "BATCH-FUSION-001 — parser bug fix + held batch pilot PASS",
+        "sprint": "",
+        "tag": "DONE",
+        "priority": "DONE"
+      }
+    ],
     "qaDrafts": [],
     "memoryPending": [
       "EIDR auth activation → trigger enrich against staged S3 IDs",
@@ -1777,7 +1810,8 @@
     }
   },
   "heatmap": {
-    "** 2026-06": 4,
+    "2026-06-23": 8,
+    "** 2026-06": 2,
     "2026-06-21": 1,
     "2026-06-20": 8
   },
@@ -1840,8 +1874,8 @@
       "log": "linkedin-agent.log",
       "channel": "#sasmaster-content",
       "jobId": "linkedin-agent",
-      "lastRun": "2026-06-16T00:00:07.474Z",
-      "lastOutput": "Slack unavailable — theme prompt skipped, will retry next scheduled run",
+      "lastRun": "2026-06-23T00:00:01.757Z",
+      "lastOutput": "No theme set — prompted Shiv for direction",
       "status": "healthy"
     },
     {
@@ -1924,8 +1958,8 @@
       "log": "railway-monitor.log",
       "channel": "#sasmaster-builds",
       "jobId": null,
-      "lastRun": "2026-06-22T23:45:01.713Z",
-      "lastOutput": "✅ All healthy — uptime streak: 70h 59m",
+      "lastRun": "2026-06-23T04:00:02.561Z",
+      "lastOutput": "✅ All healthy — uptime streak: 75h 15m",
       "status": "healthy"
     },
     {
@@ -2035,7 +2069,7 @@
       "jobId": null,
       "type": "subagent",
       "descOverride": "Mac 64GB compute worker. Polls Railway /tasks/pending-compute. Capabilities: duckdb / scraper / claude-code / ml.",
-      "lastRun": "2026-06-22T23:45:05.177Z",
+      "lastRun": "2026-06-23T04:10:05.442Z",
       "lastOutput": "Mac 64GB compute worker. Polls Railway /tasks/pending-compute. Capabilities: duckdb / scraper / claude-code / ml.",
       "status": "healthy"
     },
@@ -2536,7 +2570,32 @@
       "status": "idle"
     }
   ],
-  "recentBuilds": [],
+  "recentBuilds": [
+    {
+      "task": "SEARCH-GUARD-001 — web_search spend metering per agent",
+      "date": "2026-06-23 00:07",
+      "notes": "Built scripts/search_guard.py — reads cost-log.jsonl last 24h, groups web_search calls\nper agent (known-agent list + tas",
+      "status": "DONE"
+    },
+    {
+      "task": "MEMSTORE-LEAN-001 — Phase 5 tombstone purge verified clean",
+      "date": "2026-06-23 00:07",
+      "notes": "Ran memstore_purge_bulk.py --dry-run. Result: 0 bulk spokes to purge, 0 retired entries.\n3 bulk-MOC rollup entries (bulk",
+      "status": "DONE"
+    },
+    {
+      "task": "MODEL-ROUTE-001 — TASKS.md sync (code already shipped in commit 8d183e73)",
+      "date": "2026-06-23 00:07",
+      "notes": "Commit 8d183e73 already built the three-tier model router but TASKS.md was not\nupdated to [ ]→[x]. Verified: drscoop-eff",
+      "status": "DONE"
+    },
+    {
+      "task": "BATCH-FUSION-001 — parser bug fix + held batch pilot PASS",
+      "date": "2026-06-23 00:07",
+      "notes": "Fixed critical parser bug in batch_fusion_001.py — Haiku was wrapping JSON in markdown\nfences (```json...```) but the sc",
+      "status": "DONE"
+    }
+  ],
   "intel_feed": [
     {
       "source": "MEDIA INTEL",
@@ -2781,8 +2840,8 @@
       "size_gb": 34.4,
       "object_count": 7998,
       "last_updated": "2026-06-21T02:00:30.000Z",
-      "fresh": true,
-      "age_hours": 21.7,
+      "fresh": false,
+      "age_hours": 26.1,
       "entity_type": "entity",
       "entities": {
         "movies": 1199613,
@@ -2795,7 +2854,7 @@
       },
       "funnel": null,
       "untyped": null,
-      "computed_at": "2026-06-21T04:09:55.631011+00:00",
+      "computed_at": "2026-06-23T04:09:49.269591+00:00",
       "source_job": "WARROOM-FULL-RECOMPUTE",
       "stale": false,
       "flag": null,
@@ -2810,7 +2869,7 @@
       "object_count": 28,
       "last_updated": "2026-06-09T08:21:57.000Z",
       "fresh": false,
-      "age_hours": 327.5,
+      "age_hours": 331.8,
       "entity_type": "entity",
       "entities": {
         "movies": 2374753,
@@ -2823,7 +2882,7 @@
       },
       "funnel": null,
       "untyped": null,
-      "computed_at": "2026-06-21T04:09:55.631011+00:00",
+      "computed_at": "2026-06-23T04:09:49.269591+00:00",
       "source_job": "WARROOM-FULL-RECOMPUTE",
       "stale": false,
       "flag": null,
@@ -2838,7 +2897,7 @@
       "object_count": 7,
       "last_updated": "2026-06-09T08:19:56.000Z",
       "fresh": false,
-      "age_hours": 327.5,
+      "age_hours": 331.8,
       "entity_type": "na",
       "entities": {
         "movies": null,
@@ -2851,7 +2910,7 @@
       },
       "funnel": null,
       "untyped": null,
-      "computed_at": "2026-06-21T04:09:55.631011+00:00",
+      "computed_at": "2026-06-23T04:09:49.269591+00:00",
       "source_job": "WARROOM-FULL-RECOMPUTE",
       "stale": false,
       "flag": null,
@@ -2866,7 +2925,7 @@
       "object_count": 20,
       "last_updated": "2026-06-08T07:05:56.000Z",
       "fresh": true,
-      "age_hours": 5.2,
+      "age_hours": 9.6,
       "entity_type": "entity_funnel",
       "entities": {
         "movies": null,
@@ -2898,7 +2957,7 @@
         }
       },
       "untyped": 306805,
-      "computed_at": "2026-06-21T04:09:55.631011+00:00",
+      "computed_at": "2026-06-23T04:09:49.269591+00:00",
       "source_job": "WARROOM-FULL-RECOMPUTE",
       "stale": false,
       "flag": null,
@@ -2913,7 +2972,7 @@
       "object_count": 9,
       "last_updated": "2026-06-11T02:03:21.000Z",
       "fresh": false,
-      "age_hours": 285.8,
+      "age_hours": 290.1,
       "entity_type": "entity",
       "entities": {
         "movies": 31049,
@@ -2926,7 +2985,7 @@
       },
       "funnel": null,
       "untyped": null,
-      "computed_at": "2026-06-21T04:09:55.631011+00:00",
+      "computed_at": "2026-06-23T04:09:49.269591+00:00",
       "source_job": "WARROOM-FULL-RECOMPUTE",
       "stale": false,
       "flag": "Movies/Episodes/Sports from raw GN CSV catalog + gn_native_nielsen net-new; TV Series from GN_SERIES_LIST.xlsx parquet + gn_native_nielsen.",
@@ -2941,7 +3000,7 @@
       "object_count": 16,
       "last_updated": "2026-06-11T02:03:21.000Z",
       "fresh": false,
-      "age_hours": 285.8,
+      "age_hours": 290.1,
       "entity_type": "entity",
       "entities": {
         "movies": 18948,
@@ -2954,7 +3013,7 @@
       },
       "funnel": null,
       "untyped": null,
-      "computed_at": "2026-06-21T04:09:55.631011+00:00",
+      "computed_at": "2026-06-23T04:09:49.269591+00:00",
       "source_job": "WARROOM-FULL-RECOMPUTE",
       "stale": false,
       "flag": "TV Series from fyi/series parquet (most complete); Movies/Episodes/Sports/News from fyi_prog raw catalog.",
@@ -2969,7 +3028,7 @@
       "object_count": 12,
       "last_updated": "2026-06-05T08:59:40.000Z",
       "fresh": false,
-      "age_hours": 422.8,
+      "age_hours": 427.2,
       "entity_type": "entity",
       "entities": {
         "movies": 33924,
@@ -2982,7 +3041,7 @@
       },
       "funnel": null,
       "untyped": null,
-      "computed_at": "2026-06-21T04:09:55.631011+00:00",
+      "computed_at": "2026-06-23T04:09:49.269591+00:00",
       "source_job": "WARROOM-FULL-RECOMPUTE",
       "stale": false,
       "flag": null,
@@ -2996,8 +3055,8 @@
       "size_gb": 0.45,
       "object_count": 19,
       "last_updated": "2026-06-11T02:03:23.000Z",
-      "fresh": false,
-      "age_hours": 285.8,
+      "fresh": true,
+      "age_hours": 8.2,
       "entity_type": "na",
       "entities": {
         "movies": null,
@@ -3010,7 +3069,7 @@
       },
       "funnel": null,
       "untyped": null,
-      "computed_at": "2026-06-21T04:09:55.631011+00:00",
+      "computed_at": "2026-06-23T04:09:49.269591+00:00",
       "source_job": "WARROOM-FULL-RECOMPUTE",
       "stale": false,
       "flag": null,
@@ -3025,7 +3084,7 @@
       "object_count": 11,
       "last_updated": "2026-06-16T09:33:28.000Z",
       "fresh": false,
-      "age_hours": 158.3,
+      "age_hours": 162.6,
       "entity_type": "na",
       "entities": {
         "movies": null,
@@ -3038,7 +3097,7 @@
       },
       "funnel": null,
       "untyped": null,
-      "computed_at": "2026-06-21T04:09:55.631011+00:00",
+      "computed_at": "2026-06-23T04:09:49.269591+00:00",
       "source_job": "WARROOM-FULL-RECOMPUTE",
       "stale": false,
       "flag": null,
@@ -3053,7 +3112,7 @@
       "object_count": 3,
       "last_updated": "2026-06-21T02:02:12.000Z",
       "fresh": false,
-      "age_hours": 45.8,
+      "age_hours": 50.1,
       "entity_type": "na",
       "entities": {
         "movies": null,
@@ -3066,7 +3125,7 @@
       },
       "funnel": null,
       "untyped": null,
-      "computed_at": "2026-06-21T04:09:55.631011+00:00",
+      "computed_at": "2026-06-23T04:09:49.269591+00:00",
       "source_job": "WARROOM-FULL-RECOMPUTE",
       "stale": false,
       "flag": null,
@@ -3165,7 +3224,7 @@
       "object_count": 3587,
       "last_updated": "2026-06-09T00:00:00.000Z",
       "fresh": false,
-      "age_hours": 172.6,
+      "age_hours": null,
       "entity_type": null,
       "entities": {
         "movies": null,
@@ -3193,7 +3252,7 @@
       "object_count": 1750,
       "last_updated": "2026-06-10T00:00:00.000Z",
       "fresh": false,
-      "age_hours": 296.2,
+      "age_hours": 300.5,
       "entity_type": null,
       "entities": {
         "movies": null,
@@ -3221,7 +3280,7 @@
       "object_count": 412,
       "last_updated": "2026-06-10T00:00:00.000Z",
       "fresh": false,
-      "age_hours": 294.6,
+      "age_hours": 298.9,
       "entity_type": null,
       "entities": {
         "movies": null,
@@ -3249,7 +3308,7 @@
       "object_count": 0,
       "last_updated": "2026-06-11T00:00:00.000Z",
       "fresh": false,
-      "age_hours": 260.7,
+      "age_hours": null,
       "entity_type": null,
       "entities": {
         "movies": null,
@@ -3277,7 +3336,7 @@
       "object_count": 0,
       "last_updated": "2026-06-11T00:00:00.000Z",
       "fresh": false,
-      "age_hours": 266.2,
+      "age_hours": 270.5,
       "entity_type": null,
       "entities": {
         "movies": null,
@@ -3303,7 +3362,7 @@
     "gn_movies": 31049,
     "fyi_movies": 18948,
     "opus_movies": 33924,
-    "computed_at": "2026-06-21T04:09:55.631011+00:00",
+    "computed_at": "2026-06-23T04:09:49.269591+00:00",
     "source_job": "WARROOM-FULL-RECOMPUTE"
   },
   "kpis": {
@@ -3315,7 +3374,7 @@
     "s3_gb": 1615.7,
     "parent_key_rows": 861878,
     "tasks_open": 71,
-    "build_events_today": 0,
+    "build_events_today": 1,
     "model_routing": "haiku+sonnet+opus",
     "haiku_pct_today": 0,
     "eidr_coverage_pct": 28.7,
@@ -3325,13 +3384,40 @@
   },
   "build_trends": {
     "avg_cost_usd": 0,
-    "avg_duration_s": 729.8,
+    "avg_duration_s": 702.6,
     "error_rate": 0,
-    "total_features_7d": 6,
+    "total_features_7d": 7,
     "builds_7d": 0,
     "trend": "stable"
   },
   "recent_activity": [
+    {
+      "type": "build",
+      "text": "✅  — ",
+      "ts": "",
+      "layer": "APP",
+      "component": "build-auto"
+    },
+    {
+      "type": "build",
+      "text": "SEARCH-GUARD-001 — web_search spend metering per agent",
+      "ts": "2026-06-23 00:07"
+    },
+    {
+      "type": "build",
+      "text": "MEMSTORE-LEAN-001 — Phase 5 tombstone purge verified clean",
+      "ts": "2026-06-23 00:07"
+    },
+    {
+      "type": "build",
+      "text": "MODEL-ROUTE-001 — TASKS.md sync (code already shipped in commit 8d183e73)",
+      "ts": "2026-06-23 00:07"
+    },
+    {
+      "type": "build",
+      "text": "BATCH-FUSION-001 — parser bug fix + held batch pilot PASS",
+      "ts": "2026-06-23 00:07"
+    },
     {
       "type": "intel",
       "text": "36 signals from 10 sources — Evan Shapiro sweep complete",
@@ -3464,7 +3550,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/load-tmdb-to-s3.js all >> /Users/shivashish/SaSMaster/logs/tmdb-load.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "2:00 AM",
@@ -3480,7 +3566,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/services/cost-agent/collect.js >> /Users/shivashish/SaSMaster/logs/cost-agent.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "2:00 AM",
@@ -3488,7 +3574,7 @@
       "command": "/opt/homebrew/bin/python3 /Users/shivashish/SaSMaster/pil-trim-sweep.py >> /Users/shivashish/SaSMaster/logs/pil-trim-sweep.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "2:30 AM",
@@ -3520,7 +3606,7 @@
       "command": "/usr/bin/env python3 /Users/shivashish/SaSMaster/scripts/spine_forge.py --class movies >> /Users/shivashish/SaSMaster/logs/spine-forge.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "4:30 AM",
@@ -3528,7 +3614,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/sync-memory-warm.js >> /Users/shivashish/SaSMaster/logs/memory-warm-sync.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "4:55 AM",
@@ -3536,7 +3622,7 @@
       "command": "/usr/bin/env python3 /Users/shivashish/SaSMaster/scripts/cache-metrics.py >> /Users/shivashish/SaSMaster/logs/cache-metrics.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "4:58 AM",
@@ -3560,7 +3646,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/tmdb-daily-agent.js >> /Users/shivashish/SaSMaster/logs/tmdb-agent.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "5:00 AM",
@@ -3576,7 +3662,7 @@
       "command": "TZ=America/New_York bash /Users/shivashish/SaSMaster/scripts/integrity-check.sh >> /Users/shivashish/SaSMaster/logs/integrity-check.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "5:02 AM",
@@ -3592,7 +3678,7 @@
       "command": "/usr/bin/env python3 /Users/shivashish/SaSMaster/financial_agent/builder.py >> /Users/shivashish/SaSMaster/financial_agent/builder.log 2>&1",
       "channel": "#sasmaster-builds",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:00 AM",
@@ -3600,7 +3686,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/media-intel-agent.js >> /Users/shivashish/SaSMaster/logs/media-intel.log 2>&1",
       "channel": "#sasmaster-intel",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:00 AM",
@@ -3608,7 +3694,7 @@
       "command": "bash /Users/shivashish/SaSMaster/scripts/schema-drift-monitor.sh >> /Users/shivashish/SaSMaster/logs/schema-drift-monitor.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:00 AM",
@@ -3616,7 +3702,7 @@
       "command": "node /Users/shivashish/SaSMaster/scripts/portal-nielsen-summary.js >> /Users/shivashish/SaSMaster/logs/portal-nielsen-summary.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:00 AM",
@@ -3624,7 +3710,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/services/cost-agent/collect.js >> /Users/shivashish/SaSMaster/logs/cost-agent.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:05 AM",
@@ -3632,7 +3718,7 @@
       "command": "bash /Users/shivashish/SaSMaster/scripts/morning-package.sh >> /Users/shivashish/SaSMaster/logs/morning-package.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:15 AM",
@@ -3640,7 +3726,7 @@
       "command": "/usr/bin/env python3 /Users/shivashish/SaSMaster/scripts/tn_scraper.py daily >> /Users/shivashish/SaSMaster/logs/boxoffice-daily.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:15 AM",
@@ -3656,7 +3742,7 @@
       "command": "/usr/bin/env python3 /Users/shivashish/SaSMaster/scripts/tn_resolver.py daily_chart >> /Users/shivashish/SaSMaster/logs/boxoffice-resolver-daily.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:30 AM",
@@ -3664,7 +3750,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/edgar-scraper.js >> /Users/shivashish/SaSMaster/logs/sec-edgar.log 2>&1",
       "channel": "#sasmaster-intel",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "6:30 AM",
@@ -3712,7 +3798,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/iab-agent.js >> /Users/shivashish/SaSMaster/logs/iab-agent.log 2>&1",
       "channel": "—",
       "weekly": true,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "7:00 AM",
@@ -3720,7 +3806,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/memory-hygiene.js >> /Users/shivashish/SaSMaster/logs/memory-hygiene.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "7:00 AM",
@@ -3728,7 +3814,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/fusion-qa-agent.js >> /Users/shivashish/SaSMaster/logs/fusion-qa.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "7:00 AM",
@@ -3760,7 +3846,7 @@
       "command": "/usr/bin/env python3 /Users/shivashish/SaSMaster/scripts/tn_scraper.py weekend >> /Users/shivashish/SaSMaster/logs/boxoffice-weekend.log 2>&1",
       "channel": "—",
       "weekly": true,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "9:00 AM",
@@ -3776,7 +3862,7 @@
       "command": "cd /Users/shivashish/sasmaster-status && set -a && source /Users/shivashish/SaSMaster/.env && set +a && /opt/homebrew/opt/node@20/bin/node scripts/parity-gate.js >> /Users/shivashish/SaSMaster/logs/parity-gate.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "9:05 AM",
@@ -3784,7 +3870,7 @@
       "command": "/usr/bin/env python3 /Users/shivashish/SaSMaster/scripts/tn_resolver.py weekend_chart >> /Users/shivashish/SaSMaster/logs/boxoffice-resolver-weekend.log 2>&1",
       "channel": "—",
       "weekly": true,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "9:30 AM",
@@ -3792,7 +3878,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/security-watchdog.js >> /Users/shivashish/SaSMaster/logs/security-watchdog.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "9:30 AM",
@@ -3808,7 +3894,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/scripts/fleet-lesson-improver.js >> /Users/shivashish/SaSMaster/logs/fleet-lesson-improver.log 2>&1",
       "channel": "—",
       "weekly": true,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "10:00 AM",
@@ -3824,7 +3910,7 @@
       "command": "/opt/homebrew/opt/node@20/bin/node /Users/shivashish/SaSMaster/agents/donelog-analyst.js >> /Users/shivashish/SaSMaster/logs/donelog-analyst.log 2>&1",
       "channel": "—",
       "weekly": false,
-      "status": "done"
+      "status": "pending"
     },
     {
       "time": "2:00 PM",
@@ -4443,91 +4529,75 @@
       "priority": "REVIEW",
       "tag": "PENDING",
       "est": "—"
+    },
+    {
+      "title": "SEARCH-GUARD-001 — web_search spend metering per agent",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
+    },
+    {
+      "title": "MEMSTORE-LEAN-001 — Phase 5 tombstone purge verified clean",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
+    },
+    {
+      "title": "MODEL-ROUTE-001 — TASKS.md sync (code already shipped in commit 8d183e73)",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
+    },
+    {
+      "title": "BATCH-FUSION-001 — parser bug fix + held batch pilot PASS",
+      "status": "DONE",
+      "priority": "DONE",
+      "tag": "DONE",
+      "est": "—"
     }
   ],
-  "recent_completions": [],
+  "recent_completions": [
+    {
+      "title": "SEARCH-GUARD-001 — web_search spend metering per agent",
+      "category": "Agent",
+      "path": "",
+      "completed_at": "2026-06-23 00:07"
+    },
+    {
+      "title": "MEMSTORE-LEAN-001 — Phase 5 tombstone purge verified clean",
+      "category": "Build",
+      "path": "",
+      "completed_at": "2026-06-23 00:07"
+    },
+    {
+      "title": "MODEL-ROUTE-001 — TASKS.md sync (code already shipped in commit 8d183e73)",
+      "category": "Build",
+      "path": "",
+      "completed_at": "2026-06-23 00:07"
+    },
+    {
+      "title": "BATCH-FUSION-001 — parser bug fix + held batch pilot PASS",
+      "category": "Build",
+      "path": "",
+      "completed_at": "2026-06-23 00:07"
+    }
+  ],
   "slack_feed": {
-    "builds": [
-      {
-        "ts": "12:00 PM",
-        "text": "📊 Spawned extract-build-lessons.js (non-blocking)"
-      },
-      {
-        "ts": "12:00 PM",
-        "text": "📊 Spawned extract-build-lessons.js (non-blocking)"
-      }
-    ],
-    "intel": [
-      {
-        "ts": "Apr 20",
-        "text": "📡 36 signals from 10 sources — Evan Shapiro sweep complete"
-      },
-      {
-        "ts": "Apr 20",
-        "text": "📑 10/10 companies fetched — XBRL revenue + YoY delta computed"
-      },
-      {
-        "ts": "Apr 21",
-        "text": "📡 467K/1.18M titles loaded → s3://sasmaster-2026/tmdb_dev/ (39.4%)"
-      },
-      {
-        "ts": "6:00 AM",
-        "text": "📡 Brief posted to #sasmaster-intel ✅"
-      },
-      {
-        "ts": "6:00 AM",
-        "text": "📡 Brief posted to #sasmaster-intel ✅"
-      },
-      {
-        "ts": "6:30 AM",
-        "text": "📑 ═══ Done: 16/16 | 0 companies with new filings ═══"
-      },
-      {
-        "ts": "6:30 AM",
-        "text": "📑 ═══ Done: 16/16 | 0 companies with new filings ═══"
-      }
-    ],
-    "content": [
-      {
-        "ts": "Jun 15",
-        "text": "✍️ Slack unavailable — theme prompt skipped, will retry next scheduled run"
-      },
-      {
-        "ts": "Jun 15",
-        "text": "✍️ Slack unavailable — theme prompt skipped, will retry next scheduled run"
-      },
-      {
-        "ts": "Jun 15",
-        "text": "✍️ Slack post attempt 3/3 failed: An API error occurred: invalid_arguments — giving up"
-      },
-      {
-        "ts": "5:00 AM",
-        "text": "📺 Posted digest (1322 chars) to #sasmaster-intel"
-      },
-      {
-        "ts": "5:00 AM",
-        "text": "📺 TV Series/Top Rated — 20 items"
-      },
-      {
-        "ts": "5:00 AM",
-        "text": "📺 TV Series/Popular — 20 items"
-      },
-      {
-        "ts": "8:00 PM",
-        "text": "🗂️ Posted WBR wbr_mqog8mog to Slack"
-      }
-    ]
+    "builds": [],
+    "intel": [],
+    "content": []
   },
   "cost_summary": {
-    "total_cost_usd": 55.6261,
-    "mtd_cost_usd": 55.5424,
-    "entry_count": 27,
+    "total_cost_usd": 67.6222,
+    "entry_count": 28,
     "model_breakdown": {
-      "claude-sonnet-4-6": 55.6224,
+      "claude-sonnet-4-6": 67.6185,
       "claude-haiku-4-5-20251001": 0.0037272,
       "none": 0
-    },
-    "authority": "cost-log.jsonl"
+    }
   },
   "portal_coverage": {
     "baseline": "post-react-migration",
@@ -4571,18 +4641,34 @@
     "_tier_logic": "today_spend<15 NORMAL | 15-25 WARN (slack, normal routing) | 25-40 FALLBACK (Sonnet exec->Haiku; model-pinned exempt) | >=40 PAUSE (halt Sonnet, only Haiku+Opus-pinned run, requires human resume). MTD>=400 MONTHLY_PACE_WARN regardless of daily tier; MTD>=500 align to console hard cap."
   },
   "token_projection": {
-    "week_cost_usd": 0,
+    "week_cost_usd": 11.9961,
     "week_tokens": 0,
-    "projected_week_cost_usd": 0,
+    "projected_week_cost_usd": 11.9961,
     "pct_elapsed": 100,
-    "daily_cost": {},
-    "top_consumers": [],
+    "daily_cost": {
+      "2026-06-23": 11.9961
+    },
+    "top_consumers": [
+      {
+        "id": "TASK-20260623-01",
+        "cost_usd": 11.9961,
+        "tokens": 0,
+        "model": "unknown"
+      }
+    ],
     "recommendations": [
       {
         "type": "caching",
         "agent": "all-agents",
         "action": "Prompt caching wired on intel agents + Dr. Scoop — verify first cache_creation_input_tokens > 0 on next cron run",
-        "est_save_usd_wk": 0,
+        "est_save_usd_wk": 6,
+        "severity": "amber"
+      },
+      {
+        "type": "batching",
+        "agent": "build-loop",
+        "action": "Batch short tasks (<5K token context) into single Claude Code sessions to amortize system-prompt overhead — reduces per-task input tokens by ~30%",
+        "est_save_usd_wk": 3.6,
         "severity": "amber"
       },
       {
@@ -4599,7 +4685,7 @@
   "source_freshness": [
     {
       "source": "JARVIS / Railway heartbeat",
-      "last_updated": "2026-06-22T23:51:14.464Z",
+      "last_updated": "2026-06-23T04:12:23.877Z",
       "threshold_mins": 10,
       "age_mins": 0,
       "status": "ok"
@@ -4608,14 +4694,14 @@
       "source": "TMDB scraper",
       "last_updated": "2026-06-21T06:02:14.521Z",
       "threshold_mins": 1500,
-      "age_mins": 2509,
+      "age_mins": 2770,
       "status": "stale"
     },
     {
       "source": "S3 Lake sizes",
       "last_updated": "2026-06-21T06:29:13.675Z",
       "threshold_mins": 1560,
-      "age_mins": 2482,
+      "age_mins": 2743,
       "status": "stale"
     },
     {
@@ -4627,28 +4713,28 @@
     },
     {
       "source": "Build events log",
-      "last_updated": "2026-06-22T18:00:41.930Z",
+      "last_updated": "2026-06-23T04:09:19.944Z",
       "threshold_mins": 240,
-      "age_mins": 351,
-      "status": "stale"
+      "age_mins": 3,
+      "status": "ok"
     },
     {
       "source": "Token refresh",
-      "last_updated": "2026-06-22T23:00:00.000Z",
+      "last_updated": "2026-06-23T02:00:00.000Z",
       "threshold_mins": 300,
-      "age_mins": 51,
+      "age_mins": 132,
       "status": "ok"
     }
   ],
   "health": {
-    "score": 77,
+    "score": 78,
     "grade": "amber",
     "floor": null,
     "components": {
       "agents": 93,
       "canaries": 100,
-      "freshness": 40,
-      "cron": 45
+      "freshness": 60,
+      "cron": 2
     },
     "formula_version": "v1",
     "formula": {
@@ -4665,9 +4751,9 @@
         "amber": 60
       }
     },
-    "computed_at": "2026-06-22T23:51:14.498Z"
+    "computed_at": "2026-06-23T04:12:23.878Z"
   },
-  "follow_up_count": 3,
+  "follow_up_count": 2,
   "follow_up_items": [
     {
       "type": "freshness_breach",
@@ -4676,14 +4762,33 @@
     {
       "type": "freshness_breach",
       "name": "S3 Lake sizes"
-    },
-    {
-      "type": "freshness_breach",
-      "name": "Build events log"
     }
   ],
   "ask": {
     "url": "/api/ask",
     "enabled": true
+  },
+  "last_updated": "2026-06-23T04:12:34.880Z",
+  "overnight_debrief": {
+    "date": "Tue Jun 23 2026",
+    "ran": [
+      {
+        "time": "00:09",
+        "agent": "Nightly Build",
+        "result": "8m 59s",
+        "status": "ok"
+      }
+    ],
+    "failed": []
+  },
+  "tmdb_progress": {
+    "running": false,
+    "phase": "complete",
+    "phase_total": 3,
+    "complete": 1,
+    "total": 1,
+    "pct": 100,
+    "s3_path": "s3://sasmaster-2026/tmdb_dev/",
+    "last_updated": "2026-06-21T06:02:14.521Z"
   }
 }
