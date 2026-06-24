@@ -1460,7 +1460,7 @@ function buildMeasurementDrill(src,fallbackTitle){
   const lastRun=src.last_processed||'—';
 
   const tinyFilesHtml=src.tiny_files
-    ?`<div class="rth-tinyfiles">⚠ Sample extract only — these dates reflect ingested sample files, not the full archive coverage. Full date range may differ.</div>`
+    ?`<div class="rth-tinyfiles">⚠ ${src.tiny_files_note||'Sample extract only — these dates reflect ingested sample files, not the full archive coverage. Full date range may differ.'}</div>`
     :'';
   const header=`<div class="rt-header">
     <div class="rth-label">${src.s3_prefix||src.label||''}</div>
