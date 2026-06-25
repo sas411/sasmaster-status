@@ -1,14 +1,14 @@
 {
-  "generated": "2026-06-17T00:00:00Z",
+  "generated": "2026-06-25T00:00:00Z",
   "generated_by": "WARROOM-DRILLDOWN-ETL2-001",
   "sources": {
     "amrld": {
       "label": "AMRLD",
       "s3_prefix": "s3://sasmaster-2026/nielsen/amrld/",
       "description": "Audience Measurement Respondent-Level Data (V3.23)",
-      "overall_min": "2012-12-31",
-      "overall_max": "2026-06-08",
-      "last_processed": "2026-06-10",
+      "overall_min": "2007-09-26",
+      "overall_max": "2026-06-07",
+      "last_processed": "2026-06-20",
       "total_rows": null,
       "note": "8.2 GB raw \u00b7 60K files \u00b7 15 sub-folders \u00b7 ETL layer (amrld_etl/): 75.8 GB / 33 computed tables",
       "tiny_files": true,
@@ -81,11 +81,12 @@
           "id": "REC40",
           "description": "Commercial minutes / CCM",
           "file_type": "CCM",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
+          "processed": true,
+          "min_date": "2007-09-26",
+          "max_date": "2026-05-31",
           "row_count": null,
-          "last_processed": null
+          "last_processed": "2026-06-20",
+          "note": "43,588 files in S3 · date range from _date_str partition keys · uploaded 2026-06-20"
         },
         {
           "id": "REC47",
@@ -230,61 +231,56 @@
           "id": "REC32",
           "description": "Multi-segment quarter-hour viewing",
           "file_type": "ECT",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
+          "processed": true,
+          "min_date": "2012-07-22",
+          "max_date": "2026-06-07",
           "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true,
-          "note": "S3 sub-folder confirmed: amrld/REC32/ — pull not yet scheduled"
+          "last_processed": "2026-06-20",
+          "note": "1,817 files in S3 · date range from _date_str partition keys · uploaded 2026-06-20"
         },
         {
           "id": "MOBILE_HH",
           "description": "Mobile household viewing records",
           "file_type": "MOBILE",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
+          "processed": true,
+          "min_date": "2021-07-08",
+          "max_date": "2025-07-26",
           "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true,
-          "note": "S3 sub-folder confirmed: amrld/MOBILE_HH/"
+          "last_processed": "2026-06-20",
+          "note": "10,020 files in S3 · date range from _date_str partition keys · uploaded 2026-06-20"
         },
         {
           "id": "MOBILE_PERSON",
           "description": "Mobile person-level viewing records",
           "file_type": "MOBILE",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
+          "processed": true,
+          "min_date": "2024-05-30",
+          "max_date": "2025-07-26",
           "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true,
-          "note": "S3 sub-folder confirmed: amrld/MOBILE_PERSON/"
+          "last_processed": "2026-06-20",
+          "note": "2,933 files in S3 · date range from _date_str partition keys · uploaded 2026-06-20"
         },
         {
           "id": "LPM_MKT",
           "description": "Local People Meter market-level household data",
           "file_type": "EHH",
-          "processed": false,
+          "processed": true,
           "min_date": null,
           "max_date": null,
           "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true,
-          "note": "S3 sub-folder confirmed: amrld/LPM_MKT/"
+          "last_processed": "2026-06-20",
+          "note": "7 files in S3 · no _date_str partitions (single __HIVE_DEFAULT_PARTITION__) · uploaded 2026-06-20"
         },
         {
           "id": "VMVPD_HH",
           "description": "Virtual MVPD household penetration",
           "file_type": "EHH",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
+          "processed": true,
+          "min_date": "2017-09-22",
+          "max_date": "2025-12-28",
           "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true,
-          "note": "S3 sub-folder confirmed: amrld/VMVPD_HH/"
+          "last_processed": "2026-06-20",
+          "note": "799 files in S3 · date range from _date_str partition keys · uploaded 2026-06-20"
         },
         {
           "id": "REC33",
