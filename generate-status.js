@@ -348,6 +348,19 @@ function parseS3Inventory() {
   catch { return null; }
 }
 
+function parseWarroomDataS3Total() {
+  // warroom-data.json is refreshed 4x/day by refresh-warroom-data.py and has
+  // accurate per-prefix GB from live S3 ls calls. Use it as the authoritative
+  // s3_gb source instead of the stale s3-inventory.json.
+  try {
+    const file = path.join(__dirname, 'data', 'warroom-data.json');
+    const d = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const s3 = d?.s3 || {};
+    const total = Object.values(s3).reduce((sum, v) => sum + (v?.gb || 0), 0);
+    return total > 0 ? Math.round(total * 10) / 10 : null;
+  } catch { return null; }
+}
+
 // ── S3 entity counts — compute-on-write, read-only ───────────────────────────
 // Primary: read warroom/counts.json from S3 (written by each job + nightly recompute)
 // Fallback: local status/s3-entity-counts.json (written by build_data_counts.py)
@@ -904,12 +917,15 @@ function getBuildTrends() {
 }
 
 // ── KPIs (derived) ───────────────────────────────────────────────────────────
-function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haikuPctToday) {
+function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haikuPctToday, warroomS3Total) {
   // agents_running counts only live/cron agents (not idle sub-agents or marketplace)
   const liveAgents    = agents.filter(a => !a.type || a.type === 'live');
   const agents_running = liveAgents.filter(a => a.status === 'healthy' || a.status === 'routing').length;
   const scrapers_live  = scrapers.filter(s => s.status === 'live').length;
-  const s3_gb = s3_lake.reduce((sum, b) => sum + (b.size_gb || 0), 0);
+  // Prefer warroom-data.json total (4x/day refresh) over stale s3-inventory.json sum
+  const s3_gb = warroomS3Total != null
+    ? warroomS3Total
+    : s3_lake.reduce((sum, b) => sum + (b.size_gb || 0), 0);
   const tasks_open = (tasks.highItems?.length || 0) + (tasks.medItems?.length || 0) + (tasks.exploreItems?.length || 0);
   const pkRows = pk?.row_count ?? 589814;
 
@@ -1119,6 +1135,7 @@ const alerts        = parseAlerts();
 const agents        = parseAgents();
 const tmdbProgress  = parseTMDBProgress();
 const s3Inv         = parseS3Inventory();
+const warroomS3Total = parseWarroomDataS3Total();
 // Counts read from S3 warroom/counts.json (compute-on-write — jobs write this, not generate-status).
 // generate-status.js is READ-ONLY with respect to entity counts.
 const entityCounts  = parseS3EntityCounts();
@@ -1797,7 +1814,7 @@ const status = {
   s3_lake,
   movie_universe: movieUniverse,
   kpis:                (() => {
-    const kpis = buildKPIs(agents, scrapers, s3_lake, tasks, parentKeyScraper, buildEventsCount, haikuPctToday);
+    const kpis = buildKPIs(agents, scrapers, s3_lake, tasks, parentKeyScraper, buildEventsCount, haikuPctToday, warroomS3Total);
     kpis.builds_7d       = buildTrends?.builds_7d   || 0;
     kpis.error_rate_7d   = buildTrends?.error_rate   || 0;
     return kpis;
