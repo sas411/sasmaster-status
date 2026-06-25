@@ -867,10 +867,10 @@ main.canvas-mode{overflow:hidden}
       <div style="font-size:11px;color:var(--dim);margin-top:6px">IMDB reference universe. Bar = relative cardinality. Parent key spine total: <b id="pk-total-val">—</b> minted UUIDv5 keys.</div>
 
       <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">MATCH CONFIDENCE — TIER DISTRIBUTION</span><span class="mono" style="font-size:10px;color:var(--dim);margin-left:auto">12.96M rows · parent_key table</span></div>
-      <div class="spine" style="margin-top:8px">
-        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-ok" style="font-size:9px;padding:2px 6px">GOLD</span></span><div class="sbar"><i style="width:1.58%;background:#22c55e"></i></div><span class="v mono" style="font-size:11px">204,907</span><span style="font-size:10px;color:var(--dim);margin-left:6px">≥0.99 · imdb+eidr+tmdb+full (CERTIFIED) ↑ 6× post EIDR sprint</span></div>
-        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-warn" style="font-size:9px;padding:2px 6px">SILVER</span></span><div class="sbar"><i style="width:4.30%;background:#f59e0b"></i></div><span class="v mono" style="font-size:11px">557,723</span><span style="font-size:10px;color:var(--dim);margin-left:6px">0.65–0.99 · imdb+eidr or imdb+tmdb (CONFIRMED)</span></div>
-        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-sec" style="font-size:9px;padding:2px 6px">BRONZE</span></span><div class="sbar"><i style="width:94.12%;background:var(--accent)"></i></div><span class="v mono" style="font-size:11px">12,193,171</span><span style="font-size:10px;color:var(--dim);margin-left:6px">&lt;0.65 · PROVISIONAL + HELD (9.67M episode CIDs + 1.65M movie-PROV)</span></div>
+      <div class="spine" style="margin-top:8px" id="confidence-tier-spine">
+        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-ok" style="font-size:9px;padding:2px 6px">GOLD</span></span><div class="sbar"><i style="width:2.11%;background:#22c55e"></i></div><span class="v mono" style="font-size:11px">273,345</span><span style="font-size:10px;color:var(--dim);margin-left:6px">≥0.99 · imdb+eidr+tmdb+full (CERTIFIED)</span></div>
+        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-warn" style="font-size:9px;padding:2px 6px">SILVER</span></span><div class="sbar"><i style="width:3.78%;background:#f59e0b"></i></div><span class="v mono" style="font-size:11px">489,285</span><span style="font-size:10px;color:var(--dim);margin-left:6px">0.65–0.99 · imdb+eidr or imdb+tmdb (CONFIRMED)</span></div>
+        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-sec" style="font-size:9px;padding:2px 6px">BRONZE</span></span><div class="sbar"><i style="width:94.11%;background:var(--accent)"></i></div><span class="v mono" style="font-size:11px">12,193,171</span><span style="font-size:10px;color:var(--dim);margin-left:6px">&lt;0.65 · PROVISIONAL + HELD + episode CIDs</span></div>
       </div>
       <div style="font-size:10.5px;color:var(--dim);margin-top:6px">Formula: imdb(+30) + eidr(+35) + tmdb(+15) + full_name_match(+20). confidence_score DECIMAL(4,3). GOLD = all 4 signals. Updated 2026-06-22 post EIDR-SPINE-PROMOTE-002 (272K eidr_ids written).</div>
 
@@ -2233,21 +2233,26 @@ function renderCosts(vm){
   const cu=vm.claudeUsage;
   const us=vm.usageState;
   const tp=vm.tokenProjection;
+  // Use MTD api cost from finance-data.json if available (cached by loadFintel),
+  // fall back to lifetime cost_summary from status.json
+  const fdMtd=_fintelData&&_fintelData.burn?_fintelData.burn.api_mtd:null;
+  const awsUsd=_fintelData&&_fintelData.infrastructure?_fintelData.infrastructure.aws_usd:null;
 
   // cost strip
   const strip=document.querySelector('#v-costs .coststrip');
   if(strip){
     const cells=strip.querySelectorAll(':scope > div');
-    const total=cs.total_cost_usd!=null?'$'+cs.total_cost_usd.toFixed(2):'$34.96';
+    const total=fdMtd!=null?'$'+fdMtd.toFixed(2):(cs.total_cost_usd!=null?'$'+cs.total_cost_usd.toFixed(2):'$34.96');
     const aiCost=cu&&cu.claudeai&&cu.claudeai.mtd_cost?'$'+Number(cu.claudeai.mtd_cost).toFixed(2):'$20.00';
     const codeCost=cu&&cu.claudecode&&cu.claudecode.mtd_cost?'$'+Number(cu.claudecode.mtd_cost).toFixed(2):'$0.00';
     const designCost=cu&&cu.claudedesign&&cu.claudedesign.mtd_cost?'$'+Number(cu.claudedesign.mtd_cost).toFixed(2):'$0.00';
-    const s3Cost='$'+(cs.total_cost_usd&&cs.total_cost_usd>20?(cs.total_cost_usd-20).toFixed(2):'14.96');
+    const s3Cost=awsUsd!=null?'$'+awsUsd.toFixed(2):'$14.96';
     const cacheHit=us.cache_hit_rate_pct!=null?us.cache_hit_rate_pct+'%':'—';
     if(cells[0]){cells[0].querySelector('.v').textContent=total;cells[0].querySelector('.s').textContent='MTD: '+total;}
     if(cells[1]){cells[1].querySelector('.v').textContent=codeCost;}
     if(cells[2]){cells[2].querySelector('.v').textContent=aiCost;}
     if(cells[3]){cells[3].querySelector('.v').textContent=designCost;}
+    if(cells[4]){cells[4].querySelector('.v').textContent=s3Cost;}
     if(cells[5]){cells[5].querySelector('.v').textContent=cacheHit;cells[5].querySelector('.v').className='v'+(cacheHit!=='—'?' gold':'');}
   }
 
@@ -2403,15 +2408,57 @@ function buildTimeline(){
   tg.innerHTML=h;
 }
 
-/* ============ Finance tab (static skeleton + live data) ============ */
-function renderFinance(vm){
+/* ============ Finance tab (loads finance-data.json) ============ */
+async function renderFinance(vm){
   const cs=vm.costSummary;
-  const tp=vm.tokenProjection;
+  const fd=await loadFintel(); // reuses cached finance-data.json (same as loadFintel)
+
   const strip=document.querySelector('#v-finance .coststrip');
   if(strip){
     const cells=strip.querySelectorAll(':scope > div');
-    const apiCost=cs.total_cost_usd?'$'+cs.total_cost_usd.toFixed(2):'$0.00';
-    if(cells[0]) cells[0].querySelector('.v').textContent=apiCost;
+    if(fd&&fd.burn){
+      const b=fd.burn;
+      if(cells[0])cells[0].querySelector('.v').textContent='$'+(b.api_mtd||0).toFixed(2);
+      if(cells[1])cells[1].querySelector('.v').textContent='$'+(b.infra_mtd||45).toFixed(2);
+      if(cells[2])cells[2].querySelector('.v').textContent='$'+(b.tools_mtd||20).toFixed(2);
+      const totalV=cells[3]&&cells[3].querySelector('.v');
+      if(totalV){totalV.textContent='$'+(b.total_mtd||0).toFixed(2);totalV.className='v gold';}
+      if(cells[4])cells[4].querySelector('.v').textContent=b.runway_months!=null?b.runway_months+'mo':'—';
+    } else if(cs.total_cost_usd){
+      if(cells[0])cells[0].querySelector('.v').textContent='$'+cs.total_cost_usd.toFixed(2);
+    }
+  }
+
+  if(fd&&fd.tokens){
+    const toks=fd.tokens;
+    const q4=document.querySelectorAll('#v-finance .q4');
+    if(q4[0])q4[0].querySelector('.v').textContent=fmtN(toks.total_tokens_this_month||0);
+    if(q4[1])q4[1].querySelector('.v').textContent='$'+(toks.avg_cost_per_session_usd||0).toFixed(2);
+    if(q4[2])q4[2].querySelector('.v').textContent=String(toks.total_sessions_this_month||0);
+    if(q4[3])q4[3].querySelector('.v').textContent=toks.most_expensive_agent||'—';
+    const mix=toks.model_mix_pct||{};
+    document.querySelectorAll('#v-finance .mono').forEach(el=>{
+      if(el.textContent.includes('Opus')&&el.textContent.includes('Sonnet')&&el.textContent.includes('Haiku')){
+        el.innerHTML=`■ Opus ${mix.opus||0}% &nbsp;■ Sonnet ${mix.sonnet||0}% &nbsp;■ Haiku ${mix.haiku||0}% <span style="float:right">→ ${toks.efficiency_trend||'stable'}</span>`;
+      }
+    });
+  }
+
+  if(fd&&fd.burn&&fd.infrastructure){
+    const b=fd.burn;const inf=fd.infrastructure||{};
+    const rows=document.querySelectorAll('#v-finance .dt tr');
+    const setTd=(row,col,text)=>{if(!row)return;const tds=row.querySelectorAll('td');if(tds[col])tds[col].textContent=text;};
+    setTd(rows[1],1,'$'+(b.api_mtd||0).toFixed(2));
+    setTd(rows[2],1,'$'+(inf.railway_usd||20).toFixed(2));
+    setTd(rows[3],1,'$'+(inf.vercel_usd||20).toFixed(2));
+    setTd(rows[4],1,'$'+(inf.aws_usd||5).toFixed(2));
+    setTd(rows[5],1,'$'+(b.tools_mtd||20).toFixed(2));
+    if(rows[6]){const tds=rows[6].querySelectorAll('td');if(tds[1])tds[1].innerHTML='<b>$'+(b.total_mtd||0).toFixed(2)+'</b>';}
+  }
+
+  if(fd&&fd.aug_crunch){
+    const oblEl=document.querySelector('#v-finance .big');
+    if(oblEl)oblEl.textContent=fd.aug_crunch.days_away+' days';
   }
 }
 
@@ -2531,12 +2578,12 @@ async function loadAndRender(){
   guard(()=>renderData(vm),'renderData','data');
   guard(()=>renderQueue(vm),'renderQueue','queue');
   guard(()=>renderCosts(vm),'renderCosts','costs');
-  guard(()=>renderFinance(vm),'renderFinance','finance');
   guard(()=>renderTelemetry(vm),'renderTelemetry','telemetry');
   guard(()=>updateStatusBar(vm),'updateStatusBar');
   // async tabs — isolated so one failure never blocks others
   renderResources().catch(e=>{console.error('[renderResources]',e);markTabErr('resources');});
   renderFintel().catch(e=>{console.error('[renderFintel]',e);markTabErr('fintel');});
+  renderFinance(vm).catch(e=>{console.error('[renderFinance]',e);markTabErr('finance');});
 }
 
 /* ============ chip filter (generic + resources filter) ============ */
@@ -2561,6 +2608,7 @@ document.querySelectorAll('.chips').forEach(group=>{
 buildTimeline();
 renderDataStatic();
 buildFintelTable();
+loadFintel(); // pre-warm finance-data.json cache so renderCosts gets MTD on first cycle
 loadAndRender();
 setInterval(loadAndRender,30000);
 
@@ -3351,8 +3399,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Auto-load when TOKENS tab is activated
   document.querySelectorAll('.tab').forEach(t => {
     t.addEventListener('click', () => {
-      if(t.dataset.v === 'tokens') window.tmRefresh();
-      if(t.dataset.v === 'data')   window.artRefresh();
+      if(t.dataset.v === 'tokens')  window.tmRefresh();
+      if(t.dataset.v === 'data')    window.artRefresh();
+      if(t.dataset.v === 'finance') renderFinance(_lastVm||DEMO_DATA).catch(()=>{});
     });
   });
 })();
@@ -3409,6 +3458,23 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(pkTot) pkTot.textContent = fmtN(sp.total_pkids||0);
     const eidrEl = document.getElementById('eidr-coverage-live');
     if(eidrEl) eidrEl.textContent = (sp.eidr_coverage_pct||0).toFixed(1)+'% EIDR · '+fmtN(sp.eidr_matched||0)+' matched';
+
+    // Update MATCH CONFIDENCE tier distribution rows
+    const totalRows = sp.total_rows || 1;
+    const certN = bc.CERTIFIED || 0;
+    const confN = bc.CONFIRMED || 0;
+    const bronzeN = totalRows - certN - confN;
+    const tierSpine = document.getElementById('confidence-tier-spine');
+    if(tierSpine && totalRows > 0){
+      const pct = v => Math.max(0.3, v/totalRows*100).toFixed(2)+'%';
+      tierSpine.innerHTML =
+        `<div class="srow"><span class="n" style="min-width:64px"><span class="badge b-ok" style="font-size:9px;padding:2px 6px">GOLD</span></span><div class="sbar"><i style="width:${pct(certN)};background:#22c55e"></i></div><span class="v mono" style="font-size:11px">${certN.toLocaleString()}</span><span style="font-size:10px;color:var(--dim);margin-left:6px">≥0.99 · imdb+eidr+tmdb+full (CERTIFIED)</span></div>`+
+        `<div class="srow"><span class="n" style="min-width:64px"><span class="badge b-warn" style="font-size:9px;padding:2px 6px">SILVER</span></span><div class="sbar"><i style="width:${pct(confN)};background:#f59e0b"></i></div><span class="v mono" style="font-size:11px">${confN.toLocaleString()}</span><span style="font-size:10px;color:var(--dim);margin-left:6px">0.65–0.99 · imdb+eidr or imdb+tmdb (CONFIRMED)</span></div>`+
+        `<div class="srow"><span class="n" style="min-width:64px"><span class="badge b-sec" style="font-size:9px;padding:2px 6px">BRONZE</span></span><div class="sbar"><i style="width:${pct(bronzeN)};background:var(--accent)"></i></div><span class="v mono" style="font-size:11px">${bronzeN.toLocaleString()}</span><span style="font-size:10px;color:var(--dim);margin-left:6px">&lt;0.65 · PROVISIONAL + HELD + episode CIDs</span></div>`;
+      // Update subtitle row count
+      const confSub = document.querySelector('#v-data .sec-h .mono[style*="margin-left:auto"]');
+      if(confSub) confSub.textContent = fmtN(totalRows)+' rows · parent_key table';
+    }
   }
 
   window.artRefresh = function(){
