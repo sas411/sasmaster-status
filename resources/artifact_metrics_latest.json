@@ -1,6 +1,6 @@
 {
   "date": "2026-06-26",
-  "generated_at": "2026-06-26T17:25:37.068427+00:00",
+  "generated_at": "2026-06-26T19:17:58.453942+00:00",
   "source": "motherduck",
   "spine": {
     "total_pkids": 3286247,
@@ -36,7 +36,8 @@
         "unscored": 0,
         "total": 786953,
         "eidr": 227564,
-        "tmdb": 418820
+        "tmdb": 418820,
+        "series_tmdb": 0
       },
       {
         "label": "TV Series",
@@ -46,7 +47,8 @@
         "unscored": 0,
         "total": 341362,
         "eidr": 29009,
-        "tmdb": 90557
+        "tmdb": 90557,
+        "series_tmdb": 0
       },
       {
         "label": "Episodes",
@@ -56,7 +58,8 @@
         "unscored": 0,
         "total": 9669554,
         "eidr": 102988,
-        "tmdb": 0
+        "tmdb": 2561509,
+        "series_tmdb": 4805394
       },
       {
         "label": "Other titles",
@@ -66,7 +69,8 @@
         "unscored": 0,
         "total": 2157932,
         "eidr": 50489,
-        "tmdb": 845018
+        "tmdb": 845018,
+        "series_tmdb": 0
       }
     ],
     "totals": {
@@ -92,14 +96,59 @@
     "episodes": {
       "total": 9669554,
       "imdb": 9669554,
-      "tmdb": 0,
+      "tmdb": 2561509,
       "eidr": 102988,
-      "all_three": 0,
+      "all_three": 76468,
       "tmdb_addressable": 4805266
     },
     "notes": {
       "imdb": "real IMDB tconst (imdb_id LIKE 'tt%'); excludes tmdb_orphan synthetic ids",
-      "episode_tmdb": "episode-grain TMDB not yet resolved (currently 0); 4,805,266 episodes are immediately fillable via their TMDB-matched parent series (GAP \u2014 see EPISODE-TMDB-PROPAGATE)."
+      "episode_tmdb": "episode-grain TMDB resolved via EPISODE-TMDB-PROPAGATE-001 (direct imdb tconst \u2192 source.tmdb_tv_episodes.tmdb_episode_id, plus series_tmdb_id propagation)."
+    }
+  },
+  "external_catalog_coverage": {
+    "grain": "title-level (no episode-CID association yet)",
+    "rows": [
+      {
+        "label": "Movies",
+        "gracenote": 7858,
+        "fyi": 3503,
+        "nielsen_titles": 7137
+      },
+      {
+        "label": "TV Series",
+        "gracenote": 89168,
+        "fyi": 31987,
+        "nielsen_titles": 1023
+      },
+      {
+        "label": "Episodes",
+        "gracenote": 0,
+        "fyi": 0,
+        "nielsen_titles": 0
+      },
+      {
+        "label": "TV Specials",
+        "gracenote": 584,
+        "fyi": 231,
+        "nielsen_titles": 412
+      },
+      {
+        "label": "Other titles",
+        "gracenote": 43,
+        "fyi": 7,
+        "nielsen_titles": 41
+      }
+    ],
+    "totals": {
+      "gracenote": 97653,
+      "fyi": 35728,
+      "nielsen_titles": 8613
+    },
+    "sources": {
+      "gracenote": "prod.pk_gn_xref distinct GN_ASSET_ID",
+      "fyi": "curated.nielsen_gn_identity_xref distinct FYI_PROGRAM_ID linked to spine",
+      "nielsen_titles": "distinct spine titles with Nielsen telecast data"
     }
   },
   "alt_ids_by_domain": {
@@ -435,17 +484,13 @@
       "count": 11,
       "distinct_pks": 11
     },
-    "prisma.de": {
-      "count": 8,
-      "distinct_pks": 8
-    },
     "sinematurk.com": {
       "count": 8,
       "distinct_pks": 8
     },
-    "myanimelist.net": {
-      "count": 7,
-      "distinct_pks": 6
+    "prisma.de": {
+      "count": 8,
+      "distinct_pks": 8
     },
     "pantaya.com": {
       "count": 7,
@@ -455,7 +500,11 @@
       "count": 7,
       "distinct_pks": 7
     },
-    "foxipedia.com/foxid": {
+    "myanimelist.net": {
+      "count": 7,
+      "distinct_pks": 6
+    },
+    "kmdb.or.kr": {
       "count": 6,
       "distinct_pks": 6
     },
@@ -463,11 +512,11 @@
       "count": 6,
       "distinct_pks": 6
     },
-    "kmdb.or.kr": {
+    "foxipedia.com/foxid": {
       "count": 6,
       "distinct_pks": 6
     },
-    "allocine.fr/season": {
+    "hbo_id": {
       "count": 5,
       "distinct_pks": 5
     },
@@ -479,15 +528,15 @@
       "count": 5,
       "distinct_pks": 5
     },
-    "hbo_id": {
+    "allocine.fr/season": {
       "count": 5,
       "distinct_pks": 5
     },
-    "sinemalar.com/film": {
+    "mydramalist.com": {
       "count": 4,
       "distinct_pks": 4
     },
-    "cine21.com": {
+    "sinemalar.com/film": {
       "count": 4,
       "distinct_pks": 4
     },
@@ -495,11 +544,11 @@
       "count": 4,
       "distinct_pks": 4
     },
-    "jfdb.jp": {
+    "cine21.com": {
       "count": 4,
       "distinct_pks": 4
     },
-    "mydramalist.com": {
+    "jfdb.jp": {
       "count": 4,
       "distinct_pks": 4
     },
@@ -523,15 +572,7 @@
       "count": 2,
       "distinct_pks": 2
     },
-    "animenewsnetwork.com": {
-      "count": 2,
-      "distinct_pks": 2
-    },
-    "vudu_mtid": {
-      "count": 2,
-      "distinct_pks": 2
-    },
-    "movie.naver.com": {
+    "foxipedia.com/vaultversionid": {
       "count": 2,
       "distinct_pks": 2
     },
@@ -539,19 +580,19 @@
       "count": 2,
       "distinct_pks": 2
     },
-    "siamzone.com": {
-      "count": 2,
-      "distinct_pks": 2
-    },
     "filmitalia.org": {
       "count": 2,
       "distinct_pks": 2
     },
-    "foxipedia.com/vaultversionid": {
+    "movie.naver.com": {
       "count": 2,
       "distinct_pks": 2
     },
-    "cfsd.cz": {
+    "animenewsnetwork.com": {
+      "count": 2,
+      "distinct_pks": 2
+    },
+    "siamzone.com": {
       "count": 2,
       "distinct_pks": 2
     },
@@ -563,47 +604,19 @@
       "count": 2,
       "distinct_pks": 2
     },
+    "vudu_mtid": {
+      "count": 2,
+      "distinct_pks": 2
+    },
+    "cfsd.cz": {
+      "count": 2,
+      "distinct_pks": 2
+    },
     "filmaffinity.com": {
       "count": 2,
       "distinct_pks": 2
     },
-    "moviefone.com": {
-      "count": 1,
-      "distinct_pks": 1
-    },
-    "film-documentaire.fr": {
-      "count": 1,
-      "distinct_pks": 1
-    },
-    "koreafilm.or.kr": {
-      "count": 1,
-      "distinct_pks": 1
-    },
-    "africultures.com": {
-      "count": 1,
-      "distinct_pks": 1
-    },
-    "cinenacional.com": {
-      "count": 1,
-      "distinct_pks": 1
-    },
-    "elcinema.com": {
-      "count": 1,
-      "distinct_pks": 1
-    },
-    "swissfilms.ch": {
-      "count": 1,
-      "distinct_pks": 1
-    },
-    "scope.dk": {
-      "count": 1,
-      "distinct_pks": 1
-    },
-    "kanopy.com": {
-      "count": 1,
-      "distinct_pks": 1
-    },
-    "thetvdb_movie_id": {
+    "kvikmyndir.is": {
       "count": 1,
       "distinct_pks": 1
     },
@@ -611,31 +624,15 @@
       "count": 1,
       "distinct_pks": 1
     },
-    "bcdb.com": {
+    "scope.dk": {
       "count": 1,
       "distinct_pks": 1
     },
-    "seecinema.net": {
+    "moviefone.com": {
       "count": 1,
       "distinct_pks": 1
     },
-    "google_play_id": {
-      "count": 1,
-      "distinct_pks": 1
-    },
-    "mubi.com": {
-      "count": 1,
-      "distinct_pks": 1
-    },
-    "epguides.com": {
-      "count": 1,
-      "distinct_pks": 1
-    },
-    "tvmaze.com/shows": {
-      "count": 1,
-      "distinct_pks": 1
-    },
-    "kvikmyndir.is": {
+    "thetvdb_movie_id": {
       "count": 1,
       "distinct_pks": 1
     },
@@ -648,6 +645,58 @@
       "distinct_pks": 1
     },
     "movieplayer.it": {
+      "count": 1,
+      "distinct_pks": 1
+    },
+    "google_play_id": {
+      "count": 1,
+      "distinct_pks": 1
+    },
+    "bcdb.com": {
+      "count": 1,
+      "distinct_pks": 1
+    },
+    "film-documentaire.fr": {
+      "count": 1,
+      "distinct_pks": 1
+    },
+    "seecinema.net": {
+      "count": 1,
+      "distinct_pks": 1
+    },
+    "cinenacional.com": {
+      "count": 1,
+      "distinct_pks": 1
+    },
+    "mubi.com": {
+      "count": 1,
+      "distinct_pks": 1
+    },
+    "africultures.com": {
+      "count": 1,
+      "distinct_pks": 1
+    },
+    "elcinema.com": {
+      "count": 1,
+      "distinct_pks": 1
+    },
+    "tvmaze.com/shows": {
+      "count": 1,
+      "distinct_pks": 1
+    },
+    "epguides.com": {
+      "count": 1,
+      "distinct_pks": 1
+    },
+    "kanopy.com": {
+      "count": 1,
+      "distinct_pks": 1
+    },
+    "swissfilms.ch": {
+      "count": 1,
+      "distinct_pks": 1
+    },
+    "koreafilm.or.kr": {
       "count": 1,
       "distinct_pks": 1
     }
