@@ -256,7 +256,7 @@
      "max_date": "2026-06-20",
      "row_count": 50962,
      "last_processed": "2026-06-26",
-     "note": null
+     "note": "Low-volume record type \u2014 thin but CONTINUOUS coverage 2012\u21922026 (~3K rows/yr, 0 empty partitions / 454 files). 50,962 rows verified COMPLETE to S3, not missing history."
     },
     {
      "id": "MOBILE_HH",
@@ -383,7 +383,14 @@
      "etl_tier": 2
     }
    ],
-   "etl2_note": "ETL 2 tables are curated/aggregated analytics outputs derived from ETL 1 raw record types above. These are the primary query surfaces for audience analytics."
+   "etl2_note": "ETL 2 tables are curated/aggregated analytics outputs derived from ETL 1 raw record types above. These are the primary query surfaces for audience analytics.",
+   "verification": {
+    "verified_full_counts_on": "2026-06-26",
+    "method": "parquet footer SUM(num_rows) + _date_str partition keys; 9999-12-31 & __HIVE_DEFAULT_PARTITION__ sentinels excluded",
+    "do_not_overwrite_with_samples": true,
+    "rec32_note": "REC32 is legitimately low-volume (~3K rows/yr, continuous 2012-2026) \u2014 do NOT flag as incomplete",
+    "source_of_truth": "scripts/generate_recordtypes_manifest.py (full-extent mode, last-good guarded)"
+   }
   },
   "mit": {
    "label": "MIT (NHI)",
