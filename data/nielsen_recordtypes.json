@@ -7,22 +7,22 @@
    "s3_prefix": "s3://sasmaster-2026/nielsen/amrld/",
    "description": "Audience Measurement Respondent-Level Data (V3.23)",
    "overall_min": "2007-09-26",
-   "overall_max": "2026-06-07",
-   "last_processed": "2026-06-20",
+   "overall_max": "2026-06-20",
+   "last_processed": "2026-06-26",
    "total_rows": null,
-   "note": "8.2 GB raw \u00b7 60K files \u00b7 15 sub-folders \u00b7 ETL layer (amrld_etl/): 75.8 GB / 33 computed tables",
-   "tiny_files": true,
-   "tiny_files_note": "Record dates reflect sample extract window (50K rows/record). Full archive: 2012-12-31 \u2192 2026-06-08. Raw files: 8.2 GB / 60K objects. ETL layer (amrld_etl/): 75.8 GB / 33 computed tables.",
+   "note": "8.2 GB raw \u00b7 60K files \u00b7 15 sub-folders \u00b7 ETL layer (amrld_etl/): 75.8 GB / 33 computed tables. Row counts = full parquet-footer totals (not samples).",
+   "tiny_files": false,
+   "tiny_files_note": null,
    "scan_run": "2026-06-17",
    "record_types": [
     {
      "id": "amrld_time_period_view",
-     "description": "AMRLD time-period viewing \u2014 ETL computed view (v2, amrld_etl/)",
+     "description": "AMRLD time-period viewing \u2014 FULL table nielsen/laapp/amrld_tp_view (589M rows, 2020\u21922026). v2 recompute (amrld_etl/) backfilling: 75M/2wk so far.",
      "file_type": "ETL\u00b7ECT",
      "processed": true,
-     "min_date": "2026-05-30",
-     "max_date": "2026-06-12",
-     "row_count": 75048663,
+     "min_date": "2020-01-01",
+     "max_date": "2026-06-16",
+     "row_count": 589195838,
      "last_processed": "2026-06-26"
     },
     {
@@ -80,22 +80,22 @@
      "description": "Program airing descriptor (D0.ECN / EPG)",
      "file_type": "ECN/EPG",
      "processed": true,
-     "min_date": "2026-05-18",
-     "max_date": "2026-05-19",
-     "row_count": 50000,
-     "last_processed": "2026-06-17",
-     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
+     "min_date": "2026-05-26",
+     "max_date": "2026-06-20",
+     "row_count": 133528,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "REC36",
      "description": "Program viewing record (V0.ECN / EPG)",
      "file_type": "ECN/EPG",
      "processed": true,
-     "min_date": "2026-05-18",
-     "max_date": "2026-05-19",
-     "row_count": 50000,
-     "last_processed": "2026-06-17",
-     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
+     "min_date": "2026-05-26",
+     "max_date": "2026-06-20",
+     "row_count": 15256428,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "REC40",
@@ -103,10 +103,10 @@
      "file_type": "CCM",
      "processed": true,
      "min_date": "2007-09-26",
-     "max_date": "2026-05-31",
-     "row_count": null,
-     "last_processed": "2026-06-20",
-     "note": "43,588 files in S3 \u00b7 date range from _date_str partition keys \u00b7 uploaded 2026-06-20"
+     "max_date": "2026-06-20",
+     "row_count": 275974095,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "REC47",
@@ -143,55 +143,55 @@
      "description": "Time-period viewing (ECT)",
      "file_type": "ECT",
      "processed": true,
-     "min_date": "2026-05-18",
-     "max_date": "2026-05-20",
-     "row_count": 50000,
-     "last_processed": "2026-06-17",
-     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-20 \u00b7 archive floor/ceiling from header"
+     "min_date": "2026-05-26",
+     "max_date": "2026-06-20",
+     "row_count": 112741112,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "REC56_OBT",
      "description": "Time-period viewing (OBT \u2014 on-box tuning)",
      "file_type": "OBT",
      "processed": true,
-     "min_date": "2026-05-18",
-     "max_date": "2026-05-18",
-     "row_count": 50000,
-     "last_processed": "2026-06-17",
-     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-18 \u00b7 archive floor/ceiling from header"
+     "min_date": "2026-05-26",
+     "max_date": "2026-06-20",
+     "row_count": 69134,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "REC65",
      "description": "MVPD / MSO household penetration",
      "file_type": "EHH",
      "processed": true,
-     "min_date": "2026-05-18",
-     "max_date": "2026-05-19",
-     "row_count": 50000,
-     "last_processed": "2026-06-17",
-     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
+     "min_date": "2026-05-26",
+     "max_date": "2026-06-20",
+     "row_count": 27817796,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "REC67",
      "description": "SVOD subscription penetration",
      "file_type": "EHH",
      "processed": true,
-     "min_date": "2026-05-18",
-     "max_date": "2026-05-19",
-     "row_count": 50000,
-     "last_processed": "2026-06-17",
-     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
+     "min_date": "2026-05-26",
+     "max_date": "2026-06-20",
+     "row_count": 26491006,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "REC68",
      "description": "Connected device household penetration",
      "file_type": "EHH",
      "processed": true,
-     "min_date": "2026-05-18",
-     "max_date": "2026-05-19",
-     "row_count": 50000,
-     "last_processed": "2026-06-17",
-     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
+     "min_date": "2026-05-26",
+     "max_date": "2026-06-20",
+     "row_count": 1974133,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "REC70",
@@ -208,11 +208,11 @@
      "description": "Universe estimates / CUE",
      "file_type": "UES",
      "processed": true,
-     "min_date": "2020-12-27",
-     "max_date": "2021-12-25",
-     "row_count": 50000,
-     "last_processed": "2026-06-17",
-     "note": "tiny-files (50K sample) \u00b7 scan window 2020-12-27 \u2192 2021-12-25 \u00b7 archive floor/ceiling from header"
+     "min_date": "2026-05-26",
+     "max_date": "2026-06-20",
+     "row_count": 1869047,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "REC10",
@@ -253,10 +253,10 @@
      "file_type": "ECT",
      "processed": true,
      "min_date": "2012-07-22",
-     "max_date": "2026-06-07",
-     "row_count": null,
-     "last_processed": "2026-06-20",
-     "note": "1,817 files in S3 \u00b7 date range from _date_str partition keys \u00b7 uploaded 2026-06-20"
+     "max_date": "2026-06-20",
+     "row_count": 50962,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "MOBILE_HH",
@@ -264,10 +264,10 @@
      "file_type": "MOBILE",
      "processed": true,
      "min_date": "2021-07-08",
-     "max_date": "2025-07-26",
-     "row_count": null,
-     "last_processed": "2026-06-20",
-     "note": "10,020 files in S3 \u00b7 date range from _date_str partition keys \u00b7 uploaded 2026-06-20"
+     "max_date": "2026-06-20",
+     "row_count": 183422193,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "MOBILE_PERSON",
@@ -275,21 +275,21 @@
      "file_type": "MOBILE",
      "processed": true,
      "min_date": "2024-05-30",
-     "max_date": "2025-07-26",
-     "row_count": null,
-     "last_processed": "2026-06-20",
-     "note": "2,933 files in S3 \u00b7 date range from _date_str partition keys \u00b7 uploaded 2026-06-20"
+     "max_date": "2026-06-20",
+     "row_count": 67518490,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "LPM_MKT",
      "description": "Local People Meter market-level household data",
      "file_type": "EHH",
      "processed": true,
-     "min_date": null,
-     "max_date": null,
-     "row_count": null,
-     "last_processed": "2026-06-20",
-     "note": "7 files in S3 \u00b7 no _date_str partitions (single __HIVE_DEFAULT_PARTITION__) \u00b7 uploaded 2026-06-20"
+     "min_date": "2026-06-20",
+     "max_date": "2026-06-20",
+     "row_count": 317600,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "VMVPD_HH",
@@ -297,10 +297,10 @@
      "file_type": "EHH",
      "processed": true,
      "min_date": "2017-09-22",
-     "max_date": "2025-12-28",
-     "row_count": null,
-     "last_processed": "2026-06-20",
-     "note": "799 files in S3 \u00b7 date range from _date_str partition keys \u00b7 uploaded 2026-06-20"
+     "max_date": "2026-06-20",
+     "row_count": 788736,
+     "last_processed": "2026-06-26",
+     "note": null
     },
     {
      "id": "REC33",
