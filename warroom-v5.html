@@ -885,6 +885,12 @@ main.canvas-mode{overflow:hidden}
       </div>
       <div id="idcov-note" style="font-size:10px;color:var(--dim);margin-top:6px"></div>
 
+      <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">GRACENOTE · FYI · NIELSEN — IDs vs SPINE</span><span class="mono" id="extcov-subtitle" style="font-size:10px;color:var(--dim);margin-left:auto">title-grain</span></div>
+      <div id="extcov-table" style="margin-top:8px">
+        <!-- filled by renderArtifact() from external_catalog_coverage -->
+      </div>
+      <div id="extcov-note" style="font-size:10px;color:var(--dim);margin-top:6px"></div>
+
       <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">SOCIAL IDs — ALT_IDS DOMAIN BREAKDOWN</span><span class="badge b-ok" style="margin-left:auto">LIVE</span></div>
       <div class="spine" style="margin-top:8px">
         <div class="srow"><span class="n" style="min-width:88px"><span style="font-size:12px">📸</span> Instagram</span><div class="sbar"><i style="width:100%;background:#e1306c"></i></div><span class="v mono" style="font-size:11px">120,535</span><span style="font-size:10px;color:var(--dim);margin-left:6px">120,534 titles linked</span></div>
@@ -3458,10 +3464,15 @@ document.addEventListener('DOMContentLoaded',()=>{
           const bar = (lab,v,col) => `<div class="srow"><span class="n" style="min-width:52px;font-size:10px">${lab}</span><div class="sbar"><i style="width:${Math.round(v/mx*100)}%;background:${col}"></i></div><span class="v mono" style="font-size:10px">${v.toLocaleString()}</span></div>`;
           const ep = r.total ? (r.eidr*100/r.total).toFixed(1) : '0.0';
           const tp = r.total ? (r.tmdb*100/r.total).toFixed(1) : '0.0';
+          const stp = r.total ? ((r.series_tmdb||0)*100/r.total).toFixed(1) : '0.0';
+          const seriesLine = (r.series_tmdb||0) > 0
+            ? `<div style="font-size:10px;color:var(--dim);margin-top:2px">series-TMDB: ${r.series_tmdb.toLocaleString()} (${stp}%) <span style="opacity:.7">— parent series linked</span></div>`
+            : '';
           return `<div style="background:var(--inset);border-radius:6px;padding:10px">`+
             `<div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.08em;margin-bottom:6px">${ICON[r.label]||'📦'} ${r.label.toUpperCase()} <span style="font-weight:400;color:var(--dim)">${r.total.toLocaleString()} total</span></div>`+
             `<div class="spine">${bar('GOLD',r.gold,'#22c55e')}${bar('SILVER',r.silver,'#f59e0b')}${bar('BRONZE',r.bronze,'var(--accent)')}</div>`+
             `<div style="font-size:10px;color:var(--dim);margin-top:4px">EIDR: ${r.eidr.toLocaleString()} (${ep}%) · TMDB: ${r.tmdb.toLocaleString()} (${tp}%)</div>`+
+            seriesLine+
           `</div>`;
         };
         const ppl = (cm.people && cm.people.total) || 0;
@@ -3508,11 +3519,32 @@ document.addEventListener('DOMContentLoaded',()=>{
       const icSub = document.getElementById('idcov-subtitle');
       if(icSub){ const pk=ic.pkids||{}; icSub.textContent = `${fmtN(pk.all_three||0)} titles have all 3 IDs`; }
       const icNote = document.getElementById('idcov-note');
-      if(icNote && ic.notes){
-        icNote.innerHTML = `IMDB = real tconst only (tmdb_orphans excluded). `+
-          `<b>Episode TMDB = 0 today</b> — episode-grain TMDB was never resolved; `+
-          `${((ic.episodes&&ic.episodes.tmdb_addressable)||0).toLocaleString()} episodes are immediately fillable by propagating their TMDB-matched parent series (open gap).`;
+      if(icNote){
+        const epTmdb = (ic.episodes&&ic.episodes.tmdb)||0;
+        icNote.innerHTML = epTmdb > 0
+          ? `IMDB = real tconst only (tmdb_orphans excluded). <b>Episode TMDB resolved</b> — `+
+            `${epTmdb.toLocaleString()} episodes carry a real <code>tmdb_episode_id</code> `+
+            `(direct imdb→TMDB episode match + series propagation) via EPISODE-TMDB-PROPAGATE-001.`
+          : `IMDB = real tconst only (tmdb_orphans excluded). <b>Episode TMDB = 0</b> — episode-grain TMDB not yet resolved.`;
       }
+    }
+
+    // ── Gracenote / FYI / Nielsen IDs vs spine (title grain) ────────────────
+    const ec = d.external_catalog_coverage;
+    const ecTable = document.getElementById('extcov-table');
+    if(ec && ec.rows && ecTable){
+      const cell = (v,strong) => `<div style="text-align:right;font-variant-numeric:tabular-nums;${strong?'font-weight:700;':''}color:${v?'var(--ink)':'var(--dim)'}">${(v||0).toLocaleString()}</div>`;
+      const head = `<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:8px;padding:4px 8px;font-size:9.5px;letter-spacing:.06em;color:var(--dim);border-bottom:1px solid var(--line)">`+
+        `<div>CONTENT TYPE</div><div style="text-align:right">🎵 GRACENOTE</div><div style="text-align:right">📺 FYI</div><div style="text-align:right">📊 NIELSEN</div></div>`;
+      const row = r => `<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:8px;padding:5px 8px;font-size:11px;border-bottom:1px solid var(--inset)">`+
+        `<div style="color:var(--mut);font-weight:600">${r.label}</div>`+cell(r.gracenote)+cell(r.fyi)+cell(r.nielsen_titles)+`</div>`;
+      const t = ec.totals||{};
+      const totalRow = `<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:8px;padding:6px 8px;font-size:11px;border-top:1px solid var(--line)">`+
+        `<div style="color:var(--ink);font-weight:700;letter-spacing:.04em">TOTAL</div>`+cell(t.gracenote,1)+cell(t.fyi,1)+cell(t.nielsen_titles,1)+`</div>`;
+      ecTable.innerHTML = head + ec.rows.map(row).join('') + totalRow;
+      const ecNote = document.getElementById('extcov-note');
+      if(ecNote) ecNote.innerHTML = `Gracenote = distinct <code>GN_ASSET_ID</code> (prod.pk_gn_xref) · FYI = distinct <code>FYI_PROGRAM_ID</code> linked to spine · Nielsen = distinct spine titles with Nielsen telecast data. `+
+        `<b>All title-grain</b> — no episode-CID association yet (Nielsen national covers a narrow program set).`;
     }
   }
 
