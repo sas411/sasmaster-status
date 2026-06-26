@@ -349,11 +349,12 @@ function parseS3Inventory() {
 }
 
 function parseWarroomDataS3Total() {
-  // warroom-data.json is refreshed 4x/day by refresh-warroom-data.py and has
-  // accurate per-prefix GB from live S3 ls calls. Use it as the authoritative
-  // s3_gb source instead of the stale s3-inventory.json.
+  // Single source of truth: artifact_metrics_latest.json (.s3), written nightly
+  // by artifact_metrics_pull.py with a last-good guard, so it never regresses to
+  // null on a failed scan. (Replaces the retired data/warroom-data.json, which
+  // was a second competing pipeline — see WARROOM-DATA-CONSOLIDATE-001.)
   try {
-    const file = path.join(__dirname, 'data', 'warroom-data.json');
+    const file = path.join(__dirname, 'resources', 'artifact_metrics_latest.json');
     const d = JSON.parse(fs.readFileSync(file, 'utf8'));
     const s3 = d?.s3 || {};
     const total = Object.values(s3).reduce((sum, v) => sum + (v?.gb || 0), 0);
