@@ -356,6 +356,10 @@ function parseWarroomDataS3Total() {
   try {
     const file = path.join(__dirname, 'resources', 'artifact_metrics_latest.json');
     const d = JSON.parse(fs.readFileSync(file, 'utf8'));
+    // Prefer the authoritative WHOLE-BUCKET total (measured by --full-scan, 6.5M
+    // objects = 2.77 TB) over the curated-prefix sum, which undercounts because
+    // it only covers the 20 dataset prefixes (not knowledge-bank/artifacts/etc.).
+    if (d?.s3_bucket_total_gb > 0) return Math.round(d.s3_bucket_total_gb * 10) / 10;
     const s3 = d?.s3 || {};
     const total = Object.values(s3).reduce((sum, v) => sum + (v?.gb || 0), 0);
     return total > 0 ? Math.round(total * 10) / 10 : null;
