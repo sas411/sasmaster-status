@@ -1,804 +1,1148 @@
 {
-  "generated": "2026-06-25T00:00:00Z",
-  "generated_by": "WARROOM-DRILLDOWN-ETL2-001",
-  "sources": {
-    "amrld": {
-      "label": "AMRLD",
-      "s3_prefix": "s3://sasmaster-2026/nielsen/amrld/",
-      "description": "Audience Measurement Respondent-Level Data (V3.23)",
-      "overall_min": "2007-09-26",
-      "overall_max": "2026-06-07",
-      "last_processed": "2026-06-20",
-      "total_rows": null,
-      "note": "8.2 GB raw \u00b7 60K files \u00b7 15 sub-folders \u00b7 ETL layer (amrld_etl/): 75.8 GB / 33 computed tables",
-      "tiny_files": true,
-      "tiny_files_note": "Record dates reflect sample extract window (50K rows/record). Full archive: 2012-12-31 \u2192 2026-06-08. Raw files: 8.2 GB / 60K objects. ETL layer (amrld_etl/): 75.8 GB / 33 computed tables.",
-      "scan_run": "2026-06-17",
-      "record_types": [
-        {
-          "id": "REC20",
-          "description": "Household panel member characteristics (EHH)",
-          "file_type": "EHH",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null
-        },
-        {
-          "id": "REC24",
-          "description": "Person panel member characteristics (EHH)",
-          "file_type": "EHH",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null
-        },
-        {
-          "id": "REC25",
-          "description": "Household universe & weight estimates (EHH)",
-          "file_type": "EHH",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null
-        },
-        {
-          "id": "REC26",
-          "description": "Person universe & weight estimates (EHH)",
-          "file_type": "EHH",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null
-        },
-        {
-          "id": "REC30",
-          "description": "Program airing descriptor (D0.ECN / EPG)",
-          "file_type": "ECN/EPG",
-          "processed": true,
-          "min_date": "2026-05-18",
-          "max_date": "2026-05-19",
-          "row_count": 50000,
-          "last_processed": "2026-06-17",
-          "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
-        },
-        {
-          "id": "REC36",
-          "description": "Program viewing record (V0.ECN / EPG)",
-          "file_type": "ECN/EPG",
-          "processed": true,
-          "min_date": "2026-05-18",
-          "max_date": "2026-05-19",
-          "row_count": 50000,
-          "last_processed": "2026-06-17",
-          "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
-        },
-        {
-          "id": "REC40",
-          "description": "Commercial minutes / CCM",
-          "file_type": "CCM",
-          "processed": true,
-          "min_date": "2007-09-26",
-          "max_date": "2026-05-31",
-          "row_count": null,
-          "last_processed": "2026-06-20",
-          "note": "43,588 files in S3 · date range from _date_str partition keys · uploaded 2026-06-20"
-        },
-        {
-          "id": "REC47",
-          "description": "Household CPP calibration weights",
-          "file_type": "CPP",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null
-        },
-        {
-          "id": "REC48",
-          "description": "Person CPP calibration weights",
-          "file_type": "CPP",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null
-        },
-        {
-          "id": "REC50",
-          "description": "Time-period descriptive segment",
-          "file_type": "ECT",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null
-        },
-        {
-          "id": "REC56",
-          "description": "Time-period viewing (ECT)",
-          "file_type": "ECT",
-          "processed": true,
-          "min_date": "2026-05-18",
-          "max_date": "2026-05-20",
-          "row_count": 50000,
-          "last_processed": "2026-06-17",
-          "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-20 \u00b7 archive floor/ceiling from header"
-        },
-        {
-          "id": "REC56_OBT",
-          "description": "Time-period viewing (OBT \u2014 on-box tuning)",
-          "file_type": "OBT",
-          "processed": true,
-          "min_date": "2026-05-18",
-          "max_date": "2026-05-18",
-          "row_count": 50000,
-          "last_processed": "2026-06-17",
-          "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-18 \u00b7 archive floor/ceiling from header"
-        },
-        {
-          "id": "REC65",
-          "description": "MVPD / MSO household penetration",
-          "file_type": "EHH",
-          "processed": true,
-          "min_date": "2026-05-18",
-          "max_date": "2026-05-19",
-          "row_count": 50000,
-          "last_processed": "2026-06-17",
-          "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
-        },
-        {
-          "id": "REC67",
-          "description": "SVOD subscription penetration",
-          "file_type": "EHH",
-          "processed": true,
-          "min_date": "2026-05-18",
-          "max_date": "2026-05-19",
-          "row_count": 50000,
-          "last_processed": "2026-06-17",
-          "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
-        },
-        {
-          "id": "REC68",
-          "description": "Connected device household penetration",
-          "file_type": "EHH",
-          "processed": true,
-          "min_date": "2026-05-18",
-          "max_date": "2026-05-19",
-          "row_count": 50000,
-          "last_processed": "2026-06-17",
-          "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
-        },
-        {
-          "id": "REC70",
-          "description": "Universe estimates / UES",
-          "file_type": "UES",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null
-        },
-        {
-          "id": "REC71",
-          "description": "Universe estimates / CUE",
-          "file_type": "UES",
-          "processed": true,
-          "min_date": "2020-12-27",
-          "max_date": "2021-12-25",
-          "row_count": 50000,
-          "last_processed": "2026-06-17",
-          "note": "tiny-files (50K sample) \u00b7 scan window 2020-12-27 \u2192 2021-12-25 \u00b7 archive floor/ceiling from header"
-        },
-        {
-          "id": "REC10",
-          "description": "File-type header / calendar definitions",
-          "file_type": "HEADER",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true
-        },
-        {
-          "id": "REC11",
-          "description": "Reporting calendar definitions",
-          "file_type": "HEADER",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true
-        },
-        {
-          "id": "REC22",
-          "description": "Vehicle segment codes",
-          "file_type": "REF",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true
-        },
-        {
-          "id": "REC32",
-          "description": "Multi-segment quarter-hour viewing",
-          "file_type": "ECT",
-          "processed": true,
-          "min_date": "2012-07-22",
-          "max_date": "2026-06-07",
-          "row_count": null,
-          "last_processed": "2026-06-20",
-          "note": "1,817 files in S3 · date range from _date_str partition keys · uploaded 2026-06-20"
-        },
-        {
-          "id": "MOBILE_HH",
-          "description": "Mobile household viewing records",
-          "file_type": "MOBILE",
-          "processed": true,
-          "min_date": "2021-07-08",
-          "max_date": "2025-07-26",
-          "row_count": null,
-          "last_processed": "2026-06-20",
-          "note": "10,020 files in S3 · date range from _date_str partition keys · uploaded 2026-06-20"
-        },
-        {
-          "id": "MOBILE_PERSON",
-          "description": "Mobile person-level viewing records",
-          "file_type": "MOBILE",
-          "processed": true,
-          "min_date": "2024-05-30",
-          "max_date": "2025-07-26",
-          "row_count": null,
-          "last_processed": "2026-06-20",
-          "note": "2,933 files in S3 · date range from _date_str partition keys · uploaded 2026-06-20"
-        },
-        {
-          "id": "LPM_MKT",
-          "description": "Local People Meter market-level household data",
-          "file_type": "EHH",
-          "processed": true,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": "2026-06-20",
-          "note": "7 files in S3 · no _date_str partitions (single __HIVE_DEFAULT_PARTITION__) · uploaded 2026-06-20"
-        },
-        {
-          "id": "VMVPD_HH",
-          "description": "Virtual MVPD household penetration",
-          "file_type": "EHH",
-          "processed": true,
-          "min_date": "2017-09-22",
-          "max_date": "2025-12-28",
-          "row_count": null,
-          "last_processed": "2026-06-20",
-          "note": "799 files in S3 · date range from _date_str partition keys · uploaded 2026-06-20"
-        },
-        {
-          "id": "REC33",
-          "description": "Time-zone adjustment records",
-          "file_type": "ECT",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true
-        },
-        {
-          "id": "REC35",
-          "description": "Gap-type viewing records",
-          "file_type": "ECT",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true
-        },
-        {
-          "id": "REC37",
-          "description": "Digital TV / IP ratings",
-          "file_type": "ECT",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true
-        },
-        {
-          "id": "REC51",
-          "description": "Internet time-period viewing (session 1)",
-          "file_type": "ECT",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true
-        },
-        {
-          "id": "REC60",
-          "description": "Broadcast-date calendar",
-          "file_type": "HEADER",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true
-        },
-        {
-          "id": "REC73",
-          "description": "Local market penetration",
-          "file_type": "EHH",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true
-        }
-      ],
-      "etl2_tables": [
-        {
-          "id": "amrld_program_view",
-          "description": "ETL 2 \u2014 Person-level program viewing aggregate (Live/L+SD/L+3/L+7) derived from REC36 APW",
-          "file_type": "ETL2",
-          "processed": true,
-          "min_date": "2012-12-31",
-          "max_date": "2026-06-08",
-          "row_count": null,
-          "last_processed": "2026-05-26",
-          "note": "Derived from amrld_pgm_view (REC36). Grain: PID + program_code + broadcast_week. Includes viewer_weight, viewing_minutes, Live+SD/L+3/L+7 flags. Source of AA ratings computation.",
-          "etl_tier": 2
-        }
-      ],
-      "etl2_note": "ETL 2 tables are curated/aggregated analytics outputs derived from ETL 1 raw record types above. These are the primary query surfaces for audience analytics."
+ "generated": "2026-06-25T00:00:00Z",
+ "generated_by": "WARROOM-DRILLDOWN-ETL2-001",
+ "sources": {
+  "amrld": {
+   "label": "AMRLD",
+   "s3_prefix": "s3://sasmaster-2026/nielsen/amrld/",
+   "description": "Audience Measurement Respondent-Level Data (V3.23)",
+   "overall_min": "2007-09-26",
+   "overall_max": "2026-06-07",
+   "last_processed": "2026-06-20",
+   "total_rows": null,
+   "note": "8.2 GB raw \u00b7 60K files \u00b7 15 sub-folders \u00b7 ETL layer (amrld_etl/): 75.8 GB / 33 computed tables",
+   "tiny_files": true,
+   "tiny_files_note": "Record dates reflect sample extract window (50K rows/record). Full archive: 2012-12-31 \u2192 2026-06-08. Raw files: 8.2 GB / 60K objects. ETL layer (amrld_etl/): 75.8 GB / 33 computed tables.",
+   "scan_run": "2026-06-17",
+   "record_types": [
+    {
+     "id": "amrld_time_period_view",
+     "description": "AMRLD time-period viewing \u2014 ETL computed view (v2, amrld_etl/)",
+     "file_type": "ETL\u00b7ECT",
+     "processed": true,
+     "min_date": "2026-05-30",
+     "max_date": "2026-06-12",
+     "row_count": 75048663,
+     "last_processed": "2026-06-26"
     },
-    "mit": {
-      "label": "MIT (NHI)",
-      "s3_prefix": "s3://sasmaster-2026/nielsen/mit/",
-      "description": "Nielsen Household Index \u2014 Minute-by-minute Information Tapes (NHI family)",
-      "overall_min": "2014-09-01",
-      "overall_max": "2026-06-09",
-      "last_processed": "2026-06-10",
-      "total_rows": null,
-      "note": "211.6 GB \u00b7 466K files \u00b7 31 sub-folders \u00b7 2 feeds (03h + 05p)",
-      "record_types": [
-        {
-          "id": "NHI_MIT_00",
-          "description": "MIT header / file-level descriptor",
-          "file_type": "H",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26"
-        },
-        {
-          "id": "NHI_MIT_01_UES_H",
-          "description": "Universe estimates \u2014 Household (HUT base)",
-          "file_type": "H",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null,
-          "note": "defined \u2014 check feed availability"
-        },
-        {
-          "id": "NHI_MIT_01_UES_P",
-          "description": "Universe estimates \u2014 Demo (PUT base)",
-          "file_type": "P",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26"
-        },
-        {
-          "id": "NHI_MIT_02_INT_H",
-          "description": "Sample / Intab counts \u2014 Household",
-          "file_type": "H",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26"
-        },
-        {
-          "id": "NHI_MIT_02_INT_P",
-          "description": "Sample / Intab counts \u2014 Demo",
-          "file_type": "P",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26"
-        },
-        {
-          "id": "NHI_MIT_03_TVU_H",
-          "description": "TV usage \u2014 HUT (Households Using Television)",
-          "file_type": "H",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26"
-        },
-        {
-          "id": "NHI_MIT_03_TVU_P",
-          "description": "TV usage \u2014 PUT (Persons Using Television)",
-          "file_type": "P",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26"
-        },
-        {
-          "id": "NHI_MIT_04_D",
-          "description": "Total program record \u2014 HH AA + metadata (D)",
-          "file_type": "D",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26"
-        },
-        {
-          "id": "NHI_MIT_04_H",
-          "description": "HH half-hour time-period detail",
-          "file_type": "H",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26"
-        },
-        {
-          "id": "NHI_MIT_04_P",
-          "description": "Demo Program / HH / QH Average Audience",
-          "file_type": "P",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26"
-        },
-        {
-          "id": "NHI_MIT_05_H",
-          "description": "Half-hour all-network HH audience",
-          "file_type": "H",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26"
-        },
-        {
-          "id": "NHI_MIT_05_P",
-          "description": "Half-hour all-network Demo audience",
-          "file_type": "P",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26"
-        },
-        {
-          "id": "NHI_MIT_ACM_06_C",
-          "description": "Commercial audience (C3) \u2014 HH",
-          "file_type": "C",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true
-        },
-        {
-          "id": "NHI_MIT_ACM_06_P",
-          "description": "Commercial audience (C3) \u2014 Demo",
-          "file_type": "P",
-          "processed": false,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": null,
-          "defined_not_ingested": true
-        },
-        {
-          "id": "HR_ID_DESC",
-          "description": "Daypart / time-period ID reference",
-          "file_type": "REF",
-          "processed": true,
-          "min_date": null,
-          "max_date": null,
-          "row_count": null,
-          "last_processed": "2026-05-26",
-          "note": "reference table \u2014 no date range"
-        }
-      ],
-      "etl2_tables": [
-        {
-          "id": "mit_viewership_l",
-          "description": "ETL 2 \u2014 Program-level Live audience (viewing type: Live w/ VCR). Grain: program_code + network + air_date.",
-          "file_type": "ETL2",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26",
-          "note": "Derived from NHI_MIT_04_D + NHI_MIT_04_P. HH AA + demo AA projections. Live viewing only (no DVR playback).",
-          "etl_tier": 2
-        },
-        {
-          "id": "mit_viewership_lsd",
-          "description": "ETL 2 \u2014 Program-level Live + Same Day audience (L+SD). Overnight currency. Grain: program_code + network + air_date.",
-          "file_type": "ETL2",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26",
-          "note": "Derived from NHI_MIT_04_D + NHI_MIT_04_P (viewing_type=LS). Includes same-day DVR playback. Standard overnight metric.",
-          "etl_tier": 2
-        },
-        {
-          "id": "mit_viewership_l3",
-          "description": "ETL 2 \u2014 Program-level Live + 3-day audience (C3 window, 75-hour DVR). Ad sales currency. Grain: program_code + network + air_date.",
-          "file_type": "ETL2",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26",
-          "note": "Derived from NHI_MIT_04_D + NHI_MIT_04_P (viewing_type=L3/A). C3 standard \u2014 primary national TV ad currency. 75-hour DVR playback window.",
-          "etl_tier": 2
-        },
-        {
-          "id": "mit_viewership_l7",
-          "description": "ETL 2 \u2014 Program-level Live + 7-day audience (C7 window). Premium metric. Grain: program_code + network + air_date.",
-          "file_type": "ETL2",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26",
-          "note": "Derived from NHI_MIT_04_D + NHI_MIT_04_P (viewing_type=L7/4). C7 window \u2014 premium metric for digital-first/streaming-adjacent programming.",
-          "etl_tier": 2
-        },
-        {
-          "id": "mit_viewership_tp_l",
-          "description": "ETL 2 \u2014 Time-period Live audience (half-hour grain). HUT/PUT base. Grain: network + daypart + half_hour_id + air_date.",
-          "file_type": "ETL2",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26",
-          "note": "Derived from NHI_MIT_03_TVU_H/P + NHI_MIT_05_H/P. Half-hour time-period audience \u2014 HUT/PUT calculation base. 48 half-hours per broadcast day (6AM anchor).",
-          "etl_tier": 2
-        },
-        {
-          "id": "mit_viewership_tp_lsd",
-          "description": "ETL 2 \u2014 Time-period Live + Same Day audience (half-hour grain). Grain: network + daypart + half_hour_id + air_date.",
-          "file_type": "ETL2",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26",
-          "note": "Derived from NHI_MIT_04_H/P (viewing_type=LS). Time-period L+SD \u2014 used for same-day competitive scheduling analysis.",
-          "etl_tier": 2
-        },
-        {
-          "id": "mit_viewership_tp_l3",
-          "description": "ETL 2 \u2014 Time-period Live + 3-day audience (half-hour grain). C3 window at TP level. Grain: network + daypart + half_hour_id + air_date.",
-          "file_type": "ETL2",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26",
-          "note": "Derived from NHI_MIT_04_H/P (viewing_type=L3/A). Time-period C3 \u2014 used for daypart-level commercial rating analysis and lead-in/lead-out performance.",
-          "etl_tier": 2
-        },
-        {
-          "id": "mit_viewership_tp_l7",
-          "description": "ETL 2 \u2014 Time-period Live + 7-day audience (half-hour grain). C7 window at TP level. Grain: network + daypart + half_hour_id + air_date.",
-          "file_type": "ETL2",
-          "processed": true,
-          "min_date": "2014-09-01",
-          "max_date": "2026-06-09",
-          "row_count": null,
-          "last_processed": "2026-05-26",
-          "note": "Derived from NHI_MIT_04_H/P (viewing_type=L7/4). Time-period C7 \u2014 premium extended-window time slot analysis. Broadcast gap applies: cuts 11/30/2022 for Broadcast TP records.",
-          "etl_tier": 2
-        }
-      ],
-      "etl2_note": "ETL 2 tables are curated viewership outputs aggregated from the MIT raw record types above. Program-level tables (mit_viewership_*) derive from 04-D/P records. Time-period tables (mit_viewership_tp_*) derive from 03-H/P and 04-H/P records. Both sets cover Live / L+SD / L+3 / L+7 viewing windows."
+    {
+     "id": "amrld_program_view",
+     "description": "AMRLD program viewing \u2014 ETL computed view (amrld_etl/)",
+     "file_type": "ETL\u00b7ECN",
+     "processed": true,
+     "min_date": "2020-01-01",
+     "max_date": "2026-06-12",
+     "row_count": 3760652511,
+     "last_processed": "2026-06-26"
     },
-    "ad_intel": {
-      "label": "Ad Intel",
-      "s3_prefix": "s3://sasmaster-2026/nielsen/ad_intel/",
-      "note": "38 sub-folders / 1,750 files / 22.0 GB",
-      "last_processed": "2026-06-10",
-      "overall_min": "2018-01-01",
-      "overall_max": "2026-06-10",
-      "record_types": [
-        {
-          "id": "AD_INTEL_MAIN",
-          "description": "Advertising intelligence \u2014 brand/product/media placement data",
-          "file_type": "parquet",
-          "processed": true,
-          "min_date": "2018-01-01",
-          "max_date": "2026-06-10",
-          "row_count": null,
-          "last_processed": "2026-06-10"
-        },
-        {
-          "id": "AD_INTEL_BRAND",
-          "description": "Brand-level advertising spend and share",
-          "file_type": "parquet",
-          "processed": true,
-          "min_date": "2018-01-01",
-          "max_date": "2026-06-10",
-          "row_count": null,
-          "last_processed": "2026-06-10"
-        },
-        {
-          "id": "AD_INTEL_PRODUCT",
-          "description": "Product/SKU-level placements by medium",
-          "file_type": "parquet",
-          "processed": true,
-          "min_date": "2018-01-01",
-          "max_date": "2026-06-10",
-          "row_count": null,
-          "last_processed": "2026-06-10"
-        },
-        {
-          "id": "AD_INTEL_MEDIA",
-          "description": "Media vehicle cross-reference table",
-          "file_type": "parquet",
-          "processed": true,
-          "min_date": "2018-01-01",
-          "max_date": "2026-06-10",
-          "row_count": null,
-          "last_processed": "2026-06-10"
-        },
-        {
-          "id": "AD_INTEL_OCCURRENCES",
-          "description": "Ad occurrence-level detail (38 sub-tables)",
-          "file_type": "parquet",
-          "processed": true,
-          "min_date": "2018-01-01",
-          "max_date": "2026-06-10",
-          "row_count": null,
-          "last_processed": "2026-06-10"
-        }
-      ]
+    {
+     "id": "REC20",
+     "description": "Household panel member characteristics (EHH)",
+     "file_type": "EHH",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
     },
-    "mri": {
-      "label": "MRI (Survey of the American Consumer)",
-      "s3_prefix": "s3://sasmaster-2026/nielsen/mri/",
-      "note": "29 consumer segments / 412 files / 4.8 GB",
-      "last_processed": "2026-06-10",
-      "overall_min": "2019-01-01",
-      "overall_max": "2026-06-10",
-      "record_types": [
-        {
-          "id": "MRI_MEDIA",
-          "description": "Media consumption behaviour by respondent",
-          "file_type": "parquet",
-          "processed": true,
-          "min_date": "2019-01-01",
-          "max_date": "2026-06-10",
-          "row_count": null,
-          "last_processed": "2026-06-10"
-        },
-        {
-          "id": "MRI_PRODUCT",
-          "description": "Product usage and brand preference",
-          "file_type": "parquet",
-          "processed": true,
-          "min_date": "2019-01-01",
-          "max_date": "2026-06-10",
-          "row_count": null,
-          "last_processed": "2026-06-10"
-        },
-        {
-          "id": "MRI_DEMO",
-          "description": "Respondent demographics and lifestyle attributes",
-          "file_type": "parquet",
-          "processed": true,
-          "min_date": "2019-01-01",
-          "max_date": "2026-06-10",
-          "row_count": null,
-          "last_processed": "2026-06-10"
-        },
-        {
-          "id": "MRI_WEIGHT",
-          "description": "Survey weighting and projection factors",
-          "file_type": "parquet",
-          "processed": true,
-          "min_date": "2019-01-01",
-          "max_date": "2026-06-10",
-          "row_count": null,
-          "last_processed": "2026-06-10"
-        },
-        {
-          "id": "MRI_SURVEY_ATTRS",
-          "description": "Survey attribute flags (29 sub-tables \u2014 note: date-looking fields are flags, not ISO dates)",
-          "file_type": "parquet",
-          "processed": true,
-          "min_date": "2019-01-01",
-          "max_date": "2026-06-10",
-          "row_count": null,
-          "last_processed": "2026-06-10"
-        }
-      ]
+    {
+     "id": "REC24",
+     "description": "Person panel member characteristics (EHH)",
+     "file_type": "EHH",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
     },
-    "laapp": {
-      "label": "LAAPP",
-      "s3_prefix": "s3://sasmaster-2026/nielsen/laapp/",
-      "description": "Local Audience Application Platform — analytics output layer for local market + HUT/PUT + AMRLD + met_* viewership. S3-only (no MD ingest yet). 36 sub-folders / 5.84M objects.",
-      "overall_min": null,
-      "overall_max": null,
-      "last_processed": "2026-06-22",
-      "total_rows": null,
-      "note": "805.7 GB · 5,840,199 files · 36 sub-folders · S3-only analytics platform",
-      "tiny_files": false,
-      "scan_run": "2026-06-22",
-      "record_types": [
-        {"id":"viewership_amrld_program",    "description":"AMRLD program-level viewing (local market grain)","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"viewership_amrld_timeperiod", "description":"AMRLD time-period viewing (local market grain)","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"viewership_met_c3",           "description":"Met C3 (Live+3) program viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"viewership_met_l3",           "description":"Met Live+3 program viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"viewership_met_l7",           "description":"Met Live+7 program viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"viewership_met_lsd",          "description":"Met Live+SD program viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"viewership_met_lv",           "description":"Met Live program viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"viewership_met_tp_l3",        "description":"Met time-period Live+3","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"viewership_met_tp_l7",        "description":"Met time-period Live+7","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"viewership_met_tp_lsd",       "description":"Met time-period Live+SD","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"viewership_met_tp_lv",        "description":"Met time-period Live","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"viewership_huts",             "description":"HUT (Households Using Television) by market","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"viewership_puts",             "description":"PUT (Persons Using Television) by market","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"viewership_pred_lsd",         "description":"Predicted Live+SD viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"amrld_all_mkt_brk",           "description":"AMRLD all-market break aggregate","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"amrld_household_data",        "description":"AMRLD household-level data","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"amrld_hut",                   "description":"AMRLD HUT computations","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"amrld_metadata",              "description":"AMRLD metadata reference","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"amrld_mvpd_mso_household_data","description":"AMRLD MVPD/MSO household penetration","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"amrld_svod_household_data",   "description":"AMRLD SVOD household data","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"amrld_svod_mso_mkt_brk",      "description":"AMRLD SVOD MSO market break","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"amrld_tp_view",               "description":"AMRLD time-period viewing","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"c3_pcd_tn_mints",             "description":"C3 per-commercial-day tune-in minutes","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"pcd_tn_mints",                "description":"Per-commercial-day tune-in minutes","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"pcd_tn_qtr_mints",            "description":"Per-commercial-day quarter-hour tune-in minutes","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"apw_flat",                    "description":"All-program-week flat viewership","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"hh_mkt_brks",                 "description":"Household market breaks","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"mvpd_hh_mkt_brks",            "description":"MVPD household market breaks","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"all_hhnbr",                   "description":"All household number reference","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"mkt_brk_univ",                "description":"Market break universe estimates","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"gn_future_schedule",          "description":"Gracenote future schedule feed","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"pts_avails",                  "description":"Points avails data","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"svod_hh_mkt_brks",            "description":"SVOD household market breaks","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"identity",                    "description":"Identity mapping reference","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"mit_01p_tr",                  "description":"MIT seq-01 person universe estimates (transform)","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null},
-        {"id":"_hwm",                        "description":"High-water mark control file","file_type":"S3","processed":true,"min_date":null,"max_date":null,"row_count":null,"last_processed":null}
-      ]
+    {
+     "id": "REC25",
+     "description": "Household universe & weight estimates (EHH)",
+     "file_type": "EHH",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "REC26",
+     "description": "Person universe & weight estimates (EHH)",
+     "file_type": "EHH",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "REC30",
+     "description": "Program airing descriptor (D0.ECN / EPG)",
+     "file_type": "ECN/EPG",
+     "processed": true,
+     "min_date": "2026-05-18",
+     "max_date": "2026-05-19",
+     "row_count": 50000,
+     "last_processed": "2026-06-17",
+     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
+    },
+    {
+     "id": "REC36",
+     "description": "Program viewing record (V0.ECN / EPG)",
+     "file_type": "ECN/EPG",
+     "processed": true,
+     "min_date": "2026-05-18",
+     "max_date": "2026-05-19",
+     "row_count": 50000,
+     "last_processed": "2026-06-17",
+     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
+    },
+    {
+     "id": "REC40",
+     "description": "Commercial minutes / CCM",
+     "file_type": "CCM",
+     "processed": true,
+     "min_date": "2007-09-26",
+     "max_date": "2026-05-31",
+     "row_count": null,
+     "last_processed": "2026-06-20",
+     "note": "43,588 files in S3 \u00b7 date range from _date_str partition keys \u00b7 uploaded 2026-06-20"
+    },
+    {
+     "id": "REC47",
+     "description": "Household CPP calibration weights",
+     "file_type": "CPP",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "REC48",
+     "description": "Person CPP calibration weights",
+     "file_type": "CPP",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "REC50",
+     "description": "Time-period descriptive segment",
+     "file_type": "ECT",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "REC56",
+     "description": "Time-period viewing (ECT)",
+     "file_type": "ECT",
+     "processed": true,
+     "min_date": "2026-05-18",
+     "max_date": "2026-05-20",
+     "row_count": 50000,
+     "last_processed": "2026-06-17",
+     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-20 \u00b7 archive floor/ceiling from header"
+    },
+    {
+     "id": "REC56_OBT",
+     "description": "Time-period viewing (OBT \u2014 on-box tuning)",
+     "file_type": "OBT",
+     "processed": true,
+     "min_date": "2026-05-18",
+     "max_date": "2026-05-18",
+     "row_count": 50000,
+     "last_processed": "2026-06-17",
+     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-18 \u00b7 archive floor/ceiling from header"
+    },
+    {
+     "id": "REC65",
+     "description": "MVPD / MSO household penetration",
+     "file_type": "EHH",
+     "processed": true,
+     "min_date": "2026-05-18",
+     "max_date": "2026-05-19",
+     "row_count": 50000,
+     "last_processed": "2026-06-17",
+     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
+    },
+    {
+     "id": "REC67",
+     "description": "SVOD subscription penetration",
+     "file_type": "EHH",
+     "processed": true,
+     "min_date": "2026-05-18",
+     "max_date": "2026-05-19",
+     "row_count": 50000,
+     "last_processed": "2026-06-17",
+     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
+    },
+    {
+     "id": "REC68",
+     "description": "Connected device household penetration",
+     "file_type": "EHH",
+     "processed": true,
+     "min_date": "2026-05-18",
+     "max_date": "2026-05-19",
+     "row_count": 50000,
+     "last_processed": "2026-06-17",
+     "note": "tiny-files (50K sample) \u00b7 scan window 2026-05-18 \u2192 2026-05-19 \u00b7 archive floor/ceiling from header"
+    },
+    {
+     "id": "REC70",
+     "description": "Universe estimates / UES",
+     "file_type": "UES",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "REC71",
+     "description": "Universe estimates / CUE",
+     "file_type": "UES",
+     "processed": true,
+     "min_date": "2020-12-27",
+     "max_date": "2021-12-25",
+     "row_count": 50000,
+     "last_processed": "2026-06-17",
+     "note": "tiny-files (50K sample) \u00b7 scan window 2020-12-27 \u2192 2021-12-25 \u00b7 archive floor/ceiling from header"
+    },
+    {
+     "id": "REC10",
+     "description": "File-type header / calendar definitions",
+     "file_type": "HEADER",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null,
+     "defined_not_ingested": true
+    },
+    {
+     "id": "REC11",
+     "description": "Reporting calendar definitions",
+     "file_type": "HEADER",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null,
+     "defined_not_ingested": true
+    },
+    {
+     "id": "REC22",
+     "description": "Vehicle segment codes",
+     "file_type": "REF",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null,
+     "defined_not_ingested": true
+    },
+    {
+     "id": "REC32",
+     "description": "Multi-segment quarter-hour viewing",
+     "file_type": "ECT",
+     "processed": true,
+     "min_date": "2012-07-22",
+     "max_date": "2026-06-07",
+     "row_count": null,
+     "last_processed": "2026-06-20",
+     "note": "1,817 files in S3 \u00b7 date range from _date_str partition keys \u00b7 uploaded 2026-06-20"
+    },
+    {
+     "id": "MOBILE_HH",
+     "description": "Mobile household viewing records",
+     "file_type": "MOBILE",
+     "processed": true,
+     "min_date": "2021-07-08",
+     "max_date": "2025-07-26",
+     "row_count": null,
+     "last_processed": "2026-06-20",
+     "note": "10,020 files in S3 \u00b7 date range from _date_str partition keys \u00b7 uploaded 2026-06-20"
+    },
+    {
+     "id": "MOBILE_PERSON",
+     "description": "Mobile person-level viewing records",
+     "file_type": "MOBILE",
+     "processed": true,
+     "min_date": "2024-05-30",
+     "max_date": "2025-07-26",
+     "row_count": null,
+     "last_processed": "2026-06-20",
+     "note": "2,933 files in S3 \u00b7 date range from _date_str partition keys \u00b7 uploaded 2026-06-20"
+    },
+    {
+     "id": "LPM_MKT",
+     "description": "Local People Meter market-level household data",
+     "file_type": "EHH",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": "2026-06-20",
+     "note": "7 files in S3 \u00b7 no _date_str partitions (single __HIVE_DEFAULT_PARTITION__) \u00b7 uploaded 2026-06-20"
+    },
+    {
+     "id": "VMVPD_HH",
+     "description": "Virtual MVPD household penetration",
+     "file_type": "EHH",
+     "processed": true,
+     "min_date": "2017-09-22",
+     "max_date": "2025-12-28",
+     "row_count": null,
+     "last_processed": "2026-06-20",
+     "note": "799 files in S3 \u00b7 date range from _date_str partition keys \u00b7 uploaded 2026-06-20"
+    },
+    {
+     "id": "REC33",
+     "description": "Time-zone adjustment records",
+     "file_type": "ECT",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null,
+     "defined_not_ingested": true
+    },
+    {
+     "id": "REC35",
+     "description": "Gap-type viewing records",
+     "file_type": "ECT",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null,
+     "defined_not_ingested": true
+    },
+    {
+     "id": "REC37",
+     "description": "Digital TV / IP ratings",
+     "file_type": "ECT",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null,
+     "defined_not_ingested": true
+    },
+    {
+     "id": "REC51",
+     "description": "Internet time-period viewing (session 1)",
+     "file_type": "ECT",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null,
+     "defined_not_ingested": true
+    },
+    {
+     "id": "REC60",
+     "description": "Broadcast-date calendar",
+     "file_type": "HEADER",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null,
+     "defined_not_ingested": true
+    },
+    {
+     "id": "REC73",
+     "description": "Local market penetration",
+     "file_type": "EHH",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null,
+     "defined_not_ingested": true
     }
+   ],
+   "etl2_tables": [
+    {
+     "id": "amrld_program_view",
+     "description": "ETL 2 \u2014 Person-level program viewing aggregate (Live/L+SD/L+3/L+7) derived from REC36 APW",
+     "file_type": "ETL2",
+     "processed": true,
+     "min_date": "2012-12-31",
+     "max_date": "2026-06-08",
+     "row_count": null,
+     "last_processed": "2026-05-26",
+     "note": "Derived from amrld_pgm_view (REC36). Grain: PID + program_code + broadcast_week. Includes viewer_weight, viewing_minutes, Live+SD/L+3/L+7 flags. Source of AA ratings computation.",
+     "etl_tier": 2
+    }
+   ],
+   "etl2_note": "ETL 2 tables are curated/aggregated analytics outputs derived from ETL 1 raw record types above. These are the primary query surfaces for audience analytics."
+  },
+  "mit": {
+   "label": "MIT (NHI)",
+   "s3_prefix": "s3://sasmaster-2026/nielsen/mit/",
+   "description": "Nielsen Household Index \u2014 Minute-by-minute Information Tapes (NHI family)",
+   "overall_min": "2014-09-01",
+   "overall_max": "2026-06-09",
+   "last_processed": "2026-06-10",
+   "total_rows": null,
+   "note": "211.6 GB \u00b7 466K files \u00b7 31 sub-folders \u00b7 2 feeds (03h + 05p)",
+   "record_types": [
+    {
+     "id": "NHI_MIT_00",
+     "description": "MIT header / file-level descriptor",
+     "file_type": "H",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26"
+    },
+    {
+     "id": "NHI_MIT_01_UES_H",
+     "description": "Universe estimates \u2014 Household (HUT base)",
+     "file_type": "H",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null,
+     "note": "defined \u2014 check feed availability"
+    },
+    {
+     "id": "NHI_MIT_01_UES_P",
+     "description": "Universe estimates \u2014 Demo (PUT base)",
+     "file_type": "P",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26"
+    },
+    {
+     "id": "NHI_MIT_02_INT_H",
+     "description": "Sample / Intab counts \u2014 Household",
+     "file_type": "H",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26"
+    },
+    {
+     "id": "NHI_MIT_02_INT_P",
+     "description": "Sample / Intab counts \u2014 Demo",
+     "file_type": "P",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26"
+    },
+    {
+     "id": "NHI_MIT_03_TVU_H",
+     "description": "TV usage \u2014 HUT (Households Using Television)",
+     "file_type": "H",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26"
+    },
+    {
+     "id": "NHI_MIT_03_TVU_P",
+     "description": "TV usage \u2014 PUT (Persons Using Television)",
+     "file_type": "P",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26"
+    },
+    {
+     "id": "NHI_MIT_04_D",
+     "description": "Total program record \u2014 HH AA + metadata (D)",
+     "file_type": "D",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26"
+    },
+    {
+     "id": "NHI_MIT_04_H",
+     "description": "HH half-hour time-period detail",
+     "file_type": "H",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26"
+    },
+    {
+     "id": "NHI_MIT_04_P",
+     "description": "Demo Program / HH / QH Average Audience",
+     "file_type": "P",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26"
+    },
+    {
+     "id": "NHI_MIT_05_H",
+     "description": "Half-hour all-network HH audience",
+     "file_type": "H",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26"
+    },
+    {
+     "id": "NHI_MIT_05_P",
+     "description": "Half-hour all-network Demo audience",
+     "file_type": "P",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26"
+    },
+    {
+     "id": "NHI_MIT_ACM_06_C",
+     "description": "Commercial audience (C3) \u2014 HH",
+     "file_type": "C",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null,
+     "defined_not_ingested": true
+    },
+    {
+     "id": "NHI_MIT_ACM_06_P",
+     "description": "Commercial audience (C3) \u2014 Demo",
+     "file_type": "P",
+     "processed": false,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null,
+     "defined_not_ingested": true
+    },
+    {
+     "id": "HR_ID_DESC",
+     "description": "Daypart / time-period ID reference",
+     "file_type": "REF",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": "2026-05-26",
+     "note": "reference table \u2014 no date range"
+    }
+   ],
+   "etl2_tables": [
+    {
+     "id": "mit_viewership_l",
+     "description": "ETL 2 \u2014 Program-level Live audience (viewing type: Live w/ VCR). Grain: program_code + network + air_date.",
+     "file_type": "ETL2",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26",
+     "note": "Derived from NHI_MIT_04_D + NHI_MIT_04_P. HH AA + demo AA projections. Live viewing only (no DVR playback).",
+     "etl_tier": 2
+    },
+    {
+     "id": "mit_viewership_lsd",
+     "description": "ETL 2 \u2014 Program-level Live + Same Day audience (L+SD). Overnight currency. Grain: program_code + network + air_date.",
+     "file_type": "ETL2",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26",
+     "note": "Derived from NHI_MIT_04_D + NHI_MIT_04_P (viewing_type=LS). Includes same-day DVR playback. Standard overnight metric.",
+     "etl_tier": 2
+    },
+    {
+     "id": "mit_viewership_l3",
+     "description": "ETL 2 \u2014 Program-level Live + 3-day audience (C3 window, 75-hour DVR). Ad sales currency. Grain: program_code + network + air_date.",
+     "file_type": "ETL2",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26",
+     "note": "Derived from NHI_MIT_04_D + NHI_MIT_04_P (viewing_type=L3/A). C3 standard \u2014 primary national TV ad currency. 75-hour DVR playback window.",
+     "etl_tier": 2
+    },
+    {
+     "id": "mit_viewership_l7",
+     "description": "ETL 2 \u2014 Program-level Live + 7-day audience (C7 window). Premium metric. Grain: program_code + network + air_date.",
+     "file_type": "ETL2",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26",
+     "note": "Derived from NHI_MIT_04_D + NHI_MIT_04_P (viewing_type=L7/4). C7 window \u2014 premium metric for digital-first/streaming-adjacent programming.",
+     "etl_tier": 2
+    },
+    {
+     "id": "mit_viewership_tp_l",
+     "description": "ETL 2 \u2014 Time-period Live audience (half-hour grain). HUT/PUT base. Grain: network + daypart + half_hour_id + air_date.",
+     "file_type": "ETL2",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26",
+     "note": "Derived from NHI_MIT_03_TVU_H/P + NHI_MIT_05_H/P. Half-hour time-period audience \u2014 HUT/PUT calculation base. 48 half-hours per broadcast day (6AM anchor).",
+     "etl_tier": 2
+    },
+    {
+     "id": "mit_viewership_tp_lsd",
+     "description": "ETL 2 \u2014 Time-period Live + Same Day audience (half-hour grain). Grain: network + daypart + half_hour_id + air_date.",
+     "file_type": "ETL2",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26",
+     "note": "Derived from NHI_MIT_04_H/P (viewing_type=LS). Time-period L+SD \u2014 used for same-day competitive scheduling analysis.",
+     "etl_tier": 2
+    },
+    {
+     "id": "mit_viewership_tp_l3",
+     "description": "ETL 2 \u2014 Time-period Live + 3-day audience (half-hour grain). C3 window at TP level. Grain: network + daypart + half_hour_id + air_date.",
+     "file_type": "ETL2",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26",
+     "note": "Derived from NHI_MIT_04_H/P (viewing_type=L3/A). Time-period C3 \u2014 used for daypart-level commercial rating analysis and lead-in/lead-out performance.",
+     "etl_tier": 2
+    },
+    {
+     "id": "mit_viewership_tp_l7",
+     "description": "ETL 2 \u2014 Time-period Live + 7-day audience (half-hour grain). C7 window at TP level. Grain: network + daypart + half_hour_id + air_date.",
+     "file_type": "ETL2",
+     "processed": true,
+     "min_date": "2014-09-01",
+     "max_date": "2026-06-09",
+     "row_count": null,
+     "last_processed": "2026-05-26",
+     "note": "Derived from NHI_MIT_04_H/P (viewing_type=L7/4). Time-period C7 \u2014 premium extended-window time slot analysis. Broadcast gap applies: cuts 11/30/2022 for Broadcast TP records.",
+     "etl_tier": 2
+    }
+   ],
+   "etl2_note": "ETL 2 tables are curated viewership outputs aggregated from the MIT raw record types above. Program-level tables (mit_viewership_*) derive from 04-D/P records. Time-period tables (mit_viewership_tp_*) derive from 03-H/P and 04-H/P records. Both sets cover Live / L+SD / L+3 / L+7 viewing windows."
+  },
+  "ad_intel": {
+   "label": "Ad Intel",
+   "s3_prefix": "s3://sasmaster-2026/nielsen/ad_intel/",
+   "note": "38 sub-folders / 1,750 files / 22.0 GB",
+   "last_processed": "2026-06-10",
+   "overall_min": "2018-01-01",
+   "overall_max": "2026-06-10",
+   "record_types": [
+    {
+     "id": "AD_INTEL_MAIN",
+     "description": "Advertising intelligence \u2014 brand/product/media placement data",
+     "file_type": "parquet",
+     "processed": true,
+     "min_date": "2018-01-01",
+     "max_date": "2026-06-10",
+     "row_count": null,
+     "last_processed": "2026-06-10"
+    },
+    {
+     "id": "AD_INTEL_BRAND",
+     "description": "Brand-level advertising spend and share",
+     "file_type": "parquet",
+     "processed": true,
+     "min_date": "2018-01-01",
+     "max_date": "2026-06-10",
+     "row_count": null,
+     "last_processed": "2026-06-10"
+    },
+    {
+     "id": "AD_INTEL_PRODUCT",
+     "description": "Product/SKU-level placements by medium",
+     "file_type": "parquet",
+     "processed": true,
+     "min_date": "2018-01-01",
+     "max_date": "2026-06-10",
+     "row_count": null,
+     "last_processed": "2026-06-10"
+    },
+    {
+     "id": "AD_INTEL_MEDIA",
+     "description": "Media vehicle cross-reference table",
+     "file_type": "parquet",
+     "processed": true,
+     "min_date": "2018-01-01",
+     "max_date": "2026-06-10",
+     "row_count": null,
+     "last_processed": "2026-06-10"
+    },
+    {
+     "id": "AD_INTEL_OCCURRENCES",
+     "description": "Ad occurrence-level detail (38 sub-tables)",
+     "file_type": "parquet",
+     "processed": true,
+     "min_date": "2018-01-01",
+     "max_date": "2026-06-10",
+     "row_count": null,
+     "last_processed": "2026-06-10"
+    }
+   ]
+  },
+  "mri": {
+   "label": "MRI (Survey of the American Consumer)",
+   "s3_prefix": "s3://sasmaster-2026/nielsen/mri/",
+   "note": "29 consumer segments / 412 files / 4.8 GB",
+   "last_processed": "2026-06-10",
+   "overall_min": "2019-01-01",
+   "overall_max": "2026-06-10",
+   "record_types": [
+    {
+     "id": "MRI_MEDIA",
+     "description": "Media consumption behaviour by respondent",
+     "file_type": "parquet",
+     "processed": true,
+     "min_date": "2019-01-01",
+     "max_date": "2026-06-10",
+     "row_count": null,
+     "last_processed": "2026-06-10"
+    },
+    {
+     "id": "MRI_PRODUCT",
+     "description": "Product usage and brand preference",
+     "file_type": "parquet",
+     "processed": true,
+     "min_date": "2019-01-01",
+     "max_date": "2026-06-10",
+     "row_count": null,
+     "last_processed": "2026-06-10"
+    },
+    {
+     "id": "MRI_DEMO",
+     "description": "Respondent demographics and lifestyle attributes",
+     "file_type": "parquet",
+     "processed": true,
+     "min_date": "2019-01-01",
+     "max_date": "2026-06-10",
+     "row_count": null,
+     "last_processed": "2026-06-10"
+    },
+    {
+     "id": "MRI_WEIGHT",
+     "description": "Survey weighting and projection factors",
+     "file_type": "parquet",
+     "processed": true,
+     "min_date": "2019-01-01",
+     "max_date": "2026-06-10",
+     "row_count": null,
+     "last_processed": "2026-06-10"
+    },
+    {
+     "id": "MRI_SURVEY_ATTRS",
+     "description": "Survey attribute flags (29 sub-tables \u2014 note: date-looking fields are flags, not ISO dates)",
+     "file_type": "parquet",
+     "processed": true,
+     "min_date": "2019-01-01",
+     "max_date": "2026-06-10",
+     "row_count": null,
+     "last_processed": "2026-06-10"
+    }
+   ]
+  },
+  "laapp": {
+   "label": "LAAPP",
+   "s3_prefix": "s3://sasmaster-2026/nielsen/laapp/",
+   "description": "Local Audience Application Platform \u2014 analytics output layer for local market + HUT/PUT + AMRLD + met_* viewership. S3-only (no MD ingest yet). 36 sub-folders / 5.84M objects.",
+   "overall_min": null,
+   "overall_max": null,
+   "last_processed": "2026-06-22",
+   "total_rows": null,
+   "note": "805.7 GB \u00b7 5,840,199 files \u00b7 36 sub-folders \u00b7 S3-only analytics platform",
+   "tiny_files": false,
+   "scan_run": "2026-06-22",
+   "record_types": [
+    {
+     "id": "viewership_amrld_program",
+     "description": "AMRLD program-level viewing (local market grain)",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "viewership_amrld_timeperiod",
+     "description": "AMRLD time-period viewing (local market grain)",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "viewership_met_c3",
+     "description": "Met C3 (Live+3) program viewership",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "viewership_met_l3",
+     "description": "Met Live+3 program viewership",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "viewership_met_l7",
+     "description": "Met Live+7 program viewership",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "viewership_met_lsd",
+     "description": "Met Live+SD program viewership",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "viewership_met_lv",
+     "description": "Met Live program viewership",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "viewership_met_tp_l3",
+     "description": "Met time-period Live+3",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "viewership_met_tp_l7",
+     "description": "Met time-period Live+7",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "viewership_met_tp_lsd",
+     "description": "Met time-period Live+SD",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "viewership_met_tp_lv",
+     "description": "Met time-period Live",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "viewership_huts",
+     "description": "HUT (Households Using Television) by market",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "viewership_puts",
+     "description": "PUT (Persons Using Television) by market",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "viewership_pred_lsd",
+     "description": "Predicted Live+SD viewership",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "amrld_all_mkt_brk",
+     "description": "AMRLD all-market break aggregate",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "amrld_household_data",
+     "description": "AMRLD household-level data",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "amrld_hut",
+     "description": "AMRLD HUT computations",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "amrld_metadata",
+     "description": "AMRLD metadata reference",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "amrld_mvpd_mso_household_data",
+     "description": "AMRLD MVPD/MSO household penetration",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "amrld_svod_household_data",
+     "description": "AMRLD SVOD household data",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "amrld_svod_mso_mkt_brk",
+     "description": "AMRLD SVOD MSO market break",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "amrld_tp_view",
+     "description": "AMRLD time-period viewing",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "c3_pcd_tn_mints",
+     "description": "C3 per-commercial-day tune-in minutes",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "pcd_tn_mints",
+     "description": "Per-commercial-day tune-in minutes",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "pcd_tn_qtr_mints",
+     "description": "Per-commercial-day quarter-hour tune-in minutes",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "apw_flat",
+     "description": "All-program-week flat viewership",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "hh_mkt_brks",
+     "description": "Household market breaks",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "mvpd_hh_mkt_brks",
+     "description": "MVPD household market breaks",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "all_hhnbr",
+     "description": "All household number reference",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "mkt_brk_univ",
+     "description": "Market break universe estimates",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "gn_future_schedule",
+     "description": "Gracenote future schedule feed",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "pts_avails",
+     "description": "Points avails data",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "svod_hh_mkt_brks",
+     "description": "SVOD household market breaks",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "identity",
+     "description": "Identity mapping reference",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "mit_01p_tr",
+     "description": "MIT seq-01 person universe estimates (transform)",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    },
+    {
+     "id": "_hwm",
+     "description": "High-water mark control file",
+     "file_type": "S3",
+     "processed": true,
+     "min_date": null,
+     "max_date": null,
+     "row_count": null,
+     "last_processed": null
+    }
+   ]
   }
+ }
 }
