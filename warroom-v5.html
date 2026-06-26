@@ -866,53 +866,24 @@ main.canvas-mode{overflow:hidden}
       </div>
       <div style="font-size:11px;color:var(--dim);margin-top:6px">IMDB reference universe. Bar = relative cardinality. Parent key spine total: <b id="pk-total-val">—</b> minted UUIDv5 keys.</div>
 
-      <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">MATCH CONFIDENCE — TIER DISTRIBUTION</span><span class="mono" style="font-size:10px;color:var(--dim);margin-left:auto">12.96M rows · parent_key table</span></div>
+      <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">MATCH CONFIDENCE — TIER DISTRIBUTION</span><span class="mono" id="tier-dist-subtitle" style="font-size:10px;color:var(--dim);margin-left:auto">— media assets · Total Global Catalog</span></div>
       <div class="spine" style="margin-top:8px" id="confidence-tier-spine">
-        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-ok" style="font-size:9px;padding:2px 6px">GOLD</span></span><div class="sbar"><i style="width:2.11%;background:#22c55e"></i></div><span class="v mono" style="font-size:11px">273,345</span><span style="font-size:10px;color:var(--dim);margin-left:6px">≥0.99 · imdb+eidr+tmdb+full (CERTIFIED)</span></div>
-        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-warn" style="font-size:9px;padding:2px 6px">SILVER</span></span><div class="sbar"><i style="width:3.78%;background:#f59e0b"></i></div><span class="v mono" style="font-size:11px">489,285</span><span style="font-size:10px;color:var(--dim);margin-left:6px">0.65–0.99 · imdb+eidr or imdb+tmdb (CONFIRMED)</span></div>
-        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-sec" style="font-size:9px;padding:2px 6px">BRONZE</span></span><div class="sbar"><i style="width:94.11%;background:var(--accent)"></i></div><span class="v mono" style="font-size:11px">12,193,171</span><span style="font-size:10px;color:var(--dim);margin-left:6px">&lt;0.65 · PROVISIONAL + HELD + episode CIDs</span></div>
+        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-ok" style="font-size:9px;padding:2px 6px">GOLD</span></span><div class="sbar"><i style="width:2.9%;background:#22c55e"></i></div><span class="v mono" style="font-size:11px">—</span><span style="font-size:10px;color:var(--dim);margin-left:6px">CERTIFIED · imdb+eidr+tmdb+full</span></div>
+        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-warn" style="font-size:9px;padding:2px 6px">SILVER</span></span><div class="sbar"><i style="width:3.8%;background:#f59e0b"></i></div><span class="v mono" style="font-size:11px">—</span><span style="font-size:10px;color:var(--dim);margin-left:6px">CONFIRMED · imdb+eidr or imdb+tmdb</span></div>
+        <div class="srow"><span class="n" style="min-width:64px"><span class="badge b-sec" style="font-size:9px;padding:2px 6px">BRONZE</span></span><div class="sbar"><i style="width:93.3%;background:var(--accent)"></i></div><span class="v mono" style="font-size:11px">—</span><span style="font-size:10px;color:var(--dim);margin-left:6px">PROVISIONAL + HELD</span></div>
       </div>
-      <div style="font-size:10.5px;color:var(--dim);margin-top:6px">Formula: imdb(+30) + eidr(+35) + tmdb(+15) + full_name_match(+20). confidence_score DECIMAL(4,3). GOLD = all 4 signals. Updated 2026-06-22 post EIDR-SPINE-PROMOTE-002 (272K eidr_ids written).</div>
+      <div style="font-size:10.5px;color:var(--dim);margin-top:6px">GOLD = CERTIFIED · SILVER = CONFIRMED · BRONZE = PROVISIONAL + HELD. Grain: <b>prod.parent_key WHERE is_current = TRUE</b> — one row per media asset, episodes included. Single source: artifact_metrics_pull.py (nightly, last-good guarded). Rows below reconcile exactly to this total.</div>
 
-      <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">PARENT KEY — BY CONTENT TYPE × MATCH TIER</span><span class="mono" style="font-size:10px;color:var(--dim);margin-left:auto">3.29M PKIDs · cid_sk IS NULL</span></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-        <div style="background:var(--inset);border-radius:6px;padding:10px">
-          <div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.08em;margin-bottom:6px">🎬 MOVIE <span style="font-weight:400;color:var(--dim)">2,319,755 total</span></div>
-          <div class="spine">
-            <div class="srow"><span class="n" style="min-width:52px;font-size:10px">GOLD</span><div class="sbar"><i style="width:8.0%;background:#22c55e"></i></div><span class="v mono" style="font-size:10px">185,413</span></div>
-            <div class="srow"><span class="n" style="min-width:52px;font-size:10px">SILVER</span><div class="sbar"><i style="width:20.7%;background:#f59e0b"></i></div><span class="v mono" style="font-size:10px">481,150</span></div>
-            <div class="srow"><span class="n" style="min-width:52px;font-size:10px">BRONZE</span><div class="sbar"><i style="width:71.3%;background:var(--accent)"></i></div><span class="v mono" style="font-size:10px">1,653,192</span></div>
-          </div>
-          <div style="font-size:10px;color:var(--dim);margin-top:4px">EIDR: 277,009 (11.9%) · TMDB: 638,708 (27.5%)</div>
-        </div>
-        <div style="background:var(--inset);border-radius:6px;padding:10px">
-          <div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.08em;margin-bottom:6px">📺 TV SERIES <span style="font-weight:400;color:var(--dim)">341,362 total</span></div>
-          <div class="spine">
-            <div class="srow"><span class="n" style="min-width:52px;font-size:10px">GOLD</span><div class="sbar"><i style="width:5.7%;background:#22c55e"></i></div><span class="v mono" style="font-size:10px">19,494</span></div>
-            <div class="srow"><span class="n" style="min-width:52px;font-size:10px">SILVER</span><div class="sbar"><i style="width:22.4%;background:#f59e0b"></i></div><span class="v mono" style="font-size:10px">76,573</span></div>
-            <div class="srow"><span class="n" style="min-width:52px;font-size:10px">BRONZE</span><div class="sbar"><i style="width:71.9%;background:var(--accent)"></i></div><span class="v mono" style="font-size:10px">245,295</span></div>
-          </div>
-          <div style="font-size:10px;color:var(--dim);margin-top:4px">EIDR: 28,616 (8.4%) · TMDB: 90,557 (26.5%)</div>
-        </div>
-        <div style="background:var(--inset);border-radius:6px;padding:10px">
-          <div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.08em;margin-bottom:6px">🎞 EPISODES <span style="font-weight:400;color:var(--dim)">9,669,554 CIDs</span></div>
-          <div class="spine">
-            <div class="srow"><span class="n" style="min-width:52px;font-size:10px">GOLD</span><div class="sbar"><i style="width:0%;background:#22c55e"></i></div><span class="v mono" style="font-size:10px">0</span></div>
-            <div class="srow"><span class="n" style="min-width:52px;font-size:10px">SILVER</span><div class="sbar"><i style="width:0%;background:#f59e0b"></i></div><span class="v mono" style="font-size:10px">0</span></div>
-            <div class="srow"><span class="n" style="min-width:52px;font-size:10px">BRONZE</span><div class="sbar"><i style="width:100%;background:var(--accent)"></i></div><span class="v mono" style="font-size:10px">9,669,554</span></div>
-          </div>
-          <div style="font-size:10px;color:var(--dim);margin-top:4px">Episode CIDs share parent PKID. No EIDR at episode grain yet.</div>
-        </div>
-        <div style="background:var(--inset);border-radius:6px;padding:10px">
-          <div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.08em;margin-bottom:6px">👤 PEOPLE <span style="font-weight:400;color:var(--dim)">4,734,740 curated</span></div>
-          <div class="spine">
-            <div class="srow"><span class="n" style="min-width:52px;font-size:10px">GOLD</span><div class="sbar"><i style="width:0%;background:#22c55e"></i></div><span class="v mono" style="font-size:10px">—</span></div>
-            <div class="srow"><span class="n" style="min-width:52px;font-size:10px">SILVER</span><div class="sbar"><i style="width:0%;background:#f59e0b"></i></div><span class="v mono" style="font-size:10px">—</span></div>
-            <div class="srow"><span class="n" style="min-width:52px;font-size:10px">BRONZE</span><div class="sbar"><i style="width:0%;background:var(--accent)"></i></div><span class="v mono" style="font-size:10px">—</span></div>
-          </div>
-          <div style="font-size:10px;color:var(--dim);margin-top:4px">People not in parent_key spine — separate people_master table. Match scoring TBD.</div>
-        </div>
+      <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">TOTAL GLOBAL CATALOG — BY CONTENT TYPE × MATCH TIER</span><span class="mono" id="catalog-matrix-subtitle" style="font-size:10px;color:var(--dim);margin-left:auto">— media assets + people</span></div>
+      <div id="catalog-matrix-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+        <!-- filled by renderArtifact() from catalog_matrix — Movies / TV Series / Episodes / Other titles / People -->
       </div>
+
+      <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">EXTERNAL ID COVERAGE — vs PARENT KEY SPINE</span><span class="mono" id="idcov-subtitle" style="font-size:10px;color:var(--dim);margin-left:auto">IMDB · TMDB · EIDR</span></div>
+      <div id="idcov-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+        <!-- filled by renderArtifact() from id_coverage — Titles (PKIDs) + Episodes (CIDs) -->
+      </div>
+      <div id="idcov-note" style="font-size:10px;color:var(--dim);margin-top:6px"></div>
 
       <div class="sec-h" style="margin-top:16px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">SOCIAL IDs — ALT_IDS DOMAIN BREAKDOWN</span><span class="badge b-ok" style="margin-left:auto">LIVE</span></div>
       <div class="spine" style="margin-top:8px">
@@ -3459,21 +3430,89 @@ document.addEventListener('DOMContentLoaded',()=>{
     const eidrEl = document.getElementById('eidr-coverage-live');
     if(eidrEl) eidrEl.textContent = (sp.eidr_coverage_pct||0).toFixed(1)+'% EIDR · '+fmtN(sp.eidr_matched||0)+' matched';
 
-    // Update MATCH CONFIDENCE tier distribution rows
-    const totalRows = sp.total_rows || 1;
-    const certN = bc.CERTIFIED || 0;
-    const confN = bc.CONFIRMED || 0;
-    const bronzeN = totalRows - certN - confN;
-    const tierSpine = document.getElementById('confidence-tier-spine');
-    if(tierSpine && totalRows > 0){
-      const pct = v => Math.max(0.3, v/totalRows*100).toFixed(2)+'%';
-      tierSpine.innerHTML =
-        `<div class="srow"><span class="n" style="min-width:64px"><span class="badge b-ok" style="font-size:9px;padding:2px 6px">GOLD</span></span><div class="sbar"><i style="width:${pct(certN)};background:#22c55e"></i></div><span class="v mono" style="font-size:11px">${certN.toLocaleString()}</span><span style="font-size:10px;color:var(--dim);margin-left:6px">≥0.99 · imdb+eidr+tmdb+full (CERTIFIED)</span></div>`+
-        `<div class="srow"><span class="n" style="min-width:64px"><span class="badge b-warn" style="font-size:9px;padding:2px 6px">SILVER</span></span><div class="sbar"><i style="width:${pct(confN)};background:#f59e0b"></i></div><span class="v mono" style="font-size:11px">${confN.toLocaleString()}</span><span style="font-size:10px;color:var(--dim);margin-left:6px">0.65–0.99 · imdb+eidr or imdb+tmdb (CONFIRMED)</span></div>`+
-        `<div class="srow"><span class="n" style="min-width:64px"><span class="badge b-sec" style="font-size:9px;padding:2px 6px">BRONZE</span></span><div class="sbar"><i style="width:${pct(bronzeN)};background:var(--accent)"></i></div><span class="v mono" style="font-size:11px">${bronzeN.toLocaleString()}</span><span style="font-size:10px;color:var(--dim);margin-left:6px">&lt;0.65 · PROVISIONAL + HELD + episode CIDs</span></div>`;
-      // Update subtitle row count
-      const confSub = document.querySelector('#v-data .sec-h .mono[style*="margin-left:auto"]');
-      if(confSub) confSub.textContent = fmtN(totalRows)+' rows · parent_key table';
+    // ── Total Global Catalog: headline tier rollup + per-content-type matrix ──
+    // Driven entirely by catalog_matrix (single source of truth). Rows always
+    // sum to the headline; BRONZE = PROVISIONAL+HELD per type, no double-count.
+    const cm = d.catalog_matrix;
+    if(cm && cm.totals && cm.totals.total > 0){
+      const T = cm.totals;
+      const pct = v => Math.max(0.3, v/T.total*100).toFixed(2)+'%';
+      const tierSpine = document.getElementById('confidence-tier-spine');
+      if(tierSpine){
+        const tierRow = (cls,label,col,val,note) =>
+          `<div class="srow"><span class="n" style="min-width:64px"><span class="badge ${cls}" style="font-size:9px;padding:2px 6px">${label}</span></span><div class="sbar"><i style="width:${pct(val)};background:${col}"></i></div><span class="v mono" style="font-size:11px">${val.toLocaleString()}</span><span style="font-size:10px;color:var(--dim);margin-left:6px">${note}</span></div>`;
+        tierSpine.innerHTML =
+          tierRow('b-ok','GOLD','#22c55e',T.gold,'CERTIFIED · imdb+eidr+tmdb+full')+
+          tierRow('b-warn','SILVER','#f59e0b',T.silver,'CONFIRMED · imdb+eidr or imdb+tmdb')+
+          tierRow('b-sec','BRONZE','var(--accent)',T.bronze,'PROVISIONAL + HELD');
+      }
+      const tdSub = document.getElementById('tier-dist-subtitle');
+      if(tdSub) tdSub.textContent = fmtN(T.total)+' media assets · Total Global Catalog';
+
+      // Per-content-type cards (Movies / TV Series / Episodes / Other titles)
+      const grid = document.getElementById('catalog-matrix-grid');
+      if(grid){
+        const ICON = {'Movies':'🎬','TV Series':'📺','Episodes':'🎞','Other titles':'🎬'};
+        const card = r => {
+          const mx = Math.max(r.gold, r.silver, r.bronze, 1);
+          const bar = (lab,v,col) => `<div class="srow"><span class="n" style="min-width:52px;font-size:10px">${lab}</span><div class="sbar"><i style="width:${Math.round(v/mx*100)}%;background:${col}"></i></div><span class="v mono" style="font-size:10px">${v.toLocaleString()}</span></div>`;
+          const ep = r.total ? (r.eidr*100/r.total).toFixed(1) : '0.0';
+          const tp = r.total ? (r.tmdb*100/r.total).toFixed(1) : '0.0';
+          return `<div style="background:var(--inset);border-radius:6px;padding:10px">`+
+            `<div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.08em;margin-bottom:6px">${ICON[r.label]||'📦'} ${r.label.toUpperCase()} <span style="font-weight:400;color:var(--dim)">${r.total.toLocaleString()} total</span></div>`+
+            `<div class="spine">${bar('GOLD',r.gold,'#22c55e')}${bar('SILVER',r.silver,'#f59e0b')}${bar('BRONZE',r.bronze,'var(--accent)')}</div>`+
+            `<div style="font-size:10px;color:var(--dim);margin-top:4px">EIDR: ${r.eidr.toLocaleString()} (${ep}%) · TMDB: ${r.tmdb.toLocaleString()} (${tp}%)</div>`+
+          `</div>`;
+        };
+        const ppl = (cm.people && cm.people.total) || 0;
+        const peopleCard = `<div style="background:var(--inset);border-radius:6px;padding:10px">`+
+          `<div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.08em;margin-bottom:6px">👤 PEOPLE <span style="font-weight:400;color:var(--dim)">${ppl.toLocaleString()} talent</span></div>`+
+          `<div class="spine">`+
+            `<div class="srow"><span class="n" style="min-width:52px;font-size:10px">GOLD</span><div class="sbar"><i style="width:0%;background:#22c55e"></i></div><span class="v mono" style="font-size:10px">—</span></div>`+
+            `<div class="srow"><span class="n" style="min-width:52px;font-size:10px">SILVER</span><div class="sbar"><i style="width:0%;background:#f59e0b"></i></div><span class="v mono" style="font-size:10px">—</span></div>`+
+            `<div class="srow"><span class="n" style="min-width:52px;font-size:10px">BRONZE</span><div class="sbar"><i style="width:0%;background:var(--accent)"></i></div><span class="v mono" style="font-size:10px">—</span></div>`+
+          `</div>`+
+          `<div style="font-size:10px;color:var(--dim);margin-top:4px">Talent — separate people_master. Not in parent_key match spine yet.</div>`+
+        `</div>`;
+        grid.innerHTML = cm.rows.map(card).join('') + peopleCard;
+        const cmSub = document.getElementById('catalog-matrix-subtitle');
+        if(cmSub) cmSub.textContent = fmtN(T.total)+' media assets + '+fmtN(ppl)+' people';
+      }
+    }
+
+    // ── External ID coverage vs spine (IMDB tt% / TMDB / EIDR) ──────────────
+    const ic = d.id_coverage;
+    const icGrid = document.getElementById('idcov-grid');
+    if(ic && icGrid){
+      const idRow = (lab,col,v,tot,extra) => {
+        const p = tot ? (v/tot*100) : 0;
+        return `<div class="srow"><span class="n" style="min-width:52px;font-size:10px">${lab}</span>`+
+          `<div class="sbar"><i style="width:${Math.max(0.5,p).toFixed(1)}%;background:${col}"></i></div>`+
+          `<span class="v mono" style="font-size:10px">${(v||0).toLocaleString()}</span>`+
+          `<span style="font-size:10px;color:var(--dim);margin-left:6px">${p.toFixed(1)}%${extra||''}</span></div>`;
+      };
+      const block = (title, c, isEp) => {
+        const tot = c.total||0;
+        let tmdbExtra = '';
+        if(isEp && c.tmdb_addressable) tmdbExtra = ` · ${(c.tmdb_addressable).toLocaleString()} fillable via series`;
+        return `<div style="background:var(--inset);border-radius:6px;padding:10px">`+
+          `<div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.08em;margin-bottom:6px">${title} <span style="font-weight:400;color:var(--dim)">${tot.toLocaleString()} rows</span></div>`+
+          `<div class="spine">`+
+            idRow('IMDB','#f5c518',c.imdb,tot)+
+            idRow('TMDB','#01b4e4',c.tmdb,tot,tmdbExtra)+
+            idRow('EIDR','#7c5cff',c.eidr,tot)+
+          `</div></div>`;
+      };
+      icGrid.innerHTML = block('🎬 TITLES (PKIDs)', ic.pkids||{}, false) +
+                         block('🎞 EPISODES (CIDs)', ic.episodes||{}, true);
+      const icSub = document.getElementById('idcov-subtitle');
+      if(icSub){ const pk=ic.pkids||{}; icSub.textContent = `${fmtN(pk.all_three||0)} titles have all 3 IDs`; }
+      const icNote = document.getElementById('idcov-note');
+      if(icNote && ic.notes){
+        icNote.innerHTML = `IMDB = real tconst only (tmdb_orphans excluded). `+
+          `<b>Episode TMDB = 0 today</b> — episode-grain TMDB was never resolved; `+
+          `${((ic.episodes&&ic.episodes.tmdb_addressable)||0).toLocaleString()} episodes are immediately fillable by propagating their TMDB-matched parent series (open gap).`;
+      }
     }
   }
 
