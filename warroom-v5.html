@@ -2181,8 +2181,9 @@ async function renderResources(){
       ${r.badge?`<span class="badge b-new" style="margin-left:6px">${r.badge}</span>`:''}
       <div class="rd">${r.description||r.subtitle||''}</div>
       <div class="racts">
-        ${primaryFile?`<a href="${primaryFile.url}" target="_blank"><button class="btn bp" style="padding:5px 13px">View</button></a>`:'<button class="btn bp" style="padding:5px 13px;opacity:.4" disabled>View</button>'}
-        <button class="btn bs" style="padding:5px 13px">📷 Visual</button>
+        ${files.length
+          ? files.map((f,i)=>`<a href="${f.url}" target="_blank" rel="noopener noreferrer" class="btn ${(f.primary||i===0)?'bp':'bs'}" style="padding:5px 13px;display:inline-block;text-decoration:none">${f.label||'View'}</a>`).join('')
+          : '<button class="btn bp" style="padding:5px 13px;opacity:.4" disabled>No file</button>'}
         <span class="date">${r.date||''}</span>
       </div>
     </div>`;
