@@ -2683,9 +2683,12 @@ async function fetchTodayPiece(){
   if(!idx||!Array.isArray(idx.entries)||!idx.entries.length){
     CV.pieceExists=false; CV._empty=true; updateBadge(); renderToday(); return;
   }
+  // Skip fabricated / truth-gate test artifacts — they have no real piece and
+  // render the raw S3 AccessDenied XML in the iframe (CANVAS-FIX-001, 2026-06-26).
+  const isTest=e=>/^SAMPLE/i.test(e.certified_id||'')||/^SAMPLE/i.test(e.query||'')||/FABRICATED/i.test(e.source||'');
   // Pick newest pending first (awaiting bless), then newest certified
-  const pending=idx.entries.filter(e=>e.status==='pending').sort((a,b)=>(b.built_at||'').localeCompare(a.built_at||''));
-  const certified=idx.entries.filter(e=>e.status==='certified').sort((a,b)=>(b.certified_at||'').localeCompare(a.certified_at||''));
+  const pending=idx.entries.filter(e=>e.status==='pending'&&!isTest(e)).sort((a,b)=>(b.built_at||'').localeCompare(a.built_at||''));
+  const certified=idx.entries.filter(e=>e.status==='certified'&&!isTest(e)).sort((a,b)=>(b.certified_at||'').localeCompare(a.certified_at||''));
   const entry=pending.length?pending[0]:(certified.length?certified[0]:null);
   if(!entry){
     CV.pieceExists=false; CV._empty=true; updateBadge(); renderToday(); return;
