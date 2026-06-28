@@ -636,7 +636,7 @@ main.canvas-mode{overflow:hidden}
   <span class="pill"><span class="dot da"></span>Agents <b>10/51</b></span>
   <div class="hd-right">
     <div class="healthbar">HEALTH <span class="bar"><i></i></span> <b>—</b></div>
-    <div class="clock"><div class="t" id="clk">--:--:--</div><div class="d">FRI, JUN 12</div></div>
+    <div class="clock"><div class="t" id="clk">--:--:--</div><div class="d" id="clkd">—</div></div>
     <div class="tog"><button id="tL" class="on" onclick="theme('light')">Light</button><button id="tD" onclick="theme('dark')">Dark</button></div>
   </div>
 </header>
@@ -1654,7 +1654,7 @@ function theme(t){document.documentElement.setAttribute('data-theme',t);
   document.getElementById('tL').classList.toggle('on',t==='light');
   document.getElementById('tD').classList.toggle('on',t==='dark');}
 const p=n=>String(n).padStart(2,'0');
-setInterval(()=>{const d=new Date();document.getElementById('clk').textContent=`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`},1000);
+setInterval(()=>{const d=new Date();document.getElementById('clk').textContent=`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;const cd=document.getElementById('clkd');if(cd)cd.textContent=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',timeZone:'America/New_York'}).toUpperCase();},1000);
 
 /* ============ tabs ============ */
 const mainEl=document.querySelector('main');
