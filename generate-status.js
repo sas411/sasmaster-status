@@ -232,7 +232,7 @@ function parseAgents() {
     { name: 'Security Watchdog', icon: '🔐', schedule: 'Daily 5:30AM', nextRun: 'Tomorrow 5:30AM', log: 'security-watchdog.log', channel: '#sasmaster-builds',  jobId: null },
     { name: 'Railway Monitor',   icon: '🛤️', schedule: 'Every 15min',  nextRun: 'In ≤15min',       log: 'railway-monitor.log',   channel: '#sasmaster-builds',  jobId: null },
     { name: 'Research Portal',   icon: '🔬', schedule: 'TBD',          nextRun: 'Pending launch',  log: 'research-portal-agent.log', channel: '#sasmaster-intel', jobId: null, descOverride: 'SCAFFOLDED — pending RESEARCH-PORTAL-001 launch' },
-    { name: 'Data Guardian',     icon: '🛡️', schedule: 'Post-ingestion', nextRun: 'After next pull', log: 'data-guardian.log',         channel: '#sasmaster-builds',  jobId: null, descOverride: 'Post-ingestion integrity enforcer — snapshot → AMRLD anomaly detection (RULE-HH-01..04) → Tier 2 gate. Wired into nielsen_puller.py via _run_data_guardian().' },
+    { name: 'Data Guardian',     icon: '🛡️', schedule: 'Post-ingestion', nextRun: 'After next pull', log: 'data-guardian.log',         channel: '#sasmaster-builds',  jobId: null, type: 'subagent', descOverride: 'Post-ingestion integrity enforcer — snapshot → AMRLD anomaly detection (RULE-HH-01..04) → Tier 2 gate. Wired into nielsen_puller.py via _run_data_guardian(). Event-triggered (not scheduled) — excluded from live-cron liveness denominator.' },
 
     // ── Drafted (on-demand, no cron yet) ────────────────────
     { name: 'Gracenote OnConnect', icon: '🎬', schedule: 'on-demand (JARVIS)', nextRun: '—', log: 'gn-onconnect.log', channel: '#sasmaster-builds', jobId: null, type: 'drafted', statusOverride: 'drafted', descOverride: 'Resolve+fuse drafted · self-tests green · spine-promotion GATED (tier UNCONFIRMED)' },
@@ -511,6 +511,8 @@ function parseCrontab() {
       status: 'pending', // enriched later
       _sortKey: (isNaN(h) ? 0 : h) * 60 + (isNaN(m2) ? 0 : m2),
       _scheduledToday: scheduledToday,
+      _min: min, // raw cron minute field — needed for interval-aware liveness (*/5, *, etc.)
+      _hr: hr,   // raw cron hour field   — parseInt() can't handle steps/ranges
     });
   });
 
@@ -978,46 +980,127 @@ function buildRecentActivity(intelFeed, recentBuilds, scrapers) {
   return acts.slice(0, 12);
 }
 
+// ── Cron schedule math ───────────────────────────────────────────────────────
+// Expand a single cron field into the integer values it matches within [lo,hi].
+// Supports: '*', '*/N', 'A-B', 'A-B/N', 'A,B,C', plain ints. Returns null on
+// anything we can't reason about (caller then falls back to the legacy verdict).
+function expandCronField(field, lo, hi) {
+  if (field == null) return null;
+  const out = new Set();
+  for (const part of String(field).split(',')) {
+    let m;
+    if (part === '*') { for (let i = lo; i <= hi; i++) out.add(i); }
+    else if ((m = part.match(/^\*\/(\d+)$/))) { const s = +m[1]; if (s > 0) for (let i = lo; i <= hi; i += s) out.add(i); }
+    else if ((m = part.match(/^(\d+)-(\d+)(?:\/(\d+))?$/))) { const s = m[3] ? +m[3] : 1; if (s > 0) for (let i = +m[1]; i <= +m[2]; i += s) out.add(i); }
+    else if (/^\d+$/.test(part)) { out.add(+part); }
+    else return null;
+  }
+  return [...out].sort((a, b) => a - b);
+}
+
+// Most recent wall-clock time (ms) a job with minute=minField, hour=hrField should
+// have fired at or before `now`. Correctly handles interval jobs (*/5, *, */15,
+// 0 */6, 0 6-22) that parseInt() turns into NaN. Returns null if unparseable.
+function mostRecentFire(minField, hrField, now) {
+  const minutes = expandCronField(minField, 0, 59);
+  const hours   = expandCronField(hrField, 0, 23);
+  if (!minutes || !hours || !minutes.length || !hours.length) return null;
+  const base = new Date(now);
+  let best = null;
+  // Walk today, then yesterday, until we find a fire at/before now.
+  for (let dayOffset = 0; dayOffset >= -1 && best === null; dayOffset--) {
+    for (const h of hours) {
+      for (const mm of minutes) {
+        const d = new Date(base); d.setDate(d.getDate() + dayOffset); d.setHours(h, mm, 0, 0);
+        const t = d.getTime();
+        if (t <= now && (best === null || t > best)) best = t;
+      }
+    }
+  }
+  return best;
+}
+
 // ── Cron status enrichment ───────────────────────────────────────────────────
-// Correct semantics: "done" = today's scheduled time has passed AND the agent
-// (or the log file) shows activity on/after that scheduled time.
-// "pending" = scheduled time is still in the future, OR scheduled time passed
-// but no activity since then (missed run).
+// "done"    = the job's most recent scheduled fire has passed AND its agent or
+//             redirected log shows activity at/after that fire (minus a grace
+//             window for log-write lag).
+// "pending" = next fire is still in the future, OR the fire passed with no
+//             detectable activity (genuine miss / silent job we can't confirm).
+// "routing" = matched agent is mid-flight.
+// This replaces the old logic that scored every interval job (*/5, *, */15) as a
+// permanent miss because parseInt('*/5') === NaN.
 function enrichCronStatus(cronJobs, agents) {
   const now = Date.now();
+  const GRACE_MS = 10 * 60 * 1000; // tolerate ≤10 min between fire and log write
+
+  // Resolve the absolute path a cron command redirects its log to. Handles
+  // `>>`/`>`, `~` expansion, and relative paths (resolved against a leading
+  // `cd <dir> &&` if present, else the SaSMaster root).
+  const resolveLogPath = cmd => {
+    const m = cmd.match(/>>?\s*([^\s]+\.log)/);
+    if (!m) return null;
+    let p = m[1].replace(/^~/, process.env.HOME || '');
+    if (!path.isAbsolute(p)) {
+      const cd = cmd.match(/\bcd\s+([^\s]+)\s*&&/);
+      const baseDir = cd ? cd[1].replace(/^~/, process.env.HOME || '') : SASMASTER;
+      p = path.resolve(baseDir, p);
+    }
+    return p;
+  };
+  const logMtime = p => { try { return fs.statSync(p).mtimeMs; } catch { return null; } };
+
+  // Many jobs write DATED logs (e.g. score-queue-20260628.log, build-2026-06-28*.log)
+  // while their crontab line redirects to a STATIC .log that only grows on stdout.
+  // Pre-index today's logs once so a job that genuinely ran today is detectable even
+  // when its static redirect file is silent. Keyed by the freshest mtime per file.
+  let todayLogs = [];
+  try {
+    const dir = path.join(SASMASTER, 'logs');
+    const dayStart = (() => { const d = new Date(now); d.setHours(0, 0, 0, 0); return d.getTime(); })();
+    todayLogs = fs.readdirSync(dir)
+      .filter(f => f.endsWith('.log'))
+      .map(f => { try { return { f, mt: fs.statSync(path.join(dir, f)).mtimeMs }; } catch { return null; } })
+      .filter(x => x && x.mt >= dayStart);
+  } catch { /* logs dir unreadable — fall back to static/agent signals only */ }
+  const datedLogMtime = key => {
+    if (!key) return null;
+    let best = null;
+    for (const { f, mt } of todayLogs) {
+      // match "<key>-<date>…​.log" / "<key>.log" but avoid loose substring false hits
+      if (f === `${key}.log` || f.startsWith(`${key}-`)) { if (best == null || mt > best) best = mt; }
+    }
+    return best;
+  };
 
   return cronJobs.map(c => {
-    const sched = c._scheduledToday;
-    const { _scheduledToday, ...clean } = c;
+    const { _scheduledToday, _min, _hr, ...clean } = c;
 
-    // No scheduled time parsed → fall back to 'pending'
-    if (!sched) return { ...clean, status: 'pending' };
+    // Most recent fire — interval-aware, with legacy fixed-time value as fallback.
+    let prevFire = mostRecentFire(_min, _hr, now);
+    if (prevFire == null) prevFire = _scheduledToday;
 
-    // Future today → pending
-    if (sched > now) return { ...clean, status: 'pending' };
+    // Unparseable schedule, or the only fire today is still ahead → pending.
+    if (prevFire == null || prevFire > now) return { ...clean, status: 'pending' };
 
-    // Past today → check agent or log mtime
+    // Resolve the most recent activity timestamp from the matched agent + log file.
     const scriptMatch = c.command.match(/([a-z0-9\-]+)(-agent)?\.js/i);
     const bashMatch   = c.command.match(/\b([a-z0-9\-]+)\.sh\b/i);
-    const key         = scriptMatch ? scriptMatch[1].replace(/-agent$/, '') : (bashMatch ? bashMatch[1] : '');
+    const key = scriptMatch ? scriptMatch[1].replace(/-agent$/, '') : (bashMatch ? bashMatch[1] : '');
     const agent = key ? agents.find(a => a.log && (a.log.includes(key) || (scriptMatch && a.log.includes(scriptMatch[1])))) : null;
-
     if (agent && agent.status === 'routing') return { ...clean, status: 'routing' };
-    if (agent && agent.lastRun && new Date(agent.lastRun).getTime() >= sched) {
-      return { ...clean, status: 'done' };
-    }
 
-    // No agent match — check the redirected log file's mtime
-    const logMatch = c.command.match(/>>\s*([^\s]+\.log)/);
-    if (logMatch) {
-      const logPath = logMatch[1];
-      try {
-        const mtime = fs.statSync(logPath).mtime.getTime();
-        if (mtime >= sched) return { ...clean, status: 'done' };
-      } catch { /* log file missing */ }
+    let lastActivity = null;
+    if (agent && agent.lastRun) {
+      const t = new Date(agent.lastRun).getTime();
+      if (!isNaN(t)) lastActivity = t;
     }
+    const lp = resolveLogPath(c.command);
+    if (lp) { const mt = logMtime(lp); if (mt != null && (lastActivity == null || mt > lastActivity)) lastActivity = mt; }
+    // Dated sibling log written today (covers silent static redirects).
+    const dmt = datedLogMtime(key);
+    if (dmt != null && (lastActivity == null || dmt > lastActivity)) lastActivity = dmt;
 
-    // Scheduled fired but no activity detected
+    if (lastActivity != null && lastActivity >= prevFire - GRACE_MS) return { ...clean, status: 'done' };
     return { ...clean, status: 'pending' };
   });
 }
@@ -1447,14 +1530,22 @@ function buildSourceFreshness() {
   if (!jarvisLastTs && jarvisAlive()) jarvisLastTs = new Date().toISOString();
 
   // ── TMDB scraper ──────────────────────────────────────────────────────────
+  // Take the MOST RECENT of two real signals: the bulk-loader progress file and
+  // the daily-agent log. The bulk loader completed (phase:complete, Jun 2026) so
+  // its progress file is permanently frozen — keying off it alone reports the live
+  // daily scraper as stale forever. tmdb-agent.log mtime is the continuous signal.
   let tmdbLastTs = null;
+  const _tmdbCandidates = [];
   try {
     const tf = path.join(SASMASTER, 'status', 'tmdb-progress.json');
-    if (fs.existsSync(tf)) tmdbLastTs = JSON.parse(fs.readFileSync(tf, 'utf8')).last_updated || null;
+    if (fs.existsSync(tf)) {
+      const lu = JSON.parse(fs.readFileSync(tf, 'utf8')).last_updated;
+      if (lu) _tmdbCandidates.push(new Date(lu).getTime());
+    }
   } catch {}
-  if (!tmdbLastTs) {
-    try { tmdbLastTs = fs.statSync(path.join(SASMASTER, 'logs', 'tmdb-agent.log')).mtime.toISOString(); } catch {}
-  }
+  try { _tmdbCandidates.push(fs.statSync(path.join(SASMASTER, 'logs', 'tmdb-agent.log')).mtimeMs); } catch {}
+  const _tmdbValid = _tmdbCandidates.filter(t => !isNaN(t));
+  if (_tmdbValid.length) tmdbLastTs = new Date(Math.max(..._tmdbValid)).toISOString();
 
   // ── S3 Lake sizes ─────────────────────────────────────────────────────────
   let s3LastTs = null;
