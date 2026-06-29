@@ -951,9 +951,9 @@ main.canvas-mode{overflow:hidden}
     </div>
     <div style="display:flex;align-items:center;gap:12px;margin-top:14px">
       <span class="mono" style="font-size:11px;letter-spacing:.13em;color:var(--dim)">BURN PROJECTION</span>
-      <span class="mono" style="font-size:14px">$0.0000 / week</span>
-      <span class="badge b-ok">ON TRACK</span>
-      <span style="margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--dim)">100% of week elapsed · Sonnet proj: 0%</span>
+      <span class="mono" style="font-size:14px" id="burn-proj-val">NO DATA</span>
+      <span class="badge b-warn" id="burn-proj-badge">NO DATA</span>
+      <span style="margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--dim)" id="burn-proj-meta">computing…</span>
     </div>
     <div class="sec-h" style="margin-top:14px"><h2>Optimization recommendations</h2></div>
     <div class="recrow">💾 Prompt caching wired on intel agents + Dr. Scoop — verify first cache_creation_input_tokens > 0 on next cron run</div>
@@ -1111,7 +1111,7 @@ main.canvas-mode{overflow:hidden}
           <div style="font-size:13px;color:var(--dim);font-style:italic;text-align:center;padding:14px 0">No pending fixes — system healthy</div>
           <div class="sec-h"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">● MONITORING — HEALTH</span></div>
           <table class="dt">
-            <tr><td>Events Today</td><td><div class="qb" style="height:6px;background:var(--inset);border-radius:4px"><i style="display:block;height:100%;width:62%;background:var(--violet);border-radius:4px"></i></div></td><td class="mono" style="text-align:right">32</td></tr>
+            <tr><td>Events Today</td><td><div class="qb" style="height:6px;background:var(--inset);border-radius:4px"><i style="display:block;height:100%;width:62%;background:var(--violet);border-radius:4px"></i></div></td><td class="mono" style="text-align:right" id="mon-events-today">—</td></tr>
             <tr><td>Avg Phase</td><td><div class="qb" style="height:6px;background:var(--inset);border-radius:4px"><i style="display:block;height:100%;width:78%;background:var(--accent);border-radius:4px"></i></div></td><td class="mono" style="text-align:right">--</td></tr>
             <tr><td>Active Alerts</td><td><div class="qb" style="height:6px;background:var(--inset);border-radius:4px"><i style="display:block;height:100%;width:2%;background:var(--up);border-radius:4px"></i></div></td><td class="mono" style="text-align:right">0</td></tr>
           </table>
@@ -1125,7 +1125,7 @@ main.canvas-mode{overflow:hidden}
     <div class="fistrip">
       <div><div class="l">Companies tracked</div><div class="v">78</div><div class="s" style="font-size:10px;color:#5F6E84">10 categories</div></div>
       <div><div class="l">SEC coverage</div><div class="v">47/78</div><div class="s" style="font-size:10px;color:#5F6E84">direct EDGAR</div></div>
-      <div><div class="l">Last refresh</div><div class="v" style="font-size:15px">Apr 28, 22:54</div><div class="s" style="font-size:10px;color:#5F6E84">EDGAR + alt sources</div></div>
+      <div><div class="l">Last refresh</div><div class="v" style="font-size:15px" id="fintel-last-refresh">—</div><div class="s" style="font-size:10px;color:#5F6E84">EDGAR + alt sources</div></div>
       <div><div class="l">Next refresh</div><div class="v" style="font-size:15px">5:00 AM ET</div><div class="s" style="font-size:10px;color:#5F6E84">daily cron</div></div>
       <div><div class="l">Critical / High</div><div class="v">0</div><div class="s" style="font-size:10px;color:#5F6E84">SM Priority</div></div>
       <div style="border:none;padding-right:18px"><button class="btn bp">↻ Rebuild Strategy Doc</button></div>
@@ -2213,20 +2213,24 @@ function renderCosts(vm){
   const tp=vm.tokenProjection;
   // Use MTD api cost from finance-data.json if available (cached by loadFintel),
   // fall back to lifetime cost_summary from status.json
-  const fdMtd=_fintelData&&_fintelData.burn?_fintelData.burn.api_mtd:null;
+  // ONE-SOURCE-002: total_mtd = api+infra+tools; api_mtd = Anthropic API only
+  const burn=_fintelData&&_fintelData.burn?_fintelData.burn:null;
+  const fdTotalMtd=burn?burn.total_mtd:null;
+  const fdApiMtd=burn?burn.api_mtd:null;
   const awsUsd=_fintelData&&_fintelData.infrastructure?_fintelData.infrastructure.aws_usd:null;
 
   // cost strip
   const strip=document.querySelector('#v-costs .coststrip');
   if(strip){
     const cells=strip.querySelectorAll(':scope > div');
-    const total=fdMtd!=null?'$'+fdMtd.toFixed(2):(cs.total_cost_usd!=null?'$'+cs.total_cost_usd.toFixed(2):'$34.96');
+    const total=fdTotalMtd!=null?'$'+fdTotalMtd.toFixed(2):(cs.total_cost_usd!=null?'$'+cs.total_cost_usd.toFixed(2):'NO DATA');
     const aiCost=cu&&cu.claudeai&&cu.claudeai.mtd_cost?'$'+Number(cu.claudeai.mtd_cost).toFixed(2):'$20.00';
-    const codeCost=cu&&cu.claudecode&&cu.claudecode.mtd_cost?'$'+Number(cu.claudecode.mtd_cost).toFixed(2):'$0.00';
+    // Anthropic API cost: claudeUsage.claudecode unavailable → fall back to finance-data burn.api_mtd
+    const codeCost=cu&&cu.claudecode&&cu.claudecode.mtd_cost?'$'+Number(cu.claudecode.mtd_cost).toFixed(2):(fdApiMtd!=null?'$'+fdApiMtd.toFixed(2):'NO DATA');
     const designCost=cu&&cu.claudedesign&&cu.claudedesign.mtd_cost?'$'+Number(cu.claudedesign.mtd_cost).toFixed(2):'$0.00';
-    const s3Cost=awsUsd!=null?'$'+awsUsd.toFixed(2):'$14.96';
+    const s3Cost=awsUsd!=null?'$'+awsUsd.toFixed(2):'NO DATA';
     const cacheHit=us.cache_hit_rate_pct!=null?us.cache_hit_rate_pct+'%':'—';
-    if(cells[0]){cells[0].querySelector('.v').textContent=total;cells[0].querySelector('.s').textContent='MTD: '+total;}
+    if(cells[0]){cells[0].querySelector('.v').textContent=total;cells[0].querySelector('.s').textContent='api+infra+tools MTD';}
     if(cells[1]){cells[1].querySelector('.v').textContent=codeCost;}
     if(cells[2]){cells[2].querySelector('.v').textContent=aiCost;}
     if(cells[3]){cells[3].querySelector('.v').textContent=designCost;}
@@ -2247,9 +2251,29 @@ function renderCosts(vm){
     const bar=q.querySelector('.qb i');if(bar) bar.style.width=Math.min(v,100)+'%';
   });
 
-  // burn projection
-  const burnEl=document.querySelector('#v-costs .mono:not(.gradtext)');
-  const projCost=tp.projected_week_cost_usd||0;
+  // burn projection — week-based when available, MTD-based fallback, NO DATA when neither
+  const projValEl=document.getElementById('burn-proj-val');
+  const projBadgeEl=document.getElementById('burn-proj-badge');
+  const projMetaEl=document.getElementById('burn-proj-meta');
+  const projCost=tp&&tp.projected_week_cost_usd>0?tp.projected_week_cost_usd:null;
+  if(projValEl){
+    if(projCost!=null){
+      projValEl.textContent='$'+projCost.toFixed(2)+' / week';
+      if(projBadgeEl){projBadgeEl.textContent='ON TRACK';projBadgeEl.className='badge b-ok';}
+      if(projMetaEl) projMetaEl.textContent=(tp.pct_elapsed||0)+'% of week elapsed';
+    } else if(fdTotalMtd!=null&&fdTotalMtd>0){
+      // MTD-based weekly estimate: (MTD cost / day-of-month) × 7
+      const dayOfMonth=new Date().getDate()||1;
+      const weeklyEst=(fdTotalMtd/dayOfMonth)*7;
+      projValEl.textContent='$'+weeklyEst.toFixed(2)+' / week (MTD est)';
+      if(projBadgeEl){projBadgeEl.textContent='MTD-BASED';projBadgeEl.className='badge b-sec';}
+      if(projMetaEl) projMetaEl.textContent='based on '+dayOfMonth+'d avg · '+new Date().toISOString().slice(0,10);
+    } else {
+      projValEl.textContent='NO DATA';
+      if(projBadgeEl){projBadgeEl.textContent='NO DATA';projBadgeEl.className='badge b-warn';}
+      if(projMetaEl) projMetaEl.textContent='cost-log empty or no spend this week';
+    }
+  }
   // recommendations
   const recs=tp.recommendations||[];
   const recContainer=document.querySelector('#v-costs .recrow')?.parentElement;
@@ -2267,8 +2291,14 @@ function renderCosts(vm){
 /* ============ renderTelemetry ============ */
 function renderTelemetry(vm){
   const stats=document.querySelectorAll('#v-telemetry .tstat');
-  const evCount=vm.recentActivity.length+vm.alerts.length;
-  if(stats[0]) stats[0].querySelector('.v').textContent=evCount||32;
+  // ONE-SOURCE-003: prefer build_events_today from status.json; fall back to activity+alerts count; never hardcode
+  const evCount=vm.kpis&&vm.kpis.buildEventsToday!=null&&vm.kpis.buildEventsToday>0
+    ?vm.kpis.buildEventsToday
+    :(vm.recentActivity.length+vm.alerts.length)||0;
+  if(stats[0]) stats[0].querySelector('.v').textContent=evCount;
+  // sync monitoring panel table cell
+  const monEl=document.getElementById('mon-events-today');
+  if(monEl) monEl.textContent=evCount;
   if(stats[2]){
     const open=vm.alerts.filter(a=>!a.dismissed).length;
     const vEl=stats[2].querySelector('.v');
@@ -2317,6 +2347,15 @@ async function loadFintel(){
 async function renderFintel(){
   const data=await loadFintel();
   if(!data) return Promise.resolve();
+  // update Last refresh from financial_data.json meta
+  const lrEl=document.getElementById('fintel-last-refresh');
+  if(lrEl&&data.meta&&data.meta.built_at){
+    const d=new Date(data.meta.built_at);
+    if(!isNaN(d)){
+      const opts={month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'};
+      lrEl.textContent=d.toLocaleString('en-US',opts);
+    }
+  }
   // keep demo table if no data structured as expected
   const fitab=document.getElementById('fitab');
   if(!fitab) return;
