@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster v18 — Operator Reference · The Certification Era</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=Bebas+Neue&family=Barlow+Condensed:wght@400;600&family=Share+Tech+Mono&family=DM+Serif+Display&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* THEME 02 · LIGHT — Programming Intelligence (default per BRAND-003) */
+  --canvas:#F0F4F8; --card:#ffffff; --card2:#F7F9FB;
+  --border:#e2e8f0; --border2:#cbd5e1;
+  --text:#111827; --muted:#6b7280; --dim:#9ca3af;
+  --sky:#0EA5E9; --sky-dim:rgba(14,165,233,.10); --sky-bd:rgba(14,165,233,.25);
+  --lav:#7C3AED; --lav-dim:rgba(124,58,237,.09); --lav-bd:rgba(124,58,237,.22);
+  --orange:#FB923C; --orange-dim:rgba(251,146,60,.12); --orange-bd:rgba(251,146,60,.3);
+  --green:#10b981; --green-dim:rgba(16,185,129,.10); --green-bd:rgba(16,185,129,.25);
+  --red:#ef4444; --red-dim:rgba(239,68,68,.09); --red-bd:rgba(239,68,68,.24);
+  --gold:#f59e0b; --gold-dim:rgba(245,158,11,.10); --gold-bd:rgba(245,158,11,.28);
+  --disp:'Space Grotesk',sans-serif; --sans:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--canvas);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.62}
+.wrap{max-width:1220px;margin:0 auto;padding:0 30px}
+a{color:var(--sky);text-decoration:none}
+code,.mono{font-family:var(--mono)}
+code{background:var(--card2);border:1px solid var(--border);padding:1px 5px;border-radius:4px;font-size:.87em}
+header{position:sticky;top:0;z-index:50;background:#F0F4F8;background:rgba(240,244,248,.985);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);box-shadow:0 1px 8px rgba(17,24,39,.05)}
+.hbar{display:flex;align-items:center;gap:18px;padding:10px 0;flex-wrap:wrap}
+.logo{font-family:var(--disp);font-weight:700;font-size:19px}
+.logo em{color:var(--sky);font-style:normal}
+.logo .v{color:var(--dim);font-size:13px;margin-left:6px;font-weight:500}
+nav{display:flex;gap:11px;row-gap:5px;flex-wrap:wrap;font-size:11.5px;align-items:center}
+nav a{color:var(--muted);transition:color .15s var(--ease)} nav a:hover{color:var(--text)}
+nav .new{color:var(--orange);font-size:9px;vertical-align:super;font-family:var(--mono);font-weight:500}
+.livedot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px var(--green-dim);margin-left:auto}
+.hero{padding:58px 0 42px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#ffffff 0%,var(--canvas) 100%)}
+.kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.kicker b{color:var(--lav);font-weight:500}
+h1{font-family:var(--disp);font-size:clamp(34px,4.8vw,52px);font-weight:700;line-height:1.1;letter-spacing:-.015em;max-width:900px}
+h1 .era{color:var(--sky)}
+.sub{margin-top:18px;max-width:860px;color:var(--muted);font-size:16.5px}
+.sub b{color:var(--text)}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:32px 0 4px;box-shadow:0 2px 12px rgba(17,24,39,.05)}
+.stat{background:var(--card);padding:16px 16px 13px}
+.stat .n{font-family:var(--disp);font-size:24px;font-weight:700;letter-spacing:-.01em}
+.stat .l{font-size:11px;color:var(--muted);margin-top:2px}
+.stat .s{font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:6px;letter-spacing:.04em}
+.stat.sky .n{color:var(--sky)} .stat.lav .n{color:var(--lav)} .stat.green .n{color:var(--green)} .stat.orange .n{color:var(--orange)}
+section{padding:56px 0;border-bottom:1px solid var(--border)}
+.snum{font-family:var(--mono);color:var(--sky);font-size:12px;letter-spacing:.22em;font-weight:500}
+h2{font-family:var(--disp);font-size:29px;font-weight:700;margin:8px 0 6px;letter-spacing:-.012em}
+h2 .tag{display:inline-block;vertical-align:middle;margin-left:12px;font-family:var(--mono);font-size:10px;letter-spacing:.09em;padding:3px 10px;border-radius:20px;font-weight:500}
+.tag.new{color:var(--orange);background:var(--orange-dim);border:1px solid var(--orange-bd)}
+.tag.live{color:var(--green);background:var(--green-dim);border:1px solid var(--green-bd)}
+.lede{color:var(--muted);max-width:880px;margin-bottom:26px}
+.lede b{color:var(--text)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:980px){.grid3,.grid4{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 22px;box-shadow:0 1px 5px rgba(17,24,39,.04);transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+.panel:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(17,24,39,.08)}
+.panel h3{font-family:var(--disp);font-size:16.5px;margin-bottom:8px}
+.panel p{color:var(--muted);font-size:13.8px}
+.panel p b{color:var(--text)}
+.badge{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:3px 8px;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 5px rgba(17,24,39,.04)}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 13px;border-bottom:2px solid var(--border);background:var(--card2)}
+td{padding:10px 13px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td b{color:var(--text)} td .mono{font-size:12px}
+tr:last-child td{border-bottom:none}
+.pill{font-family:var(--mono);font-size:10px;padding:2px 9px;border-radius:20px;font-weight:500;white-space:nowrap}
+.p-done{color:var(--green);background:var(--green-dim)} .p-run{color:var(--sky);background:var(--sky-dim)}
+.p-next{color:var(--orange);background:var(--orange-dim)} .p-hold{color:var(--muted);background:var(--card2)}
+.p-red{color:var(--red);background:var(--red-dim)}
+.diagram{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin:22px 0;box-shadow:0 2px 12px rgba(17,24,39,.05)}
+.diagram svg{width:100%;height:auto;display:block}
+.dcap{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.09em;text-transform:uppercase;margin-top:14px;text-align:center}
+.lesson{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--lav);border-radius:0 12px 12px 0;padding:18px 22px;margin-bottom:14px;box-shadow:0 1px 5px rgba(17,24,39,.04)}
+.lesson h4{font-family:var(--mono);font-size:12px;letter-spacing:.03em;color:var(--lav);margin-bottom:7px;font-weight:500}
+.lesson p{color:var(--muted);font-size:13.6px}
+.lesson p b{color:var(--text)}
+.lesson .rule{display:block;margin-top:9px;padding-top:9px;border-top:1px dashed var(--border2);color:var(--text);font-size:13.4px}
+.lesson .rule::before{content:'RULE — ';font-family:var(--mono);font-size:10px;color:var(--sky);letter-spacing:.1em;font-weight:500}
+.callout{background:var(--red-dim);border:1px solid var(--red-bd);border-radius:12px;padding:20px 24px;margin:22px 0}
+.callout h3{font-family:var(--disp);font-size:17px;color:var(--red);margin-bottom:6px}
+.callout p{color:var(--muted);font-size:14px}
+.callout p b{color:var(--text)}
+.flyrow{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:8px}
+@media(max-width:980px){.flyrow{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.flyrow{grid-template-columns:1fr 1fr}}
+.flystage{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(17,24,39,.04)}
+.flystage .fn{font-family:var(--mono);font-size:10px;color:var(--sky);font-weight:500;letter-spacing:.09em}
+.flystage h4{font-family:var(--disp);font-size:13.5px;margin:4px 0 4px}
+.flystage p{font-size:11.5px;color:var(--muted)}
+.flystage .st{font-family:var(--mono);font-size:9px;margin-top:8px;font-weight:500}
+.st.wired{color:var(--green)} .st.open{color:var(--orange)}
+.moat{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.moatrow{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 18px}
+.moatrow .d{font-family:var(--mono);font-size:10px;color:var(--dim);width:66px;flex-shrink:0}
+.moatrow h4{font-family:var(--disp);font-size:14.5px;width:250px;flex-shrink:0}
+.moatrow p{font-size:12.5px;color:var(--muted)}
+@media(max-width:760px){.moatrow{flex-wrap:wrap}.moatrow h4{width:auto}}
+.memrow{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:11px 18px;margin-bottom:8px}
+.memrow .t{font-family:var(--mono);font-size:11px;font-weight:500;width:76px;flex-shrink:0}
+.memrow h4{font-size:13.5px;width:270px;flex-shrink:0;font-weight:600}
+.memrow p{font-size:12px;color:var(--muted);flex:1}
+.memrow .lat{font-family:var(--mono);font-size:10px;color:var(--dim);width:88px;text-align:right}
+@media(max-width:760px){.memrow{flex-wrap:wrap}.memrow h4{width:auto}.memrow .lat{width:auto}}
+.skillbox{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;font-family:var(--mono);font-size:11.5px;line-height:2.2}
+.sk{padding:2px 8px;border-radius:5px;margin-right:4px;white-space:nowrap;border:1px solid transparent}
+.sk.d{background:var(--sky-dim);color:#0369a1;border-color:var(--sky-bd)}
+.sk.m{background:var(--orange-dim);color:#b45309;border-color:var(--orange-bd)}
+.sk.e{background:var(--lav-dim);color:var(--lav);border-color:var(--lav-bd)}
+.sk.o{background:var(--green-dim);color:#0f766e;border-color:var(--green-bd)}
+.themecard{border-radius:12px;padding:18px 20px;border:1px solid var(--border)}
+.themecard h4{font-family:var(--disp);font-size:15px;margin-bottom:4px}
+.themecard .tg{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;margin-bottom:8px;display:block}
+.themecard p{font-size:12.5px}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:3px;border:1px solid rgba(0,0,0,.12)}
+/* ===== v18.1 animation & component system ===== */
+@keyframes flowdash{to{stroke-dashoffset:-200}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes hubpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes barup{from{transform:scaleY(.06)}to{transform:scaleY(1)}}
+@keyframes drawline{to{stroke-dashoffset:0}}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes ribbon{0%,100%{transform:translateX(0)}50%{transform:translateX(-14px)}}
+@keyframes wobble{0%,100%{transform:rotate(-.7deg)}50%{transform:rotate(.7deg)}}
+@keyframes chipglow{0%,100%{box-shadow:0 0 0 0 rgba(14,165,233,0)}50%{box-shadow:0 0 0 5px rgba(14,165,233,.14)}}
+.flow{stroke-dasharray:7 6;animation:flowdash 5s linear infinite}
+.flow.slow{animation-duration:9s}
+.pulse{animation:pulse 2.6s ease-in-out infinite}
+.hub{transform-origin:center;transform-box:fill-box;animation:hubpulse 3.2s ease-in-out infinite}
+.orbitspin{transform-origin:center;transform-box:fill-box;animation:spin 40s linear infinite}
+.orbitspin.rev{animation-direction:reverse;animation-duration:60s}
+/* §05 dataset table jazz */
+td .srcchip{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:.05em;padding:2px 8px;border-radius:20px;border:1px solid}
+.sc-imdb{color:#b45309;background:var(--gold-dim);border-color:var(--gold-bd)} .sc-tmdb{color:#0369a1;background:var(--sky-dim);border-color:var(--sky-bd)}
+.sc-eidr{color:var(--lav);background:var(--lav-dim);border-color:var(--lav-bd)} .sc-nsn{color:#b45309;background:var(--orange-dim);border-color:var(--orange-bd)}
+.sc-fus{color:#0f766e;background:var(--green-dim);border-color:var(--green-bd)} .sc-brg{color:#b91c1c;background:var(--red-dim);border-color:var(--red-bd)}
+.magbar{height:5px;border-radius:3px;margin-top:5px;background:var(--card2);overflow:hidden;max-width:150px}
+.magbar i{display:block;height:100%;border-radius:3px;transform-origin:left;animation:barup 1.2s var(--ease) both}
+.upanel{position:relative;overflow:hidden}
+.upanel::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.upanel.u-gold::before{background:linear-gradient(90deg,#f59e0b,#FB923C)} .upanel.u-sky::before{background:linear-gradient(90deg,#0EA5E9,#7C3AED)}
+.upanel.u-orange::before{background:linear-gradient(90deg,#FB923C,#ef4444)} .upanel.u-green::before{background:linear-gradient(90deg,#10b981,#0EA5E9)}
+.upanel .big{font-size:26px;font-family:var(--disp);font-weight:700;letter-spacing:-.01em}
+.upanel .ic{font-size:20px;margin-right:8px;vertical-align:-2px}
+/* §11 spotlight — live theme minis */
+.spotcard{border-radius:14px;border:1px solid var(--border);padding:0;overflow:hidden;display:flex;flex-direction:column;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+.spotcard:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(17,24,39,.12)}
+.spotcard .mini{height:128px;position:relative;overflow:hidden;flex-shrink:0}
+.spotcard .body{padding:14px 18px 16px}
+.spotcard h4{font-size:16px;margin-bottom:3px}
+.spotcard .tg{font-family:var(--mono);font-size:9px;letter-spacing:.1em;display:block;margin-bottom:7px}
+.spotcard p{font-size:12px}
+.mini .bars{position:absolute;bottom:14px;left:18px;right:18px;display:flex;align-items:flex-end;gap:7px;height:78px}
+.mini .bars i{flex:1;border-radius:3px 3px 0 0;transform-origin:bottom;animation:barup 1.4s var(--ease) both}
+.mini .tick{position:absolute;top:10px;left:0;white-space:nowrap;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.06em;animation:ticker 16s linear infinite}
+.mini svg{position:absolute;inset:0;width:100%;height:100%}
+.dline{fill:none;stroke-width:2.4;stroke-linecap:round;stroke-dasharray:420;stroke-dashoffset:420;animation:drawline 2.6s var(--ease) forwards}
+.dline.d2{animation-delay:.5s}
+.rib{animation:ribbon 7s ease-in-out infinite}
+.rib.r2{animation-delay:-2.3s}.rib.r3{animation-delay:-4.6s}
+.sketchwob{transform-origin:center;animation:wobble 4s ease-in-out infinite}
+.capchip{display:inline-block;font-family:var(--mono);font-size:9.5px;padding:3px 9px;border-radius:20px;margin:2px 3px 2px 0;background:var(--sky-dim);color:#0369a1;border:1px solid var(--sky-bd);animation:chipglow 3s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}.dline{stroke-dashoffset:0}}
+footer{padding:44px 0 64px;color:var(--dim);font-size:12.5px;line-height:2}
+footer .mono{font-size:11px}
+</style>
+</head>
+<body>
+
+<header><div class="wrap hbar">
+  <div class="logo">SaS<em>Master</em><span class="v">v18.1</span></div>
+  <nav>
+    <a href="#north">Mission</a><a href="#flywheel">Flywheel</a><a href="#techmap">Tech Map<span class="new">NEW</span></a>
+    <a href="#layers">Layers<span class="new">NEW</span></a><a href="#data">Data</a><a href="#engines">Two-Engine<span class="new">NEW</span></a>
+    <a href="#rings">Identity<span class="new">NEW</span></a><a href="#cert">Certification<span class="new">NEW</span></a>
+    <a href="#memory">Memory</a><a href="#kb">Knowledge Base<span class="new">NEW</span></a><a href="#agents">Intelligence</a><a href="#spotlight">Spotlight</a><a href="#catalog">Catalog<span class="new">NEW</span></a><a href="#skills">Skills</a><a href="#ask">ASK Grammar<span class="new">NEW</span></a>
+    <a href="#compute">Compute</a><a href="#queue">Queue</a><a href="#roadmap">Roadmap</a><a href="#lessons">Lessons</a>
+  </nav>
+  <div class="livedot" title="All figures live-sourced"></div>
+</div></header>
+
+<div class="hero"><div class="wrap">
+  <div class="kicker">OPERATOR REFERENCE · <b>V18.1 · THE CERTIFICATION ERA</b> · 2026-07-12 · THEME 02 LIGHT OPERATIONAL · ALL FIGURES SOURCE-BADGED</div>
+  <h1>The Bloomberg Terminal for Media Intelligence — now with a spine that <span class="era">proves itself</span>.</h1>
+  <p class="sub">One platform decoding audience, content, and rights data into a single decision-grade terminal — powered by a self-learning agent stack. <b>New in v18:</b> the platform turned its own "never estimate what you can query" standard on itself. A read-only certification campaign swept every spine object, caught <b>three data-rot instances before any user saw them</b>, and converted production status into <b>eight query-checkable exit criteria</b>. Every remaining gap is carded. Design work remaining: zero.</p>
+  <div class="strip">
+    <div class="stat lav"><div class="n">12.96M</div><div class="l">Spine rows · is_current</div><div class="s">CERT-001 · 07-09 · PASS</div></div>
+    <div class="stat"><div class="n">2.32M</div><div class="l">Movies</div><div class="s">MOTHERDUCK · RE-VERIFIED 07-12</div></div>
+    <div class="stat"><div class="n">341K</div><div class="l">TV series</div><div class="s">MOTHERDUCK · RE-VERIFIED 07-12</div></div>
+    <div class="stat"><div class="n">9.67M</div><div class="l">Episodes (CIDs)</div><div class="s">MOTHERDUCK · RE-VERIFIED 07-12</div></div>
+    <div class="stat"><div class="n">4.73M</div><div class="l">People</div><div class="s">MOTHERDUCK · RE-VERIFIED 07-12</div></div>
+    <div class="stat sky"><div class="n">5.01M</div><div class="l">Alt IDs · 12 domains</div><div class="s">MOTHERDUCK · RE-VERIFIED 07-12</div></div>
+    <div class="stat orange"><div class="n">13 yrs</div><div class="l">Viewership 2012→2025</div><div class="s">MOTHERDUCK · RE-VERIFIED 07-12</div></div>
+    <div class="stat"><div class="n">1.62 TB</div><div class="l">S3 lake</div><div class="s">WAR ROOM</div></div>
+    <div class="stat green"><div class="n">80 / 51</div><div class="l">Skills / agents</div><div class="s">ARCH-V14 +1 · WAR ROOM</div></div>
+  </div>
+</div></div>
+
+<section id="north"><div class="wrap">
+  <div class="snum">01</div><h2>North Star &amp; the Unique IP</h2>
+  <p class="lede"><b>The Official Mission —</b> Decode data for <b>radical insights</b> to drive Content, Audiences &amp; Revenue. The industry's first global audience dataset: <b>GenAI-native, currency-agnostic</b>, one language for every market — the terminal where the people who <b>analyze, price, and trade</b> content, advertising, and marketing actually work. <span style="color:var(--dim);font-size:13px">IP origin: solo build 2018–2024 · RSG Databricks · clean IP · never productized commercially · SaSMaster = first commercial implementation.</span></p>
+  <div class="moat">
+    <div class="moatrow"><span class="d">DEPTH 1</span><h4>Raw Data</h4><p>Anyone with capital can license TMDB / IMDB / Nielsen. Table stakes, not moat.</p></div>
+    <div class="moatrow"><span class="d">DEPTH 2</span><h4>Parent Key Spine</h4><p>12.96M rows · 3.29M PKIDs · 9.67M episode CIDs · UUIDv5 deterministic · anchor imdb&gt;eidr&gt;tmdb.</p></div>
+    <div class="moatrow"><span class="d">DEPTH 3</span><h4>Certification + Provenance Wall</h4><p><b>Upgraded in v18:</b> standing certification runner · forced-fire-proven tripwires · licensing_class end-to-end · GENERALIZE-TO-PUBLISH.</p></div>
+    <div class="moatrow"><span class="d">DEPTH 4</span><h4>Gold Sets + Agent Intelligence</h4><p>1,550+ Obsidian files in managed memstores · 80 skills · self-learning flywheel.</p></div>
+  </div>
+</div></section>
+
+<section id="flywheel"><div class="wrap">
+  <div class="snum">02</div><h2>The Self-Learning Flywheel</h2>
+  <p class="lede">Six work stages on the rim; JARVIS at the hub governs every stage. Stages 1–3 wired with managed agent intelligence; 4–6 close the autonomous loop.</p>
+  <div class="diagram" style="max-width:640px;margin-left:auto;margin-right:auto">
+  <svg viewBox="0 0 640 660" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+    <defs>
+      <linearGradient id="fgWired" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0EA5E9"/><stop offset="1" stop-color="#10b981"/></linearGradient>
+      <linearGradient id="fgOpen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FB923C"/><stop offset="1" stop-color="#f59e0b"/></linearGradient>
+      <radialGradient id="fgHub"><stop offset="0" stop-color="#ede9fe"/><stop offset="1" stop-color="#ddd3f7"/></radialGradient>
+      <marker id="fa" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#64748b"/></marker>
+    </defs>
+    <!-- rim base -->
+    <circle cx="320" cy="330" r="200" fill="none" stroke="#eef2f7" stroke-width="30"/>
+    <!-- wired half (stages 1-3, top -> bottom clockwise) -->
+    <path d="M 320 130 A 200 200 0 0 1 493 430" fill="none" stroke="url(#fgWired)" stroke-width="30" stroke-linecap="round"/>
+    <path d="M 493 430 A 200 200 0 0 1 320 530" fill="none" stroke="url(#fgWired)" stroke-width="30" stroke-linecap="round"/>
+    <!-- open half (stages 4-6) -->
+    <path d="M 320 530 A 200 200 0 0 1 147 430" fill="none" stroke="url(#fgOpen)" stroke-width="30" stroke-linecap="round" opacity=".45"/>
+    <path d="M 147 430 A 200 200 0 0 1 320 130" fill="none" stroke="url(#fgOpen)" stroke-width="30" stroke-linecap="round" opacity=".45"/>
+    <!-- animated flow over the rim -->
+    <circle cx="320" cy="330" r="200" fill="none" stroke="#ffffff" stroke-width="8" stroke-dasharray="4 44" class="flow" opacity=".9"/>
+    <!-- direction arrows on rim -->
+    <path d="M 468 216 A 200 200 0 0 1 490 254" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+    <path d="M 172 444 A 200 200 0 0 1 150 406" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#fa)"/>
+    <!-- hub -->
+    <g class="hub">
+      <circle cx="320" cy="330" r="92" fill="url(#fgHub)" stroke="#7C3AED" stroke-width="2"/>
+      <circle cx="320" cy="330" r="104" fill="none" stroke="#7C3AED" stroke-width="1.2" stroke-dasharray="3 7" opacity=".55"/>
+    </g>
+    <text x="320" y="316" text-anchor="middle" fill="#7C3AED" font-size="19" font-weight="700" font-family="Space Grotesk,sans-serif">JARVIS</text>
+    <text x="320" y="337" text-anchor="middle" fill="#6b7280" font-size="10">control plane · governs every stage</text>
+    <text x="320" y="353" text-anchor="middle" fill="#6b7280" font-size="10">meters autonomy · human gates</text>
+    <!-- stage nodes: r=200 rim, nodes at 60-degree spacing -->
+    <!-- S1 top (320,130) -->
+    <circle cx="320" cy="130" r="27" fill="#ffffff" stroke="#0EA5E9" stroke-width="2.5"/><text x="320" y="139" text-anchor="middle" font-size="20">💬</text>
+    <text x="320" y="80" text-anchor="middle" fill="#0369a1" font-size="12" font-weight="700">① QUESTION IN</text>
+    <text x="320" y="95" text-anchor="middle" fill="#9ca3af" font-size="9.5">Scoop query · Slack card</text>
+    <!-- S2 upper-right (493,230) -->
+    <circle cx="493" cy="230" r="27" fill="#ffffff" stroke="#0EA5E9" stroke-width="2.5"/><text x="493" y="239" text-anchor="middle" font-size="20">🧩</text>
+    <text x="556" y="200" text-anchor="middle" fill="#0369a1" font-size="12" font-weight="700">② COMPOSE</text>
+    <text x="556" y="215" text-anchor="middle" fill="#9ca3af" font-size="9.5">80 skills by file_id</text>
+    <!-- S3 lower-right (493,430) -->
+    <circle cx="493" cy="430" r="27" fill="#ffffff" stroke="#10b981" stroke-width="2.5"/><text x="493" y="439" text-anchor="middle" font-size="20">📡</text>
+    <text x="556" y="478" text-anchor="middle" fill="#0f766e" font-size="12" font-weight="700">③ SERVE</text>
+    <text x="556" y="493" text-anchor="middle" fill="#9ca3af" font-size="9.5">portal · SSE stream</text>
+    <!-- S4 bottom (320,530) -->
+    <circle cx="320" cy="530" r="27" fill="#ffffff" stroke="#FB923C" stroke-width="2.5" stroke-dasharray="5 4"/><text x="320" y="539" text-anchor="middle" font-size="20">✋</text>
+    <text x="320" y="586" text-anchor="middle" fill="#b45309" font-size="12" font-weight="700">④ BLESS ⏸ HUMAN GATE</text>
+    <text x="320" y="601" text-anchor="middle" fill="#9ca3af" font-size="9.5">bless → catalog entry required</text>
+    <!-- S5 lower-left (147,430) -->
+    <circle cx="147" cy="430" r="27" fill="#ffffff" stroke="#FB923C" stroke-width="2.5" stroke-dasharray="5 4"/><text x="147" y="439" text-anchor="middle" font-size="20">🏦</text>
+    <text x="84" y="478" text-anchor="middle" fill="#b45309" font-size="12" font-weight="700">⑤ DEPOSIT</text>
+    <text x="84" y="493" text-anchor="middle" fill="#9ca3af" font-size="9.5">gold · skill deposit</text>
+    <!-- S6 upper-left (147,230) -->
+    <circle cx="147" cy="230" r="27" fill="#ffffff" stroke="#FB923C" stroke-width="2.5" stroke-dasharray="5 4"/><text x="147" y="239" text-anchor="middle" font-size="20">🚀</text>
+    <text x="84" y="200" text-anchor="middle" fill="#b45309" font-size="12" font-weight="700">⑥ PROMOTE</text>
+    <text x="84" y="215" text-anchor="middle" fill="#9ca3af" font-size="9.5">pattern ≥3 → skill</text>
+    <!-- comet riding the wired arc -->
+    <circle r="6" fill="#0EA5E9"><animateMotion dur="6s" repeatCount="indefinite" path="M 320 130 A 200 200 0 0 1 493 430 A 200 200 0 0 1 320 530"/></circle>
+    <circle r="6" fill="#FB923C" opacity=".7"><animateMotion dur="9s" repeatCount="indefinite" path="M 320 530 A 200 200 0 0 1 147 430 A 200 200 0 0 1 320 130"/></circle>
+    <text x="320" y="642" text-anchor="middle" fill="#94a3b8" font-size="10">SOLID GRADIENT = WIRED (①–③) · DASHED AMBER = OPEN (④–⑥) — closing 4–6 remains the autonomy priority</text>
+  </svg>
+  <div class="dcap">The flywheel · stages 1–3 wired · 4–6 close the loop</div>
+  </div>
+  <div class="flyrow">
+    <div class="flystage"><span class="fn">① QUESTION IN</span><h4>User / Intel Agent</h4><p>Dr. Scoop receives query; JARVIS receives task card from Slack #builds.</p><span class="st wired">WIRED</span></div>
+    <div class="flystage"><span class="fn">② COMPOSE</span><h4>Agents + Skills + Spine</h4><p>Managed agents load 80 skill files by file_id. Zero re-upload token cost.</p><span class="st wired">WIRED</span></div>
+    <div class="flystage"><span class="fn">③ SERVE</span><h4>Answer on the wedge</h4><p>Portal surface or Dr. Scoop SSE stream via Railway.</p><span class="st wired">WIRED</span></div>
+    <div class="flystage"><span class="fn">④ BLESS = LABEL</span><h4>Human Gate</h4><p>Shiv blesses. Catalog entry required to reach DONE.</p><span class="st open">OPEN</span></div>
+    <div class="flystage"><span class="fn">⑤ DEPOSIT</span><h4>Catalog · Gold · Skill</h4><p>DEPOSIT-GATE-001 P1+P2 shipped 2026-06-07.</p><span class="st open">OPEN</span></div>
+    <div class="flystage"><span class="fn">⑥ PROMOTE</span><h4>Pattern ≥3 → Skill</h4><p>SKILL-REGISTRY-002 auto-promotes from LESSONS.md.</p><span class="st open">OPEN</span></div>
+  </div>
+</div></section>
+
+<section id="techmap"><div class="wrap">
+  <div class="snum">03</div><h2>End-to-End Technology Map <span class="tag new">THE v18 CENTERPIECE</span></h2>
+  <p class="lede">Every component, one picture: how a byte travels from a vendor source to a governed answer — <b>sources → scrapers → S3 lake → local DuckDB compute → dual-emit serving (MotherDuck + embedded warehouse) → Railway services → Vercel surfaces</b> — with the agent fleet, five-tier memory, and the certification runner wrapped around the whole flow.</p>
+  <div class="diagram">
+  <svg viewBox="0 0 1240 800" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+    <defs>
+      <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0L10,5L0,10z" fill="#94a3b8"/></marker>
+      <linearGradient id="tmS3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbeb"/><stop offset="1" stop-color="#fef3c7" stop-opacity=".55"/></linearGradient>
+      <linearGradient id="tmM1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0f9ff"/><stop offset="1" stop-color="#e0f2fe" stop-opacity=".6"/></linearGradient>
+    </defs>
+    <g font-size="10.5" font-weight="600" fill="#94a3b8" letter-spacing="2">
+      <text x="100"  y="26" text-anchor="middle">📥 SOURCES</text>
+      <text x="308" y="26" text-anchor="middle">🕷 INGEST</text>
+      <text x="528" y="26" text-anchor="middle">🪣 STORAGE · S3</text>
+      <text x="758" y="26" text-anchor="middle">⚙️ COMPUTE · M1</text>
+      <text x="978" y="26" text-anchor="middle">🦆 SERVING</text>
+      <text x="1160" y="26" text-anchor="middle">🖥 SURFACES</text>
+    </g>
+    <!-- SOURCES -->
+    <g font-size="10">
+      <rect x="25" y="40" width="150" height="30" rx="6" fill="rgba(14,165,233,.08)" stroke="#7dd3fc"/><text x="100" y="59" text-anchor="middle" fill="#0369a1">IMDB datasets</text>
+      <rect x="25" y="76" width="150" height="30" rx="6" fill="rgba(14,165,233,.08)" stroke="#7dd3fc"/><text x="100" y="95" text-anchor="middle" fill="#0369a1">TMDB API v3</text>
+      <rect x="25" y="112" width="150" height="30" rx="6" fill="rgba(14,165,233,.08)" stroke="#7dd3fc"/><text x="100" y="131" text-anchor="middle" fill="#0369a1">Nielsen AMRLD/MIT</text>
+      <rect x="25" y="148" width="150" height="30" rx="6" fill="rgba(14,165,233,.08)" stroke="#7dd3fc"/><text x="100" y="167" text-anchor="middle" fill="#0369a1">EIDR REST</text>
+      <rect x="25" y="184" width="150" height="30" rx="6" fill="rgba(14,165,233,.08)" stroke="#7dd3fc"/><text x="100" y="203" text-anchor="middle" fill="#0369a1">Gracenote OnConnect</text>
+      <rect x="25" y="220" width="150" height="30" rx="6" fill="rgba(14,165,233,.08)" stroke="#7dd3fc"/><text x="100" y="239" text-anchor="middle" fill="#0369a1">Wikidata SPARQL</text>
+      <rect x="25" y="256" width="150" height="30" rx="6" fill="rgba(14,165,233,.08)" stroke="#7dd3fc"/><text x="100" y="275" text-anchor="middle" fill="#0369a1">Social ×4 · IMSDb</text>
+    </g>
+    <!-- INGEST -->
+    <rect x="230" y="40" width="156" height="250" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="308" y="64" text-anchor="middle" fill="#111827" font-size="11" font-weight="600">SCRAPER FLEET</text>
+    <text x="308" y="82" text-anchor="middle" fill="#6b7280" font-size="9.5">rate-limit · retry/backoff</text>
+    <text x="308" y="96" text-anchor="middle" fill="#6b7280" font-size="9.5">lockfiles · checkpoints</text>
+    <text x="308" y="110" text-anchor="middle" fill="#6b7280" font-size="9.5">p-limit concurrency</text>
+    <line x1="244" y1="122" x2="372" y2="122" stroke="#eef2f7"/>
+    <text x="308" y="142" text-anchor="middle" fill="#111827" font-size="10.5" font-weight="600">MANIFEST PIPELINE</text>
+    <text x="308" y="159" text-anchor="middle" fill="#6b7280" font-size="9.5">Tier-1 ingest manifest</text>
+    <text x="308" y="173" text-anchor="middle" fill="#6b7280" font-size="9.5">delta-compute · §2b gate</text>
+    <line x1="244" y1="185" x2="372" y2="185" stroke="#eef2f7"/>
+    <text x="308" y="205" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="600" class="pulse">⚠ TRIPWIRES (LOAD-001)</text>
+    <text x="308" y="222" text-anchor="middle" fill="#6b7280" font-size="9.5">reissue detection</text>
+    <text x="308" y="236" text-anchor="middle" fill="#6b7280" font-size="9.5">load-volume anomaly</text>
+    <text x="308" y="260" text-anchor="middle" fill="#9ca3af" font-size="9">NDJSON → Parquet ZSTD</text>
+    <text x="308" y="274" text-anchor="middle" fill="#9ca3af" font-size="9">every load → ledger</text>
+    <!-- S3 -->
+    <rect x="440" y="40" width="176" height="336" rx="10" fill="url(#tmS3)" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="528" y="63" text-anchor="middle" fill="#b45309" font-size="11.5" font-weight="600">sasmaster-2026</text>
+    <text x="528" y="79" text-anchor="middle" fill="#b45309" font-size="9.5">1.62 TB · locked paths</text>
+    <g font-size="9.3" fill="#6b7280">
+      <text x="454" y="102">landing/ imdb·tmdb·eidr·gn</text>
+      <text x="454" y="119">nielsen/ AMRLD 633GB</text>
+      <text x="462" y="134">MIT 181 · AdIntel 22 GB</text>
+      <text x="454" y="152">parent_keys/ · alt_ids/</text>
+      <text x="454" y="171" fill="#0f766e" font-weight="600">viewership_atomic/ ★NEW</text>
+      <text x="462" y="187">program_metrics /st/ym</text>
+      <text x="462" y="202">timeperiod_metrics /st/ym</text>
+      <text x="454" y="221" fill="#7C3AED" font-weight="600">serving_warehouse/ ★NEW</text>
+      <text x="462" y="237">serving.duckdb + latest</text>
+      <text x="454" y="256" fill="#0369a1" font-weight="600">ext_content/scripts/ ★NEW</text>
+      <text x="454" y="275">memory/ · gold sets · PIL</text>
+    </g>
+    <text x="528" y="300" text-anchor="middle" fill="#9ca3af" font-size="9">~1GB ZSTD · partition-atomic</text>
+    <text x="528" y="314" text-anchor="middle" fill="#9ca3af" font-size="9">swaps · lifecycle policies</text>
+    <text x="528" y="328" text-anchor="middle" fill="#9ca3af" font-size="9">in-region compute</text>
+    <text x="528" y="356" text-anchor="middle" fill="#10b981" font-size="9.5" font-weight="600">🔒 IMMUTABLE VENDOR TRUTH</text>
+    <!-- M1 -->
+    <rect x="670" y="40" width="176" height="250" rx="10" fill="url(#tmM1)" stroke="#0EA5E9" stroke-width="1.5"/>
+    <text x="758" y="63" text-anchor="middle" fill="#0369a1" font-size="11.5" font-weight="600">MAC M1 · 64GB</text>
+    <text x="758" y="79" text-anchor="middle" fill="#0369a1" font-size="9.5">local DuckDB · FREE compute</text>
+    <g font-size="9.3" fill="#6b7280">
+      <text x="684" y="102">httpfs → S3 pruned scans</text>
+      <text x="684" y="119">spine fusion · UUIDv5 mint</text>
+      <text x="684" y="136">aggregate_viewership.py</text>
+      <text x="684" y="153">load_history.py (65 slabs)</text>
+      <text x="684" y="170" fill="#7C3AED" font-weight="600">certification runner ★</text>
+      <text x="684" y="187">scrapers · launchd crons</text>
+    </g>
+    <rect x="684" y="200" width="148" height="52" rx="7" fill="rgba(239,68,68,.06)" stroke="#fca5a5"/>
+    <text x="758" y="218" text-anchor="middle" fill="#ef4444" font-size="9.5" font-weight="600">HARD RULE</text>
+    <text x="758" y="232" text-anchor="middle" fill="#6b7280" font-size="8.8">atomic-scale scans happen HERE,</text>
+    <text x="758" y="244" text-anchor="middle" fill="#6b7280" font-size="8.8">never in MotherDuck</text>
+    <text x="758" y="274" text-anchor="middle" fill="#9ca3af" font-size="9">GHA = burst/failover lane</text>
+    <!-- SERVING -->
+    <rect x="900" y="40" width="156" height="120" rx="10" fill="rgba(16,185,129,.07)" stroke="#10b981" stroke-width="1.5"/>
+    <text x="978" y="62" text-anchor="middle" fill="#0f766e" font-size="11" font-weight="600">🦆 MOTHERDUCK</text>
+    <text x="978" y="78" text-anchor="middle" fill="#0f766e" font-size="9.5" font-weight="600" class="pulse">FREE TIER · forever</text>
+    <text x="978" y="96" text-anchor="middle" fill="#6b7280" font-size="9.3">serving.* aggregates</text>
+    <text x="978" y="110" text-anchor="middle" fill="#6b7280" font-size="9.3">spine + cert tables</text>
+    <text x="978" y="124" text-anchor="middle" fill="#6b7280" font-size="9.3">ask_ro share (refreshed)</text>
+    <text x="978" y="146" text-anchor="middle" fill="#9ca3af" font-size="9">0.047–0.090s proven</text>
+    <rect x="900" y="172" width="156" height="118" rx="10" fill="rgba(124,58,237,.06)" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="978" y="194" text-anchor="middle" fill="#7C3AED" font-size="11" font-weight="600">💿 serving.duckdb</text>
+    <text x="978" y="210" text-anchor="middle" fill="#7C3AED" font-size="9.5" font-weight="600">EMBEDDED · $0</text>
+    <text x="978" y="228" text-anchor="middle" fill="#6b7280" font-size="9.3">byte-equivalence certified</text>
+    <text x="978" y="242" text-anchor="middle" fill="#6b7280" font-size="9.3">consumers run read-only</text>
+    <text x="978" y="256" text-anchor="middle" fill="#6b7280" font-size="9.3">in-process · no caps</text>
+    <text x="978" y="276" text-anchor="middle" fill="#9ca3af" font-size="9">the pricing exit, pre-built</text>
+    <!-- SURFACES -->
+    <rect x="1090" y="40" width="140" height="336" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="1160" y="62" text-anchor="middle" fill="#111827" font-size="11" font-weight="600">🛤 RAILWAY</text>
+    <g font-size="9.3" fill="#6b7280">
+      <text x="1160" y="80"  text-anchor="middle">JARVIS socket (Slack)</text>
+      <text x="1160" y="94"  text-anchor="middle">Dr. Scoop SSE</text>
+      <text x="1160" y="108" text-anchor="middle">ASK executor P4</text>
+      <text x="1160" y="122" text-anchor="middle">portal-api (future)</text>
+    </g>
+    <line x1="1102" y1="134" x2="1218" y2="134" stroke="#e2e8f0"/>
+    <text x="1160" y="154" text-anchor="middle" fill="#111827" font-size="11" font-weight="600">▲ VERCEL</text>
+    <g font-size="9.3" fill="#6b7280">
+      <text x="1160" y="172" text-anchor="middle">War Room v5 (ops)</text>
+      <text x="1160" y="186" text-anchor="middle">this document</text>
+      <text x="1160" y="200" text-anchor="middle">research portal —</text>
+      <text x="1160" y="214" text-anchor="middle">own project · PARKED</text>
+    </g>
+    <line x1="1102" y1="226" x2="1218" y2="226" stroke="#e2e8f0"/>
+    <text x="1160" y="246" text-anchor="middle" fill="#111827" font-size="11" font-weight="600">💬 SLACK</text>
+    <text x="1160" y="264" text-anchor="middle" fill="#6b7280" font-size="9.3">#builds · gate posts</text>
+    <text x="1160" y="278" text-anchor="middle" fill="#6b7280" font-size="9.3">tripwire alerts · certs</text>
+    <line x1="1102" y1="290" x2="1218" y2="290" stroke="#e2e8f0"/>
+    <text x="1160" y="310" text-anchor="middle" fill="#111827" font-size="11" font-weight="600">🛡 GOVERNANCE</text>
+    <text x="1160" y="328" text-anchor="middle" fill="#6b7280" font-size="9.3">band predicate</text>
+    <text x="1160" y="342" text-anchor="middle" fill="#6b7280" font-size="9.3">@ executor</text>
+    <text x="1160" y="356" text-anchor="middle" fill="#6b7280" font-size="9.3">licensing_class envelope</text>
+    <!-- arrows + animated flow dots -->
+    <g stroke="#94a3b8" stroke-width="1.5" fill="none">
+      <line x1="175" y1="163" x2="225" y2="163" marker-end="url(#a)"/>
+      <line x1="386" y1="163" x2="435" y2="163" marker-end="url(#a)"/>
+      <line x1="616" y1="163" x2="665" y2="163" marker-end="url(#a)"/>
+      <line x1="846" y1="100" x2="895" y2="100" marker-end="url(#a)"/>
+      <line x1="846" y1="230" x2="895" y2="230" marker-end="url(#a)"/>
+      <line x1="1056" y1="100" x2="1085" y2="100" marker-end="url(#a)"/>
+      <line x1="1056" y1="230" x2="1085" y2="205" marker-end="url(#a)"/>
+      <path d="M 670 255 C 645 305 645 305 618 305" marker-end="url(#a)" stroke-dasharray="4 3"/>
+    </g>
+    <circle r="3.2" fill="#0EA5E9"><animateMotion dur="2.4s" repeatCount="indefinite" path="M 175 163 L 225 163"/></circle>
+    <circle r="3.2" fill="#f59e0b"><animateMotion dur="2.4s" begin=".6s" repeatCount="indefinite" path="M 386 163 L 435 163"/></circle>
+    <circle r="3.2" fill="#0EA5E9"><animateMotion dur="2.4s" begin="1.2s" repeatCount="indefinite" path="M 616 163 L 665 163"/></circle>
+    <circle r="3.2" fill="#10b981"><animateMotion dur="2s" repeatCount="indefinite" path="M 846 100 L 895 100"/></circle>
+    <circle r="3.2" fill="#7C3AED"><animateMotion dur="2s" begin="1s" repeatCount="indefinite" path="M 846 230 L 895 230"/></circle>
+    <text x="638" y="300" fill="#94a3b8" font-size="8.5">curated/serving writeback</text>
+    <!-- AGENT/MEMORY plane -->
+    <rect x="25" y="430" width="1205" height="152" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="45" y="457" fill="#111827" font-size="12" font-weight="600">🧠 AGENT &amp; MEMORY PLANE — wraps every stage</text>
+    <g font-size="9.5">
+      <rect x="45" y="472" width="220" height="92" rx="8" fill="rgba(245,158,11,.07)" stroke="#fcd34d"/>
+      <text x="155" y="493" text-anchor="middle" fill="#b45309" font-weight="600">🤖 JARVIS · control plane</text>
+      <text x="155" y="511" text-anchor="middle" fill="#6b7280">routes · gates · meters autonomy</text>
+      <text x="155" y="526" text-anchor="middle" fill="#6b7280">Slack in → Railway out</text>
+      <text x="155" y="541" text-anchor="middle" fill="#6b7280">managed agent · jarvis-memory</text>
+      <rect x="285" y="472" width="220" height="92" rx="8" fill="rgba(14,165,233,.06)" stroke="#7dd3fc"/>
+      <text x="395" y="493" text-anchor="middle" fill="#0369a1" font-weight="600">🔍 Dr. Scoop · intelligence</text>
+      <text x="395" y="511" text-anchor="middle" fill="#6b7280">media Q&amp;A · claim-verify</text>
+      <text x="395" y="526" text-anchor="middle" fill="#6b7280">fail-CLOSED · SSE stream</text>
+      <text x="395" y="541" text-anchor="middle" fill="#6b7280">drscoop-memory memstore</text>
+      <rect x="525" y="472" width="220" height="92" rx="8" fill="rgba(16,185,129,.07)" stroke="#6ee7b7"/>
+      <text x="635" y="493" text-anchor="middle" fill="#0f766e" font-weight="600">🚁 Fleet · 51 agents · 80 skills</text>
+      <text x="635" y="511" text-anchor="middle" fill="#6b7280">Files API by file_id</text>
+      <text x="635" y="526" text-anchor="middle" fill="#6b7280">QA agent gates every deploy</text>
+      <text x="635" y="541" text-anchor="middle" fill="#6b7280">Claude Code = build hands</text>
+      <rect x="765" y="472" width="220" height="92" rx="8" fill="rgba(124,58,237,.06)" stroke="#c4b5fd"/>
+      <text x="875" y="493" text-anchor="middle" fill="#7C3AED" font-weight="600">🗄 Memory · 5 tiers</text>
+      <text x="875" y="511" text-anchor="middle" fill="#6b7280">HOT-1 memstores · HOT-2 claude.ai</text>
+      <text x="875" y="526" text-anchor="middle" fill="#6b7280">WARM Redis · COLD S3</text>
+      <text x="875" y="541" text-anchor="middle" fill="#6b7280">ARCH Obsidian 1,557 files</text>
+      <rect x="1005" y="472" width="220" height="92" rx="8" fill="rgba(239,68,68,.06)" stroke="#fca5a5"/>
+      <text x="1115" y="493" text-anchor="middle" fill="#b91c1c" font-weight="600">🔀 Compute router · 4 lanes</text>
+      <text x="1115" y="511" text-anchor="middle" fill="#6b7280">Railway uptime · M1 muscle</text>
+      <text x="1115" y="526" text-anchor="middle" fill="#6b7280">GHA burst · Claude reasoning</text>
+      <text x="1115" y="541" text-anchor="middle" fill="#6b7280">$500/mo governor · presence TTL</text>
+    </g>
+    <!-- CERT overlay -->
+    <rect x="25" y="612" width="1205" height="70" rx="12" fill="rgba(124,58,237,.05)" stroke="#7C3AED" stroke-width="1.5" stroke-dasharray="7 5" class="flow slow"/>
+    <text x="627" y="640" text-anchor="middle" fill="#7C3AED" font-size="11.5" font-weight="600">🛡 CERTIFICATION RUNNER — the wrapper on everything above</text>
+    <text x="627" y="660" text-anchor="middle" fill="#6b7280" font-size="9.5">weekly post-manifest · every object → curated.spine_certification row · grain dup · match rates · layout health · reconciliation ties serving→atomic · Slack alert on PASS→WARN · forced-fire proven</text>
+    <text x="627" y="716" text-anchor="middle" fill="#94a3b8" font-size="10">ONE FLOW RULE: data moves left→right only · trust flows back as certification rows · a consumer physically cannot select an uncertified row</text>
+    <text x="627" y="756" text-anchor="middle" fill="#94a3b8" font-size="9.5">SOURCES → SCRAPERS+MANIFESTS → S3 (truth) → M1 DUCKDB (compute) → MOTHERDUCK + EMBEDDED (serve) → RAILWAY/VERCEL (deliver) → SLACK (govern)</text>
+  </svg>
+  <div class="dcap">The full machine · every box exists today except portal-api (parked) · lineage: the 2018 "Fast Data Platform" column-flow, rebuilt clean-room — same shape, modern engines · sources: War Room · MotherDuck 07-10 · sessions 07-09→07-12</div>
+  </div>
+</div></section>
+
+<section id="layers"><div class="wrap">
+  <div class="snum">04</div><h2>The Six-Layer Data Platform <span class="tag new">BLUEPRINT §1</span></h2>
+  <p class="lede">The tech map is the horizontal view; this is the vertical one. Six layers, one flow rule: <b>data moves down the numbers only</b> — every boundary an adapter contract, band predicate enforced at L6.</p>
+  <div class="diagram">
+  <svg viewBox="0 0 1140 500" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+    <defs>
+      <marker id="up" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#0EA5E9"/></marker>
+      <linearGradient id="lgSpine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fef3c7"/><stop offset="1" stop-color="#fffbeb"/></linearGradient>
+    </defs>
+    <g font-size="12">
+      <!-- L6 -->
+      <circle cx="152" cy="46" r="17" fill="rgba(124,58,237,.09)" stroke="#c4b5fd"/><text x="152" y="52" text-anchor="middle" font-size="15">🖥</text>
+      <rect x="184" y="16" width="836" height="62" rx="9" fill="rgba(124,58,237,.05)" stroke="#7C3AED" stroke-width="1.3"/>
+      <text x="202" y="40" fill="#7C3AED" font-weight="600">L6 · DELIVERY</text>
+      <text x="340" y="40" fill="#6b7280" font-size="10.5">Read-only APIs · ASK executor (band predicate — unbypassable) · report compiler</text>
+      <text x="340" y="60" fill="#9ca3af" font-size="10.5">portal surfaces parked behind the §8 gate</text>
+      <!-- L5 -->
+      <circle cx="152" cy="118" r="17" fill="rgba(16,185,129,.1)" stroke="#6ee7b7"/><text x="152" y="124" text-anchor="middle" font-size="15">⚡</text>
+      <rect x="184" y="88" width="836" height="62" rx="9" fill="rgba(16,185,129,.06)" stroke="#10b981" stroke-width="1.3"/>
+      <text x="202" y="112" fill="#0f766e" font-weight="600">L5 · SERVING</text>
+      <text x="340" y="112" fill="#6b7280" font-size="10.5">Pre-aggregated views &amp; tables (80/20 doctrine) · dual-emit MotherDuck + serving.duckdb</text>
+      <text x="340" y="132" fill="#9ca3af" font-size="10.5">&lt;2s gate · reconciliation-tied to atomic</text>
+      <!-- L4 -->
+      <circle cx="152" cy="190" r="17" fill="rgba(14,165,233,.1)" stroke="#7dd3fc"/><text x="152" y="196" text-anchor="middle" font-size="15">🧬</text>
+      <rect x="184" y="160" width="836" height="62" rx="9" fill="rgba(14,165,233,.06)" stroke="#0EA5E9" stroke-width="1.3"/>
+      <text x="202" y="184" fill="#0369a1" font-weight="600">L4 · CURATED</text>
+      <text x="340" y="184" fill="#6b7280" font-size="10.5">movie / tv / people masters · episodic_nested · viewership bridge</text>
+      <text x="340" y="204" fill="#9ca3af" font-size="10.5">confidence bands on every row · is_junk_title flags</text>
+      <!-- L3 -->
+      <circle cx="152" cy="262" r="17" fill="rgba(251,146,60,.12)" stroke="#fdba74"/><text x="152" y="268" text-anchor="middle" font-size="15">📚</text>
+      <rect x="184" y="232" width="836" height="62" rx="9" fill="rgba(251,146,60,.08)" stroke="#FB923C" stroke-width="1.3"/>
+      <text x="202" y="256" fill="#b45309" font-weight="600">L3 · REFERENCE</text>
+      <text x="340" y="256" fill="#6b7280" font-size="10.5">ref.network · ref_cal_period · ref_daypart(+network) · ref_demo(+component)</text>
+      <text x="340" y="276" fill="#9ca3af" font-size="10.5">ref_market · ref_viewing_stream · title_match_blocklist</text>
+      <!-- L2 -->
+      <circle cx="152" cy="334" r="17" fill="rgba(245,158,11,.14)" stroke="#fcd34d"/><text x="152" y="340" text-anchor="middle" font-size="15">🔑</text>
+      <rect x="184" y="304" width="836" height="62" rx="9" fill="url(#lgSpine)" stroke="#f59e0b" stroke-width="2"/>
+      <text x="202" y="328" fill="#b45309" font-weight="700">L2 · SPINE — THE PRODUCT</text>
+      <text x="420" y="328" fill="#6b7280" font-size="10.5">prod.parent_key 12.96M (dup=0 @ locked grain) · prod.alt_ids 5.01M · 12 domains</text>
+      <text x="420" y="348" fill="#9ca3af" font-size="10.5">UUIDv5 · anchor imdb &gt; eidr &gt; tmdb · SCD2</text>
+      <!-- L1 -->
+      <circle cx="152" cy="406" r="17" fill="#F7F9FB" stroke="#cbd5e1"/><text x="152" y="412" text-anchor="middle" font-size="15">🪨</text>
+      <rect x="184" y="376" width="836" height="62" rx="9" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.3"/>
+      <text x="202" y="400" fill="#6b7280" font-weight="600">L1 · LANDING</text>
+      <text x="340" y="400" fill="#9ca3af" font-size="10.5">Immutable vendor truth on S3 locked paths — IMDB · TMDB · EIDR · GN/FYI · social</text>
+      <text x="340" y="420" fill="#9ca3af" font-size="10.5">Nielsen: AMRLD 633GB · MIT 181.2GB · AdIntel 22GB · MRI 4.8GB</text>
+    </g>
+    <!-- animated data-up arrow -->
+    <line x1="106" y1="430" x2="106" y2="44" stroke="#0EA5E9" stroke-width="2" marker-end="url(#up)" stroke-dasharray="8 6" class="flow"/>
+    <text x="70" y="240" fill="#0EA5E9" font-size="9.5" transform="rotate(-90 70 240)" letter-spacing="1" font-weight="600" text-anchor="middle">DATA UP · TRUST DOWN</text>
+    <!-- cert rail -->
+    <rect x="1040" y="16" width="86" height="422" rx="9" fill="none" stroke="#7C3AED" stroke-width="1.3" stroke-dasharray="5 4" class="flow slow"/>
+    <text x="1083" y="227" fill="#7C3AED" font-size="8.6" transform="rotate(90 1083 227)" letter-spacing=".5" font-weight="600" text-anchor="middle">CERTIFICATION · EVERY OBJECT · WEEKLY</text>
+    <text x="570" y="470" fill="#94a3b8" font-size="10" text-anchor="middle">L(n) reads only L(n−1) and below · CERTIFIED+CONFIRMED predicate at the executor</text>
+    <text x="570" y="488" fill="#94a3b8" font-size="10" text-anchor="middle">nothing exists uncertified · every object carries a COMMENT</text>
+  </svg>
+  <div class="dcap">SASMASTER-DATA-BLUEPRINT-001 §1 · L3 discovered live 2026-07-10 (certify-what-exists)</div>
+  </div>
+</div></section>
+
+<section id="data"><div class="wrap">
+  <div class="snum">05</div><h2>Data Management &amp; the Parent Key Spine <span class="tag live">LIVE · MOTHERDUCK</span></h2>
+  <p class="lede">The universe, counted live 07-10: <b>2,319,749 movies · 341,362 TV series · 9,669,554 episodes · 4,734,740 people</b>, joined to <b>13 years of viewership</b> (2012-07-16 → 2025-06-13 · 4,170 broadcast days · 87,957 bound telecasts). Parent Key v2.0 LOCKED: five-table architecture, dual surrogate pairs (SASMASTER_PKID/CID external UUIDv5 · pk_sk/cid_sk internal), frozen namespace <code>7b7b4ce5</code>, anchor <code>imdb &gt; eidr &gt; tmdb</code>. People live in <code>curated.people_master</code>, not parent_key.</p>
+  <div class="grid4" style="margin-bottom:22px">
+    <div class="panel upanel u-gold"><div class="big" style="color:#b45309"><span class="ic">🔑</span>12,955,801</div><p style="margin-top:6px">Spine rows is_current · <b>dup=0 at locked grain</b> · zero NULL pkids · zero orphan CIDs</p><span class="badge">CERT-001 · 07-09 · PASS</span></div>
+    <div class="panel upanel u-sky"><div class="big" style="color:#0369a1"><span class="ic">🔗</span>5,014,627</div><p style="margin-top:6px">alt_ids rows · <b>12 domains certified</b> · contradiction spot-check 0/458 · 2 domains re-anchoring</p><span class="badge">MOTHERDUCK · RE-VERIFIED 07-12</span></div>
+    <div class="panel upanel u-orange"><div class="big" style="color:#c2410c"><span class="ic">📡</span>87,957</div><p style="margin-top:6px">Bound Nielsen telecasts spanning 2012→2025 in prod.nielsen_telecast</p><span class="badge">MOTHERDUCK · RE-VERIFIED 07-12</span></div>
+    <div class="panel upanel u-green"><div class="big" style="color:#0f766e"><span class="ic">🗄️</span>148</div><p style="margin-top:6px">MotherDuck objects across 14 schemas (prod · curated · ref · serving · ops · landing · stg · aud · viewership · fusion · review · source · quarantine · main) — counted catalog-filtered per ARCH-LESSON-013</p><span class="badge">MOTHERDUCK · RE-VERIFIED 07-12</span></div>
+  </div>
+  <table>
+    <tr><th style="width:34px"></th><th>Dataset</th><th>Source</th><th>Rows / Size confirmed · magnitude</th><th>Notes</th></tr>
+    <tr><td>🎬</td><td class="mono">landing.imdb_titles</td><td><span class="srcchip sc-imdb">IMDB</span></td><td class="mono"><b>12,534,268</b><div class="magbar"><i style="width:97%;background:linear-gradient(90deg,#f59e0b,#FB923C)"></i></div></td><td>Movies 2,037,313 · TV 370,725 · episodes separate</td></tr>
+    <tr><td>📺</td><td class="mono">landing.imdb_episodes</td><td><span class="srcchip sc-imdb">IMDB</span></td><td class="mono"><b>9,681,543</b><div class="magbar"><i style="width:75%;background:linear-gradient(90deg,#f59e0b,#FB923C);animation-delay:.1s"></i></div></td><td>episode↔series via parentTconst</td></tr>
+    <tr><td>🎞</td><td class="mono">landing.tmdb_movies / tv</td><td><span class="srcchip sc-tmdb">TMDB</span></td><td class="mono"><b>1,199,613 / 221,866</b><div class="magbar"><i style="width:11%;background:linear-gradient(90deg,#0EA5E9,#7C3AED);animation-delay:.2s"></i></div></td><td>bulk brute-force ID range</td></tr>
+    <tr><td>🆔</td><td class="mono">prod.eidr_staging</td><td><span class="srcchip sc-eidr">EIDR</span></td><td class="mono"><b>335,175</b><div class="magbar"><i style="width:4%;background:#7C3AED;animation-delay:.3s"></i></div></td><td>all have imdb_id · backfill = CERTIFIED-band unlock</td></tr>
+    <tr><td>📡</td><td class="mono">nielsen/ AMRLD · MIT · AdIntel · MRI</td><td><span class="srcchip sc-nsn">NIELSEN</span></td><td class="mono"><b>633 · 181.2 · 22.0 · 4.8 GB</b><div class="magbar"><i style="width:88%;background:linear-gradient(90deg,#FB923C,#ef4444);animation-delay:.4s"></i></div></td><td>MIT 2014→2026 (TP gap 11/30/2022) · AdIntel 38 tables</td></tr>
+    <tr><td>🧬</td><td class="mono">curated masters (4)</td><td><span class="srcchip sc-fus">FUSION</span></td><td class="mono"><b>2.32M / 341K / 4.73M / 9.67M</b><div class="magbar"><i style="width:60%;background:linear-gradient(90deg,#10b981,#0EA5E9);animation-delay:.5s"></i></div></td><td>movie / tv / people / episodic — re-verified 07-12</td></tr>
+    <tr><td>⚠️</td><td class="mono">curated.altid_003_bridge_rebuild</td><td><span class="srcchip sc-brg">BRIDGE</span></td><td class="mono"><b>791,414</b><div class="magbar"><i style="width:7%;background:#ef4444;animation-delay:.6s"></i></div></td><td><b style="color:var(--red)">83% junk-matched — honest re-run queued</b></td></tr>
+    <tr><td>🌉</td><td class="mono">curated.Parent_Key_Viewership_IDs</td><td><span class="srcchip sc-fus">PROD</span></td><td class="mono"><b>3,890,684</b><div class="magbar"><i style="width:30%;background:linear-gradient(90deg,#10b981,#f59e0b);animation-delay:.7s"></i></div></td><td>xrefs clean 8,892/8,892 · cutover gated</td></tr>
+  </table>
+  <p style="margin-top:14px;color:var(--dim);font-size:12.5px"><b>Band distribution deliberately deferred:</b> the 06-21 split (PROV 89.55% · CONF 5.63% · HELD 4.83% · CERT 0) is stale pending REANCHOR-001 + the honest bridge; restating it would violate ARCH-LESSON-001.</p>
+  <div class="callout"><h3>The finding that defines the era — the 83% bridge</h3>
+  <p><b>660,276 of 791,414 bridge rows were junk-matched</b>: the title matcher treated <code>primaryTitle='N/A'</code> as real evidence, fusing telecasts onto placeholder rows. Found by systematic sweep — not by a user. The fix (MATCH-GUARD-001: data-driven blocklist + skew tripwire + re-run) produces the <b>honest bridge</b>: smaller, provable, CERT&gt;0. <b>The number going down is the success condition.</b></p></div>
+</div></section>
+
+<section id="engines"><div class="wrap">
+  <div class="snum">06</div><h2>Two-Engine Viewership Architecture <span class="tag new">RULED 07-10 · PROVEN 07-12</span></h2>
+  <p class="lede">One table per view type — <b>program</b> and <b>time-period</b> — all viewing streams (LV/LSD/L3/L7/C3) as a <b>dimension column</b>, never nine tables. Atomic truth where huge is cheap; serving where fast is free; <b>MotherDuck on the free tier forever</b>, with the embedded warehouse as the pre-built pricing exit.</p>
+  <div class="diagram">
+  <svg viewBox="0 0 1120 390" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+    <defs>
+      <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#f59e0b"/></marker>
+      <linearGradient id="egAtom" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbeb"/><stop offset="1" stop-color="#fef3c7" stop-opacity=".5"/></linearGradient>
+      <linearGradient id="egM1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0f9ff"/><stop offset="1" stop-color="#e0f2fe" stop-opacity=".55"/></linearGradient>
+      <linearGradient id="egMD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ecfdf5"/><stop offset="1" stop-color="#d1fae5" stop-opacity=".5"/></linearGradient>
+      <linearGradient id="egEmb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5f3ff"/><stop offset="1" stop-color="#ede9fe" stop-opacity=".55"/></linearGradient>
+    </defs>
+    <rect x="20" y="50" width="310" height="210" rx="12" fill="url(#egAtom)" stroke="#f59e0b" stroke-width="1.6"/>
+    <text x="175" y="80" fill="#b45309" font-size="13" text-anchor="middle" font-weight="600">📦 S3 ATOMIC · ~10 billion rows</text>
+    <text x="175" y="100" fill="#6b7280" font-size="10.5" text-anchor="middle">viewership_atomic/ · ZSTD ~1GB files</text>
+    <rect x="45" y="116" width="260" height="30" rx="6" fill="#ffffff" stroke="#fcd34d"/><text x="175" y="135" fill="#111827" font-size="10" text-anchor="middle">program_metrics /stream=X/ym=YYYY-MM</text>
+    <rect x="45" y="154" width="260" height="30" rx="6" fill="#ffffff" stroke="#fcd34d"/><text x="175" y="173" fill="#111827" font-size="10" text-anchor="middle">timeperiod_metrics /stream=X/ym=YYYY-MM</text>
+    <text x="175" y="206" fill="#9ca3af" font-size="9.5" text-anchor="middle">sort in partition: NETWORK_ID → date</text>
+    <text x="175" y="222" fill="#0f766e" font-size="9.5" text-anchor="middle" font-weight="600">✅ pruning PROVEN: 1/4 files · 1,200 of 60,000 rows</text>
+    <text x="175" y="240" fill="#9ca3af" font-size="9.5" text-anchor="middle">grains locked · demos atomic-long</text>
+    <rect x="405" y="90" width="250" height="130" rx="12" fill="url(#egM1)" stroke="#0EA5E9" stroke-width="1.6"/>
+    <text x="530" y="120" fill="#0369a1" font-size="13" text-anchor="middle" font-weight="600">⚙️ LOCAL DUCKDB · M1</text>
+    <text x="530" y="142" fill="#6b7280" font-size="10.5" text-anchor="middle">aggregate_viewership.py · nightly</text>
+    <text x="530" y="160" fill="#6b7280" font-size="10.5" text-anchor="middle">reads pruned partitions only</text>
+    <text x="530" y="182" fill="#0f766e" font-size="11" text-anchor="middle" font-weight="600" class="pulse">⚡ FREE COMPUTE</text>
+    <text x="530" y="202" fill="#9ca3af" font-size="9.5" text-anchor="middle">manifest-gated · per-period atomic swap</text>
+    <rect x="730" y="26" width="360" height="110" rx="12" fill="url(#egMD)" stroke="#10b981" stroke-width="1.6"/>
+    <text x="910" y="52" fill="#0f766e" font-size="12.5" text-anchor="middle" font-weight="600">🦆 EMIT ① MOTHERDUCK serving.* · FREE TIER</text>
+    <text x="910" y="74" fill="#6b7280" font-size="10" text-anchor="middle">title_performance_weekly · network_trend_weekly · timeperiod_daily</text>
+    <text x="910" y="92" fill="#6b7280" font-size="10" text-anchor="middle">tens of millions of rows · concurrent endpoint · 0.047–0.090s</text>
+    <text x="910" y="112" fill="#9ca3af" font-size="9.5" text-anchor="middle">cap-aware batching · never scans atomic</text>
+    <rect x="730" y="152" width="360" height="110" rx="12" fill="url(#egEmb)" stroke="#7C3AED" stroke-width="1.6"/>
+    <text x="910" y="178" fill="#7C3AED" font-size="12.5" text-anchor="middle" font-weight="600">💿 EMIT ② serving.duckdb · EMBEDDED · $0</text>
+    <text x="910" y="200" fill="#6b7280" font-size="10" text-anchor="middle">s3://…/serving_warehouse/ · latest pointer · atomic publish</text>
+    <text x="910" y="218" fill="#6b7280" font-size="10" text-anchor="middle">byte-equivalence certified per emit · reader concurrency, no caps</text>
+    <text x="910" y="238" fill="#9ca3af" font-size="9.5" text-anchor="middle">warehouse = artifact the pipeline manufactures, not a rental</text>
+    <rect x="730" y="288" width="360" height="52" rx="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="910" y="310" fill="#111827" font-size="11" text-anchor="middle" font-weight="600">👥 CONSUMERS — ASK · portal API · reports</text>
+    <text x="910" y="328" fill="#9ca3af" font-size="9.5" text-anchor="middle">band + licensing predicates · &lt;2s gate · either target, same data</text>
+    <g stroke="#f59e0b" stroke-width="1.8" fill="none">
+      <line x1="330" y1="155" x2="400" y2="155" marker-end="url(#b)"/>
+      <line x1="655" y1="125" x2="725" y2="82"  marker-end="url(#b)"/>
+      <line x1="655" y1="185" x2="725" y2="207" marker-end="url(#b)"/>
+      <line x1="910" y1="136" x2="910" y2="147" marker-end="url(#b)"/>
+      <line x1="910" y1="262" x2="910" y2="283" marker-end="url(#b)"/>
+    </g>
+    <circle r="4" fill="#f59e0b"><animateMotion dur="2.2s" repeatCount="indefinite" path="M 330 155 L 400 155"/></circle>
+    <circle r="4" fill="#10b981"><animateMotion dur="2.2s" begin=".7s" repeatCount="indefinite" path="M 655 125 L 725 82"/></circle>
+    <circle r="4" fill="#7C3AED"><animateMotion dur="2.2s" begin="1.4s" repeatCount="indefinite" path="M 655 185 L 725 207"/></circle>
+    <circle r="3.4" fill="#0f766e"><animateMotion dur="1.8s" repeatCount="indefinite" path="M 910 136 L 910 147"/></circle>
+    <circle r="3.4" fill="#7C3AED"><animateMotion dur="1.8s" begin=".9s" repeatCount="indefinite" path="M 910 262 L 910 283"/></circle>
+    <text x="560" y="374" fill="#94a3b8" font-size="10" text-anchor="middle">🧪 RECONCILIATION TRIPWIRE — serving must tie to atomic per sampled period · proven by forced mismatch 07-12</text>
+    <text x="560" y="388" fill="#94a3b8" font-size="10" text-anchor="middle">(corrupt 1 row → exactly 1 FAIL → restore → PASS) · and the test itself was tested</text>
+  </svg>
+  <div class="dcap">DATA-VIEWERSHIP-ARCH-001 closed 07-12 · production loads owned by LOAD-001 (three entry gates, currently red by design)</div>
+  </div>
+</div></section>
+
+<section id="rings"><div class="wrap">
+  <div class="snum">07</div><h2>The Three-Ring Identity Model <span class="tag new">RULED 07-12</span></h2>
+  <p class="lede"><b>One unique ID per asset → every alternate identifier as associations → attached entities on top of metadata.</b> Ring 2 is the industry Rosetta Stone; Ring 3 lets the asset accumulate certified satellites — scripts first — without the masters ever widening.</p>
+  <div class="diagram">
+  <svg viewBox="0 0 1140 470" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+    <defs>
+      <radialGradient id="rgCore"><stop offset="0" stop-color="#fef3c7"/><stop offset="1" stop-color="#fde68a"/></radialGradient>
+      <marker id="rr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#94a3b8"/></marker>
+    </defs>
+    <!-- ORBITAL SYSTEM centered (310,235) -->
+    <!-- ring 3 orbit -->
+    <circle cx="310" cy="235" r="196" fill="none" stroke="#7C3AED" stroke-width="1.4" stroke-dasharray="7 6" class="flow slow"/>
+    <!-- ring 2 orbit -->
+    <circle cx="310" cy="235" r="128" fill="rgba(14,165,233,.035)" stroke="#0EA5E9" stroke-width="1.5"/>
+    <!-- pulsing core -->
+    <circle cx="310" cy="235" r="72" fill="none" stroke="#f59e0b" stroke-width="1" opacity=".5" class="pulse"/>
+    <g class="hub"><circle cx="310" cy="235" r="58" fill="url(#rgCore)" stroke="#f59e0b" stroke-width="2.4"/></g>
+    <text x="310" y="226" fill="#92400e" font-size="12.5" text-anchor="middle" font-weight="700">SASMASTER</text>
+    <text x="310" y="242" fill="#92400e" font-size="12.5" text-anchor="middle" font-weight="700">_PKID</text>
+    <text x="310" y="258" fill="#a16207" font-size="8.6" text-anchor="middle">UUIDv5 · one per asset</text>
+    <!-- ring 2 satellites (8 domains) -->
+    <g font-size="9.5" font-weight="600">
+      <rect x="274" y="96" width="72" height="21" rx="10" fill="#ffffff" stroke="#7dd3fc"/><text x="310" y="110" fill="#0369a1" text-anchor="middle">IMDB</text>
+      <rect x="365" y="135" width="72" height="21" rx="10" fill="#ffffff" stroke="#7dd3fc"/><text x="401" y="149" fill="#0369a1" text-anchor="middle">TMDB</text>
+      <rect x="402" y="224" width="72" height="21" rx="10" fill="#ffffff" stroke="#7dd3fc"/><text x="438" y="238" fill="#0369a1" text-anchor="middle">EIDR</text>
+      <rect x="358" y="316" width="86" height="21" rx="10" fill="#ffffff" stroke="#7dd3fc"/><text x="401" y="330" fill="#0369a1" text-anchor="middle">GRACENOTE</text>
+      <rect x="274" y="352" width="72" height="21" rx="10" fill="#ffffff" stroke="#7dd3fc"/><text x="310" y="366" fill="#0369a1" text-anchor="middle">NIELSEN</text>
+      <rect x="178" y="316" width="82" height="21" rx="10" fill="#ffffff" stroke="#7dd3fc"/><text x="219" y="330" fill="#0369a1" text-anchor="middle">WIKIDATA</text>
+      <rect x="146" y="224" width="76" height="21" rx="10" fill="#ffffff" stroke="#7dd3fc"/><text x="184" y="238" fill="#0369a1" text-anchor="middle">SOCIAL ×4</text>
+      <rect x="185" y="135" width="68" height="21" rx="10" fill="#ffffff" stroke="#7dd3fc"/><text x="219" y="149" fill="#0369a1" text-anchor="middle">FYI</text>
+    </g>
+    <!-- ring 3 satellites -->
+    <g font-size="10" font-weight="600" fill="#7C3AED">
+      <text x="310" y="30" text-anchor="middle">📜 SCRIPTS · ext.scripts (PILOT)</text>
+      <text x="482" y="100" text-anchor="middle">💰 BOX OFFICE</text>
+      <text x="520" y="266" text-anchor="middle">🎬 TRAILERS</text>
+      <text x="432" y="416" text-anchor="middle">🖼 ARTWORK</text>
+      <text x="188" y="420" text-anchor="middle">⭐ REVIEWS</text>
+      <text x="102" y="300" text-anchor="middle">🎙 COMMENTARY</text>
+      <text x="120" y="106" text-anchor="middle">➕ registry-driven…</text>
+    </g>
+    <!-- orbit comets -->
+    <circle r="5" fill="#0EA5E9"><animateTransform attributeName="transform" type="rotate" from="0 310 235" to="360 310 235" dur="24s" repeatCount="indefinite"/><animateMotion dur="0.01s" fill="freeze" path="M 438 235"/></circle>
+    <circle r="5" fill="#7C3AED" opacity=".8"><animateTransform attributeName="transform" type="rotate" from="360 310 235" to="0 310 235" dur="38s" repeatCount="indefinite"/><animateMotion dur="0.01s" fill="freeze" path="M 506 235"/></circle>
+    <text x="310" y="452" fill="#0369a1" font-size="9" text-anchor="middle" letter-spacing="1">RING 2 · prod.alt_ids · 5,014,627 rows · 12 domains · SCD2</text>
+    <!-- ext.scripts panel -->
+    <g font-size="11">
+      <rect x="700" y="36" width="410" height="386" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+      <text x="722" y="66" fill="#111827" font-weight="600" font-size="13">📜 ext.scripts — the pilot Ring-3 domain</text>
+      <text x="722" y="90" fill="#6b7280" font-size="10.5">grain (pkid_or_cid, script_version) · docs = S3 pointers</text>
+      <rect x="722" y="104" width="366" height="52" rx="8" fill="rgba(16,185,129,.06)" stroke="#6ee7b7"/>
+      <text x="736" y="124" fill="#0f766e" font-weight="600" font-size="10.5">✅ UNRESTRICTED — metadata + derived features</text>
+      <text x="736" y="144" fill="#6b7280" font-size="10">writers · drafts · scene/page counts · dialogue stats</text>
+      <rect x="722" y="166" width="366" height="52" rx="8" fill="rgba(239,68,68,.05)" stroke="#fca5a5"/>
+      <text x="736" y="186" fill="#b91c1c" font-weight="600" font-size="10.5">🔒 TEXT — rights_basis required per row</text>
+      <text x="736" y="206" fill="#6b7280" font-size="10">public_domain / open_license / rights_cleared</text>
+      <rect x="722" y="228" width="366" height="66" rx="8" fill="rgba(245,158,11,.06)" stroke="#fcd34d"/>
+      <text x="736" y="248" fill="#b45309" font-weight="600" font-size="10.5">⚖️ IMSDb posture (assessed 07-12)</text>
+      <text x="736" y="268" fill="#6b7280" font-size="10">catalog survey ✓ · feature-extract behind internal-eval wall</text>
+      <text x="736" y="284" fill="#6b7280" font-size="10">full-text serve ✗</text>
+      <rect x="722" y="306" width="366" height="46" rx="8" fill="rgba(14,165,233,.05)" stroke="#7dd3fc"/>
+      <text x="736" y="326" fill="#0369a1" font-weight="600" font-size="10.5">🧭 ext.domain_registry</text>
+      <text x="736" y="343" fill="#6b7280" font-size="10">ASK &amp; portal discover "what's attached" generically</text>
+      <rect x="722" y="364" width="366" height="46" rx="8" fill="rgba(124,58,237,.06)" stroke="#c4b5fd"/>
+      <text x="736" y="384" fill="#7C3AED" font-weight="600" font-size="10.5">🎯 Payoff — ANALYTICS-FUSION-001</text>
+      <text x="736" y="401" fill="#6b7280" font-size="10">v_asset_360 · v_social_ratings_aligned · v_content_dna_performance</text>
+    </g>
+    <text x="570" y="466" fill="#94a3b8" font-size="10" text-anchor="middle">RING 3 · ext schema · attachments certified like everything else · fusion rows inherit the STRICTEST license of their inputs</text>
+  </svg>
+  <div class="dcap">Ring 1 the identity · Ring 2 the Rosetta Stone · Ring 3 the accumulating asset</div>
+  </div>
+</div></section>
+
+<section id="cert"><div class="wrap">
+  <div class="snum">08</div><h2>The Certification Campaign <span class="tag live">STANDING QUARTERLY AUDIT</span></h2>
+  <p class="lede"><b>DATA-SPINE-CERT-001</b> made "production status" a checklist: every claim is a row in <code>curated.spine_certification</code> produced by a saved, re-runnable query — <b>zero prose-only assertions</b>. The runner re-certifies weekly post-manifest, Slack-alerting any PASS→WARN transition.</p>
+  <div class="grid3">
+    <div class="panel"><h3>✅ What passed</h3><p>Core spine clean: 12,955,801 rows, dup=0 at locked grain, zero NULL pkids, zero orphan CIDs. Identity fabric: 12 domains certified; contradiction spot-check <b>0 of 458</b> IMDB claims disagree with the spine.</p><span class="badge">CERT-001 · 07-09</span></div>
+    <div class="panel"><h3>🔴 What it caught</h3><p>Three rots from the unverified 06-20 re-mint — crosswalk at <b>0.0% match</b> (19 days undetected), tmdb_seed at 25.9% (pre-remint snapshot), the frozen ASK share breaking production — plus the 83% junk-match bridge. <b>Six remediation cards; nothing fixed inline.</b></p><span class="badge">ALL HUMAN-GATED</span></div>
+    <div class="panel"><h3>🛡️ Tripwires proven</h3><p>Reconciliation proven by <b>forced mismatch</b> — and the test itself was tested. Layout-health columns watch tiny-file regression; reissue + volume tripwires ship with LOAD-001.</p><span class="badge">FORCED-FIRE DOCTRINE</span></div>
+  </div>
+  <p class="lede" style="margin-top:22px"><b>The eight exit criteria (Blueprint §8)</b> — all query-checkable: every serving object certified at locked grain · manifest green one full weekly cycle · crosswalk re-anchored CERT&gt;0 · ref layer certified · band predicate live at executor · tripwires forced-fire proven · zero stale writers/xrefs · reissue detection live. <b>All eight green = the portal unparkes.</b></p>
+</div></section>
+
+<section id="memory"><div class="wrap">
+  <div class="snum">09</div><h2>The Distributed Memory Layer</h2>
+  <p class="lede">Five tiers — knowledge flows down by durability, surfaces up by latency. A query fans across all tiers in parallel; the fastest authoritative answer wins.</p>
+  <div class="memrow"><span class="t" style="color:var(--orange)">HOT-1</span><h4>Anthropic Memory Stores API</h4><p>jarvis-memory + drscoop-memory · 1,550 Obsidian files · agent-bound · survives Railway restarts</p><span class="lat">~ms · LIVE</span></div>
+  <div class="memrow"><span class="t" style="color:var(--orange)">HOT-2</span><h4>claude.ai Memory Slots</h4><p>Cross-session user context for claude.ai strategy sessions</p><span class="lat">~ms · LIVE</span></div>
+  <div class="memrow"><span class="t" style="color:var(--sky)">WARM</span><h4>Upstash Redis · 6 domain keys</h4><p>Recent pipeline state · agent health · compute presence · TTL 180s</p><span class="lat">~sec · LIVE</span></div>
+  <div class="memrow"><span class="t" style="color:var(--green)">COLD</span><h4>S3 sasmaster-2026/memory/</h4><p>Durable PIL ledger · done log · gold sets · <b>+ NEW: certification history, load ledger</b></p><span class="lat">~min · LIVE</span></div>
+  <div class="memrow"><span class="t" style="color:var(--lav)">ARCH</span><h4>Obsidian Vault (MCP) · 1,557 files</h4><p>knowledge-bank/ · Claude Desktop MCP · feeds HOT-1 via nightly incremental sync</p><span class="lat">on-demand</span></div>
+</div></section>
+
+<section id="kb"><div class="wrap">
+  <div class="snum">09b</div><h2>Knowledge Base Architecture <span class="tag new">THE VAULT, MAPPED</span></h2>
+  <p class="lede">The Obsidian vault (<code>~/SaSMaster/knowledge-bank/</code> · <b>1,557 files</b>) is the platform's long-term mind — organized as a mastery taxonomy, synced nightly into the agent memstores, and routed by class: <b>SIGNAL</b> files feed agents, <b>BULK</b> stays archival, <b>RETIRED</b> preserves history. Direct disk writes are the canonical write pattern; the graph below is its live shape.</p>
+  <div class="diagram">
+  <svg viewBox="0 0 1120 500" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+    <defs><marker id="k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M0,0L10,5L0,10z" fill="#94a3b8"/></marker></defs>
+    <!-- vault -->
+    <rect x="20" y="30" width="340" height="440" rx="12" fill="rgba(124,58,237,.04)" stroke="#7C3AED" stroke-width="1.5"/>
+    <text x="190" y="58" text-anchor="middle" fill="#7C3AED" font-size="12.5" font-weight="700">OBSIDIAN VAULT · knowledge-bank/ · 1,557 files</text>
+    <g font-size="9.6" fill="#6b7280">
+      <text x="42" y="86">00-north-star</text><text x="205" y="86">01-design-mastery</text>
+      <text x="42" y="106">02-skills-mastery</text><text x="205" y="106">03-technology-mastery</text>
+      <text x="42" y="126">04-me-industry</text><text x="205" y="126">05-thought-leadership</text>
+      <text x="42" y="146">06-business-development</text><text x="205" y="146">07-build-library</text>
+      <text x="42" y="166">data-platform</text><text x="205" y="166">SaSMaster/</text>
+      <text x="42" y="186">reports</text><text x="205" y="186">scripts · skills</text>
+      <text x="42" y="206">memory · media · know</text><text x="205" y="206">reference · source-docs</text>
+      <text x="42" y="226">primitives · principles</text><text x="205" y="226">reconstructions · recreations</text>
+      <text x="42" y="246">_meta · _ops · _schema</text><text x="205" y="246">_archive · index</text>
+    </g>
+    <line x1="40" y1="262" x2="340" y2="262" stroke="#e2e8f0"/>
+    <text x="190" y="286" text-anchor="middle" fill="#111827" font-size="10.5" font-weight="600">ROUTING CLASSES</text>
+    <rect x="42" y="300" width="90" height="26" rx="13" fill="rgba(16,185,129,.1)" stroke="#10b981"/><text x="87" y="317" text-anchor="middle" fill="#0f766e" font-size="9.5" font-weight="600">SIGNAL</text>
+    <rect x="142" y="300" width="90" height="26" rx="13" fill="rgba(14,165,233,.08)" stroke="#7dd3fc"/><text x="187" y="317" text-anchor="middle" fill="#0369a1" font-size="9.5" font-weight="600">BULK</text>
+    <rect x="242" y="300" width="96" height="26" rx="13" fill="#F7F9FB" stroke="#cbd5e1"/><text x="290" y="317" text-anchor="middle" fill="#6b7280" font-size="9.5" font-weight="600">RETIRED</text>
+    <text x="190" y="352" text-anchor="middle" fill="#9ca3af" font-size="9">SIGNAL → agent memstores · BULK → archival tier · RETIRED → history preserved</text>
+    <text x="190" y="380" text-anchor="middle" fill="#111827" font-size="10.5" font-weight="600">WRITE PATTERN (canonical)</text>
+    <text x="190" y="400" text-anchor="middle" fill="#6b7280" font-size="9.5">Claude sessions → direct disk writes to knowledge-bank/</text>
+    <text x="190" y="416" text-anchor="middle" fill="#6b7280" font-size="9.5">(not MCP REST) · MCP port 27124 = read/query surface</text>
+    <text x="190" y="446" text-anchor="middle" fill="#9ca3af" font-size="9">graph view: green=knowledge · blue=data-platform · violet=principles</text>
+    <!-- sync -->
+    <rect x="430" y="150" width="230" height="170" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="545" y="180" text-anchor="middle" fill="#111827" font-size="11.5" font-weight="600">NIGHTLY SYNC</text>
+    <text x="545" y="204" text-anchor="middle" fill="#6b7280" font-size="9.8">obsidian_to_memstore.py</text>
+    <text x="545" y="220" text-anchor="middle" fill="#6b7280" font-size="9.8">launchd cron · incremental</text>
+    <text x="545" y="236" text-anchor="middle" fill="#6b7280" font-size="9.8">1,550 files tracked</text>
+    <text x="545" y="260" text-anchor="middle" fill="#6b7280" font-size="9.8">+ SKILLS-SYNC (nightly)</text>
+    <text x="545" y="276" text-anchor="middle" fill="#6b7280" font-size="9.8">canonical → mirrors (§45)</text>
+    <text x="545" y="300" text-anchor="middle" fill="#b45309" font-size="9.3">claude.ai re-upload = manual gate</text>
+    <!-- destinations -->
+    <rect x="730" y="40" width="360" height="120" rx="12" fill="rgba(245,158,11,.06)" stroke="#f59e0b" stroke-width="1.4"/>
+    <text x="910" y="66" text-anchor="middle" fill="#b45309" font-size="11.5" font-weight="600">HOT-1 · MANAGED MEMSTORES</text>
+    <text x="910" y="90" text-anchor="middle" fill="#6b7280" font-size="9.8">jarvis-memory — builds · decisions · TASKS/DONE state</text>
+    <text x="910" y="106" text-anchor="middle" fill="#6b7280" font-size="9.8">drscoop-memory — media KB · schemas · insight cache</text>
+    <text x="910" y="126" text-anchor="middle" fill="#9ca3af" font-size="9.3">agent-bound · survives Railway restarts · ~ms recall</text>
+    <text x="910" y="144" text-anchor="middle" fill="#9ca3af" font-size="9.3">webhook auto-writeback = MANAGED-AGENTS-002 (next)</text>
+    <rect x="730" y="190" width="360" height="90" rx="12" fill="rgba(16,185,129,.06)" stroke="#10b981" stroke-width="1.4"/>
+    <text x="910" y="216" text-anchor="middle" fill="#0f766e" font-size="11.5" font-weight="600">AGENT CONSUMERS</text>
+    <text x="910" y="240" text-anchor="middle" fill="#6b7280" font-size="9.8">JARVIS · Dr. Scoop · Claude Code sessions · claude.ai strategy</text>
+    <text x="910" y="258" text-anchor="middle" fill="#9ca3af" font-size="9.3">query fans across 5 memory tiers · fastest authoritative answer wins</text>
+    <rect x="730" y="310" width="360" height="90" rx="12" fill="rgba(14,165,233,.05)" stroke="#7dd3fc" stroke-width="1.4"/>
+    <text x="910" y="336" text-anchor="middle" fill="#0369a1" font-size="11.5" font-weight="600">S3 COLD MIRROR</text>
+    <text x="910" y="360" text-anchor="middle" fill="#6b7280" font-size="9.8">sasmaster-2026/memory/ · PIL ledger · gold sets · done log</text>
+    <text x="910" y="378" text-anchor="middle" fill="#9ca3af" font-size="9.3">durable backup tier · certification history joins here (v18)</text>
+    <!-- learning loop back -->
+    <path d="M 910 400 C 910 460 400 470 240 470 C 120 470 100 470 100 470" fill="none" stroke="#7C3AED" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#k)" transform="translate(0,-2)"/>
+    <text x="560" y="452" text-anchor="middle" fill="#7C3AED" font-size="9.5" font-weight="600">THE LEARNING LOOP — session lessons · DONE_LOG · new skills write BACK into the vault (flywheel stages ⑤–⑥)</text>
+    <!-- arrows -->
+    <g stroke="#94a3b8" stroke-width="1.5" fill="none">
+      <line x1="360" y1="235" x2="425" y2="235" marker-end="url(#k)"/>
+      <line x1="660" y1="200" x2="725" y2="110" marker-end="url(#k)"/>
+      <line x1="660" y1="235" x2="725" y2="235" marker-end="url(#k)"/>
+      <line x1="660" y1="270" x2="725" y2="350" marker-end="url(#k)"/>
+    </g>
+  </svg>
+  <div class="dcap">Vault taxonomy from the live Obsidian graph (07-12) · SIGNAL/BULK/RETIRED routing · nightly sync into agent-bound memory · the loop closes back into the vault</div>
+  </div>
+</div></section>
+
+<section id="agents"><div class="wrap">
+  <div class="snum">10</div><h2>Managed Agent Intelligence Stack</h2>
+  <p class="lede">JARVIS and Dr. Scoop are first-class managed agents on the Anthropic API (stable IDs, persistent memstores, claude-sonnet-4-6); the broader fleet is <b>51 agents</b> (10 live healthy per War Room), with <b>80 skills</b> loaded by file_id at zero re-upload cost.</p>
+  <div class="grid3">
+    <div class="panel"><h3>🤖 JARVIS — control plane</h3><p>Build orchestrator · routes tasks, gates quality, meters autonomy. Slack #sasmaster-builds in → Railway out. <code>agent_017DZ…K3MC</code> · jarvis-memory bound.</p><span class="badge">SOCKET MODE · RAILWAY</span></div>
+    <div class="panel"><h3>🔍 Dr. Scoop — intelligence</h3><p>Media Q&amp;A · comprehender + claim-verify <b>fail-CLOSED</b> · SSE stream, portal FAB. <code>agent_0176L…eAyr</code> · drscoop-memory bound.</p><span class="badge">CLAIM-VERIFY · FAIL-CLOSED</span></div>
+    <div class="panel"><h3>⏭ Next wiring</h3><p><b>MANAGED-AGENTS-001</b> (agent IDs into runtimes) → <b>-002</b> webhook writeback (agent.session.completed → memstore auto-update) closes the self-improvement loop. Flywheel stages 4–6 remain the autonomy priority.</p><span class="badge">QUEUED IN #BUILDS</span></div>
+  </div>
+</div></section>
+
+<section id="spotlight"><div class="wrap">
+  <div class="snum">11</div><h2>Platform Technology Spotlight — Five Locked Themes</h2>
+  <p class="lede">The design system is itself a feature: <b>five locked brand themes</b> (Brand Reference v8.1, canonical), the same data beautiful in every mode. Per <b>BRAND-003</b>, Theme 02 LIGHT is the default for all UI/UX and data-viz work; Theme 01 DARK is scoped to Portal &amp; War Room surfaces. This document is rendered in Theme 02.</p>
+  <div class="grid3" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+
+    <!-- ① DARK — Cinematic Terminal · animated bar terminal + ticker -->
+    <div class="spotcard" style="background:#0a0a0f;border-color:#2a2a3a">
+      <div class="mini" style="background:#0a0a0f">
+        <div class="tick" style="color:#22d3ee">SASMASTER ▲ SPINE 12.96M · ALT_IDS 5.01M ▲ TELECASTS 87,957 · CERT PASS · SASMASTER ▲ SPINE 12.96M · ALT_IDS 5.01M ▲ TELECASTS 87,957 · CERT PASS ·&nbsp;</div>
+        <div class="bars">
+          <i style="height:38%;background:#a78bfa"></i><i style="height:62%;background:#22d3ee;animation-delay:.12s"></i>
+          <i style="height:48%;background:#f59e0b;animation-delay:.24s"></i><i style="height:84%;background:#a78bfa;animation-delay:.36s"></i>
+          <i style="height:57%;background:#22d3ee;animation-delay:.48s"></i><i style="height:96%;background:#f59e0b;animation-delay:.6s"></i>
+          <i style="height:70%;background:#a78bfa;animation-delay:.72s"></i><i style="height:44%;background:#22d3ee;animation-delay:.84s"></i>
+        </div>
+      </div>
+      <div class="body">
+        <h4 style="color:#a78bfa;font-family:'Bebas Neue',sans-serif;letter-spacing:.06em;font-size:19px">① DARK — CINEMATIC TERMINAL</h4>
+        <span class="tg" style="color:#6b7280">PORTAL · WAR ROOM · BEBAS / BARLOW COND / SHARE TECH MONO</span>
+        <p style="color:#9ca3af"><span class="sw" style="background:#0a0a0f;border-color:#333"></span><span class="sw" style="background:#a78bfa"></span><span class="sw" style="background:#22d3ee"></span><span class="sw" style="background:#f59e0b"></span> lavender · teal · gold on near-black. The flagship product surface.</p>
+      </div>
+    </div>
+
+    <!-- ② LIGHT — Programming Intelligence · animated line-draw chart -->
+    <div class="spotcard" style="background:#F0F4F8">
+      <div class="mini" style="background:linear-gradient(180deg,#ffffff,#F0F4F8)">
+        <svg viewBox="0 0 340 128" preserveAspectRatio="none">
+          <g stroke="#e2e8f0" stroke-width="1"><line x1="0" y1="32" x2="340" y2="32"/><line x1="0" y1="64" x2="340" y2="64"/><line x1="0" y1="96" x2="340" y2="96"/></g>
+          <path class="dline" style="stroke:#0EA5E9" d="M 10 104 L 60 92 L 110 96 L 160 70 L 210 76 L 260 44 L 330 22"/>
+          <path class="dline d2" style="stroke:#7C3AED" d="M 10 112 L 60 108 L 110 100 L 160 96 L 210 88 L 260 78 L 330 60"/>
+          <circle cx="330" cy="22" r="4" fill="#0EA5E9" class="pulse"/><circle cx="330" cy="60" r="4" fill="#7C3AED" class="pulse"/>
+        </svg>
+      </div>
+      <div class="body">
+        <h4 style="color:#0369a1">② LIGHT — Programming Intelligence <span style="font-size:10px;color:#10b981">★ DEFAULT</span></h4>
+        <span class="tg" style="color:#6b7280">OPS · DOCS · THIS PAGE · DM SANS / DM MONO</span>
+        <p style="color:#6b7280"><span class="sw" style="background:#F0F4F8"></span><span class="sw" style="background:#0EA5E9"></span><span class="sw" style="background:#7C3AED"></span><span class="sw" style="background:#FB923C"></span><span class="sw" style="background:#10b981"></span> calm professional analyst tool — sky · lavender · orange · op-green.</p>
+      </div>
+    </div>
+
+    <!-- ③ MEDIA MANTRA — Scoop Legacy · pulsing radial sweep -->
+    <div class="spotcard" style="background:#fff6fa;border-color:#f3c6da">
+      <div class="mini" style="background:radial-gradient(circle at 50% 60%,#ffffff, #fff6fa)">
+        <svg viewBox="0 0 340 128">
+          <g transform="translate(170,68)">
+            <circle r="44" fill="none" stroke="#f3c6da" stroke-width="10"/>
+            <circle r="44" fill="none" stroke="#DD5793" stroke-width="10" stroke-linecap="round" stroke-dasharray="276" stroke-dashoffset="276" style="transform:rotate(-90deg)"><animate attributeName="stroke-dashoffset" values="276;80;276" dur="6s" repeatCount="indefinite"/></circle>
+            <circle r="30" fill="none" stroke="#47BAC1" stroke-width="7" stroke-linecap="round" stroke-dasharray="188" stroke-dashoffset="188" style="transform:rotate(-90deg)"><animate attributeName="stroke-dashoffset" values="188;40;188" dur="6s" begin=".8s" repeatCount="indefinite"/></circle>
+            <circle r="17" fill="none" stroke="#a180da" stroke-width="6" stroke-linecap="round" stroke-dasharray="107" stroke-dashoffset="107" style="transform:rotate(-90deg)"><animate attributeName="stroke-dashoffset" values="107;24;107" dur="6s" begin="1.6s" repeatCount="indefinite"/></circle>
+            <circle r="5" fill="#DD5793" class="pulse"/>
+          </g>
+        </svg>
+      </div>
+      <div class="body">
+        <h4 style="color:#DD5793">③ MEDIA MANTRA — Scoop Legacy</h4>
+        <span class="tg" style="color:#a86b85">HERITAGE · DR. SCOOP SURFACES</span>
+        <p style="color:#8a6b78"><span class="sw" style="background:#47BAC1"></span><span class="sw" style="background:#a180da"></span><span class="sw" style="background:#DD5793"></span> teal + violet DNA from the Classic RSG palette, hot-pink Scoop energy. The lineage theme.</p>
+      </div>
+    </div>
+
+    <!-- ④ DATA NARRATIVE — Editorial · drifting story ribbons -->
+    <div class="spotcard" style="background:#fbfaf7;border-color:#e5dfd0">
+      <div class="mini" style="background:#fbfaf7">
+        <svg viewBox="0 0 340 128" preserveAspectRatio="none">
+          <path class="rib" d="M -20 96 C 60 60 120 118 190 84 C 250 56 300 92 360 66 L 360 128 L -20 128 Z" fill="#c9b28a" opacity=".45"/>
+          <path class="rib r2" d="M -20 104 C 70 82 130 122 200 96 C 260 76 310 104 360 84 L 360 128 L -20 128 Z" fill="#8a9b7a" opacity=".45"/>
+          <path class="rib r3" d="M -20 114 C 80 98 140 126 210 108 C 270 94 320 114 360 100 L 360 128 L -20 128 Z" fill="#3f3a2e" opacity=".35"/>
+          <text x="24" y="40" font-family="'DM Serif Display',serif" font-size="21" fill="#3f3a2e">The story in the data.</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4 style="color:#3f3a2e;font-family:'DM Serif Display',serif;font-weight:400">④ Data Narrative — Editorial</h4>
+        <span class="tg" style="color:#8a8371">SCROLL-DRIVEN REPORTS · DM SERIF DISPLAY</span>
+        <p style="color:#6d6757">Clever°Franke-inspired storytelling — Khroma palette, animated Sankeys, long-form intelligence pieces.</p>
+      </div>
+    </div>
+
+    <!-- ⑤ HANDSKETCH — Analyst's Notebook · wobbling rough bars -->
+    <div class="spotcard" style="background:#f6f8fb;border-color:#c7d4e8">
+      <div class="mini" style="background:repeating-linear-gradient(0deg,#f6f8fb,#f6f8fb 22px,#e9eef7 23px)">
+        <svg viewBox="0 0 340 128" class="sketchwob">
+          <g stroke="#253c6e" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="4 3">
+            <rect x="40"  y="66" width="34" height="46" transform="rotate(-1 57 89)"/>
+            <rect x="96"  y="46" width="34" height="66" transform="rotate(1.2 113 79)"/>
+            <rect x="152" y="72" width="34" height="40" transform="rotate(-.8 169 92)"/>
+            <rect x="208" y="30" width="34" height="82" transform="rotate(1 225 71)"/>
+            <rect x="264" y="54" width="34" height="58" transform="rotate(-1.1 281 83)"/>
+            <line x1="26" y1="112" x2="316" y2="112" stroke-dasharray="none"/>
+          </g>
+          <text x="240" y="24" font-family="Caveat,cursive" font-size="19" fill="#253c6e" transform="rotate(-2 240 24)">↑ the good one!</text>
+        </svg>
+      </div>
+      <div class="body">
+        <h4 style="color:#253c6e;font-family:Caveat,cursive;font-size:21px">⑤ Handsketch — Analyst's Notebook</h4>
+        <span class="tg" style="color:#7a8aa8">ROUGHJS · 3 SUB-STYLES</span>
+        <p style="color:#5d6c88">Hand-drawn chart language (Analyst's Notebook · Blueprint Draft · Studio Sketchbook) — the whiteboard made canonical.</p>
+      </div>
+    </div>
+
+    <!-- ⑥ capabilities -->
+    <div class="spotcard" style="background:var(--card)">
+      <div class="mini" style="background:linear-gradient(135deg,var(--card2),#ffffff);padding:16px 18px">
+        <span class="capchip">distributed memory</span><span class="capchip" style="animation-delay:.4s">distributed compute</span><span class="capchip" style="animation-delay:.8s">JARVIS control plane</span><span class="capchip" style="animation-delay:1.2s">memory querying</span><span class="capchip" style="animation-delay:1.6s">data fusion</span><span class="capchip" style="animation-delay:2s">fail-closed auditing</span><span class="capchip" style="animation-delay:2.4s">Alt-ID Rosetta Stone</span>
+      </div>
+      <div class="body">
+        <h4>Why the spotlight is the platform</h4>
+        <span class="tg" style="color:var(--dim)">7 SIGNATURE CAPABILITIES (v17 §07, IN FORCE)</span>
+        <p style="color:var(--muted)">Each capability renders in a different locked theme — the design system demonstrates the moat it documents.</p>
+      </div>
+    </div>
+
+  </div>
+</div></section>
+
+<section id="catalog"><div class="wrap">
+  <div class="snum">11b</div><h2>The Reporting Catalog — 209 Entries · 7 Families <span class="tag new">BRAND REF v8.1 CANONICAL</span></h2>
+  <p class="lede">The universal reporting catalog is the product surface's table of contents: <b>209 source-verified report types across 7 families</b>, each mapped to chart language, data dependencies, and (v18) its serving-view backer. Family bars below are proportional to entry counts; the two ★ pilots are the FUSION-001 compiler proving ground.</p>
+  <div class="diagram">
+  <svg viewBox="0 0 1120 330" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+    <g font-size="11">
+      <text x="20" y="42" fill="#111827" font-weight="600">Programming Research ★</text><rect x="270" y="28" width="600" height="20" rx="10" fill="#0EA5E9" opacity=".85"/><text x="880" y="43" fill="#0369a1" font-weight="600">75 · P01–P75</text>
+      <text x="20" y="80" fill="#111827" font-weight="600">Marketing ★</text><rect x="270" y="66" width="264" height="20" rx="10" fill="#7C3AED" opacity=".8"/><text x="544" y="81" fill="#7C3AED" font-weight="600">33</text>
+      <text x="20" y="118" fill="#111827" font-weight="600">Advertising</text><rect x="270" y="104" width="224" height="20" rx="10" fill="#FB923C" opacity=".85"/><text x="504" y="119" fill="#b45309" font-weight="600">28</text>
+      <text x="20" y="156" fill="#111827" font-weight="600">Rights &amp; Royalties</text><rect x="270" y="142" width="160" height="20" rx="10" fill="#10b981" opacity=".85"/><text x="440" y="157" fill="#0f766e" font-weight="600">20 · RR-001–020</text>
+      <text x="20" y="194" fill="#111827" font-weight="600">Cross-Platform</text><rect x="270" y="180" width="176" height="20" rx="10" fill="#f59e0b" opacity=".8"/><text x="456" y="195" fill="#b45309" font-weight="600">22 · CP + CP-ADV</text>
+      <text x="20" y="232" fill="#111827" font-weight="600">Social Analytics</text><rect x="270" y="218" width="160" height="20" rx="10" fill="#ef4444" opacity=".7"/><text x="440" y="233" fill="#b91c1c" font-weight="600">20 · SA-001–020</text>
+      <text x="20" y="270" fill="#111827" font-weight="600">Digital + Media Intelligence</text><rect x="270" y="256" width="176" height="20" rx="10" fill="#64748b" opacity=".7"/><text x="456" y="271" fill="#475569" font-weight="600">22 · DA-001–014 + OT-001–008</text>
+    </g>
+    <text x="560" y="300" text-anchor="middle" fill="#94a3b8" font-size="9.5">★ = FUSION-001 pilot families (one Programming + one Marketing/Ad report prove the query-bound compiler) · counts per Brand Reference v8</text>
+      <text x="560" y="316" text-anchor="middle" fill="#94a3b8" font-size="9.5">chart language: 46-type library · every entry maps to a serving view + licensing_class before it ships</text>
+  </svg>
+  <div class="dcap">209 entries · 7 families · Brand Reference v8.1 · portal nav: CONTENT · ADVERTISING · MARKETING · CPG · EXCHANGE</div>
+  </div>
+  <div class="grid3">
+    <div class="panel"><h3>📊 Chart language</h3><p><b>46 chart types</b> in the locked library (Brand Ref v8) — from rankers and reach curves to Sankeys, quad charts, and minute-by-minute overlays — each with a theme-correct rendering spec per brand mode.</p><span class="badge">BRAND REF v8 · 46 TYPES</span></div>
+    <div class="panel"><h3>🔗 The v18 rule — catalog meets certification</h3><p>Every catalog entry that ships names its <b>serving-view backer, grain, and licensing_class</b>. A report whose figures can't trace to certification rows doesn't enter the Gallery — the catalog and the trust layer are one system now.</p><span class="badge">BLUEPRINT §5 · 80/20 DOCTRINE</span></div>
+    <div class="panel"><h3>🧬 Lineage, honored</h3><p>The catalog descends from the 2018 platform's report inventory (Audience Flow, Quintile Segmentation, Movie Tracker, Genre ROI, Minute-by-Minute…) — rebuilt clean-room on the spine, with the fusion families (content-DNA, social×ratings) as the net-new differentiators.</p><span class="badge">CLEAN-ROOM REBUILD</span></div>
+  </div>
+</div></section>
+
+<section id="skills"><div class="wrap">
+  <div class="snum">12</div><h2>The Skill Fleet — 80 Skills on Disk <span class="tag new">+1 IN v18</span></h2>
+  <p class="lede">Source of truth: architecture-v14 + Claude Code (Jun 5) = 79, <b>plus viewership-metrics-architecture shipped 07-12</b>. The claude.ai mount showing ~22 is a known artifact, not reality. Legend: <span class="sk d">data</span> <span class="sk m">media/social</span> <span class="sk e">engineering</span> <span class="sk o">ops/ui/exec</span></p>
+  <div class="skillbox">
+    <span class="sk d">tmdb-data</span><span class="sk d">nielsen-sme</span><span class="sk d">gracenote-onconnect</span><span class="sk d">gracenote-validate</span><span class="sk d">wikidata-fusion</span><span class="sk d">media-domain</span><span class="sk d">duckdb-parquet</span><span class="sk d">s3-data-architect</span><span class="sk d">viewership-metrics-architecture ★NEW</span><br>
+    <span class="sk m">twitter-x-data</span><span class="sk m">instagram-data</span><span class="sk m">youtube-data</span><span class="sk m">fb-adlibrary</span><span class="sk m">social-intelligence</span><span class="sk m">social-identity</span><span class="sk m">the-numbers-boxoffice</span><span class="sk m">programming-researcher</span><br>
+    <span class="sk e">fullstack-architect</span><span class="sk e">build-discipline</span><span class="sk e">scraper-engineer</span><span class="sk e">aws-infra</span><span class="sk e">playwright-debugger</span><span class="sk e">no-finger-prints</span><span class="sk e">mcp-builder</span><span class="sk e">math-mastery</span><br>
+    <span class="sk o">jarvis-ops</span><span class="sk o">qa-agent</span><span class="sk o">platform-scout</span><span class="sk o">autonomous-ui-designer</span><span class="sk o">uiux-mastery</span><span class="sk o">data-viz</span><span class="sk o">skill-creator</span><span class="sk o">linkedin-thought-leader</span><span class="sk o">sow-consultant</span><span class="sk o">shiv-executive-profile</span><span class="sk o">emba-analyst</span><span class="sk o">ableton-sme</span> <span style="color:var(--dim)">+ 44 more on disk</span>
+  </div>
+</div></section>
+
+<section id="ask"><div class="wrap">
+  <div class="snum">12b</div><h2>The ASK Plan Grammar — How Operators Query the Platform <span class="tag new">P2 · 30/30 GREEN</span></h2>
+  <p class="lede">ASK is not "an LLM with database access" — it is a <b>constrained plan grammar</b>: the model may only compose plans the grammar manifest permits, the validator rejects anything else before execution, and the executor applies the band + licensing predicates as a physically unbypassable last gate. <b>The grammar IS the product boundary</b> — what the platform will answer is defined in data, not in prompt engineering.</p>
+  <div class="diagram">
+  <svg viewBox="0 0 1140 300" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+    <defs><marker id="q" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#94a3b8"/></marker>
+      <linearGradient id="qv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5f3ff"/><stop offset="1" stop-color="#ede9fe" stop-opacity=".5"/></linearGradient>
+    </defs>
+    <!-- question in -->
+    <rect x="20" y="90" width="160" height="80" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="100" y="122" text-anchor="middle" fill="#111827" font-size="11.5" font-weight="600">💬 QUESTION</text>
+    <text x="100" y="142" text-anchor="middle" fill="#6b7280" font-size="9.5">Dr. Scoop · Slack ·</text>
+    <text x="100" y="156" text-anchor="middle" fill="#6b7280" font-size="9.5">portal FAB (future)</text>
+    <!-- stage 1: manifest -->
+    <rect x="230" y="60" width="240" height="140" rx="12" fill="rgba(14,165,233,.06)" stroke="#0EA5E9" stroke-width="1.6"/>
+    <text x="350" y="90" text-anchor="middle" fill="#0369a1" font-size="12" font-weight="600">① GRAMMAR MANIFEST</text>
+    <text x="350" y="112" text-anchor="middle" fill="#6b7280" font-size="9.8">the legal plan space, as data:</text>
+    <text x="350" y="128" text-anchor="middle" fill="#6b7280" font-size="9.8">allowed views · dimensions · metrics</text>
+    <text x="350" y="144" text-anchor="middle" fill="#6b7280" font-size="9.8">· filters · grains per serving object</text>
+    <text x="350" y="166" text-anchor="middle" fill="#0369a1" font-size="9.5" font-weight="600">model composes INSIDE the manifest</text>
+    <text x="350" y="184" text-anchor="middle" fill="#9ca3af" font-size="9">new capability = manifest row, not code</text>
+    <!-- stage 2: validator -->
+    <rect x="520" y="60" width="240" height="140" rx="12" fill="rgba(251,146,60,.07)" stroke="#FB923C" stroke-width="1.6"/>
+    <text x="640" y="90" text-anchor="middle" fill="#b45309" font-size="12" font-weight="600">② VALIDATOR</text>
+    <text x="640" y="112" text-anchor="middle" fill="#6b7280" font-size="9.8">every plan checked BEFORE execution:</text>
+    <text x="640" y="128" text-anchor="middle" fill="#6b7280" font-size="9.8">schema-valid · grammar-legal ·</text>
+    <text x="640" y="144" text-anchor="middle" fill="#6b7280" font-size="9.8">grain-consistent · in-catalog</text>
+    <text x="640" y="166" text-anchor="middle" fill="#b91c1c" font-size="9.5" font-weight="600" class="pulse">⛔ FAIL-CLOSED — reject, never repair</text>
+    <text x="640" y="184" text-anchor="middle" fill="#9ca3af" font-size="9">30/30 validation tests green (P2)</text>
+    <!-- stage 3: executor -->
+    <rect x="810" y="60" width="240" height="140" rx="12" fill="url(#qv)" stroke="#7C3AED" stroke-width="1.6"/>
+    <text x="930" y="90" text-anchor="middle" fill="#7C3AED" font-size="12" font-weight="600">③ EXECUTOR (P4 · Railway)</text>
+    <text x="930" y="112" text-anchor="middle" fill="#6b7280" font-size="9.8">runs against serving.* only —</text>
+    <text x="930" y="128" text-anchor="middle" fill="#6b7280" font-size="9.8">MotherDuck ask_ro or embedded</text>
+    <text x="930" y="144" text-anchor="middle" fill="#6b7280" font-size="9.8">serving.duckdb · 0.047–0.090s proven</text>
+    <text x="930" y="166" text-anchor="middle" fill="#7C3AED" font-size="9.5" font-weight="600">🛡 band + licensing predicate injected</text>
+    <text x="930" y="184" text-anchor="middle" fill="#9ca3af" font-size="9">a consumer physically cannot select uncertified rows</text>
+    <!-- flow -->
+    <g stroke="#94a3b8" stroke-width="1.5" fill="none">
+      <line x1="180" y1="130" x2="225" y2="130" marker-end="url(#q)"/>
+      <line x1="470" y1="130" x2="515" y2="130" marker-end="url(#q)"/>
+      <line x1="760" y1="130" x2="805" y2="130" marker-end="url(#q)"/>
+    </g>
+    <circle r="3.6" fill="#0EA5E9"><animateMotion dur="2s" repeatCount="indefinite" path="M 180 130 L 225 130"/></circle>
+    <circle r="3.6" fill="#FB923C"><animateMotion dur="2s" begin=".66s" repeatCount="indefinite" path="M 470 130 L 515 130"/></circle>
+    <circle r="3.6" fill="#7C3AED"><animateMotion dur="2s" begin="1.33s" repeatCount="indefinite" path="M 760 130 L 805 130"/></circle>
+    <!-- reject path -->
+    <path d="M 640 200 C 640 240 400 244 240 244 L 120 244 C 105 244 100 230 100 200 L 100 175" fill="none" stroke="#ef4444" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#q)"/>
+    <text x="400" y="236" text-anchor="middle" fill="#ef4444" font-size="9.5">illegal plan → rejected with reason · returned to the asker, never "fixed" silently</text>
+    <text x="570" y="284" text-anchor="middle" fill="#94a3b8" font-size="10">The one-line doctrine: prompt engineering constrains suggestions · the grammar constrains ANSWERS — only one of those is a product guarantee</text>
+  </svg>
+  <div class="dcap">ASK platform P2 shipped · executor P4 on Railway · ask_ro share refreshed 07-12 · grammar manifest = the product boundary, versioned as data</div>
+  </div>
+  <div class="grid3">
+    <div class="panel"><h3>📐 Why a grammar, not a prompt</h3><p>Prompts drift; grammars don't. Every answerable question maps to a plan the manifest already permits, so the answer space is <b>enumerable, testable, and certifiable</b> — the same property that lets the Reporting Catalog trace every figure to a certification row.</p><span class="badge">THE PRODUCT BOUNDARY</span></div>
+    <div class="panel"><h3>🛡 The unbypassable gate</h3><p>The CERTIFIED+CONFIRMED band predicate and licensing_class envelope are injected at the executor — below the model, below the plan. Even a hypothetically jailbroken planner <b>cannot select an uncertified or unlicensed row</b>.</p><span class="badge">BLUEPRINT §8 · EXIT CRITERION</span></div>
+    <div class="panel"><h3>🔁 Grammar meets flywheel</h3><p>Blessed answers deposit as gold examples against their plan; patterns seen ≥3 times promote to catalog entries. The grammar grows by <b>governed accretion</b> — every expansion is a reviewed manifest change with a test, never a silent capability.</p><span class="badge">STAGES ④–⑥ WIRING</span></div>
+  </div>
+</div></section>
+
+<section id="compute"><div class="wrap">
+  <div class="snum">13</div><h2>Compute &amp; Token Architecture</h2>
+  <div class="grid4">
+    <div class="panel"><h3>🛤️ Railway</h3><p><b>Availability.</b> Always-on control plane · heartbeat · Dr. Scoop SSE · ASK executor · webhook receiver (next).</p></div>
+    <div class="panel"><h3>💻 Mac M1 · 64GB</h3><p><b>Throughput.</b> DuckDB joins · fusion · aggregation · certification runner · scraping · launchd auto-restart.</p></div>
+    <div class="panel"><h3>⚙️ GitHub Actions</h3><p><b>Burst / failover.</b> Ephemeral parallel compute · backup watcher · KB nightly sync · queue-heartbeat-watcher.</p></div>
+    <div class="panel"><h3>🧠 Claude Models</h3><p><b>Reasoning.</b> Opus 4.8 planning · Sonnet 4-6 execution (agents) · Haiku 4-5 volume. $500/mo governed · 50% batch discount · 40–60% cache savings. Build cost to date: $55.54.</p></div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="panel"><h3>💰 Warehouse economics — the v18 upgrade</h3><p>MotherDuck <b>FREE tier, forever</b> (ruled 07-12). Atomic compute is local and free; serving is small; the dual-emitted <code>serving.duckdb</code> makes the warehouse an <b>artifact the pipeline manufactures nightly, not a service rented monthly</b>. Paid tier requires proof of real concurrent load — not a throttle warning.</p><span class="badge">STRUCTURAL $0 · RULING 07-12</span></div>
+    <div class="panel"><h3>⚠ Reliability gap — reproduced 06-08</h3><p>launchd does not fire while the Mac sleeps — schedule-critical crons are lid-close vulnerable. <b>COMPUTE-ROUTER-001 Ph1</b> (presence emitter → Upstash TTL 180s) is LIVE; <b>Ph2</b> decouples schedule-critical crons to Railway/GHA — the next reliability gate. The 07-12 manifest-cron root cause (crash after module move) reinforced the same lesson.</p><span class="badge">PH2 = NEXT RELIABILITY GATE</span></div>
+  </div>
+</div></section>
+
+<section id="queue"><div class="wrap">
+  <div class="snum">14</div><h2>The Card Queue — Every Gap, Carded</h2>
+  <p class="lede">Execution order as of 2026-07-12. The rule that makes this board possible: <b>defects found by certification become cards, never inline fixes.</b></p>
+  <table>
+    <tr><th>Card</th><th>What it does</th><th>Gate</th><th>Status</th></tr>
+    <tr><td class="mono"><b>ASK-SHARE-REFRESH-001</b></td><td>Share rebuilt · scored view repaired · 3 remint losses fixed · ASK ground truth recomputed (movies 2.32M vs stale 903K)</td><td>—</td><td><span class="pill p-done">DONE 07-12</span></td></tr>
+    <tr><td class="mono"><b>DATA-XREF-REANCHOR-001</b></td><td>Crosswalk → v2 spine · held-pool recovery · multiplicity decomposed @ (NETWORK_ID, PCD, TN)</td><td>⏸ prod writes</td><td><span class="pill p-next">NEXT</span></td></tr>
+    <tr><td class="mono"><b>DATA-MATCH-GUARD-001</b></td><td>Junk-title blocklist + skew tripwire → <b>honest bridge</b> re-run (absorbs REANCHOR, one re-run)</td><td>⏸ pattern review</td><td><span class="pill p-next">QUEUED</span></td></tr>
+    <tr><td class="mono"><b>DATA-XREF-REANCHOR-002</b></td><td>tmdb_seed adjudication (social domains) + remint-boundary guard, forced-fire tested</td><td>⏸ alt_ids mutation</td><td><span class="pill p-hold">QUEUED</span></td></tr>
+    <tr><td class="mono"><b>DATA-ALTID-CALIBRATION-001</b></td><td>id_source cleanup · per-domain grain registry · shared_handle adjudication</td><td>⏸ UPDATE gate</td><td><span class="pill p-hold">QUEUED</span></td></tr>
+    <tr><td class="mono"><b>MANIFEST-REVIVE-001</b></td><td>Cron fixed · first full Tuesday AMRLD manifest cycle = <b>2026-07-14</b></td><td>observe green</td><td><span class="pill p-run">TUESDAY</span></td></tr>
+    <tr><td class="mono"><b>B3 Phase C cutover</b></td><td>Honest bridge → Parent_Key_Viewership_IDs (xrefs already clean 8,892/8,892)</td><td>⏸ HUMAN GO</td><td><span class="pill p-hold">GATED</span></td></tr>
+    <tr><td class="mono"><b>DATA-VIEWERSHIP-LOAD-001</b></td><td>13-year history · 65 slabs (year×stream) · load ledger · coverage statement · dual-emit serving</td><td>3 entry gates</td><td><span class="pill p-hold">DRAFT · GATES RED</span></td></tr>
+    <tr><td class="mono"><b>DATA-EXT-MODEL-001</b></td><td>ext schema + registry + scripts pilot (rights in DDL) + IMSDb catalog survey</td><td>CERT-001 Ph E</td><td><span class="pill p-hold">DRAFT</span></td></tr>
+    <tr><td class="mono"><b>ANALYTICS-FUSION-001</b></td><td>v_asset_360 · v_social_ratings_aligned · v_content_dna_performance — the payoff layer</td><td>5 entry gates</td><td><span class="pill p-hold">DRAFT</span></td></tr>
+    <tr><td class="mono"><b>PORTAL-RESEARCH-001</b></td><td>Consumer research portal — own domain · gated beta · trust components · deliberately parked</td><td>Blueprint §8 all-green</td><td><span class="pill p-hold">PARKED</span></td></tr>
+  </table>
+</div></section>
+
+<section id="roadmap"><div class="wrap">
+  <div class="snum">15</div><h2>Phase Status &amp; Path Forward</h2>
+  <div class="diagram">
+  <svg viewBox="0 0 1120 160" xmlns="http://www.w3.org/2000/svg" font-family="DM Mono,monospace">
+    <defs><marker id="c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#94a3b8"/></marker></defs>
+    <g font-size="10">
+      <rect x="10"  y="50" width="136" height="58" rx="9" fill="rgba(16,185,129,.08)" stroke="#10b981" stroke-width="1.4"/><text x="78" y="75" fill="#0f766e" text-anchor="middle" font-weight="600">SHARE FIX</text><text x="78" y="93" fill="#6b7280" text-anchor="middle">DONE 07-12</text>
+      <rect x="172" y="50" width="136" height="58" rx="9" fill="rgba(245,158,11,.08)" stroke="#f59e0b" stroke-width="1.4"/><text x="240" y="75" fill="#b45309" text-anchor="middle" font-weight="600">REANCHOR-001</text><text x="240" y="93" fill="#6b7280" text-anchor="middle">crosswalk → v2</text>
+      <rect x="334" y="50" width="136" height="58" rx="9" fill="rgba(245,158,11,.08)" stroke="#f59e0b" stroke-width="1.4"/><text x="402" y="75" fill="#b45309" text-anchor="middle" font-weight="600">HONEST BRIDGE</text><text x="402" y="93" fill="#6b7280" text-anchor="middle">MATCH-GUARD re-run</text>
+      <rect x="496" y="50" width="136" height="58" rx="9" fill="rgba(14,165,233,.07)" stroke="#0EA5E9" stroke-width="1.4"/><text x="564" y="75" fill="#0369a1" text-anchor="middle" font-weight="600">PHASE C ⏸</text><text x="564" y="93" fill="#6b7280" text-anchor="middle">bridge → prod</text>
+      <rect x="658" y="50" width="136" height="58" rx="9" fill="rgba(14,165,233,.07)" stroke="#0EA5E9" stroke-width="1.4"/><text x="726" y="75" fill="#0369a1" text-anchor="middle" font-weight="600">LOAD-001</text><text x="726" y="93" fill="#6b7280" text-anchor="middle">13 yrs · 65 slabs</text>
+      <rect x="820" y="50" width="136" height="58" rx="9" fill="rgba(124,58,237,.07)" stroke="#7C3AED" stroke-width="1.4"/><text x="888" y="75" fill="#7C3AED" text-anchor="middle" font-weight="600">FUSION-001</text><text x="888" y="93" fill="#6b7280" text-anchor="middle">scripts×ratings×social</text>
+      <rect x="982" y="50" width="128" height="58" rx="9" fill="#ffffff" stroke="#111827" stroke-width="1.4"/><text x="1046" y="75" fill="#111827" text-anchor="middle" font-weight="700">PORTAL</text><text x="1046" y="93" fill="#6b7280" text-anchor="middle">unparks §8-green</text>
+    </g>
+    <g stroke="#94a3b8" stroke-width="1.5" fill="none">
+      <line x1="146" y1="79" x2="167" y2="79" marker-end="url(#c)"/><line x1="308" y1="79" x2="329" y2="79" marker-end="url(#c)"/>
+      <line x1="470" y1="79" x2="491" y2="79" marker-end="url(#c)"/><line x1="632" y1="79" x2="653" y2="79" marker-end="url(#c)"/>
+      <line x1="794" y1="79" x2="815" y2="79" marker-end="url(#c)"/><line x1="956" y1="79" x2="977" y2="79" marker-end="url(#c)"/>
+    </g>
+    <text x="560" y="26" fill="#b45309" font-size="10" text-anchor="middle" font-weight="600">‖ MANIFEST CYCLE — first full Tuesday observation 2026-07-14 — parallel · closes CERT-001 Phase E ‖</text>
+    <text x="560" y="140" fill="#94a3b8" font-size="10" text-anchor="middle">Every arrow is a card with query-checkable gates · design work remaining: ZERO · everything from here is execution</text>
+  </svg>
+  <div class="dcap">The one-line test, v18 edition: is every number the platform serves traceable to a certification row? When yes end-to-end — ship the terminal.</div>
+  </div>
+  <p class="lede" style="margin-top:8px"><b>Also standing from v17:</b> Phase 1b EIDR backfill (335,175 staged, auth-gated — the CERTIFIED-band unlock) · flywheel stages 4–6 (bless-deposit-promote) remain the autonomy priority · MANAGED-AGENTS-001/-002 queued.</p>
+</div></section>
+
+<section id="lessons"><div class="wrap">
+  <div class="snum">16</div><h2>Lessons Learned — The Complete Ledger <span class="tag new">001–014</span></h2>
+  <p class="lede">v17's lessons (001–005, condensed) established the sourcing doctrine. The certification era added eight — <b>each paid for with real incident time, each now enforced by structure rather than memory.</b></p>
+  <div class="lesson"><h4>ARCH-LESSONS 001–005 — the v17 sourcing doctrine (in force)</h4>
+  <p><b>001</b> Never estimate what you can query — live query, War Room, or confirmed session; never memory. <b>002</b> Parent Key counts have four meanings (total / PKIDs / CIDs / source rows) — always state which. <b>003</b> Fleet counts come from their source of truth, never the claude.ai mount. <b>004</b> Every data point carries a source badge; unsourced = "pending verification," never a guess. <b>005</b> The Bloomberg standard: every public artifact session begins with a live data pull.</p></div>
+  <div class="lesson"><h4>ARCH-LESSON-006 — A re-mint without a downstream sweep is a time bomb</h4>
+  <p>The 06-20 spine re-mint shipped with zero downstream verification: a crosswalk sat at <b>0.0% match for 19 days</b>, a seed batch landed at 25.9%, and the ASK share served pre-remint data until it broke in production. One systematic sweep found all three in an afternoon.</p>
+  <span class="rule">Every spine re-mint closes with a match-rate check on every PKID-joining table (§46d); every write job carries a remint-boundary guard. Identity changes propagate by verification, never by assumption.</span></div>
+  <div class="lesson"><h4>ARCH-LESSON-007 — Placeholder strings are not match evidence</h4>
+  <p><code>primaryTitle='N/A'</code> matched 660,276 telecasts — <b>83% of the viewership bridge</b>. The bridge looked rich; it was mostly noise wearing a match's clothing.</p>
+  <span class="rule">Junk-title classes live in a data-driven blocklist the matcher must consult; suppressions counted visibly per run; rows-per-pkid skew trips review before write. A smaller honest number always beats a larger fabricated one.</span></div>
+  <div class="lesson"><h4>ARCH-LESSON-008 — Materialized copies rot; views break loudly</h4>
+  <p>The ASK share froze at its 06-09 snapshot because its update mode is <b>MANUAL</b> and nobody knew — serving 903K movies when reality was 2.32M, on 9 columns when the table had 17.</p>
+  <span class="rule">Serve via views over current-mint objects wherever mechanics allow. Where a copy is forced: UPDATE SHARE after every data release, freshness check in the weekly cert run, rebuild trigger on any re-mint.</span></div>
+  <div class="lesson"><h4>ARCH-LESSON-009 — State the grain or the number lies</h4>
+  <p>The first cert pass reported 101,585 "dups" on a clean spine — SCD2 version history counted at all-rows grain. Separately, org-type EIDR domains showed thousands of "dups" that are legitimate at their correct grain.</p>
+  <span class="rule">Every count states its GROUP BY key (§46b); per-domain grains live in a registry (ops.altid_domain_grain) — declared as data, never hardcoded assumptions.</span></div>
+  <div class="lesson"><h4>ARCH-LESSON-010 — Dimensions are columns, not table families</h4>
+  <p>Nine per-stream viewership shells were scaffolded on the 2018 pattern. In a columnar engine, table-per-stream buys zero pruning and costs nine-times-everything — and the forgotten ninth copy is the next rot instance.</p>
+  <span class="rule">Low-cardinality dimensions (viewing_stream, source_system) are partition columns in one table per view type. New streams are a row in ref.ref_viewing_stream, never a new table. Ruled at zero rows — the cheapest decision ever made.</span></div>
+  <div class="lesson"><h4>ARCH-LESSON-011 — Match engines to their economics</h4>
+  <p>MotherDuck hit its daily compute cap on certification queries alone. The fix wasn't a $250/month plan — it was routing: atomic scans local and free, serving small, and a dual-emitted embedded warehouse.</p>
+  <span class="rule">MotherDuck never scans atomic-scale data. The serving warehouse dual-emits (free tier + embedded file, byte-equivalence certified). Paid tiers require proof of real concurrent load — not a throttle warning.</span></div>
+  <div class="lesson"><h4>ARCH-LESSON-012 — Test the tripwire, then test the test</h4>
+  <p>The reconciliation tripwire's first forced-mismatch attempt corrupted a key that didn't exist — matched zero rows — and the cert correctly stayed PASS. An untested test would have been declared proven while proving nothing.</p>
+  <span class="rule">Every guard ships with a forced-fire test, and the test verifies its own preconditions. "Proven" means the failure was demonstrated, not that the check ran green.</span></div>
+  <div class="lesson"><h4>ARCH-LESSON-013 — Attached shares contaminate catalog queries</h4>
+  <p>A schema inspection showed phantom duplicate columns on a clean prod table — the attached ask_ro share was echoing every information_schema row. An hour of anomaly-chasing, zero defects.</p>
+  <span class="rule">Catalog and certification queries filter to database_name explicitly (or detach shares in the runner session). Share-echo rows can never contaminate a certification result.</span></div>
+  <div class="lesson"><h4>ARCH-LESSON-014 — Load the brand system before building any artifact</h4>
+  <p>The first two v18 drafts shipped in an invented theme — dark, then an off-palette light — because the session lacked the design skills and defaulted from generic memory instead of the canonical system. The five locked themes and the BRAND-003 light-default ruling existed the whole time in Brand Reference v8.1 and past sessions.</p>
+  <span class="rule">Every artifact session begins by loading the brand system (Brand Reference v8.1 / design-skill tokens) exactly as data sessions begin with a live query — ARCH-LESSON-005's twin for design. Theme 02 LIGHT is the default; Theme 01 DARK is scoped to Portal/War Room. No artifact ships on reconstructed-from-memory tokens.</span></div>
+</div></section>
+
+<footer><div class="wrap">
+  <b style="color:var(--text)">SaSMaster v18.1</b> · Operator Reference · The Certification Era · Theme 02 Light Operational (BRAND-003 default) · DM Sans / DM Mono / Space Grotesk<br>
+  <span class="mono">Sources: MOTHERDUCK live queries 2026-07-10, re-verified 2026-07-12 (spine · masters · alt_ids · telecasts, all exact-match) · CERT-001 runs 07-09/07-12 · terminal sessions 07-09→07-12 · War Room · v17 baseline 06-21 · Brand Reference v8.1.
+  Band distribution deferred to post-REANCHOR re-cert per ARCH-LESSON-001. Numbers without a badge do not appear in this document.</span><br>
+  <span class="mono">North Star: Decode data for radical insights to drive Content, Audiences &amp; Revenue — the terminal where the people who analyze, price, and trade content actually work.</span>
+</div></footer>
+
+</body>
+</html>
