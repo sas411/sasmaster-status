@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SASMASTER · BRAIN-001 — Claude Context Brain</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root, [data-theme="dark"]{
+  --bg-base:#0a0a0f; --bg-surface:#12121a; --bg-elevated:#1a1a2e; --bg-panel:#0d0d16; --bg-inset:#0e0e18;
+  --lavender:#a78bfa; --teal-bright:#22d3ee; --gold:#f59e0b; --red-alert:#ef4444; --green-signal:#10b981;
+  --lav-dim:rgba(167,139,250,0.14); --lav-border:rgba(167,139,250,0.10); --lav-active:rgba(167,139,250,0.35);
+  --teal-dim:rgba(34,211,238,0.12); --gold-dim:rgba(245,158,11,0.10); --green-dim:rgba(16,185,129,0.12); --red-dim:rgba(239,68,68,0.12);
+  --text-primary:#f8f8ff; --text-secondary:#94a3b8; --text-dim:#4b5563; --text-inverse:#0a0a0f;
+  --border:rgba(167,139,250,0.10); --border-active:rgba(167,139,250,0.35); --border-subtle:rgba(255,255,255,0.04); --border-strong:rgba(167,139,250,0.50);
+}
+[data-theme="light"]{
+  --bg-base:#f4f4fb; --bg-surface:#ffffff; --bg-elevated:#ffffff; --bg-panel:#ecebf6; --bg-inset:#ededf8;
+  --lavender:#7c3aed; --teal-bright:#0891b2; --gold:#c2740a; --red-alert:#dc2626; --green-signal:#059669;
+  --lav-dim:rgba(124,58,237,0.09); --lav-border:rgba(124,58,237,0.16); --lav-active:rgba(124,58,237,0.42);
+  --teal-dim:rgba(8,145,178,0.10); --gold-dim:rgba(194,116,10,0.10); --green-dim:rgba(5,150,105,0.10); --red-dim:rgba(220,38,38,0.09);
+  --text-primary:#16162a; --text-secondary:#4b5365; --text-dim:#8a90a2; --text-inverse:#ffffff;
+  --border:rgba(124,58,237,0.16); --border-active:rgba(124,58,237,0.42); --border-subtle:rgba(22,22,42,0.06); --border-strong:rgba(124,58,237,0.55);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg-base);color:var(--text-primary);font-family:'Barlow Condensed',sans-serif;min-height:100vh;transition:background .3s,color .3s}
+.wrap{max-width:1180px;margin:0 auto;padding:32px 24px 56px}
+
+/* header */
+header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--border);padding-bottom:18px;margin-bottom:8px}
+.brand{font-family:'Bebas Neue';font-size:14px;letter-spacing:4px;color:var(--lavender)}
+h1{font-family:'Bebas Neue';font-size:44px;letter-spacing:3px;line-height:1.05;margin-top:6px}
+h1 .accent{color:var(--lavender)}
+.prov{font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);text-align:right;line-height:1.9}
+.toggle{background:transparent;border:1px solid var(--lavender);color:var(--lavender);font-family:'Barlow Condensed';font-weight:600;font-size:12px;letter-spacing:1px;padding:5px 14px;border-radius:999px;cursor:pointer;margin-top:8px}
+.sub{font-size:15px;color:var(--text-secondary);max-width:760px;margin:14px 0 26px;line-height:1.65}
+.sub b{color:var(--text-primary);font-weight:600}
+
+/* stat tiles */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:34px}
+.stat{background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.stat .k{font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
+.stat .v{font-family:'Bebas Neue';font-size:30px;letter-spacing:1px}
+.stat .v.lav{color:var(--lavender)}.stat .v.teal{color:var(--teal-bright)}.stat .v.gold{color:var(--gold)}.stat .v.green{color:var(--green-signal)}
+.stat .d{font-size:11px;color:var(--text-secondary);margin-top:2px}
+
+/* section titles */
+.sect{font-family:'Bebas Neue';font-size:20px;letter-spacing:2px;color:var(--text-secondary);margin:30px 0 14px;display:flex;align-items:center;gap:12px}
+.sect::after{content:"";flex:1;height:1px;background:var(--border)}
+
+/* surfaces */
+.surfaces{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.surface{background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;position:relative}
+.surface .icon{font-size:22px;margin-bottom:6px}
+.surface .name{font-family:'Barlow Condensed';font-weight:700;font-size:16px}
+.surface .note{font-size:11px;color:var(--text-secondary);margin-top:4px;line-height:1.5}
+.surface .badge{display:inline-block;font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;padding:2px 8px;border-radius:999px;margin-top:8px}
+.badge.read{background:var(--teal-dim);color:var(--teal-bright);border:1px solid var(--teal-bright)}
+.badge.rw{background:var(--green-dim);color:var(--green-signal);border:1px solid var(--green-signal)}
+
+/* beams */
+.beams{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;height:44px}
+.beam{position:relative;display:flex;justify-content:center}
+.beam::before{content:"";width:2px;height:100%;background:linear-gradient(180deg,var(--lav-active),var(--lav-border))}
+.pulse{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--teal-bright);left:calc(50% - 3.5px);top:-4px;animation:drop 2.2s linear infinite;box-shadow:0 0 8px var(--teal-bright)}
+.beam:nth-child(2) .pulse{animation-delay:.5s}.beam:nth-child(3) .pulse{animation-delay:1.1s}.beam:nth-child(4) .pulse{animation-delay:1.6s}
+@keyframes drop{0%{top:-4px;opacity:0}15%{opacity:1}90%{opacity:1}100%{top:calc(100% - 3px);opacity:0}}
+
+/* layers */
+.layer{border-radius:12px;padding:18px 22px;display:grid;grid-template-columns:120px 1fr 200px;gap:20px;align-items:center;margin-bottom:10px;border:1px solid var(--border);background:var(--bg-surface)}
+.layer .tag{font-family:'Bebas Neue';font-size:26px;letter-spacing:2px}
+.layer .tag small{display:block;font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;margin-top:2px}
+.layer .what{font-size:14px;color:var(--text-secondary);line-height:1.6}
+.layer .what b{color:var(--text-primary);font-weight:600}
+.layer .cost{text-align:right}
+.layer .cost .c{font-family:'Share Tech Mono';font-size:16px}
+.layer .cost .f{font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);margin-top:3px}
+.layer.l1{border-left:3px solid var(--lavender)} .layer.l1 .tag,.layer.l1 .cost .c{color:var(--lavender)}
+.layer.l2{border-left:3px solid var(--gold)} .layer.l2 .tag,.layer.l2 .cost .c{color:var(--gold)}
+.layer.l3{border-left:3px solid var(--teal-bright);background:linear-gradient(90deg,var(--teal-dim),var(--bg-surface) 55%);border-color:var(--border-active)}
+.layer.l3 .tag,.layer.l3 .cost .c{color:var(--teal-bright)}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green-signal);margin-right:6px;animation:blink 1.6s ease-in-out infinite;box-shadow:0 0 8px var(--green-signal)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* writers */
+.writers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:4px}
+.writer{background:var(--bg-inset);border:1px dashed var(--border-strong);border-radius:10px;padding:14px 16px}
+.writer .w-name{font-family:'Share Tech Mono';font-size:12px;color:var(--lavender)}
+.writer .w-note{font-size:12px;color:var(--text-secondary);margin-top:5px;line-height:1.55}
+.writer .vflag{font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;margin-top:8px;display:inline-block;padding:2px 8px;border-radius:999px}
+.vflag.vt{background:var(--green-dim);color:var(--green-signal)}
+.vflag.vf{background:var(--gold-dim);color:var(--gold)}
+.up-beams{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;height:36px}
+.up-beam{position:relative;display:flex;justify-content:center}
+.up-beam::before{content:"";width:2px;height:100%;background:linear-gradient(0deg,var(--lav-active),var(--lav-border))}
+.up-pulse{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--green-signal);left:calc(50% - 3.5px);bottom:-4px;animation:rise 2.6s linear infinite;box-shadow:0 0 8px var(--green-signal)}
+.up-beam:nth-child(2) .up-pulse{animation-delay:.8s}.up-beam:nth-child(3) .up-pulse{animation-delay:1.7s}
+@keyframes rise{0%{bottom:-4px;opacity:0}15%{opacity:1}90%{opacity:1}100%{bottom:calc(100% - 3px);opacity:0}}
+
+/* distributed memory */
+.mem{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.mcard{background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column}
+.mcard .m-tier{font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:999px;align-self:flex-start;margin-bottom:8px}
+.m-tier.hot{background:var(--red-dim);color:var(--red-alert)}
+.m-tier.warm{background:var(--gold-dim);color:var(--gold)}
+.m-tier.live{background:var(--teal-dim);color:var(--teal-bright)}
+.m-tier.arch{background:var(--lav-dim);color:var(--lavender)}
+.m-tier.sec{background:var(--green-dim);color:var(--green-signal)}
+.mcard .m-name{font-family:'Bebas Neue';font-size:18px;letter-spacing:1.5px;margin-bottom:6px}
+.mcard .m-what{font-size:11.5px;color:var(--text-secondary);line-height:1.55;flex:1}
+.mcard .m-what b{color:var(--text-primary);font-weight:600}
+.mcard .m-stores{margin-top:10px;padding-top:8px;border-top:1px solid var(--border-subtle)}
+.mcard .m-stores div{font-family:'Share Tech Mono';font-size:9.5px;color:var(--teal-bright);line-height:1.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mcard .m-stores div::before{content:"▸ ";color:var(--text-dim)}
+.syncstrip{margin-top:12px;background:var(--bg-inset);border:1px dashed var(--border-strong);border-radius:10px;padding:12px 18px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.syncstrip .node{font-family:'Share Tech Mono';font-size:10.5px;color:var(--text-primary);background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:5px 10px}
+.syncstrip .arrow{font-family:'Share Tech Mono';font-size:10px;color:var(--lavender);position:relative}
+.syncstrip .arrow small{display:block;font-size:8px;color:var(--text-dim);text-align:center;letter-spacing:.5px}
+@media(max-width:980px){.mem{grid-template-columns:repeat(2,1fr)}}
+
+/* state table */
+table{width:100%;border-collapse:collapse;background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+th{font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg-panel)}
+td{padding:9px 14px;border-bottom:1px solid var(--border-subtle);font-size:13px;vertical-align:top}
+td.key{font-family:'Share Tech Mono';font-size:11.5px;color:var(--teal-bright);white-space:nowrap}
+td.val{color:var(--text-primary);max-width:520px}
+td.val .detail{display:block;font-size:11px;color:var(--text-secondary);margin-top:2px;line-height:1.5}
+.chip{font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.chip.ok{background:var(--green-dim);color:var(--green-signal)}
+.chip.warn{background:var(--gold-dim);color:var(--gold)}
+tr:last-child td{border-bottom:none}
+
+/* rules footer */
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:26px}
+.rule{background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.rule .r-t{font-family:'Bebas Neue';font-size:16px;letter-spacing:1.5px;color:var(--lavender);margin-bottom:6px}
+.rule p{font-size:12.5px;color:var(--text-secondary);line-height:1.6}
+.rule p b{color:var(--text-primary);font-weight:600}
+footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--border);font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);display:flex;justify-content:space-between}
+@media(max-width:760px){.stats,.surfaces,.beams,.writers,.up-beams,.rules{grid-template-columns:1fr 1fr}.layer{grid-template-columns:1fr;gap:8px}.layer .cost{text-align:left}h1{font-size:32px}}
+</style>
+</head>
+<body data-theme="dark">
+<div class="wrap">
+
+<header>
+  <div>
+    <div class="brand">SASMASTER · OPERATOR REFERENCE</div>
+    <h1>BRAIN-001 <span class="accent">— THE CLAUDE CONTEXT BRAIN</span></h1>
+  </div>
+  <div class="prov">
+    TASK CARD BRAIN-001 · LIVE 2026-07-13<br>
+    SOURCE: sasmaster.ops.platform_state (SEED 10:44 UTC)<br>
+    <button class="toggle" onclick="flip()">◐ THEME</button>
+  </div>
+</header>
+
+<p class="sub">Every Claude session is an ephemeral container — but SaSMaster's state is not. The brain splits context by <b>how fast it changes</b>: reflexes ride free in every session, warm identity loads on trigger, and live state lives in <b>one</b> MotherDuck table that every surface can reach. Files carry knowledge; the database carries truth.</p>
+
+<div class="stats">
+  <div class="stat"><div class="k">Spine · prod.parent_key</div><div class="v teal">12,955,801</div><div class="d">is_current rows · corrected same-day</div></div>
+  <div class="stat"><div class="k">Architecture</div><div class="v lav">V18.1</div><div class="d">verified 2026-07-13</div></div>
+  <div class="stat"><div class="k">State keys in L3</div><div class="v gold">12</div><div class="d">11 verified · 1 pending</div></div>
+  <div class="stat"><div class="k">Skills in manifest</div><div class="v green">138</div><div class="d">descriptions = L1 reflex layer</div></div>
+</div>
+
+<div class="sect">SURFACES — ANY CLAUDE, ANYWHERE</div>
+<div class="surfaces">
+  <div class="surface"><div class="icon">📱</div><div class="name">iPhone · Cowork</div><div class="note">Mac offline, zero creds typed. MotherDuck account-auth.</div><span class="badge read">READS L1+L2+L3</span></div>
+  <div class="surface"><div class="icon">☁️</div><div class="name">Cloud Session</div><div class="note">Ephemeral container. Skills sync in; state queried live.</div><span class="badge rw">READS + WRITES L3</span></div>
+  <div class="surface"><div class="icon">💻</div><div class="name">Mac · Claude Code</div><div class="note">Source of truth for repo + skills. Close-out ritual writes state.</div><span class="badge rw">CANONICAL WRITER</span></div>
+  <div class="surface"><div class="icon">🤖</div><div class="name">JARVIS · Slack</div><div class="note">Railway HTTP Events. <span style="font-family:'Share Tech Mono';font-size:10px">!state</span> reads, <span style="font-family:'Share Tech Mono';font-size:10px">!logstate</span> writes.</div><span class="badge rw">READS + WRITES L3</span></div>
+</div>
+<div class="beams"><div class="beam"><div class="pulse"></div></div><div class="beam"><div class="pulse"></div></div><div class="beam"><div class="pulse"></div></div><div class="beam"><div class="pulse"></div></div></div>
+
+<div class="layer l1">
+  <div class="tag">L1<small>REFLEX</small></div>
+  <div class="what"><b>138 skill descriptions</b> — always in context, every session, automatically. The brain's index: knows a skill exists for Nielsen, S3 paths, portal UI, Shiv's voice… and when to fire it.</div>
+  <div class="cost"><div class="c">~FREE</div><div class="f">always loaded</div></div>
+</div>
+<div class="layer l2">
+  <div class="tag">L2<small>WARM</small></div>
+  <div class="what"><b>sasmaster-context skill body</b> — identity, quick facts, authority map, rehydration checklist. Loads on any SaSMaster trigger. Changes monthly; holds pointers, never live state.</div>
+  <div class="cost"><div class="c">~2K TOK</div><div class="f">on trigger</div></div>
+</div>
+<div class="layer l3">
+  <div class="tag">L3<small>LIVE</small></div>
+  <div class="what"><span class="live-dot"></span><b>sasmaster.ops.platform_state</b> (MotherDuck) — the single copy of current truth. One SQL query = architecture version, spine count, active work. Append-only history in <b>ops.platform_state_log</b>. <b>When L2 and L3 disagree, L3 wins.</b></div>
+  <div class="cost"><div class="c">1 QUERY</div><div class="f">on demand · never stale</div></div>
+</div>
+
+<div class="up-beams"><div class="up-beam"><div class="up-pulse"></div></div><div class="up-beam"><div class="up-pulse"></div></div><div class="up-beam"><div class="up-pulse"></div></div></div>
+<div class="writers">
+  <div class="writer"><div class="w-name">local-closeout</div><div class="w-note">Build-discipline close-out ritual: one duckdb upsert per state change. A session that changes state without writing L3 is unfinished.</div><span class="vflag vt">VERIFIED=TRUE</span></div>
+  <div class="writer"><div class="w-name">jarvis · !logstate</div><div class="w-note">Update the brain from your phone in Slack. No live check happened, so writes land unverified until re-checked.</div><span class="vflag vf">VERIFIED=FALSE</span></div>
+  <div class="writer"><div class="w-name">cron</div><div class="w-note">5:30 AM chain upserts last_cert_run watermark; weekly job regenerates L2 quick facts from L3; 14-day staleness nag → #builds.</div><span class="vflag vt">VERIFIED=TRUE</span></div>
+</div>
+
+<div class="sect">DISTRIBUTED MEMORY — WHERE THE BRAIN PHYSICALLY LIVES</div>
+<div class="mem">
+  <div class="mcard">
+    <span class="m-tier hot">HOT · EPHEMERAL</span>
+    <div class="m-name">WORKING MEMORY</div>
+    <div class="m-what">The session's context window — conversation, staged files, decrypted creds in env. <b>Dies with the container by design.</b> Safe to lose: everything below persists.</div>
+    <div class="m-stores"><div>session context window</div><div>container /tmp + env vars</div></div>
+  </div>
+  <div class="mcard">
+    <span class="m-tier warm">WARM · 3× REPLICATED</span>
+    <div class="m-name">SEMANTIC MEMORY</div>
+    <div class="m-what">What SaSMaster <b>knows</b> — 138 skills of domain depth. Replicated across three stores, git-versioned, synced by the kb-sync job. Cloud containers hydrate from account sync.</div>
+    <div class="m-stores"><div>~/.claude/skills (Mac)</div><div>SaSMaster/skills (git)</div><div>s3://…/knowledge-bank/ + manifest</div></div>
+  </div>
+  <div class="mcard">
+    <span class="m-tier live">LIVE · SINGLE COPY</span>
+    <div class="m-name">STATE MEMORY</div>
+    <div class="m-what">What's <b>true right now</b> — deliberately NOT replicated. One copy in MotherDuck, reachable by every surface, so it can never fork or drift. L3 of the brain.</div>
+    <div class="m-stores"><div>ops.platform_state</div><div>ops.cert_run (watermarks)</div></div>
+  </div>
+  <div class="mcard">
+    <span class="m-tier arch">EPISODIC · APPEND-ONLY</span>
+    <div class="m-name">EPISODIC MEMORY</div>
+    <div class="m-what">What <b>happened</b> — every state write, cert run, audit swap, and build event, never updated or deleted. The brain's changelog and audit trail.</div>
+    <div class="m-stores"><div>ops.platform_state_log</div><div>ops.eidr_swap_audit</div><div>Slack #builds (event stream)</div></div>
+  </div>
+  <div class="mcard">
+    <span class="m-tier sec">SECRET · ENCRYPTED</span>
+    <div class="m-name">CREDENTIAL MEMORY</div>
+    <div class="m-what">What <b>unlocks</b> action. Plaintext only on the Mac (KB-CI-002); travels encrypted with skills (KB-CI-003 vault); injected into CI via the 3-sync rule. Decrypts into working memory only.</div>
+    <div class="m-stores"><div>~/SaSMaster/.env (source)</div><div>credentials.enc (vault)</div><div>GH Secrets + Railway env</div></div>
+  </div>
+</div>
+<div class="syncstrip">
+  <span class="node">💻 MAC</span>
+  <span class="arrow">⇄<small>git push · kb-sync</small></span>
+  <span class="node">GITHUB + GHA</span>
+  <span class="arrow">⇄<small>manifest sync</small></span>
+  <span class="node">S3 KNOWLEDGE-BANK</span>
+  <span class="arrow">→<small>account skill sync</small></span>
+  <span class="node">☁️ CLOUD / 📱 MOBILE</span>
+  <span class="arrow">⇄<small>SQL · account auth</small></span>
+  <span class="node">🦆 MOTHERDUCK</span>
+  <span class="arrow">⇄<small>!state / !logstate</small></span>
+  <span class="node">🤖 JARVIS · RAILWAY</span>
+</div>
+
+<div class="sect">L3 · LIVE STATE — ACTUAL SEEDED ROWS (2026-07-13 10:44 UTC)</div>
+<table>
+  <tr><th>KEY</th><th>VALUE</th><th>STATUS</th></tr>
+  <tr><td class="key">architecture_version</td><td class="val">v18.1<span class="detail">verified by local Claude Code session 2026-07-13 — supersedes stale v11/v12 file blocks</span></td><td><span class="chip ok">VERIFIED</span></td></tr>
+  <tr><td class="key">spine_rows</td><td class="val">12,955,801<span class="detail">is_current COUNT(*) of prod.parent_key — seed initially wrote 13,090,272 (raw SCD2 all-rows); corrected same-day, mistake preserved in platform_state_log</span></td><td><span class="chip ok">VERIFIED</span></td></tr>
+  <tr><td class="key">last_cert_run</td><td class="val">FUSION-VW-B1-20260622-061255<span class="detail">latest ops.cert_run · run_ts 2026-06-22 02:12:55</span></td><td><span class="chip ok">VERIFIED</span></td></tr>
+  <tr><td class="key">portal_prod_url</td><td class="val">portal-v8-pi.vercel.app<span class="detail">QA via qa-agent skill only — no self-certified fixes</span></td><td><span class="chip ok">VERIFIED</span></td></tr>
+  <tr><td class="key">command_api</td><td class="val">Railway · HTTP Events API<span class="detail">/slack/events · GHA Docker → S3 SHA queue → Mac worker · GHA failover 10-min</span></td><td><span class="chip ok">VERIFIED</span></td></tr>
+  <tr><td class="key">s3_bucket</td><td class="val">s3://sasmaster-2026/<span class="detail">locked-paths registry authoritative in s3-data-architect</span></td><td><span class="chip ok">VERIFIED</span></td></tr>
+  <tr><td class="key">motherduck_db</td><td class="val">sasmaster<span class="detail">14 schemas: prod · curated · fusion · ops · landing · stg · ref · aud · serving · source · review · quarantine · viewership · main</span></td><td><span class="chip ok">VERIFIED</span></td></tr>
+  <tr><td class="key">charting_stack</td><td class="val">Highcharts 11.4.8 + dimple 2.3.0 + D3 v4.13 + ParamQuery 9.0.0<span class="detail">verified against ra-linear-analytics-bundle · NOT amCharts / Chart.js / nivo</span></td><td><span class="chip ok">VERIFIED</span></td></tr>
+  <tr><td class="key">skills_manifest_count</td><td class="val">138<span class="detail">manifest reconciled + regenerated by local session 2026-07-13 (was 129 at seed)</span></td><td><span class="chip ok">VERIFIED</span></td></tr>
+  <tr><td class="key">credential_vault</td><td class="val">KB-CI-003 defined · vault not yet populated<span class="detail">no-finger-prints/references/credentials.enc — awaiting .env + passphrase</span></td><td><span class="chip ok">VERIFIED</span></td></tr>
+  <tr><td class="key">active_work</td><td class="val">Token reconciliation in progress · 6 skill frontmatter fixes · Slack rotation needs Shiv<span class="detail">per local session 2026-07-13 — confirm and re-verify</span></td><td><span class="chip warn">UNVERIFIED</span></td></tr>
+  <tr><td class="key">brain_layer</td><td class="val">BRAIN-001 LIVE<span class="detail">this architecture — L1/L2/L3 with history in ops.platform_state_log</span></td><td><span class="chip ok">VERIFIED</span></td></tr>
+</table>
+
+<div class="rules">
+  <div class="rule"><div class="r-t">PRECEDENCE</div><p>Owner skill beats context hub on domain depth. <b>L3 beats everything on state.</b> Disagreement means fix the loser, immediately.</p></div>
+  <div class="rule"><div class="r-t">STALENESS TRIPWIRE</div><p>If newest <b>updated_at</b> in L3 is over 30 days old, any Claude must <b>ask before asserting</b> platform state. Cron nags #builds at 14 days.</p></div>
+  <div class="rule"><div class="r-t">COST PROFILE</div><p>~300 tok of descriptions per session · ~2k tok of L2 on trigger · ~500 tok per L3 query. <b>No polling, no sync drift, one copy of truth.</b></p></div>
+</div>
+
+<footer>
+  <span>SASMASTER · BRAIN-001 · OPERATOR REFERENCE — NOT PORTAL</span>
+  <span>DATA: LIVE SEED 2026-07-13 · NO FABRICATED FIGURES</span>
+</footer>
+</div>
+<script>
+const mq = window.matchMedia('(prefers-color-scheme: light)');
+let theme = mq.matches ? 'light' : 'dark';
+document.body.setAttribute('data-theme', theme);
+function flip(){ theme = theme==='dark' ? 'light' : 'dark'; document.body.setAttribute('data-theme', theme); }
+</script>
+</body>
+</html>
