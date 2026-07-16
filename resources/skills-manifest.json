@@ -4,8 +4,10 @@
   "repo": "https://github.com/sas411/sasmaster-skills",
   "canonical_url": "https://raw.githubusercontent.com/sas411/sasmaster-skills/main/skills-manifest.json",
   "public_mirror_url": "https://sasmaster-public.s3.amazonaws.com/skills-manifest.json",
-  "skill_count": 108,
-  "skipped_no_frontmatter": 6,
+  "skill_count": 139,
+  "user_skill_count": 77,
+  "platform_skill_count": 62,
+  "skipped_no_frontmatter": 0,
   "parse_errors": 0,
   "skills": [
     {
@@ -13,7 +15,7 @@
       "description": "World-class Ableton Live expert. Sound design (Drift, Wavetable, Operator, Mangle, Sampler), Session/Arrangement workflows, MIDI routing, automation, mixing/mastering, plugin support on macOS M1 (NI, Omnisphere, Waves, Vienna, reFX, iLok/eLicenser/NI License Manager). Adaptive depth: beginner through power-user. Use for any Ableton Live question, production technique, DAW troubleshooting, plugin authorization, genre-specific guidance (Electronic, Ambient, Rock), or Audient interface setup for guitar/bass DI.",
       "tier": "user",
       "path": "user/ableton-sme/SKILL.md",
-      "last_modified": "2026-04-23 20:28:40 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "api-design-principles",
@@ -44,25 +46,32 @@
       "last_modified": "2026-05-31 07:18:09 -0400"
     },
     {
+      "name": "authorized-bulk-extract",
+      "description": "Runbook + checklist for one-time authorized bulk data pulls from a production Databricks/warehouse you don't own, landing in sasmaster-2026 S3. Covers credential pattern, job submission, verification, and provenance manifest. Load before any bulk extract task.",
+      "tier": "user",
+      "path": "user/authorized-bulk-extract/SKILL.md",
+      "last_modified": "2026-07-16 02:01:24 -0400"
+    },
+    {
       "name": "autonomous-ui-designer",
-      "description": "SaSMaster's autonomous UI/UX design and screen-building engine. Use this skill for ANY task involving SaSMaster frontend work — designing new portal screens, enhancing existing HTML files, auditing design system compliance, generating components (KPI cards, metric strips, charts, overlays, nav), or building full portal sections autonomously during !build cycles. TRIGGER on: \"design a screen\", \"build the UI for\", \"enhance this portal\", \"create a component\", \"make it look better\", \"new screen for\", \"update the layout\", \"portal UI\", \"dashboard section\", \"add a panel\", \"design the\", \"UX for\", any request touching SaSMaster HTML files. When the !build loop encounters a UI task in TASKS.md, this skill is the authority. Do NOT guess at SaSMaster design tokens — always load references/tokens.md first. Produces production-ready, self-contained HTML files that match the SaSMaster cinematic dark aesthetic exactly. AGENT TRIGGER: Also invoked by ui-designer agent at session start — when running inside that agent, token authority is delegated to ~/SaSMaster/design-system/tokens.md; do not redefine tokens inline or load references/tokens.md as override.",
+      "description": "SaSMaster's autonomous UI/UX design and screen-building engine. Use for ANY SaSMaster frontend task — designing or enhancing portal screens and HTML files, design-system compliance audits, generating components (KPI cards, metric strips, charts, overlays, nav), or building full portal sections in !build cycles. TRIGGER on: \"design a screen\", \"build the UI for\", \"enhance this portal\", \"create a component\", \"make it look better\", \"new screen for\", \"update the layout\", \"portal UI\", \"dashboard section\", \"add a panel\", \"UX for\", any request touching SaSMaster HTML files. Never guess design tokens — always load references/tokens.md first. Routing: single chart/plot artifact = data-viz; full screen or portal layout = THIS skill. Theme triggers (T04 data-narrative/scroll-story/editorial, T05, etc.): see the Theme Trigger Index section in the body. Produces production-ready, self-contained HTML matching the SaSMaster cinematic dark aesthetic.",
       "tier": "user",
       "path": "user/autonomous-ui-designer/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 04:29:05 -0400"
     },
     {
       "name": "aws-infra",
       "description": "AWS infrastructure authority for SaSMaster — IAM user management, credential transport, S3 access scoping, GitHub Actions secrets, and CI/CD wiring. Use this skill whenever any AWS operation is mentioned: creating or rotating IAM keys, configuring AWS CLI profiles, pushing secrets to GitHub, attaching IAM policies, debugging access errors, or deciding what can be automated vs what requires manual console steps. Trigger on: \"AWS\", \"IAM\", \"access key\", \"gh secret\", \"boto3 credentials\", \"S3 permission\", \"CI sync\", \"aws configure\", \"INFRA-AWS\", or any mention of AWS credentials in the context of SaSMaster builds. This skill is the single source of truth for what Claude Code can automate vs what Shiv must do manually in the AWS console.",
       "tier": "user",
       "path": "user/aws-infra/SKILL.md",
-      "last_modified": "2026-06-07 03:45:26 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "bash-scripts-macos",
       "description": "Guards SaSMaster bash scripts against macOS-specific pitfalls: bash 3.2 vs 5.x, GNU vs BSD tool divergence, POSIX regex constraints, and cron environment traps. Use when writing or debugging any .sh script on macOS, when a script runs correctly interactively but fails under cron, when awk/sed/date commands produce unexpected output, or when adding a new script to the SaSMaster pipeline. Do NOT use for Python scripts, Node.js, or CI environments running Linux.",
       "tier": "user",
       "path": "user/bash-scripts-macos/SKILL.md",
-      "last_modified": "2026-04-23 20:57:41 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "block-no-verify-hook",
@@ -76,21 +85,21 @@
       "description": "SaSMaster build discipline — non-negotiable rules for every build task, task card, and Claude Code execution cycle. Read this before writing a single line of code. Applies to UI builds, infra tasks, scraper work, agent builds, and skill creation. No exceptions. This is the constitution for how SaSMaster gets built.",
       "tier": "user",
       "path": "user/build-discipline/SKILL.md",
-      "last_modified": "2026-06-07 04:54:43 -0400"
+      "last_modified": "2026-07-16 04:28:18 -0400"
     },
     {
       "name": "claude-platform",
       "description": "SaSMaster's Claude usage doctrine — model routing, surface selection, MCP server inventory, JARVIS integration patterns, and hard anti-patterns drawn from session history. Load when choosing which model to use, which surface to invoke, how many tasks to queue, which MCP servers are live, or when debugging a mis-routed build. Prevents the most common SaSMaster-Claude misconfigurations.",
       "tier": "user",
       "path": "user/claude-platform/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "content-catalog-platform",
       "description": "SaSMaster content catalog authority — Parent Key hierarchy, IMDB/TMDB/EIDR enrichment, AltID resolution, and People/Cast pipelines. Load whenever building or debugging: movie/TV data ingestion, Parent Key assignment, IMDB match logic, TMDB enrichment, EIDR ID resolution, people/cast/crew pipelines, AltID dedup or cross-system linking, or any catalog metadata task. Triggers: \"parent key\", \"IMDB match\", \"TMDB enrich\", \"catalog pipeline\", \"content ID\", \"AltID\", \"cast pipeline\", \"EIDR\", \"#catalog\", \"#metadata\", \"#parent-key\". Agent counterpart: content-catalog-builder (~/.claude/agents/content-catalog-builder.md).",
       "tier": "user",
       "path": "user/content-catalog-platform/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 01:55:59 -0400"
     },
     {
       "name": "context-driven-development",
@@ -104,7 +113,7 @@
       "description": "Token and API-cost optimization authority for SaSMaster. Use whenever the task touches model spend, token budgets, effort levels, prompt caching, model routing, cost-log.jsonl, usage-governor.sh, cost-feedback.sh, the Costs tab in War Room, or any \"are we spending too much / how do we cut tokens\" question. Trigger on: \"token usage\", \"cost\", \"budget\", \"spend\", \"effort level\", \"prompt cache\", \"model routing\", \"opusplan\", \"downgrade\", \"burn rate\", \"weekly limit\", \"expensive agent/skill\", \"API billing\". This skill owns the DISCIPLINE; the cost-sentinel agent owns the AUTONOMOUS enforcement; autonomous-coder owns cost-log writes. Read this before changing any routing, effort, or cache config.",
       "tier": "user",
       "path": "user/cost-optimizer/SKILL.md",
-      "last_modified": "2026-06-07 03:50:48 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "cqrs-implementation",
@@ -115,24 +124,52 @@
     },
     {
       "name": "css-debugging",
-      "description": "Diagnoses and resolves CSS layout bugs in SaSMaster portal-v8 using Playwright computed-style verification and targeted browser evaluation. Use when a UI element renders incorrectly in production but looks fine in dev, when a flexbox or grid item collapses or overflows unexpectedly, when computed styles differ from source CSS, when clicks or hovers stop working due to overflow clipping, or when `npm run build` changes layout vs `vite dev`. Do NOT use for JavaScript logic bugs, TMDB data wiring, or server-side code.",
+      "description": "Diagnoses and resolves CSS layout bugs across SaSMaster portal surfaces (any version) using Playwright computed-style verification and targeted browser evaluation. Use when a UI element renders incorrectly in production but looks fine in dev, when a flexbox or grid item collapses or overflows unexpectedly, when computed styles differ from source CSS, when clicks or hovers stop working due to overflow clipping, or when `npm run build` changes layout vs `vite dev`. Do NOT use for JavaScript logic bugs, TMDB data wiring, or server-side code.",
       "tier": "user",
       "path": "user/css-debugging/SKILL.md",
-      "last_modified": "2026-04-23 20:57:41 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
+    },
+    {
+      "name": "curated-metadata-layer",
+      "description": "Authority for SaSMaster's curated business metadata layer (META-INFRA-001). Governs the locked table contracts for movie_master (43 cols), tv_series_master (42 cols), people_master (17 cols), alt_id_master (TALL alt-ID ledger), and Parent_Key_Viewership_IDs (Nielsen bridge). Use when building or modifying curated agent scripts, designing eligibility gates, wiring the cert→curated→pivot cron chain, running QA gates G1-G3, or querying curated.* tables. Trigger on: \"curated layer\", \"movie_master\", \"tv_series_master\", \"people_master\", \"alt_id_master\", \"Parent_Key_Viewership_IDs\", \"curated metadata\", \"META-INFRA-001\", or any task that reads from or writes to s3://sasmaster-2026/curated/v1/.",
+      "tier": "user",
+      "path": "user/curated-metadata-layer/SKILL.md",
+      "last_modified": "2026-07-16 01:12:16 -0400"
     },
     {
       "name": "data-fusion-mastery",
-      "description": "SaSMaster data fusion doctrine — the two-plane architecture, Parent Key mechanics, Alt-ID constellation, identity resolution vs. behavior attachment, cardinality rules, and GenAI integration layer. Use whenever designing any join, building any analytical capability, writing any matching pipeline, or touching any data that spans two or more sources. Rule 10 is the entry test: if you can't name the join (LEFT behavior attr → PK join column → RIGHT identity attr), the capability isn't designed yet. Load alongside media-domain for any fusion task.",
+      "description": "SaSMaster data fusion doctrine — the two-plane architecture, Parent Key mechanics, Alt-ID constellation, identity resolution vs. behavior attachment, cardinality rules, GenAI integration layer, and the canonical Lake/Warehouse/God-Mode/SCD2/Lineage architecture (Amendment 001). Use whenever designing any join, building any analytical capability, writing any matching pipeline, or touching any data that spans two or more sources. Rule 10 is the entry test: if you can't name the join (LEFT behavior attr → PK join column → RIGHT identity attr), the capability isn't designed yet. Load alongside media-domain and match-intelligence for any fusion task.",
       "tier": "user",
       "path": "user/data-fusion-mastery/SKILL.md",
-      "last_modified": "2026-06-07 03:50:48 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
+    },
+    {
+      "name": "data-orchestration",
+      "description": "Two-tier data orchestration doctrine for SaSMaster. Governs every raw ingestion job (Tier 1) and every downstream transform (Tier 2). Read before writing any ingestion script, delta-compute job, spine cert run, or curated build. Defines the ingest manifest contract, delta manifest schema, manifest gate thresholds, --cohort-file flag usage, SCD2 spine rules, and the new-source onboarding checklist. Non-negotiable. Trigger on: \"ingest\", \"delta\", \"manifest\", \"cohort\", \"spine run\", \"data pull\", \"IMDB pull\", \"TMDB pull\", \"full reload\", \"raw data\", \"tier 1\", \"tier 2\", \"delta compute\", \"two-tier\", \"orchestration\", or any mention of adding a new data source to the pipeline.",
+      "tier": "user",
+      "path": "user/data-orchestration/SKILL.md",
+      "last_modified": "2026-07-16 02:01:24 -0400"
+    },
+    {
+      "name": "data-quality",
+      "description": "TRIGGER on: \"row count anomaly/drop\", \"blank or truncated file\", \"validate this ingestion\", \"AMRLD weights changed\", snapshot diff checks. Pipeline scheduling/freshness SLAs = data-orchestration. Domain knowledge, validation rules, snapshot strategy, corruption patterns, and violation handling for all SaSMaster data sources - Nielsen MIT, Nielsen AMRLD, TMDB, IMDB, app_prod. Load for ingestion validation, data QA, corruption triage, or anything the data-guardian agent enforces.",
+      "tier": "user",
+      "path": "user/data-quality/SKILL.md",
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "data-viz",
-      "description": "Build accurate, dynamic, and visually stunning data visualizations for media analytics,  business intelligence, and SaSMaster-branded outputs. Use this skill whenever the user  asks to chart, visualize, plot, graph, display, or explore data — including audience  ratings, ratings trends, reach curves, scatter plots, bubble charts, time series,  heat maps, ranking tables, funnel charts, competitive landscapes, or any other  data-driven visual. Also trigger on: \"show me the data\", \"can you chart this\",  \"visualize my results\", \"make a dashboard\", \"plot the ratings\", \"I want to see  trends\", \"build me an infographic\", \"compare these shows\", \"show performance\".  Trigger even when the user only has raw numbers in a message — if there's data,  there's a viz. Covers both interactive HTML/React artifacts (claude.ai) and  file-output charts (Claude Code terminal). AGENT TRIGGER: Also invoked by data-viz agent at session start. When running inside that agent, token authority is ~/SaSMaster/design-system/tokens.md; all outputs must expose init(data, containerId) API and follow the handoff protocol in docs/agent-handoff-protocol.md.",
+      "description": "Build accurate, dynamic, visually stunning data visualizations for media analytics, BI, and SaSMaster-branded outputs. Use whenever the user asks to chart, visualize, plot, graph, display, or explore data — audience ratings, trends, reach curves, scatter/bubble charts, time series, heat maps, ranking tables, funnels, competitive landscapes, any data-driven visual. Routing: single chart/plot artifact = THIS skill; full screen or portal layout = autonomous-ui-designer. Also trigger on: \"show me the data\", \"can you chart this\", \"visualize my results\", \"make a dashboard\", \"plot the ratings\", \"build me an infographic\", \"compare these shows\". Trigger even when the user only has raw numbers — if there's data, there's a viz. Covers interactive HTML/React artifacts and file-output charts. Also invoked by the data-viz agent at session start — see the Agent Mode section in the body for token authority and the init(data, containerId) handoff contract.",
       "tier": "user",
       "path": "user/data-viz/SKILL.md",
-      "last_modified": "2026-06-02 10:37:12 -0400"
+      "last_modified": "2026-07-16 04:29:05 -0400"
+    },
+    {
+      "name": "databricks-connect",
+      "description": "Databricks Connect / Jobs access for SaSMaster — credential location (~/.sasmaster/.env.master, NOT ~/SaSMaster/.env), RA Promo cluster IDs, the set -a export trap, Jobs REST API for GB-scale S3 extracts, and the sasmaster-aws secret scope. Load before any Databricks, RA Promo, RSG, or Nielsen-on-cluster work.",
+      "tier": "user",
+      "path": "user/databricks-connect/SKILL.md",
+      "last_modified": "2026-07-16 01:55:59 -0400"
     },
     {
       "name": "deployment-pipeline-design",
@@ -153,14 +190,28 @@
       "description": "Executes analytical queries and manages SaSMaster's S3 Parquet data lake using DuckDB with httpfs and ZSTD compression. Use when querying imdb/, tmdb_dev/, parent_keys/, or eidr/ S3 paths, when writing new Parquet output with date-partitioned glob paths, when joining IMDB and TMDB datasets at scale, when evolving a schema via versioned path prefixes, or when debugging slow queries or credential errors against sasmaster-2026. Do NOT use for OLTP operations, real-time data, or Pandas-based analysis.",
       "tier": "user",
       "path": "user/duckdb-parquet/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 03:38:28 -0400"
+    },
+    {
+      "name": "eidr-mastery",
+      "description": "EIDR (Entertainment Identifier Registry) mastery - DOI structure, REST API auth (auth-realm split, XML-only), resolve.eidr.org harvesting, IMDB/Gracenote crosswalks, provenance tiers. Credential gate: EIDR_USER + EIDR_TOKEN in ~/SaSMaster/.env. Load for any EIDR ID, DOI resolve, or crosswalk task. Disambiguation: concepts/DOI structure/crosswalk doctrine = THIS skill; live REST calls, auth and harvest mechanics = eidr-rest.",
+      "tier": "user",
+      "path": "user/eidr-mastery/SKILL.md",
+      "last_modified": "2026-07-16 02:01:24 -0400"
+    },
+    {
+      "name": "eidr-rest",
+      "description": "EIDR REST API authority for SaSMaster — locked config, diagnostic rules, parser contract, and credential state for resolve.eidr.org. Use when resolving EIDR DOIs, building EIDR harvest pipelines, debugging code-4 errors, or deciding whether to use REST vs browser vs altId path for EIDR data. Trigger on: \"EIDR\", \"DOI resolve\", \"eidr_harvest\", \"eidr_parser\", \"code 4 EIDR\", \"altId=IMDB\", \"registry credentials\", or any task touching EIDR enrichment in the PK spine. This skill supersedes the browser-bot approach — REST is always the answer for EIDR data. Disambiguation: live API calls, auth, harvesting = THIS skill; EIDR concepts, DOI structure, crosswalk doctrine = eidr-mastery.",
+      "tier": "user",
+      "path": "user/eidr-rest/SKILL.md",
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "emba-analyst",
       "description": "EMBA coursework support for UCLA-NUS Global Executive MBA (Intake 22). Covers strategic frameworks (Porter's Five Forces, BCG Matrix, SWOT, Blue Ocean, Value Chain), case method analysis, finance and accounting concepts, organizational behavior, operations management, and the Perception & Bias module. Use when working on EMBA assignments, case studies, pre-reads, discussion posts, or exam prep. Also covers the UCLA-NUS program schedule, residency logistics, and cohort context.",
       "tier": "user",
       "path": "user/emba-analyst/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "embedding-strategies",
@@ -171,10 +222,10 @@
     },
     {
       "name": "emil-design-eng",
-      "description": "Emil Kowalski-style design engineering rules for every animation, transition, and interaction in SaSMaster. Read before writing any animation, hover state, entrance, exit, stagger, drag, or layout shift. These rules apply to every portal, war room, and research portal component.",
+      "description": "DIVISION OF LABOR: motion-design skill owns animation mechanics (timing tables, easing, choreography); THIS skill is the polish/taste review lens (spacing, affordances, interaction feel, invisible details). Emil Kowalski-style design engineering rules for every animation, transition, and interaction in SaSMaster. Read before writing any animation, hover state, entrance, exit, stagger, drag, or layout shift. These rules apply to every portal, war room, and research portal component.",
       "tier": "user",
       "path": "user/emil-design-eng/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "event-store-design",
@@ -185,17 +236,17 @@
     },
     {
       "name": "fullstack-architect",
-      "description": "Full-stack engineering constitution for building modern, cloud-native, production-grade applications. Use for ANY code task: React components, APIs, ETL pipelines, GenAI features, marketplace/exchange modules, auth, data adapters, monitoring, CI/CD, payments, notifications, enterprise integrations (Slack, Jira, Trello, Salesforce), data visualization (heatmaps, Sankey, QUAD, forecasting, optimization), dynamic data fusion (multi-vendor TV viewership + metadata fusion, entity resolution), and multi-market data architecture. Always use this skill for all code — even small tasks. Consistency is the foundation of low-maintenance systems.",
+      "description": "Full-stack engineering constitution for building modern, cloud-native, production-grade applications. Use for ANY code task: React components, APIs, ETL pipelines, GenAI features, marketplace/exchange modules, auth, data adapters, monitoring, CI/CD, payments, notifications, enterprise integrations (Slack, Jira, Trello, Salesforce), data visualization (heatmaps, Sankey, QUAD, forecasting, optimization), dynamic data fusion (multi-vendor TV viewership + metadata fusion, entity resolution), and multi-market data architecture (canonical schema, terminology mapping, market context). Always use this skill for all code — even small tasks. Consistency is the foundation of low-maintenance systems.",
       "tier": "user",
       "path": "user/fullstack-architect/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 01:38:02 -0400"
     },
     {
       "name": "genai-market",
       "description": "GenAI market intelligence grounded in current model releases, framework updates, and market signals. Triggered when evaluating LLM choices, MCP integrations, agent frameworks, or pricing/cost decisions for SaSMaster. Also triggers when reviewing genai-market-digest.json or approving skill updates via !approve-genai-skill.",
       "tier": "user",
       "path": "user/genai-market/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 01:12:16 -0400"
     },
     {
       "name": "github-actions-templates",
@@ -216,21 +267,21 @@
       "description": "Complete Gracenote U.S. Channel ID → Network Name / Call-Sign reference (Cable + Satellite, 1,739 channels). Source: Gracenote U.S. Cable Satellite Feed Coverage document. Channel ID = GN_COVERAGE_SAMPLE_ID = ACN_NETWORK_CODE in Nielsen data. Use for Nielsen↔Gracenote network bridge lookups.",
       "tier": "user",
       "path": "user/gn-network-ids/SKILL.md",
-      "last_modified": "2026-06-02 10:37:12 -0400"
+      "last_modified": "2026-07-16 03:51:19 -0400"
     },
     {
       "name": "gracenote-onconnect",
       "description": "Mine and fuse Gracenote TMS metadata into the SaSMaster spine via the OnConnect Data Delivery API (developer.tmsapi.com, v1.1) — the LICENSED, sanctioned programmatic path (you hold an API key), as opposed to scraping the View portal. Use for any task calling data.tmsapi.com / OnConnect / tmsapi, resolving held parent keys to tmsId/rootId/seriesId via Program Search, enriching via Program Details / Series / Movies endpoints, or building the hands-off resolve+fuse job. Trigger on: \"onconnect\", \"tmsapi\", \"data.tmsapi.com\", \"gracenote api\", \"program search\", \"resolve to tms\", \"fuse gracenote\", \"fill tms ids\". Pairs with gracenote-validate (the gate) and wikidata-fusion (the clean baseline).",
       "tier": "user",
       "path": "user/gracenote-onconnect/SKILL.md",
-      "last_modified": "2026-06-02 10:13:45 -0400"
+      "last_modified": "2026-07-16 01:12:16 -0400"
     },
     {
       "name": "gracenote-validate",
       "description": "Validate Gracenote/TMS IDs against the SaSMaster parent_keys spine, and run a defensible 30-day Gracenote View trial as a license PROCURE/WALK decision — without harvesting the trial into the product. Use whenever the task involves Gracenote IDs, tmsId / rootId / seriesId, TMS type prefixes (MV/SH/EP/SP), the GracenoteView portal, the ID Distribution System / OnConnect API, validating held Gracenote mappings, or evaluating whether to license Gracenote. Trigger on: \"gracenote\", \"tms id\", \"tmsId\", \"rootId\", \"seriesId\", \"gracenoteview\", \"validate gracenote\", \"fill gracenote ids\", \"is gracenote worth it\". This skill governs the IP/provenance wall: trial-observed IDs are eval-only and never touch the spine.",
       "tier": "user",
       "path": "user/gracenote-validate/SKILL.md",
-      "last_modified": "2026-06-02 10:09:51 -0400"
+      "last_modified": "2026-07-16 01:12:16 -0400"
     },
     {
       "name": "grafana-dashboards",
@@ -247,11 +298,32 @@
       "last_modified": "2026-05-31 07:18:09 -0400"
     },
     {
+      "name": "imdb",
+      "description": "Complete IMDb data reference for SaSMaster — five product families: (1) free TSV datasets (title.basics/akas/episode/crew/ratings/principals, name.basics): backslash-N handling, titleType taxonomy, parentTconst→series_imdb_id semantics, title-master build, 15-day cadence; (2) ADX S3 snapshots: TITLEmeter/TVmeter/MOVIEmeter weekly ranks, Box Office API (SigV4), refresh runbook, DuckDB patterns, PK spine joins; (3) ADX Essential JSONL (Title + Name Essential): field dictionary, Athena DDL, creditsByCategory/principalCastMembers/episodeInfo schema; (4) IMDbPY 6.8 SDK: http/s3/sql access, series navigation, information sets; (5) IMDb RealTime GraphQL API: 12 queries, Title+Name field maps, BoxOfficeArea DOMESTIC≠BOM trap, cursor pagination. Plus legacy Databricks pipeline context. Load whenever working with IMDB data of any kind; pair with media-domain and data-fusion-mastery for identifier and spine decisions.",
+      "tier": "user",
+      "path": "user/imdb/SKILL.md",
+      "last_modified": "2026-07-16 04:29:05 -0400"
+    },
+    {
+      "name": "ingress-monitor",
+      "description": "TRIGGER phrases operators actually type: \"sm ingress\", \"slack commands dropped\", \"ingress check\", \"events endpoint down\", \"JARVIS not responding to !commands\". Detect and diagnose Slack event ingress failures before they cause silent command drops - ephemeral-host traps (*.trycloudflare.com in event subscriptions), unreachable endpoints, heartbeat staleness, multi-owner conflicts. Load when Slack commands are silently dropped or the ingress-sentinel agent fires.",
+      "tier": "user",
+      "path": "user/ingress-monitor/SKILL.md",
+      "last_modified": "2026-07-16 02:01:24 -0400"
+    },
+    {
+      "name": "internal-finance",
+      "description": "Also fires on cost-architecture: model-routing spend, prompt-caching ROI, batch-eligible workloads, per-agent budget caps (methodology = cost-optimizer skill; live enforcement = cost-sentinel agent). Internal financial accountant for Shiv - cash position, runway, cash vs GAAP, burn rate, spend tracking. Load on any personal/business finance question about the SaSMaster venture.",
+      "tier": "user",
+      "path": "user/internal-finance/SKILL.md",
+      "last_modified": "2026-07-16 02:01:24 -0400"
+    },
+    {
       "name": "jarvis-ops",
-      "description": "Manages JARVIS -- SaSMaster's Slack bot running in Socket Mode -- including command wiring, cron jobs, daemon lifecycle, and channel routing. Use when adding or modifying a JARVIS Slack command (!build, !task, !briefing, !status, !iab, !query), when JARVIS stops responding or shows duplicate PIDs, when wiring a new agent script to a command, when debugging the async-prompt.md loop, or when JARVIS drops messages due to narrow channel ID filtering. Do NOT use for portal UI, scraper HTTP logic, or DuckDB queries.",
+      "description": "Manages JARVIS -- SaSMaster's Slack bot on the HTTP Events API (Railway /slack/events; Socket Mode RETIRED, see historical section) -- including command wiring, cron jobs, daemon lifecycle, and channel routing. Use when adding or modifying a JARVIS Slack command (!build, !task, !briefing, !status, !iab, !query), when JARVIS stops responding or shows duplicate PIDs, when wiring a new agent script to a command, when debugging the async-prompt.md loop, or when JARVIS drops messages due to narrow channel ID filtering. Do NOT use for portal UI, scraper HTTP logic, or DuckDB queries.",
       "tier": "user",
       "path": "user/jarvis-ops/SKILL.md",
-      "last_modified": "2026-06-07 04:54:43 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "javascript-testing-patterns",
@@ -272,7 +344,7 @@
       "description": "LinkedIn content creation in Shiv Ashish's voice: thought leadership posts, articles, commentary, and departure/announcement posts. Use when drafting LinkedIn content, building a post series, writing an article, or crafting professional announcements. Captures Shiv's voice: direct, analytically grounded, conversational but authoritative, media-industry insider, builder mentality. Never corporate-bland. Never buzzword soup.",
       "tier": "user",
       "path": "user/linkedin-thought-leader/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "llm-evaluation",
@@ -282,25 +354,32 @@
       "last_modified": "2026-05-31 07:18:09 -0400"
     },
     {
+      "name": "match-intelligence",
+      "description": "SaSMaster certifying match engine — the core IP for Full/Partial/No-Match classification, CERTIFIED/PROVISIONAL/QUARANTINE tier rubric, TMDB-API-facilitated ID resolution for GN/FYI/Nielsen movies + TV series, and the self-learning loop that retrains thresholds on human blesses. Load whenever building or debugging any matching pipeline, certifying a batch, routing to the audit queue, or interpreting tier counts from the fusion agent. Always load alongside data-fusion-mastery and media-domain.",
+      "tier": "user",
+      "path": "user/match-intelligence/SKILL.md",
+      "last_modified": "2026-07-16 01:12:16 -0400"
+    },
+    {
       "name": "math-mastery",
       "description": "Coursework-first math solver for finance (TVM, NPV, IRR, bonds, annuities), statistics (hypothesis tests, regression, confidence intervals), probability (distributions, Bayes, expected value), calculus (derivatives, integrals, optimization), and algebra. Produces fully worked solutions: assumptions stated, formula written, values substituted, computed at full precision via Python/Decimal, final answer boxed. Use for EMBA coursework, exam prep, and any quantitative problem requiring show-your-work rigor.",
       "tier": "user",
       "path": "user/math-mastery/SKILL.md",
-      "last_modified": "2026-04-23 20:28:40 -0400"
+      "last_modified": "2026-07-16 01:12:16 -0400"
     },
     {
       "name": "media-domain",
       "description": "Media industry domain knowledge for SaSMaster: TMDB and IMDB schema quirks, Nielsen and Gracenote data structures, EIDR identifiers, content metadata standards, audience measurement concepts, rights management vocabulary, and TV/film industry taxonomy. Use whenever working with media metadata, content identifiers, audience data, rights data, or any media industry concept. Prevents common mistakes when interpreting IMDB tconst formats, TMDB type mismatches, Nielsen ratings terminology, and Gracenote program IDs (tf_database_key / TMS ID — MV/SH/EP/SP), including the Gracenote TV Schedules feed schema and Gracenote-IMDB crosswalk cardinality.",
       "tier": "user",
       "path": "user/media-domain/SKILL.md",
-      "last_modified": "2026-06-02 10:37:12 -0400"
+      "last_modified": "2026-07-16 04:28:18 -0400"
     },
     {
       "name": "memory-hygiene",
       "description": "Governs SaSMaster's 4-tier memory system: triage, retirement, consolidation, and staleness detection across HOT (claude.ai 30 slots), WARM (Upstash Redis + S3 domain-keyed), COLD (Obsidian _archive/), and ARCHIVE (S3 via KB-CI-002). Use when conducting a memory audit, retiring hot slots to cold tier, consolidating related slots, running or interpreting the weekly staleness detector, or when asked to \"manage memory\", \"clean up hot tier\", \"retire a slot\", \"hygiene\", or \"consolidate\".",
       "tier": "user",
       "path": "user/memory-hygiene/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 01:38:02 -0400"
     },
     {
       "name": "microservices-patterns",
@@ -324,6 +403,20 @@
       "last_modified": "2026-05-31 07:18:09 -0400"
     },
     {
+      "name": "monitoring-alerting",
+      "description": "SaSMaster notification logic, delivery schedule awareness, digest formatting, and the Data Availability Grid pattern - the alerting layer above the data-guardian agent. Pairs with data-quality (rules) and data-guardian (enforcement). Load when designing or debugging alerts, digests, or delivery windows.",
+      "tier": "user",
+      "path": "user/monitoring-alerting/SKILL.md",
+      "last_modified": "2026-07-16 03:51:19 -0400"
+    },
+    {
+      "name": "motion-design",
+      "description": "SaSMaster division of labor: THIS skill owns timing/easing/choreography mechanics (subject to reference/sasmaster-overrides.md); emil-design-eng is the polish/taste review lens. Applies motion design principles to create emotionally-driven, technically sound animations and transitions. Provides timing, easing, choreography, and Disney animation principles adapted for UI. Use when creating animations, transitions, micro-interactions, loading states, page transitions, scroll-triggered effects, or any motion work. Works with CSS, Framer Motion, GSAP, Lottie, Spring, or any animation system.",
+      "tier": "user",
+      "path": "user/motion-design/SKILL.md",
+      "last_modified": "2026-07-16 02:01:24 -0400"
+    },
+    {
       "name": "multi-reviewer-patterns",
       "description": "Coordinate parallel code reviews across multiple quality dimensions with finding deduplication, severity calibration, and consolidated reporting. Use this skill when organizing multi-reviewer code reviews, calibrating finding severity, or consolidating review results.",
       "tier": "platform",
@@ -335,14 +428,14 @@
       "description": "Comprehensive Nielsen national measurement SME for SaSMaster. Covers every product family (NTI, NHI, NSS, NTIH, NHIH, AMRLD, MMRLD, Big Data+Panel, VOD/SCR, NRLD/MDR), complete MIT file format specs with field-by-field layouts, all record type codes, viewing type codes, demographic group maps, methodology (ratings/reach/HUT/PUT/C3/TSV), production calendar, MRC accreditation map, SaSMaster integration patterns, and all confirmed gotchas. Load before ANY Nielsen pipeline, analytics, or schema decision. Triggers: MIT, AMRLD, NRLD, NHI, NTI, NSS, NTIH, NHIH, ACM, C3, TSV, HUT, PUT, VPVH, Big Data, nielsen_puller, RLD, MDR, Snowflake Nielsen, OOH Nielsen, cable ratings, broadcast ratings, syndication ratings, viewing weight, universe estimate, intab, daypart, telecast, program code, season, sweep, Live+SD, Live+3, Live+7, Beyond7, NRAPI, C2C.",
       "tier": "user",
       "path": "user/nielsen-sme/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 03:51:19 -0400"
     },
     {
       "name": "no-finger-prints",
       "description": "Protocol for accessing production systems (Snowflake, Databricks, AWS) during local development without leaving unauthorized traces. Use when building against live prod data temporarily — e.g., prototyping a SaSMaster feature against RSG/Rightsline prod APIs before the clean-room data layer is ready. Covers read-only access discipline, rate limiting, credential hygiene, abstraction layer design, and the exit ramp strategy so the prod dependency is genuinely temporary by design.",
       "tier": "user",
       "path": "user/no-finger-prints/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "nodejs-backend-patterns",
@@ -353,10 +446,10 @@
     },
     {
       "name": "obsidian-kb-linking",
-      "description": "",
+      "description": "Governs knowledge-bank ingestion into the SaSMaster Obsidian vault (~/SaSMaster/obsidian): born-connected notes, wikilink discipline, MOC placement, tag taxonomy. TRIGGER on: \"#kb\", \"#vault\", \"add to the vault\", \"knowledge bank note\", \"obsidian note\", \"born-connected\", \"link this note\", post-build KB ingestion. Do NOT use for memory-tier hygiene (memory-hygiene skill) or KB→S3 sync mechanics (kb-nightly-sync).",
       "tier": "user",
       "path": "user/obsidian-kb-linking/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "parallel-debugging",
@@ -377,28 +470,42 @@
       "description": "Emit structured events, correlate traces, and route proportional Slack alerts across all 5 SaSMaster layers. Triggered whenever a new component, scraper, agent, or API route is built — and whenever monitoring, alerting, or telemetry is discussed. Also triggers on CRIT events for Dr. Scoop diagnostic integration.",
       "tier": "user",
       "path": "user/platform-observability/SKILL.md",
-      "last_modified": "2026-05-24 04:44:31 -0400"
+      "last_modified": "2026-07-16 01:12:16 -0400"
+    },
+    {
+      "name": "platform-scout",
+      "description": "Scout Anthropic platform release notes and map new API/model features (caching, structured output, tool use, agents) to SaSMaster integration opportunities. Load when a new Claude model or API feature is announced, or for a periodic platform-capability review.",
+      "tier": "user",
+      "path": "user/platform-scout/SKILL.md",
+      "last_modified": "2026-07-16 03:38:28 -0400"
+    },
+    {
+      "name": "platform-security",
+      "description": "SaSMaster security operator reference - auditing security posture, hardening endpoints, rotating secrets, investigating anomalies across Railway, Vercel, AWS, and the Mac. Load for any security audit, credential rotation, or incident investigation.",
+      "tier": "user",
+      "path": "user/platform-security/SKILL.md",
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "playwright-debugger",
-      "description": "Structured Playwright debugging patterns for SaSMaster UI interactions. Use this skill whenever a visual or interaction bug is being investigated with Playwright — especially drag-and-drop, click handlers, scroll interception, event firing, or CSS rendering issues. Trigger on: \"let me try Playwright\", \"I'll use Playwright to check\", \"let me verify with Playwright\", \"run a Playwright simulation\", \"does the event fire\", \"is the dragstart firing\", \"let me see what happens visually\", or any use of plugin:playwright mid-fix-loop. This skill collapses 3-iteration Playwright loops into 1 by front-loading the right diagnostic queries.",
+      "description": "Disambiguation: investigating WHY an interaction fails (debug loop) = THIS skill; certifying a completed build on the live portal = qa-agent. Structured Playwright debugging patterns for SaSMaster UI interactions. Use this skill whenever a visual or interaction bug is being investigated with Playwright — especially drag-and-drop, click handlers, scroll interception, event firing, or CSS rendering issues. Trigger on: \"let me try Playwright\", \"I'll use Playwright to check\", \"let me verify with Playwright\", \"run a Playwright simulation\", \"does the event fire\", \"is the dragstart firing\", \"let me see what happens visually\", or any use of plugin:playwright mid-fix-loop. This skill collapses 3-iteration Playwright loops into 1 by front-loading the right diagnostic queries.",
       "tier": "user",
       "path": "user/playwright-debugger/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "portal-detailpage",
       "description": "Implements and debugs the SaSMaster Portal v8 DetailPage drill-down component: layout structure, dp-* CSS conventions, TMDB data wiring, and production-safe animation patterns. Use when adding or changing features inside DetailPage (hero, glass cards, score ring, right panel), when a dp-* element renders incorrectly after a build, when drill-down navigation causes stale data or wrong network labels, or when wiring new TMDB fields (providers, cast, similar). Do NOT use for PortalGrid, the Exchange module, or CSS issues outside portal-v8.",
       "tier": "user",
       "path": "user/portal-detailpage/SKILL.md",
-      "last_modified": "2026-04-23 20:57:41 -0400"
+      "last_modified": "2026-07-16 01:12:16 -0400"
     },
     {
       "name": "programming-researcher",
-      "description": "Expert TV/streaming programming research analyst with deep Nielsen, Gracenote, and  audience analytics expertise. Use this skill whenever the user asks to analyze ratings  data, decode audience metrics, generate programming insights, interpret competitive  landscapes, review a report, explain what a metric means in context, or turn raw data  into actionable findings. Trigger on: \"what does this tell us\", \"what's the insight\",  \"analyze these ratings\", \"why is this show performing like this\", \"what should we do  with this data\", \"read this deck\", \"what's happening with X network\", \"explain this  trend\", \"what does this mean for our programming strategy\", \"give me the so-what\",  \"what are the outliers\", \"what's the signal here\". Also trigger when the user uploads  a PowerPoint, Excel, or data file related to TV ratings, audience analytics, scheduling,  or competitive analysis — even if they don't explicitly ask for analysis.  BIAS STRONGLY TOWARD RADICAL INSIGHTS — the obvious read is never enough.",
+      "description": "Expert TV/streaming programming research analyst with deep Nielsen, Gracenote, and  audience analytics expertise. Use this skill whenever the user asks to analyze ratings  data, decode audience metrics, generate programming insights, interpret competitive  landscapes, explain what a metric means in context, or turn raw data  into actionable findings. Trigger on: \"what does this tell us\", \"what's the insight\",  \"analyze these ratings\", \"why is this show performing like this\", \"what should we do  with this data\", \"what's happening with X network\", \"explain this  trend\", \"what does this mean for our programming strategy\", \"give me the so-what\",  \"what are the outliers\", \"what's the signal here\". Also trigger when the user uploads  a PowerPoint, Excel, or data file related to TV ratings, audience analytics, scheduling,  or competitive analysis — even if they don't explicitly ask for analysis.  BIAS STRONGLY TOWARD RADICAL INSIGHTS — the obvious read is never enough.",
       "tier": "user",
       "path": "user/programming-researcher/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 04:28:18 -0400"
     },
     {
       "name": "projection-patterns",
@@ -524,7 +631,7 @@
       "description": "Autonomous QA verification agent for SaSMaster portal-v8. Use this skill whenever a build completes, a bug fix is applied, or Claude Code says \"it's working\" — especially for detail page rendering, META tab fields (NETWORK, TYPE, WHERE TO WATCH), drill-down navigation, ID format resolution (raw numeric vs tmdb_tv_ / tmdb_mov_ prefix), and similar/ recommended content routing. Trigger on: \"verify this works\", \"does it render\", \"check the fix\", \"QA this\", \"test the detail page\", \"confirm it's not broken\", \"validate across shows\", or whenever the portal-v8 Vercel URL is mentioned after a code change. This skill ends false positives — Claude Code must NOT self-certify fixes without running this agent first.",
       "tier": "user",
       "path": "user/qa-agent/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "rag-implementation",
@@ -541,11 +648,67 @@
       "last_modified": "2026-05-31 07:18:09 -0400"
     },
     {
+      "name": "report-author",
+      "description": "The production engine for the SaSMaster Universal Reporting Catalog. Use this skill to turn a Report's business + technical requirements into a live production instance — pull data via DuckDB over S3 Parquet on the Parent-Key spine, compute the metrics, render the platform-approved visuals, diff against the last approved instance, and write the insights and key takeaways. TRIGGER on: \"author a report\", \"generate the instance\", \"refresh report\", \"run the weekly recap\", \"write the takeaways\", \"build the report for\", \"produce the report instance\", \"what changed since last report\". This is where ATLAS does the analytical work. Always pull real data through duckdb-parquet, always render through report-viz-engine, always pair every chart with a so-what. Pairs with report-catalog (registry), report-review (the loop), report-viz-engine (output), programming-researcher (insight engine).",
+      "tier": "user",
+      "path": "user/report-author/SKILL.md",
+      "last_modified": "2026-07-16 01:38:02 -0400"
+    },
+    {
+      "name": "report-catalog",
+      "description": "The spine of the SaSMaster Universal Reporting Catalog. Use for any task involving the report registry, report lifecycle, or catalog governance — registering a Report, reading/writing CATALOG.json, advancing lifecycle states, template vs production instance, or wiring the ATLAS agent's Slack/JARVIS commands. TRIGGER on: \"reporting catalog\", \"register a report\", \"report schema\", \"CATALOG.json\", \"report lifecycle\", \"report state\", \"approve a report\", \"ATLAS\", \"report registry\". AUTHORITY SPLIT (verified vs live CATALOG.json 2026-07-16): reporting-catalog owns the entry SCHEMA, the RPT-YYYYMM-NNN ID convention (all 31 live entries), and deposit-gate doctrine; THIS skill owns registry MECHANICS — lifecycle states, the S3 store (byte-identical mirror of ~/SaSMaster/content/catalog/manifest.json — one pipeline), ATLAS wiring. Do NOT invent report states or S3 paths. Pairs with report-author, report-review, report-viz-engine.",
+      "tier": "user",
+      "path": "user/report-catalog/SKILL.md",
+      "last_modified": "2026-07-16 04:29:05 -0400"
+    },
+    {
+      "name": "report-gallery",
+      "description": "Curation engine for The Gallery — SaSMaster's showroom: the inventory of platform-approved visualizations, animations, palettes, and reporting libraries (protected-IP portfolio). Use this skill for any task involving the approved-asset inventory (GALLERY.json), the palette registry, Collections/exhibitions, the workshop→approved promotion flow, critique capture, or \"use this Piece in a report\" / \"request a variation\". TRIGGER on: \"the gallery\", \"showroom\", \"approved visualization inventory\", \"GALLERY.json\", \"piece\", \"collection\", \"exhibition\", \"palette registry\", \"reuse this chart\", \"request a variation\", \"curate\", \"what visualizations do we have\", \"portfolio of approved work\". Everything in the Gallery passed the viz-gate — this skill never admits an unapproved Piece to the approved wall. Pairs with report-viz-engine (the gate that admits Pieces), report-review (critique channel), report-learning (taste→tuning), report-catalog (report linkage), autonomous-ui-designer (the showroom screen).",
+      "tier": "user",
+      "path": "user/report-gallery/SKILL.md",
+      "last_modified": "2026-07-16 04:29:05 -0400"
+    },
+    {
+      "name": "report-learning",
+      "description": "The daily self-improvement engine for the SaSMaster Universal Reporting Catalog. Use for ATLAS's automated learning loop — the daily pass that mines review outcomes (approve/request-changes/reject, feedback, annotations, edited takeaways, time-to-approve, gate failures) across every report instance, detects recurring patterns, and refines templates, insight prompts, and defaults so Shiv stops re-correcting the same things. TRIGGER on: \"self-learning\", \"learning loop\", \"daily refinement\", \"learn from feedback\", \"learning digest\", \"ATLAS learning pass\", \"why does this keep getting edited\", \"tune the template\". Objective: drive first-pass approval UP and edits DOWN. NEVER self-modifies the platform-approved contract (tokens, terminology, dual-theme, animation) — governance is immutable; only content and defaults self-tune. Pairs with report-review (signal), report-author (applies tuning), report-catalog (versioning), jarvis-ops (cron).",
+      "tier": "user",
+      "path": "user/report-learning/SKILL.md",
+      "last_modified": "2026-07-16 04:29:05 -0400"
+    },
+    {
+      "name": "report-methodology",
+      "description": "The canonical measurement-methodology source of truth for SaSMaster reporting. Use this skill whenever a metric is computed, defined, validated, or displayed in any report — it binds report-author and report-viz-engine to the Master Methodology document so metrics are NEVER computed from memory. TRIGGER on: any rating/share/AA/reach/TSV/index/composition/GRP calculation, \"how is X calculated\", \"metric definition\", \"is this the right formula\", \"methodology control\", \"viewing stream\", \"QUAD\", \"PUT base\", \"universe\", \"aggregation hierarchy\", \"forecasting methodology\", or any review of metric correctness. This skill is a thin pointer: the authority lives in MASTER_METHODOLOGY.md. Always resolve the formula there before emitting a number. Pairs with report-author (computes), report-viz-engine (labels + terminology), media-domain (identifier/source semantics).",
+      "tier": "user",
+      "path": "user/report-methodology/SKILL.md",
+      "last_modified": "2026-07-16 01:12:16 -0400"
+    },
+    {
+      "name": "report-review",
+      "description": "The review, feedback, and approval loop for the SaSMaster Universal Reporting Catalog. Use this skill whenever a report instance needs human review — building the Slack Report Card with Approve/Edit/Reject, deep-linking to the in-portal Review Drawer, capturing annotations and inline edits, and driving the IN_REVIEW → APPROVED / REVISING / ARCHIVED transitions. TRIGGER on: \"review loop\", \"report card\", \"send for review\", \"approve report\", \"reject report\", \"request changes\", \"annotate report\", \"report feedback\", \"review drawer\". This skill closes the human-in-the-loop: notify in Slack, resolve in the portal, replay feedback to the author. Pairs with report-catalog (state), report-author (replay), report-viz-engine (the live thing being reviewed), jarvis-ops (Slack/HMAC).",
+      "tier": "user",
+      "path": "user/report-review/SKILL.md",
+      "last_modified": "2026-07-16 01:12:16 -0400"
+    },
+    {
+      "name": "report-viz-engine",
+      "description": "The platform-approved visualization and animation contract for SaSMaster Universal Reporting Catalog reports. Use this skill whenever a chart, animation, or dynamic control is being produced FOR a catalog Report — it is the strict, governed superset of data-viz that every report visualization must pass before an instance can reach review. TRIGGER on: \"platform-approved chart\", \"catalog visualization\", \"report animation\", \"interactive report chart\", \"viz-gate\", \"report-grade chart\", \"make this report chart compliant\", \"animate the report\". This skill is the viz-gate: a chart that does not satisfy this contract sets viz_approved=false and BLOCKS the instance. Extends data-viz (library routing, tokens, media terminology) — never replaces it. Pairs with report-author (caller), qa-agent (render verification), data-viz (the base language).",
+      "tier": "user",
+      "path": "user/report-viz-engine/SKILL.md",
+      "last_modified": "2026-07-16 01:55:59 -0400"
+    },
+    {
+      "name": "reporting-catalog",
+      "description": "SaSMaster reporting catalog — canonical schema, pointer doctrine, lineage rules, and QA gates for depositing certified, reusable report assets back into the spine. Use whenever curating a report entry, validating a catalog deposit, or running QA gate 1 (pointer-not-copy). Load alongside data-viz (chart_spec field) and data-fusion-mastery (lineage tracing). Trigger: \"catalog this report\", \"deposit entry\", \"bless this entry\", \"report catalog\", \"REPORT-CATALOG\", \"DEPOSIT-GATE\", or any time a product slice is finishing.",
+      "tier": "user",
+      "path": "user/reporting-catalog/SKILL.md",
+      "last_modified": "2026-07-16 03:51:19 -0400"
+    },
+    {
       "name": "s3-data-architect",
-      "description": "Governs SaSMaster's S3-first data architecture: bucket layout under sasmaster-2026, path conventions, IAM credential hygiene, and additive-only write discipline. Use when adding a new data source or output path to S3, when designing a new prefix under sasmaster-2026/, when converting raw NDJSON to date-partitioned Parquet, when evolving a schema without breaking downstream readers, or when troubleshooting S3 access denied or credential rotation errors. Do NOT use for DuckDB query syntax, portal UI, or scraper HTTP logic.",
+      "description": "S3 data architecture authority for SaSMaster — the write/design side that complements duckdb-parquet's query side. Use for any task involving new dataset onboarding, S3 prefix design, partitioning strategy, NDJSON↔Parquet conversion, ZSTD compression, schema evolution, lifecycle policies, Parent Key v1 schema, or the locked-paths registry for sasmaster-2026. Trigger whenever the user mentions adding a scraper output, landing a new data source, designing a layout, changing a schema, adding a partition, touching S3 prefixes, or asking \"where should this go.\" Also trigger for any mention of tmdb_dev/, imdb_prd/, parent_keys/, rsg_snap/, bucket policy, lifecycle, Glacier, KMS, or schema backfill. Do NOT reinvent paths that are already locked — always consult this skill first before proposing a new S3 layout.",
       "tier": "user",
       "path": "user/s3-data-architect/SKILL.md",
-      "last_modified": "2026-06-07 04:59:11 -0400"
+      "last_modified": "2026-07-16 04:28:18 -0400"
     },
     {
       "name": "saga-orchestration",
@@ -559,28 +722,42 @@
       "description": "SaSMaster-specific code reviewer. Reviews files against the actual stack — React/Next.js, Railway/Vercel API routes, DuckDB/Parquet pipelines — not generic best practices. Trigger: \"review this file\", \"code review X\", \"check this component\", \"sasmaster-code-review\", or any explicit request to audit code quality in the SaSMaster stack.",
       "tier": "user",
       "path": "user/sasmaster-code-review/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
+    },
+    {
+      "name": "sasmaster-context",
+      "description": "Durable SaSMaster project context — the portable, cloud-syncing rehydration doc (the \"CLAUDE.md\" that travels to cloud sessions, which have no CLAUDE.md/memory). This is the BRAIN-001 L2 warm layer: it points at L3 ground truth (MotherDuck `sasmaster.ops.platform_state`) and carries a cached Quick Facts snapshot. Load at the start of ANY session that touches SaSMaster. Triggers on essentially any SaSMaster mention: SaSMaster, war room, warroom, portal, sasmaster-status, ASK, Nielsen, AMRLD, parent key, PKID, data spine, MotherDuck, DuckDB, Gracenote, EIDR, TMDB, IMDB, RSG, Rightsline, Railway deploy, operator reference, task card, data fusion, altid, telecast, curated layer, platform state, brain.",
+      "tier": "user",
+      "path": "user/sasmaster-context/SKILL.md",
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "sasmaster-north-star",
       "description": "SaSMaster's foundational operating philosophy: distributed memory, self-learning, autonomous-with-transparency, effective-with-purpose, learning-over-time. Use at the start of every SaSMaster architectural decision, feature design, or agent-behavior choice to ensure the system compounds its intelligence over time rather than degrading into a static toolset. This skill governs the \"why\" of SaSMaster's agent fleet, skill self-learning pipeline, CLAUDE_MEMORY system, and auto-capture loops. Trigger when: designing new agents, adding skills, proposing automation, choosing between manual and autonomous execution, or evaluating whether a system is SaSMaster-aligned.",
       "tier": "user",
       "path": "user/sasmaster-north-star/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 01:12:16 -0400"
     },
     {
       "name": "sasmaster-refactor",
-      "description": "SaSMaster-specific refactor skill. Safely restructures code without changing behavior. Depends on sasmaster-code-review findings to determine targets. Trigger: \"refactor this file\", \"clean up X\", \"apply refactor to Y\", \"sasmaster-refactor\", or when code-review findings have been confirmed for fixing. NEVER runs silently — always proposes before applying.",
+      "description": "REFACTOR-ONLY (no review pass): for \"review and clean\" / the full quality loop use sasmaster-review-refactor. SaSMaster-specific refactor skill. Safely restructures code without changing behavior. Depends on sasmaster-code-review findings to determine targets. Trigger: \"refactor this file\", \"clean up X\", \"apply refactor to Y\", \"sasmaster-refactor\", or when code-review findings have been confirmed for fixing. NEVER runs silently — always proposes before applying.",
       "tier": "user",
       "path": "user/sasmaster-refactor/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "sasmaster-review-refactor",
       "description": "SaSMaster full code quality loop. Chains code-review → confirm → refactor → QA sign-off in one command. Trigger phrases: \"review and clean this file\", \"code quality pass on X\", \"full quality pass\", \"sasmaster-review-refactor\". Depends on sasmaster-code-review and sasmaster-refactor skills being installed.",
       "tier": "user",
       "path": "user/sasmaster-review-refactor/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 01:12:16 -0400"
+    },
+    {
+      "name": "sasmaster-war-room",
+      "description": "SaSMaster War Room — monitoring, alerting, and resource management doctrine for sasmaster-status.vercel.app. Covers the live fusion-status panel, match-intelligence panel (Full/Partial/No, tiers, coverage delta, autonomy dial), alerting rules (coverage cliff, QUARANTINE spike, mutex violation, parity-gate fail → page #builds), and the resource-creation workflow (diagrams + resources.json + version control). Load whenever building, debugging, or extending the War Room, or whenever designing an alert rule or adding a methodology document as a War Room resource.",
+      "tier": "user",
+      "path": "user/sasmaster-war-room/SKILL.md",
+      "last_modified": "2026-07-16 01:38:02 -0400"
     },
     {
       "name": "sast-configuration",
@@ -590,11 +767,18 @@
       "last_modified": "2026-05-31 07:18:09 -0400"
     },
     {
+      "name": "scoop-frontend",
+      "description": "Scoop frontend mastery for ra-linear-analytics-bundle (TRUE prod) - React 16/18 class components, MUI v4+v5, Highcharts v11, Bootstrap 4/5, Webpack 5, Auth0 boot sequence. Load before touching any Scoop/RA frontend code, charts, or auth flows.",
+      "tier": "user",
+      "path": "user/scoop-frontend/SKILL.md",
+      "last_modified": "2026-07-16 02:01:24 -0400"
+    },
+    {
       "name": "scraper-engineer",
       "description": "Engineers and operates SaSMaster's scraper fleet: rate limiting, retry/backoff, lockfile guards, checkpoint state, concurrency with p-limit, and keeper daemon lifecycle. Use when writing a new scraper, when an existing scraper stalls, hits 429s, or leaves a stale lock file, when tuning p-limit concurrency for tmdb-bulk or tmdb-tv-seasons, when the keeper process needs to be started or killed, or when debugging why a scraper restarts at a prior checkpoint. Do NOT use for DuckDB queries, S3 path design, or JARVIS bot commands.",
       "tier": "user",
       "path": "user/scraper-engineer/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 01:38:02 -0400"
     },
     {
       "name": "secrets-management",
@@ -615,7 +799,7 @@
       "description": "Shiv Ashish Sehgal's executive identity, career profile, domain expertise, voice, and writing style. Use this skill whenever generating any content that represents Shiv professionally: LinkedIn posts, thought leadership articles, executive bios (short/long/speaker), consulting proposals or SOW intros, conference abstracts, email communications to clients or peers, MBA essays, speaking pitch materials, or any content that must sound like Shiv wrote it. Also trigger when asked to \"write in my voice\", \"make this sound like me\", \"how would I frame this\", or when drafting anything that will be published or sent under Shiv's name. This skill is the single source of truth for his professional identity — always load it before producing executive-facing content.",
       "tier": "user",
       "path": "user/shiv-executive-profile/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 01:12:16 -0400"
     },
     {
       "name": "similarity-search-patterns",
@@ -629,7 +813,7 @@
       "description": "Operates the SaSMaster SLC self-learning pipeline: tagging completed TASKS.md entries, capturing to learnings.md, and promoting to SKILL.md via the Friday 5:50PM cron. Use when tagging a DONE task as skill-worthy in TASKS.md, when capture-learnings.sh produces unexpected or empty output, when skill-review.sh fails to promote a skill, when the pipeline scripts throw macOS bash compatibility errors, or when adding a new SLC category to the taxonomy. Do NOT use for writing skill body content or running the review cron early.",
       "tier": "user",
       "path": "user/slc-taxonomy/SKILL.md",
-      "last_modified": "2026-04-23 20:57:41 -0400"
+      "last_modified": "2026-07-16 01:38:02 -0400"
     },
     {
       "name": "slo-implementation",
@@ -639,11 +823,25 @@
       "last_modified": "2026-05-31 07:18:09 -0400"
     },
     {
+      "name": "social-identity",
+      "description": "SaSMaster Social Identity — Phase A resolver and steward for the social layer. Owns seed harvest from TMDB source tables, per-platform resolution to durable numeric IDs, PKID binding into alt_ids, brand entity minting (brand:{fb_page_id}), social_handles PKID migration, and SCD2 churn stewardship. Load before any social ID resolution, handle registration, brand registry build, or alt_ids social domain work. Always load social-intelligence first. Trigger on: social identity, handle resolution, seed harvest, social handles migration, PKID binding, alt_ids social domains, brand registry, brand entity, twitter resolve, instagram resolve, youtube resolve, facebook page id, entity_key PKID, handle churn, SCD2 handles, social stewardship, SOCIAL-SCHEMA-001, SOCIAL-X-002, SOCIAL-IG-001, SOCIAL-YT-001, SOCIAL-FB-ADL-001, network slug, studio slug, unresolvable slug, tmdb seed, social seed, people_master social, social anchor, social backfill, normalize handle, pilot migration, brand-slug-map, resolve_social_handles.",
+      "tier": "user",
+      "path": "user/social-identity/SKILL.md",
+      "last_modified": "2026-07-16 01:12:16 -0400"
+    },
+    {
+      "name": "social-intelligence",
+      "description": "SaSMaster Social Intelligence — conductor skill and KB for the cross-platform social data layer. FB/X/IG/YouTube across Content, People, and Brands/Advertisers. Owns the social spine, TMDB-seed→PKID alt_ids resolution, five-stage miner loop (resolve→radar→select→pull→rollup), and insights methodology (buzz, velocity, SOV, sentiment, influencer, franchise, social×Nielsen join, minute overlay). ALWAYS load before any social task. Defers to twitter-x-data, instagram-data, youtube-data, fb-adlibrary, nielsen-sme for depth. Trigger on: X, Facebook, Instagram, YouTube, social_handles, social_counts, social_posts, social_metrics_daily, brand_registry, disambiguation, Diesel Labs, SOCIAL-SCHEMA, SOCIAL-X, SOCIAL-YT, SOCIAL-IG, SOCIAL-FB, SOCIAL-MINUTE, SOCIAL-006.",
+      "tier": "user",
+      "path": "user/social-intelligence/SKILL.md",
+      "last_modified": "2026-07-16 01:12:16 -0400"
+    },
+    {
       "name": "sow-consultant",
-      "description": "Consulting document drafting: Statements of Work, retainer agreements, project proposals, scope definitions, milestone structures, and engagement letters. Use when drafting any consulting deliverable — SOWs, counter-proposals, client-facing engagement documents, or pricing structures. Grounded in Shiv's positioning as a senior media analytics and AI/ML platform consultant with 15+ years of industry expertise.",
+      "description": "Disambiguation: THIS skill owns proposal/SOW document structure, scope and terms; shiv-executive-profile owns bio content and voice. Consulting document drafting: Statements of Work, retainer agreements, project proposals, scope definitions, milestone structures, and engagement letters. Use when drafting any consulting deliverable — SOWs, counter-proposals, client-facing engagement documents, or pricing structures. Grounded in Shiv's positioning as a senior media analytics and AI/ML platform consultant with 15+ years of industry expertise.",
       "tier": "user",
       "path": "user/sow-consultant/SKILL.md",
-      "last_modified": "2026-04-23 20:28:40 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "stride-analysis-patterns",
@@ -654,10 +852,10 @@
     },
     {
       "name": "svg-animation",
-      "description": "Implements inline SVG animations for SaSMaster portal components: score rings, demographic gauges, gauge needles, and arc paths using CSS keyframes and geometry transitions. Use when animating a stroke-dashoffset ring or speedometer arc, when a ring animation is not filling correctly or starts from the wrong position, when motion.circle crashes in Framer Motion v11, when scaling an SVG element while preserving viewBox coordinates, or when transitioning cx/cy/r via CSS geometry properties. Do NOT use for CSS layout bugs outside SVG, Canvas, or WebGL graphics.",
+      "description": "Implements inline SVG animations for SaSMaster portal components: score rings, demographic gauges, gauge needles, and arc paths using CSS keyframes and geometry transitions. Use when animating a stroke-dashoffset ring or speedometer arc, when a ring animation is not filling correctly or starts from the wrong position, when a Framer Motion v11 motion.circle crash needs the CSS-geometry workaround (root-cause/TDZ diagnosis = vite-react-production), when scaling an SVG element while preserving viewBox coordinates, or when transitioning cx/cy/r via CSS geometry properties. Do NOT use for CSS layout bugs outside SVG, Canvas, or WebGL graphics.",
       "tier": "user",
       "path": "user/svg-animation/SKILL.md",
-      "last_modified": "2026-04-23 20:57:41 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "task-coordination-strategies",
@@ -692,7 +890,7 @@
       "description": "Box office data mining authority for The Numbers (the-numbers.com, © Nash Information Services). Use for any task that ingests, parses, schemas, lands, or fuses box office performance data: daily / weekend / weekly charts, per-movie financials (production budget, domestic / international / worldwide gross, legs, opening multiplier, theater counts), distributor footprints, and yearly top-grossing market tables. Trigger on: \"the numbers\", \"the-numbers.com\", \"box office\", \"opening weekend\", \"production budget\", \"worldwide gross\", \"theater counts\", \"distributor share\", \"box office tracking\", \"domestic gross\", \"weekend chart\", or any request to scrape / refresh / analyze theatrical performance data. This skill governs HOW we mine the source respectfully, WHAT the schemas are, WHERE it lands in S3, and the IP/provenance wall that keeps ingested facts internal and out of any republished surface.",
       "tier": "user",
       "path": "user/the-numbers-boxoffice/SKILL.md",
-      "last_modified": "2026-06-05 08:31:04 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "threat-mitigation-mapping",
@@ -702,11 +900,25 @@
       "last_modified": "2026-05-31 07:18:09 -0400"
     },
     {
+      "name": "tmdb",
+      "description": "Fetch-mechanics authority (rate limits, concurrency, retry/backoff) = scraper-engineer skill; THIS skill owns TMDB endpoints, schemas, and external_ids matching. TMDB dataset operations for SaSMaster — API auth and rate limits, historic bulk load, parsed tables (movies/tv/seasons/episodes/people/keywords), the critical external_ids endpoint for TMDB↔IMDB matching, and secondary/failed calls to consolidate (keywords, credits, episodic images, episodic groups). Load whenever building TMDB scraping, parsing, or matching pipelines, or when using TMDB as a match facilitator for Gracenote/FYI/Nielsen IDs. Always load alongside media-domain and match-intelligence.",
+      "tier": "user",
+      "path": "user/tmdb/SKILL.md",
+      "last_modified": "2026-07-16 02:01:24 -0400"
+    },
+    {
       "name": "track-management",
       "description": "Use this skill when creating, managing, or working with Conductor tracks - the logical work units for features, bugs, and refactors. Applies to spec.md, plan.md, and track lifecycle operations.",
       "tier": "platform",
       "path": "track-management/SKILL.md",
       "last_modified": "2026-05-31 07:18:09 -0400"
+    },
+    {
+      "name": "twitter-x-data",
+      "description": "Comprehensive Twitter / X data & knowledge SME for SaSMaster — the single authority for everything X, end to end: API v2 access (endpoints, auth, Pay-Per-Use credits, rate limits, error codes), object graph and pilot-validated field coverage, fusing X conversations into the SASMASTER data layer, tagging every post/handle to a media asset (entity_key = PID / nconst / brand_id), the SCD2 handle lifecycle, the self-improving context: query engine, the miner pipeline and its cost ledger, and the clean-room analytics methodology (reach/engagement KPIs, sentiment, share of voice, influencer scoring, franchise & competitor framing, social-vs-ratings join on PID) plus building, visualizing, and explaining reports. Load before ANY X task. Triggers: twitter, X API, tweet, /2/tweets, /2/users, counts/recent, search/recent, context_annotations, X_BEARER_TOKEN, social_handles, social_counts, social_posts, social_metrics_daily, social_miner_agent, since_id, sentiment, engagement rate, share of voice, SOCIAL-00x.",
+      "tier": "user",
+      "path": "user/twitter-x-data/SKILL.md",
+      "last_modified": "2026-07-16 01:12:16 -0400"
     },
     {
       "name": "typescript-advanced-types",
@@ -717,10 +929,10 @@
     },
     {
       "name": "uiux-mastery",
-      "description": "Audit, diagnose, and prescribe UI/UX improvements for existing apps — especially messy \"frankenstein\" codebases — then always render a polished, on-brand HTML visual prototype of the improved UI. Use when the user wants to improve look/feel/usability, fix design inconsistencies, standardize components, or build a design system. Trigger on: \"improve the UI\", \"clean up the design\", \"make it look better\", \"design system\", \"inconsistent styles\", \"UX review\", \"audit the frontend\", \"show me what it could look like\". The rendered visual prototype is always the most important deliverable — produce it every time. AGENT TRIGGER: Also co-loaded by ui-designer agent for design audit + improvement passes. When running inside that agent, focus on compliance against ~/SaSMaster/design-system/tokens.md and the 3-breakpoint responsive requirements.",
+      "description": "Audit, diagnose, and prescribe UI/UX improvements for existing apps — especially messy \"frankenstein\" codebases — then always render a polished, on-brand HTML visual prototype of the improved UI (the most important deliverable, every time). Use when the user wants to improve look/feel/usability, fix design inconsistencies, standardize components, or build a design system. TRIGGER on: \"improve the UI\", \"clean up the design\", \"make it look better\", \"design system\", \"inconsistent styles\", \"UX review\", \"audit the frontend\", \"show me what it could look like\". RESPONSIVE TRIGGERS: \"mobile\", \"responsive\", \"breakpoint\", \"overflow\", \"horizontal scroll\", \"touch target\", \"doesn't work on mobile\" — run the responsive audit phases first and apply the three-breakpoint standard (375/768/1280), mobile-first CSS. Co-loaded by the ui-designer agent for audit passes: focus on compliance vs ~/SaSMaster/design-system/tokens.md and the 3-breakpoint requirements.",
       "tier": "user",
       "path": "user/uiux-mastery/SKILL.md",
-      "last_modified": "2026-05-31 07:18:09 -0400"
+      "last_modified": "2026-07-16 04:29:05 -0400"
     },
     {
       "name": "uv-package-manager",
@@ -737,18 +949,25 @@
       "last_modified": "2026-05-31 07:18:09 -0400"
     },
     {
+      "name": "viewership-metrics-architecture",
+      "description": "Two-engine architecture for all SaSMaster viewership metrics: atomic truth as stream-dimensioned partitioned Parquet on S3 via local DuckDB, serving as pre-aggregated MotherDuck tables. Load before ANY task touching viewership metrics tables, viewing streams (LV/LSD/L3/L7/C3/C7), aggregation pipeline, serving-table design, partition strategy, or MotherDuck cost/performance decisions. Triggers: viewing stream, program_metrics, timeperiod_metrics, serving schema, aggregate_viewership, partition spec, stream column, C3 licensing, big table performance, MotherDuck compute cap, quarter-hour metrics, telecast metrics.",
+      "tier": "user",
+      "path": "user/viewership-metrics-architecture/SKILL.md",
+      "last_modified": "2026-07-16 02:01:24 -0400"
+    },
+    {
       "name": "vite-react-production",
-      "description": "Diagnoses and fixes Vite+Rollup production build failures in portal-v8: const-ordering TDZ bugs, Framer Motion v11 ESM circular dependencies, and bundle inspection. Use when npm run build crashes or produces blank screens while vite dev works, when a component renders in dev but is invisible after deployment, when reading minified bundle stack traces to locate a TDZ variable ordering bug, or when pinning framer-motion to v10.18.0 to escape the v11 circular dep. Do NOT use for CSS layout issues, TMDB data wiring, or JARVIS/scraper code.",
+      "description": "Diagnoses and fixes Vite+Rollup production build failures in portal-v8: const-ordering TDZ bugs, Framer Motion v11 ESM circular dependencies, and bundle inspection. Use when npm run build crashes or produces blank screens while vite dev works, when a component renders in dev but is invisible after deployment, when reading minified bundle stack traces to locate a TDZ variable ordering bug, or when pinning framer-motion to v10.18.0 to escape the v11 circular dep. Owns Framer Motion v11 TDZ/circular-dep diagnosis (svg-animation carries the CSS-geometry workaround). Do NOT use for CSS layout issues, TMDB data wiring, or JARVIS/scraper code.",
       "tier": "user",
       "path": "user/vite-react-production/SKILL.md",
-      "last_modified": "2026-04-23 20:57:41 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "wikidata-fusion",
       "description": "Wikidata query + certified-fusion authority for SaSMaster. Use whenever the task involves mining alternate external IDs (EIDR, Netflix, TheTVDB, Box Office Mojo, Rotten Tomatoes, Freebase, TMDb, etc.) from Wikidata, building or repairing cross-system ID bridges, backfilling parent_keys.eidr_id, resolving a held parent key via a QID super-anchor, or running SPARQL against the Wikidata Query Service. Trigger on: \"wikidata\", \"SPARQL\", \"alt ids\", \"alternate identifiers\", \"certified fusion\", \"QID\", \"external id\", \"resolve this imdb/tmdb to other systems\", or any mention of the wikidata_prd S3 prefix. This skill governs HOW we mine and, more importantly, HOW we certify a fusion before it touches the spine.",
       "tier": "user",
       "path": "user/wikidata-fusion/SKILL.md",
-      "last_modified": "2026-06-02 10:09:51 -0400"
+      "last_modified": "2026-07-16 02:01:24 -0400"
     },
     {
       "name": "workflow-orchestration-patterns",
