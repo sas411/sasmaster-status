@@ -1626,13 +1626,43 @@ function saveStaleState(state) {
   try { fs.writeFileSync(STALE_STATE_FILE, JSON.stringify(state, null, 2)); } catch {}
 }
 
-function readWebhook() {
+function readEnvVar(name) {
   try {
     const envLines = fs.readFileSync(path.join(SASMASTER, '.env'), 'utf8').split('\n');
-    const wl = envLines.find(l => l.startsWith('SASMASTER_SLACK_WEBHOOK='));
-    if (wl) return wl.slice('SASMASTER_SLACK_WEBHOOK='.length).trim().replace(/^['"]|['"]$/g, '');
+    const wl = envLines.find(l => l.startsWith(`${name}=`));
+    if (wl) return wl.slice(name.length + 1).trim().replace(/^['"]|['"]$/g, '');
   } catch {}
   return '';
+}
+
+function readWebhook() {
+  return readEnvVar('SASMASTER_SLACK_WEBHOOK');
+}
+
+// MAC-WAKE-RELIABILITY-001 — bot-token alert path. The webhook path above is
+// dead while SASMASTER_SLACK_WEBHOOK is unset; SLACK_BOT_TOKEN is populated.
+function postSlackBot(text) {
+  const token   = readEnvVar('SLACK_BOT_TOKEN');
+  const channel = readEnvVar('SLACK_BUILDS_CHANNEL_ID');
+  if (!token || !channel) return false;
+  try {
+    const https = require('https');
+    const body  = JSON.stringify({ channel, text });
+    const req   = https.request({
+      hostname: 'slack.com',
+      path:     '/api/chat.postMessage',
+      method:   'POST',
+      headers:  {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${token}`,
+        'Content-Length': Buffer.byteLength(body),
+      },
+    });
+    req.on('error', () => {});
+    req.write(body);
+    req.end();
+    return true;
+  } catch { return false; }
 }
 
 function postSlackWebhook(webhook, body) {
@@ -1956,30 +1986,61 @@ fs.writeFileSync(OUT, JSON.stringify(status, null, 2));
 console.log(`[generate-status] wrote status.json — ${new Date().toISOString()}`);
 
 // Push to S3 — two paths so Railway heartbeat can promote without cross-prefix IAM
-try {
-  execSync(`/opt/homebrew/bin/aws s3 cp "${OUT}" s3://sasmaster-2026/status/status.json --content-type application/json`, { stdio: 'pipe' });
-  console.log(`[generate-status] pushed to s3://sasmaster-2026/status/status.json`);
-} catch (e) {
-  console.warn(`[generate-status] S3 push failed (non-fatal): ${e.message}`);
+// MAC-WAKE-RELIABILITY-001: failures alert #builds immediately (transition-based,
+// re-alert hourly while failing, recovery ping) — downstream freshness lag is no
+// longer the only signal. Root cause of the 2026-06-14 82-min blind spot.
+const PUSH_STATE_FILE = path.join(__dirname, 'push-fail-state.json');
+const pushFailures = [];
+
+function pushToS3(src, dest) {
+  try {
+    execSync(`/opt/homebrew/bin/aws s3 cp "${src}" ${dest} --content-type application/json`, { stdio: 'pipe' });
+    console.log(`[generate-status] pushed to ${dest}`);
+    return true;
+  } catch (e) {
+    console.warn(`[generate-status] S3 push FAILED for ${dest}: ${e.message}`);
+    pushFailures.push({ dest, error: (e.message || '').split('\n')[0].slice(0, 200) });
+    return false;
+  }
 }
-try {
-  execSync(`/opt/homebrew/bin/aws s3 cp "${OUT}" s3://sasmaster-2026/cache/api/status.json --content-type application/json`, { stdio: 'pipe' });
-  console.log(`[generate-status] pushed to s3://sasmaster-2026/cache/api/status.json`);
-} catch (e) {
-  console.warn(`[generate-status] S3 cache/api push failed (non-fatal): ${e.message}`);
-}
+
+pushToS3(OUT, 's3://sasmaster-2026/status/status.json');
+pushToS3(OUT, 's3://sasmaster-2026/cache/api/status.json');
 
 // Push skills manifest mirror to public bucket (SKILL-REGISTRY-002)
 // sasmaster-public has BPA off + public-read policy; sasmaster-2026 BPA stays fully ON
 const MANIFEST_SRC = path.join(__dirname, 'resources', 'skills-manifest.json');
 if (fs.existsSync(MANIFEST_SRC)) {
-  try {
-    execSync(
-      `/opt/homebrew/bin/aws s3 cp "${MANIFEST_SRC}" s3://sasmaster-public/skills-manifest.json --content-type application/json`,
-      { stdio: 'pipe' }
-    );
-    console.log(`[generate-status] pushed skills manifest to s3://sasmaster-public/skills-manifest.json`);
-  } catch (e) {
-    console.warn(`[generate-status] skills manifest S3 push failed (non-fatal): ${e.message}`);
-  }
+  pushToS3(MANIFEST_SRC, 's3://sasmaster-public/skills-manifest.json');
 }
+
+// Alert on push-state transitions: ok→fail fires immediately, still-failing
+// re-fires hourly (script runs every 5 min — unthrottled would be 12 alerts/hr),
+// fail→ok posts recovery. State survives across runs in push-fail-state.json.
+(() => {
+  let pushState = {};
+  try { pushState = JSON.parse(fs.readFileSync(PUSH_STATE_FILE, 'utf8')); } catch {}
+  const now = Date.now();
+  const REALERT_MS = 60 * 60 * 1000;
+
+  if (pushFailures.length > 0) {
+    const firstFail   = pushState.failing_since ? new Date(pushState.failing_since).getTime() : now;
+    const lastAlerted = pushState.last_alerted_at ? new Date(pushState.last_alerted_at).getTime() : 0;
+    const isNewFailure = !pushState.failing_since;
+    if (isNewFailure || now - lastAlerted > REALERT_MS) {
+      const mins  = Math.round((now - firstFail) / 60000);
+      const lines = pushFailures.map(f => `• \`${f.dest}\` — ${f.error}`).join('\n');
+      postSlackBot(
+        `🔴 *S3 PUSH FAILURE* — generate-status.js cannot push status.json` +
+        (isNewFailure ? '' : ` (failing for ${mins}m)`) +
+        `\n${lines}\nWar Room will go stale until this clears. Check aws PATH/creds on the Mac.`
+      );
+      pushState = { failing_since: pushState.failing_since || new Date().toISOString(), last_alerted_at: new Date().toISOString() };
+    }
+  } else if (pushState.failing_since) {
+    const mins = Math.round((now - new Date(pushState.failing_since).getTime()) / 60000);
+    postSlackBot(`✅ *S3 PUSH RECOVERED* — status.json pushing again after ${mins}m of failures.`);
+    pushState = {};
+  }
+  try { fs.writeFileSync(PUSH_STATE_FILE, JSON.stringify(pushState, null, 2)); } catch {}
+})();
