@@ -54,10 +54,10 @@
     },
     {
       "name": "autonomous-ui-designer",
-      "description": "SaSMaster's autonomous UI/UX design and screen-building engine. Use for ANY SaSMaster frontend task — designing or enhancing portal screens and HTML files, design-system compliance audits, generating components (KPI cards, metric strips, charts, overlays, nav), or building full portal sections in !build cycles. TRIGGER on: \"design a screen\", \"build the UI for\", \"enhance this portal\", \"create a component\", \"make it look better\", \"new screen for\", \"update the layout\", \"portal UI\", \"dashboard section\", \"add a panel\", \"UX for\", any request touching SaSMaster HTML files. Never guess design tokens — always load references/tokens.md first. Routing: single chart/plot artifact = data-viz; full screen or portal layout = THIS skill. Theme triggers (T04 data-narrative/scroll-story/editorial, T05, etc.): see the Theme Trigger Index section in the body. Produces production-ready, self-contained HTML matching the SaSMaster cinematic dark aesthetic.",
+      "description": "SaSMaster's screen BUILDER — constructs new portal/product surfaces and components from scratch or enhances existing SaSMaster HTML files. TRIGGER on: \"design a screen\", \"build the UI for\", \"build the dashboard page\", \"new screen for\", \"create a component\", \"enhance this portal\", \"update the layout\", \"portal UI\", \"add a panel\", any request to BUILD or MODIFY a SaSMaster HTML surface, \"one-pager\", \"one pager\", \"executive brief\", \"briefing doc (HTML)\", \"branded document\", \"sasmaster branding\", \"light branding\", \"war room resource\", \"resources page\", \"status page\", \"poster/flyer for SaSMaster\", \"make it on-brand\", any HTML deliverable that will carry the SaSMaster identity. Do NOT trigger for: design review/critique of an existing UI (\"make it look better\", \"UX review\", audit) = uiux-mastery; a single chart/plot/viz component = data-viz. Never guess design tokens — load references/ui-constitution.md + references/tokens.md first. Theme triggers (T04 data-narrative/scroll-story/editorial, T05, etc.): see the Theme Trigger Index in the body. Produces production-ready, self-contained HTML.",
       "tier": "user",
       "path": "user/autonomous-ui-designer/SKILL.md",
-      "last_modified": "2026-07-16 04:29:05 -0400"
+      "last_modified": "2026-07-16 06:00:11 -0400"
     },
     {
       "name": "aws-infra",
@@ -85,7 +85,7 @@
       "description": "SaSMaster build discipline — non-negotiable rules for every build task, task card, and Claude Code execution cycle. Read this before writing a single line of code. Applies to UI builds, infra tasks, scraper work, agent builds, and skill creation. No exceptions. This is the constitution for how SaSMaster gets built.",
       "tier": "user",
       "path": "user/build-discipline/SKILL.md",
-      "last_modified": "2026-07-16 04:28:18 -0400"
+      "last_modified": "2026-07-16 05:32:26 -0400"
     },
     {
       "name": "claude-platform",
@@ -159,10 +159,10 @@
     },
     {
       "name": "data-viz",
-      "description": "Build accurate, dynamic, visually stunning data visualizations for media analytics, BI, and SaSMaster-branded outputs. Use whenever the user asks to chart, visualize, plot, graph, display, or explore data — audience ratings, trends, reach curves, scatter/bubble charts, time series, heat maps, ranking tables, funnels, competitive landscapes, any data-driven visual. Routing: single chart/plot artifact = THIS skill; full screen or portal layout = autonomous-ui-designer. Also trigger on: \"show me the data\", \"can you chart this\", \"visualize my results\", \"make a dashboard\", \"plot the ratings\", \"build me an infographic\", \"compare these shows\". Trigger even when the user only has raw numbers — if there's data, there's a viz. Covers interactive HTML/React artifacts and file-output charts. Also invoked by the data-viz agent at session start — see the Agent Mode section in the body for token authority and the init(data, containerId) handoff contract.",
+      "description": "Chart/viz COMPONENT builder — accurate, dynamic, visually stunning data visualizations for media analytics, BI, and SaSMaster-branded outputs. TRIGGER whenever the deliverable is a chart, plot, graph, or viz component: \"chart this\", \"visualize my results\", \"plot the ratings\", scatter/bubble, time series, heat maps, reach curves, ranking tables, funnels, infographics, \"compare these shows\" — even from raw numbers. Do NOT trigger for: building a full screen/portal page or dashboard PAGE layout = autonomous-ui-designer (it embeds charts from THIS skill); UI review/critique = uiux-mastery. Chart-lib canon + scatter routing: autonomous-ui-designer/references/ui-constitution.md §5 (prod = Highcharts/dimple/D3/PQGrid; scatter/bubble = dimple.js; amCharts/nivo/Chart.js-in-prod/G2Plot retired). Covers interactive HTML/React artifacts and file-output charts. Also invoked by the data-viz agent at session start — see the Agent Mode section for token authority and the init(data, containerId) handoff contract.",
       "tier": "user",
       "path": "user/data-viz/SKILL.md",
-      "last_modified": "2026-07-16 04:29:05 -0400"
+      "last_modified": "2026-07-16 06:00:11 -0400"
     },
     {
       "name": "databricks-connect",
@@ -194,17 +194,17 @@
     },
     {
       "name": "eidr-mastery",
-      "description": "EIDR (Entertainment Identifier Registry) mastery - DOI structure, REST API auth (auth-realm split, XML-only), resolve.eidr.org harvesting, IMDB/Gracenote crosswalks, provenance tiers. Credential gate: EIDR_USER + EIDR_TOKEN in ~/SaSMaster/.env. Load for any EIDR ID, DOI resolve, or crosswalk task. Disambiguation: concepts/DOI structure/crosswalk doctrine = THIS skill; live REST calls, auth and harvest mechanics = eidr-rest.",
+      "description": "EIDR (Entertainment Identifier Registry) conceptual mastery - DOI structure and prefix anatomy, the content model hierarchy (abstract title vs edit vs manifestation, series/season/episode parent relationships), IMDB and Gracenote crosswalks (crosswalk doctrine, coverage ceilings, how ID crosswalks work), provenance tiers (CERTIFIED vs UNCERTIFIED match certification), and identifier matching strategy for the PK spine. Load to explain EIDR ID semantics or DOI structure, design crosswalks, or settle any provenance question. Disambiguation: concepts, DOI structure, crosswalk doctrine, provenance = THIS skill; live REST calls, auth realms, harvest mechanics, resolve.eidr.org = eidr-rest.",
       "tier": "user",
       "path": "user/eidr-mastery/SKILL.md",
-      "last_modified": "2026-07-16 02:01:24 -0400"
+      "last_modified": "2026-07-16 09:16:10 -0400"
     },
     {
       "name": "eidr-rest",
       "description": "EIDR REST API authority for SaSMaster — locked config, diagnostic rules, parser contract, and credential state for resolve.eidr.org. Use when resolving EIDR DOIs, building EIDR harvest pipelines, debugging code-4 errors, or deciding whether to use REST vs browser vs altId path for EIDR data. Trigger on: \"EIDR\", \"DOI resolve\", \"eidr_harvest\", \"eidr_parser\", \"code 4 EIDR\", \"altId=IMDB\", \"registry credentials\", or any task touching EIDR enrichment in the PK spine. This skill supersedes the browser-bot approach — REST is always the answer for EIDR data. Disambiguation: live API calls, auth, harvesting = THIS skill; EIDR concepts, DOI structure, crosswalk doctrine = eidr-mastery.",
       "tier": "user",
       "path": "user/eidr-rest/SKILL.md",
-      "last_modified": "2026-07-16 02:01:24 -0400"
+      "last_modified": "2026-07-16 09:16:10 -0400"
     },
     {
       "name": "emba-analyst",
@@ -404,10 +404,10 @@
     },
     {
       "name": "monitoring-alerting",
-      "description": "SaSMaster notification logic, delivery schedule awareness, digest formatting, and the Data Availability Grid pattern - the alerting layer above the data-guardian agent. Pairs with data-quality (rules) and data-guardian (enforcement). Load when designing or debugging alerts, digests, or delivery windows.",
+      "description": "SaSMaster's freshness, monitoring, and alerting layer: is the data fresh or stale, did this week's Nielsen deliveries land or arrive on schedule, expected vs delivered tables per cycle, missing or late feeds, and the Data Availability Grid. Owns notification logic, Slack alert wiring, NDS digest windows, and delivery-schedule awareness — the alerting layer above the data-guardian agent. TRIGGER on: \"is the data fresh\", \"what is stale\", \"did X land/arrive/deliver\", \"missing feed\", \"late delivery\", \"availability grid\", \"alert me when\", \"notify when a delivery is late\", \"freshness dashboard\", \"digest windows\", \"expected vs delivered\". Pairs with data-quality (rules) and data-guardian (enforcement); row-count/content validation = data-quality, cron scheduling = data-orchestration.",
       "tier": "user",
       "path": "user/monitoring-alerting/SKILL.md",
-      "last_modified": "2026-07-16 03:51:19 -0400"
+      "last_modified": "2026-07-16 05:34:44 -0400"
     },
     {
       "name": "motion-design",
@@ -628,7 +628,7 @@
     },
     {
       "name": "qa-agent",
-      "description": "Autonomous QA verification agent for SaSMaster portal-v8. Use this skill whenever a build completes, a bug fix is applied, or Claude Code says \"it's working\" — especially for detail page rendering, META tab fields (NETWORK, TYPE, WHERE TO WATCH), drill-down navigation, ID format resolution (raw numeric vs tmdb_tv_ / tmdb_mov_ prefix), and similar/ recommended content routing. Trigger on: \"verify this works\", \"does it render\", \"check the fix\", \"QA this\", \"test the detail page\", \"confirm it's not broken\", \"validate across shows\", or whenever the portal-v8 Vercel URL is mentioned after a code change. This skill ends false positives — Claude Code must NOT self-certify fixes without running this agent first.",
+      "description": "Autonomous QA verification agent for SaSMaster portal-v8. Use this skill whenever a build completes, a bug fix is applied, or Claude Code says \"it's working\" — especially for detail page rendering, META tab fields (NETWORK, TYPE, WHERE TO WATCH), drill-down navigation, ID format resolution (raw numeric vs tmdb_tv_ / tmdb_mov_ prefix), and similar/ recommended content routing. Trigger on: \"verify this works\", \"does it render\", \"check the fix\", \"QA this\", \"test the detail page\", \"confirm it's not broken\", \"validate across shows\", or whenever the portal-v8 Vercel URL is mentioned after a code change. Also trigger on: \"brand check\", \"on-brand\", \"token lint\", any HTML file destined for sasmaster-status or War Room resources. This skill ends false positives — Claude Code must NOT self-certify fixes without running this agent first.",
       "tier": "user",
       "path": "user/qa-agent/SKILL.md",
       "last_modified": "2026-07-16 02:01:24 -0400"
@@ -929,10 +929,10 @@
     },
     {
       "name": "uiux-mastery",
-      "description": "Audit, diagnose, and prescribe UI/UX improvements for existing apps — especially messy \"frankenstein\" codebases — then always render a polished, on-brand HTML visual prototype of the improved UI (the most important deliverable, every time). Use when the user wants to improve look/feel/usability, fix design inconsistencies, standardize components, or build a design system. TRIGGER on: \"improve the UI\", \"clean up the design\", \"make it look better\", \"design system\", \"inconsistent styles\", \"UX review\", \"audit the frontend\", \"show me what it could look like\". RESPONSIVE TRIGGERS: \"mobile\", \"responsive\", \"breakpoint\", \"overflow\", \"horizontal scroll\", \"touch target\", \"doesn't work on mobile\" — run the responsive audit phases first and apply the three-breakpoint standard (375/768/1280), mobile-first CSS. Co-loaded by the ui-designer agent for audit passes: focus on compliance vs ~/SaSMaster/design-system/tokens.md and the 3-breakpoint requirements.",
+      "description": "The design REVIEW/CRITIQUE doctrine — audit, diagnose, and prescribe UI/UX improvements for EXISTING apps (especially messy \"frankenstein\" codebases), then render a polished HTML visual prototype of the improved UI. TRIGGER on: \"make it look better\", \"improve the UI\", \"clean up the design\", \"UX review\", \"audit the frontend\", \"inconsistent styles\", \"design system gaps\", \"show me what it could look like\". RESPONSIVE AUDIT TRIGGERS: \"mobile\", \"responsive\", \"breakpoint\", \"overflow\", \"horizontal scroll\", \"touch target\", \"doesn't work on mobile\". Do NOT trigger for: building a brand-new SaSMaster screen/component from scratch = autonomous-ui-designer; a single chart/viz component = data-viz. Adjudicated canon (token path, theme default, breakpoints, fonts, chart libs): autonomous-ui-designer/references/ui-constitution.md — audit compliance against it plus ~/SaSMaster/design-system/tokens.md.",
       "tier": "user",
       "path": "user/uiux-mastery/SKILL.md",
-      "last_modified": "2026-07-16 04:29:05 -0400"
+      "last_modified": "2026-07-16 06:00:11 -0400"
     },
     {
       "name": "uv-package-manager",
