@@ -1034,8 +1034,8 @@ footer .mono{font-size:11px}
 </div></section>
 
 <section id="skills"><div class="wrap">
-  <div class="snum">12</div><h2>The Skill Fleet — 81 Skills on Disk <span class="tag new">+2 IN v18</span></h2>
-  <p class="lede">Source of truth: architecture-v14 + Claude Code (Jun 5) = 79, <b>plus viewership-metrics-architecture shipped 07-12 and sasmaster-context (BRAIN-001 L2 hub) shipped 07-13</b>. The claude.ai mount showing ~22 is a known artifact, not reality. Legend: <span class="sk d">data</span> <span class="sk m">media/social</span> <span class="sk e">engineering</span> <span class="sk o">ops/ui/exec</span></p>
+  <div class="snum">12</div><h2>The Skill Fleet — <span id="skillFleetCount">77</span> Skills on Disk <span class="tag new" id="skillFleetStamp"># regen: skills-manifest.json 2026-07-16</span></h2>
+  <p class="lede">Source of truth: <b>skills-manifest.json <code>user_skill_count</code></b> (generated from SKILL.md frontmatter — SKILL-COUNT-AUTHORITY-001; count above is fetched live, hand-written baselines retired after the 81-vs-77 drift found 2026-07-16). The claude.ai mount showing ~22 is a known artifact, not reality. Legend: <span class="sk d">data</span> <span class="sk m">media/social</span> <span class="sk e">engineering</span> <span class="sk o">ops/ui/exec</span></p>
   <div class="skillbox">
     <span class="sk d">tmdb-data</span><span class="sk d">nielsen-sme</span><span class="sk d">gracenote-onconnect</span><span class="sk d">gracenote-validate</span><span class="sk d">wikidata-fusion</span><span class="sk d">media-domain</span><span class="sk d">duckdb-parquet</span><span class="sk d">s3-data-architect</span><span class="sk d">viewership-metrics-architecture ★NEW</span><span class="sk o">sasmaster-context ★NEW · BRAIN-001</span><br>
     <span class="sk m">twitter-x-data</span><span class="sk m">instagram-data</span><span class="sk m">youtube-data</span><span class="sk m">fb-adlibrary</span><span class="sk m">social-intelligence</span><span class="sk m">social-identity</span><span class="sk m">the-numbers-boxoffice</span><span class="sk m">programming-researcher</span><br>
@@ -1215,5 +1215,34 @@ footer .mono{font-size:11px}
   <span class="mono">North Star: Decode data for radical insights to drive Content, Audiences &amp; Revenue — the terminal where the people who analyze, price, and trade content actually work.</span>
 </div></footer>
 
+<script>
+/* SKILL-COUNT-AUTHORITY-001: chip reads the manifest, never a literal (§22).
+   Same-origin resources/skills-manifest.json (refreshed by sync_skills.sh);
+   falls back to the S3 public mirror; on total failure the stamped static
+   value stands. Older manifests lack user_skill_count -> derive from paths. */
+(function () {
+  function userCount(m) {
+    if (typeof m.user_skill_count === "number") return m.user_skill_count;
+    return (m.skills || []).filter(function (s) {
+      return (s.path || "").indexOf("user/") === 0;
+    }).length;
+  }
+  function apply(m, src) {
+    var n = userCount(m);
+    if (!n) return;
+    document.getElementById("skillFleetCount").textContent = n;
+    var st = document.getElementById("skillFleetStamp");
+    if (st) st.textContent = "live: skills-manifest.json (" + src + ") · total incl. vendored: " + (m.skill_count || "?");
+  }
+  fetch("skills-manifest.json").then(function (r) { return r.json(); })
+    .then(function (m) { apply(m, "same-origin"); })
+    .catch(function () {
+      fetch("https://sasmaster-public.s3.amazonaws.com/skills-manifest.json")
+        .then(function (r) { return r.json(); })
+        .then(function (m) { apply(m, "s3 mirror"); })
+        .catch(function () { /* stamped static fallback stands */ });
+    });
+})();
+</script>
 </body>
 </html>
