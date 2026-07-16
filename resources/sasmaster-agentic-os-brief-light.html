@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic OS — Executive Brief · SaSMaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ══ SaSMaster Light Operator-Reference Theme — tokens.md § operator-reference ══ */
+  :root{
+    --canvas:#F0F4F8; --card:#ffffff;
+    --lavender:#A682F2; --teal:#0EA5E9; --green:#10B981; --gold:#c2740a; --red:#dc2626;
+    --lav-dim:rgba(166,130,242,0.12); --teal-dim:rgba(14,165,233,0.10); --green-dim:rgba(16,185,129,0.10);
+    --text-primary:#1E293B; --text-secondary:#64748B; --text-dim:#94A3B8;
+    --border:rgba(166,130,242,0.20); --border-subtle:rgba(30,41,59,0.08);
+    --ease-spring:cubic-bezier(0.16,1,0.3,1); --ease-enter:cubic-bezier(0,0,0.2,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--canvas);color:var(--text-primary);font-family:'DM Sans',sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{scrollbar-width:thin;scrollbar-color:rgba(166,130,242,0.3) transparent}
+  ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(166,130,242,0.3);border-radius:4px}
+
+  .page{max-width:940px;margin:0 auto;padding:32px 24px 24px}
+  .rv{opacity:0;transform:translateY(12px)}
+  body.fonts-ready .rv{opacity:1;transform:none;transition:opacity 600ms var(--ease-enter),transform 600ms var(--ease-spring)}
+  body.fonts-ready .rv:nth-of-type(2){transition-delay:50ms} body.fonts-ready .rv:nth-of-type(3){transition-delay:100ms}
+  body.fonts-ready .rv:nth-of-type(4){transition-delay:150ms} body.fonts-ready .rv:nth-of-type(5){transition-delay:200ms}
+  body.fonts-ready .rv:nth-of-type(6){transition-delay:250ms} body.fonts-ready .rv:nth-of-type(7){transition-delay:300ms}
+
+  .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--lavender);padding-bottom:14px}
+  .brand{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.22em;color:var(--text-secondary)}
+  .brand b{color:var(--lavender);font-weight:500}
+  h1{font-size:clamp(24px,5vw,31px);font-weight:600;letter-spacing:-.01em;margin-top:6px;line-height:1.12}
+  .dek{font-size:clamp(13px,3.5vw,14.5px);color:var(--text-secondary);max-width:600px;margin-top:7px;line-height:1.5}
+  .dek b{color:var(--text-primary);font-weight:600}
+  .stamp{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--text-dim);text-align:right;line-height:1.6;min-width:200px}
+  .stamp b{color:var(--teal);font-weight:400}
+
+  .pill{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;padding:2px 8px;border-radius:20px;vertical-align:2px;white-space:nowrap}
+  .pill.live{background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+  .pill.shadow{background:var(--lav-dim);color:#7c5fd3;border:1px solid var(--border)}
+  .pill.proven{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(14,165,233,.3)}
+  .pill.gated{background:rgba(194,116,10,.08);color:var(--gold);border:1px solid rgba(194,116,10,.3)}
+
+  h2{font-size:13px;font-weight:600;letter-spacing:.12em;color:var(--lavender);margin:22px 0 10px;text-transform:uppercase}
+  h2 .n{font-family:'DM Mono',monospace;color:var(--text-dim);font-weight:400;margin-right:2px}
+
+  .kpis{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px}
+  @media(min-width:768px){.kpis{grid-template-columns:repeat(5,1fr);gap:10px}}
+  .kpi{background:var(--card);border:1px solid var(--border-subtle);border-radius:8px;padding:11px 12px 9px;box-shadow:0 1px 3px rgba(30,41,59,.05)}
+  .kpi .v{font-family:'DM Mono',monospace;font-size:clamp(16px,4vw,19px);color:var(--text-primary)}
+  .kpi .v em{font-style:normal;color:var(--green);font-size:12px}
+  .kpi .l{font-size:10.5px;color:var(--text-secondary);margin-top:3px;line-height:1.3}
+
+  .cols{display:grid;grid-template-columns:1fr;gap:0 26px}
+  @media(min-width:768px){.cols{grid-template-columns:1.12fr .88fr}}
+
+  .os{display:grid;grid-template-columns:1fr;gap:7px}
+  @media(min-width:768px){.os{grid-template-columns:1fr 1fr}}
+  .sys{background:var(--card);border:1px solid var(--border-subtle);border-left:3px solid var(--lavender);border-radius:8px;padding:9px 12px}
+  .sys .n{font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:7px;justify-content:space-between}
+  .sys .d{font-size:11px;color:var(--text-secondary);line-height:1.42;margin-top:3px}
+  .sys .d b{color:var(--text-primary);font-weight:500}
+
+  ul{list-style:none}
+  li{font-size:12.5px;color:var(--text-secondary);line-height:1.5;padding-left:16px;position:relative;margin-bottom:6px}
+  li::before{content:'→';position:absolute;left:0;color:var(--lavender);font-family:'DM Mono',monospace;font-size:11px}
+  li b{color:var(--text-primary);font-weight:600}
+  li .m{font-family:'DM Mono',monospace;font-size:11px;color:var(--teal)}
+  li.gate::before{content:'⏸'}
+
+  .train{display:grid;grid-template-columns:1fr;gap:7px}
+  @media(min-width:768px){.train{grid-template-columns:repeat(3,1fr)}}
+  .rel{background:var(--card);border:1px solid var(--border-subtle);border-radius:8px;padding:9px 11px}
+  .rel.now{border-color:rgba(16,185,129,.35);background:linear-gradient(180deg,var(--green-dim),var(--card) 60%)}
+  .rel .t{font-family:'DM Mono',monospace;font-size:10px;color:var(--lavender);letter-spacing:.06em}
+  .rel.now .t{color:var(--green)}
+  .rel .b{font-size:11px;color:var(--text-secondary);line-height:1.4;margin-top:4px}
+
+  /* skills & plugins breakdown */
+  .skgrid{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:768px){.skgrid{grid-template-columns:1fr 1fr;gap:24px}}
+  .skhead{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--text-secondary);margin-bottom:8px;display:flex;justify-content:space-between;gap:8px}
+  .skhead .m2{color:var(--teal)}
+  .bar{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+  .bar .bl{font-size:11px;color:var(--text-secondary);width:158px;flex-shrink:0;line-height:1.2}
+  .bar .btrack{flex:1;background:rgba(30,41,59,.05);border-radius:3px;height:10px;overflow:hidden}
+  .bar .bt{height:10px;border-radius:3px;display:block;transition:width 900ms var(--ease-spring)}
+  body:not(.fonts-ready) .bar .bt{width:0 !important}
+  .bar .bn{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-primary);width:22px;text-align:right}
+
+  /* ══ §06 interactive architecture — DOM-based, text wraps, nothing overflows ══ */
+  .arch-wrap{background:var(--card);border:1px solid var(--border-subtle);border-radius:10px;padding:16px 14px 12px;position:relative}
+  .arch{display:flex;flex-direction:column;gap:0;position:relative;padding-right:34px}
+  .lrow{display:flex;gap:8px;align-items:stretch}
+  .llabel{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.18em;color:var(--text-dim);width:74px;flex-shrink:0;display:flex;align-items:center}
+  .lnodes{display:flex;gap:7px;flex:1;flex-wrap:wrap}
+  .node{border-radius:8px;padding:8px 11px;cursor:pointer;border:1.5px solid var(--border-subtle);background:var(--card);flex:1;min-width:110px;
+    transition:transform 200ms var(--ease-spring),box-shadow 200ms var(--ease-enter),opacity 300ms var(--ease-enter),border-color 200ms}
+  .node .nt{font-family:'DM Mono',monospace;font-size:10.5px;font-weight:500;line-height:1.3;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .node .ns{font-size:9.5px;color:var(--text-secondary);line-height:1.35;margin-top:3px}
+  .node .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .node.lav{border-color:rgba(166,130,242,.45);background:linear-gradient(180deg,var(--lav-dim),var(--card) 75%)}
+  .node.teal{border-color:rgba(14,165,233,.4);background:linear-gradient(180deg,var(--teal-dim),var(--card) 75%)}
+  .node.green{border-color:rgba(16,185,129,.4);background:linear-gradient(180deg,var(--green-dim),var(--card) 75%)}
+  .node.dashed{border-style:dashed}
+  .node:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(30,41,59,.12)}
+  .node.sel{border-color:var(--lavender);box-shadow:0 0 0 3px var(--lav-dim),0 6px 18px rgba(30,41,59,.10)}
+  .arch.focusing .node:not(.hl){opacity:.28}
+
+  /* connectors with animated pulses */
+  .crow{display:flex;gap:8px;height:24px}
+  .cpad{width:74px;flex-shrink:0}
+  .clines{flex:1;display:flex;justify-content:space-around;align-items:stretch}
+  .cline{width:2px;background:linear-gradient(180deg,rgba(148,163,184,.5),rgba(148,163,184,.25));position:relative;border-radius:2px}
+  .cline::after{content:'';position:absolute;left:-2px;width:6px;height:6px;border-radius:50%;background:var(--lavender);opacity:0;animation:pulse-down 2.4s var(--ease-enter) infinite}
+  .cline:nth-child(2)::after{animation-delay:.5s;background:var(--teal)}
+  .cline:nth-child(3)::after{animation-delay:1.1s;background:var(--green)}
+  @keyframes pulse-down{0%{top:-4px;opacity:0}15%{opacity:1}85%{opacity:1}100%{top:calc(100% - 2px);opacity:0}}
+
+  /* learning loop rail — its own gutter, can't collide */
+  .loop{position:absolute;right:8px;top:14px;bottom:38px;width:18px;display:flex;flex-direction:column;align-items:center}
+  .loop .rail{flex:1;width:2px;border-left:2px dashed rgba(16,185,129,.55);position:relative}
+  .loop .rail::after{content:'';position:absolute;left:-4px;width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse-up 3s linear infinite}
+  @keyframes pulse-up{0%{bottom:0;opacity:0}12%{opacity:1}88%{opacity:1}100%{bottom:calc(100% - 4px);opacity:0}}
+  .loop .arrow{color:var(--green);font-size:11px;line-height:1}
+  .legend-row{display:flex;justify-content:flex-end;margin-top:8px}
+  .loop-legend{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;color:var(--green);background:var(--green-dim);border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:3px 10px;white-space:nowrap}
+  .loop-legend .lg-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:lg-blink 3s ease infinite}
+  @keyframes lg-blink{0%,100%{opacity:.4}50%{opacity:1}}
+  @media(max-width:767px){.loop-legend{white-space:normal;text-align:left;line-height:1.4}}
+
+  /* inspector */
+  .inspector{margin-top:12px;border-top:1px dashed var(--border);padding-top:10px;display:flex;gap:12px;align-items:flex-start;min-height:64px}
+  .inspector .ic{width:10px;height:10px;border-radius:50%;margin-top:4px;flex-shrink:0;background:var(--lavender)}
+  .inspector .it{font-family:'DM Mono',monospace;font-size:11px;font-weight:500}
+  .inspector .ib{font-size:11.5px;color:var(--text-secondary);line-height:1.5;margin-top:3px}
+  .inspector .ib b{color:var(--text-primary);font-weight:600}
+  .inspector .hint{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.06em}
+
+  /* §07 cron jobs */
+  .cron-filters{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+  .cf{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.08em;padding:5px 12px;border-radius:20px;border:1px solid var(--border-subtle);background:var(--card);color:var(--text-secondary);cursor:pointer;transition:all 200ms var(--ease-enter)}
+  .cf.on{background:var(--lavender);border-color:var(--lavender);color:#fff}
+  .cron-grid{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:768px){.cron-grid{grid-template-columns:1fr 1fr}}
+  .cgroup{background:var(--card);border:1px solid var(--border-subtle);border-radius:8px;padding:10px 12px}
+  .cg-h{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.16em;color:var(--text-dim);margin-bottom:7px}
+  .cj{display:flex;align-items:baseline;gap:8px;padding:3.5px 0;border-bottom:1px solid rgba(30,41,59,.04);transition:opacity 250ms var(--ease-enter)}
+  .cj:last-child{border-bottom:0}
+  .cj.dim{opacity:.18}
+  .cj .cs{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--teal);width:62px;flex-shrink:0}
+  .cj .cn{font-size:11px;color:var(--text-secondary);flex:1;line-height:1.35}
+  .cj .ch{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.06em;padding:1.5px 6px;border-radius:3px;flex-shrink:0}
+  .h-mac{background:rgba(30,41,59,.06);color:var(--text-secondary)}
+  .h-rail{background:var(--teal-dim);color:var(--teal)}
+  .h-gha{background:rgba(30,41,59,.08);color:var(--text-primary)}
+  .h-dbx{background:rgba(194,116,10,.1);color:var(--gold)}
+  .h-cloud{background:var(--lav-dim);color:#7c5fd3}
+  .cj .ct{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--text-dim);width:26px;text-align:right;flex-shrink:0}
+
+  .opbox{background:var(--card);border:1px dashed var(--border);border-radius:8px;padding:10px 13px;margin-top:14px}
+  .opbox .r{display:grid;grid-template-columns:1fr;gap:2px;font-size:11px;padding:3px 0}
+  @media(min-width:768px){.opbox .r{grid-template-columns:120px 1fr}}
+  .opbox .k{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--text-dim);letter-spacing:.06em;text-transform:uppercase;padding-top:1px}
+  .opbox .v{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-primary);word-break:break-word}
+  .opbox .v a{color:var(--teal);text-decoration:none}
+
+  .foot{margin-top:18px;border-top:1px solid var(--border);padding-top:9px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .foot .s{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--text-dim);line-height:1.6;letter-spacing:.03em}
+  @media print{.page{padding:14px 20px}.rv{opacity:1;transform:none}.cline::after,.loop .rail::after{animation:none}}
+  @media(max-width:767px){
+    html,body{overflow-x:hidden;max-width:100vw}
+    .llabel{width:52px;font-size:7.5px}
+    .cpad{width:52px}
+    .node{min-width:96px}
+    .arch{padding-right:24px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hd rv">
+    <div>
+      <div class="brand">SASMASTER · <b>MEDIA INTELLIGENCE</b> &nbsp;<span class="pill live">PLATFORM BRIEF</span>&nbsp;<span class="pill proven">QUERY-DERIVED</span></div>
+      <h1>The Agentic OS — JARVIS becomes the platform's operating system</h1>
+      <p class="dek">SaSMaster now runs on a governed agentic operating system: a <b>12.96M-entity certified data spine</b>, a contracted agent fleet orchestrated by JARVIS, and a knowledge layer that <b>measurably improves itself daily</b> — every capability gated, verified, and reversible by design.</p>
+    </div>
+    <div class="stamp">JUL 16 2026 · 10:40 UTC<br><b>■ TRUTHFUL-VITALS</b> — every figure measured<br>sources: L3 platform_state (47 keys) +<br>live MotherDuck · none estimated</div>
+  </div>
+
+  <div class="rv">
+    <h2><span class="n">00 —</span> 📊 The numbers that matter</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="v">12,955,801</div><div class="l">Parent-key spine · current certified rows</div></div>
+      <div class="kpi"><div class="v">.155→.813 <em>5.2×</em></div><div class="l">Self-improvement loop, held-out accuracy (proven)</div></div>
+      <div class="kpi"><div class="v">100% <em>n=139</em></div><div class="l">CONFIRMED band measured accuracy vs 90% implied</div></div>
+      <div class="kpi"><div class="v">30 <em>/24h</em></div><div class="l">Task cards executed &amp; independently verified in one day</div></div>
+      <div class="kpi"><div class="v">$0.011</div><div class="l">JARVIS kernel cost per turn (shadow, Railway)</div></div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <div class="rv">
+        <h2><span class="n">01 —</span> 🧠 The six subsystems</h2>
+        <div class="os">
+          <div class="sys"><div class="n">KERNEL <span class="pill shadow">SHADOW</span></div><div class="d">Intent loop on every input; acts within a <b>mechanical contract</b>; deterministic !commands preserved as the escape hatch.</div></div>
+          <div class="sys"><div class="n">MEMORY <span class="pill live">LIVE</span></div><div class="d">Three-layer brain + 4-tier store; every session distills to provenance-stamped memory. <b>77 proprietary skills</b> = institutional knowledge.</div></div>
+          <div class="sys"><div class="n">CAPABILITIES <span class="pill live">22 AGENTS</span></div><div class="d">Contracted fleet on a shared task bus — manifest-registered, least-privilege, cost-logged (37 total, honest denominators).</div></div>
+          <div class="sys"><div class="n">SENSES <span class="pill live">GRID LIVE</span></div><div class="d">Freshness grid, invariant views, canaries, SLO-driven alerting — <b>every monitor pages or it isn't a monitor</b>.</div></div>
+          <div class="sys"><div class="n">REVIEW <span class="pill live">ENFORCED</span></div><div class="d">Builder never verifies; hooks block unsafe ops pre-execution (<b>16/16 fault injections</b>); CI review armed; provenance gates every figure.</div></div>
+          <div class="sys"><div class="n">LEARNING <span class="pill proven">PROVEN</span></div><div class="d">Nightly reflection → one improvement/day through human approval; calibration <b>measured, not assumed</b>.</div></div>
+        </div>
+      </div>
+
+      <div class="rv">
+        <h2><span class="n">02 —</span> 🛡️ Governance that held under fire — same day</h2>
+        <ul>
+          <li><b>A bad migration was auto-blocked:</b> the v2 spine cutover's premise re-check found the replacement missing <span class="m">78%</span> of keys — the gate stopped it before archive.</li>
+          <li><b>12 days of silent build failures root-caused</b> (credit exhaustion + a mute alert writer) — builds green; alerts auto-dismiss on success, escalate on repeat.</li>
+          <li><b>Spine integrity is now code:</b> uniqueness invariants run as live views; six constitutional gates execute as pre-commit hooks with logged human-go tokens.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div>
+      <div class="rv">
+        <h2><span class="n">03 —</span> 🗺️ Capability footprint</h2>
+        <ul>
+          <li><b>Data:</b> S3 lake <span class="m">2.77TB</span> · MotherDuck (14 schemas) · Nielsen · TMDB · IMDB · EIDR · Gracenote · BARB · box office · social.</li>
+          <li><b>Knowledge:</b> <span class="m">77</span> proprietary + <span class="m">62</span> platform skills · 4-copy sync automated · scoped rules cut context cost <span class="m">~90%</span>.</li>
+          <li><b>Surfaces:</b> War Room v5 · portal-v8 · ASK (in build) · daily report factory · signature Grid + motion system.</li>
+          <li><b>Interfaces:</b> Slack (JARVIS) + Claude sessions, one shared brain · <span class="m">20</span> connectors · <span class="m">18</span> workspace plugins · weekly self-assessment.</li>
+        </ul>
+      </div>
+
+      <div class="rv">
+        <h2><span class="n">04 —</span> 🚦 Release train &amp; the v1.0 gate</h2>
+        <div class="train">
+          <div class="rel now"><div class="t">v1.0 · IN FLIGHT</div><div class="b">Kernel (shadow→act) · distiller · alert ledger · briefing · auto-verify</div></div>
+          <div class="rel"><div class="t">v1.1</div><div class="b">Perception + proactivity · semantic recall · intel fleet · report factory</div></div>
+          <div class="rel"><div class="t">v2</div><div class="b">MCP surface · multi-model gateway · Block Kit approvals</div></div>
+        </div>
+        <ul style="margin-top:9px">
+          <li class="gate">Serving marts populated <span class="pill gated">LOAD IN FLIGHT</span></li>
+          <li class="gate">Failure paging for all 22 live agents (13 pending)</li>
+          <li class="gate">Kernel shadow: ≥80% would-approve · zero dangerous · n≥50</li>
+          <li class="gate">Two clean weekly cycles <span class="m">first: Jul 20</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="rv">
+    <h2><span class="n">05 —</span> 🧩 Skills &amp; plugins breakdown</h2>
+    <div class="skgrid">
+      <div>
+        <div class="skhead"><span>PROPRIETARY SKILLS</span><span class="m2">77 canonical · 54 cloud-synced</span></div>
+        <div class="bar"><span class="bl">Data layer &amp; spine</span><span class="btrack"><span class="bt" style="width:83%;background:var(--lavender)"></span></span><span class="bn">10</span></div>
+        <div class="bar"><span class="bl">UI · design · motion</span><span class="btrack"><span class="bt" style="width:66%;background:#c4b0f7"></span></span><span class="bn">8</span></div>
+        <div class="bar"><span class="bl">Ops · infra · autonomy</span><span class="btrack"><span class="bt" style="width:66%;background:var(--teal)"></span></span><span class="bn">8</span></div>
+        <div class="bar"><span class="bl">Social intelligence</span><span class="btrack"><span class="bt" style="width:50%;background:#7cc8ef"></span></span><span class="bn">6</span></div>
+        <div class="bar"><span class="bl">Governance &amp; brain</span><span class="btrack"><span class="bt" style="width:41%;background:var(--green)"></span></span><span class="bn">5</span></div>
+        <div class="bar"><span class="bl">Voice &amp; executive</span><span class="btrack"><span class="bt" style="width:41%;background:#8fd9be"></span></span><span class="bn">5</span></div>
+        <div class="bar"><span class="bl">Docs · eng · other</span><span class="btrack"><span class="bt" style="width:100%;background:#d3d9e3"></span></span><span class="bn">12</span></div>
+      </div>
+      <div>
+        <div class="skhead"><span>PLUGINS &amp; CONNECTORS</span><span class="m2">18 + 1 + 20</span></div>
+        <div class="bar"><span class="bl">Cowork workspace plugins</span><span class="btrack"><span class="bt" style="width:90%;background:var(--lavender)"></span></span><span class="bn">18</span></div>
+        <div class="bar"><span class="bl">Claude Code plugins (live)</span><span class="btrack"><span class="bt" style="width:6%;background:var(--teal)"></span></span><span class="bn">1</span></div>
+        <div class="bar"><span class="bl">↳ carded, waves 1–3</span><span class="btrack"><span class="bt" style="width:65%;background:rgba(14,165,233,.35)"></span></span><span class="bn">13</span></div>
+        <div class="bar"><span class="bl">Live MCP connectors</span><span class="btrack"><span class="bt" style="width:100%;background:var(--green)"></span></span><span class="bn">20</span></div>
+        <div style="font-size:10.5px;color:var(--text-secondary);margin-top:8px;line-height:1.5">Daily drivers: <b style="color:var(--text-primary)">MotherDuck · Slack · Figma · Vercel · Postman · Hugging Face</b>. Platform skill packs (62) ride the workspace plugins. Skill sync: canonical → 2 derivatives → claude.ai, checksum-gated nightly.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rv">
+    <h2><span class="n">06 —</span> 🏗️ How the pieces fit <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.08em;text-transform:none">— click any node to inspect · hover to trace</span></h2>
+    <div class="arch-wrap">
+      <div class="arch" id="arch">
+
+        <div class="lrow" data-layer="8">
+          <div class="llabel">SURFACES</div>
+          <div class="lnodes">
+            <div class="node lav" data-id="slack"><div class="nt"><span class="dot" style="background:var(--lavender)"></span>SLACK · JARVIS</div><div class="ns">#builds · #intel · #content</div></div>
+            <div class="node" data-id="warroom"><div class="nt"><span class="dot" style="background:var(--text-dim)"></span>WAR ROOM v5</div><div class="ns">ops cockpit · CANVAS</div></div>
+            <div class="node" data-id="portal"><div class="nt"><span class="dot" style="background:var(--text-dim)"></span>PORTAL v8</div><div class="ns">product surface</div></div>
+            <div class="node dashed" data-id="ask"><div class="nt"><span class="dot" style="background:var(--gold)"></span>ASK</div><div class="ns">in build · read-only agent</div></div>
+            <div class="node teal" data-id="cowork"><div class="nt"><span class="dot" style="background:var(--teal)"></span>CLAUDE / COWORK</div><div class="ns">strategy sessions · mobile</div></div>
+          </div>
+        </div>
+        <div class="crow"><div class="cpad"></div><div class="clines"><div class="cline"></div><div class="cline"></div><div class="cline"></div></div></div>
+
+        <div class="lrow" data-layer="7">
+          <div class="llabel">ORCHESTRATE</div>
+          <div class="lnodes">
+            <div class="node lav" style="flex:1.7" data-id="kernel"><div class="nt"><span class="dot" style="background:var(--lavender)"></span>JARVIS KERNEL <span class="pill shadow">SHADOW</span></div><div class="ns">intent loop · contract-gated · !commands escape hatch</div></div>
+            <div class="node lav dashed" data-id="osloops"><div class="nt"><span class="dot" style="background:var(--lavender)"></span>OS LOOPS</div><div class="ns">distill · reflect · perceive · report factory</div></div>
+            <div class="node green" data-id="senses"><div class="nt"><span class="dot" style="background:var(--green)"></span>SENSES</div><div class="ns">Sentinel · grid · SLOs · alert ledger</div></div>
+            <div class="node teal" data-id="review"><div class="nt"><span class="dot" style="background:var(--teal)"></span>REVIEW</div><div class="ns">hooks · qa-agent · CI · ⏸ gates</div></div>
+          </div>
+        </div>
+        <div class="crow"><div class="cpad"></div><div class="clines"><div class="cline"></div><div class="cline"></div><div class="cline"></div></div></div>
+
+        <div class="lrow" data-layer="6">
+          <div class="llabel">MODELS</div>
+          <div class="lnodes">
+            <div class="node lav" style="flex:1.5" data-id="gateway"><div class="nt"><span class="dot" style="background:var(--lavender)"></span>MODEL GATEWAY · GOVERNOR</div><div class="ns">quota-aware routing: Haiku → Sonnet → Opus (escalation tags) · Fable 5 pinned for design-system passes · Advisor pairing <span class="pill gated" style="font-size:8px">v2</span></div></div>
+            <div class="node dashed" data-id="cleanroom"><div class="nt"><span class="dot" style="background:var(--gold)"></span>MODEL CLEAN ROOM <span class="pill gated" style="font-size:8px">v2</span></div><div class="ns">external models (HF · embeddings · second-opinion) — answer-only · zero credentials · fenced output · cost-logged</div></div>
+          </div>
+        </div>
+        <div class="crow"><div class="cpad"></div><div class="clines"><div class="cline"></div><div class="cline"></div><div class="cline"></div></div></div>
+
+        <div class="lrow" data-layer="5">
+          <div class="llabel">EXECUTE</div>
+          <div class="lnodes">
+            <div class="node" style="flex:1.4" data-id="fleet"><div class="nt"><span class="dot" style="background:var(--green)"></span>AGENT FLEET · 22/37</div><div class="ns">S3 task bus · 110 cron jobs tiered · Railway + Managed Agents + Mac worker</div></div>
+            <div class="node" data-id="executor"><div class="nt"><span class="dot" style="background:var(--text-dim)"></span>CLAUDE CODE EXECUTOR</div><div class="ns">task cards · autoresearch · 6 gates · builder ≠ verifier</div></div>
+          </div>
+        </div>
+        <div class="crow"><div class="cpad"></div><div class="clines"><div class="cline"></div><div class="cline"></div><div class="cline"></div></div></div>
+
+        <div class="lrow" data-layer="4">
+          <div class="llabel">KNOW</div>
+          <div class="lnodes">
+            <div class="node lav" data-id="brain"><div class="nt"><span class="dot" style="background:var(--lavender)"></span>BRAIN · L1/L2/L3</div><div class="ns">platform_state · 4-tier memory · distill → recall (v1.1)</div></div>
+            <div class="node" data-id="skills"><div class="nt"><span class="dot" style="background:var(--text-dim)"></span>77 SKILLS</div><div class="ns">authority-mapped · 4-copy sync, checksum-gated</div></div>
+            <div class="node" data-id="plugins"><div class="nt"><span class="dot" style="background:var(--text-dim)"></span>PLUGINS 18+1 · MCP 20</div><div class="ns">62 platform skills · 13 carded (waves 1–3)</div></div>
+          </div>
+        </div>
+        <div class="crow"><div class="cpad"></div><div class="clines"><div class="cline"></div><div class="cline"></div><div class="cline"></div></div></div>
+
+        <div class="lrow" data-layer="3">
+          <div class="llabel">MEMORY</div>
+          <div class="lnodes">
+            <div class="node lav" data-id="memhot"><div class="nt"><span class="dot" style="background:var(--lavender)"></span>HOT + WARM</div><div class="ns">session slots (30) · Upstash 25h · S3 domain keys · alert-ledger hot state</div></div>
+            <div class="node" data-id="memcold"><div class="nt"><span class="dot" style="background:var(--text-dim)"></span>COLD + ARCHIVE</div><div class="ns">Obsidian vaults 66 + 1,400 notes · S3 memory prefix · git-backed</div></div>
+            <div class="node dashed" data-id="memevent"><div class="nt"><span class="dot" style="background:var(--gold)"></span>EVENT LOG + TRANSCRIPTS</div><div class="ns">S3 JSONL tap · session persistence · recall index <span class="pill gated">v1.1</span></div></div>
+          </div>
+        </div>
+        <div class="crow"><div class="cpad"></div><div class="clines"><div class="cline"></div><div class="cline"></div><div class="cline"></div></div></div>
+
+        <div class="lrow" data-layer="2">
+          <div class="llabel">DATA</div>
+          <div class="lnodes">
+            <div class="node teal" data-id="data"><div class="nt"><span class="dot" style="background:var(--teal)"></span>S3 2.77TB · MOTHERDUCK 14 SCHEMAS · SPINE 12,955,801 <span class="pill gated">MARTS IN FLIGHT</span></div><div class="ns">Nielsen · TMDB · IMDB · EIDR · Gracenote · BARB · box office · social — invariants enforced · two-field provenance · §15 promote gate</div></div>
+          </div>
+        </div>
+        <div class="crow"><div class="cpad"></div><div class="clines"><div class="cline"></div><div class="cline"></div><div class="cline"></div></div></div>
+
+        <div class="lrow" data-layer="1">
+          <div class="llabel">COMPUTE</div>
+          <div class="lnodes">
+            <div class="node teal" data-id="railway"><div class="nt"><span class="dot" style="background:var(--teal)"></span>RAILWAY</div><div class="ns">kernel · api · workers</div></div>
+            <div class="node" data-id="mac"><div class="nt"><span class="dot" style="background:var(--text-dim)"></span>MAC</div><div class="ns">launchd · cron · repo work</div></div>
+            <div class="node" data-id="managed"><div class="nt"><span class="dot" style="background:var(--text-dim)"></span>MANAGED AGENTS</div><div class="ns">scheduled loops · v1.1</div></div>
+            <div class="node" data-id="gha"><div class="nt"><span class="dot" style="background:var(--text-dim)"></span>GITHUB ACTIONS</div><div class="ns">failover · CI review</div></div>
+            <div class="node" data-id="dbx"><div class="nt"><span class="dot" style="background:var(--text-dim)"></span>DATABRICKS</div><div class="ns">RSG shared · Tue jobs</div></div>
+            <div class="node dashed" data-id="ec2"><div class="nt"><span class="dot" style="background:var(--gold)"></span>EC2 BURST</div><div class="ns">harvest fleets · on demand</div></div>
+          </div>
+        </div>
+
+        <div class="loop"><span class="arrow">▲</span><div class="rail"></div></div>
+      </div>
+
+      <div class="legend-row"><span class="loop-legend"><span class="lg-dot"></span>▲ GREEN RAIL = LEARNING LOOP · reflection → skills → !approve</span></div>
+
+      <div class="inspector" id="inspector">
+        <span class="ic" id="insDot"></span>
+        <div>
+          <div class="it" id="insTitle">SELECT A NODE</div>
+          <div class="ib" id="insBody">Click any block to see what it is, what it depends on, and how to verify it. Hover a block to trace its layer through the stack. <span class="hint">green pulses = the learning loop feeding lessons back up through your approval.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rv">
+    <h2><span class="n">07 —</span> ⏰ Scheduled jobs — the platform's heartbeat <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:.08em;text-transform:none">— 110 jobs inventoried · tier a=62 cloud-movable · b=8 queue · c=5 build-loop · 35 stay local</span></h2>
+    <div class="cron-filters" id="cronFilters">
+      <button class="cf on" data-f="all">ALL</button><button class="cf" data-f="MAC">MAC</button><button class="cf" data-f="RAILWAY">RAILWAY</button><button class="cf" data-f="GHA">GHA</button><button class="cf" data-f="DBX">DATABRICKS</button><button class="cf" data-f="CLOUD">CLOUD</button>
+    </div>
+    <div class="cron-grid" id="cronGrid">
+      <div class="cgroup"><div class="cg-h">CONTINUOUS · MINUTES</div>
+        <div class="cj" data-host="MAC"><span class="cs">*/5</span><span class="cn">build reaper — reaps hung runs, recovers queue</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">*/5</span><span class="cn">generate-status.js — War Room data contract</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">*/5</span><span class="cn">S3 cache sync — 7 API endpoints → cloud</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">*/5</span><span class="cn">queue drainer — S3 command queue consumer</span><span class="ch h-mac">MAC</span><span class="ct">b</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">*/5</span><span class="cn">rules engine + consumer-liveness check</span><span class="ch h-mac">MAC</span><span class="ct">b</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">60s</span><span class="cn">mac-worker — polls pending-compute</span><span class="ch h-mac">MAC</span><span class="ct">stay</span></div>
+        <div class="cj" data-host="RAILWAY"><span class="cs">*/15</span><span class="cn">railway monitor — service health</span><span class="ch h-rail">RAILWAY</span><span class="ct">—</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">*/15</span><span class="cn">availability-grid updater — delivery tracking</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="GHA"><span class="cs">*/10</span><span class="cn">failover-worker — Mac-offline deploy cover</span><span class="ch h-gha">GHA</span><span class="ct">—</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">2h</span><span class="cn">brain cache-refresh (BRAIN-001)</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+      </div>
+      <div class="cgroup"><div class="cg-h">HOURLY</div>
+        <div class="cj" data-host="MAC"><span class="cs">:05</span><span class="cn">retry-queue processor — missed deliveries</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">hourly</span><span class="cn">tmdb-catchup <span class="pill live" style="font-size:8px">NEW JUL 16</span></span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">1–3h</span><span class="cn">fleet status monitors (checkpoint-delta) — when fleets live</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+      </div>
+      <div class="cgroup"><div class="cg-h">DAILY</div>
+        <div class="cj" data-host="MAC"><span class="cs">00:00</span><span class="cn">nightly !build — the autonomy loop <span class="pill live" style="font-size:8px">GREEN JUL 15–16</span></span><span class="ch h-mac">MAC</span><span class="ct">c</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">04:40</span><span class="cn">sync_skills — 4-copy checksum gate, pages on drift</span><span class="ch h-mac">MAC</span><span class="ct">stay</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">05:00</span><span class="cn">TMDB daily + chain (collections · networks · companies · seasons · episodes · backfill)</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">05:30</span><span class="cn">curated chain: cert_run → metadata → alt-id → pivot (watermark-gated)</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">06:00</span><span class="cn">Media Intel digest → #intel</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">06:15</span><span class="cn">boxoffice-intel — the-numbers daily chart</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">06:30</span><span class="cn">SEC EDGAR scraper → financial intel lane</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">a.m.</span><span class="cn">cost-watch — S3 spend vs $50 budget · brain watermark + staleness monitors</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">night</span><span class="cn">invariant_check — spine uniqueness views <span class="pill live" style="font-size:8px">NEW JUL 16</span> · artifact metrics</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">09:00Z</span><span class="cn">daily INFO digest → JARVIS</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+      </div>
+      <div class="cgroup"><div class="cg-h">WEEKLY</div>
+        <div class="cj" data-host="CLOUD"><span class="cs">Mon 07:00</span><span class="cn">weekly platform enhancement update — measures vitals, proposes cards <span class="pill proven" style="font-size:8px">FIRST: JUL 20</span></span><span class="ch h-cloud">CLOUD</span><span class="ct">—</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">Mon 20:00</span><span class="cn">LinkedIn agent → #content drafts</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="DBX"><span class="cs">Tue 19:00</span><span class="cn">Nielsen chain: AMRLD → MIT → laapp (allowlisted clusters, before RSG overnights)</span><span class="ch h-dbx">DBX</span><span class="ct">stay</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">Tue 22:15</span><span class="cn">AUD-WIRE-001 + 002 — audience wire build + delta</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">Tue 11:00Z</span><span class="cn">weekly Nielsen digest → #sasmaster-data</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">Sun 04:00</span><span class="cn">vault-hygiene — both Obsidian vaults, flag-only</span><span class="ch h-mac">MAC</span><span class="ct">stay</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">Sun 06:00</span><span class="cn">context regen — L2 Quick Facts from L3</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">Sun 08:00</span><span class="cn">spine cert weekly <span class="pill live" style="font-size:8px">NEW JUL 16</span> + grid archive</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+      </div>
+      <div class="cgroup"><div class="cg-h">MONTHLY +</div>
+        <div class="cj" data-host="MAC"><span class="cs">1st 10:00Z</span><span class="cn">monthly rollup — MoM/YoY delivery counts</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+        <div class="cj" data-host="MAC"><span class="cs">quarterly</span><span class="cn">viz evaluator — next Aug 1</span><span class="ch h-mac">MAC</span><span class="ct">a</span></div>
+      </div>
+    </div>
+    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);margin-top:8px;letter-spacing:.04em">Documented core shown (~35 of 110). Full inventory + per-job tier: INFRA-CLOUD-CRON-001 phase 1 (contracts/). Tier a = moves to Railway/GHA · b = queue semantics · c = build loop (Managed Agents spike) · stay = genuinely local.</div>
+  </div>
+
+  <div class="opbox rv">
+    <div class="r"><span class="k">Where it lives</span><span class="v"><a href="https://sasmaster-status.vercel.app/warroom-v5.html">sasmaster-status.vercel.app/warroom-v5</a> · api.sasmaster.dev · Railway (kernel) · md:sasmaster (brain)</span></div>
+    <div class="r"><span class="k">What triggers it</span><span class="v">Slack !commands + natural language · cron fleet (110 jobs tiered) · weekly enhancement task (Mon 7AM ET)</span></div>
+    <div class="r"><span class="k">How to verify</span><span class="v">SELECT key,value,verified,updated_at FROM sasmaster.ops.platform_state ORDER BY updated_at DESC</span></div>
+  </div>
+
+  <div class="foot rv">
+    <div class="s">SOURCES · ops.platform_state 47 keys (verified) · live MotherDuck 2026-07-16 · agents-manifest v1 576ea28b · autoresearch 1096e82 · calibration cal_20260716</div>
+    <div class="s" style="text-align:right">SASMASTER.DEV · BLOOMBERG TERMINAL FOR MEDIA<br>PREPARED BY JARVIS-OS PROGRAM · INTERNAL</div>
+  </div>
+
+</div>
+<script>
+(function(){
+  'use strict';
+  var INFO = {
+    slack:   {c:'#A682F2', t:'SLACK · JARVIS', b:'<b>The command surface.</b> Human-typed !commands (deterministic) + natural language (kernel intent loop, shadow). Three channels routed; Block Kit approvals arrive in v2. Verify: type !status in #builds.'},
+    warroom: {c:'#64748B', t:'WAR ROOM v5', b:'<b>The ops cockpit.</b> Manifest-driven; reads status.json + agents-manifest (§22 one-source). Hosts CANVAS report factory + this brief in Resources. Verify: sasmaster-status.vercel.app.'},
+    portal:  {c:'#64748B', t:'PORTAL v8', b:'<b>The product surface.</b> Detail pages, META tabs, drill-downs — qa-agent certifies every change against the live URL; no self-certification. Signature Grid + motion system land here.'},
+    ask:     {c:'#c2740a', t:'ASK — AUDIENCE SIGNAL INTELLIGENCE', b:'<b>In build, deliberately gated.</b> Read-only NL→SQL agent, SELECT-scoped to serving marts — which is why SERVING-WIRE-001 is its hard dependency. Ships with 25-case eval gate ≥90%.'},
+    cowork:  {c:'#0EA5E9', t:'CLAUDE / COWORK SESSIONS', b:'<b>The strategy surface.</b> Same brain (L2 skill + L3 query), same skills via checksum-gated upload. v2 MCP server makes any Claude session a full JARVIS terminal with identical contract enforcement.'},
+    kernel:  {c:'#A682F2', t:'JARVIS KERNEL — SHADOW', b:'<b>The operating system.</b> Railway-resident intent loop; acts only within a mechanical contract (reads + sanctioned ops); irreversible actions stop at ⏸ GO tokens. Graduates shadow→act at ≥80% would-approve, zero dangerous, n≥50. Cost: <b>$0.011/turn</b>.'},
+    senses:  {c:'#10B981', t:'SENSES — SENTINEL + GRID', b:'<b>Perception with teeth.</b> Availability grid, invariant views, canaries, SLO breaches → severity ladder (INFO→GATE) → Upstash-backed alert ledger. Every alert is a state machine; nothing ages out silently. 13 agents still need paging — a named v1.0 gate.'},
+    review:  {c:'#0EA5E9', t:'REVIEW — THE IMMUNE SYSTEM', b:'<b>Nothing self-certifies.</b> 6 constitutional gates as pre-commit hooks (16/16 fault injections), qa-agent on surfaces, CI review report-only (blocking after 2wk FP observation), builder ≠ verifier on every card.'},
+    fleet:   {c:'#10B981', t:'AGENT FLEET — 22 LIVE / 37 CONTRACTED', b:'<b>The hands.</b> Manifest-registered (576ea28b), least-privilege toolsets, cost-logged, honest denominators (§30). Work arrives via the S3 task bus; 110 cron jobs tiered for cloud migration (62 movable).'},
+    executor:{c:'#64748B', t:'CLAUDE CODE EXECUTOR', b:'<b>The builder.</b> Executes task cards under build-discipline; autoresearch loop proven (held-out .155→.813); every card closes with L3 write + DONE_LOG + independent verify.'},
+    brain:   {c:'#A682F2', t:'BRAIN — L1 / L2 / L3', b:'<b>One memory, never stale by design.</b> L1 skill descriptions (free) · L2 context hub (~2K tokens) · L3 live table (53 writes/24h, now cron-written too). Distiller + semantic recall arrive in v1.1 after the buy-vs-build spike.'},
+    skills:  {c:'#64748B', t:'77 PROPRIETARY SKILLS', b:'<b>Institutional knowledge as code.</b> Authority-mapped (owner skill wins), path-scoped rules cut context ~90%, 4-copy sync checksum-gated nightly with #builds paging on drift. JARVIS authors patches; you ratify.'},
+    plugins: {c:'#64748B', t:'PLUGINS + CONNECTORS', b:'<b>Leverage, gated like agents.</b> 18 workspace plugins (62 platform skills) · 20 MCP connectors · 1 CC plugin live, 13 carded in 3 audited waves — conflict audit, least privilege, untrusted-output fencing, 30-day pruning.'},
+    data:    {c:'#0EA5E9', t:'THE DATA LAYER', b:'<b>The foundation.</b> S3 lake 2.77TB + MotherDuck 14 schemas + 12.96M-row certified spine (bands measured: CONFIRMED 100% accurate, n=139). Invariants enforced as live views; §15 supervised promote gate; serving marts loading — the last v1.0 data gate.'},
+    memhot:  {c:'#A682F2', t:'MEMORY — HOT + WARM TIERS', b:'<b>Fast recall.</b> Claude session slots (30, pointer indexes) + Upstash Redis (25h TTL, atomic ops — also hosts the alert-ledger hot state per the OLTP substrate rule) + S3 permanent domain keys. Warm tier wins on conflict with any skill file — it reflects live state.'},
+    memcold: {c:'#64748B', t:'MEMORY — COLD + ARCHIVE TIERS', b:'<b>Durable knowledge.</b> Two Obsidian vaults (66 operational + 1,400 KB notes, born-connected frontmatter, git-backed) + S3 archive prefix. Distilled concepts and lessons land here; Sunday hygiene cron scans both.'},
+    memevent:{c:'#c2740a', t:'EVENT LOG + SESSION TRANSCRIPTS', b:'<b>What "knows everything" means concretely.</b> Every alert, cert run, queue transition appends to hour-partitioned S3 JSONL (MotherDuck projection for queries); kernel transcripts persist to S3 keyed by thread — deploys never amnesia a conversation. Semantic recall index arrives v1.1 after the buy-vs-build spike.'},
+    railway: {c:'#0EA5E9', t:'RAILWAY — PRIMARY CLOUD COMPUTE', b:'<b>Always-on home.</b> Hosts the kernel (shadow), sasmaster-api, queue workers. Survives Mac sleep; deploys via the GHA relay; §31 deploy gate applies (env binds at deploy, confirm ● Ready).'},
+    mac:     {c:'#64748B', t:'MAC — LOCAL WORKER', b:'<b>Being demoted by design.</b> Still runs launchd daemons + the cron fleet (110 jobs inventoried: 62 cloud-movable) + repo-local Claude Code work. INFRA-CLOUD-CRON-001 moves tiers (a)→(c) out; success = laptop closed 72h, zero missed jobs.'},
+    managed: {c:'#64748B', t:'ANTHROPIC MANAGED AGENTS', b:'<b>The scheduled-loop runtime (v1.1).</b> Perception, reflection, and briefing loops run here — cron-scheduled agent sessions without external scheduler. Flagged by platform-scout as the build-loop replacement candidate.'},
+    gha:     {c:'#64748B', t:'GITHUB ACTIONS', b:'<b>Failover + CI.</b> Failover-worker (*/10) covers Mac-offline deploys; CI review workflow (report-only, blocking after 2wk FP observation) runs on every PR in both repos.'},
+    dbx:     {c:'#64748B', t:'DATABRICKS — RSG SHARED', b:'<b>Borrowed compute, guarded by code.</b> Tuesday Nielsen chain on allowlisted clusters only — read-only default, own creds at session level, no cluster starts without explicit opt-in (§38). Compute is borrowed; the license question is tracked separately (§37).'},
+    ec2:     {c:'#c2740a', t:'EC2 — BURST FLEETS', b:'<b>On-demand muscle.</b> Camoufox harvest fleets with supervisor wrappers (§38 gates); currently closed (EC2-CLOSE-001). May be partially retired if the scraping-vendor bake-off (Nimble et al.) wins the anti-bot class.'},
+    osloops: {c:'#A682F2', t:'THE AGENTIC-OS LOOPS', b:'<b>What makes it alive.</b> Distiller — every session ends by writing memory (significance-gated). Reflection — one proposed improvement per night through your !approve. Perception — 2h delta scan with a 3-observations/day budget. Report factory — catalog-driven daily pieces trained by your BLESS/KILL. Distiller ships v1.0; the rest v1.1.'},
+    gateway: {c:'#A682F2', t:'MODEL GATEWAY — THE GOVERNOR', b:'<b>Right model, right price, mechanically.</b> Quota tiers (normal→warn→haiku-fallback→sonnet-paused) route by task class; escalation tags (#fusion #data #architecture) reach Opus; model-pinned agents never downgrade; Fable 5 pinned for hold-everything design-system sessions. Advisor pairing (Sonnet executes, Opus advises at ~90% executor rates) lands v2. Every escalation cost-logged.'},
+    cleanroom:{c:'#c2740a', t:'MODEL CLEAN ROOM — v2', b:'<b>Outside models, inside rules.</b> Non-Anthropic models (HF specialists, embeddings for recall, second-opinion adjudicators) run behind a fence: they ANSWER, only JARVIS ACTS — no external model ever holds credentials, takes actions, or writes anywhere. Their output is untrusted data (injection-fenced), every call hits the same cost ledger, and routing policy lives in config beside the governor. Perspective diversity without expanding the trust boundary.'}
+  };
+  var arch = document.getElementById('arch');
+  var nodes = arch.querySelectorAll('.node');
+  var insDot = document.getElementById('insDot'), insTitle = document.getElementById('insTitle'), insBody = document.getElementById('insBody');
+
+  nodes.forEach(function(n){
+    n.addEventListener('click', function(){
+      nodes.forEach(function(x){ x.classList.remove('sel'); });
+      n.classList.add('sel');
+      var i = INFO[n.dataset.id]; if(!i) return;
+      insDot.style.background = i.c;
+      insTitle.textContent = i.t;
+      insBody.innerHTML = i.b;
+    });
+    n.addEventListener('mouseenter', function(){
+      arch.classList.add('focusing');
+      var layer = n.closest('.lrow').dataset.layer;
+      arch.querySelectorAll('.lrow').forEach(function(row){
+        var d = Math.abs(+row.dataset.layer - +layer);
+        if(d <= 1) row.querySelectorAll('.node').forEach(function(x){ x.classList.add('hl'); });
+      });
+      n.classList.add('hl');
+    });
+    n.addEventListener('mouseleave', function(){
+      arch.classList.remove('focusing');
+      arch.querySelectorAll('.node').forEach(function(x){ x.classList.remove('hl'); });
+    });
+  });
+
+  // §07 cron host filter
+  var cf = document.getElementById('cronFilters');
+  if (cf) cf.addEventListener('click', function(e){
+    if(e.target.tagName!=='BUTTON') return;
+    cf.querySelectorAll('.cf').forEach(function(b){ b.classList.remove('on'); });
+    e.target.classList.add('on');
+    var f = e.target.dataset.f;
+    document.querySelectorAll('#cronGrid .cj').forEach(function(j){
+      j.classList.toggle('dim', f!=='all' && j.dataset.host!==f);
+    });
+  });
+
+  // §3 gate — reveal + bars + pulses only after fonts confirm
+  document.fonts.ready.then(function(){ document.body.classList.add('fonts-ready'); });
+})();
+</script>
+</body>
+</html>
