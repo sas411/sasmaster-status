@@ -1,0 +1,118 @@
+# CI-REVIEW-001 — independent claude -p structured code review (REPORT-ONLY stage)
+#
+# qa-agent verifies the rendered surface after deploy; this reviews the CODE before
+# merge — an INDEPENDENT Claude instance (fresh context: self-review retains
+# generation bias), lens seeded from the path-scoped build-discipline rules files
+# (.claude/rules/, RULES-PATHSCOPE-001).
+#
+# Staged blocking policy (⏸️ human-go to flip):
+#   Phase 1 (NOW): report-only — findings post as a PR comment + artifact; the check
+#     fails ONLY on infrastructure/billing errors (§28: a quota failure in CI must
+#     fail visibly, never pass silently).
+#   Phase 2 (after 2 weeks observation + false-positive tuning): blocking on
+#     severity=high findings that cite a specific gate_section. Disable any
+#     category with >20% false positives (category kill-list).
+#
+# Prior-results feed: last review JSON is cached per-PR; the prompt includes it so
+# re-pushes report only NEW findings (cheap and non-nagging).
+
+name: claude-review
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore prior review (dedup feed)
+        uses: actions/cache/restore@v4
+        with:
+          path: .ci-review-prior.json
+          key: claude-review-pr-${{ github.event.pull_request.number }}
+          restore-keys: claude-review-pr-${{ github.event.pull_request.number }}
+
+      - name: Install Claude Code CLI + validator
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          pip install -q jsonschema
+
+      - name: Run structured review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -o pipefail
+          git diff "origin/${{ github.base_ref }}...HEAD" > /tmp/pr.diff
+          DIFF_LINES=$(wc -l < /tmp/pr.diff)
+          if [ "$DIFF_LINES" -gt 8000 ]; then
+            echo "::warning::diff is $DIFF_LINES lines; reviewing first 8000 only (cost cap — remainder NOT reviewed)"
+            head -8000 /tmp/pr.diff > /tmp/pr.capped && mv /tmp/pr.capped /tmp/pr.diff
+          fi
+          PRIOR="[]"
+          [ -f .ci-review-prior.json ] && PRIOR=$(cat .ci-review-prior.json)
+          {
+            echo "You are an independent code reviewer for the SaSMaster platform."
+            echo "Review ONLY the diff below against the mechanical gates that follow."
+            echo "Respond with a single JSON object matching this schema (nothing but JSON):"
+            cat contracts/ci-review-findings.schema.json
+            echo "Every finding needs a concrete failure_scenario; cite gate_section only"
+            echo "when a specific gate is genuinely violated. Set review_of.head_sha to $HEAD_SHA."
+            echo "Findings already in PRIOR_FINDINGS must NOT be repeated — new issues only."
+            echo "GATES:"
+            cat .claude/rules/*.md 2>/dev/null || echo "(rules files unavailable — review against general correctness only)"
+            echo "PRIOR_FINDINGS:"
+            echo "$PRIOR"
+            echo "DIFF:"
+            cat /tmp/pr.diff
+          } > /tmp/prompt.txt
+          set +e
+          claude -p "$(cat /tmp/prompt.txt)" --output-format json > /tmp/raw.json 2> /tmp/claude.err
+          RC=$?
+          set -e
+          if [ "$RC" -ne 0 ]; then
+            if grep -Eiq 'credit balance|billing|quota|insufficient|api key|authentication' /tmp/claude.err /tmp/raw.json; then
+              echo "::error::CI review INFRASTRUCTURE failure (billing/quota/auth) — failing visibly per build-discipline §28"
+            else
+              echo "::error::claude -p exited $RC"
+            fi
+            cat /tmp/claude.err
+            exit 1
+          fi
+          python3 scripts/ci/ci_review_lib.py extract /tmp/raw.json contracts/ci-review-findings.schema.json /tmp/findings.json .ci-review-prior.json
+          cp /tmp/findings.json .ci-review-prior.json
+
+      - name: Save review for dedup on re-push
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: .ci-review-prior.json
+          key: claude-review-pr-${{ github.event.pull_request.number }}-${{ github.run_id }}
+
+      - name: Post findings as PR comment (report-only)
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/ci/ci_review_lib.py comment /tmp/findings.json /tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md --repo ${{ github.repository }}
+
+      - name: Upload findings artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-review-findings
+          path: /tmp/findings.json
