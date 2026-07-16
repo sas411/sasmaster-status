@@ -632,8 +632,8 @@ main.canvas-mode{overflow:hidden}
 <header class="top">
   <div class="wm">WAR <span class="sig">ROOM</span> <small>SASMASTER · MEDIA INTELLIGENCE</small></div>
   <span class="pill"><span class="dot dg"></span>JARVIS</span>
-  <span class="pill"><span class="dot dg"></span>S3 <b>1.62 TB</b></span>
-  <span class="pill"><span class="dot da"></span>Agents <b>10/51</b></span>
+  <span class="pill"><span class="dot dg"></span>S3 <b id="hd-s3-total">1.62 TB</b></span>
+  <span class="pill"><span class="dot da"></span>Agents <b>10/51</b></span><!-- regen: agents-manifest.json pending AGENT-CONTRACT-000 review; 10/51 hand-stamped 2026-07-16 -->
   <div class="hd-right">
     <div class="healthbar">HEALTH <span class="bar"><i></i></span> <b>—</b></div>
     <div class="clock"><div class="t" id="clk">--:--:--</div><div class="d" id="clkd">—</div></div>
@@ -648,7 +648,7 @@ main.canvas-mode{overflow:hidden}
 </button>
 <div class="kstrip collapse-section is-expanded" id="kpi-section">
   <div class="k"><div class="e">Agents</div><div class="v">10/51</div><div class="c">10 live healthy</div></div>
-  <div class="k"><div class="e">S3 Lake</div><div class="v">1.62 <small>TB</small></div><div class="c">TB total</div></div>
+  <div class="k"><div class="e">S3 Lake</div><div class="v" id="kpi-s3-total">1.62 <small>TB</small></div><div class="c">whole-bucket (§33)</div></div>
   <div class="k"><div class="e">Follow-up Items</div><div class="v goodv" style="color:var(--up)">0</div><div class="c">all clear</div></div>
   <div class="k"><div class="e">Ready to Run</div><div class="v">—</div><div class="c">HIGH (live)</div></div>
   <div class="k"><div class="e">Deployed Today</div><div class="v">0</div><div class="c">0 items today</div></div>
@@ -660,12 +660,13 @@ main.canvas-mode{overflow:hidden}
 <!-- ================= MEMORY BAR ================= -->
 <div class="membar">
   <span class="lbl">MEMORY</span>
+  <!-- regen: hand-stamped 2026-07-16 (no live tier feed; see memory-hygiene skill) -->
   <span class="hot">HOT <b>[27/30]</b></span><span>·</span>
   <span class="scp">SCOOP <b>[2]</b></span><span>·</span>
   <span class="wrm">WARM <b>[b3bb01c]</b></span><span>·</span>
   <span class="cld">COLD <b>[—]</b></span><span>·</span>
   <span class="s3">S3 <b>[1544]</b></span>
-  <span class="upd">updated 08:10 ET</span>
+  <span class="upd">as stamped 2026-07-16</span>
 </div>
 
 <!-- ================= SHELL: SIDEBAR + MAIN ================= -->
@@ -1737,13 +1738,13 @@ function renderKPIStrip(vm){
 
 /* ============ renderMemoryBar ============ */
 function renderMemoryBar(vm){
+  // WARROOM-REGEN-001 (2026-07-16): this was a stub that wiped every tier to
+  // '[—]' each cycle — the intermittent-dashes bug. Tier counts have no live
+  // feed yet (HOT is claude.ai-UI-only); the static markup carries dated
+  // hand-stamps and JS must NOT clobber them. Only the cache timestamp is live.
   const us=vm.usageState;
   const bar=document.querySelector('.membar');
   if(!bar) return;
-  const hot=bar.querySelector('.hot b');if(hot) hot.textContent='[—/30]';
-  const scp=bar.querySelector('.scp b');if(scp) scp.textContent='[—]';
-  const wrm=bar.querySelector('.wrm b');if(wrm) wrm.textContent='[—]';
-  const s3=bar.querySelector('.s3 b');if(s3) s3.textContent='[—]';
   const upd=bar.querySelector('.upd');
   if(upd&&us.cache_hit_updated){
     const d=new Date(us.cache_hit_updated);
@@ -3438,6 +3439,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   function renderArtifact(d) {
     const badge = document.getElementById('artifact-source-badge');
     if(badge) badge.textContent = d.source === 'motherduck' ? 'LIVE' : 'CACHED';
+    // §33 S3 authority: header pill + KPI read whole-bucket total from this
+    // feed — never a prefix sum (WARROOM-REGEN-001; hardcoded 1.62 TB retired 2026-07-16)
+    if (typeof d.s3_bucket_total_gb === 'number') {
+      const tb = (d.s3_bucket_total_gb / 1024).toFixed(2);
+      setEl('hd-s3-total', tb + ' TB');
+      setHTML('kpi-s3-total', tb + ' <small>TB</small>');
+    }
     const ts = document.getElementById('artifact-generated-at');
     if(ts && d.generated_at) ts.textContent = d.generated_at.slice(0,10);
 
