@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sasmaster.dev/contracts/ci-review-findings.schema.json",
+  "title": "CI-REVIEW-001 findings",
+  "description": "Structured output contract for the independent claude -p code review in CI. Schema-validated - no prose parsing. Blocking policy is staged: report-only first, then blocking ONLY on severity=high findings that cite a specific build-discipline gate section (explicit criteria, not vibes; any category false-positiving >20% gets disabled).",
+  "type": "object",
+  "required": ["review_of", "findings"],
+  "additionalProperties": false,
+  "properties": {
+    "review_of": {
+      "type": "object",
+      "required": ["head_sha"],
+      "additionalProperties": true,
+      "properties": {
+        "pr": { "type": ["integer", "null"] },
+        "head_sha": { "type": "string", "minLength": 7 }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["file", "line", "severity", "category", "gate_section", "summary", "failure_scenario"],
+        "additionalProperties": false,
+        "properties": {
+          "file": { "type": "string", "description": "Repo-relative path" },
+          "line": { "type": "integer", "minimum": 1 },
+          "severity": { "type": "string", "enum": ["high", "medium", "low"] },
+          "category": {
+            "type": "string",
+            "description": "Kebab-case finding class (e.g. bulk-write, s3-template, silent-swallow, secret-exposure, spine-mutex, cron-path). Categories are the unit of false-positive tracking: >20% FP rate disables the category."
+          },
+          "gate_section": {
+            "type": ["string", "null"],
+            "description": "The specific build-discipline gate violated (e.g. 's11', 's36', 's41', 's44'). REQUIRED non-null for a finding to ever block; null = advisory only."
+          },
+          "summary": { "type": "string", "minLength": 10 },
+          "failure_scenario": {
+            "type": "string",
+            "minLength": 10,
+            "description": "Concrete inputs/state -> wrong output/loss. A finding without a failure scenario is an opinion."
+          }
+        }
+      }
+    }
+  }
+}
