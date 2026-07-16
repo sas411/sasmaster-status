@@ -4,8 +4,8 @@
   "repo": "https://github.com/sas411/sasmaster-skills",
   "canonical_url": "https://raw.githubusercontent.com/sas411/sasmaster-skills/main/skills-manifest.json",
   "public_mirror_url": "https://sasmaster-public.s3.amazonaws.com/skills-manifest.json",
-  "skill_count": 140,
-  "user_skill_count": 77,
+  "skill_count": 141,
+  "user_skill_count": 78,
   "platform_skill_count": 63,
   "skipped_no_frontmatter": 0,
   "parse_errors": 0,
@@ -401,6 +401,13 @@
       "tier": "platform",
       "path": "ml-pipeline-workflow/SKILL.md",
       "last_modified": "2026-05-31 07:18:09 -0400"
+    },
+    {
+      "name": "model-gateway",
+      "description": "The single authority for how SaSMaster accesses, routes, governs, and evaluates ALL external AI models — the Model Gateway (routing abstraction) and Model Clean Room (model-provenance wall). Load before ANY task that touches a non-Claude model, adds a model to the platform, routes work between models, or evaluates a model for adoption. Triggers on model gateway, model clean room, model provenance, model roster, Nemotron, Gemini, TimesFM, Inkling, Thinking Machines, TRIBE, Seedance, Vertex AI, NIM, embedding bake-off, reasoning verification, PROCURE/WALK, model routing, cost-tier fallback, \"which model should\", add a model, evaluate a model, model_eval_only, model_production, whether a model output can touch the spine, or whether data can be sent to a given model. This skill governs the wall that keeps eval-only model output out of the product spine AND proprietary spine data out of external clouds. Always load it before proposing or wiring any model that isn't Claude.",
+      "tier": "user",
+      "path": "user/model-gateway/SKILL.md",
+      "last_modified": "2026-07-16 16:30:25 -0400"
     },
     {
       "name": "modern-javascript-patterns",
