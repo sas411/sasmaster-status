@@ -1584,6 +1584,13 @@ const DEMO_DATA = {
 function adapt(d){
   const sFresh=(src)=>(d.source_freshness||[]).find(f=>f.source===src)||{};
   const getNielsenDays=()=>{
+    /* NIELSEN-CLOCK-WIRE-001 (S-02): authority = ops.pull_ledger + ref.nielsen_delivery_contract
+       via data/nielsen-clock.json (amber > cadence 15d, red > 18d). Freshness heuristic = fallback only. */
+    const nc=window._nielsenClock;
+    if(nc&&nc.days_since_pull!=null){
+      const due=(nc.families||[]).map(x=>x.next_due).filter(Boolean).sort()[0]||null;
+      return {days:nc.days_since_pull,warn:!!nc.warn||!!nc.red,due};
+    }
     const f=sFresh('Nielsen VIEWERSHIP');
     if(!f.source) return {days:13,warn:true};
     if(f.status==='unknown') return {days:'—',warn:true};
@@ -1733,7 +1740,7 @@ function renderKPIStrip(vm){
   if(cells[4]){cells[4].querySelector('.v').textContent=k.buildEventsToday;cells[4].querySelector('.c').textContent=k.buildEventsToday+' items today';}
   if(cells[5]){const cost=k.costMtd!=null?'$'+Number(k.costMtd).toFixed(2):'$0.08';cells[5].querySelector('.v').textContent=cost;cells[5].querySelector('.c').textContent=(vm.costSummary&&vm.costSummary.entry_count)||21+' builds';}
   if(cells[6]){const v=cells[6].querySelector('.v');v.textContent=k.blessQueue||0;v.style.color=k.blessQueue===0?'var(--up)':'var(--warn)';cells[6].querySelector('.c').textContent=k.blessQueue===0?'queue clear ✓':k.blessQueue+' pending';}
-  if(cells[7]){const n=k.nielsen;cells[7].querySelector('.v').innerHTML=n.days+'<small>/15d</small>';cells[7].classList.toggle('warnK',n.warn);cells[7].querySelector('.c').textContent=n.warn?'check extract schedule':'on schedule';}
+  if(cells[7]){const n=k.nielsen;cells[7].querySelector('.v').innerHTML=n.days+'<small>/15d</small>';cells[7].classList.toggle('warnK',n.warn);cells[7].querySelector('.c').textContent=n.due?('next due '+n.due):(n.warn?'check extract schedule':'on schedule');}
 }
 
 /* ============ renderMemoryBar ============ */
@@ -2557,6 +2564,9 @@ function buildFintelTable(){
 /* ============ loadAndRender ============ */
 async function loadAndRender(){
   let vm;
+  /* NIELSEN-CLOCK-WIRE-001: ledger-backed clock (must resolve before adapt() so getNielsenDays sees it) */
+  try{ const rc=await fetch('data/nielsen-clock.json?t='+Date.now()); if(rc.ok) window._nielsenClock=await rc.json(); }
+  catch(e){ console.warn('[nielsen-clock] fetch failed — falling back to freshness heuristic',e); }
   try{
     const r=await fetch('status.json?t='+Date.now());
     if(!r.ok) throw new Error('HTTP '+r.status);
