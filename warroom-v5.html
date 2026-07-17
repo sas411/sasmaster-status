@@ -1119,6 +1119,18 @@ main.canvas-mode{overflow:hidden}
         </div>
       </div>
     </div>
+    <div class="panel" style="margin-top:14px">
+      <div class="sec-h"><h2>Skill routing gate</h2><span>SKILL-ROUTING-GATE-001 · knowledge fires before the work</span></div>
+      <div class="t4" style="margin-bottom:10px">
+        <div class="tstat"><div class="l">Hit rate</div><div class="v" id="srg-hitrate">—</div><div class="s">owner skills already loaded</div></div>
+        <div class="tstat"><div class="l">Refusals</div><div class="v" id="srg-refusals" style="color:var(--down)">—</div><div class="s">BLOCK fired</div></div>
+        <div class="tstat"><div class="l">Unroutable</div><div class="v" id="srg-unroutable">—</div><div class="s">weekly sweep → new rules</div></div>
+        <div class="tstat"><div class="l">Registry</div><div class="v" id="srg-registry">—</div><div class="s">rules · skills routed</div></div>
+      </div>
+      <table class="dt" id="srg-rules"></table>
+      <div class="sec-h" style="margin-top:10px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">● DEAD SKILLS (routed, zero fires)</span></div>
+      <div id="srg-dead" style="font-size:12px;color:var(--dim)">—</div>
+    </div>
   </section>
 
   <!-- ================= FINANCIAL INTEL ================= -->
@@ -2333,6 +2345,41 @@ function renderTelemetry(vm){
   const alertSection=document.querySelector('#v-telemetry .sec-h + .evrow')?.parentElement;
   if(vm.alerts.length>0){
     const alertContainer=document.querySelector('#v-telemetry .evrow:not(#evfeed .evrow)')?.parentElement;
+  }
+
+  renderSkillRouting().catch(()=>{});
+}
+
+/* ============ Skill Routing Gate panel (SKILL-ROUTING-GATE-001 P4) ============ */
+let _srgData=null;
+async function renderSkillRouting(){
+  if(!_srgData){
+    try{
+      const r=await fetch('skill-routing-telemetry.json?t='+Date.now());
+      if(!r.ok) return;
+      _srgData=await r.json();
+    }catch(e){ return; }
+  }
+  const d=_srgData, t=d.totals||{}, reg=d.registry||{};
+  const set=(id,txt)=>{const el=document.getElementById(id); if(el) el.textContent=txt;};
+  set('srg-hitrate', t.hit_rate_pct==null?'—':t.hit_rate_pct+'%');
+  set('srg-refusals', t.refusals??'—');
+  set('srg-unroutable', t.unroutable??'—');
+  set('srg-registry', `${reg.rules??'—'} · ${reg.skills_routed??'—'}`);
+  const rules=document.getElementById('srg-rules');
+  if(rules){
+    const fires=Object.entries(d.per_rule_fires||{}).slice(0,8);
+    const max=Math.max(1,...fires.map(([,n])=>n));
+    rules.innerHTML=fires.map(([rid,n])=>
+      `<tr><td class="mono" style="font-size:11px">${rid}</td>`+
+      `<td><div class="qb" style="height:6px;background:var(--inset);border-radius:4px"><i style="display:block;height:100%;width:${Math.round(100*n/max)}%;background:var(--violet);border-radius:4px"></i></div></td>`+
+      `<td class="mono" style="text-align:right">${n}</td></tr>`).join('')
+      ||'<tr><td style="color:var(--dim);font-style:italic">no routed traffic yet</td></tr>';
+  }
+  const dead=document.getElementById('srg-dead');
+  if(dead){
+    const ds=d.dead_skills||[];
+    dead.textContent=ds.length?ds.join(' · '):'none — every routed skill has fired';
   }
 }
 
