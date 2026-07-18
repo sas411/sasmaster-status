@@ -117,7 +117,7 @@
       <h1>🏗️ How the Pieces Actually Fit</h1>
       <div class="hint">hover a node to trace its live connections · click to inspect · click a connection to jump</div>
     </div>
-    <div class="stamp">AUDIT-GROUNDED · 2026-07-17 · ALL COUNTS L3-CITED<br>SUPERSEDES §06 OF THE AGENTIC-OS BRIEF<br>(ITS 77-SKILLS / 22-37-FLEET / 110-JOB CLAIMS WERE STALE)</div>
+    <div class="stamp">AUDIT-GROUNDED · 2026-07-18 · EVERY EDGE TEAM-VERIFIED<br>SUPERSEDES §06 OF THE AGENTIC-OS BRIEF<br>(ITS 77-SKILLS / 22-37-FLEET / 110-JOB CLAIMS WERE STALE)</div>
   </header>
 
   <div class="wrap">
@@ -194,38 +194,62 @@ var NODES = [
  {id:'motherduck',layer:'data',t:'MOTHERDUCK',s:'L3 + serving warehouse',st:'live',body:'<b>Where truth lives.</b> ops.platform_state (single-copy state, append-only log), serving views; every heartbeat and census lands here.',cnt:'14 schemas · sub-100ms serving reads'},
 
  {id:'railway',layer:'compute',cls:'teal',t:'RAILWAY',s:'api · sentinel · Tier-A home',st:'live',body:'<b>The cloud half.</b> command-api (Slack ingress + read mirror), sentinel loop, dead-man checker (Wave 1), Tier-A cron host (Wave 2).',cnt:'2 services live · dead-man daily I\'m-alive'},
- {id:'mac',layer:'compute',t:'MAC',s:'launchd · cron · repo work',st:'degraded',body:'<b>The named SPOF.</b> ~120 of 122 scheduled jobs; sleep = soft outage. Wave 2 makes it Tier-B (catch-up-on-wake) before Aug 7.',cnt:'90 crontab + 32 launchd (pinned census) · NOT "110"'},
+ {id:'mac',layer:'compute',t:'MAC',s:'launchd · cron · CLAUDE CODE terminal · repo work',st:'degraded',body:'<b>The named SPOF — and the real execution host.</b> Not a passive S3/MotherDuck sink: Claude Code sessions run AS Mac processes, and the fleet\'s cron/launchd jobs execute here directly. Sleep = soft outage. Wave 2 makes it Tier-B (catch-up-on-wake) before Aug 7.',cnt:'118 crontab + 33 launchd (2026-07-18 census — corrects yesterday\'s 90+32 within 24h; counts rot, pull fresh)'},
  {id:'gha',layer:'compute',t:'GITHUB ACTIONS',s:'Git/CI rail · failover',st:'live',body:'<b>The fourth interop rail.</b> Card branches, CI review, deploy relay, proven dispatch failover. Workflows flip report-only → blocking in Wave 3.',cnt:'13 workflows · blocking ramp = CI-BLOCKING-001'},
  {id:'dbx',layer:'compute',t:'DATABRICKS',s:'RSG-shared · Tue jobs',st:'live',body:'<b>Borrowed compute, guarded by code.</b> Tuesday Nielsen chain on allowlisted clusters; read-only default; license tracked separately.',cnt:'Tue Nielsen chain · allowlisted clusters only'},
  {id:'ec2',layer:'compute',cls:'dashed',t:'EC2 BURST',s:'harvest fleets · on demand',st:'target',body:'<b>Elastic burst</b> for harvest fleets only — spun on demand, never standing compute.',cnt:'on-demand · no scheduled residency'}
 ];
 var EDGES = [
- ['slack','kernel','HTTP Events · HMAC'], ['kernel','lake','enqueue → S3 queue.json'],
+ ['slack','railway','/slack/events HTTP ingress · HMAC'],
+ ['slack','kernel','HTTP Events · HMAC (target — kernel SHADOW, not yet live dispatcher)'],
+ ['railway','lake','enqueue → S3 queue.json'],
  ['lake','mac','Mac consumer polls + drains'], ['mac','lake','outputs + heartbeats'],
  ['railway','slack','pages · dead-man I\'m-alive'], ['mac','motherduck','L3 close-outs · heartbeats'],
  ['railway','lake','read mirror ← 5-min cache sync'], ['gates','executor','PreToolUse refusals'],
  ['gates','skills','owner-skill resolution · HMAC ledger'], ['executor','fleet','dispatch builders/verifiers'],
+ ['executor','mac','Claude Code sessions ARE Mac terminal processes — no cloud exec substrate'],
+ ['executor','tiering','Claude model calls — largest live consumer'],
+ ['fleet','mac','builders/verifiers + cron agents run as Mac launchd/cron (118 crontab · 33 launchd)'],
  ['fleet','lake','job outputs · _shadow/ diffs'], ['fleet','motherduck','yield heartbeats (agent-yield.js)'],
- ['kernel','gates','propose_gate for dangerous ops'], ['bless','executor','rulings unblock cards'],
- ['bless','warroom','! git push → deploy'], ['dreams','vault','lesson drafts + journal'],
- ['dreams','bless','proposals → bless queue'], ['dreams','gateway','model calls (consumer #2, Wave 3)'],
- ['vault','managed','nightly memstore sync (541 files)'], ['tiering','fleet','per-task model routing'],
- ['gateway','motherduck','write-ahead egress ledger'], ['spine','motherduck','certs + invariant views'],
- ['lake','spine','landing → cert gate → promote'], ['freshness','lake','_manifest.json per prefix'],
- ['freshness','senses','manifests → alert ledger'], ['senses','slack','SLO + staleness pages'],
- ['senses','motherduck','heartbeat / SLO reads'], ['warroom','motherduck','status pulls L3 counts'],
+ ['fleet','skills','agents-manifest.json registry read (agent-contract.js)'],
+ ['fleet','brain','L3 writes are Brain-tier contributions (agent-yield.js)'],
+ ['fleet','ec2','burst dispatch on demand (unverified — no EC2 SDK usage found in agents/)'],
+ ['kernel','gates','propose_gate for dangerous ops (target — kernel SHADOW)'],
+ ['bless','executor','rulings unblock cards'],
+ ['bless','gates','doctrine rulings → ref.doctrine_conformance rows'],
+ ['gates','bless','unresolved propose_gate escalates to weekly bless window'],
+ ['bless','portal','PORTAL-CANON-001 ruling unparks portal'],
+ ['dreams','vault','lesson drafts + journal'],
+ ['dreams','bless','proposals → bless queue'],
+ ['dreams','gateway','model calls (consumer #2, Wave 3 — gateway has 0 production callers today)'],
+ ['vault','managed','nightly memstore sync (541 files)'],
+ ['vault','brain','VAULT = the searched tier of the Brain contract'],
+ ['tiering','fleet','per-task model routing (unverified — no tiering impl found in lib/ or services/)'],
+ ['gateway','motherduck','write-ahead egress ledger (ledger empty today — 0 production callers)'],
+ ['spine','motherduck','certs + invariant views'],
+ ['lake','spine','landing → cert gate → promote'],
+ ['freshness','lake','_manifest.json per prefix (target — 0 manifests exist today, Wave 1)'],
+ ['freshness','senses','manifests → alert ledger (target — no live signal today)'],
+ ['senses','slack','SLO + staleness pages'],
+ ['senses','motherduck','heartbeat / SLO reads'],
+ ['warroom','motherduck','status pulls L3 counts (unconfirmed — refresh is a Mac generate-status.js cron)'],
  ['portal','spine','serving views (band-gated)'], ['ask','spine','plan_executor governed reads'],
- ['managed','lake','Tier-A scheduled loops (Wave 2)'], ['brain','motherduck','L3 = the state tier'],
- ['brain','memhot','HOT/WARM = the Brain\'s working tiers'], ['skills','executor','loaded per card by the gate'],
- ['railway','motherduck','sentinel + dead-man reads'], ['cowork','bless','strategy → rulings · certification-of-record'],
- ['cowork','kernel','mobile intent → intent loop'], ['osloops','dreams','reflect = the one live loop'],
- ['osloops','brain','distilled concepts → L2/L3'], ['gateway','cleanroom','egress → redact → fenced answer-only'],
+ ['managed','lake','Tier-A scheduled loops (target — Wave 2, zero sessions to date)'],
+ ['brain','motherduck','L3 = the state tier'],
+ ['memhot','brain','HOT+WARM = working tiers feed the Brain contract'],
+ ['skills','executor','loaded per card by the gate'],
+ ['railway','motherduck','sentinel + dead-man reads'],
+ ['cowork','bless','strategy → rulings · certification-of-record'],
+ ['cowork','kernel','mobile intent → intent loop (aspirational — no such path evidenced)'],
+ ['osloops','dreams','reflect = the one live loop'],
+ ['osloops','brain','distilled concepts → L2/L3 (charter-only — distill loop not yet running)'],
+ ['gateway','cleanroom','egress → redact → fenced answer-only'],
  ['plugins','skills','MCP tools resolved per card'], ['plugins','executor','connectors for CLAUDE CODE'],
  ['lake','memevent','S3 JSONL session tap'], ['memevent','dreams','nightly log mining'],
  ['memevent','vault','distilled lessons'], ['gha','railway','CI deploy relay'],
  ['bless','gha','! git push → workflows run'], ['gha','executor','13 workflows gate cards'],
  ['dbx','lake','Nielsen outputs → S3 landing'], ['dbx','spine','Tue chain → cert gate'],
- ['fleet','ec2','burst dispatch on demand'], ['ec2','lake','harvest outputs → S3 landing']
+ ['ec2','lake','harvest outputs → S3 landing']
 ];
 
 /* ── RENDER ── */
