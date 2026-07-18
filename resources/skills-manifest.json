@@ -4,8 +4,8 @@
   "repo": "https://github.com/sas411/sasmaster-skills",
   "canonical_url": "https://raw.githubusercontent.com/sas411/sasmaster-skills/main/skills-manifest.json",
   "public_mirror_url": "https://sasmaster-public.s3.amazonaws.com/skills-manifest.json",
-  "skill_count": 144,
-  "user_skill_count": 81,
+  "skill_count": 145,
+  "user_skill_count": 82,
   "platform_skill_count": 63,
   "skipped_no_frontmatter": 0,
   "parse_errors": 0,
@@ -208,7 +208,7 @@
     },
     {
       "name": "eidr-mastery",
-      "description": "EIDR (Entertainment Identifier Registry) conceptual mastery - DOI structure and prefix anatomy, the content model hierarchy (abstract title vs edit vs manifestation, series/season/episode parent relationships), IMDB and Gracenote crosswalks (crosswalk doctrine, coverage ceilings, how ID crosswalks work), provenance tiers (CERTIFIED vs UNCERTIFIED match certification), and identifier matching strategy for the PK spine. Load to explain EIDR ID semantics or DOI structure, design crosswalks, or settle any provenance question. Disambiguation: concepts, DOI structure, crosswalk doctrine, provenance = THIS skill; live REST calls, auth realms, harvest mechanics, resolve.eidr.org = eidr-rest.",
+      "description": "Use for ANY EIDR question except raw REST calls: DOI structure and prefix anatomy, content-model hierarchy (abstract title vs edit vs manifestation, series/season/episode), referent types, dedupe-by-root-object, the IMDB/Gracenote crosswalk doctrine and coverage ceilings, provenance tiers (CERTIFIED vs UNCERTIFIED), altId-rate interpretation, the EIDR bot (camoufox v5) run doctrine, backfilling spine eidr_id FROM EIDR HARVESTS, and the EIDR S3 layouts (raw harvest, conformed, tall alt-ID table design). Trigger nouns: EIDR, DOI, 10.5240, referent, rootId dedupe, eidr bot, altId rate, eidr harvest, eidr backfill. Disambiguation: live REST calls / auth realms / resolve.eidr.org = eidr-rest · eidr_id via the WIKIDATA lane = wikidata-fusion · this skill owns EIDR semantics, strategy, harvest doctrine, and layouts.",
       "tier": "user",
       "path": "user/eidr-mastery/SKILL.md",
       "last_modified": "2026-07-16 09:16:10 -0400"
@@ -340,6 +340,13 @@
       "last_modified": "2026-07-17 00:58:24 -0400"
     },
     {
+      "name": "jarvis-dreams",
+      "description": "Doctrine owner for the JARVIS Dreams nightly self-learning agent (JARVIS-DREAMS-001): recall → dream → learn → wake. Governs the WRITE WALL (autonomous writes ONLY to s3://sasmaster-2026/dreams/, knowledge-bank/dreams/, and its two L3 heartbeat keys — everything canonical is proposal-only via dream-promote), the green-lane auto-fix allowlist, the yield tripwire + cost gate, corpus sources, proposal tiers, and the 07:30 brief format. Load whenever building, debugging, extending, or reviewing the Dreams agent, its collector, dream-promote.py, its findings/proposals, or the morning brief; also when adjudicating whether ANY Dreams write is inside the wall. Trigger on: \"jarvis dreams\", \"dreams agent\", \"nightly dream\", \"dream brief\", \"dream-promote\", \"dreams/ prefix\", \"green lane\", \"JARVIS-DREAMS-001\". Pairs with: memory-hygiene, lessons-feedback, monitoring-alerting, cost-optimizer, s3-data-architect.",
+      "tier": "user",
+      "path": "user/jarvis-dreams/SKILL.md",
+      "last_modified": "2026-07-17T15:35:01.251060+00:00"
+    },
+    {
       "name": "jarvis-ops",
       "description": "Manages JARVIS -- SaSMaster's Slack bot on the HTTP Events API (Railway /slack/events; Socket Mode RETIRED, see historical section) -- including command wiring, cron jobs, daemon lifecycle, and channel routing. Use when adding or modifying a JARVIS Slack command (!build, !task, !briefing, !status, !iab, !query), when JARVIS stops responding or shows duplicate PIDs, when wiring a new agent script to a command, when debugging the async-prompt.md loop, or when JARVIS drops messages due to narrow channel ID filtering. Do NOT use for portal UI, scraper HTTP logic, or DuckDB queries.",
       "tier": "user",
@@ -390,7 +397,7 @@
     },
     {
       "name": "media-domain",
-      "description": "Media industry domain knowledge for SaSMaster: TMDB and IMDB schema quirks, Nielsen and Gracenote data structures, EIDR identifiers, content metadata standards, audience measurement concepts, rights management vocabulary, and TV/film industry taxonomy. Use whenever working with media metadata, content identifiers, audience data, rights data, or any media industry concept. Prevents common mistakes when interpreting IMDB tconst formats, TMDB type mismatches, Nielsen ratings terminology, and Gracenote program IDs (tf_database_key / TMS ID — MV/SH/EP/SP), including the Gracenote TV Schedules feed schema and Gracenote-IMDB crosswalk cardinality.",
+      "description": "Load whenever a question is about what a media ID or field MEANS: IMDB tconst/nm formats, TMDB type quirks, Gracenote TMS IDs (MV/SH/EP/SP, rootId vs tmsId), EIDR id semantics, GN/FYI crosswalk binding rules (which id binds at which grain, movies vs series vs episodes), Nielsen ratings terminology, telecast vs airing, mint ANCHOR PRECEDENCE (imdb > eidr > tmdb), confidence bands and their meanings, endYear semantics, viewership-binds-CID / metadata-rolls-to-PKID rule, EPI_ID exclusion, rights vocabulary, and industry taxonomy. Trigger nouns: tconst, tmsId, rootId, GN_PARENT_KEY, anchor precedence, confidence band, CID vs PKID, endYear, telecast. Disambiguation: designing joins/pipelines across sources = data-fusion-mastery · match scoring/thresholds = match-intelligence · catalog build pipelines = content-catalog-platform · this skill owns the SEMANTICS the others build with.",
       "tier": "user",
       "path": "user/media-domain/SKILL.md",
       "last_modified": "2026-07-16 04:28:18 -0400"

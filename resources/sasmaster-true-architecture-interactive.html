@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SaSMaster — True Architecture · Interactive Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ══ SaSMaster Light Operator-Reference Theme — tokens.md § operator-reference ══ */
+  :root{
+    --canvas:#F0F4F8; --card:#ffffff;
+    --lavender:#A682F2; --teal:#0EA5E9; --green:#10B981; --gold:#c2740a; --red:#dc2626;
+    --lav-dim:rgba(166,130,242,0.12); --teal-dim:rgba(14,165,233,0.10); --green-dim:rgba(16,185,129,0.10);
+    --text-primary:#1E293B; --text-secondary:#64748B; --text-dim:#94A3B8;
+    --border:rgba(166,130,242,0.20); --border-subtle:rgba(30,41,59,0.08);
+    --ease-spring:cubic-bezier(0.16,1,0.3,1); --ease-enter:cubic-bezier(0,0,0.2,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--canvas);color:var(--text-primary);font-family:'DM Sans',ui-sans-serif,system-ui,sans-serif}
+  .page{max-width:1200px;margin:0 auto;padding:26px 20px 40px}
+  .hd{border-bottom:2px solid var(--lavender);padding-bottom:11px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-end}
+  .brand{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.22em;color:var(--text-secondary)}
+  .brand b{color:var(--lavender);font-weight:500}
+  h1{font-size:clamp(20px,4vw,26px);font-weight:700;margin-top:5px}
+  .hint{font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);margin-top:4px}
+  .stamp{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);text-align:right;line-height:1.6}
+
+  .wrap{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+  @media(min-width:1000px){.wrap{grid-template-columns:1fr 278px}}
+
+  /* ── §06 grammar: arch board ── */
+  .arch-wrap{background:var(--card);border:1px solid var(--border-subtle);border-radius:10px;padding:16px 14px 12px;position:relative}
+  .arch{display:flex;flex-direction:column;gap:0;position:relative;padding-right:34px}
+  .lrow{display:flex;gap:8px;align-items:stretch}
+  .llabel{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.18em;color:var(--text-dim);width:74px;flex-shrink:0;display:flex;align-items:center}
+  .lnodes{display:flex;gap:7px;flex:1;flex-wrap:wrap}
+  @media(max-width:767px){.llabel{width:52px;font-size:7.5px}.arch{padding-right:24px}.cpad{width:52px!important}}
+
+  #wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
+
+  .node{border-radius:8px;padding:8px 11px;cursor:pointer;border:1.5px solid var(--border-subtle);background:var(--card);flex:1;min-width:108px;position:relative;z-index:2;
+        transition:transform 200ms var(--ease-spring),box-shadow 200ms var(--ease-enter),opacity 300ms var(--ease-enter),border-color 200ms}
+  .node .nt{font-family:'DM Mono',monospace;font-size:10.5px;font-weight:500;line-height:1.3;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .node .ns{font-size:9.5px;color:var(--text-secondary);line-height:1.35;margin-top:3px}
+  .node .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .node.lav{border-color:var(--lavender);background:linear-gradient(180deg,var(--lav-dim),var(--card) 75%)}
+  .node.teal{border-color:var(--teal);background:linear-gradient(180deg,var(--teal-dim),var(--card) 75%)}
+  .node.green{border-color:var(--green);background:linear-gradient(180deg,var(--green-dim),var(--card) 75%)}
+  .node.dashed{border-style:dashed}
+  .node:hover{transform:translateY(-2px);box-shadow:0 6px 18px var(--border-subtle)}
+  .node.sel{border-color:var(--lavender);box-shadow:0 0 0 3px var(--lav-dim),0 6px 18px var(--border-subtle)}
+  .node.dim{opacity:.28}
+  .node.lit{box-shadow:0 0 0 2px var(--teal-dim),0 4px 14px var(--border-subtle)}
+  .d-live{background:var(--green)} .d-shadow{background:var(--lavender)} .d-degraded{background:var(--gold)}
+  .d-parked{background:var(--text-dim)} .d-target{background:transparent;border:1.5px dashed var(--teal)}
+
+  .pill{display:inline-block;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.08em;padding:1px 7px;border-radius:20px;white-space:nowrap}
+  .pill.shadow{background:var(--lav-dim);color:var(--lavender);border:1px solid var(--border)}
+  .pill.gated{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+  .pill.live{background:var(--green-dim);color:var(--green);border:1px solid var(--green)}
+
+  /* connector spines (ambient) */
+  .crow{display:flex;gap:8px;height:22px}
+  .cpad{width:74px;flex-shrink:0}
+  .clines{flex:1;display:flex;justify-content:space-around;align-items:stretch}
+  .cline{width:2px;background:linear-gradient(180deg,var(--text-dim),var(--border-subtle));opacity:.5;position:relative;border-radius:2px}
+  .cline::after{content:'';position:absolute;left:-2px;width:6px;height:6px;border-radius:50%;background:var(--lavender);opacity:0;animation:pulse-down 2.6s var(--ease-enter) infinite}
+  .cline:nth-child(2)::after{animation-delay:.6s;background:var(--teal)}
+  .cline:nth-child(3)::after{animation-delay:1.2s;background:var(--green)}
+  @keyframes pulse-down{0%{top:-4px;opacity:0}15%{opacity:1}85%{opacity:1}100%{top:calc(100% - 2px);opacity:0}}
+
+  /* learning rail */
+  .loop{position:absolute;right:8px;top:14px;bottom:14px;width:18px;display:flex;flex-direction:column;align-items:center}
+  .loop .arrow{color:var(--green);font-size:11px;line-height:1}
+  .loop .rail{flex:1;width:2px;border-left:2px dashed var(--green);opacity:.6;position:relative}
+  .loop .rail::after{content:'';position:absolute;left:-4px;width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse-up 3s linear infinite}
+  @keyframes pulse-up{0%{bottom:0;opacity:0}12%{opacity:1}88%{opacity:1}100%{bottom:calc(100% - 4px);opacity:0}}
+  .legend-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+  .loop-legend{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;color:var(--green);background:var(--green-dim);border:1px solid var(--green);border-radius:20px;padding:3px 10px;white-space:nowrap}
+  .loop-legend .lg-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:lg-blink 3s ease infinite}
+  @keyframes lg-blink{0%,100%{opacity:.4}50%{opacity:1}}
+  .stleg{display:flex;gap:12px;flex-wrap:wrap;font-family:'DM Mono',monospace;font-size:8.5px;color:var(--text-secondary)}
+  .stleg span{display:inline-flex;align-items:center;gap:5px}
+  .lg{width:7px;height:7px;border-radius:50%}
+
+  @media(prefers-reduced-motion:reduce){.cline::after,.loop .rail::after,.loop-legend .lg-dot{animation:none;opacity:0}.loop-legend .lg-dot{opacity:1}}
+  @media print{.cline::after,.loop .rail::after{animation:none;opacity:0}}
+
+  /* inspector panel */
+  .panel{background:var(--card);border:1px solid var(--border-subtle);border-top:3px solid var(--teal);border-radius:9px;padding:13px 15px;position:sticky;top:14px;align-self:start;min-height:210px}
+  .panel .pt{font-family:'DM Mono',monospace;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .panel .pt .ic{width:10px;height:10px;border-radius:50%;flex-shrink:0;background:var(--lavender)}
+  .panel .badge{display:inline-block;font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.06em;padding:1px 7px;border-radius:12px;margin:7px 0 8px}
+  .b-live{background:var(--green-dim);color:var(--green);border:1px solid var(--green)}
+  .b-shadow{background:var(--lav-dim);color:var(--lavender);border:1px solid var(--border)}
+  .b-degraded{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+  .b-parked{background:transparent;color:var(--text-dim);border:1px solid var(--border-subtle)}
+  .b-target{background:var(--teal-dim);color:var(--teal);border:1px solid var(--teal)}
+  .panel .body{font-size:11.5px;color:var(--text-secondary);line-height:1.5}
+  .panel .body b{color:var(--text-primary)}
+  .panel .cnt{font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);margin:7px 0;line-height:1.5}
+  .panel .lt{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--text-dim);margin:9px 0 4px;text-transform:uppercase}
+  .panel .talk{font-size:10.5px;line-height:1.45;color:var(--text-secondary);padding-left:13px;position:relative;margin-bottom:4px;cursor:pointer}
+  .panel .talk::before{content:'⇄';position:absolute;left:0;color:var(--teal);font-family:'DM Mono',monospace;font-size:9px}
+  .panel .talk:hover{color:var(--text-primary)}
+  .panel .talk .proto{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--text-dim)}
+  .foot{margin-top:16px;border-top:1px solid var(--border-subtle);padding-top:8px;font-family:'DM Mono',monospace;font-size:8.5px;color:var(--text-dim);line-height:1.7}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="hd">
+    <div>
+      <div class="brand">SASMASTER <b>·</b> TRUE ARCHITECTURE <b>·</b> INTERACTIVE MAP <b>·</b> v2</div>
+      <h1>🏗️ How the Pieces Actually Fit</h1>
+      <div class="hint">hover a node to trace its live connections · click to inspect · click a connection to jump</div>
+    </div>
+    <div class="stamp">AUDIT-GROUNDED · 2026-07-17 · ALL COUNTS L3-CITED<br>SUPERSEDES §06 OF THE AGENTIC-OS BRIEF<br>(ITS 77-SKILLS / 22-37-FLEET / 110-JOB CLAIMS WERE STALE)</div>
+  </header>
+
+  <div class="wrap">
+    <div>
+      <div class="arch-wrap">
+        <div class="arch" id="arch">
+          <svg id="wires"></svg>
+          <div class="loop"><span class="arrow">▲</span><div class="rail"></div></div>
+        </div>
+      </div>
+      <div class="legend-row">
+        <div class="stleg">
+          <span><span class="lg d-live"></span>LIVE</span>
+          <span><span class="lg d-shadow"></span>SHADOW</span>
+          <span><span class="lg d-degraded"></span>DEGRADED</span>
+          <span><span class="lg d-parked"></span>PARKED</span>
+          <span><span class="lg d-target"></span>TARGET</span>
+        </div>
+        <span class="loop-legend"><span class="lg-dot"></span>▲ GREEN RAIL = LEARNING LOOP · dreams → vault → skills → bless</span>
+      </div>
+    </div>
+    <aside class="panel" id="panel">
+      <div class="pt"><span class="ic"></span>SELECT A NODE</div>
+      <div class="body" style="margin-top:8px">Hover any block to light up everything it talks to, with the protocol on each wire. Click to pin its detail here — what it is, its verified numbers, and its full connection list.</div>
+    </aside>
+  </div>
+
+  <footer class="foot">
+    DERIVED FROM PLATFORM-AUDIT-JUL17 → SPEC v1.0 → v1.1 AMENDMENT · COUNTS FROM L3 2026-07-17 (PULL FRESH — CARRIED COUNTS ROT) · EVERY FIGURE HAS A PINNED CENSUS COMMAND (BASELINE-SNAP-001) · BLESSED FIGURES ONLY
+  </footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ── DATA (verified 2026-07-17; A-example claims corrected where stale) ── */
+var LAYERS = [
+  ['surfaces','SURFACES'], ['orch','ORCHESTRATE'], ['models','MODELS'], ['exec','EXECUTE'],
+  ['know','KNOW'], ['memory','MEMORY'], ['data','DATA'], ['compute','COMPUTE']
+];
+var NODES = [
+ {id:'slack',layer:'surfaces',cls:'lav',flex:1.2,t:'SLACK · JARVIS',s:'commands · pages · 07:30 briefs',st:'live',body:'<b>The command surface.</b> !build !task !status !query via HTTP Events API; all alerts, digests, and the Dreams brief land here.',cnt:'HMAC-verified · replay-guarded · channel allowlist'},
+ {id:'warroom',layer:'surfaces',t:'WAR ROOM',s:'public ops cockpit',st:'degraded',body:'<b>The single pane of glass.</b> 5-min rebuild cadence. DEGRADED: root URL serves a retirement stub; live board is warroom-v5. Rebuild = Wave 3.',cnt:'76 registered resources · 5-min refresh'},
+ {id:'portal',layer:'surfaces',t:'PORTAL',s:'product surface',st:'parked',body:'<b>The product face.</b> PARKED with a canon dispute: portal-v8 deployed vs "v9" doctrine. PORTAL-CANON-001 ruling settles it; blue-green rebuild Wave 3.',cnt:'v8 on Vercel · 5 trees pending collapse'},
+ {id:'ask',layer:'surfaces',t:'ASK',s:'governed NL analytics',st:'live',body:'<b>Natural-language analytics.</b> Every read via plan_executor grammars — never raw SQL; safe-refusal on unknowns.',cnt:'KV-sessioned · plan-cited answers'},
+ {id:'cowork',layer:'surfaces',cls:'teal',t:'CLAUDE / COWORK',s:'strategy sessions · mobile',st:'live',body:'<b>The thinking surface.</b> Human-driven sessions where doctrine gets authored before mechanics exist; certification-of-record home for the remediation program.',cnt:'human-only · zero scheduled jobs'},
+
+ {id:'kernel',layer:'orch',cls:'lav',flex:1.5,t:'JARVIS KERNEL',s:'intent loop · contract-gated · kill switch',st:'shadow',pill:'SHADOW',body:'<b>The Will.</b> Decomposes intent, dispatches the fleet, propose_gate for dangerous ops. SHADOW until 50 honest reviews (KERNEL-GRAD-001, Wave 3).',cnt:'review quota 9/50 · $0.011/turn'},
+ {id:'osloops',layer:'orch',cls:'lav dashed',t:'OS LOOPS',s:'distill · reflect · perceive · report',st:'target',body:'<b>The OS loops.</b> Reflect is live as Dreams; distill / perceive / report-factory are charter-only. Self-Learning scored 5.0 — zero promotions since 04-23.',cnt:'1 of 4 loops running · rest staged'},
+ {id:'senses',layer:'orch',cls:'green',t:'SENSES',s:'Sentinel · SLO grid · alert ledger',st:'degraded',body:'<b>The nervous system.</b> Alert ledger exists; the freshness Sentinel is decorative today (0 manifests) — how Nielsen went a month stale unseen. Wave 1 arms it.',cnt:'13/22 live agents unpaged'},
+ {id:'gates',layer:'orch',cls:'teal',t:'GATE MESH',s:'routing · doctrine · token · cert',st:'live',body:'<b>The Conscience.</b> Refuses ungoverned writes: owner-skill routing gate (HMAC ledger), doctrine conformance, token gate, enforce gates. Blocked this page\'s own author twice today.',cnt:'199 routing rules · 22 doctrine rows · 13/13 tests · p95 40ms'},
+ {id:'bless',layer:'orch',cls:'lav',t:'BLESS WINDOW',s:'Shiv · the Sovereign',st:'live',body:'<b>The Sovereign.</b> The only push authority. Weekly sitting absorbs all human gates; Autonomy Ladder AT-0..3 batches evidence up to it.',cnt:'only Shiv pushes · starvation ladder keeps absence safe'},
+
+ {id:'gateway',layer:'models',cls:'lav',flex:1.5,t:'MODEL GATEWAY',s:'sole non-Claude egress · write-ahead ledger',st:'shadow',body:'<b>Built, adversarially tested, unplugged.</b> License fail-closed, redact-in-router. Wave 1 gives it its first production consumer.',cnt:'0 production callers · ledger empty · EGRESS-ATOMIC-001 fixes'},
+ {id:'cleanroom',layer:'models',cls:'dashed',t:'MODEL CLEAN ROOM',s:'external-model provenance wall',st:'shadow',body:'<b>The fence.</b> Answer-only external output: redaction, zero credentials, cost-logged, eval-tier output never touches the spine.',cnt:'eval-only wall · enforced in the gateway path'},
+ {id:'tiering',layer:'models',t:'CLAUDE TIERING',s:'Haiku → Sonnet → Opus',st:'live',body:'<b>Effort routing on live traffic.</b> Per-request classification; cap-pause governor halts the build loop at $40/day and demands a human resume flag.',cnt:'≈$42/wk under $500 MTD cap'},
+
+ {id:'fleet',layer:'exec',cls:'lav',flex:1.4,t:'AGENT FLEET',s:'builders · verifiers · sensors',st:'live',body:'<b>The workforce.</b> Contract clauses a–k, yield tripwires, honest denominators. New agents only via architect→foundry→reviewer. Wave-0 builders in worktrees right now.',cnt:'36 dir entries (27 js) · 13/22 live agents unpaged · NOT "22/37"'},
+ {id:'executor',layer:'exec',cls:'teal',flex:1.2,t:'CLAUDE CODE',s:'task cards · GATE-0 · builder ≠ verifier',st:'live',body:'<b>Where cards become code.</b> One session = one card = one role; GATE-0 blocks any card missing information.',cnt:'44 remediation cards · 4 waves · Scenario A'},
+ {id:'managed',layer:'exec',t:'MANAGED AGENTS',s:'jarvis + dr-scoop · memstore-fed',st:'shadow',body:'<b>Cloud-resident counterparts</b> with persistent memstores fed nightly from the vault. Provisioned Jun 21, zero sessions — wired in Wave 2. Blocker: $0.31 console credits.',cnt:'2 agents · 541 vault files synced nightly'},
+
+ {id:'brain',layer:'know',cls:'lav',flex:1.2,t:'BRAIN · L1/L2/L3',s:'laws · warm cache · live state',st:'live',body:'<b>The Knowledge.</b> CLAUDE.md law + L2 rehydration skill + L3 MotherDuck platform_state. Counts pulled, never carried.',cnt:'one contract: HOT ambient · WARM fetched · L3 queried · VAULT searched'},
+ {id:'skills',layer:'know',t:'SKILLS',s:'gate-routed playbooks',st:'live',body:'<b>Packaged expertise.</b> 3-store sync, generator-authoritative counts, 540-prompt evals, monthly drift review.',cnt:'83/83/83 store dirs · NOT "77" — manifest regenerating'},
+ {id:'plugins',layer:'know',t:'PLUGINS · MCP',s:'connectors loaded per card',st:'live',body:'<b>The tool surface.</b> Plugin skills + MCP connectors resolved per task by the routing gate; outputs treated as untrusted data (§34).',cnt:'generator-authoritative · manifest-synced'},
+ {id:'dreams',layer:'know',cls:'green dashed',t:'DREAMS',s:'recall → dream → learn → wake',st:'target',pill:'WAVE 1',body:'<b>The reflective loop.</b> Mines yesterday for mistakes and unlearned lessons; proposer-only through the bless queue; green-lane for mechanical fixes. Charter skill LIVE.',cnt:'$1.50 target/$3 cap per night · 07:30 brief'},
+
+ {id:'memhot',layer:'memory',cls:'lav',t:'HOT + WARM',s:'ambient slots · Upstash 25h · S3 domain keys',st:'degraded',body:'<b>Working memory.</b> HOT = always-in-context rulings; WARM = 6 domain JSONs fetched on demand. Cap advisory + staleness repair land Wave 1.',cnt:'~12–18 honest HOT slots (30 cap unenforced today)'},
+ {id:'vault',layer:'memory',t:'COLD + ARCHIVE',s:'Obsidian vault · S3 memory prefix',st:'live',body:'<b>The Library.</b> Knowledge-bank vault, lessons armed with check_ids, git-backed, feeds managed-agent memstores nightly.',cnt:'1,400+ notes · nightly memstore + KB-S3 sync'},
+ {id:'memevent',layer:'memory',cls:'dashed',t:'EVENT LOG + TRANSCRIPTS',s:'session JSONL tap · recall index',st:'target',body:'<b>The episodic substrate.</b> S3 JSONL of every session/turn — the raw material Dreams mines nightly; today it also proved recoverable enough to restore deleted program docs.',cnt:'append-only tap · feeds Dreams · recall index Wave 1'},
+
+ {id:'spine',layer:'data',cls:'teal',flex:1.6,t:'SPINE',s:'parent-key identity plane · SCD2 · invariants as live views',st:'live',body:'<b>The foundation.</b> Mutex + §11 bulk-write gate; weekly certs git-SHA-pinned from Wave 1.',cnt:'12,955,801 current rows (L3) · quarantine 38'},
+ {id:'lake',layer:'data',cls:'teal',t:'S3 LAKE + TASK BUS',s:'sasmaster-2026 · queue · heartbeats',st:'live',body:'<b>Data + the interop rail.</b> One substrate: landing prefixes, job queue, heartbeats, _shadow/ diff paths (Wave 2).',cnt:'2.77 TB · Nielsen · TMDB · IMDB · EIDR · Gracenote · social'},
+ {id:'freshness',layer:'data',cls:'dashed',t:'FRESHNESS FABRIC',s:'_manifest.json per prefix',st:'target',pill:'WAVE 1',body:'<b>Wave 1\'s first job.</b> Today: zero manifests emitted anywhere. Every pull job gains an emitter; prefixes enroll into alerting one-by-one.',cnt:'0 manifests today → every prefix'},
+ {id:'motherduck',layer:'data',t:'MOTHERDUCK',s:'L3 + serving warehouse',st:'live',body:'<b>Where truth lives.</b> ops.platform_state (single-copy state, append-only log), serving views; every heartbeat and census lands here.',cnt:'14 schemas · sub-100ms serving reads'},
+
+ {id:'railway',layer:'compute',cls:'teal',t:'RAILWAY',s:'api · sentinel · Tier-A home',st:'live',body:'<b>The cloud half.</b> command-api (Slack ingress + read mirror), sentinel loop, dead-man checker (Wave 1), Tier-A cron host (Wave 2).',cnt:'2 services live · dead-man daily I\'m-alive'},
+ {id:'mac',layer:'compute',t:'MAC',s:'launchd · cron · repo work',st:'degraded',body:'<b>The named SPOF.</b> ~120 of 122 scheduled jobs; sleep = soft outage. Wave 2 makes it Tier-B (catch-up-on-wake) before Aug 7.',cnt:'90 crontab + 32 launchd (pinned census) · NOT "110"'},
+ {id:'gha',layer:'compute',t:'GITHUB ACTIONS',s:'Git/CI rail · failover',st:'live',body:'<b>The fourth interop rail.</b> Card branches, CI review, deploy relay, proven dispatch failover. Workflows flip report-only → blocking in Wave 3.',cnt:'13 workflows · blocking ramp = CI-BLOCKING-001'},
+ {id:'dbx',layer:'compute',t:'DATABRICKS',s:'RSG-shared · Tue jobs',st:'live',body:'<b>Borrowed compute, guarded by code.</b> Tuesday Nielsen chain on allowlisted clusters; read-only default; license tracked separately.',cnt:'Tue Nielsen chain · allowlisted clusters only'},
+ {id:'ec2',layer:'compute',cls:'dashed',t:'EC2 BURST',s:'harvest fleets · on demand',st:'target',body:'<b>Elastic burst</b> for harvest fleets only — spun on demand, never standing compute.',cnt:'on-demand · no scheduled residency'}
+];
+var EDGES = [
+ ['slack','kernel','HTTP Events · HMAC'], ['kernel','lake','enqueue → S3 queue.json'],
+ ['lake','mac','Mac consumer polls + drains'], ['mac','lake','outputs + heartbeats'],
+ ['railway','slack','pages · dead-man I\'m-alive'], ['mac','motherduck','L3 close-outs · heartbeats'],
+ ['railway','lake','read mirror ← 5-min cache sync'], ['gates','executor','PreToolUse refusals'],
+ ['gates','skills','owner-skill resolution · HMAC ledger'], ['executor','fleet','dispatch builders/verifiers'],
+ ['fleet','lake','job outputs · _shadow/ diffs'], ['fleet','motherduck','yield heartbeats (agent-yield.js)'],
+ ['kernel','gates','propose_gate for dangerous ops'], ['bless','executor','rulings unblock cards'],
+ ['bless','warroom','! git push → deploy'], ['dreams','vault','lesson drafts + journal'],
+ ['dreams','bless','proposals → bless queue'], ['dreams','gateway','model calls (consumer #2, Wave 3)'],
+ ['vault','managed','nightly memstore sync (541 files)'], ['tiering','fleet','per-task model routing'],
+ ['gateway','motherduck','write-ahead egress ledger'], ['spine','motherduck','certs + invariant views'],
+ ['lake','spine','landing → cert gate → promote'], ['freshness','lake','_manifest.json per prefix'],
+ ['freshness','senses','manifests → alert ledger'], ['senses','slack','SLO + staleness pages'],
+ ['senses','motherduck','heartbeat / SLO reads'], ['warroom','motherduck','status pulls L3 counts'],
+ ['portal','spine','serving views (band-gated)'], ['ask','spine','plan_executor governed reads'],
+ ['managed','lake','Tier-A scheduled loops (Wave 2)'], ['brain','motherduck','L3 = the state tier'],
+ ['brain','memhot','HOT/WARM = the Brain\'s working tiers'], ['skills','executor','loaded per card by the gate'],
+ ['railway','motherduck','sentinel + dead-man reads'], ['cowork','bless','strategy → rulings · certification-of-record'],
+ ['cowork','kernel','mobile intent → intent loop'], ['osloops','dreams','reflect = the one live loop'],
+ ['osloops','brain','distilled concepts → L2/L3'], ['gateway','cleanroom','egress → redact → fenced answer-only'],
+ ['plugins','skills','MCP tools resolved per card'], ['plugins','executor','connectors for CLAUDE CODE'],
+ ['lake','memevent','S3 JSONL session tap'], ['memevent','dreams','nightly log mining'],
+ ['memevent','vault','distilled lessons'], ['gha','railway','CI deploy relay'],
+ ['bless','gha','! git push → workflows run'], ['gha','executor','13 workflows gate cards'],
+ ['dbx','lake','Nielsen outputs → S3 landing'], ['dbx','spine','Tue chain → cert gate'],
+ ['fleet','ec2','burst dispatch on demand'], ['ec2','lake','harvest outputs → S3 landing']
+];
+
+/* ── RENDER ── */
+var arch = document.getElementById('arch');
+var panel = document.getElementById('panel');
+var svg = document.getElementById('wires');
+var byId = {};
+LAYERS.forEach(function(L, li){
+  var row = document.createElement('div'); row.className = 'lrow';
+  var lab = document.createElement('div'); lab.className = 'llabel'; lab.textContent = L[1];
+  var nodes = document.createElement('div'); nodes.className = 'lnodes';
+  NODES.filter(function(n){ return n.layer === L[0]; }).forEach(function(n){
+    var el = document.createElement('div');
+    el.className = 'node' + (n.cls ? ' ' + n.cls : ''); el.id = 'nd-' + n.id;
+    if (n.flex) el.style.flex = n.flex;
+    el.innerHTML = '<div class="nt"><span class="dot d-' + n.st + '"></span>' + n.t +
+      (n.pill ? ' <span class="pill ' + (n.pill === 'SHADOW' ? 'shadow' : 'gated') + '">' + n.pill + '</span>' : '') +
+      '</div><div class="ns">' + n.s + '</div>';
+    el.addEventListener('mouseenter', function(){ if (!selected) light(n.id); });
+    el.addEventListener('mouseleave', function(){ if (!selected) unlight(); });
+    el.addEventListener('click', function(ev){ ev.stopPropagation(); select(n.id); });
+    byId[n.id] = n; nodes.appendChild(el);
+  });
+  row.appendChild(lab); row.appendChild(nodes); arch.appendChild(row);
+  if (li < LAYERS.length - 1) {
+    var c = document.createElement('div'); c.className = 'crow';
+    c.innerHTML = '<div class="cpad"></div><div class="clines"><div class="cline"></div><div class="cline"></div><div class="cline"></div></div>';
+    arch.appendChild(c);
+  }
+});
+document.body.addEventListener('click', function(){ selected = null; unlight(); resetPanel(); });
+
+var selected = null;
+function neighbors(id){
+  var set = {}; set[id] = true;
+  EDGES.forEach(function(e){ if (e[0] === id) set[e[1]] = true; if (e[1] === id) set[e[0]] = true; });
+  return set;
+}
+function light(id){
+  var nb = neighbors(id);
+  NODES.forEach(function(n){
+    var el = document.getElementById('nd-' + n.id);
+    el.classList.remove('lit','dim','sel');
+    if (n.id === id) el.classList.add('sel');
+    else if (nb[n.id]) el.classList.add('lit');
+    else el.classList.add('dim');
+  });
+  drawWires(id);
+}
+function unlight(){
+  NODES.forEach(function(n){ document.getElementById('nd-' + n.id).classList.remove('lit','dim','sel'); });
+  svg.innerHTML = '';
+}
+function drawWires(id){
+  svg.innerHTML = '';
+  var br = arch.getBoundingClientRect();
+  svg.setAttribute('viewBox', '0 0 ' + br.width + ' ' + br.height);
+  EDGES.forEach(function(e){
+    if (e[0] !== id && e[1] !== id) return;
+    var a = document.getElementById('nd-' + e[0]).getBoundingClientRect();
+    var b = document.getElementById('nd-' + e[1]).getBoundingClientRect();
+    var x1 = a.left - br.left + a.width/2, y1 = a.top - br.top + a.height/2;
+    var x2 = b.left - br.left + b.width/2, y2 = b.top - br.top + b.height/2;
+    var midY = (y1 + y2) / 2;
+    var p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', 'M' + x1 + ',' + y1 + ' C' + x1 + ',' + midY + ' ' + x2 + ',' + midY + ' ' + x2 + ',' + y2);
+    p.setAttribute('fill','none'); p.setAttribute('stroke','var(--teal)');
+    p.setAttribute('stroke-width','1.6'); p.setAttribute('stroke-dasharray','5 4'); p.setAttribute('opacity','0.75');
+    svg.appendChild(p);
+  });
+}
+function select(id){
+  selected = id; light(id);
+  var n = byId[id];
+  var edges = EDGES.filter(function(e){ return e[0] === id || e[1] === id; });
+  var talks = edges.map(function(e){
+    var other = e[0] === id ? e[1] : e[0];
+    return '<div class="talk" data-to="' + other + '"><b>' + byId[other].t + '</b> <span class="proto">· ' + e[2] + '</span></div>';
+  }).join('');
+  var dotClass = {live:'d-live',shadow:'d-shadow',degraded:'d-degraded',parked:'d-parked',target:'d-target'}[n.st];
+  panel.innerHTML =
+    '<div class="pt"><span class="ic ' + dotClass + '" style="background:inherit"></span>' + n.t + '</div>' +
+    '<span class="badge b-' + n.st + '">' + n.st.toUpperCase() + '</span>' +
+    '<div class="body">' + n.body + '</div>' +
+    '<div class="cnt">' + n.cnt + '</div>' +
+    '<div class="lt">Talks to (' + edges.length + ')</div>' + talks;
+  panel.querySelector('.ic').className = 'ic ' + dotClass;
+  panel.querySelectorAll('.talk').forEach(function(el){
+    el.addEventListener('click', function(ev){ ev.stopPropagation(); select(el.getAttribute('data-to'));
+      document.getElementById('nd-' + el.getAttribute('data-to')).scrollIntoView({behavior:'smooth',block:'center'}); });
+  });
+}
+function resetPanel(){
+  panel.innerHTML = '<div class="pt"><span class="ic"></span>SELECT A NODE</div><div class="body" style="margin-top:8px">Hover any block to light up everything it talks to, with the protocol on each wire. Click to pin its detail here — what it is, its verified numbers, and its full connection list.</div>';
+}
+window.addEventListener('resize', function(){ if (selected) drawWires(selected); });
+})();
+</script>
+</body>
+</html>
