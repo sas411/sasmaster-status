@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SaSMaster — True Architecture · Executive One-Pager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ══ SaSMaster Light Operator-Reference Theme — tokens.md § operator-reference ══ */
+  :root{
+    --canvas:#F0F4F8; --card:#ffffff;
+    --lavender:#A682F2; --teal:#0EA5E9; --green:#10B981; --gold:#c2740a; --red:#dc2626;
+    --lav-dim:rgba(166,130,242,0.12); --teal-dim:rgba(14,165,233,0.10); --green-dim:rgba(16,185,129,0.10);
+    --text-primary:#1E293B; --text-secondary:#64748B; --text-dim:#94A3B8;
+    --border:rgba(166,130,242,0.20); --border-subtle:rgba(30,41,59,0.08);
+    --ease-spring:cubic-bezier(0.16,1,0.3,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--canvas);color:var(--text-primary);font-family:'DM Sans',ui-sans-serif,system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{max-width:980px;margin:0 auto;padding:30px 24px 36px}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  body.fonts-ready .rv{animation:rise 500ms var(--ease-spring) backwards}
+  body.fonts-ready .rv:nth-of-type(2){animation-delay:60ms} body.fonts-ready .rv:nth-of-type(3){animation-delay:120ms}
+  body.fonts-ready .rv:nth-of-type(4){animation-delay:180ms} body.fonts-ready .rv:nth-of-type(5){animation-delay:240ms}
+  @media(prefers-reduced-motion:reduce){body.fonts-ready .rv{animation:none}}
+
+  .hd{border-bottom:2px solid var(--lavender);padding-bottom:12px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end}
+  .brand{font-family:'DM Mono',monospace;font-size:11.5px;letter-spacing:.22em;color:var(--text-secondary)}
+  .brand b{color:var(--lavender);font-weight:500}
+  h1{font-size:clamp(22px,4.5vw,28px);font-weight:700;letter-spacing:-.01em;margin-top:5px;line-height:1.15}
+  .tag{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--teal);margin-top:4px}
+  .stamp{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);text-align:right;line-height:1.6}
+  .thesis{font-size:13px;color:var(--text-secondary);line-height:1.55;margin-top:12px;max-width:900px}
+  .thesis b{color:var(--text-primary)}
+
+  h2{font-size:12px;font-weight:600;letter-spacing:.12em;color:var(--lavender);margin:20px 0 8px;text-transform:uppercase}
+  h2 .n{font-family:'DM Mono',monospace;color:var(--text-dim);font-weight:400}
+
+  .stack{width:100%;border-collapse:separate;border-spacing:0 5px}
+  .stack th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--text-dim);text-align:left;padding:0 10px 2px;text-transform:uppercase}
+  .stack td{background:var(--card);border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);padding:8px 10px;font-size:11.5px;line-height:1.45;vertical-align:top}
+  .stack td:first-child{border-left:3px solid var(--lavender);border-radius:7px 0 0 7px;font-weight:600;white-space:nowrap;font-size:12px}
+  .stack td:last-child{border-right:1px solid var(--border-subtle);border-radius:0 7px 7px 0}
+  .stack .cnt{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-secondary)}
+  .stack .cnt b{color:var(--text-primary);font-weight:500}
+  .pill{display:inline-block;font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.06em;padding:1px 7px;border-radius:12px;white-space:nowrap;margin:1px 2px 1px 0}
+  .pill.live{background:var(--green-dim);color:var(--green);border:1px solid var(--green)}
+  .pill.shadow{background:var(--lav-dim);color:var(--lavender);border:1px solid var(--border)}
+  .pill.degraded{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+  .pill.parked{background:transparent;color:var(--text-dim);border:1px solid var(--border-subtle)}
+  .pill.target{background:var(--teal-dim);color:var(--teal);border:1px solid var(--teal)}
+
+  .twocol{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:760px){.twocol{grid-template-columns:1fr 1fr}}
+  .panel{background:var(--card);border:1px solid var(--border-subtle);border-top:3px solid var(--teal);border-radius:8px;padding:10px 13px}
+  .panel.pow{border-top-color:var(--lavender)}
+  .panel .pt{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase}
+  .panel ol,.panel ul{list-style:none}
+  .panel li{font-size:11.5px;line-height:1.5;margin-bottom:5px;padding-left:14px;position:relative;color:var(--text-secondary)}
+  .panel li::before{content:'→';position:absolute;left:0;color:var(--teal);font-family:'DM Mono',monospace;font-size:10px}
+  .panel.pow li::before{color:var(--lavender)}
+  .panel li b{color:var(--text-primary);font-weight:600}
+
+  .scores{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 8px}
+  .sc{background:var(--card);border:1px solid var(--border-subtle);border-radius:7px;padding:6px 9px 5px;flex:1 1 70px;min-width:68px;text-align:center}
+  .sc .v{font-family:'DM Mono',monospace;font-size:15px;font-weight:500}
+  .sc .l{font-size:8.5px;color:var(--text-secondary);line-height:1.25;margin-top:2px}
+  .sc.hi .v{color:var(--green)} .sc.mid .v{color:var(--gold)} .sc.lo .v{color:var(--red)}
+  .metric{background:var(--card);border:1px solid var(--border-subtle);border-left:3px solid var(--green);border-radius:8px;padding:9px 13px;font-size:12px;line-height:1.5;color:var(--text-secondary);margin-top:6px}
+  .metric b{color:var(--text-primary)}
+  .metric .m{font-family:'DM Mono',monospace;color:var(--green)}
+
+  .not{background:transparent;border:1.5px dashed var(--border);border-radius:8px;padding:10px 13px}
+  .not li{font-size:11.5px;line-height:1.5;margin-bottom:5px;padding-left:16px;position:relative;color:var(--text-secondary);list-style:none}
+  .not li::before{content:'✕';position:absolute;left:0;color:var(--red);font-family:'DM Mono',monospace;font-size:10px}
+  .not li b{color:var(--text-primary)}
+
+  .foot{margin-top:18px;border-top:1px solid var(--border-subtle);padding-top:9px;font-family:'DM Mono',monospace;font-size:8.5px;color:var(--text-dim);line-height:1.75}
+  .censusnote{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hd rv">
+    <div>
+      <div class="brand">SASMASTER <b>·</b> TRUE ARCHITECTURE <b>·</b> EXECUTIVE ONE-PAGER</div>
+      <h1>The Bloomberg Terminal for the Media Industry</h1>
+      <div class="tag">One operator · an agent fleet · every number on this page is measured, sourced, and re-derivable</div>
+    </div>
+    <div class="stamp">AUDIT-GROUNDED · <b style="color:var(--teal)">2026-07-17</b><br>SUPERSEDES AGENTIC-OS BRIEF + v18 REF<br>WHERE THEY CONFLICT</div>
+  </header>
+
+  <p class="thesis rv">SaSMaster is a <b>clean-room media intelligence platform</b> — audience data, rights availability, deal flow, and AI research in one pane of glass — built from first principles with zero legacy code, by one operator directing a fleet of Claude agents under a governance system that treats untested claims as bugs. The platform is live: a <b>12.96M-row certified data spine</b>, a Slack-native command kernel, a public war room. It is also <b>honestly mid-remediation</b>: the 2026-07-17 twelve-layer audit scored it ≈6.7/10 and named silent failure — breakage producing no signal for 25–90 days — the recurring villain. This page states what is live, what is shadow, and what is only a target.</p>
+
+  <section class="rv">
+    <h2><span class="n">01 —</span> The Stack</h2>
+    <table class="stack">
+      <tr><th>Layer</th><th>What it is</th><th>Verified count · source</th><th>Status</th></tr>
+      <tr><td>SURFACES</td><td>Slack/JARVIS command bot (HTTP Events API on Railway) · public War Room · portal on Vercel</td><td class="cnt"><b>4</b> surfaces · portal canon disputed: v8 deployed vs "v9" canonical (PORTAL-CANON-001 open)</td><td><span class="pill live">JARVIS LIVE</span><span class="pill degraded">WAR ROOM DEGRADED</span><span class="pill parked">PORTAL PARKED</span></td></tr>
+      <tr><td>CONTROL PLANE</td><td>Policy store (ref.skill_routing · ref.doctrine_conformance) · routing gate · cert runner · append-only activity ledger · JARVIS OS kernel</td><td class="cnt"><b>199</b> routing rules · <b>22</b> doctrine rows · tests <b>13/13</b>, p95 40ms · kernel quota <b>9/50</b></td><td><span class="pill live">GATES LIVE</span><span class="pill shadow">KERNEL SHADOW</span></td></tr>
+      <tr><td>MODELS</td><td>Claude Haiku→Sonnet→Opus tiering under cost-optimizer · Model Gateway + clean room = sole non-Claude egress, write-ahead ledger</td><td class="cnt"><b>≈$42/wk</b> under $500 MTD cap (audit) · gateway: <b>0</b> production callers, ledger empty</td><td><span class="pill live">TIERING LIVE</span><span class="pill shadow">GATEWAY BUILT · UNPLUGGED</span></td></tr>
+      <tr><td>EXECUTION</td><td>One MacBook runs ~120 of 122 scheduled jobs · Railway serves a read-only S3-cache mirror · S3 doubles as the task bus</td><td class="cnt"><b>90</b> crontab + <b>32</b> launchd jobs (pinned census, L3) — the named SPOF</td><td><span class="pill live">MAC PLANE LIVE</span><span class="pill target">TIER A/B/C SPLIT TARGET</span></td></tr>
+      <tr><td>KNOWLEDGE</td><td>3-store synced skill library · L2 warm context skill · L3 live state in MotherDuck (counts pulled, never carried) · 4-tier memory</td><td class="cnt"><b>83 / 83 / 83</b> skill dirs per store (ls census) · manifest stale at 142, regenerating — no single manifest number exists today</td><td><span class="pill live">STORES LIVE</span><span class="pill degraded">MEMORY 6.0/10</span></td></tr>
+      <tr><td>DATA</td><td>S3 lake sasmaster-2026 · DuckDB/Parquet compute · MotherDuck serving · parent-key identity spine</td><td class="cnt">Spine <b>12,955,801</b> current rows (L3 spine_rows_certified) · lake <b>2.77 TB</b> (live pill; 1.62 TB literal retired)</td><td><span class="pill live">PIPELINES LIVE</span><span class="pill degraded">FRESHNESS DECORATIVE</span></td></tr>
+    </table>
+    <div class="censusnote">Every count above carries a pinned, re-runnable census command in L3 (BASELINE-SNAP-001). Where sources conflicted, the L3 value is stated.</div>
+  </section>
+
+  <section class="rv">
+    <h2><span class="n">02 —</span> Five Contracts · Five Powers</h2>
+    <div class="twocol">
+      <div class="panel">
+        <div class="pt">Every capability plugs into exactly five contracts</div>
+        <ol>
+          <li><b>Serving API</b> — one authenticated HTTP surface, fail-closed</li>
+          <li><b>S3 task bus</b> — queue, heartbeat, catch-up; idempotency keys</li>
+          <li><b>Model gateway</b> — sole non-Claude egress, write-ahead ledger</li>
+          <li><b>Routing gate</b> — owner skills + doctrine resolved before any edit</li>
+          <li><b>Cert gate</b> — builder ≠ verifier ≠ certifier; weekly certs, git-SHA pinned</li>
+        </ol>
+      </div>
+      <div class="panel pow">
+        <div class="pt">The control plane, as five separated powers</div>
+        <ul>
+          <li><b>Law — CLAUDE.md:</b> thin-pointer constitution; invariants + startup only</li>
+          <li><b>Knowledge — the Brain:</b> L2 context + L3 state; facts pulled, never carried</li>
+          <li><b>Will — JARVIS kernel:</b> the executing agent OS (shadow; graduates on measured accuracy)</li>
+          <li><b>Conscience — the gate mesh:</b> physically blocks ungoverned writes</li>
+          <li><b>Sovereign — Shiv:</b> the only push authority; weekly bless window + gated fast lane</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="rv">
+    <h2><span class="n">03 —</span> Honest State — 12-Layer Audit, 2026-07-17 <span style="font-family:'DM Mono',monospace;color:var(--text-dim);text-transform:none;letter-spacing:0">· overall ≈6.7/10 (B)</span></h2>
+    <div class="scores">
+      <div class="sc hi"><div class="v">8.5</div><div class="l">Tech Arch</div></div>
+      <div class="sc hi"><div class="v">8.0</div><div class="l">Skills</div></div>
+      <div class="sc hi"><div class="v">7.5</div><div class="l">Data</div></div>
+      <div class="sc mid"><div class="v">7.0</div><div class="l">API</div></div>
+      <div class="sc mid"><div class="v">7.0</div><div class="l">Optimiz.</div></div>
+      <div class="sc mid"><div class="v">6.5</div><div class="l">Compute</div></div>
+      <div class="sc mid"><div class="v">6.5</div><div class="l">Components</div></div>
+      <div class="sc mid"><div class="v">6.5</div><div class="l">UI/UX</div></div>
+      <div class="sc mid"><div class="v">6.0</div><div class="l">Memory</div></div>
+      <div class="sc mid"><div class="v">6.0</div><div class="l">Gateway</div></div>
+      <div class="sc lo"><div class="v">5.0</div><div class="l">Self-Learn</div></div>
+      <div class="sc lo"><div class="v">5.0</div><div class="l">Folders</div></div>
+    </div>
+    <div class="metric"><b>Headline metric — silent-failure age:</b> <span class="m">25–90 days today → &lt;24 hours target.</span> The whole design invariant in one number. <b>Remediation:</b> audit → master plan → Spec v1.0 → v1.1 amendment → <b>44 cards, 4 waves</b>, Scenario-A calendar — compressed pre-travel sprint, <b>Tier-A jobs off the Mac before Aug 7</b>, travel weeks become cloud soak tests. Test-floor ratchet starts at 35 (corrected downward honestly by the errata, not inflated).</div>
+  </section>
+
+  <section class="rv">
+    <h2><span class="n">04 —</span> What Is Deliberately Not Claimed</h2>
+    <div class="not"><ul>
+      <li><b>No "improves itself daily."</b> The learning loop is proven once (held-out .155 → .813) — but zero skill promotions since 04-23; daily cadence is a target, not a feature.</li>
+      <li><b>No "51 agents."</b> The agents/ directory holds 36 entries (27 executable); fleet counts drifted across sources, so no single headcount is claimed. 13 of 22 live agents still page nobody.</li>
+      <li><b>No "every monitor pages."</b> The freshness sentinel is decorative today — zero manifests emitted. Fixing it is Wave 1's first job.</li>
+      <li><b>No production Model Gateway.</b> Built, adversarially tested, idle: zero production callers, empty egress ledger. Honesty over theater.</li>
+    </ul></div>
+  </section>
+
+  <footer class="foot rv">
+    DERIVED FROM: PLATFORM-AUDIT-JUL17 → REMEDIATION-MASTER-PLAN-v1 → FUTURE-STATE-SPEC v1.0 → v1.1 AMENDMENT (INCL. ERRATA) · DATE 2026-07-17<br>
+    COUNTS PULLED FROM L3 (sasmaster.ops.platform_state) AS OF 2026-07-17 — PULL FRESH AT READ TIME; CARRIED COUNTS ROT · EVERY FIGURE CARRIES A PINNED CENSUS COMMAND (BASELINE-SNAP-001)<br>
+    SUPERSEDES THE ARCHITECTURE CLAIMS OF THE AGENTIC-OS BRIEF (07-16) AND THE v18.1 OPERATOR REFERENCE WHEREVER THEY CONFLICT WITH THIS PAGE · PREPARED BY THE SASMASTER AGENT FLEET — BLESSED FIGURES ONLY; NOTHING HERE IS ESTIMATED
+  </footer>
+
+</div>
+<script>
+  (function(){
+    var done=false; function ready(){ if(done) return; done=true; document.body.classList.add('fonts-ready'); }
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(ready); }
+    setTimeout(ready, 900);
+  })();
+</script>
+</body>
+</html>

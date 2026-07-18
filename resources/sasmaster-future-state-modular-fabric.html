@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SaSMaster — Future State: The Modular Fabric</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ══ SaSMaster Light Operator-Reference Theme — tokens.md § operator-reference ══ */
+  :root{
+    --canvas:#F0F4F8; --card:#ffffff;
+    --lavender:#A682F2; --teal:#0EA5E9; --green:#10B981; --gold:#c2740a; --red:#dc2626;
+    --lav-dim:rgba(166,130,242,0.12); --teal-dim:rgba(14,165,233,0.10); --green-dim:rgba(16,185,129,0.10);
+    --text-primary:#1E293B; --text-secondary:#64748B; --text-dim:#94A3B8;
+    --border:rgba(166,130,242,0.20); --border-subtle:rgba(30,41,59,0.08);
+    --ease-spring:cubic-bezier(0.16,1,0.3,1); --ease-enter:cubic-bezier(0,0,0.2,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--canvas);color:var(--text-primary);font-family:'DM Sans',ui-sans-serif,system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+  ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+  .page{max-width:1080px;margin:0 auto;padding:32px 24px 40px}
+
+  /* Reveal: content is VISIBLE BY DEFAULT (no-JS safe). When fonts land,
+     body.fonts-ready plays the entrance animation instead. */
+  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  body.fonts-ready .rv{animation:rise 600ms var(--ease-spring) backwards}
+  body.fonts-ready .rv:nth-of-type(2){animation-delay:60ms} body.fonts-ready .rv:nth-of-type(3){animation-delay:120ms}
+  body.fonts-ready .rv:nth-of-type(4){animation-delay:180ms} body.fonts-ready .rv:nth-of-type(5){animation-delay:240ms}
+  @media(prefers-reduced-motion:reduce){body.fonts-ready .rv{animation:none}}
+
+  .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--lavender);padding-bottom:14px}
+  .brand{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.22em;color:var(--text-secondary)}
+  .brand b{color:var(--lavender);font-weight:500}
+  h1{font-size:clamp(24px,5vw,31px);font-weight:600;letter-spacing:-.01em;margin-top:6px;line-height:1.12}
+  .dek{font-size:clamp(13px,3.5vw,14.5px);color:var(--text-secondary);max-width:640px;margin-top:7px;line-height:1.5}
+  .dek b{color:var(--text-primary);font-weight:600}
+  .stamp{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--text-dim);text-align:right;line-height:1.6;min-width:200px}
+  .stamp b{color:var(--teal);font-weight:400}
+
+  .pill{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;padding:2px 8px;border-radius:20px;vertical-align:2px;white-space:nowrap}
+  .pill.target{background:var(--lav-dim);color:var(--lavender);border:1px solid var(--border)}
+
+  h2{font-size:13px;font-weight:600;letter-spacing:.12em;color:var(--lavender);margin:24px 0 10px;text-transform:uppercase}
+  h2 .n{font-family:'DM Mono',monospace;color:var(--text-dim);font-weight:400;margin-right:2px}
+  h2 small{font-weight:400;color:var(--text-dim);text-transform:none;letter-spacing:0;font-size:11px}
+
+  /* ── the socket board ── */
+  .board{position:relative;padding-right:26px}
+  .rail{position:absolute;top:0;bottom:0;right:8px;width:3px;border-radius:2px;
+        background:repeating-linear-gradient(180deg,var(--green) 0 8px,var(--green-dim) 8px 16px)}
+  .rail-label{position:absolute;right:-4px;top:-22px;font-family:'DM Mono',monospace;font-size:8.5px;color:var(--green);letter-spacing:.08em}
+  .tier{display:grid;grid-template-columns:108px 1fr;gap:12px;margin-bottom:10px;align-items:start}
+  @media(max-width:700px){.tier{grid-template-columns:1fr}.board{padding-right:14px}}
+  .tlabel{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--text-dim);padding-top:12px}
+  .tlabel .contract{display:block;font-size:8.5px;letter-spacing:.04em;color:var(--teal);margin-top:5px;line-height:1.45;text-transform:none}
+  .tlabel .contract::before{content:'SOCKET ⟶ ';color:var(--text-dim)}
+  .socketrow{display:flex;flex-wrap:wrap;gap:7px}
+  .mod{background:var(--card);border:1px solid var(--border-subtle);border-left:3px solid var(--lavender);border-radius:8px;
+       padding:8px 11px;min-width:132px;flex:1 1 140px;max-width:220px;box-shadow:0 1px 3px var(--border-subtle)}
+  .mod .n{font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .mod .n .dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex:none}
+  .mod .d{font-size:10.5px;color:var(--text-secondary);line-height:1.4;margin-top:3px}
+  .mod .d b{color:var(--text-primary);font-weight:500}
+  .mod.open{border:1.5px dashed var(--border);border-left:3px dashed var(--lavender);background:transparent;box-shadow:none}
+  .mod.open .n{color:var(--lavender);font-weight:500}
+  .mod.open .n .dot{background:transparent;border:1.5px dashed var(--lavender)}
+  .mod.open .d{color:var(--text-dim)}
+  .swap{display:inline-block;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.06em;color:var(--gold);
+        border:1px solid var(--gold);background:transparent;border-radius:4px;padding:1px 5px;margin-top:4px}
+
+  .rails{display:grid;grid-template-columns:1fr;gap:7px;margin-top:4px}
+  @media(min-width:768px){.rails{grid-template-columns:repeat(4,1fr)}}
+  .railcard{background:var(--card);border:1px solid var(--border-subtle);border-top:3px solid var(--teal);border-radius:8px;padding:9px 12px}
+  .railcard.learn{border-top-color:var(--green)}
+  .railcard.why{border-top-color:var(--lavender)}
+  .railcard .n{font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:.06em;font-weight:500}
+  .railcard .d{font-size:10.5px;color:var(--text-secondary);line-height:1.45;margin-top:3px}
+  .railcard .d b{color:var(--text-primary);font-weight:600}
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-family:'DM Mono',monospace;font-size:9px;color:var(--text-secondary)}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .lg-dot{width:7px;height:7px;border-radius:50%}
+  .foot{margin-top:22px;border-top:1px solid var(--border-subtle);padding-top:10px;font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);line-height:1.7}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hd rv">
+    <div>
+      <div class="brand">SASMASTER <b>·</b> FUTURE STATE <b>·</b> ARCHITECTURE</div>
+      <h1>The Modular Fabric <span class="pill target">TARGET · POST-REMEDIATION</span></h1>
+      <p class="dek">Every layer is a <b>socket with a published contract</b>; every capability is a <b>cartridge</b> that plugs into it.
+      Swapping a vendor, a model, a surface, or a compute host is a <b>plug event, not a rebuild</b> — the contracts hold, the modules churn.</p>
+    </div>
+    <div class="stamp">DERIVED FROM · <b>PLATFORM-AUDIT-JUL17</b><br>PLAN · <b>REMEDIATION-MASTER-PLAN-v1</b><br>RENDERED · 2026-07-17 · v1.1</div>
+  </header>
+
+  <section class="rv">
+    <h2><span class="n">01 —</span> The Socket Board <small>— filled card = live module · dashed = open socket, plugs in with zero re-architecture</small></h2>
+    <div class="board">
+      <div class="rail"></div><div class="rail-label">LEARNING RAIL ▲</div>
+
+      <div class="tier">
+        <div class="tlabel">SURFACES<span class="contract">read-only serving APIs · one canonical name per surface</span></div>
+        <div class="socketrow">
+          <div class="mod"><div class="n"><span class="dot"></span>SLACK · JARVIS</div><div class="d">command &amp; govern · #builds #dreams</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>WAR ROOM</div><div class="d">ops cockpit · direct-serve root</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>PORTAL <i style="font-style:normal;color:var(--gold)">(one canon)</i></div><div class="d">product surface · L4 adapters</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>ASK</div><div class="d">governed NL analytics</div></div>
+          <div class="mod open"><div class="n"><span class="dot"></span>NEXT SURFACE</div><div class="d">B2B portal · mobile · API tier<br><span class="swap">PLUGS INTO SERVING</span></div></div>
+        </div>
+      </div>
+
+      <div class="tier">
+        <div class="tlabel">ORCHESTRATE<span class="contract">S3 task bus · propose_gate · contract-capped autonomy</span></div>
+        <div class="socketrow">
+          <div class="mod"><div class="n"><span class="dot"></span>JARVIS KERNEL</div><div class="d"><b>graduated live</b> · intent loop · kill switch</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>DREAMS</div><div class="d">nightly recall→dream→learn→wake · proposer + green lane</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>SENSES</div><div class="d">off-Mac dead-man · 3 SLOs · &lt;24h detection</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>REVIEW</div><div class="d">hooks · qa-agent · blocking CI · builder ≠ verifier</div></div>
+        </div>
+      </div>
+
+      <div class="tier">
+        <div class="tlabel">MODELS<span class="contract">Model Gateway = the universal socket · license fail-closed · atomic egress ledger</span></div>
+        <div class="socketrow">
+          <div class="mod"><div class="n"><span class="dot"></span>CLAUDE TIERS</div><div class="d">Haiku→Sonnet→Opus effort routing</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>GEMINI</div><div class="d">managed · retention-evidenced</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>NIM · TIMESFM · TRIBE</div><div class="d">eval→prod via PROCURE/WALK</div></div>
+          <div class="mod open"><div class="n"><span class="dot"></span>NEXT MODEL</div><div class="d">any frontier winner<br><span class="swap">PLUGS INTO GATEWAY · CLEAN ROOM HOLDS</span></div></div>
+        </div>
+      </div>
+
+      <div class="tier">
+        <div class="tlabel">EXECUTE<span class="contract">agent contract a–k · idempotency keys · jobs are portable cartridges</span></div>
+        <div class="socketrow">
+          <div class="mod"><div class="n"><span class="dot"></span>AGENT FLEET</div><div class="d">one honest denominator · 100% paged</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>RAILWAY TIER-A</div><div class="d">schedule-critical · sleep-proof</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>MAC TIER-B</div><div class="d">heavy compute · catch-up-on-wake</div></div>
+          <div class="mod open"><div class="n"><span class="dot"></span>NEXT HOST</div><div class="d">EC2 burst · Databricks · worker N<br><span class="swap">PLUGS INTO TASK BUS</span></div></div>
+        </div>
+      </div>
+
+      <div class="tier">
+        <div class="tlabel">KNOW<span class="contract">routing gate + owner registry = the context socket · HMAC load ledger</span></div>
+        <div class="socketrow">
+          <div class="mod"><div class="n"><span class="dot"></span>BRAIN L1/L2/L3</div><div class="d">laws · warm cache · single-copy state</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>SKILLS</div><div class="d">gate-routed playbooks · generated counts</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>VAULT</div><div class="d">every lesson, armed with a check_id</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>PLUGINS · MCP</div><div class="d">toolkits + live connectors, allowlisted</div></div>
+        </div>
+      </div>
+
+      <div class="tier">
+        <div class="tlabel">DATA<span class="contract">landing → manifest → cert gate · SCD2 · never-delete · spine mutex</span></div>
+        <div class="socketrow">
+          <div class="mod"><div class="n"><span class="dot"></span>SPINE 12.96M</div><div class="d">PK/CID identity plane · certified bands</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>VENDOR ADAPTERS</div><div class="d">Nielsen · TMDB · IMDB · EIDR · Gracenote · BARB · social</div></div>
+          <div class="mod"><div class="n"><span class="dot"></span>FRESHNESS FABRIC</div><div class="d">every pull emits _manifest.json · auto-enrolled alerts</div></div>
+          <div class="mod open"><div class="n"><span class="dot"></span>NEXT SOURCE</div><div class="d">S&amp;P · Kantar · any licensed feed<br><span class="swap">PLUGS INTO LANDING · CERT GATE HOLDS</span></div></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="legend">
+      <span><span class="lg-dot" style="background:var(--green)"></span>LIVE MODULE</span>
+      <span><span class="lg-dot" style="border:1.5px dashed var(--lavender)"></span>OPEN SOCKET</span>
+      <span><span class="lg-dot" style="background:var(--gold)"></span>SWAP CHIP = what a new cartridge inherits for free</span>
+      <span><span class="lg-dot" style="background:var(--teal)"></span>SOCKET CONTRACT (left rail)</span>
+    </div>
+  </section>
+
+  <section class="rv">
+    <h2><span class="n">02 —</span> The Four Interop Rails <small>— what makes the cartridges interchangeable</small></h2>
+    <div class="rails">
+      <div class="railcard"><div class="n">S3 TASK BUS</div><div class="d">every job, queue, heartbeat and shadow-diff speaks S3 — hosts are interchangeable because the bus, not the host, owns the work.</div></div>
+      <div class="railcard"><div class="n">L3 STATE</div><div class="d">one MotherDuck platform_state row per fact — any surface, agent or session rehydrates from the same truth. Counts pulled, never carried.</div></div>
+      <div class="railcard"><div class="n">EGRESS LEDGER</div><div class="d">every external-model call writes its allow/block row atomically — new models inherit the clean-room wall by construction.</div></div>
+      <div class="railcard learn"><div class="n">LEARNING RAIL ▲</div><div class="d">Dreams → vault → skills → hooks. Every module's mistakes become every future module's doctrine — the fabric compounds nightly.</div></div>
+    </div>
+  </section>
+
+  <section class="rv">
+    <h2><span class="n">03 —</span> Why This Shape</h2>
+    <div class="railcard why"><div class="d" style="font-size:11.5px">
+      <b>Plug-and-play is a property of contracts, not components.</b> The audit showed modules already churn
+      (models, vendors, hosts, surfaces) — what breaks is everything wired around them. The future state hardens the five
+      contracts (serving · task bus · gateway · routing gate · cert gate) so churn becomes cheap: a new Nielsen competitor is an
+      adapter, a new frontier model is a gateway row, a second worker is a bus consumer, a B2B portal is a serving client.
+      Nothing above or below a socket knows what cartridge is in it — that is the whole design.
+    </div></div>
+  </section>
+
+  <footer class="foot rv">
+    SASMASTER · FUTURE-STATE MODULAR FABRIC v1.1 · SOCKET-BOARD FORM (ASSESSED VS LAYER-MAP + HEXAGONAL) ·
+    CONTRACTS: SERVING API · S3 TASK BUS · MODEL GATEWAY · ROUTING GATE · CERT GATE · STATUS: TARGET STATE PER REMEDIATION-MASTER-PLAN-v1 WAVES 0–3
+  </footer>
+
+</div>
+<script>
+  // Fonts-ready animation gate (motion-design §3): content is visible without JS;
+  // this only ADDS the entrance animation once fonts land (900ms fallback).
+  (function(){
+    var done=false; function ready(){ if(done) return; done=true; document.body.classList.add('fonts-ready'); }
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(ready); }
+    setTimeout(ready, 900);
+  })();
+</script>
+</body>
+</html>
