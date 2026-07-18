@@ -160,7 +160,7 @@ var LAYERS = [
 ];
 var NODES = [
  {id:'slack',layer:'surfaces',cls:'lav',flex:1.2,t:'SLACK · JARVIS',s:'commands · pages · 07:30 briefs',st:'live',body:'<b>The command surface.</b> !build !task !status !query via HTTP Events API; all alerts, digests, and the Dreams brief land here.',cnt:'HMAC-verified · replay-guarded · channel allowlist'},
- {id:'warroom',layer:'surfaces',t:'WAR ROOM',s:'public ops cockpit',st:'degraded',body:'<b>The single pane of glass — a READ/monitor surface, not a hub every component wires into.</b> It monitors the whole platform indirectly: the many things it shows (agents, spine, cost, freshness, telemetry, Nielsen clock) are aggregated by the Mac generate-status.js cron into Vercel-served JSON payloads it fetches — plus live Railway /api/command calls for interactive actions. So its true edges are 2: ← Mac (the generator) and → Railway (live API), NOT direct wires to every monitored node. DEGRADED: root URL serves a retirement stub; live board is warroom-v5. Rebuild = Wave 3.',cnt:'18 runtime fetches · 76 resources · 5-min Mac-cron refresh'},
+ {id:'warroom',layer:'surfaces',t:'WAR ROOM',s:'public ops cockpit',st:'degraded',body:'<b>A READ/monitor surface fed by TWO separate Mac-cron pipelines, plus its OWN deploy path — not a hub every monitored component wires into directly.</b> DATA refresh: generate-status.js (5-min, main ops/agents/spine/cost/freshness bundle) + financial_agent\'s 3-cron pipeline (edgar-scraper.js 6:30am, financial-analyst.js Sun 20:10, run_builder.sh 5:05am) feeding the FINANCIAL INTEL tab (SEC EDGAR data, 78 companies) — genuinely distinct data streams, both Mac-generated. CODE/RESOURCES deploy: sasmaster-status is its OWN git repo/Vercel project (github.com/sas411/sasmaster-status), pushed directly by Shiv — separate from the SaSMaster repo\'s GHA/Railway pipeline entirely. Plus live Railway /api/command calls for interactive actions (canvas bless, jarvis run). DEGRADED: root URL serves a retirement stub; live board is warroom-v5. Rebuild = Wave 3.',cnt:'18 runtime fetches · 76 resources · 2 data pipelines · own deploy repo'},
  {id:'portal',layer:'surfaces',t:'PORTAL',s:'product surface',st:'parked',body:'<b>The product face.</b> PARKED with a canon dispute: portal-v8 deployed vs "v9" doctrine. PORTAL-CANON-001 ruling settles it; blue-green rebuild Wave 3.',cnt:'v8 on Vercel · 5 trees pending collapse'},
  {id:'ask',layer:'surfaces',t:'ASK',s:'governed NL analytics',st:'live',body:'<b>Natural-language analytics.</b> Every read via plan_executor grammars — never raw SQL; safe-refusal on unknowns.',cnt:'KV-sessioned · plan-cited answers'},
  {id:'cowork',layer:'surfaces',cls:'teal',t:'CLAUDE / COWORK',s:'strategy sessions · mobile',st:'live',body:'<b>The thinking surface.</b> Human-driven sessions where doctrine gets authored before mechanics exist; certification-of-record home for the remediation program.',cnt:'human-only · zero scheduled jobs'},
@@ -241,7 +241,8 @@ var EDGES = [
  ['brain','motherduck','L3 = the state tier'],
  ['memhot','brain','HOT+WARM = working tiers feed the Brain contract'],
  ['mac','memhot','sync-memory-warm.js — 4:30 Mac cron writes the WARM tier (MEMORY-ARCH-001)'],
- ['mac','warroom','generate-status.js — Mac cron rebuilds the War Room from local state (5-min)'],
+ ['mac','warroom','generate-status.js (5-min) + financial_agent 3-cron pipeline (EDGAR/financial-analyst/run_builder) — TWO distinct data streams'],
+ ['bless','warroom','! git push to sasmaster-status\'s OWN repo/remote (distinct from gha) → Vercel deploy of resources built by Claude Code'],
  ['skills','executor','loaded per card by the gate'],
  ['railway','motherduck','sentinel + dead-man reads'],
  ['cowork','bless','strategy → rulings · certification-of-record'],
