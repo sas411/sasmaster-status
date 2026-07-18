@@ -160,7 +160,7 @@ var LAYERS = [
 ];
 var NODES = [
  {id:'slack',layer:'surfaces',cls:'lav',flex:1.2,t:'SLACK · JARVIS',s:'commands · pages · 07:30 briefs',st:'live',body:'<b>The command surface.</b> !build !task !status !query via HTTP Events API; all alerts, digests, and the Dreams brief land here.',cnt:'HMAC-verified · replay-guarded · channel allowlist'},
- {id:'warroom',layer:'surfaces',t:'WAR ROOM',s:'public ops cockpit',st:'degraded',body:'<b>The single pane of glass.</b> 5-min rebuild cadence. DEGRADED: root URL serves a retirement stub; live board is warroom-v5. Rebuild = Wave 3.',cnt:'76 registered resources · 5-min refresh'},
+ {id:'warroom',layer:'surfaces',t:'WAR ROOM',s:'public ops cockpit',st:'degraded',body:'<b>The single pane of glass — a READ/monitor surface, not a hub every component wires into.</b> It monitors the whole platform indirectly: the many things it shows (agents, spine, cost, freshness, telemetry, Nielsen clock) are aggregated by the Mac generate-status.js cron into Vercel-served JSON payloads it fetches — plus live Railway /api/command calls for interactive actions. So its true edges are 2: ← Mac (the generator) and → Railway (live API), NOT direct wires to every monitored node. DEGRADED: root URL serves a retirement stub; live board is warroom-v5. Rebuild = Wave 3.',cnt:'18 runtime fetches · 76 resources · 5-min Mac-cron refresh'},
  {id:'portal',layer:'surfaces',t:'PORTAL',s:'product surface',st:'parked',body:'<b>The product face.</b> PARKED with a canon dispute: portal-v8 deployed vs "v9" doctrine. PORTAL-CANON-001 ruling settles it; blue-green rebuild Wave 3.',cnt:'v8 on Vercel · 5 trees pending collapse'},
  {id:'ask',layer:'surfaces',t:'ASK',s:'governed NL analytics',st:'live',body:'<b>Natural-language analytics.</b> Every read via plan_executor grammars — never raw SQL; safe-refusal on unknowns.',cnt:'KV-sessioned · plan-cited answers'},
  {id:'cowork',layer:'surfaces',cls:'teal',t:'CLAUDE / COWORK',s:'strategy sessions · mobile',st:'live',body:'<b>The thinking surface.</b> Human-driven sessions where doctrine gets authored before mechanics exist; certification-of-record home for the remediation program.',cnt:'human-only · zero scheduled jobs'},
@@ -235,7 +235,7 @@ var EDGES = [
  ['freshness','senses','manifests → alert ledger (target — no live signal today)'],
  ['senses','slack','SLO + staleness pages'],
  ['senses','motherduck','heartbeat / SLO reads'],
- ['warroom','motherduck','status pulls L3 counts (unconfirmed — refresh is a Mac generate-status.js cron)'],
+ ['warroom','railway','live /api/command calls — canvas bless · jarvis run · annotate (verified: 18 runtime fetches)'],
  ['portal','spine','serving views (band-gated)'], ['ask','spine','plan_executor governed reads'],
  ['managed','lake','Tier-A scheduled loops (target — Wave 2, zero sessions to date)'],
  ['brain','motherduck','L3 = the state tier'],
