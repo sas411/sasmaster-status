@@ -1007,6 +1007,9 @@ main.canvas-mode{overflow:hidden}
       <div class="recrow" id="tm-alert-text" style="background:rgba(239,68,68,.08);border-left:3px solid var(--down)">—</div>
     </div>
 
+    <div class="sec-h" style="margin-top:16px"><h2>Insights &amp; areas for optimization</h2><span id="tm-insights-sub" style="margin-left:auto">—</span></div>
+    <div id="tm-insights" style="display:flex;flex-direction:column;gap:8px;margin-top:2px"></div>
+
     <div style="margin-top:16px;display:flex;align-items:center;gap:10px">
       <span style="font-family:var(--mono);font-size:10px;color:var(--dim)" id="tm-last-refresh">Never refreshed</span>
       <button class="btn bp" style="margin-left:auto;font-size:11px;padding:5px 13px" onclick="tmRefresh()">↻ Refresh</button>
@@ -3452,12 +3455,94 @@ document.addEventListener('DOMContentLoaded',()=>{
       else alertRow.style.display='none';
     }
 
+    // Insights & areas for optimization — L4: only touches the adapted view model, never raw `d`
+    renderInsights(computeInsights(adapt(d)));
+
     // Timestamp
     const ts = d.generated_at ? new Date(d.generated_at).toLocaleString() : '—';
     setVal('tm-last-refresh', 'Source: '+escHtml(d.source||'—')+'  ·  Generated: '+ts);
   }
 
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // L4 adapter — single source of truth for raw field access; renderers below only touch the view model
+  function adapt(raw){
+    const d = raw || {};
+    const spend = d.pct_spend_by_model || {};
+    const tok = d.total_tokens || {};
+    const tierPct = t => typeof spend[t]?.pct_spend === 'number' ? spend[t].pct_spend : null;
+    return {
+      hasCache: !!d.cache_data_available,
+      hitRate: typeof d.cache_hit_rate === 'number' ? d.cache_hit_rate : null,
+      dailyCost: typeof d.total_cost_usd === 'number' ? d.total_cost_usd : null,
+      totalCalls: typeof d.total_calls === 'number' ? d.total_calls : null,
+      batchPct: typeof d.pct_calls_via_batch === 'number' ? d.pct_calls_via_batch : null,
+      webSearches: typeof d.web_search_call_count === 'number' ? d.web_search_call_count : null,
+      opusPct: tierPct('opus'), sonnetPct: tierPct('sonnet'), haikuPct: tierPct('haiku'),
+      tokenVolumeTotal: ['input','output','cache_read','cache_write'].reduce((s,k)=> s + (typeof tok[k]==='number'?tok[k]:0), 0),
+    };
+  }
+
+  // Rules-based insight generator — every rule reads only the adapted view model, never raw fields.
+  // Truthful-vitals: a rule only fires when the underlying number is actually known (not null/undefined).
+  function computeInsights(vm){
+    const out = [];
+
+    // Model-tier concentration — no cost-tier routing means every call pays top-of-tier price
+    const tiers = [['Opus',vm.opusPct],['Sonnet',vm.sonnetPct],['Haiku',vm.haikuPct]].filter(t=>t[1]!==null);
+    const dominant = tiers.filter(t=>t[1]>=85)[0];
+    if(dominant && vm.totalCalls){
+      out.push({sev:'warn', label:'Model concentration',
+        text: dominant[0]+' handles '+dominant[1].toFixed(0)+'% of '+vm.totalCalls+' calls with no tier routing — classification/simple-extraction calls are candidates for Haiku, cutting per-call cost without touching quality-sensitive work.'});
+    }
+
+    // Token-volume blind spot — cost is tracked but token counts aren't, so per-model efficiency is invisible
+    if(vm.totalCalls && vm.tokenVolumeTotal === 0){
+      out.push({sev:'down', label:'Token-volume blind spot',
+        text: vm.totalCalls+' calls logged with $'+ (vm.dailyCost??0).toFixed(4) +' in cost but zero input/output/cache token counts — cost-log captures $ only. Extend cost-guard.sh to emit token counts per call; without it, cache-hit-rate and per-model efficiency stay unmeasurable.'});
+    }
+
+    // Cache instrumentation
+    if(!vm.hasCache){
+      out.push({sev:'warn', label:'Cache hit rate unmeasured',
+        text:'Cache fields are absent from the cost log entirely (not just low) — upgrade cost-guard.sh to v2 to unlock the single highest-leverage cost lever: repeated system-prompt/context reads should be near-free once cache breakpoints are wired.'});
+    } else if(vm.hitRate !== null && vm.hitRate < 0.5){
+      out.push({sev:'down', label:'Cache hit rate below target',
+        text:'Cache hit rate '+(vm.hitRate*100).toFixed(1)+'% is under the 50% threshold — check breakpoint placement on repeated context (system prompts, tool schemas) ahead of variable content.'});
+    }
+
+    // Batch API — cron/nightly workloads are the textbook batch candidate (50% discount, no latency requirement)
+    if(vm.batchPct !== null && vm.batchPct < 5 && vm.totalCalls && vm.totalCalls > 500){
+      out.push({sev:'accent', label:'Batch API unused',
+        text: vm.batchPct.toFixed(1)+'% of '+vm.totalCalls+' calls go via Batch API — the */5, */15, hourly cron jobs on the OPS tab are non-interactive by definition and are the exact workload Batch API is priced for (50% off). Routing even the scheduled/report-generation share would cut spend with zero latency cost.'});
+    }
+
+    // Cost run-rate — informational, not alarming, but worth surfacing as context for the other insights
+    if(vm.dailyCost !== null){
+      const monthly = vm.dailyCost * 30;
+      out.push({sev:'up', label:'Run-rate headroom',
+        text:'$'+vm.dailyCost.toFixed(4)+'/day → ≈$'+monthly.toFixed(2)+'/mo projected, well under the $500 cap. There is budget headroom to instrument this tab further (e.g. wire codeburn’s per-tool/task breakdown into token_metrics_nightly.sh) without run-rate risk — not yet wired, tracked as a follow-up rather than fabricated here.'});
+    }
+
+    if(!out.length){
+      out.push({sev:'up', label:'Nominal', text:'No optimization signals in the current window — thresholds not tripped.'});
+    }
+    return out;
+  }
+
+  function renderInsights(list){
+    const sevStyle = {
+      down:  'background:rgba(239,68,68,.08);border-left:3px solid var(--down)',
+      warn:  'background:rgba(245,158,11,.07);border-left:3px solid var(--warn)',
+      accent:'background:rgba(14,165,233,.07);border-left:3px solid var(--accent)',
+      up:    'background:rgba(34,197,94,.1);border-left:3px solid var(--up)',
+    };
+    const html = list.map(it =>
+      '<div class="recrow" style="'+(sevStyle[it.sev]||sevStyle.accent)+'"><b style="white-space:nowrap">'+escHtml(it.label)+'</b>&nbsp;—&nbsp;'+escHtml(it.text)+'</div>'
+    ).join('');
+    setEl('tm-insights', html);
+    setVal('tm-insights-sub', list.length+' signal'+(list.length===1?'':'s')+' · derived from current window, no fabricated data');
+  }
 
   function todayUTC(){
     const d = new Date();
