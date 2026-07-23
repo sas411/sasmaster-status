@@ -263,7 +263,7 @@ var EDGES = [
  ['mac','warroom','generate-status.js (5-min) + financial_agent 3-cron pipeline (EDGAR/financial-analyst/run_builder) — TWO distinct data streams'],
  ['bless','warroom','! git push to sasmaster-status\'s OWN repo/remote (distinct from gha) → Vercel deploy of resources built by Claude Code'],
  ['skills','executor','loaded per card by the gate'],
- ['railway','motherduck','sentinel + dead-man reads'],
+ ['railway','motherduck','CONFIRMED direct duckdb.connect (sentinel.py:159 + checker.py:75) — genuinely direct, NOT command-api (railway.ts:919-921\'s \"Railway never queries MotherDuck directly\" doctrine comment applies to command-api only, not the bundled railway node as a whole)'],
  ['ask','motherduck','direct RO-PAT read — ASK_MOTHERDUCK_TOKEN (ask_server.py:78-88)'],
  ['cowork','bless','strategy → rulings · certification-of-record'],
  ['cowork','kernel','CORRECTED 2026-07-22: the existing local sasmaster MCP server (mcp-server/, stdio) exposes only 6 ops/status tools (get_system_status, get_agent_status, get_job_queue, trigger_job, get_logs, get_done_log) — trigger_job only writes a TASKS.md queue entry, no kernel dispatch/intent-decomposition/task-bus access. A prior draft of this edge claimed this local server already had live kernel access — verified false by direct code read. CM6 (kernel-exposing, Railway-hosted, claude.ai-connected) remains designed, not built.'],
