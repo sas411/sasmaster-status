@@ -84,6 +84,11 @@
   .stleg{display:flex;gap:12px;flex-wrap:wrap;font-family:'DM Mono',monospace;font-size:8.5px;color:var(--text-secondary)}
   .stleg span{display:inline-flex;align-items:center;gap:5px}
   .lg{width:7px;height:7px;border-radius:50%}
+  .eleg{display:flex;gap:12px;flex-wrap:wrap;font-family:'DM Mono',monospace;font-size:8.5px;color:var(--text-secondary);margin-top:4px}
+  .eleg span{display:inline-flex;align-items:center;gap:5px}
+  .ewire{width:16px;height:0;border-top:1.6px solid var(--teal);display:inline-block}
+  .ewire.e-live{border-top-style:dashed;opacity:.75}
+  .ewire.e-target{border-top-style:dotted;opacity:.45}
 
   @media(prefers-reduced-motion:reduce){.cline::after,.loop .rail::after,.loop-legend .lg-dot{animation:none;opacity:0}.loop-legend .lg-dot{opacity:1}}
   @media print{.cline::after,.loop .rail::after{animation:none;opacity:0}}
@@ -137,6 +142,10 @@
           <span><span class="lg d-target"></span>TARGET</span>
         </div>
         <span class="loop-legend"><span class="lg-dot"></span>▲ GREEN RAIL = LEARNING LOOP · dreams → vault → skills → bless</span>
+      </div>
+      <div class="eleg">
+        <span><span class="ewire e-live"></span>EDGE: LIVE</span>
+        <span><span class="ewire e-target"></span>EDGE: TARGET (not yet built)</span>
       </div>
     </div>
     <aside class="panel" id="panel">
@@ -201,10 +210,12 @@ var NODES = [
 ];
 var EDGES = [
  ['slack','railway','/slack/events HTTP ingress · HMAC'],
- ['slack','kernel','HTTP Events · HMAC (target — kernel SHADOW, not yet live dispatcher)'],
+ ['slack','kernel','HTTP Events · HMAC (target — kernel SHADOW, not yet live dispatcher)','target'],
  ['railway','lake','enqueue → S3 queue.json'],
  ['lake','mac','Mac consumer polls + drains'], ['mac','lake','outputs + heartbeats'],
- ['railway','slack','pages · dead-man I\'m-alive'], ['mac','motherduck','L3 close-outs · heartbeats'],
+ ['railway','slack','pages · dead-man I\'m-alive'],
+ ['mac','slack','worker-heartbeat.sh pages SASMASTER_SLACK_WEBHOOK directly on non-200 from Railway control-plane — the bidirectional half of the dead-man pair (com.sasmaster.worker-heartbeat.plist, StartInterval=300s; mac-presence.sh/Upstash mac:last_ok is the presence write, not the pager — read for content, not filename-guessed)'],
+ ['mac','motherduck','L3 close-outs · heartbeats'],
  ['railway','lake','read mirror ← 5-min cache sync'], ['gates','executor','PreToolUse refusals'],
  ['gates','skills','owner-skill resolution · HMAC ledger'], ['executor','fleet','dispatch builders/verifiers'],
  ['executor','mac','Claude Code sessions ARE Mac terminal processes — no cloud exec substrate'],
@@ -214,9 +225,9 @@ var EDGES = [
  ['fleet','skills','agents-manifest.json registry read (agent-contract.js)'],
  ['fleet','brain','L3 writes are Brain-tier contributions (agent-yield.js)'],
  ['fleet','ec2','burst dispatch on demand (unverified — no EC2 SDK usage found in agents/)'],
- ['kernel','gates','propose_gate for dangerous ops (target — kernel SHADOW)'],
+ ['kernel','gates','propose_gate for dangerous ops (target — kernel SHADOW)','target'],
  ['gates','motherduck','writes ops.skill_activity — the event hub (every tool call/skill decision, append-only)'],
- ['motherduck','osloops','advisor_nightly.py reads ops.skill_activity → efficiency digest (target — BLOCKED pending R-1)'],
+ ['motherduck','osloops','advisor_nightly.py reads ops.skill_activity → efficiency digest (target — BLOCKED pending R-1)','target'],
  ['osloops','bless','FEEDBACK digest + lesson drafts + registry proposals — never auto-deposited, human bless is the gate'],
  ['fleet','senses','logs/cost-log.jsonl spend → search_guard.py budget caps → LIVE Slack alert at 80%/100%'],
  ['kernel','lake','dispatch_verify → task-bus enqueue (sanctioned action, live in shadow — tools.ts)'],
@@ -242,7 +253,7 @@ var EDGES = [
  ['warroom','railway','live /api/command calls — canvas bless · jarvis run · annotate (verified: 18 runtime fetches)'],
  ['portal','spine','serving views (band-gated)'], ['ask','spine','plan_executor governed reads'],
  ['portal','ask','Vercel proxy — live fetch(ASK_ENDPOINT+\'/ask\') (portal/sasmaster-ask-drscoop.html:290) — page exists but is unlinked from portal nav, so drawn live-code/not-live-traffic'],
- ['managed','lake','Tier-A scheduled loops (target — Wave 2, zero sessions to date)'],
+ ['managed','lake','Tier-A scheduled loops (target — Wave 2, zero sessions to date)','target'],
  ['brain','motherduck','L3 = the state tier'],
  ['memhot','brain','HOT+WARM = working tiers feed the Brain contract'],
  ['mac','memhot','sync-memory-warm.js — 4:30 Mac cron writes the WARM tier (MEMORY-ARCH-001)'],
@@ -334,7 +345,9 @@ function drawWires(id){
     var p = document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d', 'M' + x1 + ',' + y1 + ' C' + x1 + ',' + midY + ' ' + x2 + ',' + midY + ' ' + x2 + ',' + y2);
     p.setAttribute('fill','none'); p.setAttribute('stroke','var(--teal)');
-    p.setAttribute('stroke-width','1.6'); p.setAttribute('stroke-dasharray','5 4'); p.setAttribute('opacity','0.75');
+    p.setAttribute('stroke-width','1.6');
+    if (e[3] === 'target') { p.setAttribute('stroke-dasharray','2 6'); p.setAttribute('opacity','0.45'); }
+    else { p.setAttribute('stroke-dasharray','5 4'); p.setAttribute('opacity','0.75'); }
     svg.appendChild(p);
   });
 }
