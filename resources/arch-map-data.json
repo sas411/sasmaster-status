@@ -1,0 +1,250 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-07-23T16:38:17Z",
+  "counts": {
+    "crontab_lines": {
+      "value": 88,
+      "census_command": "crontab -l 2>/dev/null | grep -vE '^\\s*(#|$)' | wc -l",
+      "derived_at": "2026-07-23T16:38:15Z",
+      "status": "ok"
+    },
+    "launchd_on_disk": {
+      "value": 31,
+      "census_command": "find ~/Library/LaunchAgents -iname 'com.sasmaster*.plist' 2>/dev/null | wc -l",
+      "derived_at": "2026-07-23T16:38:15Z",
+      "status": "ok"
+    },
+    "launchd_loaded": {
+      "value": 31,
+      "census_command": "launchctl list 2>/dev/null | grep -i sasmaster | wc -l",
+      "derived_at": "2026-07-23T16:38:15Z",
+      "status": "ok"
+    },
+    "gha_workflows_total": {
+      "value": 14,
+      "census_command": "find /Users/shivashish/SaSMaster/.github/workflows -maxdepth 1 -name '*.yml' | wc -l",
+      "derived_at": "2026-07-23T16:38:15Z",
+      "status": "ok"
+    },
+    "gha_workflows_pull_request_gated": {
+      "value": 5,
+      "census_command": "grep -l 'pull_request' /Users/shivashish/SaSMaster/.github/workflows/*.yml 2>/dev/null | wc -l",
+      "derived_at": "2026-07-23T16:38:15Z",
+      "status": "ok"
+    },
+    "md_schema_count": {
+      "value": 16,
+      "census_command": "duckdb -json -c \"ATTACH 'md:'; SELECT count(*) FROM information_schema.schemata WHERE catalog_name='sasmaster';\"",
+      "derived_at": "2026-07-23T16:38:16Z",
+      "status": "ok"
+    },
+    "md_ref_skill_routing_rows": {
+      "value": 203,
+      "census_command": "duckdb -json -c \"ATTACH 'md:'; SELECT count(*) FROM sasmaster.ref.skill_routing;\"",
+      "derived_at": "2026-07-23T16:38:16Z",
+      "status": "ok"
+    },
+    "md_ref_doctrine_conformance_rows": {
+      "value": 23,
+      "census_command": "duckdb -json -c \"ATTACH 'md:'; SELECT count(*) FROM sasmaster.ref.doctrine_conformance;\"",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "motherduck_reachable": {
+      "value": true,
+      "census_command": "ATTACH 'md:' succeeded",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "agents_array_len": {
+      "value": 33,
+      "census_command": "python3 -c \"import json; d=json.load(open('/Users/shivashish/SaSMaster/agents-manifest.json')); print(len(d['agents']))\"",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "agents_array_live_type": {
+      "value": 24,
+      "census_command": "python3 -c \"import json; d=json.load(open('/Users/shivashish/SaSMaster/agents-manifest.json')); print(len(d['agents']))\" (type==live)",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "agents_array_subagent_type": {
+      "value": 9,
+      "census_command": "python3 -c \"import json; d=json.load(open('/Users/shivashish/SaSMaster/agents-manifest.json')); print(len(d['agents']))\" (type==subagent)",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "agents_summary_total": {
+      "value": 33,
+      "census_command": "/Users/shivashish/SaSMaster/agents-manifest.json .summary.agents_total",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "agents_summary_live_total": {
+      "value": 24,
+      "census_command": "/Users/shivashish/SaSMaster/agents-manifest.json .summary.agents_live_total",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "agents_summary_by_type_live": {
+      "value": 24,
+      "census_command": "/Users/shivashish/SaSMaster/agents-manifest.json .summary.by_type.live",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "agents_summary_by_type_subagent": {
+      "value": 9,
+      "census_command": "/Users/shivashish/SaSMaster/agents-manifest.json .summary.by_type.subagent",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "kb_file_count": {
+      "value": 2293,
+      "census_command": "find /Users/shivashish/SaSMaster/knowledge-bank -type f | wc -l",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "fleet_dir_entries": {
+      "value": 32,
+      "census_command": "ls -1 /Users/shivashish/SaSMaster/agents | wc -l",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "fleet_js_count": {
+      "value": 27,
+      "census_command": "find /Users/shivashish/SaSMaster/agents -name '*.js' | wc -l",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "resources_json_count": {
+      "value": 77,
+      "census_command": "python3 -c \"import json; print(len(json.load(open('/Users/shivashish/sasmaster-status/resources.json'))['resources']))\"",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "railway_project_count": {
+      "value": 1,
+      "census_command": "railway list --json",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    },
+    "railway_service_count": {
+      "value": 4,
+      "census_command": "railway list --json",
+      "derived_at": "2026-07-23T16:38:17Z",
+      "status": "ok"
+    }
+  },
+  "raw_command_log": [
+    {
+      "key": "crontab_lines",
+      "value": 88,
+      "command": "crontab -l 2>/dev/null | grep -vE '^\\s*(#|$)' | wc -l"
+    },
+    {
+      "key": "launchd_on_disk",
+      "value": 31,
+      "command": "find ~/Library/LaunchAgents -iname 'com.sasmaster*.plist' 2>/dev/null | wc -l"
+    },
+    {
+      "key": "launchd_loaded",
+      "value": 31,
+      "command": "launchctl list 2>/dev/null | grep -i sasmaster | wc -l"
+    },
+    {
+      "key": "gha_workflows_total",
+      "value": 14,
+      "command": "find /Users/shivashish/SaSMaster/.github/workflows -maxdepth 1 -name '*.yml' | wc -l"
+    },
+    {
+      "key": "gha_workflows_pull_request_gated",
+      "value": 5,
+      "command": "grep -l 'pull_request' /Users/shivashish/SaSMaster/.github/workflows/*.yml 2>/dev/null | wc -l"
+    },
+    {
+      "key": "md_schema_count",
+      "value": 16,
+      "command": "duckdb -json -c \"ATTACH 'md:'; SELECT count(*) FROM information_schema.schemata WHERE catalog_name='sasmaster';\""
+    },
+    {
+      "key": "md_ref_skill_routing_rows",
+      "value": 203,
+      "command": "duckdb -json -c \"ATTACH 'md:'; SELECT count(*) FROM sasmaster.ref.skill_routing;\""
+    },
+    {
+      "key": "md_ref_doctrine_conformance_rows",
+      "value": 23,
+      "command": "duckdb -json -c \"ATTACH 'md:'; SELECT count(*) FROM sasmaster.ref.doctrine_conformance;\""
+    },
+    {
+      "key": "motherduck_reachable",
+      "value": true,
+      "command": "ATTACH 'md:' succeeded"
+    },
+    {
+      "key": "agents_array_len",
+      "value": 33,
+      "command": "python3 -c \"import json; d=json.load(open('/Users/shivashish/SaSMaster/agents-manifest.json')); print(len(d['agents']))\""
+    },
+    {
+      "key": "agents_array_live_type",
+      "value": 24,
+      "command": "python3 -c \"import json; d=json.load(open('/Users/shivashish/SaSMaster/agents-manifest.json')); print(len(d['agents']))\" (type==live)"
+    },
+    {
+      "key": "agents_array_subagent_type",
+      "value": 9,
+      "command": "python3 -c \"import json; d=json.load(open('/Users/shivashish/SaSMaster/agents-manifest.json')); print(len(d['agents']))\" (type==subagent)"
+    },
+    {
+      "key": "agents_summary_total",
+      "value": 33,
+      "command": "/Users/shivashish/SaSMaster/agents-manifest.json .summary.agents_total"
+    },
+    {
+      "key": "agents_summary_live_total",
+      "value": 24,
+      "command": "/Users/shivashish/SaSMaster/agents-manifest.json .summary.agents_live_total"
+    },
+    {
+      "key": "agents_summary_by_type_live",
+      "value": 24,
+      "command": "/Users/shivashish/SaSMaster/agents-manifest.json .summary.by_type.live"
+    },
+    {
+      "key": "agents_summary_by_type_subagent",
+      "value": 9,
+      "command": "/Users/shivashish/SaSMaster/agents-manifest.json .summary.by_type.subagent"
+    },
+    {
+      "key": "kb_file_count",
+      "value": 2293,
+      "command": "find /Users/shivashish/SaSMaster/knowledge-bank -type f | wc -l"
+    },
+    {
+      "key": "fleet_dir_entries",
+      "value": 32,
+      "command": "ls -1 /Users/shivashish/SaSMaster/agents | wc -l"
+    },
+    {
+      "key": "fleet_js_count",
+      "value": 27,
+      "command": "find /Users/shivashish/SaSMaster/agents -name '*.js' | wc -l"
+    },
+    {
+      "key": "resources_json_count",
+      "value": 77,
+      "command": "python3 -c \"import json; print(len(json.load(open('/Users/shivashish/sasmaster-status/resources.json'))['resources']))\""
+    },
+    {
+      "key": "railway_project_count",
+      "value": 1,
+      "command": "railway list --json"
+    },
+    {
+      "key": "railway_service_count",
+      "value": 4,
+      "command": "railway list --json"
+    }
+  ]
+}
