@@ -1,0 +1,32 @@
+name: Org Health Report
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  org-health:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate org-health.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/generate-org-health.js
+
+      - name: Commit org-health.json if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add org-health.json
+          if git diff --cached --quiet; then
+            echo "No changes to org-health.json — skipping commit"
+          else
+            git commit -m "chore(org-health): regen org-health.json [skip ci]"
+            git push
+          fi
