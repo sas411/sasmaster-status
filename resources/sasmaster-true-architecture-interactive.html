@@ -162,12 +162,21 @@
 <script>
 (function(){
 'use strict';
-/* ── DATA (verified 2026-07-22; batch-1 + batch-2 + MotherDuck-direct verification pass + ARCH-MAP-DEPLOY-001 reconciliation pass — reconciled against a separate uncommitted working-tree edit, corrected cowork↔kernel MCP claim via code read, re-derived crontab/launchd/GHA-workflow/fleet-dir counts live) ── */
-var LAYERS = [
+/* ── DATA (ARCH-MAP-GENERATOR-001 Phase 2, 2026-07-23): LAYERS/NODES/EDGES moved out of this
+   inline literal into resources/architecture-nodes.json — the hand-maintained companion file
+   the generator's counts merge into (ARCH-MAP-GENERATOR-001 dev-step 3). Fetched below; render
+   is deferred until the fetch resolves. Fallback to the last-known-good inline copy only if the
+   fetch fails, so a broken/missing JSON never blanks the page. Content below is verified
+   byte-identical to the pre-refactor inline literal (extracted via Node vm eval, not
+   hand-transcribed) — verified 2026-07-22/23; batch-1 + batch-2 + MotherDuck-direct verification
+   pass + ARCH-MAP-DEPLOY-001 reconciliation pass — reconciled against a separate uncommitted
+   working-tree edit, corrected cowork↔kernel MCP claim via code read, re-derived
+   crontab/launchd/GHA-workflow/fleet-dir counts live. */
+var FALLBACK_LAYERS = [
   ['surfaces','SURFACES'], ['orch','ORCHESTRATE'], ['models','MODELS'], ['exec','EXECUTE'],
   ['know','KNOW'], ['memory','MEMORY'], ['data','DATA'], ['compute','COMPUTE']
 ];
-var NODES = [
+var FALLBACK_NODES = [
  {id:'slack',layer:'surfaces',cls:'lav',flex:1.2,t:'SLACK · JARVIS',s:'commands · pages · 07:30 briefs',st:'live',body:'<b>The command surface.</b> !build !task !status !query via HTTP Events API; all alerts, digests, and the Dreams brief land here.',cnt:'HMAC-verified · replay-guarded · channel allowlist'},
  {id:'warroom',layer:'surfaces',t:'WAR ROOM',s:'public ops cockpit',st:'degraded',body:'<b>A READ/monitor surface fed by TWO separate Mac-cron pipelines, plus its OWN deploy path — not a hub every monitored component wires into directly.</b> DATA refresh: generate-status.js (5-min, main ops/agents/spine/cost/freshness bundle) + financial_agent\'s 3-cron pipeline (edgar-scraper.js 6:30am, financial-analyst.js Sun 20:10, run_builder.sh 5:05am) feeding the FINANCIAL INTEL tab (SEC EDGAR data, 78 companies) — genuinely distinct data streams, both Mac-generated. CODE/RESOURCES deploy: sasmaster-status is its OWN git repo/Vercel project (github.com/sas411/sasmaster-status), pushed directly by Shiv — separate from the SaSMaster repo\'s GHA/Railway pipeline entirely. Plus live Railway /api/command calls for interactive actions (canvas bless, jarvis run). DEGRADED: root URL serves a retirement stub; live board is warroom-v5. RULED 2026-07-21: warroom-v5 IS production mission control — WARROOM-REWRITE-001\'s rebuild premise is CLOSED/superseded, no rebuild planned.',cnt:'18 runtime fetches · 77 resources (live count, resources.json 2026-07-23) · 2 data pipelines · own deploy repo'},
  {id:'portal',layer:'surfaces',t:'PORTAL',s:'product surface',st:'parked',body:'<b>The product face.</b> PARKED. Canon dispute CLOSED 2026-07-17 (PORTAL-CANON-001) — portal-v8 is canonical, recorded in L3 platform_state.portal_canonical; blue-green rebuild Wave 3. 2026-07-18 clarification (same L3 row): portal-v8 is a <i>placeholder</i> canonical, not final — only warroom-v5.html is confirmed as the actual production surface in active use; other Vercel sites including portal-v8 remain prototype-status.',cnt:'v8 on Vercel · 5 trees pending collapse'},
@@ -208,7 +217,7 @@ var NODES = [
  {id:'dbx',layer:'compute',t:'DATABRICKS',s:'RSG-shared · biweekly Wed jobs',st:'live',body:'<b>Borrowed compute, guarded by code — but the "allowlisted clusters" claim is policy-documented only, not code-enforced, and both hardcoded clusters are actually terminated.</b> Cadence corrected: biweekly Wednesday (even ISO weeks), not weekly Tuesday as previously stated — read-only default; license tracked separately. Both cadence and cluster-allowlist claims pending live re-verification (not MotherDuck-checkable from here).',cnt:'biweekly Wed Nielsen chain (corrected from "Tue") · allowlist policy-only, not enforced in code'},
  {id:'ec2',layer:'compute',cls:'dashed',t:'EC2 BURST',s:'harvest fleets · on demand',st:'target',body:'<b>Elastic burst</b> for harvest fleets only — spun on demand, never standing compute. Note: one stopped instance has reportedly persisted ~24 days since 06-28. Whether this contradicts "never standing" depends on what that claim means — a stopped (non-running, non-billed) instance is a hygiene item (should be terminated) rather than an architecture violation if the claim is about active compute-hours, but a real violation if it\'s about resource existence. Semantics not yet clarified with Shiv — flagged, not resolved.',cnt:'on-demand · no scheduled residency (stopped-instance hygiene item flagged, pending clarification)'}
 ];
-var EDGES = [
+var FALLBACK_EDGES = [
  ['slack','railway','/slack/events HTTP ingress · HMAC'],
  ['slack','kernel','HTTP Events · HMAC (target — kernel SHADOW, not yet live dispatcher)','target'],
  ['railway','lake','enqueue → S3 queue.json'],
@@ -284,11 +293,31 @@ var EDGES = [
  ['mac','slack','07:30 Dreams-digest brief delivery (cron)']
 ];
 
-/* ── RENDER ── */
+/* ── LOAD ── fetch the companion data file; render only after it resolves (or falls back). */
 var arch = document.getElementById('arch');
 var panel = document.getElementById('panel');
 var svg = document.getElementById('wires');
 var byId = {};
+var selected = null;
+var LAYERS, NODES, EDGES;
+
+fetch('architecture-nodes.json', {cache: 'no-store'})
+  .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(function(d){
+    if (!d || !Array.isArray(d.NODES) || !Array.isArray(d.EDGES) || !Array.isArray(d.LAYERS)) {
+      throw new Error('architecture-nodes.json missing LAYERS/NODES/EDGES');
+    }
+    LAYERS = d.LAYERS; NODES = d.NODES; EDGES = d.EDGES;
+    render();
+  })
+  .catch(function(err){
+    console.warn('architecture-nodes.json fetch failed (' + err.message + ') — rendering last-known-good inline fallback.');
+    LAYERS = FALLBACK_LAYERS; NODES = FALLBACK_NODES; EDGES = FALLBACK_EDGES;
+    render();
+  });
+
+/* ── RENDER ── */
+function render(){
 LAYERS.forEach(function(L, li){
   var row = document.createElement('div'); row.className = 'lrow';
   var lab = document.createElement('div'); lab.className = 'llabel'; lab.textContent = L[1];
@@ -313,8 +342,8 @@ LAYERS.forEach(function(L, li){
   }
 });
 document.body.addEventListener('click', function(){ selected = null; unlight(); resetPanel(); });
+}
 
-var selected = null;
 function neighbors(id){
   var set = {}; set[id] = true;
   EDGES.forEach(function(e){ if (e[0] === id) set[e[1]] = true; if (e[1] === id) set[e[0]] = true; });
