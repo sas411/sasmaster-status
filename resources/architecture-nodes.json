@@ -306,14 +306,34 @@
    "cnt": "16 schemas (live count 2026-07-22: aud, curated, curated_v2, fusion, gov, landing, main, ops, prod, quarantine, ref, review, serving, source, stg, viewership — curated_v2 and gov are new since the 07-13 cache) · sub-100ms serving reads"
   },
   {
-   "id": "railway",
+   "id": "railway-api",
    "layer": "compute",
    "cls": "teal",
-   "t": "RAILWAY",
-   "s": "api · sentinel · Tier-A home",
+   "t": "RAILWAY · COMMAND-API",
+   "s": "Slack ingress · read mirror · Tier-A home",
    "st": "live",
-   "body": "<b>The cloud half.</b> command-api (Slack ingress + read mirror), sentinel loop (now its own deployed service, not bundled with command-api), dead-man checker (LIVE since 07-21), Tier-A cron host (Wave 2).",
-   "cnt": "3 services live (command-api · sentinel · dead-man-checker — pending live re-confirmation via Railway console, not MotherDuck-checkable from here)"
+   "body": "<b>The Slack-ingress + control-plane half of Railway.</b> /slack/events HTTP ingress, S3 job-queue enqueue, /api/command handler (portal/War Room actions), the CI deploy-failover dispatcher (railway.ts:1577-1629), and the 5-min S3 read-mirror sync. Never queries MotherDuck directly (railway.ts:919-921's own doctrine comment — confirmed accurate for THIS service specifically, unlike sentinel/dead-man-checker below).",
+   "cnt": "Railway service 1 of 3 (was bundled as one 'railway' node — split 2026-07-23 per B4's undercount finding + B2's direct-MD-access nuance)"
+  },
+  {
+   "id": "railway-sentinel",
+   "layer": "compute",
+   "cls": "teal",
+   "t": "RAILWAY · SENTINEL",
+   "s": "freshness + platform checks",
+   "st": "live",
+   "body": "<b>Sentinel's own deployed Railway service</b> — not bundled with command-api. Runs its own evaluators, connects to MotherDuck directly (sentinel.py:159, duckdb.connect('md:sasmaster?motherduck_token=...') — genuinely direct, the exact opposite of command-api's posture). See CRED-MD-TOKEN-STRING-001 for the token-in-connection-string finding on this same file.",
+   "cnt": "Railway service 2 of 3"
+  },
+  {
+   "id": "railway-deadman",
+   "layer": "compute",
+   "cls": "teal",
+   "t": "RAILWAY · DEAD-MAN CHECKER",
+   "s": "liveness paging",
+   "st": "live",
+   "body": "<b>Dead-man checker's own deployed Railway service</b> (LIVE since 07-21) — not bundled with command-api or sentinel. Connects to MotherDuck directly (checker.py:75/74, same pattern as sentinel). Posts the daily 'I'm alive' Slack heartbeat (actions.py:100, post_daily_alive()) — confirmed this is the specific service behind the railway->slack dead-man-page edge, not sentinel.",
+   "cnt": "Railway service 3 of 3"
   },
   {
    "id": "mac",
@@ -356,7 +376,7 @@
  "EDGES": [
   [
    "slack",
-   "railway",
+   "railway-api",
    "/slack/events HTTP ingress · HMAC"
   ],
   [
@@ -366,7 +386,7 @@
    "target"
   ],
   [
-   "railway",
+   "railway-api",
    "lake",
    "enqueue → S3 queue.json"
   ],
@@ -381,9 +401,9 @@
    "outputs + heartbeats"
   ],
   [
-   "railway",
+   "railway-deadman",
    "slack",
-   "pages · dead-man I'm-alive"
+   "daily 'I'm alive' post (actions.py:100 post_daily_alive) · dead-man I'm-alive"
   ],
   [
    "mac",
@@ -396,7 +416,7 @@
    "L3 close-outs · heartbeats"
   ],
   [
-   "railway",
+   "railway-api",
    "lake",
    "read mirror ← 5-min cache sync"
   ],
@@ -605,7 +625,7 @@
   ],
   [
    "warroom",
-   "railway",
+   "railway-api",
    "live /api/command calls — canvas bless · jarvis run · annotate (verified: 18 runtime fetches)"
   ],
   [
@@ -661,9 +681,14 @@
    "loaded per card by the gate"
   ],
   [
-   "railway",
+   "railway-sentinel",
    "motherduck",
-   "CONFIRMED direct duckdb.connect (sentinel.py:159 + checker.py:75) — genuinely direct, NOT command-api (railway.ts:919-921's \"Railway never queries MotherDuck directly\" doctrine comment applies to command-api only, not the bundled railway node as a whole)"
+   "CONFIRMED direct duckdb.connect (sentinel.py:159) — genuinely direct, NOT command-api (railway.ts:919-921's \"Railway never queries MotherDuck directly\" doctrine comment applies to command-api only, confirmed accurate now that the node is split)"
+  ],
+  [
+   "railway-deadman",
+   "motherduck",
+   "CONFIRMED direct duckdb.connect (checker.py:75) — genuinely direct, NOT command-api (same doctrine-comment scoping as sentinel above)"
   ],
   [
    "ask",
@@ -722,7 +747,7 @@
   ],
   [
    "gha",
-   "railway",
+   "railway-api",
    "CI deploy relay"
   ],
   [
@@ -746,7 +771,7 @@
    "Tue chain → cert gate (cadence corrected to biweekly Wed — pending edge-label re-sync)"
   ],
   [
-   "railway",
+   "railway-api",
    "gha",
    "POST /internal/trigger-failover fires workflow_dispatch on failover-worker.yml when mac-primary last_seen >5min (command-api/src/railway.ts:1577-1629, confirmed live 2026-07-23)"
   ],
