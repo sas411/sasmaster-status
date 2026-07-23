@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SaSMaster — Org Health</title>
+<style>
+  body {
+    background: #0b0e14;
+    color: #e6e8ee;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 32px;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: #8a93a6; font-size: 13px; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #1c2230; }
+  th { color: #8a93a6; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.04em; }
+  tr:hover td { background: #10131c; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge-unknown { background: #2a2f3f; color: #b3b9c9; }
+  .badge-err { background: #3a1e22; color: #ff8a8a; }
+  .stale { color: #ffb454; }
+  #err { color: #ff8a8a; font-size: 13px; }
+</style>
+</head>
+<body>
+  <h1>Org Health</h1>
+  <div class="sub" id="meta">loading org-health.json…</div>
+  <table id="tbl">
+    <thead>
+      <tr>
+        <th>Repo</th>
+        <th>Default Branch</th>
+        <th>Open PRs</th>
+        <th>Days Since Last Commit</th>
+        <th>Branch Protection</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <div id="err"></div>
+
+  <script>
+    async function load() {
+      try {
+        const res = await fetch('org-health.json', { cache: 'no-store' });
+        const data = await res.json();
+        const repos = (data.org_health && data.org_health.repos) || [];
+        document.getElementById('meta').textContent =
+          'Generated ' + (data.generated_at || data.generated || 'unknown') +
+          ' — ' + repos.length + ' repos (frankenstein excluded)';
+        const rows = document.getElementById('rows');
+        repos.forEach((r) => {
+          const tr = document.createElement('tr');
+          const stale = typeof r.days_since_last_commit === 'number' && r.days_since_last_commit > 14;
+          tr.innerHTML =
+            '<td>' + (r.full_name || r.name || '—') + '</td>' +
+            '<td>' + (r.default_branch || '—') + '</td>' +
+            '<td>' + (r.open_pr_count ?? '—') + '</td>' +
+            '<td class="' + (stale ? 'stale' : '') + '">' +
+              (r.days_since_last_commit ?? '—') + '</td>' +
+            '<td><span class="badge badge-unknown">' + (r.branch_protection || 'unknown') + '</span></td>';
+          if (r.error) {
+            tr.title = r.error;
+          }
+          rows.appendChild(tr);
+        });
+      } catch (e) {
+        document.getElementById('err').textContent = 'Failed to load org-health.json: ' + e;
+      }
+    }
+    load();
+  </script>
+</body>
+</html>
