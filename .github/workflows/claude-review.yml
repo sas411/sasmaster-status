@@ -80,12 +80,14 @@ jobs:
             cat /tmp/pr.diff
           } > /tmp/prompt.txt
           set +e
-          claude -p "$(cat /tmp/prompt.txt)" --output-format json > /tmp/raw.json 2> /tmp/claude.err
+          claude -p --output-format json < /tmp/prompt.txt > /tmp/raw.json 2> /tmp/claude.err
           RC=$?
           set -e
           if [ "$RC" -ne 0 ]; then
             if grep -Eiq 'credit balance|billing|quota|insufficient|api key|authentication' /tmp/claude.err /tmp/raw.json; then
               echo "::error::CI review INFRASTRUCTURE failure (billing/quota/auth) — failing visibly per build-discipline §28"
+            elif [ "$RC" -eq 126 ] || grep -qi 'argument list too long' /tmp/claude.err; then
+              echo "::error::CI review INFRASTRUCTURE failure (prompt exceeded exec argv limits) — failing visibly per build-discipline §28"
             else
               echo "::error::claude -p exited $RC"
             fi
