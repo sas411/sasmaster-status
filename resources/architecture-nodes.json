@@ -52,7 +52,7 @@
    "s": "public ops cockpit",
    "st": "degraded",
    "body": "<b>A READ/monitor surface fed by TWO separate Mac-cron pipelines, plus its OWN deploy path — not a hub every monitored component wires into directly.</b> DATA refresh: generate-status.js (5-min, main ops/agents/spine/cost/freshness bundle) + financial_agent's 3-cron pipeline (edgar-scraper.js 6:30am, financial-analyst.js Sun 20:10, run_builder.sh 5:05am) feeding the FINANCIAL INTEL tab (SEC EDGAR data, 78 companies) — genuinely distinct data streams, both Mac-generated. CODE/RESOURCES deploy: sasmaster-status is its OWN git repo/Vercel project (github.com/sas411/sasmaster-status), pushed directly by Shiv — separate from the SaSMaster repo's GHA/Railway pipeline entirely. Plus live Railway /api/command calls for interactive actions (canvas bless, jarvis run). DEGRADED: root URL serves a retirement stub; live board is warroom-v5. RULED 2026-07-21: warroom-v5 IS production mission control — WARROOM-REWRITE-001's rebuild premise is CLOSED/superseded, no rebuild planned.",
-   "cnt": "18 runtime fetches · 77 resources (live count, resources.json 2026-07-23) · 2 data pipelines · own deploy repo"
+   "cnt": "18 runtime fetches · {{count:resources_json_count}} resources (census {{asof:resources_json_count}}, resources.json) · 2 data pipelines · own deploy repo"
   },
   {
    "id": "portal",
@@ -122,7 +122,7 @@
    "s": "routing · doctrine · token · cert",
    "st": "live",
    "body": "<b>The Conscience — and the event hub's only writer.</b> Refuses ungoverned writes: owner-skill routing gate (HMAC ledger), doctrine conformance, token gate, enforce gates. Blocked this page's own author twice today. Also writes ops.skill_activity — an append-only MotherDuck event ledger (event_id/ts/session/surface/event_type/rule_id/owner_skill) logging every tool call/skill decision platform-wide; \"the ONLY MotherDuck writer in the routing stack\" (KNOWLEDGE-CONTROL-PLANE-001 P1). This IS the platform's event hub.",
-   "cnt": "203 routing rules (ref.skill_routing, live count 2026-07-22) · 23 doctrine rows (ref.doctrine_conformance, live count 2026-07-22) · 13/13 tests · p95 40ms"
+   "cnt": "{{count:md_ref_skill_routing_rows}} routing rules (ref.skill_routing, census {{asof:md_ref_skill_routing_rows}}) · {{count:md_ref_doctrine_conformance_rows}} doctrine rows (ref.doctrine_conformance, census {{asof:md_ref_doctrine_conformance_rows}}) · 13/13 tests · p95 40ms"
   },
   {
    "id": "bless",
@@ -173,7 +173,7 @@
    "s": "builders · verifiers · sensors",
    "st": "live",
    "body": "<b>The workforce.</b> Contract clauses a–k, yield tripwires, honest denominators. New agents only via agent-architect→agent-foundry→agent-reviewer (FUTURE-STATE-SPEC-v1.1-AMENDMENT §8.3 — 14 named staffing roles specified there; 0 exist as agent files yet, verified 2026-07-21). Wave-0 builders in worktrees right now.",
-   "cnt": "32 dir entries/27 js (live count 2026-07-22, corrected from erroneous \"35\") · agents-manifest.json v1.1.0 (2026-07-16) has an internal drift: its own summary block says 39 total/23 live_total (22 live-type+16 subagent-type), but the actual agents array in the same file has 40 entries (24 live-type+16 subagent-type) — regenerate before trusting either · NOT \"22/37\""
+   "cnt": "{{count:fleet_dir_entries}} dir entries/{{count:fleet_js_count}} js (census {{asof:fleet_dir_entries}}, corrected from erroneous \"35\") · agents-manifest.json v1.1.0 (2026-07-16) has an internal drift: its own summary block says 39 total/23 live_total (22 live-type+16 subagent-type), but the actual agents array in the same file has 40 entries (24 live-type+16 subagent-type) — regenerate before trusting either · NOT \"22/37\""
   },
   {
    "id": "executor",
@@ -273,7 +273,7 @@
    "s": "parent-key identity plane · SCD2 · invariants as live views",
    "st": "live",
    "body": "<b>The foundation.</b> Mutex + §11 bulk-write gate; weekly certs git-SHA-pinned from Wave 1.",
-   "cnt": "12,955,801 current rows (L3, live-confirmed 2026-07-22) · quarantine 38"
+   "cnt": "{{count:spine_current_rows}} current rows (L3, census {{asof:spine_current_rows}}) · quarantine 38"
   },
   {
    "id": "lake",
@@ -303,7 +303,7 @@
    "s": "L3 + serving warehouse",
    "st": "live",
    "body": "<b>Where truth lives.</b> ops.platform_state (single-copy state, append-only log), serving views; every heartbeat and census lands here.",
-   "cnt": "16 schemas (live count 2026-07-22: aud, curated, curated_v2, fusion, gov, landing, main, ops, prod, quarantine, ref, review, serving, source, stg, viewership — curated_v2 and gov are new since the 07-13 cache) · sub-100ms serving reads"
+   "cnt": "{{count:md_schema_count}} schemas (census {{asof:md_schema_count}}: aud, curated, curated_v2, fusion, gov, landing, main, ops, prod, quarantine, ref, review, serving, source, stg, viewership — curated_v2 and gov are new since the 07-13 cache) · sub-100ms serving reads"
   },
   {
    "id": "railway-api",
@@ -342,7 +342,7 @@
    "s": "launchd · cron · CLAUDE CODE terminal · repo work",
    "st": "degraded",
    "body": "<b>The named SPOF — and the real execution host.</b> Not a passive S3/MotherDuck sink: Claude Code sessions run AS Mac processes, and the fleet's cron/launchd jobs execute here directly. Sleep = soft outage. Wave 2 makes it Tier-B (catch-up-on-wake) before Aug 7.",
-   "cnt": "86 crontab + 31 launchd (live count 2026-07-23; counts rot, pull fresh)"
+   "cnt": "{{count:crontab_lines}} crontab + {{count:launchd_on_disk}} launchd (census {{asof:crontab_lines}}; counts rot, pull fresh)"
   },
   {
    "id": "gha",
@@ -351,7 +351,7 @@
    "s": "Git/CI rail · failover",
    "st": "live",
    "body": "<b>The fourth interop rail.</b> Card branches, CI review, deploy relay, proven dispatch failover. Workflows flip report-only → blocking in Wave 3.",
-   "cnt": "14 workflows (live count 2026-07-22) · blocking ramp = CI-BLOCKING-001"
+   "cnt": "{{count:gha_workflows_total}} workflows (census {{asof:gha_workflows_total}}) · blocking ramp = CI-BLOCKING-001"
   },
   {
    "id": "dbx",
