@@ -1,0 +1,44 @@
+# OPS-PREPUSH-GATE-004 (2026-07-24): minimal pre-push gate for sasmaster-status,
+# which previously had zero git hooks at all. Two local hooks only, both
+# referencing SaSMaster's canonical scripts by absolute path (no copies —
+# a fix in one place fixes both repos):
+#   - ops-gitleaks-push: reuses SaSMaster's prepush_gitleaks_push.sh, pointed
+#     at SaSMaster's existing tuned .gitleaks.toml (sasmaster-status has no
+#     tuned config of its own; rule-tuning changes still follow
+#     feedback_gitleaks_generic_api_key_tuning drill discipline over there).
+#   - ops-token-lint-push: SaSMaster's prepush_token_lint.sh unchanged —
+#     it already resolves hooks/token_lint.py + design-system/tokens.md
+#     relative to SASMASTER_DIR ($HOME/SaSMaster by default), and does its
+#     own git diff against whichever repo is the current working directory
+#     (this one) when pre-commit invokes it.
+#
+# WARN-ONLY, SHARED ENFORCE FLAG: both scripts default ENFORCE_FLAG to
+# $HOME/SaSMaster/.prepush-enforce (same flag file SaSMaster's own pre-push
+# stage checks) — one flip promotes both repos together. Per the card's
+# Rollout: SaSMaster lands + runs 7 clean warn days FIRST; this file lands
+# and gets installed only after that; still ships warn-only regardless of
+# install timing since the shared flag is absent by default.
+default_install_hook_types: [pre-commit, pre-push]
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+  - repo: local
+    hooks:
+      - id: ops-gitleaks-push
+        name: "ops-gitleaks-push: gitleaks over origin/main..HEAD via SaSMaster's tuned config (warn-only)"
+        entry: >-
+          env GITLEAKS_CONFIG=/Users/shivashish/SaSMaster/.gitleaks.toml
+          bash /Users/shivashish/SaSMaster/scripts/hooks/prepush_gitleaks_push.sh
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
+      - id: ops-token-lint-push
+        name: "ops-token-lint-push: canonical SaSMaster token_lint.py over pushed *.html (warn-only)"
+        entry: bash /Users/shivashish/SaSMaster/scripts/hooks/prepush_token_lint.sh
+        language: system
+        stages: [pre-push]
+        always_run: true
+        pass_filenames: false
