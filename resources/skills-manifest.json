@@ -4,8 +4,8 @@
   "repo": "https://github.com/sas411/sasmaster-skills",
   "canonical_url": "https://raw.githubusercontent.com/sas411/sasmaster-skills/main/skills-manifest.json",
   "public_mirror_url": "https://sasmaster-public.s3.amazonaws.com/skills-manifest.json",
-  "skill_count": 146,
-  "user_skill_count": 83,
+  "skill_count": 149,
+  "user_skill_count": 86,
   "platform_skill_count": 63,
   "skipped_no_frontmatter": 0,
   "parse_errors": 0,
@@ -81,11 +81,25 @@
       "last_modified": "2026-05-31 07:18:09 -0400"
     },
     {
+      "name": "brain-recall",
+      "description": "Routing table for BRAIN-CONTRACT-v1's four memory tiers (HOT/WARM/L3/VAULT). Use when deciding where to look up a durable fact, decision, or count — \"where do I look up\", \"recall\", \"what tier\", \"brain-recall\", or any memory-lookup question. Given a query, resolves which tier to check and the exact mechanism/command to use, including the L3-wins tie-breaker on any disagreement with a cached snapshot, and routing questions whose answer lives only in append-only history (platform_state_log) rather than current state (platform_state). Companion to docs/BRAIN-CONTRACT-v1.md — this skill is the routing table built on top of that contract; it does not redefine the tiers or introduce a new store.",
+      "tier": "user",
+      "path": "user/brain-recall/SKILL.md",
+      "last_modified": "2026-07-23 17:10:49 -0400"
+    },
+    {
       "name": "build-discipline",
       "description": "SaSMaster build discipline — non-negotiable rules for every build task, task card, and Claude Code execution cycle. Read this before writing a single line of code. Applies to UI builds, infra tasks, scraper work, agent builds, and skill creation. No exceptions. This is the constitution for how SaSMaster gets built. Trigger additions: \"before writing any code\", \"task card execution\", \"build constitution\", \"non-negotiable build rule\", \"section reference\".",
       "tier": "user",
       "path": "user/build-discipline/SKILL.md",
       "last_modified": "2026-07-21 17:42:03 -0400"
+    },
+    {
+      "name": "chart-theming",
+      "description": "When an external chart needs to appear in a SaSMaster UI, rebuild it using the ACTIVE theme's tokens from the Branding Catalog — never embed a white-background chart image",
+      "tier": "user",
+      "path": "user/chart-theming/SKILL.md",
+      "last_modified": "2026-07-23 17:02:50 -0400"
     },
     {
       "name": "claude-platform",
@@ -548,6 +562,13 @@
       "tier": "user",
       "path": "user/portal-detailpage/SKILL.md",
       "last_modified": "2026-07-16 01:12:16 -0400"
+    },
+    {
+      "name": "pre-publish-census",
+      "description": "Re-derives platform-wide pinned counts (cron jobs, launchd agents, skills, agents-manifest, status resources, MotherDuck platform_state rows, git untracked files) from their generators and diffs them against numeric claims in a document about to be published. Use before publishing any report, README, DONE_LOG entry, or dashboard that quotes a pinned count, or when asked \"how many skills/agents/crons do we have\", or to check for a \"pinned count\" going stale (\"publish\", \"pre-publish\", \"census\"). Distinct from MAPGEN-CENSUS-002 (arch-map-data.json's own Railway/ freshness/memstore/ledger/spine collectors) — this skill is generic and targets any document, not the architecture map specifically.",
+      "tier": "user",
+      "path": "user/pre-publish-census/SKILL.md",
+      "last_modified": "2026-07-23 17:17:39 -0400"
     },
     {
       "name": "programming-researcher",
