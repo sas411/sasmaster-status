@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Script Ratings v0.1 — Results Review — SaSMaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root, [data-theme="dark"]{
+  --bg-base:#0a0a0f; --bg-surface:#12121a; --bg-elevated:#1a1a2e; --bg-panel:#0d0d16;
+  --bg-overlay:rgba(10,10,15,0.85); --bg-inset:#0e0e18;
+  --lavender:#a78bfa; --teal-bright:#22d3ee; --gold:#f59e0b;
+  --red-alert:#ef4444; --green-signal:#10b981; --orange:#f97316; --pink:#ec4899;
+  --lav-dim:rgba(167,139,250,0.14); --lav-border:rgba(167,139,250,0.10); --lav-active:rgba(167,139,250,0.35);
+  --teal-dim:rgba(34,211,238,0.12); --gold-dim:rgba(245,158,11,0.10);
+  --red-dim:rgba(239,68,68,0.12); --green-dim:rgba(16,185,129,0.12);
+  --text-primary:#f8f8ff; --text-secondary:#94a3b8; --text-dim:#4b5563; --text-inverse:#0a0a0f;
+  --border:rgba(167,139,250,0.10); --border-active:rgba(167,139,250,0.35);
+  --border-subtle:rgba(255,255,255,0.04); --border-strong:rgba(167,139,250,0.50);
+  --positive:#10b981; --negative:#ef4444; --warning:#f59e0b; --info:#22d3ee;
+  --grid:rgba(248,248,255,0.08); --tick:#94a3b8; --tt-bg:#1a1a2e; --tt-border:rgba(167,139,250,0.30);
+  --watermark:rgba(148,163,184,0.06);
+}
+[data-theme="light"]{
+  --bg-base:#f4f4fb; --bg-surface:#ffffff; --bg-elevated:#ffffff; --bg-panel:#ecebf6;
+  --bg-overlay:rgba(244,244,251,0.90); --bg-inset:#ededf8;
+  --lavender:#7c3aed; --teal-bright:#0891b2; --gold:#c2740a;
+  --red-alert:#dc2626; --green-signal:#059669; --orange:#c2550a; --pink:#be185d;
+  --lav-dim:rgba(124,58,237,0.09); --lav-border:rgba(124,58,237,0.16); --lav-active:rgba(124,58,237,0.42);
+  --teal-dim:rgba(8,145,178,0.10); --gold-dim:rgba(194,116,10,0.10);
+  --red-dim:rgba(220,38,38,0.09); --green-dim:rgba(5,150,105,0.10);
+  --text-primary:#16162a; --text-secondary:#4b5365; --text-dim:#8a90a2; --text-inverse:#ffffff;
+  --border:rgba(124,58,237,0.16); --border-active:rgba(124,58,237,0.42);
+  --border-subtle:rgba(22,22,42,0.06); --border-strong:rgba(124,58,237,0.55);
+  --positive:#059669; --negative:#dc2626; --warning:#c2740a; --info:#0891b2;
+  --grid:rgba(22,22,42,0.08); --tick:#6b7180; --tt-bg:#ffffff; --tt-border:#d9d9e6;
+  --watermark:rgba(22,22,42,0.045);
+}
+
+html{-webkit-text-size-adjust:100%;}
+body{
+  background:var(--bg-base); color:var(--text-primary);
+  font-family:'Barlow Condensed',sans-serif;
+  min-height:100vh; overflow-x:hidden;
+  transition:background 200ms ease, color 200ms ease;
+}
+* { scrollbar-width: thin; scrollbar-color: rgba(167,139,250,0.3) transparent; }
+/* Gate M1 (ui-gates §32): html AND body, inside the breakpoint — body-only leaks via the html element */
+@media (max-width: 600px) {
+  html, body { overflow-x: hidden; max-width: 100vw; }
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.3); border-radius: 4px; }
+
+.t-display-xl{font-family:'Bebas Neue',sans-serif; letter-spacing:3px; font-size:clamp(32px,6vw,56px); line-height:1.05;}
+.t-display-md{font-family:'Bebas Neue',sans-serif; letter-spacing:2px; font-size:clamp(20px,3vw,28px);}
+.t-display-sm{font-family:'Bebas Neue',sans-serif; letter-spacing:1.5px; font-size:clamp(15px,2vw,20px);}
+.t-mono{font-family:'Share Tech Mono',monospace;}
+.t-label{font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:600; letter-spacing:0.6px; text-transform:uppercase; color:var(--text-secondary);}
+
+/* ===== Layout shell ===== */
+.wrap{max-width:1280px; margin:0 auto; padding:0 16px 64px;}
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px; border-bottom:1px solid var(--border-subtle);
+  position:sticky; top:0; z-index:50; background:var(--bg-overlay); backdrop-filter:blur(10px);
+}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand-dot{width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 8px var(--gold); flex:none;}
+.brand-name{font-family:'Bebas Neue',sans-serif; letter-spacing:2px; font-size:15px;}
+.brand-sub{font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim);}
+
+.theme-toggle{
+  display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:0 14px;
+  border:1px solid var(--border); border-radius:20px; background:var(--bg-surface);
+  color:var(--text-secondary); font-family:'Share Tech Mono',monospace; font-size:11px;
+  cursor:pointer; transition:transform 160ms cubic-bezier(0.23,1,0.32,1), border-color 160ms ease;
+}
+.theme-toggle:active{transform:scale(0.96);}
+.theme-toggle:hover{border-color:var(--border-active); color:var(--text-primary);}
+
+section{padding:40px 0;}
+@media (min-width:768px){ section{padding:56px 0;} }
+@media (min-width:1280px){ section{padding:64px 0;} }
+
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px; font-family:'Share Tech Mono',monospace;
+  font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); margin-bottom:10px;
+}
+.eyebrow .chip{
+  padding:2px 8px; border-radius:10px; border:1px solid var(--border); color:var(--text-secondary);
+}
+
+.panel{
+  background:var(--bg-surface); border:1px solid var(--border); border-radius:12px;
+  padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+@media (min-width:768px){ .panel{padding:28px;} }
+.panel-title{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; flex-wrap:wrap;}
+.panel-title h2{font-family:'Bebas Neue',sans-serif; letter-spacing:1.5px; font-size:clamp(18px,2.4vw,24px);}
+.panel-desc{font-size:13px; color:var(--text-secondary); line-height:1.6; max-width:70ch;}
+
+/* ===== Reveal-on-scroll ===== */
+.reveal{opacity:0; transform:translateY(24px); transition:opacity 600ms cubic-bezier(0.23,1,0.32,1), transform 600ms cubic-bezier(0.23,1,0.32,1);}
+.reveal.in{opacity:1; transform:none;}
+
+/* ===== Hero ===== */
+.hero{
+  border-radius:16px; border:1px solid var(--border-active); background:
+    radial-gradient(circle at 15% 0%, var(--red-dim), transparent 55%),
+    var(--bg-surface);
+  padding:28px 20px; position:relative; overflow:hidden;
+}
+@media (min-width:768px){ .hero{padding:44px 40px;} }
+.hero-verdict{
+  font-family:'Bebas Neue',sans-serif; letter-spacing:2px; color:var(--negative);
+  font-size:clamp(30px,6.5vw,54px); line-height:1.02; margin:6px 0 12px;
+  text-shadow:0 0 24px rgba(239,68,68,0.25);
+}
+.hero-caveat{font-size:14px; color:var(--text-secondary); max-width:70ch; line-height:1.65; margin-bottom:26px;}
+.hero-caveat b{color:var(--text-primary); font-weight:600;}
+
+.stat-grid{display:grid; grid-template-columns:1fr; gap:12px;}
+@media (min-width:768px){ .stat-grid{grid-template-columns:repeat(3,1fr); gap:16px;} }
+.stat-card{
+  background:var(--bg-inset); border:1px solid var(--border); border-radius:10px; padding:16px;
+}
+.stat-num{font-family:'Share Tech Mono',monospace; font-size:clamp(24px,4vw,34px); color:var(--text-primary); font-variant-numeric:tabular-nums;}
+.stat-label{font-size:12px; color:var(--text-secondary); margin-top:4px;}
+
+/* ===== Correlation chart ===== */
+.corr-row{display:flex; align-items:center; gap:10px; padding:8px 0; position:relative;}
+.corr-label{width:150px; flex:none; font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-secondary); text-align:right; padding-right:8px;}
+@media (max-width:600px){ .corr-label{width:96px; font-size:9.5px;} }
+.corr-track{flex:1; position:relative; height:22px;}
+.corr-bar{
+  position:absolute; top:2px; height:18px; border-radius:4px;
+  transition:width 900ms cubic-bezier(0.16,1,0.3,1), background 200ms ease;
+  cursor:default;
+}
+.corr-bar.neg{background:var(--red-dim); border:1px solid rgba(239,68,68,0.30);}
+.corr-bar.pos{background:var(--green-dim); border:1px solid rgba(16,185,129,0.30);}
+.corr-value{width:56px; flex:none; font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); text-align:left;}
+.corr-chart-wrap{position:relative; padding:8px 0 4px;}
+.corr-zeroline{position:absolute; top:0; bottom:0; width:1px; background:var(--border-strong);}
+.corr-watermark{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  pointer-events:none; overflow:hidden;
+}
+.corr-watermark span{
+  font-family:'Bebas Neue',sans-serif; font-size:clamp(28px,7vw,64px); letter-spacing:6px;
+  color:var(--watermark); white-space:nowrap; transform:rotate(-6deg);
+}
+.corr-tooltip{
+  position:fixed; z-index:200; background:var(--tt-bg); border:1px solid var(--tt-border);
+  border-radius:8px; padding:8px 12px; font-family:'Share Tech Mono',monospace; font-size:11px;
+  color:var(--text-primary); box-shadow:0 8px 24px rgba(0,0,0,0.35); pointer-events:none;
+  opacity:0; transform:translateY(4px) scale(0.97); transition:opacity 140ms ease-out, transform 140ms ease-out;
+  max-width:220px;
+}
+.corr-tooltip.show{opacity:1; transform:none;}
+
+/* ===== Explorer ===== */
+.explorer-grid{display:grid; grid-template-columns:1fr; gap:20px;}
+@media (min-width:1024px){ .explorer-grid{grid-template-columns:2fr 1fr;} }
+.control-row{display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;}
+select#featureSelect{
+  min-height:44px; padding:0 14px; border-radius:8px; border:1px solid var(--border);
+  background:var(--bg-inset); color:var(--text-primary); font-family:'Share Tech Mono',monospace; font-size:12px;
+  cursor:pointer;
+}
+.scatter-svg-wrap{width:100%; overflow-x:auto;}
+svg.scatter{width:100%; height:auto; min-width:320px; display:block;}
+.dot{cursor:pointer; transition:r 140ms ease-out, opacity 140ms ease-out;}
+.dot:hover, .dot.active{opacity:1;}
+.axis-label{font-family:'Barlow Condensed',sans-serif; font-size:11px; fill:var(--text-secondary);}
+.tick-label{font-family:'Share Tech Mono',monospace; font-size:9px; fill:var(--tick);}
+
+.dq-note{
+  background:var(--bg-inset); border:1px dashed var(--border-strong); border-radius:10px; padding:16px;
+}
+.dq-note h3{font-family:'Bebas Neue',sans-serif; letter-spacing:1px; font-size:14px; color:var(--gold); margin-bottom:10px;}
+.dq-item{display:flex; gap:10px; padding:8px 0; border-top:1px solid var(--border-subtle);}
+.dq-item:first-of-type{border-top:none;}
+.dq-swatch{width:10px; height:10px; border-radius:50%; background:var(--text-dim); margin-top:4px; flex:none; opacity:0.6;}
+.dq-item p{font-size:12px; color:var(--text-secondary); line-height:1.55;}
+.dq-item b{color:var(--text-primary);}
+
+.scatter-tooltip{
+  position:fixed; z-index:200; background:var(--tt-bg); border:1px solid var(--tt-border);
+  border-radius:8px; padding:10px 14px; font-family:'Share Tech Mono',monospace; font-size:11px;
+  color:var(--text-primary); box-shadow:0 8px 24px rgba(0,0,0,0.35); pointer-events:none;
+  opacity:0; transform:translateY(4px) scale(0.97); transition:opacity 140ms ease-out, transform 140ms ease-out;
+  max-width:240px; line-height:1.6;
+}
+.scatter-tooltip.show{opacity:1; transform:none;}
+.scatter-tooltip .tt-title{font-family:'Bebas Neue',sans-serif; letter-spacing:1px; font-size:13px; color:var(--lavender); margin-bottom:4px;}
+
+/* ===== Table ===== */
+.table-scroll{overflow-x:auto; border-radius:10px; border:1px solid var(--border);}
+table.titles{border-collapse:collapse; width:100%; min-width:900px;}
+table.titles thead th{
+  position:sticky; top:0; background:var(--bg-panel); z-index:2;
+  text-align:left; padding:10px 12px; font-family:'Share Tech Mono',monospace; font-size:10px;
+  letter-spacing:0.5px; text-transform:uppercase; color:var(--text-secondary); cursor:pointer;
+  border-bottom:1px solid var(--border); user-select:none; white-space:nowrap;
+  transition:color 140ms ease;
+}
+table.titles thead th:hover{color:var(--text-primary);}
+table.titles thead th .arrow{display:inline-block; margin-left:4px; opacity:0; transition:opacity 140ms ease, transform 140ms ease;}
+table.titles thead th.sorted .arrow{opacity:1;}
+table.titles thead th.sorted.desc .arrow{transform:rotate(180deg);}
+table.titles tbody td{padding:8px 12px; border-bottom:1px solid var(--border-subtle); font-size:12.5px; vertical-align:middle;}
+table.titles tbody tr{transition:transform 380ms cubic-bezier(0.16,1,0.3,1), background 140ms ease;}
+table.titles tbody tr:hover{background:var(--lav-dim);}
+table.titles tbody tr.nulled{opacity:0.55;}
+.title-cell{display:flex; flex-direction:column; min-width:150px;}
+.title-cell .name{font-weight:600;}
+.title-cell .flag{font-size:10px; color:var(--gold); font-family:'Share Tech Mono',monospace;}
+.durwt-cell{font-family:'Share Tech Mono',monospace; font-variant-numeric:tabular-nums; white-space:nowrap;}
+.feat-bar-wrap{width:56px; height:8px; background:var(--bg-inset); border-radius:4px; overflow:hidden;}
+.feat-bar-fill{height:100%; background:var(--lavender); border-radius:4px; transition:width 700ms cubic-bezier(0.16,1,0.3,1);}
+.feat-dash{font-family:'Share Tech Mono',monospace; color:var(--text-dim); font-size:11px;}
+
+/* ===== Arc strip ===== */
+.arc-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+@media (min-width:768px){ .arc-grid{grid-template-columns:repeat(4,1fr);} }
+@media (min-width:1280px){ .arc-grid{grid-template-columns:repeat(5,1fr);} }
+.arc-card{background:var(--bg-inset); border:1px solid var(--border); border-radius:8px; padding:10px; text-align:center;}
+.arc-card .name{font-size:11px; font-weight:600; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.arc-card.nulled{opacity:0.5;}
+.arc-card svg{width:100%; height:36px; display:block;}
+
+/* ===== Wide chart scroll containers (mobile safety) ===== */
+.chart-scroll-wrap{width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;}
+
+/* ===== Sankey ===== */
+svg.sankey{min-width:640px; width:100%; height:auto; display:block;}
+.sankey-node-label{font-family:'Barlow Condensed',sans-serif; font-size:11px; fill:var(--text-secondary);}
+.sankey-node-value{font-family:'Share Tech Mono',monospace; font-size:12px; font-weight:600; fill:var(--text-primary);}
+.sankey-link{cursor:default; transition:opacity 160ms ease;}
+.sankey-link:hover{opacity:0.85 !important;}
+.sankey-flow-group{transform:scaleX(0); transform-origin:0px 0px; transition:transform 1100ms cubic-bezier(0.16,1,0.3,1);}
+.sankey-flow-group.play{transform:scaleX(1);}
+.sankey-node-rect{opacity:0; transition:opacity 500ms cubic-bezier(0.23,1,0.32,1);}
+.sankey-node-rect.play{opacity:1;}
+.sankey-scale-note{font-size:11px; color:var(--text-dim); font-style:italic; margin-top:12px;}
+
+/* ===== Bubble chart ===== */
+svg.bubble{width:100%; height:auto; min-width:320px; display:block;}
+.bubble-dot{transform:scale(0.3); transform-box:fill-box; transform-origin:center; opacity:0; transition:transform 620ms cubic-bezier(0.34,1.56,0.64,1), opacity 320ms ease-out; cursor:pointer;}
+.bubble-dot.in{transform:scale(1); opacity:0.82;}
+.bubble-dot:hover{opacity:1 !important;}
+.bubble-legend{display:flex; flex-wrap:wrap; gap:16px; margin-top:12px; font-size:11px; color:var(--text-secondary); align-items:center;}
+.bubble-legend-swatch{display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:middle;}
+.bubble-legend-grad{display:inline-block; width:80px; height:8px; border-radius:4px; vertical-align:middle; margin:0 6px;}
+
+/* ===== Feature heatmap + distribution strips ===== */
+.heatmap-wrap{display:flex; flex-direction:column; gap:24px;}
+@media (min-width:1024px){ .heatmap-wrap{flex-direction:row; align-items:flex-start;} }
+.heatmap-col{flex:1; min-width:0;}
+svg.heatmap{width:100%; height:auto; min-width:340px; display:block;}
+.heat-cell{opacity:0; transform:scale(0.6); transform-box:fill-box; transform-origin:center; transition:opacity 380ms cubic-bezier(0.23,1,0.32,1), transform 380ms cubic-bezier(0.23,1,0.32,1); cursor:default;}
+.heat-cell.in{opacity:1; transform:scale(1);}
+.heat-label{font-family:'Share Tech Mono',monospace; font-size:9px; fill:var(--text-secondary);}
+.heat-value{font-family:'Share Tech Mono',monospace; font-size:9px; fill:var(--text-primary); pointer-events:none;}
+
+.dist-grid{display:flex; flex-direction:column; gap:12px;}
+.dist-row{display:flex; align-items:center; gap:10px;}
+.dist-label{width:82px; flex:none; font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-secondary); text-align:right;}
+@media (max-width:600px){ .dist-label{width:64px; font-size:9.5px;} }
+.dist-track{flex:1; position:relative; height:26px;}
+.dist-axis{position:absolute; top:13px; left:0; right:0; height:1px; background:var(--border-subtle);}
+.dist-dot{position:absolute; top:50%; width:7px; height:7px; border-radius:50%; background:var(--lavender); opacity:0; transform:translate(-50%,-50%) scale(0.4); transition:opacity 340ms ease-out, transform 340ms cubic-bezier(0.16,1,0.3,1);}
+.dist-dot.in{opacity:0.7; transform:translate(-50%,-50%) scale(1);}
+.dist-median{position:absolute; top:1px; bottom:1px; width:2px; background:var(--gold); border-radius:1px;}
+.dist-median-label{position:absolute; top:-13px; font-family:'Share Tech Mono',monospace; font-size:8.5px; color:var(--gold); transform:translateX(-50%); white-space:nowrap;}
+
+/* ===== Bankability: content DNA bars ===== */
+.dna-grid{display:grid; grid-template-columns:1fr; gap:24px;}
+@media (min-width:768px){ .dna-grid{grid-template-columns:1fr 1fr;} }
+.dna-bars{display:flex; flex-direction:column; gap:10px;}
+.dna-bar-row{display:flex; align-items:center; gap:10px;}
+.dna-bar-label{width:150px; flex:none; font-family:'Share Tech Mono',monospace; font-size:10.5px; color:var(--text-secondary); text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+@media (max-width:600px){ .dna-bar-label{width:92px; font-size:9px;} }
+.dna-bar-track{flex:1; position:relative; height:20px; background:var(--bg-inset); border-radius:4px;}
+.dna-bar-fill{position:absolute; top:0; left:0; height:100%; border-radius:4px; background:var(--lavender); width:0%; transition:width 900ms cubic-bezier(0.34,1.56,0.64,1); cursor:default;}
+.dna-bar-median{position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--gold); border-radius:1px;}
+.dna-bar-n{width:72px; flex:none; font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); text-align:left;}
+
+/* ===== Bankability: talent value index ===== */
+.tvi-list{display:flex; flex-direction:column; gap:8px;}
+.tvi-row{display:flex; align-items:center; gap:10px;}
+.tvi-rank{width:22px; flex:none; font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); text-align:right;}
+.tvi-name{width:160px; flex:none; font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+@media (max-width:600px){ .tvi-name{width:92px; font-size:11px;} }
+.tvi-chip{font-family:'Share Tech Mono',monospace; font-size:9px; padding:1px 7px; border-radius:8px; border:1px solid var(--border); color:var(--text-secondary); flex:none; white-space:nowrap;}
+.tvi-track{flex:1; position:relative; height:16px; background:var(--bg-inset); border-radius:4px; overflow:hidden;}
+.tvi-fill{position:absolute; top:0; left:0; height:100%; border-radius:4px; background:var(--teal-bright); width:0%; transition:width 900ms cubic-bezier(0.34,1.56,0.64,1);}
+.tvi-val{width:76px; flex:none; font-family:'Share Tech Mono',monospace; font-size:10.5px; color:var(--text-dim); text-align:left;}
+.tvi-n{width:40px; flex:none; font-family:'Share Tech Mono',monospace; font-size:9.5px; color:var(--text-dim); text-align:left;}
+
+/* ===== Footer ===== */
+footer{border-top:1px solid var(--border-subtle); padding-top:32px;}
+.footer-grid{display:grid; grid-template-columns:1fr; gap:24px;}
+@media (min-width:768px){ .footer-grid{grid-template-columns:1fr 1fr;} }
+footer h4{font-family:'Bebas Neue',sans-serif; letter-spacing:1px; font-size:14px; margin-bottom:10px; color:var(--text-secondary);}
+footer p, footer li{font-size:12.5px; color:var(--text-secondary); line-height:1.7;}
+.join-chain{font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--teal-bright); word-break:break-word; line-height:1.9;}
+footer ul{padding-left:18px;}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+}
+
+/* touch targets */
+button, [role="button"], select{min-height:44px;}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="topbar">
+  <div class="brand">
+    <span class="brand-dot"></span>
+    <div>
+      <div class="brand-name">SCRIPT RATINGS v0.1</div>
+      <div class="brand-sub">RESULTS REVIEW · VISION-SCRIPT-RATINGS-PILOT-001</div>
+    </div>
+  </div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <span id="themeIcon">☾</span><span id="themeLabel">DARK</span>
+  </button>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <section>
+    <div class="eyebrow"><span class="chip">n=43 correlated</span><span class="chip">Spearman + Pearson</span><span class="chip">v0.1 · 2026-07-25</span><span class="chip"><a href="#bankability" style="color:inherit;text-decoration:none;">↳ Box Office &amp; Bankability</a></span></div>
+    <div class="hero reveal">
+      <div class="t-display-sm" style="color:var(--text-dim); letter-spacing:2px;">VERDICT</div>
+      <div class="hero-verdict">NO DETECTABLE SIGNAL AT N=43</div>
+      <div class="hero-caveat" id="caveatLine"></div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num t-mono" data-count="43" data-suffix="">0</div><div class="stat-label">titles scored &amp; correlated</div></div>
+        <div class="stat-card"><div class="stat-num t-mono" data-count="0.22" data-decimals="2" data-prefix="≤ ">0</div><div class="stat-label">largest |ρ| across all 8 features</div></div>
+        <div class="stat-card"><div class="stat-num t-mono" data-count="0.17" data-decimals="2" data-prefix="≥ ">0</div><div class="stat-label">smallest p-value observed</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SANKEY: COVERAGE FUNNEL -->
+  <section>
+    <div class="panel reveal">
+      <div class="panel-title">
+        <h2>Where 220K Titles Go</h2>
+        <span class="t-label">pool → dual-anchor → Nielsen-covered → selected → scored</span>
+      </div>
+      <p class="panel-desc">Node height is proportional to log₁₀(count), not count itself — a broken/log scale, since this funnel spans five orders of magnitude (220,000 → 43). Read the printed numbers, not the pixels. <b style="color:var(--text-primary);">Class A promotion is now LIVE</b> (<span class="t-mono" style="color:var(--teal-bright);">cert_run CLASSA_PROMOTE_20260725_SHIV_BLESS</span>) — candidate pools shown below reflect the re-pull at <span class="t-mono">20,000 movies</span> / <span class="t-mono">200,000 series</span>.</p>
+      <div class="chart-scroll-wrap">
+        <svg class="sankey" id="sankeySvg" viewBox="0 0 940 470" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      <div class="sankey-scale-note">Drop-offs left to right: no dual-anchor (series without a TMDB/EIDR match) → no Nielsen coverage → not selected for this pilot's n=45 sample → insufficient text at scoring time. Every number here is a real pool count from the re-pulled candidate tables, not a sample or estimate.</div>
+    </div>
+  </section>
+
+  <!-- CORRELATION PANEL -->
+  <section>
+    <div class="panel reveal">
+      <div class="panel-title">
+        <h2>Correlation vs log₁₀(durwt_aa)</h2>
+        <span class="t-label">Spearman ρ · hover for p-value</span>
+      </div>
+      <p class="panel-desc">Every one of the 8 narrative features fails significance at n=43 (all p ≥ 0.17). Bars are muted intentionally — the "not significant" watermark spans the whole chart because it applies to every row, not a subset.</p>
+      <div class="corr-chart-wrap" id="corrChart">
+        <div class="corr-watermark"><span>NOT SIGNIFICANT</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPLORER PANEL -->
+  <section>
+    <div class="panel reveal">
+      <div class="panel-title">
+        <h2>Feature Explorer</h2>
+        <span class="t-label">43 titles · hover a point</span>
+      </div>
+      <p class="panel-desc">Pick a feature to plot against log₁₀ audience delivery. Points spread with no visible pattern — consistent with the correlation panel above.</p>
+      <div class="explorer-grid">
+        <div>
+          <div class="control-row">
+            <label class="t-label" for="featureSelect" style="margin-right:2px;">FEATURE</label>
+            <select id="featureSelect"></select>
+          </div>
+          <div class="scatter-svg-wrap">
+            <svg class="scatter" id="scatterSvg" viewBox="0 0 640 380" preserveAspectRatio="xMidYMid meet"></svg>
+          </div>
+        </div>
+        <div class="dq-note">
+          <h3>⚠ Data-quality finds</h3>
+          <div class="dq-item">
+            <span class="dq-swatch"></span>
+            <p><b>Friends</b> (tt0108778) — FIXED in v0.1. audit/resolve/classA_link_candidates.csv (CERTIFIED Class A) resolves tmdb_id 1052 (UK series <i>Fat Friends</i>) → 1668 (the actual US sitcom). Applied as an eval-only overlay, re-fetched, now scored.</p>
+          </div>
+          <div class="dq-item">
+            <span class="dq-swatch"></span>
+            <p><b>Overwatch League</b> (tt7904964) — still nulled. tmdb_id 80587 collides with <b>Big City Greens</b>; no Class A correction exists for this pkid yet. Fetched text was Big City Greens content.</p>
+          </div>
+          <div class="dq-item">
+            <span class="dq-swatch"></span>
+            <p><b>Deal or No Deal</b> (tt8386804) — new in v0.1, nulled. tmdb_id 133296 resolves to <i>Postcode Loterij Deal Or No Deal</i> (Dutch localized edition), not the US format.</p>
+          </div>
+          <div class="dq-item">
+            <p style="color:var(--text-dim); font-style:italic;">Overlay corrections are eval-only per this session's Class A audit — the source xref (nielsen_gn_identity_xref) has not been promoted. Remaining nulls are upstream GN/TMDB crosswalk issues, flagged for the spine owner rather than silently patched here.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUBBLE PANEL -->
+  <section>
+    <div class="panel reveal">
+      <div class="panel-title">
+        <h2>Titles as Bubbles</h2>
+        <span class="t-label">x = feature above · y = log₁₀(durwt_aa) · size = telecasts · color = warmth</span>
+      </div>
+      <p class="panel-desc">Same 43 scored titles, same feature control as the explorer above — change the dropdown, both charts update. Bubble size is the real telecast count for each title (not a proxy), color is a fixed warmth gradient from the token set. No pattern here either — this view exists to show distribution and coverage, not to imply a relationship the correlation panel already ruled out.</p>
+      <div class="chart-scroll-wrap">
+        <svg class="bubble" id="bubbleSvg" viewBox="0 0 720 420" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      <div class="bubble-legend">
+        <span><span class="bubble-legend-swatch" style="width:8px;height:8px;background:var(--text-dim);"></span>size = telecasts (8–944)</span>
+        <span>warmth: <span class="bubble-legend-grad" id="bubbleLegendGrad"></span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABLE PANEL -->
+  <section>
+    <div class="panel reveal">
+      <div class="panel-title">
+        <h2>All 45 Titles</h2>
+        <span class="t-label">click a column to sort</span>
+      </div>
+      <div class="table-scroll">
+        <table class="titles" id="titlesTable">
+          <thead>
+            <tr id="tableHead"></tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARC STRIP -->
+  <section>
+    <div class="panel reveal">
+      <div class="panel-title">
+        <h2>3-Act Valence Arcs</h2>
+        <span class="t-label">plot-text derived, small multiples</span>
+      </div>
+      <p class="panel-desc">Each sparkline traces valence across the three narrative acts. Nulled titles show no arc — text integrity failed before scoring began.</p>
+      <div class="arc-grid" id="arcGrid"></div>
+    </div>
+  </section>
+
+  <!-- FEATURE ANALYSIS -->
+  <section>
+    <div class="panel reveal">
+      <div class="panel-title">
+        <h2>Feature Analysis</h2>
+        <span class="t-label">computed client-side from the 43 scored titles</span>
+      </div>
+      <p class="panel-desc">Left: feature-vs-feature Spearman ρ, computed in the browser from the same 43 rows — hover a cell for the exact value. Right: per-feature distributions, jittered dots with a gold median tick. Some off-diagonal pairs correlate with each other (darkness/stakes, hook/conflict) simply because the same LLM pass extracted them from the same text — that says nothing about durwt_aa. The headline verdict is unchanged: nothing here, alone or paired, predicts audience delivery at n=43.</p>
+      <div class="heatmap-wrap">
+        <div class="heatmap-col chart-scroll-wrap">
+          <svg class="heatmap" id="heatmapSvg" viewBox="0 0 460 460" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+        <div class="heatmap-col">
+          <div class="dist-grid" id="distGrid"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOX OFFICE & BANKABILITY -->
+  <section id="bankability">
+    <div class="panel reveal">
+      <div class="panel-title">
+        <h2>Box Office &amp; Bankability</h2>
+        <span class="t-label">60 top-revenue movies · spine-derived</span>
+      </div>
+      <p class="panel-desc">A separate, unrelated dataset from the script-ratings run above — top-60 all-time revenue movies fused from TMDB revenue/budget against OPUS-style creative/source/production categoricals. Included here as a companion bankability view, not as evidence for or against the durwt_aa verdict.</p>
+
+      <!-- 1. Budget vs Revenue bubble field -->
+      <div class="panel-title" style="margin-top:6px;">
+        <h3 class="t-display-sm">Budget vs. Revenue</h3>
+        <span class="t-label">x=budget (log) · y=revenue (log) · size=multiplier (capped) · color=creative type</span>
+      </div>
+      <div class="chart-scroll-wrap">
+        <svg class="bubble" id="boBubbleSvg" viewBox="0 0 720 460" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      <div class="bubble-legend" id="boBubbleLegend"></div>
+
+      <!-- 2. Content DNA bars -->
+      <div class="panel-title" style="margin-top:32px;">
+        <h3 class="t-display-sm">Content DNA</h3>
+        <span class="t-label">avg revenue $M · gold tick = median · n = title count in corpus</span>
+      </div>
+      <div class="dna-grid">
+        <div>
+          <div class="t-label" style="margin-bottom:8px;">CREATIVE TYPE</div>
+          <div class="dna-bars" id="dnaCreative"></div>
+        </div>
+        <div>
+          <div class="t-label" style="margin-bottom:8px;">SOURCE TYPE</div>
+          <div class="dna-bars" id="dnaSource"></div>
+        </div>
+      </div>
+
+      <!-- 3. Talent Value Index v0 -->
+      <div class="panel-title" style="margin-top:32px;">
+        <h3 class="t-display-sm">Talent Value Index <span class="t-mono" style="color:var(--gold); font-size:11px;">v0</span></h3>
+        <span class="t-label chip" style="border:1px solid var(--border); border-radius:10px; padding:2px 8px;">string-matched credits, unique-title guard</span>
+      </div>
+      <p class="panel-desc" style="font-style:italic;">Unweighted value-per-credited-movie (v0) — franchise ensembles dominate because every credited cast member inherits the film's full gross; lead-weighted attribution via credit graph is the v1 method.</p>
+      <div class="tvi-list" id="tviList"></div>
+
+      <!-- 4. Methodology footnote -->
+      <div class="dq-note" style="margin-top:28px;">
+        <h3>Methodology</h3>
+        <p style="color:var(--text-secondary); line-height:1.65; font-size:12.5px;">Figures computed entirely from the SaSMaster spine: TMDB revenue/budget × OPUS-style categorical attributes (creative_type, source_type, production_method) × TMDB credit structs. Concept inspired by publicly-described people-value indexes (e.g. The Numbers Bankability Index) — no third-party report figures are embedded; every number above is derived directly from spine data.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <h4>The named join</h4>
+        <p class="join-chain">
+          Nielsen AA (AMRLD) → (NETWORK_ID, PCD) telecast key → nielsen_gn_identity_xref →
+          IMDB_SERIES_ID → TMDB tmdb_id (via external_ids) → plot text via /tv/{id} + /tv/{id}/season/1
+        </p>
+        <p style="margin-top:10px;"><b style="color:var(--text-primary);">features_source:</b> <span class="t-mono" style="color:var(--gold);">plot_text_v0</span> — series overview + up to 10 season-1 episode overviews from TMDB. This is marketing/summary copy, not dialogue or script — features are a proxy at best.</p>
+      </div>
+      <div>
+        <h4>What would change this verdict</h4>
+        <ul>
+          <li>Larger n — 43 (up from 23 in v0) is still underpowered for detecting anything below a large effect size.</li>
+          <li>Actual dialogue/script text instead of plot summaries — overviews compress away most narrative signal.</li>
+          <li>Per-demo audience targets instead of total-persons durwt_aa — genre-correlated demos may hide feature effects that a blended metric averages out.</li>
+          <li>Time-series rather than a single cross-sectional 3-week Nielsen window.</li>
+          <li>Cleaner candidate set — <b>Class A promotion is now LIVE</b> (cert_run <span class="t-mono">CLASSA_PROMOTE_20260725_SHIV_BLESS</span>): the crosswalk fix is no longer an eval-only overlay, and candidate pools have been re-pulled at 20,000 movies / 200,000 series (see the coverage funnel above). This v0.1 run (n=43) predates the repull and still reflects the original overlay-corrected sample — re-running against the promoted pool is the next step.</li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<div class="corr-tooltip" id="corrTooltip"></div>
+<div class="scatter-tooltip" id="scatterTooltip"></div>
+
+<script>
+const DATA = {
+  run_meta: {
+    version: "v0.1", date: "2026-07-25", n_selected: 45, n_with_text: 43, n_correlated: 43,
+    target: "log10_durwt_aa",
+    caveat: "plot-text features, cross-sectional, 3-week Nielsen window, n~45 — directional only",
+    note: "Class A promotion is now LIVE (cert_run CLASSA_PROMOTE_20260725_SHIV_BLESS) — no longer an eval-only overlay. Candidate pools re-pulled at 20,000 movies / 200,000 series; this v0.1 scoring run predates the repull"
+  },
+  titles: [
+    {imdb_id:"tt0206512",title:"SpongeBob SquarePants",durwt_aa:36924.0,log_aa:4.567309,features:{hook_strength:0.55,conflict_density:0.35,emotional_range:0.45,warmth:0.8,darkness:0.05,humor:0.9,serialization:0.05,stakes:0.15},arc_curve:[{act:1,valence:0.3,arousal:0.3},{act:2,valence:-0.2,arousal:0.6},{act:3,valence:0.7,arousal:0.5}]},
+    {imdb_id:"tt7678620",title:"Bluey",durwt_aa:39317.4,log_aa:4.594585,features:{hook_strength:0.45,conflict_density:0.25,emotional_range:0.6,warmth:0.95,darkness:0.05,humor:0.55,serialization:0.05,stakes:0.1},arc_curve:[{act:1,valence:0.4,arousal:0.2},{act:2,valence:-0.1,arousal:0.5},{act:3,valence:0.8,arousal:0.4}]},
+    {imdb_id:"tt8467618",title:"PAW Patrol",durwt_aa:41807.3,log_aa:4.621252,features:{hook_strength:0.5,conflict_density:0.4,emotional_range:0.35,warmth:0.7,darkness:0.1,humor:0.35,serialization:0.05,stakes:0.4},arc_curve:[{act:1,valence:0.1,arousal:0.3},{act:2,valence:-0.4,arousal:0.7},{act:3,valence:0.7,arousal:0.5}]},
+    {imdb_id:"tt1942683",title:"The Amazing World of Gumball",durwt_aa:37455.7,log_aa:4.573518,features:{hook_strength:0.45,conflict_density:0.4,emotional_range:0.5,warmth:0.55,darkness:0.15,humor:0.8,serialization:0.1,stakes:0.2},arc_curve:[{act:1,valence:0.2,arousal:0.3},{act:2,valence:-0.2,arousal:0.6},{act:3,valence:0.5,arousal:0.4}]},
+    {imdb_id:"tt7165904",title:"Big City Greens",durwt_aa:30050.4,log_aa:4.47785,features:{hook_strength:0.4,conflict_density:0.35,emotional_range:0.45,warmth:0.7,darkness:0.05,humor:0.65,serialization:0.05,stakes:0.15},arc_curve:[{act:1,valence:0.3,arousal:0.3},{act:2,valence:-0.1,arousal:0.5},{act:3,valence:0.6,arousal:0.4}]},
+    {imdb_id:"tt2771780",title:"Teen Titans Go!",durwt_aa:39727.9,log_aa:4.599096,features:{hook_strength:0.45,conflict_density:0.4,emotional_range:0.4,warmth:0.5,darkness:0.1,humor:0.8,serialization:0.05,stakes:0.2},arc_curve:[{act:1,valence:0.2,arousal:0.3},{act:2,valence:-0.1,arousal:0.6},{act:3,valence:0.5,arousal:0.5}]},
+    {imdb_id:"tt7551014",title:"Dora the Explorer",durwt_aa:31334.6,log_aa:4.496024,features:{hook_strength:0.35,conflict_density:0.2,emotional_range:0.3,warmth:0.75,darkness:0.0,humor:0.4,serialization:0.0,stakes:0.15},arc_curve:[{act:1,valence:0.3,arousal:0.2},{act:2,valence:0.1,arousal:0.4},{act:3,valence:0.7,arousal:0.3}]},
+    {imdb_id:"tt9382570",title:"Victorious",durwt_aa:41411.0,log_aa:4.617116,features:{hook_strength:0.55,conflict_density:0.5,emotional_range:0.65,warmth:0.6,darkness:0.15,humor:0.7,serialization:0.35,stakes:0.35},arc_curve:[{act:1,valence:0.2,arousal:0.4},{act:2,valence:-0.3,arousal:0.6},{act:3,valence:0.5,arousal:0.5}]},
+    {imdb_id:"tt0121955",title:"South Park",durwt_aa:32098.3,log_aa:4.506482,features:{hook_strength:0.6,conflict_density:0.6,emotional_range:0.55,warmth:0.3,darkness:0.55,humor:0.85,serialization:0.1,stakes:0.3},arc_curve:[{act:1,valence:0.1,arousal:0.4},{act:2,valence:-0.4,arousal:0.7},{act:3,valence:0.3,arousal:0.5}]},
+    {imdb_id:"tt0182576",title:"Family Guy",durwt_aa:72633.7,log_aa:4.861138,features:{hook_strength:0.55,conflict_density:0.55,emotional_range:0.5,warmth:0.35,darkness:0.45,humor:0.85,serialization:0.05,stakes:0.3},arc_curve:[{act:1,valence:0.0,arousal:0.4},{act:2,valence:-0.5,arousal:0.7},{act:3,valence:0.4,arousal:0.5}]},
+    {imdb_id:"tt1092980",title:"The Golden Girls",durwt_aa:38277.3,log_aa:4.582941,features:{hook_strength:0.5,conflict_density:0.45,emotional_range:0.6,warmth:0.8,darkness:0.2,humor:0.8,serialization:0.15,stakes:0.3},arc_curve:[{act:1,valence:0.3,arousal:0.3},{act:2,valence:-0.3,arousal:0.5},{act:3,valence:0.6,arousal:0.4}]},
+    {imdb_id:"tt0108778",title:"Friends",durwt_aa:42665.9,log_aa:4.630081,features:{hook_strength:0.5,conflict_density:0.35,emotional_range:0.5,warmth:0.8,darkness:0.05,humor:0.85,serialization:0.15,stakes:0.15},arc_curve:[{act:1,valence:0.3,arousal:0.3},{act:2,valence:-0.2,arousal:0.5},{act:3,valence:0.7,arousal:0.4}]},
+    {imdb_id:"tt0112220",title:"The Wayans Bros.",durwt_aa:21364.2,log_aa:4.329687,features:{hook_strength:0.45,conflict_density:0.45,emotional_range:0.45,warmth:0.55,darkness:0.1,humor:0.8,serialization:0.1,stakes:0.25},arc_curve:[{act:1,valence:0.2,arousal:0.3},{act:2,valence:-0.2,arousal:0.6},{act:3,valence:0.6,arousal:0.4}]},
+    {imdb_id:"tt1234319",title:"Reba",durwt_aa:60575.5,log_aa:4.782297,features:{hook_strength:0.5,conflict_density:0.5,emotional_range:0.65,warmth:0.75,darkness:0.2,humor:0.65,serialization:0.3,stakes:0.35},arc_curve:[{act:1,valence:0.0,arousal:0.3},{act:2,valence:-0.3,arousal:0.5},{act:3,valence:0.5,arousal:0.4}]},
+    {imdb_id:"tt0086687",title:"The Cosby Show",durwt_aa:47376.9,log_aa:4.675567,features:{hook_strength:0.45,conflict_density:0.4,emotional_range:0.6,warmth:0.85,darkness:0.1,humor:0.75,serialization:0.1,stakes:0.2},arc_curve:[{act:1,valence:0.3,arousal:0.3},{act:2,valence:-0.1,arousal:0.5},{act:3,valence:0.7,arousal:0.4}]},
+    {imdb_id:"tt0386676",title:"The Office",durwt_aa:32093.6,log_aa:4.506418,features:{hook_strength:0.55,conflict_density:0.5,emotional_range:0.55,warmth:0.6,darkness:0.15,humor:0.8,serialization:0.3,stakes:0.25},arc_curve:[{act:1,valence:0.2,arousal:0.3},{act:2,valence:-0.2,arousal:0.5},{act:3,valence:0.5,arousal:0.4}]},
+    {imdb_id:"tt12723394",title:"Perry Mason",durwt_aa:34717.4,log_aa:4.540547,features:{hook_strength:0.65,conflict_density:0.7,emotional_range:0.55,warmth:0.25,darkness:0.55,humor:0.2,serialization:0.2,stakes:0.75},arc_curve:[{act:1,valence:-0.1,arousal:0.4},{act:2,valence:-0.5,arousal:0.7},{act:3,valence:0.4,arousal:0.6}]},
+    {imdb_id:"tt10132524",title:"Outlander",durwt_aa:27913.4,log_aa:4.445813,features:{hook_strength:0.7,conflict_density:0.65,emotional_range:0.75,warmth:0.5,darkness:0.55,humor:0.25,serialization:0.8,stakes:0.7},arc_curve:[{act:1,valence:-0.1,arousal:0.5},{act:2,valence:-0.4,arousal:0.7},{act:3,valence:0.3,arousal:0.6}]},
+    {imdb_id:"tt4236770",title:"Yellowstone",durwt_aa:35491.8,log_aa:4.550128,features:{hook_strength:0.7,conflict_density:0.75,emotional_range:0.6,warmth:0.35,darkness:0.65,humor:0.15,serialization:0.85,stakes:0.8},arc_curve:[{act:1,valence:-0.2,arousal:0.5},{act:2,valence:-0.5,arousal:0.8},{act:3,valence:0.1,arousal:0.6}]},
+    {imdb_id:"tt0203259",title:"Law & Order: Special Victims Unit",durwt_aa:44713.8,log_aa:4.650442,features:{hook_strength:0.65,conflict_density:0.7,emotional_range:0.5,warmth:0.2,darkness:0.75,humor:0.1,serialization:0.15,stakes:0.7},arc_curve:[{act:1,valence:-0.3,arousal:0.5},{act:2,valence:-0.6,arousal:0.7},{act:3,valence:0.3,arousal:0.5}]},
+    {imdb_id:"tt15392444",title:"Forensic Files",durwt_aa:46848.1,log_aa:4.670692,features:{hook_strength:0.6,conflict_density:0.55,emotional_range:0.5,warmth:0.15,darkness:0.75,humor:0.05,serialization:0.05,stakes:0.6},arc_curve:[{act:1,valence:-0.2,arousal:0.4},{act:2,valence:-0.5,arousal:0.6},{act:3,valence:0.4,arousal:0.4}]},
+    {imdb_id:"tt7904964",title:"Overwatch League",durwt_aa:27929.7,log_aa:4.446066,features:{hook_strength:null,conflict_density:null,emotional_range:null,warmth:null,darkness:null,humor:null,serialization:null,stakes:null},arc_curve:[],insufficient_text:true,note:"tmdb_id 80587 collides with Big City Greens in candidates.csv; fetched text is Big City Greens content, not esports narrative. Nulled to avoid scoring the wrong title."},
+    {imdb_id:"tt2827630",title:"Family Feud",durwt_aa:42533.7,log_aa:4.628733,features:{hook_strength:0.4,conflict_density:0.3,emotional_range:0.35,warmth:0.6,darkness:0.0,humor:0.55,serialization:0.0,stakes:0.2},arc_curve:[{act:1,valence:0.3,arousal:0.3},{act:2,valence:0.1,arousal:0.5},{act:3,valence:0.6,arousal:0.5}]},
+    {imdb_id:"tt7971500",title:"Conan",durwt_aa:65619.0,log_aa:4.81703,features:{hook_strength:0.35,conflict_density:0.15,emotional_range:0.3,warmth:0.5,darkness:0.05,humor:0.6,serialization:0.0,stakes:0.1},arc_curve:[{act:1,valence:0.3,arousal:0.3},{act:2,valence:0.2,arousal:0.4},{act:3,valence:0.5,arousal:0.4}]},
+    {imdb_id:"tt4714782",title:"Personal Shopper",durwt_aa:29824.7,log_aa:4.474576,features:{hook_strength:0.6,conflict_density:0.45,emotional_range:0.55,warmth:0.2,darkness:0.5,humor:0.05,serialization:0.3,stakes:0.5},arc_curve:[{act:1,valence:0.0,arousal:0.35},{act:2,valence:-0.4,arousal:0.55},{act:3,valence:0.1,arousal:0.45}]},
+    {imdb_id:"tt5659578",title:"Broad City",durwt_aa:32098.3,log_aa:4.506482,features:{hook_strength:0.45,conflict_density:0.35,emotional_range:0.45,warmth:0.55,darkness:0.15,humor:0.85,serialization:0.1,stakes:0.1},arc_curve:[{act:1,valence:0.2,arousal:0.35},{act:2,valence:-0.3,arousal:0.6},{act:3,valence:0.5,arousal:0.4}]},
+    {imdb_id:"tt0086765",title:"Murder, She Wrote",durwt_aa:34717.4,log_aa:4.540547,features:{hook_strength:0.55,conflict_density:0.5,emotional_range:0.45,warmth:0.55,darkness:0.35,humor:0.2,serialization:0.05,stakes:0.45},arc_curve:[{act:1,valence:0.0,arousal:0.35},{act:2,valence:-0.4,arousal:0.55},{act:3,valence:0.4,arousal:0.4}]},
+    {imdb_id:"tt5027774",title:"Three Billboards Outside Ebbing, Missouri",durwt_aa:28454.6,log_aa:4.454152,features:{hook_strength:0.7,conflict_density:0.75,emotional_range:0.7,warmth:0.25,darkness:0.7,humor:0.25,serialization:0.0,stakes:0.65},arc_curve:[{act:1,valence:-0.2,arousal:0.45},{act:2,valence:-0.6,arousal:0.7},{act:3,valence:0.1,arousal:0.5}]},
+    {imdb_id:"tt4335742",title:"Lip Sync Battle",durwt_aa:35491.8,log_aa:4.550128,features:{hook_strength:0.45,conflict_density:0.2,emotional_range:0.3,warmth:0.5,darkness:0.05,humor:0.75,serialization:0.0,stakes:0.15},arc_curve:[{act:1,valence:0.3,arousal:0.4},{act:2,valence:0.1,arousal:0.6},{act:3,valence:0.6,arousal:0.5}]},
+    {imdb_id:"tt4285154",title:"Ben 10",durwt_aa:37455.7,log_aa:4.573518,features:{hook_strength:0.6,conflict_density:0.55,emotional_range:0.4,warmth:0.55,darkness:0.2,humor:0.5,serialization:0.2,stakes:0.4},arc_curve:[{act:1,valence:0.2,arousal:0.4},{act:2,valence:-0.3,arousal:0.65},{act:3,valence:0.5,arousal:0.5}]},
+    {imdb_id:"tt0340107",title:"Family Feud",durwt_aa:42533.7,log_aa:4.628733,features:{hook_strength:0.35,conflict_density:0.15,emotional_range:0.25,warmth:0.6,darkness:0.0,humor:0.65,serialization:0.0,stakes:0.1},arc_curve:[{act:1,valence:0.3,arousal:0.3},{act:2,valence:0.1,arousal:0.5},{act:3,valence:0.6,arousal:0.5}]},
+    {imdb_id:"tt2064523",title:"Quick Pitch",durwt_aa:25293.4,log_aa:4.403007,features:{hook_strength:0.3,conflict_density:0.15,emotional_range:0.15,warmth:0.2,darkness:0.0,humor:0.1,serialization:0.0,stakes:0.1},arc_curve:[{act:1,valence:0.1,arousal:0.3},{act:2,valence:0.0,arousal:0.35},{act:3,valence:0.2,arousal:0.3}]},
+    {imdb_id:"tt0089886",title:"Real Genius",durwt_aa:27732.8,log_aa:4.442994,features:{hook_strength:0.55,conflict_density:0.4,emotional_range:0.4,warmth:0.55,darkness:0.15,humor:0.65,serialization:0.0,stakes:0.35},arc_curve:[{act:1,valence:0.2,arousal:0.35},{act:2,valence:-0.2,arousal:0.55},{act:3,valence:0.6,arousal:0.45}]},
+    {imdb_id:"tt0106056",title:"Living Single",durwt_aa:39938.1,log_aa:4.601387,features:{hook_strength:0.45,conflict_density:0.3,emotional_range:0.45,warmth:0.75,darkness:0.05,humor:0.7,serialization:0.1,stakes:0.15},arc_curve:[{act:1,valence:0.3,arousal:0.3},{act:2,valence:-0.1,arousal:0.5},{act:3,valence:0.65,arousal:0.4}]},
+    {imdb_id:"tt0273855",title:"My Wife and Kids",durwt_aa:66858.6,log_aa:4.825157,features:{hook_strength:0.4,conflict_density:0.3,emotional_range:0.45,warmth:0.75,darkness:0.05,humor:0.7,serialization:0.05,stakes:0.15},arc_curve:[{act:1,valence:0.3,arousal:0.3},{act:2,valence:-0.1,arousal:0.5},{act:3,valence:0.65,arousal:0.4}]},
+    {imdb_id:"tt1823381",title:"House Hunters",durwt_aa:43732.9,log_aa:4.640808,features:{hook_strength:0.3,conflict_density:0.15,emotional_range:0.35,warmth:0.55,darkness:0.0,humor:0.1,serialization:0.0,stakes:0.2},arc_curve:[{act:1,valence:0.1,arousal:0.3},{act:2,valence:0.0,arousal:0.4},{act:3,valence:0.5,arousal:0.35}]},
+    {imdb_id:"tt2712740",title:"The Goldbergs",durwt_aa:74156.5,log_aa:4.870149,features:{hook_strength:0.45,conflict_density:0.35,emotional_range:0.5,warmth:0.75,darkness:0.05,humor:0.65,serialization:0.1,stakes:0.15},arc_curve:[{act:1,valence:0.3,arousal:0.35},{act:2,valence:-0.15,arousal:0.55},{act:3,valence:0.6,arousal:0.4}]},
+    {imdb_id:"tt4291050",title:"Hey Duggee",durwt_aa:47640.0,log_aa:4.677972,features:{hook_strength:0.3,conflict_density:0.1,emotional_range:0.25,warmth:0.85,darkness:0.0,humor:0.45,serialization:0.0,stakes:0.05},arc_curve:[{act:1,valence:0.4,arousal:0.25},{act:2,valence:0.2,arousal:0.4},{act:3,valence:0.7,arousal:0.35}]},
+    {imdb_id:"tt15132206",title:"Law & Order",durwt_aa:52359.9,log_aa:4.718999,features:{hook_strength:0.6,conflict_density:0.65,emotional_range:0.45,warmth:0.2,darkness:0.65,humor:0.1,serialization:0.1,stakes:0.65},arc_curve:[{act:1,valence:-0.2,arousal:0.5},{act:2,valence:-0.55,arousal:0.7},{act:3,valence:0.3,arousal:0.5}]},
+    {imdb_id:"tt7508266",title:"Storage Wars",durwt_aa:36502.7,log_aa:4.562325,features:{hook_strength:0.4,conflict_density:0.4,emotional_range:0.3,warmth:0.3,darkness:0.1,humor:0.35,serialization:0.05,stakes:0.35},arc_curve:[{act:1,valence:0.1,arousal:0.4},{act:2,valence:-0.1,arousal:0.55},{act:3,valence:0.3,arousal:0.45}]},
+    {imdb_id:"tt4818186",title:"The Simpsons",durwt_aa:43544.5,log_aa:4.638933,features:{hook_strength:0.5,conflict_density:0.45,emotional_range:0.45,warmth:0.5,darkness:0.25,humor:0.85,serialization:0.05,stakes:0.25},arc_curve:[{act:1,valence:0.1,arousal:0.4},{act:2,valence:-0.3,arousal:0.6},{act:3,valence:0.5,arousal:0.45}]},
+    {imdb_id:"tt0364845",title:"NCIS",durwt_aa:65479.6,log_aa:4.816106,features:{hook_strength:0.6,conflict_density:0.6,emotional_range:0.45,warmth:0.3,darkness:0.55,humor:0.25,serialization:0.15,stakes:0.6},arc_curve:[{act:1,valence:-0.1,arousal:0.45},{act:2,valence:-0.45,arousal:0.65},{act:3,valence:0.35,arousal:0.5}]},
+    {imdb_id:"tt1561755",title:"Bob's Burgers",durwt_aa:63656.5,log_aa:4.803843,features:{hook_strength:0.45,conflict_density:0.3,emotional_range:0.45,warmth:0.7,darkness:0.1,humor:0.75,serialization:0.05,stakes:0.15},arc_curve:[{act:1,valence:0.2,arousal:0.3},{act:2,valence:-0.15,arousal:0.5},{act:3,valence:0.6,arousal:0.4}]},
+    {imdb_id:"tt1710308",title:"Regular Show",durwt_aa:32894.2,log_aa:4.517119,features:{hook_strength:0.5,conflict_density:0.4,emotional_range:0.4,warmth:0.5,darkness:0.15,humor:0.7,serialization:0.1,stakes:0.3},arc_curve:[{act:1,valence:0.2,arousal:0.35},{act:2,valence:-0.2,arousal:0.6},{act:3,valence:0.5,arousal:0.45}]},
+    {imdb_id:"tt8386804",title:"Deal or No Deal",durwt_aa:66289.6,log_aa:4.821445,features:{hook_strength:null,conflict_density:null,emotional_range:null,warmth:null,darkness:null,humor:null,serialization:null,stakes:null},arc_curve:[],insufficient_text:true,note:"fetch_status=name_mismatch; tmdb_name='Postcode Loterij Deal Or No Deal' — nulled to avoid scoring wrong/absent text."}
+  ],
+  correlations: [
+    {feature:"warmth",spearman_rho:0.2153,spearman_p:0.1655,pearson_r:0.1722},
+    {feature:"hook_strength",spearman_rho:-0.1679,spearman_p:0.2819,pearson_r:-0.1359},
+    {feature:"stakes",spearman_rho:-0.1454,spearman_p:0.3524,pearson_r:-0.1101},
+    {feature:"conflict_density",spearman_rho:-0.1368,spearman_p:0.3818,pearson_r:-0.0984},
+    {feature:"darkness",spearman_rho:-0.0862,spearman_p:0.5827,pearson_r:-0.0186},
+    {feature:"serialization",spearman_rho:-0.051,spearman_p:0.7454,pearson_r:-0.156},
+    {feature:"humor",spearman_rho:0.0487,spearman_p:0.7565,pearson_r:0.1041},
+    {feature:"emotional_range",spearman_rho:-0.0376,spearman_p:0.8107,pearson_r:-0.0154}
+  ]
+};
+
+/* Real per-title telecast counts, pulled from candidates_v01.csv/candidates.csv (the `telecasts` column) — not a proxy. */
+const TELECASTS = {"tt0206512":944,"tt7678620":187,"tt8467618":158,"tt1942683":186,"tt7165904":180,"tt2771780":122,"tt7551014":181,"tt9382570":306,"tt0121955":403,"tt0182576":159,"tt1092980":134,"tt0108778":163,"tt0112220":177,"tt1234319":122,"tt0086687":158,"tt0386676":150,"tt12723394":293,"tt10132524":261,"tt4236770":233,"tt0203259":184,"tt15392444":680,"tt7904964":273,"tt2827630":158,"tt7971500":155,"tt4714782":189,"tt5659578":403,"tt0086765":293,"tt5027774":261,"tt4335742":233,"tt4285154":186,"tt0340107":158,"tt2064523":156,"tt0089886":121,"tt0106056":120,"tt0273855":119,"tt1823381":118,"tt2712740":118,"tt4291050":116,"tt15132206":116,"tt7508266":96,"tt4818186":107,"tt0364845":104,"tt1561755":94,"tt1710308":87,"tt8386804":103};
+
+/* Candidate-pool stats behind the coverage funnel — re-pulled 2026-07-25 under
+   cert_run CLASSA_PROMOTE_20260725_SHIV_BLESS. Real pool counts, not samples. */
+const POOL = {
+  movies: { total: 20000, nielsen_covered: 11262, eidr_certified: 20000 },
+  series: { total: 200000, dual_anchor: 181547, nielsen_covered: 3791, provisional: 7383 },
+  funnel: [220000, 201547, 15053, 45, 43] // pool → dual-anchor → nielsen-covered → selected → scored
+};
+
+/* ---------- Bankability datasets (separate corpus from the script-ratings run above) ---------- */
+const BANKABILITY_MOVIES = [
+	{"imdb_id":"tt0499549","title":"Avatar","release_year":2009,"revenue":2923706026,"budget":237000000,"multiplier":12.34,"creative_type":"Science Fiction","source_type":"Original Screenplay","production_method":"Animation/Live Action","distributor":"20th Century Fox","sequel":0},
+	{"imdb_id":"tt4154796","title":"Avengers: Endgame","release_year":2019,"revenue":2799439100,"budget":356000000,"multiplier":7.86,"creative_type":"Super Hero","source_type":"Based on Comic/Graphic Novel","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt0120338","title":"Titanic","release_year":1997,"revenue":2264162353,"budget":200000000,"multiplier":11.32,"creative_type":"Historical Fiction","source_type":"Original Screenplay","production_method":"Live Action","distributor":"Paramount Pictures","sequel":0},
+	{"imdb_id":"tt2488496","title":"Star Wars: Episode VII - The Force Awakens","release_year":2015,"revenue":2068223624,"budget":245000000,"multiplier":8.44,"creative_type":"Science Fiction","source_type":"Original Screenplay","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt4154756","title":"Avengers: Infinity War","release_year":2018,"revenue":2052415039,"budget":300000000,"multiplier":6.84,"creative_type":"Super Hero","source_type":"Based on Comic/Graphic Novel","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt0369610","title":"Jurassic World","release_year":2015,"revenue":1671537444,"budget":150000000,"multiplier":11.14,"creative_type":"Science Fiction","source_type":"Based on Fiction Book/Short Story","production_method":"Live Action","distributor":"Universal","sequel":1},
+	{"imdb_id":"tt6105098","title":"The Lion King","release_year":2019,"revenue":1662020819,"budget":260000000,"multiplier":6.39,"creative_type":"Kids Fiction","source_type":"Remake","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":0},
+	{"imdb_id":"tt0848228","title":"The Avengers","release_year":2012,"revenue":1518815515,"budget":220000000,"multiplier":6.9,"creative_type":"Super Hero","source_type":"Based on Comic/Graphic Novel","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":0},
+	{"imdb_id":"tt2820852","title":"Furious 7","release_year":2015,"revenue":1515400000,"budget":190000000,"multiplier":7.98,"creative_type":"Contemporary Fiction","source_type":"Original Screenplay","production_method":"Live Action","distributor":"Universal","sequel":1},
+	{"imdb_id":"tt4520988","title":"Frozen II","release_year":2019,"revenue":1453683476,"budget":150000000,"multiplier":9.69,"creative_type":"Kids Fiction","source_type":"Based on Folk Tale/Legend/Fairytale","production_method":"Digital Animation","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt1517268","title":"Barbie","release_year":2023,"revenue":1447138421,"budget":145000000,"multiplier":9.98,"creative_type":"Kids Fiction","source_type":"Based on Toy","production_method":"Live Action","distributor":null,"sequel":0},
+	{"imdb_id":"tt2395427","title":"Avengers: Age of Ultron","release_year":2015,"revenue":1405403694,"budget":235000000,"multiplier":5.98,"creative_type":"Super Hero","source_type":"Based on Comic/Graphic Novel","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt1825683","title":"Black Panther","release_year":2018,"revenue":1349926083,"budget":200000000,"multiplier":6.75,"creative_type":"Super Hero","source_type":"Based on Comic/Graphic Novel","production_method":"Live Action","distributor":"Walt Disney","sequel":0},
+	{"imdb_id":"tt1201607","title":"Harry Potter and the Deathly Hallows: Part 2","release_year":2011,"revenue":1341511219,"budget":125000000,"multiplier":10.73,"creative_type":"Fantasy","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"Warner Bros.","sequel":1},
+	{"imdb_id":"tt2527336","title":"Star Wars: Episode VIII - The Last Jedi","release_year":2017,"revenue":1332698830,"budget":300000000,"multiplier":4.44,"creative_type":"Science Fiction","source_type":"Original Screenplay","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt4881806","title":"Jurassic World: Fallen Kingdom","release_year":2018,"revenue":1310469037,"budget":170000000,"multiplier":7.71,"creative_type":"Science Fiction","source_type":"Based on Fiction Book/Short Story","production_method":"Live Action","distributor":"Universal","sequel":1},
+	{"imdb_id":"tt2294629","title":"Frozen","release_year":2013,"revenue":1274219009,"budget":150000000,"multiplier":8.49,"creative_type":"Kids Fiction","source_type":"Based on Folk Tale/Legend/Fairytale","production_method":"Digital Animation","distributor":"Walt Disney","sequel":0},
+	{"imdb_id":"tt2771200","title":"Beauty and the Beast","release_year":2017,"revenue":1266115964,"budget":160000000,"multiplier":7.91,"creative_type":"Fantasy","source_type":"Remake","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":0},
+	{"imdb_id":"tt3606756","title":"Incredibles 2","release_year":2018,"revenue":1243225667,"budget":200000000,"multiplier":6.22,"creative_type":"Kids Fiction","source_type":"Original Screenplay","production_method":"Digital Animation","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt4630562","title":"The Fate of the Furious","release_year":2017,"revenue":1236000000,"budget":250000000,"multiplier":4.94,"creative_type":"Contemporary Fiction","source_type":"Original Screenplay","production_method":"Live Action","distributor":"Universal","sequel":1},
+	{"imdb_id":"tt1300854","title":"Iron Man 3","release_year":2013,"revenue":1215577205,"budget":200000000,"multiplier":6.08,"creative_type":"Super Hero","source_type":"Based on Comic/Graphic Novel","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt2293640","title":"Minions","release_year":2015,"revenue":1159457503,"budget":74000000,"multiplier":15.67,"creative_type":"Kids Fiction","source_type":"Spin-Off","production_method":"Digital Animation","distributor":"Universal","sequel":0},
+	{"imdb_id":"tt3498820","title":"Captain America: Civil War","release_year":2016,"revenue":1155046416,"budget":250000000,"multiplier":4.62,"creative_type":"Super Hero","source_type":"Based on Comic/Graphic Novel","production_method":"Live Action","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt4154664","title":"Captain Marvel","release_year":2019,"revenue":1131416446,"budget":152000000,"multiplier":7.44,"creative_type":"Super Hero","source_type":"Based on Comic/Graphic Novel","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":0},
+	{"imdb_id":"tt1399103","title":"Transformers: Dark of the Moon","release_year":2011,"revenue":1123794079,"budget":195000000,"multiplier":5.76,"creative_type":"Science Fiction","source_type":"Based on TV","production_method":"Animation/Live Action","distributor":"Paramount Pictures","sequel":1},
+	{"imdb_id":"tt0167260","title":"The Lord of the Rings: The Return of the King","release_year":2003,"revenue":1118888979,"budget":94000000,"multiplier":11.9,"creative_type":"Fantasy","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"New Line","sequel":1},
+	{"imdb_id":"tt1074638","title":"Skyfall","release_year":2012,"revenue":1108594176,"budget":200000000,"multiplier":5.54,"creative_type":"Contemporary Fiction","source_type":"Based on Fiction Book/Short Story","production_method":"Live Action","distributor":"Sony Pictures","sequel":1},
+	{"imdb_id":"tt2109248","title":"Transformers: Age of Extinction","release_year":2014,"revenue":1104054072,"budget":210000000,"multiplier":5.26,"creative_type":"Science Fiction","source_type":"Based on TV","production_method":"Animation/Live Action","distributor":"Paramount Pictures","sequel":1},
+	{"imdb_id":"tt1345836","title":"The Dark Knight Rises","release_year":2012,"revenue":1081041287,"budget":250000000,"multiplier":4.32,"creative_type":"Super Hero","source_type":"Based on Comic/Graphic Novel","production_method":"Live Action","distributor":"Warner Bros.","sequel":1},
+	{"imdb_id":"tt1979376","title":"Toy Story 4","release_year":2019,"revenue":1073841394,"budget":175000000,"multiplier":6.14,"creative_type":"Kids Fiction","source_type":"Original Screenplay","production_method":"Digital Animation","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt0435761","title":"Toy Story 3","release_year":2010,"revenue":1067316101,"budget":200000000,"multiplier":5.34,"creative_type":"Kids Fiction","source_type":"Original Screenplay","production_method":"Digital Animation","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt0383574","title":"Pirates of the Caribbean: Dead Man's Chest","release_year":2006,"revenue":1066179747,"budget":200000000,"multiplier":5.33,"creative_type":"Historical Fiction","source_type":"Based on Theme Park Ride","production_method":"Live Action","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt3748528","title":"Rogue One: A Star Wars Story","release_year":2016,"revenue":1056057273,"budget":200000000,"multiplier":5.28,"creative_type":"Science Fiction","source_type":"Spin-Off","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":0},
+	{"imdb_id":"tt6139732","title":"Aladdin","release_year":2019,"revenue":1054304000,"budget":183000000,"multiplier":5.76,"creative_type":"Fantasy","source_type":"Remake","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":0},
+	{"imdb_id":"tt1298650","title":"Pirates of the Caribbean: On Stranger Tides","release_year":2011,"revenue":1046721266,"budget":379000000,"multiplier":2.76,"creative_type":"Fantasy","source_type":"Based on Theme Park Ride","production_method":"Live Action","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt3469046","title":"Despicable Me 3","release_year":2017,"revenue":1034800131,"budget":80000000,"multiplier":12.94,"creative_type":"Kids Fiction","source_type":"Original Screenplay","production_method":"Digital Animation","distributor":"Universal","sequel":1},
+	{"imdb_id":"tt2277860","title":"Finding Dory","release_year":2016,"revenue":1029266989,"budget":200000000,"multiplier":5.15,"creative_type":"Kids Fiction","source_type":"Original Screenplay","production_method":"Digital Animation","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt2948356","title":"Zootopia","release_year":2016,"revenue":1025521689,"budget":150000000,"multiplier":6.84,"creative_type":"Kids Fiction","source_type":"Original Screenplay","production_method":"Digital Animation","distributor":"Walt Disney","sequel":0},
+	{"imdb_id":"tt1014759","title":"Alice in Wonderland","release_year":2010,"revenue":1025467110,"budget":200000000,"multiplier":5.13,"creative_type":"Fantasy","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":0},
+	{"imdb_id":"tt0903624","title":"The Hobbit: An Unexpected Journey","release_year":2012,"revenue":1021103568,"budget":250000000,"multiplier":4.08,"creative_type":"Fantasy","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"Warner Bros.","sequel":1},
+	{"imdb_id":"tt0468569","title":"The Dark Knight","release_year":2008,"revenue":1004558444,"budget":185000000,"multiplier":5.43,"creative_type":"Super Hero","source_type":"Based on Comic/Graphic Novel","production_method":"Live Action","distributor":"Warner Bros.","sequel":1},
+	{"imdb_id":"tt2283362","title":"Jumanji: Welcome to the Jungle","release_year":2017,"revenue":995339117,"budget":90000000,"multiplier":11.06,"creative_type":"Science Fiction","source_type":"Original Screenplay","production_method":"Live Action","distributor":"Sony Pictures","sequel":1},
+	{"imdb_id":"tt0241527","title":"Harry Potter and the Sorcerer's Stone","release_year":2001,"revenue":976475550,"budget":125000000,"multiplier":7.81,"creative_type":"Fantasy","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"Warner Bros.","sequel":0},
+	{"imdb_id":"tt1690953","title":"Despicable Me 2","release_year":2013,"revenue":970766005,"budget":76000000,"multiplier":12.77,"creative_type":"Kids Fiction","source_type":"Original Screenplay","production_method":"Digital Animation","distributor":"Universal","sequel":1},
+	{"imdb_id":"tt3040964","title":"The Jungle Book","release_year":2016,"revenue":966550600,"budget":175000000,"multiplier":5.52,"creative_type":"Fantasy","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"Walt Disney","sequel":0},
+	{"imdb_id":"tt0449088","title":"Pirates of the Caribbean: At World's End","release_year":2007,"revenue":961691209,"budget":300000000,"multiplier":3.21,"creative_type":"Historical Fiction","source_type":"Based on Theme Park Ride","production_method":"Live Action","distributor":"Walt Disney","sequel":1},
+	{"imdb_id":"tt1170358","title":"The Hobbit: The Desolation of Smaug","release_year":2013,"revenue":958400000,"budget":250000000,"multiplier":3.83,"creative_type":"Fantasy","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"Warner Bros.","sequel":1},
+	{"imdb_id":"tt2310332","title":"The Hobbit: The Battle of the Five Armies","release_year":2014,"revenue":956019788,"budget":250000000,"multiplier":3.82,"creative_type":"Fantasy","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"Warner Bros.","sequel":1},
+	{"imdb_id":"tt0926084","title":"Harry Potter and the Deathly Hallows: Part 1","release_year":2010,"revenue":954305868,"budget":250000000,"multiplier":3.82,"creative_type":"Fantasy","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"Warner Bros.","sequel":1},
+	{"imdb_id":"tt0266543","title":"Finding Nemo","release_year":2003,"revenue":940335536,"budget":94000000,"multiplier":10.0,"creative_type":"Kids Fiction","source_type":"Original Screenplay","production_method":"Digital Animation","distributor":"Walt Disney","sequel":0},
+	{"imdb_id":"tt0373889","title":"Harry Potter and the Order of the Phoenix","release_year":2007,"revenue":938212738,"budget":150000000,"multiplier":6.25,"creative_type":"Fantasy","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"Warner Bros.","sequel":1},
+	{"imdb_id":"tt0298148","title":"Shrek 2","release_year":2004,"revenue":935454538,"budget":150000000,"multiplier":6.24,"creative_type":"Kids Fiction","source_type":"Based on Fiction Book/Short Story","production_method":"Digital Animation","distributor":"Dreamworks SKG","sequel":1},
+	{"imdb_id":"tt0417741","title":"Harry Potter and the Half-Blood Prince","release_year":2009,"revenue":933959197,"budget":250000000,"multiplier":3.74,"creative_type":"Fantasy","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"Warner Bros.","sequel":1},
+	{"imdb_id":"tt0167261","title":"The Lord of the Rings: The Two Towers","release_year":2002,"revenue":926287400,"budget":79000000,"multiplier":11.73,"creative_type":"Fantasy","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"New Line","sequel":1},
+	{"imdb_id":"tt0120915","title":"Star Wars: Episode I - The Phantom Menace","release_year":1999,"revenue":924317558,"budget":115000000,"multiplier":8.04,"creative_type":"Science Fiction","source_type":"Original Screenplay","production_method":"Animation/Live Action","distributor":"20th Century Fox","sequel":1},
+	{"imdb_id":"tt0107290","title":"Jurassic Park","release_year":1993,"revenue":920100000,"budget":63000000,"multiplier":14.6,"creative_type":"Science Fiction","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"Universal","sequel":0},
+	{"imdb_id":"tt1727824","title":"Bohemian Rhapsody","release_year":2018,"revenue":910813521,"budget":52000000,"multiplier":17.52,"creative_type":"Dramatization","source_type":"Based on Real Life Events","production_method":"Live Action","distributor":"20th Century Fox","sequel":0},
+	{"imdb_id":"tt0330373","title":"Harry Potter and the Goblet of Fire","release_year":2005,"revenue":895921036,"budget":150000000,"multiplier":5.97,"creative_type":"Fantasy","source_type":"Based on Fiction Book/Short Story","production_method":"Animation/Live Action","distributor":"Warner Bros.","sequel":1},
+	{"imdb_id":"tt0413300","title":"Spider-Man 3","release_year":2007,"revenue":894983373,"budget":258000000,"multiplier":3.47,"creative_type":"Super Hero","source_type":"Based on Comic/Graphic Novel","production_method":"Live Action","distributor":"Sony Pictures","sequel":1},
+	{"imdb_id":"tt1080016","title":"Ice Age: Dawn of the Dinosaurs","release_year":2009,"revenue":886686817,"budget":90000000,"multiplier":9.85,"creative_type":"Kids Fiction","source_type":"Original Screenplay","production_method":"Digital Animation","distributor":"20th Century Fox","sequel":1}
+];
+const BANKABILITY_GROUPS = [
+	{"grp":"Super Hero","dim":"creative_type","n":105,"avg_rev_m":454.4,"med_rev_m":336.5,"avg_mult":3.43},
+	{"grp":"Dramatization","dim":"creative_type","n":528,"avg_rev_m":62.2,"med_rev_m":26.0,"avg_mult":3.13},
+	{"grp":"Kids Fiction","dim":"creative_type","n":404,"avg_rev_m":198.4,"med_rev_m":90.6,"avg_mult":4.77},
+	{"grp":"Fantasy","dim":"creative_type","n":590,"avg_rev_m":116.9,"med_rev_m":34.8,"avg_mult":4.7},
+	{"grp":"Historical Fiction","dim":"creative_type","n":868,"avg_rev_m":63.5,"med_rev_m":20.7,"avg_mult":3.54},
+	{"grp":"Contemporary Fiction","dim":"creative_type","n":3758,"avg_rev_m":61.7,"med_rev_m":25.0,"avg_mult":4.83},
+	{"grp":"Factual","dim":"creative_type","n":75,"avg_rev_m":28.1,"med_rev_m":11.6,"avg_mult":7.61},
+	{"grp":"Science Fiction","dim":"creative_type","n":588,"avg_rev_m":143.3,"med_rev_m":43.0,"avg_mult":5.76},
+	{"grp":"Based on TV","dim":"source_type","n":188,"avg_rev_m":145.7,"med_rev_m":75.7,"avg_mult":3.44},
+	{"grp":"Based on Folk Tale/Legend/Fairytale","dim":"source_type","n":59,"avg_rev_m":196.6,"med_rev_m":104.0,"avg_mult":7.04},
+	{"grp":"Based on Comic/Graphic Novel","dim":"source_type","n":202,"avg_rev_m":283.1,"med_rev_m":128.9,"avg_mult":5.71},
+	{"grp":"Based on Short Film","dim":"source_type","n":23,"avg_rev_m":72.9,"med_rev_m":35.3,"avg_mult":10.33},
+	{"grp":"Based on Game","dim":"source_type","n":42,"avg_rev_m":138.1,"med_rev_m":100.0,"avg_mult":2.85},
+	{"grp":"Based on Real Life Events","dim":"source_type","n":456,"avg_rev_m":47.9,"med_rev_m":19.6,"avg_mult":4.94},
+	{"grp":"Remake","dim":"source_type","n":260,"avg_rev_m":112.8,"med_rev_m":53.8,"avg_mult":3.1},
+	{"grp":"Based on Musical or Opera","dim":"source_type","n":28,"avg_rev_m":96.1,"med_rev_m":55.4,"avg_mult":9.72},
+	{"grp":"Based on Play","dim":"source_type","n":135,"avg_rev_m":42.4,"med_rev_m":19.0,"avg_mult":4.56},
+	{"grp":"Based on Religious Text","dim":"source_type","n":26,"avg_rev_m":93.8,"med_rev_m":29.8,"avg_mult":4.06},
+	{"grp":"Spin-Off","dim":"source_type","n":24,"avg_rev_m":339.8,"med_rev_m":171.4,"avg_mult":5.61},
+	{"grp":"Based on Factual Book/Article","dim":"source_type","n":127,"avg_rev_m":104.0,"med_rev_m":57.0,"avg_mult":3.71},
+	{"grp":"Based on Fiction Book/Short Story","dim":"source_type","n":1454,"avg_rev_m":93.6,"med_rev_m":31.5,"avg_mult":4.07},
+	{"grp":"Original Screenplay","dim":"source_type","n":3904,"avg_rev_m":69.5,"med_rev_m":23.0,"avg_mult":4.81}
+];
+const BANKABILITY_PEOPLE = [
+	{"person":"Kevin Dorman","dept":"Acting","n_titles":5,"total_rev_m":7069.7,"value_per_movie_m":1413.9},
+	{"person":"Jacob Batalon","dept":"Acting","n_titles":7,"total_rev_m":8847.1,"value_per_movie_m":1263.9},
+	{"person":"Ameenah Kaplan","dept":"Acting","n_titles":4,"total_rev_m":4888.9,"value_per_movie_m":1222.2},
+	{"person":"Winston Duke","dept":"Acting","n_titles":6,"total_rev_m":7299.8,"value_per_movie_m":1216.6},
+	{"person":"Brent McGee","dept":"Acting","n_titles":4,"total_rev_m":4753.0,"value_per_movie_m":1188.3},
+	{"person":"Brian Schaeffer","dept":"Acting","n_titles":7,"total_rev_m":8184.3,"value_per_movie_m":1169.2},
+	{"person":"Jack Champion","dept":"Acting","n_titles":6,"total_rev_m":6848.9,"value_per_movie_m":1141.5},
+	{"person":"Dileep Rao","dept":"Acting","n_titles":7,"total_rev_m":7878.8,"value_per_movie_m":1125.5},
+	{"person":"Zola Williams","dept":"Acting","n_titles":4,"total_rev_m":4477.3,"value_per_movie_m":1119.3},
+	{"person":"Alicia Vela-Bailey","dept":"Crew","n_titles":7,"total_rev_m":7395.6,"value_per_movie_m":1056.5},
+	{"person":"Michael James Shaw","dept":"Acting","n_titles":5,"total_rev_m":5250.7,"value_per_movie_m":1050.1},
+	{"person":"Brad Bird","dept":"Directing","n_titles":4,"total_rev_m":4169.9,"value_per_movie_m":1042.5},
+	{"person":"Evanna Lynch","dept":"Acting","n_titles":4,"total_rev_m":4168.0,"value_per_movie_m":1042.0},
+	{"person":"Florence Kasumba","dept":"Acting","n_titles":6,"total_rev_m":6242.4,"value_per_movie_m":1040.4},
+	{"person":"Robert Okumu","dept":"Acting","n_titles":4,"total_rev_m":4116.3,"value_per_movie_m":1029.1},
+	{"person":"Letitia Wright","dept":"Acting","n_titles":8,"total_rev_m":8198.9,"value_per_movie_m":1024.9},
+	{"person":"Afshan Azad","dept":"Acting","n_titles":5,"total_rev_m":5063.9,"value_per_movie_m":1012.8},
+	{"person":"Rodney Cook","dept":"Acting","n_titles":4,"total_rev_m":3940.2,"value_per_movie_m":985.0},
+	{"person":"Larry Rew","dept":"Acting","n_titles":4,"total_rev_m":3907.9,"value_per_movie_m":977.0},
+	{"person":"Lu Qi","dept":"Acting","n_titles":4,"total_rev_m":3907.5,"value_per_movie_m":976.9},
+	{"person":"Raymond S. Persi","dept":"Acting","n_titles":5,"total_rev_m":4834.5,"value_per_movie_m":966.9},
+	{"person":"Josh Herdman","dept":"Acting","n_titles":7,"total_rev_m":6730.4,"value_per_movie_m":961.5},
+	{"person":"Allegra Leguizamo","dept":"Acting","n_titles":4,"total_rev_m":3824.5,"value_per_movie_m":956.1},
+	{"person":"Pierre Coffin","dept":"Acting","n_titles":6,"total_rev_m":5618.1,"value_per_movie_m":936.4},
+	{"person":"Jacob Tomuri","dept":"Crew","n_titles":5,"total_rev_m":4613.2,"value_per_movie_m":922.6}
+];
+const CREATIVE_TYPE_COLORS = {
+  "Science Fiction":"--lavender", "Super Hero":"--teal-bright", "Historical Fiction":"--gold",
+  "Kids Fiction":"--green-signal", "Fantasy":"--pink", "Contemporary Fiction":"--orange", "Dramatization":"--red-alert"
+};
+
+const FEATURE_KEYS = ["hook_strength","conflict_density","emotional_range","warmth","darkness","humor","serialization","stakes"];
+const FEATURE_LABELS = {hook_strength:"Hook",conflict_density:"Conflict",emotional_range:"Em. Range",warmth:"Warmth",darkness:"Darkness",humor:"Humor",serialization:"Serial.",stakes:"Stakes"};
+
+document.getElementById('caveatLine').innerHTML = `<b>Caveat:</b> ${DATA.run_meta.caveat}. ${DATA.run_meta.n_selected} selected → ${DATA.run_meta.n_with_text} with usable text → ${DATA.run_meta.n_correlated} correlated against <span class="t-mono">${DATA.run_meta.target}</span>.` + (DATA.run_meta.note ? ` <b>${DATA.run_meta.version || ''}:</b> ${DATA.run_meta.note}.` : '');
+
+/* ---------- Theme toggle ---------- */
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const themeLabel = document.getElementById('themeLabel');
+// NOTE: applyTheme only sets the attribute/label/storage. It must NOT touch
+// the SVG-drawing functions (drawScatter/drawArcStrip) here — those are
+// declared further down the file and calling them from this early IIFE hits
+// the temporal dead zone (ReferenceError: Cannot access before initialization)
+// since `const featureSelect` hasn't been declared yet at this point in the
+// script. Chart color refresh on theme change is wired separately, after
+// everything is declared (see themeToggle listener + boot()).
+function applyTheme(t){
+  document.body.setAttribute('data-theme', t);
+  themeIcon.textContent = t === 'dark' ? '☾' : '☀';
+  themeLabel.textContent = t.toUpperCase();
+  localStorage.setItem('script-ratings-v0-theme', t);
+}
+(function initTheme(){
+  const saved = localStorage.getItem('script-ratings-v0-theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+})();
+themeToggle.addEventListener('click', ()=>{
+  applyTheme(document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  refreshChartsForTheme();
+});
+
+/* ---------- Reveal on scroll (staggered) ---------- */
+function initReveals(){
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach((e,i)=>{
+      if(e.isIntersecting){
+        setTimeout(()=>e.target.classList.add('in'), i*60);
+        io.unobserve(e.target);
+      }
+    });
+  }, {threshold:0.12});
+  els.forEach(el=>io.observe(el));
+  // Safety net: guarantee content is visible even if IntersectionObserver
+  // never fires (e.g. a headless snapshot renderer that skips layout/observer
+  // timing) — a hidden panel is a worse failure than a skipped entrance animation.
+  setTimeout(()=>els.forEach(el=>el.classList.add('in')), 1500);
+}
+
+/* ---------- Count-up ---------- */
+function initCountUps(){
+  document.querySelectorAll('[data-count]').forEach(el=>{
+    const target = parseFloat(el.getAttribute('data-count'));
+    const decimals = parseInt(el.getAttribute('data-decimals') || '0', 10);
+    const prefix = el.getAttribute('data-prefix') || '';
+    const suffix = el.getAttribute('data-suffix') || '';
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          const dur = 900; const start = performance.now();
+          function step(now){
+            const p = Math.min(1, (now-start)/dur);
+            const eased = 1 - Math.pow(1-p, 3);
+            const val = target * eased;
+            el.textContent = prefix + val.toFixed(decimals) + suffix;
+            if(p < 1) requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+          io.unobserve(el);
+        }
+      });
+    }, {threshold:0.4});
+    io.observe(el);
+  });
+}
+
+/* ---------- Correlation chart ---------- */
+function drawCorrChart(){
+  const wrap = document.getElementById('corrChart');
+  const maxAbs = 0.4;
+  const rows = document.createElement('div');
+  DATA.correlations.forEach(c=>{
+    const row = document.createElement('div');
+    row.className = 'corr-row';
+    const pct = Math.abs(c.spearman_rho)/maxAbs*50;
+    const isNeg = c.spearman_rho < 0;
+    row.innerHTML = `
+      <div class="corr-label">${FEATURE_LABELS[c.feature]}</div>
+      <div class="corr-track">
+        <div class="corr-zeroline" style="left:50%;"></div>
+        <div class="corr-bar ${isNeg?'neg':'pos'}" data-w="${pct}" data-feature="${c.feature}"
+             style="width:0%; ${isNeg? `right:50%;` : `left:50%;`}"></div>
+      </div>
+      <div class="corr-value">ρ ${c.spearman_rho.toFixed(2)}</div>
+    `;
+    rows.appendChild(row);
+  });
+  wrap.appendChild(rows);
+
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.corr-bar').forEach((bar,i)=>{
+      setTimeout(()=>{ bar.style.width = bar.getAttribute('data-w') + '%'; }, i*70);
+    });
+  });
+
+  const tooltip = document.getElementById('corrTooltip');
+  document.querySelectorAll('.corr-bar').forEach(bar=>{
+    const feature = bar.getAttribute('data-feature');
+    const c = DATA.correlations.find(x=>x.feature===feature);
+    function show(x,y){
+      tooltip.innerHTML = `<b>${FEATURE_LABELS[feature]}</b><br>ρ = ${c.spearman_rho.toFixed(4)}<br>p = ${c.spearman_p.toFixed(4)}<br>Pearson r = ${c.pearson_r.toFixed(4)}<br><span style="color:var(--text-dim);">not significant</span>`;
+      tooltip.style.left = (x+14)+'px'; tooltip.style.top = (y+14)+'px';
+      tooltip.classList.add('show');
+    }
+    bar.addEventListener('mousemove', e=>show(e.clientX, e.clientY));
+    bar.addEventListener('mouseleave', ()=>tooltip.classList.remove('show'));
+    bar.addEventListener('click', e=>{ show(e.clientX, e.clientY); setTimeout(()=>tooltip.classList.remove('show'), 2200); });
+  });
+}
+
+/* ---------- Explorer scatter ---------- */
+const featureSelect = document.getElementById('featureSelect');
+FEATURE_KEYS.forEach(k=>{
+  const opt = document.createElement('option');
+  opt.value = k; opt.textContent = FEATURE_LABELS[k];
+  featureSelect.appendChild(opt);
+});
+featureSelect.value = "serialization";
+featureSelect.addEventListener('change', ()=>{ drawScatter(); drawBubble(); });
+
+function drawScatter(){
+  const svg = document.getElementById('scatterSvg');
+  const feature = featureSelect.value;
+  const W = 640, H = 380, M = {t:20,r:20,b:44,l:52};
+  const plotW = W - M.l - M.r, plotH = H - M.t - M.b;
+  const valid = DATA.titles.filter(t => !t.insufficient_text);
+  const xVals = valid.map(t=>t.features[feature]);
+  const yVals = valid.map(t=>t.log_aa);
+  const xMin=0, xMax=1;
+  const yMin = Math.min(...yVals)-0.03, yMax = Math.max(...yVals)+0.03;
+  const xScale = v => M.l + (v-xMin)/(xMax-xMin)*plotW;
+  const yScale = v => M.t + plotH - (v-yMin)/(yMax-yMin)*plotH;
+
+  const cssVar = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+  const gridColor = cssVar('--grid');
+  const tickColor = cssVar('--tick');
+  const lav = cssVar('--lavender');
+
+  let svgContent = `<g class="grid">`;
+  for(let i=0;i<=4;i++){
+    const gx = M.l + i/4*plotW;
+    svgContent += `<line x1="${gx}" y1="${M.t}" x2="${gx}" y2="${M.t+plotH}" stroke="${gridColor}" stroke-width="1"/>`;
+    svgContent += `<text x="${gx}" y="${M.t+plotH+16}" text-anchor="middle" class="tick-label">${(i/4).toFixed(2)}</text>`;
+  }
+  for(let i=0;i<=3;i++){
+    const gy = M.t + i/3*plotH;
+    const val = yMax - i/3*(yMax-yMin);
+    svgContent += `<line x1="${M.l}" y1="${gy}" x2="${M.l+plotW}" y2="${gy}" stroke="${gridColor}" stroke-width="1"/>`;
+    svgContent += `<text x="${M.l-8}" y="${gy+3}" text-anchor="end" class="tick-label">${val.toFixed(2)}</text>`;
+  }
+  svgContent += `</g>`;
+  svgContent += `<text class="axis-label" x="${M.l+plotW/2}" y="${H-6}" text-anchor="middle">${FEATURE_LABELS[feature]} (0–1)</text>`;
+  svgContent += `<text class="axis-label" transform="translate(14,${M.t+plotH/2}) rotate(-90)" text-anchor="middle">log₁₀(durwt_aa)</text>`;
+
+  valid.forEach(t=>{
+    const cx = xScale(t.features[feature]);
+    const cy = yScale(t.log_aa);
+    svgContent += `<circle class="dot" cx="${cx}" cy="${cy}" r="6" fill="${lav}" fill-opacity="0.75" stroke="${lav}" stroke-width="1"
+      data-title="${t.title.replace(/"/g,'&quot;')}" data-durwt="${t.durwt_aa}" data-feature-val="${t.features[feature]}" data-imdb="${t.imdb_id}"></circle>`;
+  });
+
+  svg.innerHTML = svgContent;
+
+  const tooltip = document.getElementById('scatterTooltip');
+  svg.querySelectorAll('.dot').forEach(dot=>{
+    dot.addEventListener('mousemove', e=>{
+      const title = dot.getAttribute('data-title');
+      const durwt = parseFloat(dot.getAttribute('data-durwt'));
+      const t = valid.find(x=>x.imdb_id === dot.getAttribute('data-imdb'));
+      let featRows = FEATURE_KEYS.map(k=>{
+        const bold = k===feature ? 'style="color:var(--lavender);font-weight:600;"' : '';
+        return `<span ${bold}>${FEATURE_LABELS[k]}: ${t.features[k].toFixed(2)}</span>`;
+      }).join('<br>');
+      tooltip.innerHTML = `<div class="tt-title">${title}</div>durwt_aa: ${durwt.toLocaleString(undefined,{maximumFractionDigits:0})}<br>${featRows}`;
+      tooltip.style.left = (e.clientX+14)+'px'; tooltip.style.top = (e.clientY+14)+'px';
+      tooltip.classList.add('show');
+      dot.setAttribute('r','8');
+    });
+    dot.addEventListener('mouseleave', ()=>{ tooltip.classList.remove('show'); dot.setAttribute('r','6'); });
+  });
+}
+
+/* ---------- Shared stats helpers ---------- */
+function rankArray(arr){
+  const idx = arr.map((v,i)=>i).sort((a,b)=>arr[a]-arr[b]);
+  const ranks = new Array(arr.length);
+  let i=0;
+  while(i<idx.length){
+    let j=i;
+    while(j+1<idx.length && arr[idx[j+1]]===arr[idx[i]]) j++;
+    const avgRank = (i+j)/2 + 1;
+    for(let k=i;k<=j;k++) ranks[idx[k]] = avgRank;
+    i = j+1;
+  }
+  return ranks;
+}
+function pearsonR(x,y){
+  const n = x.length;
+  const mx = x.reduce((a,b)=>a+b,0)/n, my = y.reduce((a,b)=>a+b,0)/n;
+  let num=0, dx2=0, dy2=0;
+  for(let i=0;i<n;i++){ const dx=x[i]-mx, dy=y[i]-my; num+=dx*dy; dx2+=dx*dx; dy2+=dy*dy; }
+  const denom = Math.sqrt(dx2*dy2);
+  return denom===0 ? 0 : num/denom;
+}
+function spearmanRho(x,y){ return pearsonR(rankArray(x), rankArray(y)); }
+function median(arr){
+  const s = [...arr].sort((a,b)=>a-b);
+  const n = s.length;
+  return n%2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2;
+}
+function hexToRgb(hex){
+  hex = hex.replace('#','').trim();
+  if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
+  const n = parseInt(hex,16);
+  return [(n>>16)&255,(n>>8)&255,n&255];
+}
+function lerpColor(hexA,hexB,t){
+  t = Math.max(0,Math.min(1,t));
+  const a = hexToRgb(hexA), b = hexToRgb(hexB);
+  const c = a.map((v,i)=>Math.round(v+(b[i]-v)*t));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+/* Deterministic per-string jitter (0..1) so dot positions in the distribution
+   strips are stable across redraws/theme toggles instead of re-randomizing. */
+function seededJitter(str){
+  let h = 0;
+  for(let i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) | 0; }
+  return ((h % 1000) + 1000) % 1000 / 1000;
+}
+/* Fire a callback once when el enters the viewport; runs immediately (no
+   stagger wait) under prefers-reduced-motion since the CSS layer already
+   collapses transition durations to ~0 there. */
+function onFirstView(el, cb){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ cb(); return; }
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ cb(); io.unobserve(e.target); }
+    });
+  }, {threshold:0.15});
+  io.observe(el);
+  setTimeout(()=>{ cb(); io.disconnect(); }, 2500); // safety net, same pattern as initReveals
+}
+
+/* ---------- Sankey: coverage funnel ---------- */
+const SANKEY_NODES = [
+  {id:'moviesPool', x:60, y:40, w:80, h:97, val:20000, label:'Movies Pool', dropped:false},
+  {id:'seriesPool', x:60, y:170, w:80, h:119, val:200000, label:'Series Pool', dropped:false},
+  {id:'dualAnchor', x:250, y:90, w:80, h:119, val:201547, label:'Dual-Anchor', dropped:false},
+  {id:'noDualAnchor', x:155, y:310, w:80, h:96, val:18453, label:'No Dual-Anchor', dropped:true},
+  {id:'nielsenCovered', x:440, y:110, w:80, h:94, val:15053, label:'Nielsen-Covered', dropped:false},
+  {id:'noNielsen', x:345, y:300, w:80, h:118, val:186494, label:'No Nielsen', dropped:true},
+  {id:'selected', x:630, y:150, w:80, h:38, val:45, label:'Selected', dropped:false},
+  {id:'notSelected', x:535, y:300, w:80, h:94, val:15008, label:'Not Selected', dropped:true},
+  {id:'scored', x:820, y:150, w:80, h:38, val:43, label:'Scored', dropped:false},
+  {id:'insufficientText', x:725, y:300, w:80, h:12, val:2, label:'Insufficient Text', dropped:true}
+];
+const SANKEY_LINKS = [
+  {x1:140,y1a:40,y1b:137, x2:250,y2a:90,y2b:101.8, val:20000, dropped:false, label:'Movies Pool → Dual-Anchor'},
+  {x1:140,y1a:170,y1b:278.03, x2:250,y2a:101.8,y2b:209, val:181547, dropped:false, label:'Series Pool → Dual-Anchor'},
+  {x1:140,y1a:278.03,y1b:289, x2:155,y2a:310,y2b:406, val:18453, dropped:true, label:'Series Pool → No Dual-Anchor'},
+  {x1:330,y1a:90,y1b:98.9, x2:440,y2a:110,y2b:204, val:15053, dropped:false, label:'Dual-Anchor → Nielsen-Covered'},
+  {x1:330,y1a:98.9,y1b:209, x2:345,y2a:300,y2b:418, val:186494, dropped:true, label:'Dual-Anchor → No Nielsen'},
+  {x1:520,y1a:110,y1b:110.28, x2:630,y2a:150,y2b:188, val:45, dropped:false, label:'Nielsen-Covered → Selected'},
+  {x1:520,y1a:110.28,y1b:204, x2:535,y2a:300,y2b:394, val:15008, dropped:true, label:'Nielsen-Covered → Not Selected'},
+  {x1:710,y1a:150,y1b:186.3, x2:820,y2a:150,y2b:188, val:43, dropped:false, label:'Selected → Scored'},
+  {x1:710,y1a:186.3,y1b:188, x2:725,y2a:300,y2b:312, val:2, dropped:true, label:'Selected → Insufficient Text'}
+];
+function ribbonPath(x1,y1a,y1b,x2,y2a,y2b){
+  const xm = (x1+x2)/2;
+  return `M${x1},${y1a} C${xm},${y1a} ${xm},${y2a} ${x2},${y2a} L${x2},${y2b} C${xm},${y2b} ${xm},${y1b} ${x1},${y1b} Z`;
+}
+function drawSankey(){
+  const svg = document.getElementById('sankeySvg');
+  const cssVar = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+  const lav = cssVar('--lavender'), lavDim = cssVar('--lav-dim'), lavBorder = cssVar('--lavender');
+  const dimFill = cssVar('--bg-inset'), dimStroke = cssVar('--text-dim'), dimText = cssVar('--text-dim');
+  const textPrimary = cssVar('--text-primary');
+
+  let content = `<g class="sankey-links">`;
+  SANKEY_LINKS.forEach((l,i)=>{
+    const path = ribbonPath(l.x1,l.y1a,l.y1b,l.x2,l.y2a,l.y2b);
+    const fill = l.dropped ? dimFill : lavDim;
+    const stroke = l.dropped ? dimStroke : lavBorder;
+    const dash = l.dropped ? 'stroke-dasharray="3 3"' : '';
+    content += `<g class="sankey-flow-group" data-i="${i}" style="transition-delay:${i*70}ms;">
+      <path class="sankey-link" d="${path}" fill="${fill}" fill-opacity="${l.dropped?0.35:0.55}" stroke="${stroke}" stroke-width="1" ${dash}
+        data-label="${l.label}" data-val="${l.val.toLocaleString()}"></path>
+    </g>`;
+  });
+  content += `</g><g class="sankey-nodes">`;
+  SANKEY_NODES.forEach((n,i)=>{
+    const fill = n.dropped ? dimFill : lavDim;
+    const stroke = n.dropped ? dimStroke : lavBorder;
+    const dash = n.dropped ? 'stroke-dasharray="4 3"' : '';
+    content += `<rect class="sankey-node-rect" data-i="${i}" style="transition-delay:${300+i*60}ms;"
+      x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="4" fill="${fill}" stroke="${stroke}" stroke-width="1.4" ${dash}
+      data-label="${n.label}" data-val="${n.val.toLocaleString()}"></rect>
+      <text class="sankey-node-label" x="${n.x+n.w/2}" y="${n.y-8}" text-anchor="middle">${n.label}</text>
+      <text class="sankey-node-value" x="${n.x+n.w/2}" y="${n.y+n.h/2+4}" text-anchor="middle" fill="${n.dropped?dimText:textPrimary}">${n.val.toLocaleString()}</text>`;
+  });
+  content += `</g>`;
+  svg.innerHTML = content;
+
+  const tooltip = document.getElementById('scatterTooltip');
+  svg.querySelectorAll('.sankey-link, .sankey-node-rect').forEach(el=>{
+    el.addEventListener('mousemove', e=>{
+      tooltip.innerHTML = `<div class="tt-title">${el.getAttribute('data-label')}</div>${el.getAttribute('data-val')} titles`;
+      tooltip.style.left = (e.clientX+14)+'px'; tooltip.style.top = (e.clientY+14)+'px';
+      tooltip.classList.add('show');
+    });
+    el.addEventListener('mouseleave', ()=>tooltip.classList.remove('show'));
+  });
+
+  // Draw-in once on first view: links scale-x in from the left, nodes fade in staggered.
+  onFirstView(svg, ()=>{
+    svg.querySelectorAll('.sankey-flow-group').forEach(g=>g.classList.add('play'));
+    svg.querySelectorAll('.sankey-node-rect').forEach(r=>r.classList.add('play'));
+  });
+}
+
+/* ---------- Bubble chart ---------- */
+function drawBubble(){
+  const svg = document.getElementById('bubbleSvg');
+  const feature = featureSelect.value;
+  const W=720, H=420, M={t:20,r:20,b:44,l:52};
+  const plotW = W-M.l-M.r, plotH = H-M.t-M.b;
+  const valid = DATA.titles.filter(t => !t.insufficient_text);
+  const yVals = valid.map(t=>t.log_aa);
+  const xMin=0, xMax=1, yMin=Math.min(...yVals)-0.03, yMax=Math.max(...yVals)+0.03;
+  const xScale = v => M.l + (v-xMin)/(xMax-xMin)*plotW;
+  const yScale = v => M.t + plotH - (v-yMin)/(yMax-yMin)*plotH;
+  const maxTelecast = Math.max(...Object.values(TELECASTS));
+  const rScale = t => 4 + 22*Math.sqrt(t/maxTelecast);
+
+  const cssVar = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+  const gridColor = cssVar('--grid'), tickColor = cssVar('--tick');
+  const cold = cssVar('--teal-bright'), warm = cssVar('--gold');
+
+  let content = `<g class="grid">`;
+  for(let i=0;i<=4;i++){
+    const gx = M.l + i/4*plotW;
+    content += `<line x1="${gx}" y1="${M.t}" x2="${gx}" y2="${M.t+plotH}" stroke="${gridColor}" stroke-width="1"/>`;
+    content += `<text x="${gx}" y="${M.t+plotH+16}" text-anchor="middle" class="tick-label">${(i/4).toFixed(2)}</text>`;
+  }
+  for(let i=0;i<=3;i++){
+    const gy = M.t + i/3*plotH;
+    const val = yMax - i/3*(yMax-yMin);
+    content += `<line x1="${M.l}" y1="${gy}" x2="${M.l+plotW}" y2="${gy}" stroke="${gridColor}" stroke-width="1"/>`;
+    content += `<text x="${M.l-8}" y="${gy+3}" text-anchor="end" class="tick-label">${val.toFixed(2)}</text>`;
+  }
+  content += `</g>`;
+  content += `<text class="axis-label" x="${M.l+plotW/2}" y="${H-6}" text-anchor="middle">${FEATURE_LABELS[feature]} (0–1)</text>`;
+  content += `<text class="axis-label" transform="translate(14,${M.t+plotH/2}) rotate(-90)" text-anchor="middle">log₁₀(durwt_aa)</text>`;
+
+  valid.forEach((t,i)=>{
+    const cx = xScale(t.features[feature]);
+    const cy = yScale(t.log_aa);
+    const tc = TELECASTS[t.imdb_id] || 1;
+    const r = rScale(tc);
+    const color = lerpColor(cold, warm, t.features.warmth);
+    content += `<circle class="bubble-dot" data-i="${i}" style="transition-delay:${i*18}ms;"
+      cx="${cx}" cy="${cy}" r="${r}" fill="${color}" fill-opacity="0.7" stroke="${color}" stroke-width="1.3"
+      data-title="${t.title.replace(/"/g,'&quot;')}" data-durwt="${t.durwt_aa}" data-tc="${tc}" data-warmth="${t.features.warmth}" data-featval="${t.features[feature]}"></circle>`;
+  });
+  svg.innerHTML = content;
+
+  const tooltip = document.getElementById('scatterTooltip');
+  svg.querySelectorAll('.bubble-dot').forEach(dot=>{
+    dot.addEventListener('mousemove', e=>{
+      tooltip.innerHTML = `<div class="tt-title">${dot.getAttribute('data-title')}</div>
+        durwt_aa: ${parseFloat(dot.getAttribute('data-durwt')).toLocaleString(undefined,{maximumFractionDigits:0})}<br>
+        telecasts: ${dot.getAttribute('data-tc')}<br>
+        warmth: ${parseFloat(dot.getAttribute('data-warmth')).toFixed(2)}<br>
+        ${FEATURE_LABELS[feature]}: ${parseFloat(dot.getAttribute('data-featval')).toFixed(2)}`;
+      tooltip.style.left = (e.clientX+14)+'px'; tooltip.style.top = (e.clientY+14)+'px';
+      tooltip.classList.add('show');
+    });
+    dot.addEventListener('mouseleave', ()=>tooltip.classList.remove('show'));
+  });
+
+  const grad = document.getElementById('bubbleLegendGrad');
+  if(grad) grad.style.background = `linear-gradient(90deg, ${cold}, ${warm})`;
+
+  onFirstView(svg, ()=>{ svg.querySelectorAll('.bubble-dot').forEach(d=>d.classList.add('in')); });
+}
+
+/* ---------- Feature heatmap ---------- */
+function drawHeatmap(){
+  const svg = document.getElementById('heatmapSvg');
+  const valid = DATA.titles.filter(t => !t.insufficient_text);
+  const N = FEATURE_KEYS.length;
+  const M = {t:70,l:70}; const cell = 44;
+  const W = M.l + N*cell + 10, H = M.t + N*cell + 10;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const matrix = FEATURE_KEYS.map(fx => FEATURE_KEYS.map(fy => {
+    const x = valid.map(t=>t.features[fx]);
+    const y = valid.map(t=>t.features[fy]);
+    return fx===fy ? 1 : spearmanRho(x,y);
+  }));
+
+  const cssVar = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+  const neg = cssVar('--red-alert'), pos = cssVar('--green-signal'), neutral = cssVar('--bg-inset');
+  const textCol = cssVar('--text-primary');
+
+  let content = '';
+  FEATURE_KEYS.forEach((f,i)=>{
+    content += `<text class="heat-label" x="${M.l+i*cell+cell/2}" y="${M.t-8}" text-anchor="middle" transform="rotate(-40 ${M.l+i*cell+cell/2} ${M.t-8})">${FEATURE_LABELS[f]}</text>`;
+    content += `<text class="heat-label" x="${M.l-8}" y="${M.t+i*cell+cell/2+3}" text-anchor="end">${FEATURE_LABELS[f]}</text>`;
+  });
+  let idx = 0;
+  for(let row=0; row<N; row++){
+    for(let col=0; col<N; col++){
+      const rho = matrix[row][col];
+      const t = Math.max(-1, Math.min(1, rho));
+      const color = t<0 ? lerpColor(neutral, neg, -t) : lerpColor(neutral, pos, t);
+      const cx = M.l + col*cell, cy = M.t + row*cell;
+      content += `<g class="heat-cell" data-i="${idx}" style="transition-delay:${idx*10}ms;">
+        <rect x="${cx}" y="${cy}" width="${cell-3}" height="${cell-3}" rx="4" fill="${color}"
+          data-label="${FEATURE_LABELS[FEATURE_KEYS[col]]} × ${FEATURE_LABELS[FEATURE_KEYS[row]]}" data-rho="${rho.toFixed(3)}"></rect>
+        <text class="heat-value" x="${cx+(cell-3)/2}" y="${cy+(cell-3)/2+3}" text-anchor="middle" fill="${Math.abs(rho)>0.55?'#0a0a0f':textCol}">${rho.toFixed(2)}</text>
+      </g>`;
+      idx++;
+    }
+  }
+  svg.innerHTML = content;
+
+  const tooltip = document.getElementById('scatterTooltip');
+  svg.querySelectorAll('.heat-cell rect').forEach(r=>{
+    r.addEventListener('mousemove', e=>{
+      tooltip.innerHTML = `<div class="tt-title">${r.getAttribute('data-label')}</div>Spearman ρ = ${r.getAttribute('data-rho')} <span style="color:var(--text-dim);">(n=${valid.length}, no significance claim implied)</span>`;
+      tooltip.style.left = (e.clientX+14)+'px'; tooltip.style.top = (e.clientY+14)+'px';
+      tooltip.classList.add('show');
+    });
+    r.addEventListener('mouseleave', ()=>tooltip.classList.remove('show'));
+  });
+
+  onFirstView(svg, ()=>{ svg.querySelectorAll('.heat-cell').forEach(c=>c.classList.add('in')); });
+}
+
+/* ---------- Distribution strips ---------- */
+function drawDistributionStrips(){
+  const grid = document.getElementById('distGrid');
+  grid.innerHTML = '';
+  const valid = DATA.titles.filter(t => !t.insufficient_text);
+  FEATURE_KEYS.forEach((f,fi)=>{
+    const vals = valid.map(t=>t.features[f]);
+    const med = median(vals);
+    const row = document.createElement('div');
+    row.className = 'dist-row';
+    const dotsHtml = valid.map((t,i)=>{
+      const x = t.features[f]*100;
+      const jitter = 20 + seededJitter(t.imdb_id+f)*60; // 20%–80% vertical band within the track
+      return `<div class="dist-dot" data-i="${fi*100+i}" style="left:${x}%; top:${jitter}%; transition-delay:${(fi*43+i)*8}ms;" title="${t.title}: ${t.features[f].toFixed(2)}"></div>`;
+    }).join('');
+    row.innerHTML = `
+      <div class="dist-label">${FEATURE_LABELS[f]}</div>
+      <div class="dist-track">
+        <div class="dist-axis"></div>
+        <div class="dist-median" style="left:${med*100}%;"><span class="dist-median-label">${med.toFixed(2)}</span></div>
+        ${dotsHtml}
+      </div>
+    `;
+    grid.appendChild(row);
+  });
+  onFirstView(grid, ()=>{ grid.querySelectorAll('.dist-dot').forEach(d=>d.classList.add('in')); });
+}
+
+/* ---------- Titles table ---------- */
+const tableHead = document.getElementById('tableHead');
+const tableBody = document.getElementById('tableBody');
+const COLUMNS = [
+  {key:'title', label:'Title'},
+  {key:'durwt_aa', label:'durwt_aa'},
+  ...FEATURE_KEYS.map(k=>({key:k, label:FEATURE_LABELS[k]}))
+];
+let sortState = {key:'durwt_aa', dir:'desc'};
+
+COLUMNS.forEach(col=>{
+  const th = document.createElement('th');
+  th.textContent = col.label;
+  th.innerHTML += `<span class="arrow">▲</span>`;
+  th.dataset.key = col.key;
+  th.addEventListener('click', ()=>{
+    if(sortState.key === col.key){
+      sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortState = {key: col.key, dir: 'desc'};
+    }
+    renderTable();
+  });
+  tableHead.appendChild(th);
+});
+
+function getSortValue(t, key){
+  if(key === 'title') return t.title.toLowerCase();
+  if(key === 'durwt_aa') return t.durwt_aa;
+  const v = t.features[key];
+  return v === null || v === undefined ? -1 : v;
+}
+
+function renderTable(){
+  // FLIP: capture old positions
+  const oldRows = Array.from(tableBody.children);
+  const oldRects = new Map();
+  oldRows.forEach(r => oldRects.set(r.dataset.imdb, r.getBoundingClientRect()));
+
+  const sorted = [...DATA.titles].sort((a,b)=>{
+    const va = getSortValue(a, sortState.key), vb = getSortValue(b, sortState.key);
+    let cmp = va < vb ? -1 : va > vb ? 1 : 0;
+    return sortState.dir === 'asc' ? cmp : -cmp;
+  });
+
+  tableBody.innerHTML = '';
+  sorted.forEach(t=>{
+    const tr = document.createElement('tr');
+    tr.dataset.imdb = t.imdb_id;
+    if(t.insufficient_text) tr.classList.add('nulled');
+    let cells = `<td><div class="title-cell"><span class="name">${t.title}</span>${t.insufficient_text ? `<span class="flag" title="${t.note||''}">⚠ crosswalk issue — nulled</span>` : (t.low_confidence_note ? `<span class="flag" title="${t.low_confidence_note}">⚠ low confidence</span>` : '')}</div></td>`;
+    cells += `<td class="durwt-cell">${t.durwt_aa.toLocaleString(undefined,{maximumFractionDigits:0})}</td>`;
+    FEATURE_KEYS.forEach(k=>{
+      const v = t.features[k];
+      if(v === null || v === undefined){
+        cells += `<td><span class="feat-dash">—</span></td>`;
+      } else {
+        cells += `<td><div class="feat-bar-wrap"><div class="feat-bar-fill" style="width:0%" data-w="${v*100}"></div></div></td>`;
+      }
+    });
+    tr.innerHTML = cells;
+    tableBody.appendChild(tr);
+  });
+
+  // FLIP: apply inverted transform then animate to 0
+  const newRows = Array.from(tableBody.children);
+  newRows.forEach(r=>{
+    const oldRect = oldRects.get(r.dataset.imdb);
+    if(oldRect){
+      const newRect = r.getBoundingClientRect();
+      const dy = oldRect.top - newRect.top;
+      if(Math.abs(dy) > 1){
+        r.style.transform = `translateY(${dy}px)`;
+        r.style.transition = 'none';
+        requestAnimationFrame(()=>{
+          r.style.transition = 'transform 380ms cubic-bezier(0.16,1,0.3,1)';
+          r.style.transform = 'translateY(0)';
+        });
+      }
+    }
+  });
+
+  // animate feature bars in
+  requestAnimationFrame(()=>{
+    tableBody.querySelectorAll('.feat-bar-fill').forEach(bar=>{
+      bar.style.width = bar.getAttribute('data-w') + '%';
+    });
+  });
+
+  // update header sort indicators
+  tableHead.querySelectorAll('th').forEach(th=>{
+    th.classList.toggle('sorted', th.dataset.key === sortState.key);
+    th.classList.toggle('desc', th.dataset.key === sortState.key && sortState.dir === 'desc');
+  });
+}
+
+/* ---------- Arc strip ---------- */
+function drawArcStrip(){
+  const grid = document.getElementById('arcGrid');
+  const cssVar = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+  DATA.titles.forEach(t=>{
+    const card = document.createElement('div');
+    card.className = 'arc-card' + (t.insufficient_text ? ' nulled' : '');
+    if(t.insufficient_text){
+      card.innerHTML = `<div class="name">${t.title}</div><div style="font-size:10px;color:var(--text-dim);padding:10px 0;">no arc — nulled</div>`;
+    } else {
+      const pts = t.arc_curve.map((p,i)=>{
+        const x = 6 + i/(t.arc_curve.length-1)*88;
+        const y = 30 - (p.valence+1)/2*24;
+        return `${x},${y}`;
+      }).join(' ');
+      const teal = cssVar('--teal-bright');
+      card.innerHTML = `<div class="name">${t.title}</div>
+        <svg viewBox="0 0 100 36">
+          <line x1="0" y1="18" x2="100" y2="18" stroke="${cssVar('--border-subtle')}" stroke-width="1"/>
+          <polyline points="${pts}" fill="none" stroke="${teal}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          ${t.arc_curve.map((p,i)=>{const x=6+i/(t.arc_curve.length-1)*88; const y=30-(p.valence+1)/2*24; return `<circle cx="${x}" cy="${y}" r="2.4" fill="${teal}"/>`}).join('')}
+        </svg>`;
+    }
+    grid.appendChild(card);
+  });
+}
+
+/* ---------- Bankability: budget vs revenue bubble field ---------- */
+function drawBoBubble(){
+  const svg = document.getElementById('boBubbleSvg');
+  const W=720, H=460, M={t:20,r:20,b:44,l:56};
+  const plotW = W-M.l-M.r, plotH = H-M.t-M.b;
+  const movies = BANKABILITY_MOVIES;
+
+  // Unified log10 domain across BOTH budget and revenue so the break-even
+  // (revenue == budget) guide is a true 45° diagonal, not an artifact of
+  // mismatched per-axis scales.
+  const allVals = movies.flatMap(m=>[m.budget, m.revenue]);
+  const domMin = Math.log10(Math.min(...allVals)) - 0.06;
+  const domMax = Math.log10(Math.max(...allVals)) + 0.03;
+  const scale = v => M.l + (Math.log10(v)-domMin)/(domMax-domMin)*plotW; // x
+  const scaleY = v => M.t + plotH - (Math.log10(v)-domMin)/(domMax-domMin)*plotH; // y (same domain)
+
+  const cssVar = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+  const gridColor = cssVar('--grid'), borderStrong = cssVar('--border-strong');
+  const multCap = 16;
+  const rScale = mult => 4 + 20*Math.sqrt(Math.min(mult, multCap)/multCap);
+
+  let content = `<g class="grid">`;
+  for(let i=0;i<=4;i++){
+    const gx = M.l + i/4*plotW;
+    const val = Math.pow(10, domMin + i/4*(domMax-domMin));
+    content += `<line x1="${gx}" y1="${M.t}" x2="${gx}" y2="${M.t+plotH}" stroke="${gridColor}" stroke-width="1"/>`;
+    content += `<text x="${gx}" y="${M.t+plotH+16}" text-anchor="middle" class="tick-label">$${(val/1e6).toFixed(0)}M</text>`;
+  }
+  for(let i=0;i<=4;i++){
+    const gy = M.t + i/4*plotH;
+    const val = Math.pow(10, domMax - i/4*(domMax-domMin));
+    content += `<line x1="${M.l}" y1="${gy}" x2="${M.l+plotW}" y2="${gy}" stroke="${gridColor}" stroke-width="1"/>`;
+    content += `<text x="${M.l-8}" y="${gy+3}" text-anchor="end" class="tick-label">$${(val/1e6).toFixed(0)}M</text>`;
+  }
+  content += `</g>`;
+  // break-even diagonal: revenue == budget (multiplier = 1)
+  content += `<line x1="${M.l}" y1="${M.t+plotH}" x2="${M.l+plotW}" y2="${M.t}" stroke="${borderStrong}" stroke-width="1.4" stroke-dasharray="5 4" opacity="0.6"/>`;
+  content += `<text class="tick-label" x="${M.l+plotW-6}" y="${M.t+14}" text-anchor="end" fill="${borderStrong}">break-even (1×)</text>`;
+  content += `<text class="axis-label" x="${M.l+plotW/2}" y="${H-6}" text-anchor="middle">Budget (log)</text>`;
+  content += `<text class="axis-label" transform="translate(16,${M.t+plotH/2}) rotate(-90)" text-anchor="middle">Revenue (log)</text>`;
+
+  movies.forEach((m,i)=>{
+    const cx = scale(m.budget), cy = scaleY(m.revenue);
+    const r = rScale(m.multiplier);
+    const color = cssVar(CREATIVE_TYPE_COLORS[m.creative_type] || '--lavender');
+    content += `<circle class="bubble-dot" data-i="${i}" style="transition-delay:${i*14}ms;"
+      cx="${cx}" cy="${cy}" r="${r}" fill="${color}" fill-opacity="0.68" stroke="${color}" stroke-width="1.3"
+      data-title="${m.title.replace(/"/g,'&quot;')}" data-year="${m.release_year}" data-budget="${m.budget}"
+      data-revenue="${m.revenue}" data-mult="${m.multiplier}" data-dist="${m.distributor||''}" data-seq="${m.sequel}"></circle>`;
+  });
+  svg.innerHTML = content;
+
+  const tooltip = document.getElementById('scatterTooltip');
+  svg.querySelectorAll('.bubble-dot').forEach(dot=>{
+    dot.addEventListener('mousemove', e=>{
+      const fmtM = v => '$' + (v/1e6).toLocaleString(undefined,{maximumFractionDigits:0}) + 'M';
+      const seqBadge = dot.getAttribute('data-seq') === '1' ? ' <span style="color:var(--gold);">· sequel</span>' : '';
+      tooltip.innerHTML = `<div class="tt-title">${dot.getAttribute('data-title')} (${dot.getAttribute('data-year')})${seqBadge}</div>
+        budget: ${fmtM(parseFloat(dot.getAttribute('data-budget')))}<br>
+        revenue: ${fmtM(parseFloat(dot.getAttribute('data-revenue')))}<br>
+        multiplier: ${parseFloat(dot.getAttribute('data-mult')).toFixed(2)}×<br>
+        distributor: ${dot.getAttribute('data-dist') || '—'}`;
+      tooltip.style.left = (e.clientX+14)+'px'; tooltip.style.top = (e.clientY+14)+'px';
+      tooltip.classList.add('show');
+    });
+    dot.addEventListener('mouseleave', ()=>tooltip.classList.remove('show'));
+  });
+
+  const legend = document.getElementById('boBubbleLegend');
+  if(legend){
+    legend.innerHTML = Object.keys(CREATIVE_TYPE_COLORS).map(ct=>
+      `<span><span class="bubble-legend-swatch" style="background:${cssVar(CREATIVE_TYPE_COLORS[ct])};"></span>${ct}</span>`
+    ).join('') + `<span>size = multiplier (capped at ${multCap}×)</span>`;
+  }
+
+  onFirstView(svg, ()=>{ svg.querySelectorAll('.bubble-dot').forEach(d=>d.classList.add('in')); });
+}
+
+/* ---------- Bankability: content DNA ranked bars ---------- */
+function drawDnaBars(){
+  const cssVar = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+  function renderCol(containerId, dim, color){
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    const rows = BANKABILITY_GROUPS.filter(g=>g.dim===dim).sort((a,b)=>b.avg_rev_m-a.avg_rev_m);
+    const maxVal = Math.max(...rows.map(r=>r.avg_rev_m));
+    rows.forEach((r,i)=>{
+      const row = document.createElement('div');
+      row.className = 'dna-bar-row';
+      const pct = r.avg_rev_m/maxVal*100;
+      const medPct = Math.min(100, r.med_rev_m/maxVal*100);
+      row.innerHTML = `
+        <div class="dna-bar-label" title="${r.grp}">${r.grp}</div>
+        <div class="dna-bar-track">
+          <div class="dna-bar-fill" data-w="${pct}" style="width:0%; background:${color}; transition-delay:${i*45}ms;"></div>
+          <div class="dna-bar-median" style="left:${medPct}%;" title="median $${r.med_rev_m.toFixed(1)}M"></div>
+        </div>
+        <div class="dna-bar-n">$${r.avg_rev_m.toFixed(0)}M · n=${r.n}</div>
+      `;
+      container.appendChild(row);
+    });
+  }
+  renderCol('dnaCreative', 'creative_type', cssVar('--lavender'));
+  renderCol('dnaSource', 'source_type', cssVar('--teal-bright'));
+
+  onFirstView(document.getElementById('dnaCreative'), ()=>{
+    document.querySelectorAll('#dnaCreative .dna-bar-fill, #dnaSource .dna-bar-fill').forEach(f=>{
+      f.style.width = f.getAttribute('data-w') + '%';
+    });
+  });
+}
+
+/* ---------- Bankability: talent value index v0 ---------- */
+function drawTvi(){
+  const list = document.getElementById('tviList');
+  list.innerHTML = '';
+  const maxVal = Math.max(...BANKABILITY_PEOPLE.map(p=>p.value_per_movie_m));
+  BANKABILITY_PEOPLE.forEach((p,i)=>{
+    const row = document.createElement('div');
+    row.className = 'tvi-row';
+    const pct = p.value_per_movie_m/maxVal*100;
+    row.innerHTML = `
+      <div class="tvi-rank">#${i+1}</div>
+      <div class="tvi-name" title="${p.person}">${p.person}</div>
+      <div class="tvi-chip">${p.dept}</div>
+      <div class="tvi-track"><div class="tvi-fill" data-w="${pct}" style="width:0%; transition-delay:${i*30}ms;"></div></div>
+      <div class="tvi-val">$${p.value_per_movie_m.toFixed(1)}M/mv</div>
+      <div class="tvi-n">n=${p.n_titles}</div>
+    `;
+    list.appendChild(row);
+  });
+  onFirstView(list, ()=>{
+    list.querySelectorAll('.tvi-fill').forEach(f=>{ f.style.width = f.getAttribute('data-w') + '%'; });
+  });
+}
+
+/* ---------- Theme-dependent redraw (colors baked into SVG at draw time) ---------- */
+function refreshChartsForTheme(){
+  drawScatter();
+  drawBubble();
+  drawSankey();
+  drawHeatmap();
+  drawDistributionStrips();
+  const arcGrid = document.getElementById('arcGrid');
+  arcGrid.innerHTML = '';
+  drawArcStrip();
+  drawBoBubble();
+  drawDnaBars();
+  drawTvi();
+}
+
+/* ---------- Boot after fonts ready (with a hard fallback so a stalled font
+   load or offline font fetch can never block first render) ---------- */
+let booted = false;
+function boot(){
+  if (booted) return;
+  booted = true;
+  drawCorrChart();
+  drawScatter();
+  drawBubble();
+  drawSankey();
+  renderTable();
+  drawArcStrip();
+  drawHeatmap();
+  drawDistributionStrips();
+  drawBoBubble();
+  drawDnaBars();
+  drawTvi();
+  initReveals();
+  initCountUps();
+}
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(boot);
+} else {
+  boot();
+}
+setTimeout(boot, 800);
+</script>
+</body>
+</html>
