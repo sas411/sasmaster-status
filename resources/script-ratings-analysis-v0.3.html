@@ -341,15 +341,15 @@ button, [role="button"], select{min-height:44px;}
 
   <!-- HERO -->
   <section>
-    <div class="eyebrow"><span class="chip">n=9,381 full-scale</span><span class="chip">n=43 Claude pilot</span><span class="chip">v1.0-scale · 2026-07-25</span><span class="chip"><a href="#fullscale" style="color:inherit;text-decoration:none;">↳ Full-Scale Validation</a></span><span class="chip"><a href="#bankability" style="color:inherit;text-decoration:none;">↳ Box Office &amp; Bankability</a></span></div>
+    <div class="eyebrow"><span class="chip">n=5,346 full-scale (deduped)</span><span class="chip">n=43 Claude pilot</span><span class="chip">v1.0-scale · 2026-07-25</span><span class="chip"><a href="#fullscale" style="color:inherit;text-decoration:none;">↳ Full-Scale Validation</a></span><span class="chip"><a href="#bankability" style="color:inherit;text-decoration:none;">↳ Box Office &amp; Bankability</a></span></div>
     <div class="hero reveal">
       <div class="t-display-sm" style="color:var(--text-dim); letter-spacing:2px;">VERDICT</div>
       <div class="hero-verdict" style="font-size:2.4rem;">STATISTICALLY DETECTABLE, PRACTICALLY NEGLIGIBLE</div>
       <div class="hero-caveat" id="caveatLine"></div>
       <div class="stat-grid">
-        <div class="stat-card"><div class="stat-num t-mono" data-count="9381" data-suffix="">0</div><div class="stat-label">titles scored at full scale (heuristic)</div></div>
-        <div class="stat-card"><div class="stat-num t-mono" data-count="0.062" data-decimals="3" data-prefix="≤ ">0</div><div class="stat-label">largest |ρ| across all 8 features</div></div>
-        <div class="stat-card"><div class="stat-num t-mono" data-count="0.4" data-decimals="1" data-prefix="&lt; " data-suffix="%">0</div><div class="stat-label">variance explained by the strongest feature</div></div>
+        <div class="stat-card"><div class="stat-num t-mono" data-count="5346" data-suffix="">0</div><div class="stat-label">unique titles scored at full scale (heuristic, deduped)</div></div>
+        <div class="stat-card"><div class="stat-num t-mono" data-count="0.056" data-decimals="3" data-prefix="≤ ">0</div><div class="stat-label">largest |ρ| across all 8 features</div></div>
+        <div class="stat-card"><div class="stat-num t-mono" data-count="0.31" data-decimals="2" data-prefix="&lt; " data-suffix="%">0</div><div class="stat-label">variance explained by the strongest feature</div></div>
       </div>
     </div>
   </section>
@@ -373,10 +373,10 @@ button, [role="button"], select{min-height:44px;}
   <section id="fullscale">
     <div class="panel reveal">
       <div class="panel-title">
-        <h2>Full-Scale Validation — n=9,381</h2>
-        <span class="t-label">lexicon_heuristic_v1 · hover for p-value</span>
+        <h2>Full-Scale Validation — n=5,346</h2>
+        <span class="t-label">lexicon_heuristic_v1 · deduped by imdb_id · hover for p-value</span>
       </div>
-      <p class="panel-desc">Every Nielsen-covered title with a fetchable plot summary, scored by a VADER-sentiment + keyword-density heuristic (no LLM cost at this n). At n=9,381 the test has enough power to detect even tiny effects — several features clear <b style="color:var(--text-primary);">p&lt;0.05</b> — but <b style="color:var(--text-primary);">every |ρ| stays under 0.07</b> (≤0.4% variance explained). Read this as "real but negligible," not "signal found."</p>
+      <p class="panel-desc">Every unique Nielsen-covered title with a fetchable plot summary, scored by a VADER-sentiment + keyword-density heuristic (no LLM cost at this n). At n=5,346 the test has enough power to detect even tiny effects — humor and darkness clear <b style="color:var(--text-primary);">p&lt;0.05</b> — but <b style="color:var(--text-primary);">every |ρ| stays under 0.06</b> (≤0.31% variance explained). Read this as "real but negligible," not "signal found." <i>Note: an earlier pass reported n=9,381 before a duplicate-pkid dedup fix — see hero caveat.</i></p>
       <div class="corr-chart-wrap" id="corrChartScale"></div>
     </div>
   </section>
@@ -664,17 +664,17 @@ const DATA = {
 /* Full-scale rerun (v1.0-scale): heuristic/lexicon features (VADER + keyword density), NOT Claude-judged,
    scored on every Nielsen-covered title with a fetchable plot summary — no LLM cost at this n. */
 const SCALE_RESULTS = {
-  run_meta: {version:"v1.0-scale", date:"2026-07-25", n_correlated:9381, features_source:"lexicon_heuristic_v1",
-    target:"log10(durwt_aa)"},
+  run_meta: {version:"v1.0-scale", date:"2026-07-25", n_correlated:5346, features_source:"lexicon_heuristic_v1",
+    target:"log10(durwt_aa)", corrected_note:"Corrected same-day: an earlier pass (n=9,381) double-counted 5,308 duplicate-pkid rows from a known spine issue — pseudo-replication that inflated n and distorted p-values. This is the deduped, correct figure."},
   correlations: [
-    {feature:"humor",spearman_rho:-0.0615,spearman_p:0.0,pearson_r:-0.096},
-    {feature:"darkness",spearman_rho:-0.0318,spearman_p:0.00205,pearson_r:-0.0157},
-    {feature:"hook_strength",spearman_rho:0.026,spearman_p:0.01183,pearson_r:0.0372},
-    {feature:"serialization",spearman_rho:-0.0217,spearman_p:0.035956,pearson_r:-0.0249},
-    {feature:"emotional_range",spearman_rho:0.0215,spearman_p:0.03745,pearson_r:0.0278},
-    {feature:"warmth",spearman_rho:0.015,spearman_p:0.14653,pearson_r:0.0017},
-    {feature:"stakes",spearman_rho:0.0066,spearman_p:0.521173,pearson_r:-0.0059},
-    {feature:"conflict_density",spearman_rho:0.0064,spearman_p:0.534127,pearson_r:0.024}
+    {feature:"humor",spearman_rho:-0.0557,spearman_p:0.000046,pearson_r:-0.0892},
+    {feature:"darkness",spearman_rho:-0.0491,spearman_p:0.000333,pearson_r:-0.0245},
+    {feature:"warmth",spearman_rho:0.0279,spearman_p:0.0417,pearson_r:0.0178},
+    {feature:"emotional_range",spearman_rho:0.0255,spearman_p:0.062724,pearson_r:0.0316},
+    {feature:"hook_strength",spearman_rho:0.0238,spearman_p:0.081281,pearson_r:0.0354},
+    {feature:"serialization",spearman_rho:-0.0218,spearman_p:0.11101,pearson_r:-0.0234},
+    {feature:"conflict_density",spearman_rho:-0.0066,spearman_p:0.62968,pearson_r:0.0102},
+    {feature:"stakes",spearman_rho:-0.0023,spearman_p:0.865559,pearson_r:-0.012}
   ]
 };
 /* Calibration: agreement (Spearman rho) between lexicon_heuristic_v1 and Claude plot_text_v0 on the SAME 43 pilot titles. */
@@ -818,7 +818,7 @@ const CREATIVE_TYPE_COLORS = {
 const FEATURE_KEYS = ["hook_strength","conflict_density","emotional_range","warmth","darkness","humor","serialization","stakes"];
 const FEATURE_LABELS = {hook_strength:"Hook",conflict_density:"Conflict",emotional_range:"Em. Range",warmth:"Warmth",darkness:"Darkness",humor:"Humor",serialization:"Serial.",stakes:"Stakes"};
 
-document.getElementById('caveatLine').innerHTML = `<b>Caveat:</b> full-scale run uses <span class="t-mono">lexicon_heuristic_v1</span> features (VADER sentiment + keyword-density proxies, not Claude judgment) on ${SCALE_RESULTS.run_meta.n_correlated.toLocaleString()} titles — cross-sectional 3-week Nielsen window, plot-summary text. At this n, several features clear p&lt;0.05 (statistically real) but every |ρ| stays below 0.07 — under 0.4% of variance explained. The original ${DATA.run_meta.n_correlated}-title Claude-judged pilot (below) remains the higher-fidelity per-title read; the heuristic method was calibrated against it — see Calibration panel.`;
+document.getElementById('caveatLine').innerHTML = `<b>Caveat:</b> full-scale run uses <span class="t-mono">lexicon_heuristic_v1</span> features (VADER sentiment + keyword-density proxies, not Claude judgment) on ${SCALE_RESULTS.run_meta.n_correlated.toLocaleString()} unique titles — cross-sectional 3-week Nielsen window, plot-summary text. At this n, humor and darkness clear p&lt;0.05 (statistically real) but every |ρ| stays below 0.06 — under 0.31% of variance explained. The original ${DATA.run_meta.n_correlated}-title Claude-judged pilot (below) remains the higher-fidelity per-title read; the heuristic method was calibrated against it — see Calibration panel. <b>Correction (same day):</b> ${SCALE_RESULTS.run_meta.corrected_note}`;
 
 /* ---------- Theme toggle ---------- */
 const themeToggle = document.getElementById('themeToggle');
