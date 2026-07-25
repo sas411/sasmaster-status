@@ -341,15 +341,15 @@ button, [role="button"], select{min-height:44px;}
 
   <!-- HERO -->
   <section>
-    <div class="eyebrow"><span class="chip">n=43 correlated</span><span class="chip">Spearman + Pearson</span><span class="chip">v0.1 · 2026-07-25</span><span class="chip"><a href="#bankability" style="color:inherit;text-decoration:none;">↳ Box Office &amp; Bankability</a></span></div>
+    <div class="eyebrow"><span class="chip">n=9,381 full-scale</span><span class="chip">n=43 Claude pilot</span><span class="chip">v1.0-scale · 2026-07-25</span><span class="chip"><a href="#fullscale" style="color:inherit;text-decoration:none;">↳ Full-Scale Validation</a></span><span class="chip"><a href="#bankability" style="color:inherit;text-decoration:none;">↳ Box Office &amp; Bankability</a></span></div>
     <div class="hero reveal">
       <div class="t-display-sm" style="color:var(--text-dim); letter-spacing:2px;">VERDICT</div>
-      <div class="hero-verdict">NO DETECTABLE SIGNAL AT N=43</div>
+      <div class="hero-verdict" style="font-size:2.4rem;">STATISTICALLY DETECTABLE, PRACTICALLY NEGLIGIBLE</div>
       <div class="hero-caveat" id="caveatLine"></div>
       <div class="stat-grid">
-        <div class="stat-card"><div class="stat-num t-mono" data-count="43" data-suffix="">0</div><div class="stat-label">titles scored &amp; correlated</div></div>
-        <div class="stat-card"><div class="stat-num t-mono" data-count="0.22" data-decimals="2" data-prefix="≤ ">0</div><div class="stat-label">largest |ρ| across all 8 features</div></div>
-        <div class="stat-card"><div class="stat-num t-mono" data-count="0.17" data-decimals="2" data-prefix="≥ ">0</div><div class="stat-label">smallest p-value observed</div></div>
+        <div class="stat-card"><div class="stat-num t-mono" data-count="9381" data-suffix="">0</div><div class="stat-label">titles scored at full scale (heuristic)</div></div>
+        <div class="stat-card"><div class="stat-num t-mono" data-count="0.062" data-decimals="3" data-prefix="≤ ">0</div><div class="stat-label">largest |ρ| across all 8 features</div></div>
+        <div class="stat-card"><div class="stat-num t-mono" data-count="0.4" data-decimals="1" data-prefix="&lt; " data-suffix="%">0</div><div class="stat-label">variance explained by the strongest feature</div></div>
       </div>
     </div>
   </section>
@@ -369,14 +369,38 @@ button, [role="button"], select{min-height:44px;}
     </div>
   </section>
 
-  <!-- CORRELATION PANEL -->
+  <!-- FULL-SCALE VALIDATION PANEL -->
+  <section id="fullscale">
+    <div class="panel reveal">
+      <div class="panel-title">
+        <h2>Full-Scale Validation — n=9,381</h2>
+        <span class="t-label">lexicon_heuristic_v1 · hover for p-value</span>
+      </div>
+      <p class="panel-desc">Every Nielsen-covered title with a fetchable plot summary, scored by a VADER-sentiment + keyword-density heuristic (no LLM cost at this n). At n=9,381 the test has enough power to detect even tiny effects — several features clear <b style="color:var(--text-primary);">p&lt;0.05</b> — but <b style="color:var(--text-primary);">every |ρ| stays under 0.07</b> (≤0.4% variance explained). Read this as "real but negligible," not "signal found."</p>
+      <div class="corr-chart-wrap" id="corrChartScale"></div>
+    </div>
+  </section>
+
+  <!-- CALIBRATION PANEL -->
   <section>
     <div class="panel reveal">
       <div class="panel-title">
-        <h2>Correlation vs log₁₀(durwt_aa)</h2>
+        <h2>Heuristic vs. Claude Agreement</h2>
+        <span class="t-label">Spearman ρ, same 43 pilot titles, both methods</span>
+      </div>
+      <p class="panel-desc">Before trusting the heuristic at scale, it was checked against the Claude-judged pilot on the identical 43 titles. Agreement is feature-dependent: strong on conflict_density (ρ=0.55) and darkness (ρ=0.57), moderate on stakes (0.47) and humor (0.39), weak and not significant on warmth (0.13) and serialization (0.06). Full-scale conclusions for the weak-agreement features carry an extra grain of salt.</p>
+      <div class="corr-chart-wrap" id="calibChart"></div>
+    </div>
+  </section>
+
+  <!-- CORRELATION PANEL (PILOT DETAIL) -->
+  <section>
+    <div class="panel reveal">
+      <div class="panel-title">
+        <h2>Pilot Detail — Claude-Judged, n=43</h2>
         <span class="t-label">Spearman ρ · hover for p-value</span>
       </div>
-      <p class="panel-desc">Every one of the 8 narrative features fails significance at n=43 (all p ≥ 0.17). Bars are muted intentionally — the "not significant" watermark spans the whole chart because it applies to every row, not a subset.</p>
+      <p class="panel-desc">The original curated pilot: Claude-judged narrative features on 43 hand-selected titles. Every feature fails significance here too (all p ≥ 0.17) — consistent with the full-scale read above, just at lower power. Kept for the point-level detail (scatter, table, arcs) below, which the full-scale run doesn't replicate.</p>
       <div class="corr-chart-wrap" id="corrChart">
         <div class="corr-watermark"><span>NOT SIGNIFICANT</span></div>
       </div>
@@ -637,6 +661,30 @@ const DATA = {
   ]
 };
 
+/* Full-scale rerun (v1.0-scale): heuristic/lexicon features (VADER + keyword density), NOT Claude-judged,
+   scored on every Nielsen-covered title with a fetchable plot summary — no LLM cost at this n. */
+const SCALE_RESULTS = {
+  run_meta: {version:"v1.0-scale", date:"2026-07-25", n_correlated:9381, features_source:"lexicon_heuristic_v1",
+    target:"log10(durwt_aa)"},
+  correlations: [
+    {feature:"humor",spearman_rho:-0.0615,spearman_p:0.0,pearson_r:-0.096},
+    {feature:"darkness",spearman_rho:-0.0318,spearman_p:0.00205,pearson_r:-0.0157},
+    {feature:"hook_strength",spearman_rho:0.026,spearman_p:0.01183,pearson_r:0.0372},
+    {feature:"serialization",spearman_rho:-0.0217,spearman_p:0.035956,pearson_r:-0.0249},
+    {feature:"emotional_range",spearman_rho:0.0215,spearman_p:0.03745,pearson_r:0.0278},
+    {feature:"warmth",spearman_rho:0.015,spearman_p:0.14653,pearson_r:0.0017},
+    {feature:"stakes",spearman_rho:0.0066,spearman_p:0.521173,pearson_r:-0.0059},
+    {feature:"conflict_density",spearman_rho:0.0064,spearman_p:0.534127,pearson_r:0.024}
+  ]
+};
+/* Calibration: agreement (Spearman rho) between lexicon_heuristic_v1 and Claude plot_text_v0 on the SAME 43 pilot titles. */
+const CALIBRATION = {
+  hook_strength:{n:43,agreement_rho:0.292,p:0.0574}, conflict_density:{n:43,agreement_rho:0.549,p:0.0001},
+  emotional_range:{n:43,agreement_rho:0.276,p:0.0737}, warmth:{n:43,agreement_rho:0.134,p:0.392},
+  darkness:{n:43,agreement_rho:0.57,p:0.0001}, humor:{n:43,agreement_rho:0.39,p:0.0097},
+  serialization:{n:43,agreement_rho:0.06,p:0.7018}, stakes:{n:43,agreement_rho:0.473,p:0.0014}
+};
+
 /* Real per-title telecast counts, pulled from candidates_v01.csv/candidates.csv (the `telecasts` column) — not a proxy. */
 const TELECASTS = {"tt0206512":944,"tt7678620":187,"tt8467618":158,"tt1942683":186,"tt7165904":180,"tt2771780":122,"tt7551014":181,"tt9382570":306,"tt0121955":403,"tt0182576":159,"tt1092980":134,"tt0108778":163,"tt0112220":177,"tt1234319":122,"tt0086687":158,"tt0386676":150,"tt12723394":293,"tt10132524":261,"tt4236770":233,"tt0203259":184,"tt15392444":680,"tt7904964":273,"tt2827630":158,"tt7971500":155,"tt4714782":189,"tt5659578":403,"tt0086765":293,"tt5027774":261,"tt4335742":233,"tt4285154":186,"tt0340107":158,"tt2064523":156,"tt0089886":121,"tt0106056":120,"tt0273855":119,"tt1823381":118,"tt2712740":118,"tt4291050":116,"tt15132206":116,"tt7508266":96,"tt4818186":107,"tt0364845":104,"tt1561755":94,"tt1710308":87,"tt8386804":103};
 
@@ -770,7 +818,7 @@ const CREATIVE_TYPE_COLORS = {
 const FEATURE_KEYS = ["hook_strength","conflict_density","emotional_range","warmth","darkness","humor","serialization","stakes"];
 const FEATURE_LABELS = {hook_strength:"Hook",conflict_density:"Conflict",emotional_range:"Em. Range",warmth:"Warmth",darkness:"Darkness",humor:"Humor",serialization:"Serial.",stakes:"Stakes"};
 
-document.getElementById('caveatLine').innerHTML = `<b>Caveat:</b> ${DATA.run_meta.caveat}. ${DATA.run_meta.n_selected} selected → ${DATA.run_meta.n_with_text} with usable text → ${DATA.run_meta.n_correlated} correlated against <span class="t-mono">${DATA.run_meta.target}</span>.` + (DATA.run_meta.note ? ` <b>${DATA.run_meta.version || ''}:</b> ${DATA.run_meta.note}.` : '');
+document.getElementById('caveatLine').innerHTML = `<b>Caveat:</b> full-scale run uses <span class="t-mono">lexicon_heuristic_v1</span> features (VADER sentiment + keyword-density proxies, not Claude judgment) on ${SCALE_RESULTS.run_meta.n_correlated.toLocaleString()} titles — cross-sectional 3-week Nielsen window, plot-summary text. At this n, several features clear p&lt;0.05 (statistically real) but every |ρ| stays below 0.07 — under 0.4% of variance explained. The original ${DATA.run_meta.n_correlated}-title Claude-judged pilot (below) remains the higher-fidelity per-title read; the heuristic method was calibrated against it — see Calibration panel.`;
 
 /* ---------- Theme toggle ---------- */
 const themeToggle = document.getElementById('themeToggle');
@@ -844,41 +892,43 @@ function initCountUps(){
   });
 }
 
-/* ---------- Correlation chart ---------- */
-function drawCorrChart(){
-  const wrap = document.getElementById('corrChart');
-  const maxAbs = 0.4;
+/* ---------- Correlation chart (parametrized: any {feature, spearman_rho, spearman_p, pearson_r}[] into any container) ---------- */
+function drawCorrChartInto(containerId, correlations, maxAbs, sigNote){
+  const wrap = document.getElementById(containerId);
+  if(!wrap) return;
   const rows = document.createElement('div');
-  DATA.correlations.forEach(c=>{
+  correlations.forEach(c=>{
     const row = document.createElement('div');
     row.className = 'corr-row';
     const pct = Math.abs(c.spearman_rho)/maxAbs*50;
     const isNeg = c.spearman_rho < 0;
+    const barClass = containerId==='corrChartScale' ? (c.spearman_p < 0.05 ? (isNeg?'neg':'pos') : (isNeg?'neg':'pos')) : (isNeg?'neg':'pos');
     row.innerHTML = `
-      <div class="corr-label">${FEATURE_LABELS[c.feature]}</div>
+      <div class="corr-label">${FEATURE_LABELS[c.feature] || c.feature}</div>
       <div class="corr-track">
         <div class="corr-zeroline" style="left:50%;"></div>
-        <div class="corr-bar ${isNeg?'neg':'pos'}" data-w="${pct}" data-feature="${c.feature}"
+        <div class="corr-bar ${barClass}" data-w="${pct}" data-feature="${c.feature}" data-container="${containerId}"
              style="width:0%; ${isNeg? `right:50%;` : `left:50%;`}"></div>
       </div>
-      <div class="corr-value">ρ ${c.spearman_rho.toFixed(2)}</div>
+      <div class="corr-value">ρ ${c.spearman_rho.toFixed(3)}${c.spearman_p!==undefined && c.spearman_p<0.05 ? ' *' : ''}</div>
     `;
     rows.appendChild(row);
   });
   wrap.appendChild(rows);
 
   requestAnimationFrame(()=>{
-    document.querySelectorAll('.corr-bar').forEach((bar,i)=>{
+    wrap.querySelectorAll('.corr-bar').forEach((bar,i)=>{
       setTimeout(()=>{ bar.style.width = bar.getAttribute('data-w') + '%'; }, i*70);
     });
   });
 
   const tooltip = document.getElementById('corrTooltip');
-  document.querySelectorAll('.corr-bar').forEach(bar=>{
+  wrap.querySelectorAll('.corr-bar').forEach(bar=>{
     const feature = bar.getAttribute('data-feature');
-    const c = DATA.correlations.find(x=>x.feature===feature);
+    const c = correlations.find(x=>x.feature===feature);
     function show(x,y){
-      tooltip.innerHTML = `<b>${FEATURE_LABELS[feature]}</b><br>ρ = ${c.spearman_rho.toFixed(4)}<br>p = ${c.spearman_p.toFixed(4)}<br>Pearson r = ${c.pearson_r.toFixed(4)}<br><span style="color:var(--text-dim);">not significant</span>`;
+      const sig = c.spearman_p!==undefined && c.spearman_p<0.05 ? 'significant (p<0.05)' : 'not significant';
+      tooltip.innerHTML = `<b>${FEATURE_LABELS[feature]||feature}</b><br>ρ = ${c.spearman_rho.toFixed(4)}<br>p = ${(c.spearman_p!==undefined?c.spearman_p:c.p).toFixed(4)}<br>${c.pearson_r!==undefined? 'Pearson r = '+c.pearson_r.toFixed(4)+'<br>':''}<span style="color:var(--text-dim);">${sigNote || sig}</span>`;
       tooltip.style.left = (x+14)+'px'; tooltip.style.top = (y+14)+'px';
       tooltip.classList.add('show');
     }
@@ -886,6 +936,12 @@ function drawCorrChart(){
     bar.addEventListener('mouseleave', ()=>tooltip.classList.remove('show'));
     bar.addEventListener('click', e=>{ show(e.clientX, e.clientY); setTimeout(()=>tooltip.classList.remove('show'), 2200); });
   });
+}
+function drawCorrChart(){ drawCorrChartInto('corrChart', DATA.correlations, 0.4); }
+function drawScaleCorrChart(){ drawCorrChartInto('corrChartScale', SCALE_RESULTS.correlations, 0.08); }
+function drawCalibChart(){
+  const rows = Object.keys(CALIBRATION).map(feature=>({feature, spearman_rho: CALIBRATION[feature].agreement_rho, spearman_p: CALIBRATION[feature].p}));
+  drawCorrChartInto('calibChart', rows, 0.6, 'agreement between methods, not audience correlation');
 }
 
 /* ---------- Explorer scatter ---------- */
@@ -1527,6 +1583,8 @@ function boot(){
   if (booted) return;
   booted = true;
   drawCorrChart();
+  drawScaleCorrChart();
+  drawCalibChart();
   drawScatter();
   drawBubble();
   drawSankey();
