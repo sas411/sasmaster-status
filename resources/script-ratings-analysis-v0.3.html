@@ -341,16 +341,28 @@ button, [role="button"], select{min-height:44px;}
 
   <!-- HERO -->
   <section>
-    <div class="eyebrow"><span class="chip">n=5,346 full-scale (deduped)</span><span class="chip">n=43 Claude pilot</span><span class="chip">v1.0-scale · 2026-07-25</span><span class="chip"><a href="#fullscale" style="color:inherit;text-decoration:none;">↳ Full-Scale Validation</a></span><span class="chip"><a href="#bankability" style="color:inherit;text-decoration:none;">↳ Box Office &amp; Bankability</a></span></div>
+    <div class="eyebrow"><span class="chip">n=4,555 Wikipedia synopses</span><span class="chip">n=5,346 plot summaries</span><span class="chip">n=43 Claude pilot</span><span class="chip">v1.1 · 2026-07-25</span><span class="chip"><a href="#wikipanel" style="color:inherit;text-decoration:none;">↳ Wikipedia Rerun</a></span><span class="chip"><a href="#fullscale" style="color:inherit;text-decoration:none;">↳ Plot-Summary Validation</a></span><span class="chip"><a href="#bankability" style="color:inherit;text-decoration:none;">↳ Box Office &amp; Bankability</a></span></div>
     <div class="hero reveal">
       <div class="t-display-sm" style="color:var(--text-dim); letter-spacing:2px;">VERDICT</div>
-      <div class="hero-verdict" style="font-size:2.4rem;">STATISTICALLY DETECTABLE, PRACTICALLY NEGLIGIBLE</div>
+      <div class="hero-verdict" style="font-size:2rem;">SMALL BUT REAL SIGNAL WITH RICHER TEXT — STILL NOT PREDICTIVE</div>
       <div class="hero-caveat" id="caveatLine"></div>
       <div class="stat-grid">
-        <div class="stat-card"><div class="stat-num t-mono" data-count="5346" data-suffix="">0</div><div class="stat-label">unique titles scored at full scale (heuristic, deduped)</div></div>
-        <div class="stat-card"><div class="stat-num t-mono" data-count="0.056" data-decimals="3" data-prefix="≤ ">0</div><div class="stat-label">largest |ρ| across all 8 features</div></div>
-        <div class="stat-card"><div class="stat-num t-mono" data-count="0.31" data-decimals="2" data-prefix="&lt; " data-suffix="%">0</div><div class="stat-label">variance explained by the strongest feature</div></div>
+        <div class="stat-card"><div class="stat-num t-mono" data-count="4555" data-suffix="">0</div><div class="stat-label">titles scored on Wikipedia synopses (title-matched)</div></div>
+        <div class="stat-card"><div class="stat-num t-mono" data-count="0.135" data-decimals="3" data-prefix="≤ ">0</div><div class="stat-label">largest |ρ| — conflict_density, up from 0.056</div></div>
+        <div class="stat-card"><div class="stat-num t-mono" data-count="1.8" data-decimals="1" data-prefix="≤ " data-suffix="%">0</div><div class="stat-label">variance explained by the strongest feature</div></div>
       </div>
+    </div>
+  </section>
+
+  <!-- WIKIPEDIA SYNOPSIS PANEL -->
+  <section id="wikipanel">
+    <div class="panel reveal">
+      <div class="panel-title">
+        <h2>Wikipedia Synopsis Rerun — n=4,555</h2>
+        <span class="t-label">wikipedia_synopsis_v1 · hover for p-value</span>
+      </div>
+      <p class="panel-desc">Same heuristic scoring, richer input: 500–2,000 word plot/premise sections from Wikipedia (CC-BY-SA, no credentials needed) instead of TMDB's 1–2 sentence overview. A title-match guard rejected <b style="color:var(--text-primary);">2,211 of 8,631</b> fetched pages (25.6%) as wrong-page search hits before any scoring — the same discipline that caught the Friends/Overwatch League TMDB-id bugs earlier. Effect sizes here are meaningfully larger than the plot-summary run — <b style="color:var(--text-primary);">conflict_density even flips sign</b> (ρ=-0.007 on plot summaries → ρ=+0.135 here) — a reminder that these are text-sensitive proxies, not a stable ground-truth measurement. ρ=0.135 still explains under 2% of variance: real and replicable, not predictive.</p>
+      <div class="corr-chart-wrap" id="corrChartWiki"></div>
     </div>
   </section>
 
@@ -677,6 +689,23 @@ const SCALE_RESULTS = {
     {feature:"stakes",spearman_rho:-0.0023,spearman_p:0.865559,pearson_r:-0.012}
   ]
 };
+/* Wikipedia synopsis rerun (v1.1): same heuristic scoring function, richer input text (500-2000 word
+   plot/premise sections vs TMDB's 1-2 sentence overview), no LLM cost. Title-match guard rejected 2,211
+   of 8,631 fetched pages as wrong-page search hits before scoring (25.6% mismatch rate) — CC-BY-SA. */
+const WIKI_RESULTS = {
+  run_meta: {version:"v1.1-wikipedia", date:"2026-07-25", n_correlated:4555, features_source:"wikipedia_synopsis_v1",
+    target:"log10(durwt_aa)", n_fetched:8631, n_rejected_mismatch:2211},
+  correlations: [
+    {feature:"conflict_density",spearman_rho:0.1347,spearman_p:0.0,pearson_r:0.1267},
+    {feature:"emotional_range",spearman_rho:0.107,spearman_p:0.0,pearson_r:0.1055},
+    {feature:"hook_strength",spearman_rho:0.1062,spearman_p:0.0,pearson_r:0.1034},
+    {feature:"stakes",spearman_rho:0.0772,spearman_p:0.0,pearson_r:0.0676},
+    {feature:"darkness",spearman_rho:0.0583,spearman_p:0.000082,pearson_r:0.046},
+    {feature:"warmth",spearman_rho:0.0386,spearman_p:0.009182,pearson_r:0.0239},
+    {feature:"humor",spearman_rho:-0.0073,spearman_p:0.621678,pearson_r:-0.043},
+    {feature:"serialization",spearman_rho:-0.0036,spearman_p:0.809813,pearson_r:-0.0216}
+  ]
+};
 /* Calibration: agreement (Spearman rho) between lexicon_heuristic_v1 and Claude plot_text_v0 on the SAME 43 pilot titles. */
 const CALIBRATION = {
   hook_strength:{n:43,agreement_rho:0.292,p:0.0574}, conflict_density:{n:43,agreement_rho:0.549,p:0.0001},
@@ -818,7 +847,7 @@ const CREATIVE_TYPE_COLORS = {
 const FEATURE_KEYS = ["hook_strength","conflict_density","emotional_range","warmth","darkness","humor","serialization","stakes"];
 const FEATURE_LABELS = {hook_strength:"Hook",conflict_density:"Conflict",emotional_range:"Em. Range",warmth:"Warmth",darkness:"Darkness",humor:"Humor",serialization:"Serial.",stakes:"Stakes"};
 
-document.getElementById('caveatLine').innerHTML = `<b>Caveat:</b> full-scale run uses <span class="t-mono">lexicon_heuristic_v1</span> features (VADER sentiment + keyword-density proxies, not Claude judgment) on ${SCALE_RESULTS.run_meta.n_correlated.toLocaleString()} unique titles — cross-sectional 3-week Nielsen window, plot-summary text. At this n, humor and darkness clear p&lt;0.05 (statistically real) but every |ρ| stays below 0.06 — under 0.31% of variance explained. The original ${DATA.run_meta.n_correlated}-title Claude-judged pilot (below) remains the higher-fidelity per-title read; the heuristic method was calibrated against it — see Calibration panel. <b>Correction (same day):</b> ${SCALE_RESULTS.run_meta.corrected_note}`;
+document.getElementById('caveatLine').innerHTML = `<b>Caveat:</b> the Wikipedia synopsis rerun (n=${WIKI_RESULTS.run_meta.n_correlated.toLocaleString()}, richer 500-2,000 word plot text, title-match guarded) shows a real, larger effect than the plot-summary run (n=${SCALE_RESULTS.run_meta.n_correlated.toLocaleString()}, largest |ρ|=0.056) — conflict_density reaches ρ=0.135 (p&lt;0.0001), explaining ~1.8% of variance. Still not predictive at this magnitude, and the sign flip on conflict_density between text sources is itself a finding: these lexicon-heuristic features are sensitive to what text they're extracted from. The original ${DATA.run_meta.n_correlated}-title Claude-judged pilot remains the highest-fidelity per-title read; the heuristic method was calibrated against it — see Calibration panel. <b>Correction (same day):</b> the plot-summary run's first pass reported n=9,381 before a duplicate-pkid dedup fix corrected it to n=5,346.`;
 
 /* ---------- Theme toggle ---------- */
 const themeToggle = document.getElementById('themeToggle');
@@ -939,6 +968,7 @@ function drawCorrChartInto(containerId, correlations, maxAbs, sigNote){
 }
 function drawCorrChart(){ drawCorrChartInto('corrChart', DATA.correlations, 0.4); }
 function drawScaleCorrChart(){ drawCorrChartInto('corrChartScale', SCALE_RESULTS.correlations, 0.08); }
+function drawWikiCorrChart(){ drawCorrChartInto('corrChartWiki', WIKI_RESULTS.correlations, 0.16); }
 function drawCalibChart(){
   const rows = Object.keys(CALIBRATION).map(feature=>({feature, spearman_rho: CALIBRATION[feature].agreement_rho, spearman_p: CALIBRATION[feature].p}));
   drawCorrChartInto('calibChart', rows, 0.6, 'agreement between methods, not audience correlation');
@@ -1584,6 +1614,7 @@ function boot(){
   booted = true;
   drawCorrChart();
   drawScaleCorrChart();
+  drawWikiCorrChart();
   drawCalibChart();
   drawScatter();
   drawBubble();
