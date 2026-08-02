@@ -1783,18 +1783,70 @@ const KNOWN_FAIL_CANARIES = new Set(['gracenote_onconnect', 'eidr_query_api']);
 
 // HEALTH_FORMULA config block — reviewable in 30 seconds, changeable without deploy.
 const HEALTH_FORMULA = {
-  formula_version: 'v1',
+  formula_version: 'v2',
   weights: {
     agents:    0.35,  // healthy live-cron agents / total live-cron agents
     canaries:  0.30,  // pass / (pass + fail) where known_fail excluded from denominator
     freshness: 0.25,  // ok+warn sources / (ok+warn+stale) from source_freshness
     cron:      0.10,  // 1 - (missed_non_weekly_today / scheduled_non_weekly_today)
   },
-  amber_floor_rule: 'any component at 0% forces health ring to amber minimum regardless of aggregate',
-  thresholds: { green: 85, amber: 60 },  // score out of 100
+  amber_floor_rule: 'SUPERSEDED by v2 worst-band cap (HEALTH-RING-V2-SCORING-SPEC-001 §3.2) — a 0% component is now a "red" component band, which forces the composite to red outright, a stronger floor than this v1 amber-only rule. Kept only for the `floor` field back-compat read by index.html.',
+  thresholds: { green: 85, amber: 60 },  // score out of 100 — reused as-is for per-component banding (§3.1)
 };
 
-function computeHealthScore(agentList, freshnessList, cronList) {
+const BAND_RANK = { green: 0, amber: 1, red: 2 };
+function componentBand(pct) {
+  return pct >= HEALTH_FORMULA.thresholds.green ? 'green'
+       : pct >= HEALTH_FORMULA.thresholds.amber ? 'amber'
+       : 'red';
+}
+function worseBand(a, b) { return BAND_RANK[a] >= BAND_RANK[b] ? a : b; }
+
+// ── HEALTH-RING-V2 gate #1: sentinel_status (SUB-050/SUB-051) ────────────────
+// sentinel_status is an L3 key (ops.platform_state, MotherDuck) written by
+// sentinel/sentinel.py's l3_write_status() on green<->red state change — NOT
+// the deadman-heartbeat file (~/SaSMaster/data/sentinel-deadman-state.json,
+// a separate signal). Read fresh every cycle; never cached. MOTHERDUCK_TOKEN
+// is passed as an env var to the duckdb CLI subprocess, never interpolated
+// into the connection string (MD ATTACH token-leak rule).
+function readSentinelStatus() {
+  try {
+    const token = readEnvVar('MOTHERDUCK_TOKEN');
+    if (!token) return { status: 'unknown', error: 'no_motherduck_token' };
+    const out = execSync(
+      `/opt/homebrew/bin/duckdb -json -c "SELECT value FROM ops.platform_state WHERE key = 'sentinel_status'" md:sasmaster`,
+      { encoding: 'utf8', timeout: 15000, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, motherduck_token: token } }
+    );
+    const rows = JSON.parse(out);
+    const status = (rows[0] && rows[0].value) ? String(rows[0].value).toLowerCase() : 'unknown';
+    return { status, error: null };
+  } catch (e) {
+    // Fail OPEN on read failure (network blip, cold start, missing table) —
+    // an unreadable signal is not proof of 'red'; it just can't gate this cycle.
+    return { status: 'unknown', error: e.message };
+  }
+}
+
+// ── HEALTH-RING-V2 gate #2: undismissed critical/page-severity alerts ────────
+// Reuses the SAME stale-alert-state.json persisted by alertStaleSources()
+// above (STALE_STATE_FILE / loadStaleState()) — no new data source. An entry
+// is an undismissed critical if its last known status is 'stale' (the only
+// page-severity condition alertStaleSources() tracks) AND its snooze (set by
+// `!ack`) is absent or has expired.
+function getUndismissedCriticalAlerts() {
+  const state = loadStaleState();
+  const now = Date.now();
+  const undismissed = [];
+  for (const [source, entry] of Object.entries(state)) {
+    if (!entry || entry.last_known_status !== 'stale') continue;
+    const snoozedUntil = entry.snoozed_until ? new Date(entry.snoozed_until).getTime() : 0;
+    if (snoozedUntil > now) continue;  // dismissed via !ack, still within snooze window
+    undismissed.push(source);
+  }
+  return undismissed;
+}
+
+function computeHealthScore(agentList, freshnessList, cronList, sentinelStatus, undismissedCritical) {
   // ── Component 1: agents (35%) — live/cron type only ──
   const liveAgents  = agentList.filter(a => !a.type || a.type === 'live');
   const agentTotal  = liveAgents.length;
@@ -1831,19 +1883,42 @@ function computeHealthScore(agentList, freshnessList, cronList) {
     cron:      Math.round(cronPct      * 100),
   };
 
-  // Override rule: any component at 0% → amber floor regardless of aggregate score
+  // v1 back-compat field — no longer drives `grade` (see amber_floor_rule note
+  // above), kept only because index.html reads h.floor for a UI note.
   const anyZero = Object.values(components).some(v => v === 0);
   const floor   = anyZero ? 'amber' : null;
-  // Raw grade from score
-  const rawGrade = score >= HEALTH_FORMULA.thresholds.green ? 'green'
-                 : score >= HEALTH_FORMULA.thresholds.amber ? 'amber'
-                 : 'red';
-  // Apply floor: amber floor means grade can't be 'green' if any component is 0%
-  const grade = (floor === 'amber' && rawGrade === 'green') ? 'amber' : rawGrade;
+
+  // ── HEALTH-RING-V2 §3.1: per-component banding (same thresholds as composite) ──
+  const component_bands = {
+    agents:    componentBand(components.agents),
+    canaries:  componentBand(components.canaries),
+    freshness: componentBand(components.freshness),
+    cron:      componentBand(components.cron),
+  };
+  const worst_component_band = Object.values(component_bands).reduce(worseBand, 'green');
+
+  // ── §3.2: raw band from the numeric score — the v1 "naive" band, kept for display ──
+  const rawBand = score >= HEALTH_FORMULA.thresholds.green ? 'green'
+                : score >= HEALTH_FORMULA.thresholds.amber ? 'amber'
+                : 'red';
+
+  // ── §3.4: hard gates — evaluated FIRST, short-circuit straight to red ──
+  const gates_triggered = [];
+  if (sentinelStatus === 'red') gates_triggered.push('sentinel_status_red');
+  (undismissedCritical || []).forEach(source => gates_triggered.push(`undismissed_critical: ${source}`));
+
+  // ── §3.5: final composite band ──
+  const grade = gates_triggered.length > 0
+    ? 'red'
+    : worseBand(rawBand, worst_component_band);  // §3.2 worst-band cap
 
   return {
     score,
     grade,
+    worst_component_band,
+    gates_triggered,
+    component_bands,
+    sentinel_status: sentinelStatus || 'unknown',
     floor,
     components,
     formula_version: HEALTH_FORMULA.formula_version,
@@ -1888,7 +1963,10 @@ function computeFollowUp(agentList, freshnessList, blockedTasks) {
   return { count, items };
 }
 
-const healthResult  = computeHealthScore(agents, sourceFreshness, cron);
+const sentinelStatusResult = readSentinelStatus();
+if (sentinelStatusResult.error) console.warn(`[WARN] sentinel_status read: ${sentinelStatusResult.error}`);
+const undismissedCriticalAlerts = getUndismissedCriticalAlerts();
+const healthResult  = computeHealthScore(agents, sourceFreshness, cron, sentinelStatusResult.status, undismissedCriticalAlerts);
 const followUpResult = computeFollowUp(agents, sourceFreshness, tasks.blockedItems);
 
 // ── Portal coverage — reads latest report from ~/SaSMaster/reports/ ──────────
