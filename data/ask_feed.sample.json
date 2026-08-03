@@ -1,0 +1,45 @@
+{
+  "schema": "ask_feed.v1",
+  "generated_at": "2026-08-02T06:00:00Z",
+  "source": "sample",
+  "note": "Offline development sample. Production feed (data/ask_feed.json) is emitted by the Rung-1 cron from live counts. Values here mirror the last verified spine census and are SAMPLE data.",
+  "boot": [
+    { "label": "Connecting to the data lake", "tail": "sasmaster.prod", "value": null, "kind": "check" },
+    { "label": "Loading movies", "value": 903060, "kind": "count" },
+    { "label": "Loading TV series", "value": 370729, "kind": "count" },
+    { "label": "Resolving episodes", "value": 9681539, "kind": "count" },
+    { "label": "Resolving people", "value": 3220202, "kind": "count" },
+    { "label": "Building Parent-Key spine", "value": 10955204, "kind": "count" },
+    { "label": "Certifying identity registry", "value": 227395, "kind": "count" },
+    { "label": "Linking alternate IDs", "value": 33003, "kind": "count" },
+    { "label": "Loading audience viewership", "value": null, "kind": "count" },
+    { "label": "Indexing reporting catalog", "value": 11, "kind": "count" },
+    { "label": "Calibrating Dr. Scoop", "value": null, "kind": "check" },
+    { "label": "Personalizing for Shiv", "tail": "ready", "value": null, "kind": "check" }
+  ],
+  "ticker": [
+    { "entity": "DRAMA SUPPLY", "note": "peak year by new titles", "delta_label": "23.4K TITLES", "direction": "up", "provenance": null },
+    { "entity": "DOCUMENTARY", "note": "second genre by catalog share", "delta_label": "177,923 TITLES", "direction": "up", "provenance": null },
+    { "entity": "IDENTITY CERTIFIED", "note": "share of movie catalog", "delta_label": "25% OF CATALOG", "direction": "up", "provenance": null },
+    { "entity": "COMEDY SUPPLY", "note": "inverted against demand", "delta_label": "ARBITRAGE OPEN", "direction": "dn", "provenance": null },
+    { "entity": "ALT-ID BRIDGES", "note": "cross-system links", "delta_label": "33,003 LINKED", "direction": "up", "provenance": null },
+    { "entity": "PARENT KEY", "note": "resolved identities", "delta_label": "10.96M SPINE", "direction": "fl", "provenance": null }
+  ],
+  "scoop": [
+    { "who": "DR. SCOOP", "text": "Comedy supply inverted against demand — the arbitrage window is still open. Start with the Programming lane." },
+    { "who": "TRENDING THREAD", "text": "Box Office: Genre Revenue → By Studio → Efficiency → Top Grossing" }
+  ],
+  "reports_fallback": [
+    { "report_id": "RPT-202606-P01", "title": "Network Group by Genre — Share of GRPs and Duration", "family": "PROGRAMMING", "chart_language_style": "GRID", "description": "How each network group's schedule splits across genres — share of GRPs and share of duration, side by side.", "is_new": false, "is_in_dev": false, "status": "DRAFT" },
+    { "report_id": "RPT-202606-P02", "title": "Top Genres and Subgenres — Share of GRPs and Duration", "family": "PROGRAMMING", "chart_language_style": "GRID", "description": "The genre league table: which genres and subgenres carry the most audience weight versus schedule time.", "is_new": false, "is_in_dev": false, "status": "DRAFT" },
+    { "report_id": "RPT-202606-P03", "title": "Top Rated Cable Networks — Coverage Rating and Share of Schedule", "family": "PROGRAMMING", "chart_language_style": "GRID", "description": "Ranker of cable networks by coverage rating with each network's share of schedule alongside.", "is_new": true, "is_in_dev": false, "status": "DRAFT" },
+    { "report_id": "RPT-202606-P04", "title": "Genre Performance Scatter — Average Reach% by Average Time Spent", "family": "PROGRAMMING", "chart_language_style": "SPATIAL", "description": "Every genre positioned on reach versus time spent — breadth against depth in one view.", "is_new": false, "is_in_dev": false, "status": "DRAFT" },
+    { "report_id": "RPT-202606-P05", "title": "Genre Demographic Positioning — Median Age by Audience Composition", "family": "PROGRAMMING", "chart_language_style": "SPATIAL", "description": "Where each genre sits demographically — median age against audience composition measures.", "is_new": false, "is_in_dev": false, "status": "DRAFT" },
+    { "report_id": "RPT-202606-P06", "title": "Top 50 Programs by Genre — Coverage Rating and Episodes", "family": "PROGRAMMING", "chart_language_style": "TERMINAL", "description": "The top programs within each genre, ranked by coverage rating with episode counts.", "is_new": false, "is_in_dev": false, "status": "DRAFT" },
+    { "report_id": "RPT-202606-P07", "title": "Movie Studio and Network Group — Share of Viewing and Duration", "family": "PROGRAMMING", "chart_language_style": "GRID", "description": "Studio-by-network-group matrix of viewing share versus schedule duration.", "is_new": false, "is_in_dev": false, "status": "DRAFT" },
+    { "report_id": "RPT-202606-P08", "title": "Program Ranker — Heavy Viewer Index", "family": "PROGRAMMING", "chart_language_style": "TERMINAL", "description": "Programs ranked by how strongly heavy viewers over-index against schedule share.", "is_new": false, "is_in_dev": false, "status": "DRAFT" },
+    { "report_id": "RPT-202606-P09", "title": "Viewing Index Heatmap — Program Viewers SOV% by Daypart", "family": "PROGRAMMING", "chart_language_style": "PULSE", "description": "Share-of-viewing heat across dayparts — where each program's audience actually concentrates.", "is_new": false, "is_in_dev": false, "status": "DRAFT" },
+    { "report_id": "RPT-202606-P10", "title": "Network Correlation and Share — Heavy Program Viewers Across Networks", "family": "PROGRAMMING", "chart_language_style": "SIGNAL", "description": "Which networks share heavy viewers — correlation and share of viewing across the dial.", "is_new": false, "is_in_dev": false, "status": "DRAFT" },
+    { "report_id": "RPT-202606-P11", "title": "Original Content Impact — Predicted % Lift in L+3D Ratings", "family": "PROGRAMMING", "chart_language_style": "SIGNAL", "description": "Model-driven view of the ratings lift attributable to original content on the schedule.", "is_new": false, "is_in_dev": true, "status": "DRAFT" }
+  ]
+}
