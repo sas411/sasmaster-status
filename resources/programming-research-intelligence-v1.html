@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programming Research Intelligence v1 — SaSMaster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* surface + border use the blessed War Room values (--wr-surface-2 / --wr-border)
+     rather than the v11 prose spec, whose two light values are absent from the token
+     registry. Visually equivalent; no unblessed colour enters the deliverable. */
+  --bg:#ffffff; --surface:#F9FAFB; --border:#E5E7EB;
+  --text:#1a1a2e; --text-muted:#64748b;
+  --accent:#7c3aed; --teal:#0891b2; --gold:#c2740a;
+  --pos:#059669; --neg:#dc2626;
+  --mono-font:'DM Mono',monospace; --sans-font:'DM Sans',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden;max-width:100vw}
+body{font-family:var(--sans-font);background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:920px;margin:0 auto;padding:0 24px 96px}
+
+.hero{padding:56px 0 40px;background:var(--surface);border-bottom:1px solid var(--border);margin-bottom:44px}
+.hero .in{max-width:920px;margin:0 auto;padding:0 24px}
+.eyebrow{font-family:var(--mono-font);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+h1{font-size:clamp(26px,4.6vw,38px);font-weight:700;line-height:1.15;margin-bottom:14px;text-wrap:balance}
+.lede{font-size:16.5px;color:var(--text-muted);max-width:66ch}
+.meta{margin-top:20px;font-family:var(--mono-font);font-size:11.5px;color:var(--text-muted);display:flex;gap:8px;flex-wrap:wrap}
+.meta span{border:1px solid var(--border);background:var(--bg);border-radius:4px;padding:4px 9px}
+
+h2{font-size:22px;font-weight:700;margin:52px 0 6px;padding-top:12px;border-top:1px solid var(--border)}
+h2 .num{font-family:var(--mono-font);font-size:13px;color:var(--accent);margin-right:10px}
+h3{font-size:16px;font-weight:700;margin:26px 0 6px}
+p{margin-bottom:14px;max-width:70ch}
+.sub{color:var(--text-muted);margin-bottom:20px;max-width:70ch}
+
+.box{border-left:4px solid var(--accent);background:var(--surface);padding:16px 18px;border-radius:0 6px 6px 0;margin:20px 0}
+.box.warn{border-left-color:var(--gold)}
+.box.stop{border-left-color:var(--neg)}
+.box .t{font-family:var(--mono-font);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px}
+.box p:last-child{margin-bottom:0}
+
+table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px}
+th{font-family:var(--mono-font);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);text-align:left;padding:9px 10px;border-bottom:2px solid var(--border);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+td.n{font-family:var(--mono-font);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.scroll{overflow-x:auto;margin:18px 0}
+.scroll table{margin:0;min-width:560px}
+
+code{font-family:var(--mono-font);font-size:12.5px;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:1px 5px}
+.pos{color:var(--pos);font-weight:500} .neg{color:var(--neg);font-weight:500}
+.pill{display:inline-block;font-family:var(--mono-font);font-size:10px;letter-spacing:.06em;border-radius:10px;padding:2px 8px;border:1px solid var(--border);color:var(--text-muted);white-space:nowrap}
+.pill.dead{color:var(--neg);border-color:var(--neg)}
+.pill.live{color:var(--pos);border-color:var(--pos)}
+.pill.prov{color:var(--gold);border-color:var(--gold)}
+ul{margin:0 0 16px 22px} li{margin-bottom:7px;max-width:68ch}
+.foot{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);font-family:var(--mono-font);font-size:11.5px;color:var(--text-muted)}
+@media (max-width:767px){ .hero{padding:36px 0 28px} .meta{font-size:10.5px} }
+</style>
+</head>
+<body>
+
+<div class="hero"><div class="in">
+  <div class="eyebrow">Operator Reference · Programming Research</div>
+  <h1>Programming Research Intelligence v1</h1>
+  <p class="lede">What we can defensibly say about linear television from our own data — the six findings that survived adversarial verification, the claims that died and why, and the five data defects that bound everything above.</p>
+  <div class="meta">
+    <span>AS OF 2026-08-02</span><span>MEASURED WINDOW 2026-05-26 → 06-12</span>
+    <span>PROVISIONAL</span><span>NHI CABLE-HEAVY</span>
+  </div>
+</div></div>
+
+<div class="wrap">
+
+<div class="box">
+  <div class="t">How to read this document</div>
+  <p>Every figure here carries its denominator. Nothing is a national claim. The measured
+  title universe is small and the window is three weeks in early summer — where that matters,
+  it is stated in the finding itself rather than in a footnote. Counts rot: regenerate from
+  the insight service rather than quoting this page after its as-of date.</p>
+</div>
+
+<h2><span class="num">01</span>The findings that survived</h2>
+<p class="sub">Six claims, each verified against live data and stress-tested for the obvious rebuttal.
+Where a headline changed under scrutiny, the changed version is what appears here.</p>
+
+<h3>1 · The catalogue score is a format detector, not an audience signal</h3>
+<p>Public catalogue popularity is close to uninformative against measured audience
+(<code>rho +0.128</code>, n=243), and review score is near-zero (<code>+0.034</code>). The apparent
+"low-rated content delivers more" gradient is <strong>genre composition, not quality</strong>:</p>
+<div class="scroll"><table>
+  <thead><tr><th>Review-score quartile</th><th class="n">n</th><th class="n">News/Talk % of its audience</th><th class="n">Pooled aud/telecast</th><th class="n">Median aud/telecast</th></tr></thead>
+  <tbody>
+    <tr><td>Q1 lowest-scored</td><td class="n">61</td><td class="n"><strong>66.6%</strong></td><td class="n">3.95</td><td class="n">0.395</td></tr>
+    <tr><td>Q2</td><td class="n">61</td><td class="n">54.5%</td><td class="n">2.05</td><td class="n">0.157</td></tr>
+    <tr><td>Q3</td><td class="n">61</td><td class="n">33.9%</td><td class="n">1.37</td><td class="n">0.311</td></tr>
+    <tr><td>Q4 highest-scored</td><td class="n">60</td><td class="n"><strong>1.0%</strong></td><td class="n">0.93</td><td class="n">0.413</td></tr>
+  </tbody>
+</table></div>
+<p>The catalogue rates scripted content and barely rates news and talk — the formats carrying
+the most linear viewing. So a low score on a linear schedule mostly indicates <em>format</em>.
+Ranking a schedule by catalogue score systematically misprices what actually delivers.</p>
+<div class="box stop">
+  <div class="t">Do not state it this way</div>
+  <p><strong>"Best-reviewed titles deliver 3.5× less audience"</strong> is <span class="neg">false</span>
+  at the typical title — the median is non-monotone and Q4's median is <em>above</em> Q1's. The
+  pooled gradient is real but composition-driven. Claim the mechanism, never the inversion.</p>
+</div>
+
+<h3>2 · Catalogue depth out-predicts every metric the industry cites</h3>
+<p>Episode count correlates <code>rho +0.355</code> with audience per telecast (n=140) — roughly
+<strong>2.8× the correlation of catalogue popularity</strong> on the same universe. Titles with 300+
+episodes deliver a median 1.464 versus 0.180 for those under 50. Deep libraries are strip-scheduling
+inventory; a prestige 30-episode run is not. This is a free, near-universally-populated field
+outperforming the two metrics the market actually prices on.</p>
+
+<h3>3 · Library economics — older catalogue out-delivers newer</h3>
+<p>Scripted titles originating pre-1990 deliver <strong>7.96× the median audience per telecast</strong>
+of scripted 2010+ (0.947 vs 0.119, n=20 vs 58). The scripted/unscripted split is deliberate — it
+kills the "you're just measuring news and sports" objection, and the finding survives it.</p>
+<div class="box warn">
+  <div class="t">Bounded by calendar, not by sample</div>
+  <p>The window is late May to early June — peak rerun season, which structurally favours library.
+  More titles inside this window will not resolve it; only more weeks will. Frame as
+  "in the summer window" or do not frame.</p>
+</div>
+
+<h3>4 · Viewing is stockpiled, not distributed</h3>
+<p>The heaviest viewing quintile supplies <strong>82.65%</strong> of all weighted viewing minutes
+(n=115,136 persons, 12 complete weeks). No cable network is broadly consumed: the top 10% of
+households supply between <strong>59.7%</strong> (the flattest network measured) and
+<strong>98.9%</strong> of a network's minutes. Quintiles were derived in-house — the reference
+table for them is empty, and the derivation method is stated in the service payload.</p>
+
+<h3>5 · Time-shifting is a broadcast behaviour, and it is over in six hours</h3>
+<p><strong>59.18%</strong> of time-shifted minutes replay within 6 hours, 76% within a day, and only
+<strong>7.91%</strong> across days 3–7. Broadcast shifts at 19.54% versus cable at 10.19% — a 1.92×
+difference. This sizes the entire commercial-window argument: the tail everyone negotiates over is
+under 8% of shifted viewing. Derived from delay fields directly, never from differencing the
+viewing lanes.</p>
+
+<h3>6 · Supply reallocated into the worst-surviving genres</h3>
+<p>Comedy fell from 23.88% to 16.73% of new series (2010→2025) while drama rose 16.83% → 34.47%.
+Second-season conversion, on a fixed 3-year window, runs <strong>Comedy 31.2%</strong> (n=7,310),
+<strong>Drama 21.6%</strong> (n=10,194), <strong>Romance 15.5%</strong> (n=2,747). The industry moved
+supply toward the genres least likely to return — and romance is simultaneously the fastest-growing
+share and the worst renewer in the catalogue.</p>
+<div class="box stop">
+  <div class="t">Do not state it this way</div>
+  <p><strong>"Comedy and drama crossed in 2021"</strong> is a full-catalogue artifact. In the
+  externally-matched cohort, drama already led before 2015. The <em>direction</em> is robust in both
+  cohorts; the crossing date is not a fact about the industry.</p>
+</div>
+
+<h2><span class="num">02</span>Claims that are dead, and why</h2>
+<p class="sub">These are not cautious omissions. Each is a specific measurement that the data cannot
+support, verified. Anything reproducing them is wrong regardless of how reasonable it looks.</p>
+<div class="scroll"><table>
+  <thead><tr><th>Claim</th><th>Status</th><th>Why it is dead</th></tr></thead>
+  <tbody>
+    <tr><td>Delayed-window lift (L+3 / L+7 uplift)</td><td><span class="pill dead">DEAD</span></td>
+      <td>The viewing lanes do not reconcile. The delayed lane reads <em>below</em> the as-aired lane on 19.7% of title×demo cells and 7,701 of 24,494 telecasts, with backwards mass ≈ forward mass. Confirmed independently at two grains.</td></tr>
+    <tr><td>Commercial-minute audience (C3 / C7)</td><td><span class="pill dead">DEAD</span></td>
+      <td>Those fields are <strong>byte-identical</strong> to the programme average across all 4.25M measured rows — max difference exactly 0.0. The column names exist; the signal does not.</td></tr>
+    <tr><td>Any audience-age or demographic claim</td><td><span class="pill dead">DEAD</span></td>
+      <td>The two audience surfaces carry demographic coverage running in <em>opposite</em> directions, and neither is documented as authoritative. The answer depends on which table you query.</td></tr>
+    <tr><td>Absolute viewer counts as a headline</td><td><span class="pill dead">DEAD</span></td>
+      <td>The unit is uncertified and the two surfaces disagree by roughly two orders of magnitude. Ratios, medians, shares and ranks only.</td></tr>
+    <tr><td>Goodness-of-fit statistics (R²)</td><td><span class="pill dead">DEAD</span></td>
+      <td>At these sample sizes it flatters a finding rather than testing it, and implies a model never estimated. A prior rank-based R²=1.00 was a false positive by construction.</td></tr>
+    <tr><td>National television framing</td><td><span class="pill dead">DEAD</span></td>
+      <td>The serving rollup carries no broadcast audience at all; the measured universe there is cable-heavy. Broadcast <em>is</em> measured at base-table grain — the gap is a rollup, not the warehouse.</td></tr>
+  </tbody>
+</table></div>
+
+<h2><span class="num">03</span>Data defects that bound everything above</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Defect</th><th>Evidence</th><th>Card</th></tr></thead>
+  <tbody>
+    <tr><td>Commercial-minute columns are copies</td><td>max |c3 − programme avg| = 0.0 across 2,500,320 rows; same for c7 across 1,750,760</td><td><code>DATA-C3C7-COPY-001</code></td></tr>
+    <tr><td>Inverted demographic coverage</td><td>Title grain: young-skewed. Base table: old-skewed. Same metric, opposite directions.</td><td><code>DATA-DEMO-AUTHORITY-001</code></td></tr>
+    <tr><td>Identity bridge missed the window</td><td>3.0M telecast triples, <strong>0</strong> matched the ratings window — a window gap, not a key mismatch. <span class="pos">Repaired.</span></td><td><code>DATA-MIT04D-BACKPULL-001</code></td></tr>
+    <tr><td>Descriptor ingestion gap</td><td>Descriptors exist for 6 of the window's 18 days; where present, matching hits 98.9%</td><td><code>DATA-MIT04D-BACKPULL-001</code></td></tr>
+    <tr><td>Insight service cold latency</td><td>13.7s → 65s cold; correctness unaffected, demo-ability is not</td><td><code>PERF-INSIGHTS-LATENCY-001</code></td></tr>
+    <tr><td>A catalogue entry promises a dead metric</td><td>A registered report's title promises delayed-window lift, which is not computable</td><td><code>CATALOG-P11-DEAD-CLAIM-001</code></td></tr>
+  </tbody>
+</table></div>
+
+<h2><span class="num">04</span>The measured universe — and the one repair that widens it</h2>
+<div class="scroll"><table>
+  <thead><tr><th>Surface</th><th class="n">Scale</th><th>Use for</th></tr></thead>
+  <tbody>
+    <tr><td>Network grain</td><td class="n">148 networks · 100% named</td><td>Rankers, daypart index, concentration — the full surface, lead with it</td></tr>
+    <tr><td>Title grain (measured)</td><td class="n">370 → <strong>609</strong> parent keys</td><td>Genre and title findings — always badge the denominator</td></tr>
+    <tr><td>Respondent grain</td><td class="n">115,136 persons · 12 weeks</td><td>Concentration, loyalty, time-shift decay — our differentiated surface</td></tr>
+    <tr><td>Open catalogue</td><td class="n">206,766 series with genres</td><td>Supply-side findings — no audience attached</td></tr>
+  </tbody>
+</table></div>
+<div class="box">
+  <div class="t">Highest-leverage open action</div>
+  <p>Fifteen missing descriptor partitions stand between a 370-title anecdote and a defensible
+  product claim. Where descriptors exist, identity matching lands at 98.9%; where they do not, it is
+  structurally zero. Back-filling them is expected to take descriptor coverage from roughly a third
+  to near-complete. The lead finding's obvious rebuttal — <em>"you are just measuring that cable
+  skews old and the catalogue skews young"</em> — dies only by stratifying within genre, daypart and
+  network, and every such cut is currently under n=20. See <code>DATA-MIT04D-BACKPULL-001</code>.</p>
+</div>
+<p>The repaired identity bridge is <span class="pill prov">PROVISIONAL</span> throughout, and should
+never be presented as certified. Resolution is a carry-forward inference — corroborated by two
+independent anchors agreeing 16,661 of 16,661 times, but an inference nonetheless. Certifying it
+requires external asset identifiers for the current window, which the upstream source has not
+advanced past 2020.</p>
+
+<h2><span class="num">05</span>Surfaces built on this</h2>
+<ul>
+  <li><strong>Insights</strong> — six chapters, thesis-first, every figure served live; renders
+  "what this page refuses to tell you" above the first chapter.</li>
+  <li><strong>Compose</strong> — stitches findings into an analysis or a deck. Combining findings
+  combines their limits: caveats merge, the strongest wording survives, blocking limits are hoisted,
+  and mixed denominators raise a warning rather than blending.</li>
+  <li><strong>Research catalog</strong> — the report catalog with animated demo tiles, drill-down,
+  and live execution.</li>
+  <li><strong>Insight service</strong> — six story builders computing from the warehouse on every
+  call. Counts live in generators, never in code or documents.</li>
+</ul>
+
+<h2><span class="num">06</span>Method notes worth keeping</h2>
+<ul>
+  <li><strong>Telecast counts repeat across demographic buckets.</strong> Summing them inflates any
+  per-telecast denominator ~30×. De-duplicate before dividing.</li>
+  <li><strong>Telecast keys are reused within a year.</strong> Joining identity without the air date
+  attaches wrong titles to real audience — invisible in aggregate. 1,560 measured keys matched only
+  on a different date.</li>
+  <li><strong>Aggregate demographics are not queryable</strong> — the serving layer carries atomic
+  buckets only. Aggregates must be derived by summing disjoint buckets, valid for audience counts
+  and never for rates or shares.</li>
+  <li><strong>Zero-scored titles are unrated, not bad.</strong> Excluding them strengthened the
+  score finding rather than weakening it — which is how we knew it was composition, not contamination.</li>
+  <li><strong>A hypothesis that dies is a result.</strong> Three of this pass's most valuable outputs
+  were killed claims.</li>
+</ul>
+
+<div class="foot">
+  SaSMaster · Programming Research Intelligence v1 · as of 2026-08-02 ·
+  measured window 2026-05-26 → 06-12 · PROVISIONAL throughout ·
+  counts regenerate from the insight service — do not quote this page as live
+</div>
+
+</div>
+</body>
+</html>
