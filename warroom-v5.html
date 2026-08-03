@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- XSS sweep (Phase 3, 2026-08-03): script-src needs 'unsafe-inline' because this file relies
+     throughout on inline script blocks and inline onclick="..." attributes (no nonce/hash
+     infra, and migrating every handler to addEventListener is a refactor out of scope for this
+     pass). The escHtml()/escJsAttr()/safeUrl() sweep above is the primary XSS defense; this CSP
+     is defense-in-depth (blocks cross-origin script/frame/connect exfil even if a sink is missed). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src fonts.gstatic.com; frame-src https://sasmaster-public.s3.amazonaws.com; connect-src 'self' https://sasmaster-public.s3.amazonaws.com; img-src 'self' data:; script-src 'self' 'unsafe-inline'">
 <title>SaSMaster · War Room v5 — Signal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Permanent+Marker&display=swap" rel="stylesheet">
@@ -1092,8 +1098,7 @@ main.canvas-mode{overflow:hidden}
         </div>
         <div id="evfeed"></div>
         <div class="sec-h" style="margin-top:12px"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">● ALERTING</span></div>
-        <div class="evrow"><span class="e">RULE-012: 📊 Weekly cost intelligence report generated…</span><span class="mono" style="margin-left:auto;font-size:10px;color:var(--dim)">108h ago</span></div>
-        <div class="evrow"><span class="e">RULE-006: JARVIS unresponsive for 10min — auto-restar…</span><span class="mono" style="margin-left:auto;font-size:10px;color:var(--dim)">184h ago</span></div>
+        <div id="alerting-rows"></div>
       </div>
       <div>
         <div class="panel dbg">
@@ -1112,7 +1117,7 @@ main.canvas-mode{overflow:hidden}
         </div>
         <div class="panel" style="margin-top:14px">
           <div class="sec-h"><h2>Bug fixes</h2><span>fix queue</span></div>
-          <div style="font-size:13px;color:var(--dim);font-style:italic;text-align:center;padding:14px 0">No pending fixes — system healthy</div>
+          <div id="bugfix-panel" style="font-size:13px;color:var(--dim);font-style:italic;text-align:center;padding:14px 0">—</div>
           <div class="sec-h"><span class="mono" style="font-size:10px;letter-spacing:.14em;color:var(--dim)">● MONITORING — HEALTH</span></div>
           <table class="dt">
             <tr><td>Events Today</td><td><div class="qb" style="height:6px;background:var(--inset);border-radius:4px"><i style="display:block;height:100%;width:62%;background:var(--violet);border-radius:4px"></i></div></td><td class="mono" style="text-align:right" id="mon-events-today">—</td></tr>
@@ -1242,12 +1247,13 @@ main.canvas-mode{overflow:hidden}
 
 <!-- ================= STATUS BAR ================= -->
 <div class="statusbar">
-  <span class="live">● LIVE QUEUE</span><span>— TASKS.MD VIA COMMAND API</span>
+  <span class="live" id="live-badge">● LIVE QUEUE</span><span>— TASKS.MD VIA COMMAND API</span>
   <span class="sync">SYNCED <span id="syncs">3S</span> AGO</span>
   <span>HIGH <span style="color:#F87171">--</span></span><span>MED <span style="color:#FBBF24">--</span></span>
   <span>EXPLORE <span class="mono">0</span></span><span class="mono" id="agos">1m ago</span>
   <span class="brand"><b>SaSMaster War Room</b> · Bloomberg Terminal for Media · <span class="gradtext" style="font-weight:700">sasmaster.dev</span></span>
 </div>
+<div id="staleness-banner" style="display:none;background:#3a1414;color:#F87171;font-family:var(--mono);font-size:11px;padding:6px 14px;text-align:center;border-bottom:1px solid #F87171;"></div>
 
 <!-- ================= DR. SCOOP → ASK ================= -->
 <div class="scoop">
@@ -1271,7 +1277,29 @@ function buildAskUrl(vm) {
 const API_BASE = '/api/command';
 function apiUrl(path){ return API_BASE + '?path=' + encodeURIComponent(path); }
 function authHeaders(){ const t=localStorage.getItem('wr-api-token')||''; return t?{'Authorization':'Bearer '+t}:{}; }
+// escHtml: global HTML-escaper. Previously scoped inside the TOKENS IIFE only (~line 3600) —
+// every other innerHTML sink in this file interpolated fetched JSON raw (~55 sites, HIGH/architecture
+// finding, review 2026-08-03). Hoisted to global scope so every render function can use it.
+function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+// For values interpolated into an inline onclick="..." HTML attribute AND used as a
+// single-quoted JS string literal inside it — JS-string-escape THEN HTML-attribute-escape,
+// since the browser HTML-decodes the attribute value before the JS parser ever sees it.
+function escJsAttr(s){ return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+// Allowlist a URL for use as an href/src: only http:, https:, or same-origin relative paths.
+// Rejects javascript:, data:, vbscript:, etc. Returns '#' for anything that doesn't qualify.
+function safeUrl(u){
+  const s=String(u==null?'':u).trim();
+  if(!s) return '#';
+  if(/^https?:\/\//i.test(s)) return escHtml(s);
+  if(/^\//.test(s) && !/^\/\//.test(s)) return escHtml(s); // relative/root-relative, not protocol-relative
+  if(/^[a-zA-Z0-9._-]/.test(s) && !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(s)) return escHtml(s); // plain relative path, no scheme
+  return '#';
+}
 async function apiFetch(url, opts={}){
+  const method=(opts.method||'GET').toUpperCase();
+  if(method==='POST' && !localStorage.getItem('wr-api-token')){
+    throw new Error('no wr-api-token set — this action requires a token (localStorage.setItem("wr-api-token","…"))');
+  }
   opts.headers = Object.assign({}, authHeaders(), opts.headers||{});
   try{ const r=await fetch(url,opts); if(!r.ok) throw new Error('HTTP '+r.status); return r; }
   catch(e){ console.warn('apiFetch failed',url,e); throw e; }
@@ -1318,8 +1346,8 @@ function buildAgentDrill(a){
   const ok=a.status==='healthy';
   const lastRun=a.lastRun?timeSince(a.lastRun):'never';
   const verdict=ok
-    ?`Running on schedule. Last output: ${(a.lastOutput||a.descOverride||'—').substring(0,80)}`
-    :`Error state detected. Last known output: ${(a.lastOutput||a.log||'—').substring(0,80)}`;
+    ?`Running on schedule. Last output: ${escHtml((a.lastOutput||a.descOverride||'—').substring(0,80))}`
+    :`Error state detected. Last known output: ${escHtml((a.lastOutput||a.log||'—').substring(0,80))}`;
   const nowWhat=ok
     ?'<span class="nw-lbl">NOW WHAT</span>No action needed. Monitor next scheduled run.'
     :`<span class="nw-lbl">NOW WHAT</span>1. Check logs via <b>📄 Logs</b> button on the card.<br>2. Verify schedule is active in crontab.<br>3. Re-run manually if last run > 24h.`;
@@ -1330,10 +1358,10 @@ function buildAgentDrill(a){
     <div class="dd-kv">
       <span class="k">Status</span><span class="v ${ok?'pos':'neg'}">${ok?'● HEALTHY':'● ERROR'}</span>
       <span class="k">Last run</span><span class="v">${lastRun}</span>
-      <span class="k">Schedule</span><span class="v">${a.schedule||'—'}</span>
-      <span class="k">Next run</span><span class="v">${a.nextRun||'—'}</span>
-      <span class="k">Channel</span><span class="v">${a.channel||'—'}</span>
-      <span class="k">Log</span><span class="v" style="color:var(--violet)">${a.log||'—'}</span>
+      <span class="k">Schedule</span><span class="v">${escHtml(a.schedule||'—')}</span>
+      <span class="k">Next run</span><span class="v">${escHtml(a.nextRun||'—')}</span>
+      <span class="k">Channel</span><span class="v">${escHtml(a.channel||'—')}</span>
+      <span class="k">Log</span><span class="v" style="color:var(--violet)">${escHtml(a.log||'—')}</span>
     </div>
   </div>
   <div class="dd-sec">
@@ -1343,10 +1371,10 @@ function buildAgentDrill(a){
   <div class="dd-sec">
     <div class="${nowClass}">${nowWhat}</div>
   </div>
-  ${a.lastOutput?`<div class="dd-sec"><div class="dd-sl">LAST OUTPUT</div><div class="dd-logbox">${a.lastOutput}</div></div>`:''}
+  ${a.lastOutput?`<div class="dd-sec"><div class="dd-sl">LAST OUTPUT</div><div class="dd-logbox">${escHtml(a.lastOutput)}</div></div>`:''}
   <div style="display:flex;gap:8px;margin-top:4px">
-    <button class="btn bp" onclick="runAgent('${(a.name||'').replace(/'/g,"\\'")}');closeDrillDown()">▶ Run now</button>
-    <button class="btn bs" onclick="viewLogs('${(a.name||'').replace(/'/g,"\\'")}')">📄 Logs</button>
+    <button class="btn bp" onclick="runAgent('${escJsAttr(a.name||'')}');closeDrillDown()">▶ Run now</button>
+    <button class="btn bs" onclick="viewLogs('${escJsAttr(a.name||'')}')">📄 Logs</button>
   </div>`;
 }
 function buildDataDrill(d){
@@ -1364,7 +1392,7 @@ function buildDataDrill(d){
   <div class="dd-sec">
     <div class="dd-sl">PREFIX STATS</div>
     <div class="dd-kv">
-      <span class="k">Path</span><span class="v">${d.prefix||d.path||'—'}</span>
+      <span class="k">Path</span><span class="v">${escHtml(d.prefix||d.path||'—')}</span>
       <span class="k">Size</span><span class="v">${d.size_gb!=null?d.size_gb.toFixed(2)+' GB':'—'}</span>
       <span class="k">Objects</span><span class="v">${d.object_count!=null?fmtN(d.object_count):'—'}</span>
       <span class="k">Status</span><span class="v ${statusOk?'pos':'neg'}">${(d.status||'?').toUpperCase()}</span>
@@ -1374,14 +1402,14 @@ function buildDataDrill(d){
   </div>
   <div class="dd-sec">
     <div class="dd-sl">SO WHAT</div>
-    <div class="dd-sowhat">${verdict} ${d.note?'<br><span style="color:var(--mut);font-size:12px">'+d.note+'</span>':''}</div>
+    <div class="dd-sowhat">${verdict} ${d.note?'<br><span style="color:var(--mut);font-size:12px">'+escHtml(d.note)+'</span>':''}</div>
   </div>
   <div class="${statusOk?'dd-nowwhat':'dd-blocked'}">${nowWhat}</div>`;
 }
 function buildQueueDrill(c){
-  const fullText=c.text||c.full||'No description';
-  const priority=c.priority||'MED';
-  const tag=c.tag||'—';
+  const fullText=escHtml(c.text||c.full||'No description');
+  const priority=escHtml(c.priority||'MED');
+  const tag=escHtml(c.tag||'—');
   const colMap={'backlog':'Backlog','inProgress':'In Progress','blocked':'⛔ BLOCKED','review':'Review','done':'✓ Done'};
   const col=colMap[c._col]||c._col||'—';
   const isBlocked=c._col==='blocked';
@@ -1437,7 +1465,7 @@ async function openMeasurementDrill(measType, schemaKey, title){
 function buildMeasurementDrill(src,fallbackTitle){
   if(!src||!src.record_types||!src.record_types.length){
     return `<div style="padding:20px;color:var(--dim);font-size:13px;line-height:1.6">
-      <b style="color:var(--ink)">${fallbackTitle||'Measurement Data'}</b><br><br>
+      <b style="color:var(--ink)">${escHtml(fallbackTitle||'Measurement Data')}</b><br><br>
       Manifest not populated yet. Run <span style="font-family:var(--mono);color:var(--accent)">scripts/generate_recordtypes_manifest.py</span> to write record-type stats from the Databricks pipeline.
     </div>`;
   }
@@ -1453,13 +1481,13 @@ function buildMeasurementDrill(src,fallbackTitle){
   const lastRun=src.last_processed||'—';
 
   const tinyFilesHtml=src.tiny_files
-    ?`<div class="rth-tinyfiles">⚠ ${src.tiny_files_note||'Sample extract only — these dates reflect ingested sample files, not the full archive coverage. Full date range may differ.'}</div>`
+    ?`<div class="rth-tinyfiles">⚠ ${escHtml(src.tiny_files_note||'Sample extract only — these dates reflect ingested sample files, not the full archive coverage. Full date range may differ.')}</div>`
     :'';
   const header=`<div class="rt-header">
-    <div class="rth-label">${src.s3_prefix||src.label||''}</div>
-    <div class="rth-coverage">${minDate} → ${maxDate}</div>
+    <div class="rth-label">${escHtml(src.s3_prefix||src.label||'')}</div>
+    <div class="rth-coverage">${escHtml(minDate)} → ${escHtml(maxDate)}</div>
     ${tinyFilesHtml}
-    <div class="rth-meta">${totalPresent} present / ${totalDefined} defined · ${src.note||''} · last run ${lastRun}</div>
+    <div class="rth-meta">${totalPresent} present / ${totalDefined} defined · ${escHtml(src.note||'')} · last run ${escHtml(lastRun)}</div>
   </div>`;
 
   function rtRow(rt,unproc){
@@ -1468,12 +1496,12 @@ function buildMeasurementDrill(src,fallbackTitle){
     const maxD=rt.max_date?rt.max_date.slice(0,10):'—';
     const cnt=rt.row_count!=null?fmtN(rt.row_count):'—';
     const lp=rt.last_processed?rt.last_processed.slice(0,10):'—';
-    const noteHtml=rt.note?`<div class="rt-note">⚡ ${rt.note}</div>`:'';
+    const noteHtml=rt.note?`<div class="rt-note">⚡ ${escHtml(rt.note)}</div>`:'';
     const statusIcon=rt.processed?'<span style="color:var(--up)">✅</span>':'<span style="color:var(--dim)">⚪</span>';
     return `<tr class="${cls}">
-      <td><div class="rt-id">${rt.id}</div>${noteHtml}</td>
-      <td><div class="rt-desc">${rt.description||'—'}</div></td>
-      <td><span class="rt-type">${rt.file_type||'—'}</span></td>
+      <td><div class="rt-id">${escHtml(rt.id)}</div>${noteHtml}</td>
+      <td><div class="rt-desc">${escHtml(rt.description||'—')}</div></td>
+      <td><span class="rt-type">${escHtml(rt.file_type||'—')}</span></td>
       <td style="text-align:center">${statusIcon}</td>
       <td><span class="rt-date">${minD}</span></td>
       <td><span class="rt-date">${maxD}</span></td>
@@ -1481,7 +1509,7 @@ function buildMeasurementDrill(src,fallbackTitle){
       <td><span class="rt-date">${lp}</span></td>
     </tr>`;
   }
-  const sepRow=label=>`<tr class="rt-sep"><td colspan="8">${label}</td></tr>`;
+  const sepRow=label=>`<tr class="rt-sep"><td colspan="8">${escHtml(label)}</td></tr>`;
 
   let rows=processed.map(r=>rtRow(r,false)).join('');
   if(definedPending.length){rows+=sepRow('DEFINED — INGESTION PENDING');rows+=definedPending.map(r=>rtRow(r,true)).join('');}
@@ -1495,23 +1523,23 @@ function buildMeasurementDrill(src,fallbackTitle){
     <tbody>${rows}</tbody>
   </table></div>`;
 
-  const extra=src.discovered_additional?`<div class="rt-extra">⚡ ${src.discovered_additional} additional table${src.discovered_additional!==1?'s':''} schema-discovered from S3. ${src.note_additional||'Send catalog to curate descriptions.'}</div>`:'';
-  const openItem=src.open_item?`<div class="rt-extra" style="margin-top:8px;background:rgba(14,165,233,.06);border-color:rgba(14,165,233,.25);color:var(--accent)">📋 Open item: ${src.open_item}</div>`:'';
+  const extra=src.discovered_additional?`<div class="rt-extra">⚡ ${escHtml(src.discovered_additional)} additional table${src.discovered_additional!==1?'s':''} schema-discovered from S3. ${escHtml(src.note_additional||'Send catalog to curate descriptions.')}</div>`:'';
+  const openItem=src.open_item?`<div class="rt-extra" style="margin-top:8px;background:rgba(14,165,233,.06);border-color:rgba(14,165,233,.25);color:var(--accent)">📋 Open item: ${escHtml(src.open_item)}</div>`:'';
 
   let etl2Html='';
   if(src.etl2_tables&&src.etl2_tables.length){
     const etl2Tables=src.etl2_tables;
-    const noteHtml2=src.etl2_note?`<div class="rt-etl2-header"><span class="etl2-badge">ETL 2</span><span class="etl2-label">${src.etl2_note}</span></div>`:'';
+    const noteHtml2=src.etl2_note?`<div class="rt-etl2-header"><span class="etl2-badge">ETL 2</span><span class="etl2-label">${escHtml(src.etl2_note)}</span></div>`:'';
     const hasTp=etl2Tables.some(t=>t.id&&t.id.includes('_tp_'));
     function etl2Row(t){
       const minD=t.min_date?t.min_date.slice(0,10):'—';
       const maxD=t.max_date?t.max_date.slice(0,10):'—';
       const cnt=t.row_count!=null?fmtN(t.row_count):'—';
       const lp=t.last_processed?t.last_processed.slice(0,10):'—';
-      const tnote=t.note?`<div class="rt-note">⚡ ${t.note}</div>`:'';
-      return `<tr><td><div class="rt-id">${t.id}</div>${tnote}</td>
-        <td><div class="rt-desc">${t.description||'—'}</div></td>
-        <td><span class="rt-type-etl2">${t.file_type||'ETL2'}</span></td>
+      const tnote=t.note?`<div class="rt-note">⚡ ${escHtml(t.note)}</div>`:'';
+      return `<tr><td><div class="rt-id">${escHtml(t.id)}</div>${tnote}</td>
+        <td><div class="rt-desc">${escHtml(t.description||'—')}</div></td>
+        <td><span class="rt-type-etl2">${escHtml(t.file_type||'ETL2')}</span></td>
         <td style="text-align:center"><span style="color:var(--up)">✅</span></td>
         <td><span class="rt-date">${minD}</span></td>
         <td><span class="rt-date">${maxD}</span></td>
@@ -1600,11 +1628,29 @@ function adapt(d){
   const sFresh=(src)=>(d.source_freshness||[]).find(f=>f.source===src)||{};
   const getNielsenDays=()=>{
     /* NIELSEN-CLOCK-WIRE-001 (S-02): authority = ops.pull_ledger + ref.nielsen_delivery_contract
-       via data/nielsen-clock.json (amber > cadence 15d, red > 18d). Freshness heuristic = fallback only. */
+       via data/nielsen-clock.json (amber > cadence 15d, red > cadence+3d). Freshness heuristic = fallback only.
+       WARROOM-SEC-001 (2026-08-03): the file's own days_since_pull/warn/red are baked in at
+       generated_at and go stale themselves — a 19-day-old clock file kept reporting "fresh" while
+       real staleness breached red (BLOCKER, review 2026-08-03). Recompute live from each family's
+       last_pull_ts + its own cadence instead of trusting the frozen fields. */
     const nc=window._nielsenClock;
-    if(nc&&nc.days_since_pull!=null){
+    if(nc&&Array.isArray(nc.families)&&nc.families.length){
+      const now=Date.now();
+      let worst=null;
+      nc.families.forEach(fam=>{
+        const lastPull=Date.parse(fam.last_pull_ts.replace(' ','T')+(fam.last_pull_ts.includes('Z')?'':'Z'));
+        if(isNaN(lastPull))return;
+        const realDays=(now-lastPull)/86400000;
+        const cadence=fam.pull_cadence_days||15;
+        if(!worst||realDays>worst.realDays) worst={realDays,cadence,family:fam.dataset_family};
+      });
       const due=(nc.families||[]).map(x=>x.next_due).filter(Boolean).sort()[0]||null;
-      return {days:nc.days_since_pull,warn:!!nc.warn||!!nc.red,due};
+      if(worst){
+        const clockAgeDays=(now-Date.parse(nc.generated_at))/86400000;
+        const warn=worst.realDays>worst.cadence||clockAgeDays>2; // clock file itself stale >2d is an amber trigger too
+        const red=worst.realDays>worst.cadence+3;
+        return {days:Math.floor(worst.realDays),warn:warn||red,red,due,worstFamily:worst.family};
+      }
     }
     const f=sFresh('Nielsen VIEWERSHIP');
     if(!f.source) return {days:13,warn:true};
@@ -1616,7 +1662,7 @@ function adapt(d){
   const queue=d.queue||{};
   return {
     generatedAt:d.generated_at||d.generated,
-    jarvisOk:(d.system&&d.system.jarvis&&d.system.jarvis.alive)||true,
+    jarvisOk:Boolean(d.system&&d.system.jarvis&&d.system.jarvis.alive),
     s3gb:d.kpis&&d.kpis.s3_gb!=null?d.kpis.s3_gb:'—',
     agentsLive:d.kpis&&d.kpis.agents_running!=null?d.kpis.agents_running:0,
     agentsTotal:d.kpis&&d.kpis.agents_total!=null?d.kpis.agents_total:0,
@@ -1795,7 +1841,7 @@ function renderSidebar(vm){
   }
   if(cronEl){
     cronEl.innerHTML=vm.crons.slice(0,10).map(c=>`
-      <div class="cronrow"><span class="t">${c.time||'*:*'}</span><span class="d2 ${c.status==='done'?'live':''}"></span>${c.name}</div>`).join('');
+      <div class="cronrow"><span class="t">${escHtml(c.time||'*:*')}</span><span class="d2 ${c.status==='done'?'live':''}"></span>${escHtml(c.name)}</div>`).join('');
   }
 
   // S3 lake rows in sidebar
@@ -1813,7 +1859,7 @@ function renderSidebar(vm){
   }
   if(lakeEl){
     lakeEl.innerHTML=vm.s3lake.slice(0,6).map(r=>`
-      <div class="lakerow"><span class="p">${r.prefix||r.path||'—'}</span><span class="g">${r.size_gb!=null?r.size_gb.toFixed(1)+'GB':'—'}</span></div>`).join('');
+      <div class="lakerow"><span class="p">${escHtml(r.prefix||r.path||'—')}</span><span class="g">${r.size_gb!=null?r.size_gb.toFixed(1)+'GB':'—'}</span></div>`).join('');
   }
 
   // Scrapers in sidebar
@@ -1833,7 +1879,7 @@ function renderSidebar(vm){
     const top=vm.scrapers.slice(0,6);
     scraperEl.innerHTML=top.map(s=>{
       const live=['live','running'].includes(s.status);
-      return `<div class="scraperrow">${s.name} <span class="tagchip ${live?'tc-live':'tc-q'}">${s.status}</span></div>`;
+      return `<div class="scraperrow">${escHtml(s.name)} <span class="tagchip ${live?'tc-live':'tc-q'}">${escHtml(s.status)}</span></div>`;
     }).join('');
   }
 
@@ -1857,7 +1903,7 @@ function renderSidebar(vm){
       const dot=f.status==='ok'?'dg':f.status==='warn'?'da':'da';
       const label=f.source.replace('JARVIS / Railway heartbeat','JARVIS').replace(' scraper','');
       const age=f.age_mins!=null?(f.age_mins<60?Math.round(f.age_mins)+'m':Math.round(f.age_mins/60)+'h'):'—';
-      return `<span class="fchip"><span class="dot ${dot}"></span>${label} · ${age}</span>`;
+      return `<span class="fchip"><span class="dot ${dot}"></span>${escHtml(label)} · ${age}</span>`;
     }).join('');
   }
 }
@@ -1870,7 +1916,7 @@ function renderOPS(vm){
     const activeAlerts=vm.alerts.filter(a=>!a.dismissed);
     if(activeAlerts.length>0){
       banner.style.display='flex';
-      banner.innerHTML=`⚠ ${activeAlerts[0].message} <span class="x" onclick="this.parentElement.style.display='none'">✕</span>`;
+      banner.innerHTML=`⚠ ${escHtml(activeAlerts[0].message)} <span class="x" onclick="this.parentElement.style.display='none'">✕</span>`;
     } else { banner.style.display='none'; }
   }
 
@@ -1883,7 +1929,7 @@ function renderOPS(vm){
       const pct=r.pct||0;
       const ago=r.last_run?timeSince(r.last_run):'—';
       runrowContainer.innerHTML=`
-        <div class="rh">${r.name} <span class="badge b-run" style="margin-left:auto">RUNNING</span> <span class="mono" style="font-size:12px">${pct}%</span></div>
+        <div class="rh">${escHtml(r.name)} <span class="badge b-run" style="margin-left:auto">RUNNING</span> <span class="mono" style="font-size:12px">${pct}%</span></div>
         <div class="runbar"><i style="width:${pct}%"></i></div>
         <div style="font-family:var(--mono);font-size:11px;color:var(--dim)">${pct===100?'complete':'in progress'} · ${ago}</div>`;
     } else {
@@ -1896,7 +1942,7 @@ function renderOPS(vm){
   if(cronchips){
     cronchips.innerHTML=vm.crons.slice(0,10).map(c=>{
       const live=c.status==='done';
-      return `<span class="cc"><span class="dot ${live?'dg':''}" style="${live?'':'background:var(--bd2)'}"></span>${c.name}</span>`;
+      return `<span class="cc"><span class="dot ${live?'dg':''}" style="${live?'':'background:var(--bd2)'}"></span>${escHtml(c.name)}</span>`;
     }).join('');
   }
 
@@ -1904,7 +1950,7 @@ function renderOPS(vm){
   const hpq=document.querySelector('#v-ops .hpq');
   if(hpq&&vm.highItems.length>0){
     const item=vm.highItems[0];
-    hpq.innerHTML=`<span class="lbl">${item.tag||'HIGH'}</span>${(item.text||item.full||'').substring(0,120)}
+    hpq.innerHTML=`<span class="lbl">${escHtml(item.tag||'HIGH')}</span>${escHtml((item.text||item.full||'').substring(0,120))}
       <div style="margin-top:8px"><button class="btn bs">⌕ diagnose</button></div>`;
   }
 
@@ -1940,21 +1986,22 @@ function renderAgents(vm){
   fleet.innerHTML=agents.map((a,idx)=>{
     const ok=a.status==='healthy';
     const lastRunStr=a.lastRun?timeSince(a.lastRun):'never';
-    const console_out=(a.lastOutput||a.descOverride||a.log||'').substring(0,120);
-    const name=a.name||'—';
+    const console_out=escHtml((a.lastOutput||a.descOverride||a.log||'').substring(0,120));
+    const name=escHtml(a.name||'—');
+    const nameAttr=escJsAttr(a.name||'—');
     return `<div class="acard ${ok?'':'err'}" data-agent-idx="${idx}" style="cursor:pointer">
       <div class="ah"><span>${a.icon||'🤖'}</span><span class="nm">${name}</span><span class="badge ${ok?'b-ok':'b-err'}">${ok?'HEALTHY':'ERROR'}</span></div>
       <div class="meta">
         <div><div class="l">Last run</div><div class="v" style="color:${ok?'var(--up)':'var(--down)'}">${lastRunStr}</div></div>
-        <div><div class="l">Schedule</div><div class="v">${a.schedule||'—'}</div></div>
-        <div><div class="l">Next run</div><div class="v">${a.nextRun||'—'}</div></div>
-        <div><div class="l">Log</div><div class="v" style="color:var(--violet)">${a.log||'—'}</div></div>
+        <div><div class="l">Schedule</div><div class="v">${escHtml(a.schedule||'—')}</div></div>
+        <div><div class="l">Next run</div><div class="v">${escHtml(a.nextRun||'—')}</div></div>
+        <div><div class="l">Log</div><div class="v" style="color:var(--violet)">${escHtml(a.log||'—')}</div></div>
       </div>
-      <div class="chan">→ ${a.channel||'—'}</div>
+      <div class="chan">→ ${escHtml(a.channel||'—')}</div>
       <div class="console ${ok?'':'errline'}">${console_out}</div>
       <div class="acts">
-        <button class="btn ${ok?'bp':'bs'}" onclick="event.stopPropagation();runAgent('${name}')">▶ Run</button>
-        <button class="btn bs" onclick="event.stopPropagation();viewLogs('${name}')">📄 Logs</button>
+        <button class="btn ${ok?'bp':'bs'}" onclick="event.stopPropagation();runAgent('${nameAttr}')">▶ Run</button>
+        <button class="btn bs" onclick="event.stopPropagation();viewLogs('${nameAttr}')">📄 Logs</button>
       </div>
     </div>`;
   }).join('');
@@ -1998,14 +2045,14 @@ function renderData(vm){
     const _prefixes=nonNielsen;
     dsgrid.innerHTML=nonNielsen.map((d,idx)=>{
       const statusClass=d.status==='live'?'b-ok':d.status==='running'?'b-run':d.status==='error'?'b-err':'b-warn';
-      const statusLabel=(d.status||'?').toUpperCase();
+      const statusLabel=escHtml((d.status||'?').toUpperCase());
       const ents=d.entities||{};
       const entStr=[['Movies',ents.movies],['TV',ents.tv_series],['Ep',ents.episodes],['People',ents.people]].filter(([,v])=>v).map(([k,v])=>`<b>${k}</b> ${fmtN(v)}`).join(' · ');
       return `<div class="ds" data-prefix-idx="${idx}" style="cursor:pointer">
-        <div class="dh"><span class="p">${d.prefix||d.path}</span><span class="badge ${statusClass}">${statusLabel}</span></div>
+        <div class="dh"><span class="p">${escHtml(d.prefix||d.path)}</span><span class="badge ${statusClass}">${statusLabel}</span></div>
         <div class="gb">${d.size_gb!=null?d.size_gb.toFixed(2)+' GB':'— GB'}</div>
         <div class="ob">${d.object_count!=null?fmtN(d.object_count)+' objects':'—'}</div>
-        <div class="note">${entStr?entStr+' · ':''}${d.note||''}<br><span style="color:var(--accent);font-size:11px">▾ drill-down</span></div>
+        <div class="note">${entStr?entStr+' · ':''}${escHtml(d.note||'')}<br><span style="color:var(--accent);font-size:11px">▾ drill-down</span></div>
       </div>`;
     }).join('');
     dsgrid.querySelectorAll('.ds[data-prefix-idx]').forEach(card=>{
@@ -2028,9 +2075,9 @@ function renderData(vm){
       upcoming.innerHTML=`<div class="sec-h" style="margin-top:4px"><h2>Upcoming datasets</h2><span>pending ingest · static</span></div>
       <div class="dsgrid">${upFeeds.map(d=>`
         <div class="ds">
-          <div class="dh"><span class="p">${d.prefix}</span><span class="badge b-warn">PENDING</span></div>
+          <div class="dh"><span class="p">${escHtml(d.prefix)}</span><span class="badge b-warn">PENDING</span></div>
           <div class="gb">${d.size_gb!=null&&d.size_gb>0?d.size_gb.toFixed(2)+' GB':'— GB'}</div>
-          <div class="note">${d.note||'Ingest not yet started'}</div>
+          <div class="note">${escHtml(d.note||'Ingest not yet started')}</div>
         </div>`).join('')}</div>`;
     }
   }
@@ -2081,7 +2128,7 @@ function renderQueue(vm){
     const pcls={LIVE:'live',IN_PROGRESS:'prog',NEXT:'next'};
     phasechips.innerHTML=Object.entries(ps).map(([k,v])=>{
       const cls=pcls[v.status]||'';
-      return `<span class="pch ${cls}">● ${k.replace('_',' ').toUpperCase()} · ${v.status} — ${v.desc}</span>`;
+      return `<span class="pch ${cls}">● ${escHtml(k.replace('_',' ').toUpperCase())} · ${escHtml(v.status)} — ${escHtml(v.desc)}</span>`;
     }).join('');
   }
 
@@ -2105,8 +2152,8 @@ function renderQueue(vm){
     const cards=items.slice(0,8).map(c=>{
       const globalIdx=_allKanbanItems.length;
       _allKanbanItems.push({...c,_col:col.key});
-      const txt=(c.text||c.full||'').substring(0,120);
-      const tag=c.tag||'';
+      const txt=escHtml((c.text||c.full||'').substring(0,120));
+      const tag=escHtml(c.tag||'');
       const done=col.key==='done';
       return `<div class="kcard ${done?'done':''}" data-kcard-idx="${globalIdx}" style="cursor:pointer"><span class="kt">${tag}</span><div>${txt}</div></div>`;
     }).join('');
@@ -2197,17 +2244,17 @@ async function renderResources(){
     const starred=stars.has(r.id);
     const files=r.files||[];
     const primaryFile=files.find(f=>f.primary)||files[0];
-    return `<div class="rescard" data-resid="${r.id}">
-      <span class="star" style="cursor:pointer" onclick="toggleStar('${r.id}')">${starred?'★':'☆'}</span>
-      <div class="rt">${r.title||''}</div>
-      <span class="cat">${(r.category||'').toUpperCase()}</span>
-      ${r.badge?`<span class="badge b-new" style="margin-left:6px">${r.badge}</span>`:''}
-      <div class="rd">${r.description||r.subtitle||''}</div>
+    return `<div class="rescard" data-resid="${escHtml(r.id)}">
+      <span class="star" style="cursor:pointer" onclick="toggleStar('${escJsAttr(r.id)}')">${starred?'★':'☆'}</span>
+      <div class="rt">${escHtml(r.title||'')}</div>
+      <span class="cat">${escHtml((r.category||'').toUpperCase())}</span>
+      ${r.badge?`<span class="badge b-new" style="margin-left:6px">${escHtml(r.badge)}</span>`:''}
+      <div class="rd">${escHtml(r.description||r.subtitle||'')}</div>
       <div class="racts">
         ${files.length
-          ? files.map((f,i)=>`<a href="${f.url}" target="_blank" rel="noopener noreferrer" class="btn ${(f.primary||i===0)?'bp':'bs'}" style="padding:5px 13px;display:inline-block;text-decoration:none">${f.label||'View'}</a>`).join('')
+          ? files.map((f,i)=>`<a href="${safeUrl(f.url)}" target="_blank" rel="noopener noreferrer" class="btn ${(f.primary||i===0)?'bp':'bs'}" style="padding:5px 13px;display:inline-block;text-decoration:none">${escHtml(f.label||'View')}</a>`).join('')
           : '<button class="btn bp" style="padding:5px 13px;opacity:.4" disabled>No file</button>'}
-        <span class="date">${r.date||''}</span>
+        <span class="date">${escHtml(r.date||'')}</span>
       </div>
     </div>`;
   }).join('');
@@ -2284,13 +2331,24 @@ function renderCosts(vm){
       projValEl.textContent='$'+projCost.toFixed(2)+' / week';
       if(projBadgeEl){projBadgeEl.textContent='ON TRACK';projBadgeEl.className='badge b-ok';}
       if(projMetaEl) projMetaEl.textContent=(tp.pct_elapsed||0)+'% of week elapsed';
-    } else if(fdTotalMtd!=null&&fdTotalMtd>0){
-      // MTD-based weekly estimate: (MTD cost / day-of-month) × 7
-      const dayOfMonth=new Date().getDate()||1;
-      const weeklyEst=(fdTotalMtd/dayOfMonth)*7;
-      projValEl.textContent='$'+weeklyEst.toFixed(2)+' / week (MTD est)';
-      if(projBadgeEl){projBadgeEl.textContent='MTD-BASED';projBadgeEl.className='badge b-sec';}
-      if(projMetaEl) projMetaEl.textContent='based on '+dayOfMonth+'d avg · '+new Date().toISOString().slice(0,10);
+    } else if(fdTotalMtd!=null&&fdTotalMtd>0&&_fintelData&&_fintelData.generated_at){
+      // MTD-based weekly estimate: (MTD cost / day-of-month) × 7 — but ONLY when finance-data's
+      // own period matches the current month. Otherwise this divides July spend by August's
+      // day-of-month and inflates the estimate ~8x (BLOCKER, review 2026-08-03).
+      const fdDate=new Date(_fintelData.generated_at);
+      const fdPeriod=_fintelData.period||(!isNaN(fdDate)?fdDate.toISOString().slice(0,7):null);
+      const currentPeriod=new Date().toISOString().slice(0,7);
+      if(fdPeriod&&fdPeriod!==currentPeriod){
+        projValEl.textContent=fdTotalMtd.toFixed(2)+' ('+fdPeriod+' final)';
+        if(projBadgeEl){projBadgeEl.textContent='STALE PERIOD';projBadgeEl.className='badge b-warn';}
+        if(projMetaEl) projMetaEl.textContent='finance-data.json is for '+fdPeriod+' — no current-month projection available';
+      } else {
+        const dayOfMonth=(!isNaN(fdDate)?fdDate.getDate():new Date().getDate())||1;
+        const weeklyEst=(fdTotalMtd/dayOfMonth)*7;
+        projValEl.textContent='$'+weeklyEst.toFixed(2)+' / week (MTD est)';
+        if(projBadgeEl){projBadgeEl.textContent='MTD-BASED';projBadgeEl.className='badge b-sec';}
+        if(projMetaEl) projMetaEl.textContent='based on '+dayOfMonth+'d avg · data as of '+_fintelData.generated_at.slice(0,10);
+      }
     } else {
       projValEl.textContent='NO DATA';
       if(projBadgeEl){projBadgeEl.textContent='NO DATA';projBadgeEl.className='badge b-warn';}
@@ -2338,16 +2396,48 @@ function renderTelemetry(vm){
       evfeed.innerHTML=items.map(ev=>{
         const ts=ev.ts?new Date(ev.ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';
         const tagCls=ev.type==='pipeline'||ev.type==='build'?'tg-stor':ev.type==='intel'?'tg-data':'tg-trig';
-        const tagLabel=String(ev.type||'EVENT').toUpperCase().substring(0,7);
-        return `<div class="evrow"><span class="t">${ts}</span><span class="tag ${tagCls}">${tagLabel}</span><span class="e">${String(ev.text||'').substring(0,60)}</span></div>`;
+        const tagLabel=escHtml(String(ev.type||'EVENT').toUpperCase().substring(0,7));
+        return `<div class="evrow"><span class="t">${ts}</span><span class="tag ${tagCls}">${tagLabel}</span><span class="e">${escHtml(String(ev.text||'').substring(0,60))}</span></div>`;
       }).join('');
     }
   }
 
-  // alert rows
-  const alertSection=document.querySelector('#v-telemetry .sec-h + .evrow')?.parentElement;
-  if(vm.alerts.length>0){
-    const alertContainer=document.querySelector('#v-telemetry .evrow:not(#evfeed .evrow)')?.parentElement;
+  // alert rows — was a dead stub (computed alertSection/alertContainer, never used them);
+  // hardcoded 108h/184h-ago rows shipped forever regardless of live alert state (HIGH, review 2026-08-03)
+  const alertRows=document.getElementById('alerting-rows');
+  const openAlerts=vm.alerts.filter(a=>!a.dismissed);
+  if(alertRows){
+    if(openAlerts.length>0){
+      alertRows.innerHTML=openAlerts.slice(0,8).map(a=>{
+        const age=a.timestamp?timeSince(a.timestamp):'—';
+        return `<div class="evrow"><span class="e">${escHtml(String(a.rule_id||a.type||'ALERT'))}: ${escHtml(String(a.message||a.text||''))}</span><span class="mono" style="margin-left:auto;font-size:10px;color:var(--dim)">${age}</span></div>`;
+      }).join('');
+    } else {
+      alertRows.innerHTML='<div class="evrow"><span class="e" style="color:var(--dim);font-style:italic">No open alerts</span></div>';
+    }
+  }
+
+  // "Bug fixes" panel — was a hardcoded "No pending fixes — system healthy" literal that
+  // contradicted the Alerts tile whenever open alerts existed (BLOCKER, review 2026-08-03)
+  const bugfixEl=document.getElementById('bugfix-panel');
+  if(bugfixEl){
+    bugfixEl.style.fontStyle='italic';
+    if(openAlerts.length===0){
+      bugfixEl.textContent='No pending fixes — system healthy';
+      bugfixEl.style.color='var(--dim)';
+    } else {
+      bugfixEl.textContent=`${openAlerts.length} open alert${openAlerts.length===1?'':'s'} — see ALERTING above`;
+      bugfixEl.style.color='var(--down)';
+    }
+  }
+
+  // Active Alerts row in the MONITORING-HEALTH table was hardcoded '0' with a fixed 2% bar
+  const monTable=document.querySelectorAll('#v-telemetry .dt tr');
+  if(monTable[2]){
+    const tds=monTable[2].querySelectorAll('td');
+    if(tds[2]) tds[2].textContent=openAlerts.length;
+    const bar=monTable[2].querySelector('.qb i');
+    if(bar){ bar.style.width=Math.min(100,openAlerts.length*10)+'%'; bar.style.background=openAlerts.length>0?'var(--down)':'var(--up)'; }
   }
 
   renderSkillRouting().catch(()=>{});
@@ -2374,7 +2464,7 @@ async function renderSkillRouting(){
     const fires=Object.entries(d.per_rule_fires||{}).slice(0,8);
     const max=Math.max(1,...fires.map(([,n])=>n));
     rules.innerHTML=fires.map(([rid,n])=>
-      `<tr><td class="mono" style="font-size:11px">${rid}</td>`+
+      `<tr><td class="mono" style="font-size:11px">${escHtml(rid)}</td>`+
       `<td><div class="qb" style="height:6px;background:var(--inset);border-radius:4px"><i style="display:block;height:100%;width:${Math.round(100*n/max)}%;background:var(--violet);border-radius:4px"></i></div></td>`+
       `<td class="mono" style="text-align:right">${n}</td></tr>`).join('')
       ||'<tr><td style="color:var(--dim);font-style:italic">no routed traffic yet</td></tr>';
@@ -2449,6 +2539,10 @@ function fmtN(n){
 }
 
 /* ============ status bar ============ */
+// STALE thresholds: status.json generator runs every 5 min (sasmaster-war-room skill §7) —
+// amber past 6x cadence (30 min), red past 4h (implies the generator itself is down, not just slow).
+const STALE_AMBER_MS = 30*60*1000;
+const STALE_RED_MS   = 4*3600*1000;
 function updateStatusBar(vm){
   const highEl=document.querySelector('.statusbar span:nth-child(3)');
   if(highEl) highEl.innerHTML='HIGH <span style="color:#F87171">'+vm.queueHigh+'</span>';
@@ -2456,9 +2550,37 @@ function updateStatusBar(vm){
   if(medEl) medEl.innerHTML='MED <span style="color:#FBBF24">'+vm.queueMed+'</span>';
   const agoEl=document.getElementById('agos');
   if(agoEl&&vm.generatedAt) agoEl.textContent=timeSince(vm.generatedAt);
-  // sync counter resets on live data
+
+  const ageMs = vm.generatedAt ? (Date.now()-new Date(vm.generatedAt)) : null;
+  const isStale = ageMs!=null && !isNaN(ageMs) && ageMs>STALE_AMBER_MS;
+
+  // sync counter: only reset when the underlying feed actually advanced — a frozen
+  // generated_at with SYNCED reset to 0S every cycle is exactly the "green over stale"
+  // failure mode the review flagged (BLOCKER: status.json generator dead for 19 days).
   const syncs=document.getElementById('syncs');
-  if(syncs) syncs.textContent='0S';
+  if(syncs){
+    if(vm.generatedAt!==window._lastGeneratedAt){ syncs.textContent='0S'; window._lastGeneratedAt=vm.generatedAt; }
+  }
+
+  const liveBadge=document.getElementById('live-badge');
+  if(liveBadge){
+    if(isStale){ liveBadge.textContent='● STALE'; liveBadge.style.color='#F87171'; }
+    else { liveBadge.textContent='● LIVE QUEUE'; liveBadge.style.color=''; }
+  }
+
+  const banner=document.getElementById('staleness-banner');
+  if(banner){
+    if(isStale){
+      const hrs=(ageMs/3600000).toFixed(1);
+      banner.style.display='block';
+      banner.style.background=ageMs>STALE_RED_MS?'#3a1414':'#3a2c14';
+      banner.style.color=ageMs>STALE_RED_MS?'#F87171':'#FBBF24';
+      banner.style.borderColor=banner.style.color;
+      banner.textContent=`⚠ status.json is ${hrs}h old (generated ${vm.generatedAt}) — the numbers below may not reflect current state. Generator likely stalled.`;
+    } else {
+      banner.style.display='none';
+    }
+  }
 }
 
 /* ============ OPS timeline (static, built once) ============ */
@@ -2514,7 +2636,7 @@ async function renderFinance(vm){
     const mix=toks.model_mix_pct||{};
     document.querySelectorAll('#v-finance .mono').forEach(el=>{
       if(el.textContent.includes('Opus')&&el.textContent.includes('Sonnet')&&el.textContent.includes('Haiku')){
-        el.innerHTML=`■ Opus ${mix.opus||0}% &nbsp;■ Sonnet ${mix.sonnet||0}% &nbsp;■ Haiku ${mix.haiku||0}% <span style="float:right">→ ${toks.efficiency_trend||'stable'}</span>`;
+        el.innerHTML=`■ Opus ${mix.opus||0}% &nbsp;■ Sonnet ${mix.sonnet||0}% &nbsp;■ Haiku ${mix.haiku||0}% <span style="float:right">→ ${escHtml(toks.efficiency_trend||'stable')}</span>`;
       }
     });
   }
@@ -2531,9 +2653,32 @@ async function renderFinance(vm){
     if(rows[6]){const tds=rows[6].querySelectorAll('td');if(tds[1])tds[1].innerHTML='<b>$'+(b.total_mtd||0).toFixed(2)+'</b>';}
   }
 
-  if(fd&&fd.aug_crunch){
+  if(fd&&fd.aug_crunch&&fd.generated_at){
+    // aug_crunch.days_away is a build-time integer, not a live countdown — recompute the
+    // deadline as generated_at + days_away, then derive remaining days from now(). Without
+    // this, a stale build renders a countdown to a deadline that has already passed
+    // (BLOCKER, review 2026-08-03 — "8 days" shown to an Aug-1 deadline while viewed Aug 3).
+    const genDate=new Date(fd.generated_at);
+    const deadline=new Date(genDate.getTime()+fd.aug_crunch.days_away*86400000);
+    const remainMs=deadline-new Date();
+    const remainDays=Math.ceil(remainMs/86400000);
     const oblEl=document.querySelector('#v-finance .big');
-    if(oblEl)oblEl.textContent=fd.aug_crunch.days_away+' days';
+    if(oblEl){
+      oblEl.textContent=remainDays>0?(remainDays+' days'):'PAST DUE';
+      oblEl.style.color=remainDays>0?'':'#F87171';
+    }
+    let ageEl=document.getElementById('finance-data-age');
+    if(!ageEl&&oblEl&&oblEl.parentElement){
+      ageEl=document.createElement('div');
+      ageEl.id='finance-data-age';
+      ageEl.style.cssText='font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:4px';
+      oblEl.parentElement.appendChild(ageEl);
+    }
+    if(ageEl){
+      const ageHrs=((Date.now()-genDate)/3600000).toFixed(0);
+      ageEl.textContent=`finance-data.json as of ${fd.generated_at.slice(0,10)} (${ageHrs}h old)${ageHrs>24?' — STALE':''}`;
+      ageEl.style.color=ageHrs>24?'#F87171':'var(--dim)';
+    }
   }
 }
 
@@ -2849,8 +2994,16 @@ function renderToday(){
   const statusClass={'pending':'csb-pending','blessed':'csb-blessed','redirected':'csb-redirected','killed':'csb-killed'}[m.status]||'csb-pending';
   const statusLabel={'pending':'⏳ PENDING REVIEW','blessed':'✓ BLESSED','redirected':'↩ REDIRECTED','killed':'✕ KILLED'}[m.status]||'UNKNOWN';
   const isSettled=m.status==='blessed'||m.status==='redirected'||m.status==='killed';
-  const certId=CV.spec&&CV.spec.run_id?CV.spec.run_id:'piece';
-  const iframeHtml=`<iframe src="${CV._piece_url}#theme=${CV._theme}" title="Daily Canvas Piece" onerror="document.getElementById('canvas-iframe-err').style.display='flex'" id="canvas-frame-${certId}"></iframe><div id="canvas-iframe-err" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:var(--dark2);color:var(--dim);font-family:var(--mono);font-size:12px;flex-direction:column;gap:10px"><div>iframe load error</div><div style="font-size:10px">${CV._piece_url||'—'}</div></div>`;
+  const certId=escHtml(CV.spec&&CV.spec.run_id?CV.spec.run_id:'piece');
+  // CANVAS pieces must only ever be loaded from the certified public S3 bucket — reject
+  // anything else (including javascript:/data: URLs a compromised catalog entry could smuggle
+  // in) and render the error state instead. sandbox="allow-scripts" WITHOUT allow-same-origin
+  // means an injected piece can still run JS but cannot read/write War Room's own DOM, cookies,
+  // or localStorage (the bearer token lives there).
+  const pieceUrlOk=typeof CV._piece_url==='string'&&CV._piece_url.indexOf('https://sasmaster-public.s3.amazonaws.com/')===0;
+  const iframeHtml=pieceUrlOk
+    ?`<iframe src="${escHtml(CV._piece_url)}#theme=${escHtml(CV._theme)}" sandbox="allow-scripts" title="Daily Canvas Piece" onerror="document.getElementById('canvas-iframe-err').style.display='flex'" id="canvas-frame-${certId}"></iframe><div id="canvas-iframe-err" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:var(--dark2);color:var(--dim);font-family:var(--mono);font-size:12px;flex-direction:column;gap:10px"><div>iframe load error</div><div style="font-size:10px">${escHtml(CV._piece_url||'—')}</div></div>`
+    :`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--dark2);color:var(--dim);font-family:var(--mono);font-size:12px;flex-direction:column;gap:10px"><div>⛔ Untrusted piece URL blocked</div><div style="font-size:10px">${escHtml(CV._piece_url||'—')}</div></div>`;
 
   el.innerHTML=`
 <div class="canvas-layout">
@@ -2861,7 +3014,7 @@ function renderToday(){
   <div class="canvas-right">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
       <span class="canvas-status-badge ${statusClass}">${statusLabel}</span>
-      ${m.status==='redirected'&&m.note?`<span style="font-size:11px;color:var(--mut);font-style:italic;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"${m.note}"</span>`:''}
+      ${m.status==='redirected'&&m.note?`<span style="font-size:11px;color:var(--mut);font-style:italic;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">"${escHtml(m.note)}"</span>`:''}
     </div>
     ${renderRubric(CV._critique||c)}
     ${renderAnnotations(m.status)}
@@ -2886,9 +3039,9 @@ function renderRubric(c){
     const bannerLabel=overall==='PASS'?'✓ All checks passed':`⚠ ${c.gate_failures||0} check${c.gate_failures!==1?'s':''} failed`;
     const rows=c.checks.map(ch=>`<div class="crit-check-row">
       <span class="crit-icon">${ch.pass?'✅':'❌'}</span>
-      <div><div class="crit-lbl">${ch.label}</div><div class="crit-detail">${ch.detail||''}</div></div>
+      <div><div class="crit-lbl">${escHtml(ch.label)}</div><div class="crit-detail">${escHtml(ch.detail||'')}</div></div>
     </div>`).join('');
-    const rubricVer=c.rubric_version?`<span style="font-size:9px;color:var(--dim);margin-left:auto">v${c.rubric_version}</span>`:'';
+    const rubricVer=c.rubric_version?`<span style="font-size:9px;color:var(--dim);margin-left:auto">v${escHtml(c.rubric_version)}</span>`:'';
     return `<div class="rubric-panel">
       <div class="rp-h" style="display:flex;align-items:center">CRITIQUE RUBRIC ${rubricVer}</div>
       <div class="crit-banner ${bannerClass}">${bannerLabel}</div>
@@ -2918,7 +3071,7 @@ function renderTakeaways(items,showAll){
   const visible=showAll?items:items.slice(0,max);
   const hasMore=items.length>max;
   return `<div class="takeaways-panel"><div class="tp-h">TAKEAWAYS</div>
-    <ul>${visible.map(t=>`<li>${t}</li>`).join('')}</ul>
+    <ul>${visible.map(t=>`<li>${escHtml(t)}</li>`).join('')}</ul>
     ${hasMore&&!showAll?`<span class="tp-showmore" onclick="canvasToggleTakeaways()">+ ${items.length-max} more</span>`:''}
     ${showAll&&hasMore?`<span class="tp-showmore" onclick="canvasToggleTakeaways()">↑ show less</span>`:''}
   </div>`;
@@ -2930,9 +3083,9 @@ function renderLineage(s){
   const rid=s.run_id||'—';
   const ga=s.generated_at?new Date(s.generated_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
   return `<div class="lineage-footer">
-    <div class="lf-row"><span class="lf-lbl">QUERY</span><span>${q}</span></div>
-    <div class="lf-row"><span class="lf-lbl">RUN_ID</span><span>${rid}</span></div>
-    <div class="lf-row"><span class="lf-lbl">BUILT</span><span>${ga}</span></div>
+    <div class="lf-row"><span class="lf-lbl">QUERY</span><span>${escHtml(q)}</span></div>
+    <div class="lf-row"><span class="lf-lbl">RUN_ID</span><span>${escHtml(rid)}</span></div>
+    <div class="lf-row"><span class="lf-lbl">BUILT</span><span>${escHtml(ga)}</span></div>
   </div>`;
 }
 
@@ -2944,12 +3097,12 @@ function renderAnnotations(status){
   if(settled){
     return `<div class="annot-panel">
       <div class="ap-h">ANNOTATIONS <span class="annot-lock">🔒 locked at bless time</span></div>
-      ${val?`<div class="br-annot">"${val}"</div>`:'<div style="font-size:11px;color:var(--dim)">No annotation added.</div>'}
+      ${val?`<div class="br-annot">"${escHtml(val)}"</div>`:'<div style="font-size:11px;color:var(--dim)">No annotation added.</div>'}
     </div>`;
   }
   return `<div class="annot-panel">
     <div class="ap-h">ANNOTATIONS <span id="annot-saved-indicator" class="ap-saved" style="display:none">— saved</span></div>
-    <textarea class="annot-ta" id="annot-textarea" maxlength="1000" rows="4" placeholder="Add context, caveats, or distribution notes...">${val}</textarea>
+    <textarea class="annot-ta" id="annot-textarea" maxlength="1000" rows="4" placeholder="Add context, caveats, or distribution notes...">${escHtml(val)}</textarea>
     <div class="annot-foot">
       <span class="annot-char" id="annot-char">${chars} / 1000</span>
     </div>
@@ -2961,6 +3114,7 @@ function renderActionRow(status,settled,certifiable=true,critique=null){
   const gateBlocked=!settled&&!certifiable;
   const critiqueGate=critique&&Array.isArray(critique.checks)&&critique.overall!=='PASS';
   const blessDisabled=(settled||gateBlocked||critiqueGate||CV._annotSaving)?'disabled':'';
+  const blessGateAttr=(gateBlocked||critiqueGate)?'data-gate-blocked="1"':'';
   const redirectDisabled=settled?'disabled':'';
   const killDisabled=settled?'disabled':'';
   const themeBtns=['terminal','ember','aurora'].map(t=>`<button class="canvas-theme-btn${CV._theme===t?' ctb-on':''}" data-atheme="${t}">${t.toUpperCase()}</button>`).join('');
@@ -2972,7 +3126,7 @@ function renderActionRow(status,settled,certifiable=true,critique=null){
     ${gateMsg}
     ${critiqueGateMsg}
     <div class="action-row">
-      <button class="bless-btn" id="canvas-bless-btn" ${blessDisabled} ${blessTitle}>🟢 BLESS</button>
+      <button class="bless-btn" id="canvas-bless-btn" ${blessDisabled} ${blessGateAttr} ${blessTitle}>🟢 BLESS</button>
       <button class="redirect-btn" id="canvas-redirect-btn" ${redirectDisabled}>🟡 REDIRECT</button>
       <button class="kill-btn" id="canvas-kill-btn" ${killDisabled}>🔴 KILL</button>
     </div>
@@ -2990,8 +3144,8 @@ function renderErrorPanel(m,s){
   const errMsg=m&&m.error?m.error:'Daily Visuals agent did not produce a piece for this date.';
   const runId=m&&m.run_id?m.run_id:(s&&s.run_id?s.run_id:'—');
   return `<div class="canvas-error-panel">
-    <div class="cep-h">⛔ Daily Visuals Failed — ${CV.piece_date}</div>
-    <div class="cep-msg">Error: ${errMsg}<br>Run ID: ${runId}</div>
+    <div class="cep-h">⛔ Daily Visuals Failed — ${escHtml(CV.piece_date)}</div>
+    <div class="cep-msg">Error: ${escHtml(errMsg)}<br>Run ID: ${escHtml(runId)}</div>
     <button class="btn bs" onclick="canvasRerun()">▶ Re-run Daily Visuals</button>
   </div>`;
 }
@@ -3031,12 +3185,17 @@ function wireActionRow(status){
       CV._annotSaving=true;
       if(bBtn)bBtn.disabled=true;
       CV._annotTimer=setTimeout(async()=>{
-        await saveAnnotation(CV.annotation);
+        const ok=await saveAnnotation(CV.annotation);
         CV._annotSaving=false;
         if(bBtn&&!document.getElementById('canvas-bless-btn')?.getAttribute('data-gate-blocked')){
           bBtn.disabled=false;
         }
-        if(savedEl){savedEl.style.display='';setTimeout(()=>{if(savedEl)savedEl.style.display='none';},2500);}
+        if(savedEl){
+          savedEl.textContent=ok?'— saved':'— not saved (retry or check connection)';
+          savedEl.style.color=ok?'':'#e05252';
+          savedEl.style.display='';
+          if(ok)setTimeout(()=>{if(savedEl)savedEl.style.display='none';},2500);
+        }
       },1000);
     });
   }
@@ -3066,31 +3225,31 @@ async function canvasAction(action,note=''){
     return;
   }
   try{
-    const r=await fetch('/api/command?path=/canvas/bless',{
+    await apiFetch(apiUrl('/canvas/bless'),{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify(body)
     });
-    if(r.ok){
-      showToast(`${action} sent — refreshing…`,'ok');
-      await fetchTodayPiece();
-    } else {
-      showToast(`Action failed: HTTP ${r.status}`,'err');
-    }
+    showToast(`${action} sent — refreshing…`,'ok');
+    await fetchTodayPiece();
   }catch(e){
-    showToast('Network error — action not sent','err');
+    showToast(`Action failed: ${e.message}`,'err');
   }
 }
 
 /* ---- save annotation to catalog via /canvas/annotate ---- */
 async function saveAnnotation(text){
-  if(!CV.spec||!CV.spec.run_id)return;
-  if(CV._demo)return;
+  if(!CV.spec||!CV.spec.run_id)return true;
+  if(CV._demo)return true;
   try{
-    await fetch('/api/command?path=/canvas/annotate',{
+    await apiFetch(apiUrl('/canvas/annotate'),{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({run_id:CV.spec.run_id,annotation:text})
     });
-  }catch(e){}
+    return true;
+  }catch(e){
+    console.warn('saveAnnotation failed',e);
+    return false;
+  }
 }
 
 /* ---- poll catalog for new entries every 60s ---- */
@@ -3117,9 +3276,9 @@ window.canvasToggleTakeaways=function(){
 window.canvasRerun=async function(){
   showToast('Sending re-run command…','info');
   try{
-    await fetch('/api/command?path=/jarvis/run/daily-visuals',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+    await apiFetch(apiUrl('/jarvis/run/daily-visuals'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
     showToast('Re-run triggered — check back in ~2 minutes','ok');
-  }catch(e){showToast('Network error','err');}
+  }catch(e){showToast(`Re-run failed: ${e.message}`,'err');}
 };
 
 /* ---- sub-view switching ---- */
@@ -3232,21 +3391,21 @@ function showArchiveDetail(ds,info){
     const critPass=info.critique_gate_failures===0&&info.critique_overall==='PASS';
     const critCount=info.critique_check_count||0;
     detailHtml=`<div class="blessed-record">
-      <div class="br-meta">blessed ${tsLabel}${info.actor?' by '+info.actor:''}</div>
-      ${annot?`<div><div class="rp-h" style="margin-bottom:4px">ANNOTATION</div><div class="br-annot">"${annot}"</div></div>`:''}
-      ${info.critique_overall?`<div class="br-crit-sum">${critPass?'✅':'⚠'} ${critCount?critCount+'/'+critCount+' checks':'Critique'} ${critPass?'passed':'partial'} · rubric v${info.critique_rubric_version||'1.0'}</div>`:''}
+      <div class="br-meta">blessed ${tsLabel}${info.actor?' by '+escHtml(info.actor):''}</div>
+      ${annot?`<div><div class="rp-h" style="margin-bottom:4px">ANNOTATION</div><div class="br-annot">"${escHtml(annot)}"</div></div>`:''}
+      ${info.critique_overall?`<div class="br-crit-sum">${critPass?'✅':'⚠'} ${critCount?critCount+'/'+critCount+' checks':'Critique'} ${critPass?'passed':'partial'} · rubric v${escHtml(info.critique_rubric_version||'1.0')}</div>`:''}
       <div style="font-size:11px;color:var(--dim);margin-top:4px">Archive view — no further actions.</div>
     </div>`;
   } else {
-    detailHtml=`<div style="font-size:11.5px;color:var(--dim)">Status: ${st} · ${ds}</div>
-      ${info.note?`<div style="font-size:11px;color:var(--dim);margin-top:8px;font-style:italic">"${info.note}"</div>`:''}
+    detailHtml=`<div style="font-size:11.5px;color:var(--dim)">Status: ${escHtml(st)} · ${escHtml(ds)}</div>
+      ${info.note?`<div style="font-size:11px;color:var(--dim);margin-top:8px;font-style:italic">"${escHtml(info.note)}"</div>`:''}
       <div style="font-size:11px;color:var(--dim);margin-top:8px">No further actions.</div>`;
   }
 
   body.innerHTML=`
-    <div style="margin-bottom:10px"><span class="canvas-status-badge ${statusClass}">${st.toUpperCase()}</span> <span style="font-family:var(--mono);font-size:11px;color:var(--dim)">${ds}</span></div>
+    <div style="margin-bottom:10px"><span class="canvas-status-badge ${statusClass}">${escHtml(String(st).toUpperCase())}</span> <span style="font-family:var(--mono);font-size:11px;color:var(--dim)">${escHtml(ds)}</span></div>
     <div style="background:var(--dark2);border-radius:10px;overflow:hidden;margin-bottom:10px">
-      <iframe src="gallery/${ds}/piece.html" style="width:100%;height:200px;border:none;display:block" title="Archive piece ${ds}"></iframe>
+      <iframe src="gallery/${encodeURIComponent(ds)}/piece.html" sandbox="allow-scripts" style="width:100%;height:200px;border:none;display:block" title="Archive piece ${escHtml(ds)}"></iframe>
     </div>
     ${detailHtml}`;
 }
@@ -3269,18 +3428,18 @@ async function renderFailed(){
   const items=all.length?all:demoFailed;
   listEl.innerHTML=items.map(f=>`
     <div class="canvas-failed-row">
-      <span class="cfr-date">${f.date}</span>
-      <span class="cfr-msg">${f.error||f.note||'Unknown error'}</span>
-      <span style="font-family:var(--mono);font-size:10px;color:var(--dim);min-width:140px;text-align:right">${f.run_id||''}</span>
-      <button class="btn bs" style="white-space:nowrap;padding:5px 10px" onclick="canvasRerunDate('${f.date}')">▶ Re-run</button>
+      <span class="cfr-date">${escHtml(f.date)}</span>
+      <span class="cfr-msg">${escHtml(f.error||f.note||'Unknown error')}</span>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--dim);min-width:140px;text-align:right">${escHtml(f.run_id||'')}</span>
+      <button class="btn bs" style="white-space:nowrap;padding:5px 10px" onclick="canvasRerunDate('${escJsAttr(f.date)}')">▶ Re-run</button>
     </div>`).join('');
 }
 window.canvasRerunDate=async function(date){
   showToast(`Re-running Daily Visuals for ${date}…`,'info');
   try{
-    await fetch('/api/command?path=/jarvis/run/daily-visuals',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date})});
+    await apiFetch(apiUrl('/jarvis/run/daily-visuals'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date})});
     showToast('Re-run triggered','ok');
-  }catch(e){showToast('Network error','err');}
+  }catch(e){showToast(`Re-run failed: ${e.message}`,'err');}
 };
 
 /* ---- init canvas when tab is clicked ---- */
@@ -3662,7 +3821,7 @@ document.addEventListener('DOMContentLoaded',()=>{
             ? `<div style="font-size:10px;color:var(--dim);margin-top:2px">series-TMDB: ${r.series_tmdb.toLocaleString()} (${stp}%) <span style="opacity:.7">— parent series linked</span></div>`
             : '';
           return `<div style="background:var(--inset);border-radius:6px;padding:10px">`+
-            `<div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.08em;margin-bottom:6px">${ICON[r.label]||'📦'} ${r.label.toUpperCase()} <span style="font-weight:400;color:var(--dim)">${r.total.toLocaleString()} total</span></div>`+
+            `<div style="font-size:10px;font-weight:700;color:var(--mut);letter-spacing:.08em;margin-bottom:6px">${ICON[r.label]||'📦'} ${escHtml(String(r.label).toUpperCase())} <span style="font-weight:400;color:var(--dim)">${r.total.toLocaleString()} total</span></div>`+
             `<div class="spine">${bar('GOLD',r.gold,'#22c55e')}${bar('SILVER',r.silver,'#f59e0b')}${bar('BRONZE',r.bronze,'var(--accent)')}</div>`+
             `<div style="font-size:10px;color:var(--dim);margin-top:4px">EIDR: ${r.eidr.toLocaleString()} (${ep}%) · TMDB: ${r.tmdb.toLocaleString()} (${tp}%)</div>`+
             seriesLine+
@@ -3730,7 +3889,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       const head = `<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:8px;padding:4px 8px;font-size:9.5px;letter-spacing:.06em;color:var(--dim);border-bottom:1px solid var(--line)">`+
         `<div>CONTENT TYPE</div><div style="text-align:right">🎵 GRACENOTE</div><div style="text-align:right">📺 FYI</div><div style="text-align:right">📊 NIELSEN</div></div>`;
       const row = r => `<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:8px;padding:5px 8px;font-size:11px;border-bottom:1px solid var(--inset)">`+
-        `<div style="color:var(--mut);font-weight:600">${r.label}</div>`+cell(r.gracenote)+cell(r.fyi)+cell(r.nielsen_titles)+`</div>`;
+        `<div style="color:var(--mut);font-weight:600">${escHtml(r.label)}</div>`+cell(r.gracenote)+cell(r.fyi)+cell(r.nielsen_titles)+`</div>`;
       const t = ec.totals||{};
       const totalRow = `<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:8px;padding:6px 8px;font-size:11px;border-top:1px solid var(--line)">`+
         `<div style="color:var(--ink);font-weight:700;letter-spacing:.04em">TOTAL</div>`+cell(t.gracenote,1)+cell(t.fyi,1)+cell(t.nielsen_titles,1)+`</div>`;
