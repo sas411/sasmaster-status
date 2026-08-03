@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster Insights — Six Findings</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────────────────────
+   SaSMaster Insights — editorial intelligence surface (scroll-driven, 6 chapters)
+   Theme: Theme 04 Data Narrative typography (DM Serif Display + Inter, tokens.md
+   §Theme 04) over a dual light/dark token set. Every hex and rgba() below is
+   declared in design-system/tokens.md — token-gate enforced, fail-closed.
+   Token names deliberately avoid CSS named-colour words (gate NAME rule).
+   Charts: Highcharts 11.4.8 only (UI constitution §5). No GSAP/Lenis on this
+   surface — CSS/WAAPI + IntersectionObserver, gated on document.fonts.ready.
+   ZERO hardcoded figures: every numeral in the DOM originates in /insights.
+   ──────────────────────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden;max-width:100vw}
+
+:root{
+  /* ── light editorial canvas (tokens.md §Theme 04 foundation tokens) ── */
+  --canvas:#fafaf8;
+  --surface:#ffffff;
+  --surface2:#f5f5f3;
+  --ink:#111111;
+  --ink2:#2d2d2d;
+  --muted:#888888;
+  --dim:#9CA3AF;
+  --border:#e8e8e4;
+  --border2:#d8d8d4;
+  --accent:#6C63FF;
+  --accent-dim:rgba(124,58,237,0.09);
+  --accent-line:rgba(124,58,237,0.16);
+  --warn:#c2740a;
+  --warn-dim:rgba(194,116,10,0.10);
+  --pos:#059669;
+  --pos-dim:rgba(5,150,105,0.10);
+  --neg:#dc2626;
+  --neg-dim:rgba(220,38,38,0.09);
+  --grid:rgba(22,22,42,0.07);
+  --hair:rgba(22,22,42,0.06);
+  --scrim:rgba(244,244,251,0.90);
+  --onaccent:#ffffff;
+  /* series palette — light variants (tokens.md §Theme 04 Khroma + secondary) */
+  --s1:#6C63FF;
+  --s2:#FF6B6B;
+  --s3:#0891b2;
+  --s4:#c2740a;
+  --s5:#059669;
+  --s6:#B388FF;
+  /* fonts */
+  --f-display:'DM Serif Display',Georgia,serif;
+  --f-ui:'Inter',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease-spring:cubic-bezier(0.16,1,0.3,1);
+  --r-sm:4px;--r-md:8px;--r-lg:12px;--r-xl:20px;
+  --nav-h:54px;
+}
+[data-theme="dark"]{
+  --canvas:#0a0a0f;
+  --surface:#12121a;
+  --surface2:#0d0d16;
+  --ink:#f8f8ff;
+  --ink2:#f8f8ff;
+  --muted:#94a3b8;
+  --dim:#4b5563;
+  --border:rgba(167,139,250,0.10);
+  --border2:rgba(167,139,250,0.35);
+  --accent:#a78bfa;
+  --accent-dim:rgba(167,139,250,0.14);
+  --accent-line:rgba(167,139,250,0.35);
+  --warn:#f59e0b;
+  --warn-dim:rgba(245,158,11,0.10);
+  --pos:#10b981;
+  --pos-dim:rgba(16,185,129,0.10);
+  --neg:#ef4444;
+  --neg-dim:rgba(239,68,68,0.12);
+  --grid:rgba(255,255,255,0.04);
+  --hair:rgba(255,255,255,0.04);
+  --scrim:rgba(10,10,15,0.85);
+  --onaccent:#0a0a0f;
+  /* series palette — dark variants, same domain order (ui-constitution §9 pairing) */
+  --s1:#a78bfa;
+  --s2:#ef4444;
+  --s3:#22d3ee;
+  --s4:#f59e0b;
+  --s5:#10b981;
+  --s6:#ec4899;
+}
+
+body{font-family:var(--f-ui);background:var(--canvas);color:var(--ink);line-height:1.6;
+  -webkit-font-smoothing:antialiased;min-height:100vh;
+  transition:background .35s var(--ease-spring),color .35s var(--ease-spring)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:var(--r-sm)}
+
+/* ── nav ─────────────────────────────────────────────────────────────────── */
+.ins-nav{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:12px;
+  height:var(--nav-h);padding:0 14px;background:var(--surface);border-bottom:1px solid var(--border)}
+.ins-wm{font-family:var(--f-ui);font-weight:700;font-size:14px;letter-spacing:-.01em;white-space:nowrap}
+.ins-wm em{font-family:var(--f-display);font-style:italic;font-weight:400;color:var(--accent)}
+.ins-wm span{font-family:var(--f-mono);font-size:9px;letter-spacing:.18em;color:var(--muted);
+  margin-left:8px;vertical-align:2px;text-transform:uppercase}
+.ins-navr{margin-left:auto;display:flex;align-items:center;gap:8px}
+.ins-pill{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;border:1px solid var(--border2);
+  border-radius:var(--r-xl);padding:4px 10px;color:var(--muted);white-space:nowrap}
+.ins-pill.is-live{color:var(--pos);border-color:var(--pos);background:var(--pos-dim)}
+.ins-pill.is-wait{color:var(--warn);border-color:var(--warn);background:var(--warn-dim)}
+.ins-tgl{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;border:1px solid var(--border2);
+  border-radius:var(--r-xl);padding:4px 12px;color:var(--muted);min-height:32px}
+.ins-tgl:hover{border-color:var(--accent);color:var(--accent)}
+.ins-prog{position:fixed;top:var(--nav-h);left:0;height:2px;width:0;background:var(--accent);z-index:61}
+
+/* ── shell ───────────────────────────────────────────────────────────────── */
+.ins-wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+/* ── hero ────────────────────────────────────────────────────────────────── */
+.hro{padding:56px 0 40px;border-bottom:1px solid var(--border)}
+.hro-eye{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:18px}
+.hro h1{font-family:var(--f-display);font-weight:400;letter-spacing:-.015em;line-height:1.06;
+  font-size:clamp(38px,8.4vw,74px);color:var(--ink);margin-bottom:20px}
+.hro h1 i{font-style:italic;color:var(--accent)}
+.hro-lede{font-size:clamp(15px,4vw,19px);line-height:1.62;color:var(--ink2);max-width:62ch;font-weight:300}
+.hro-lede b{font-weight:600;color:var(--ink)}
+.hro-meta{margin-top:26px;display:flex;flex-wrap:wrap;gap:8px}
+.hro-meta span{font-family:var(--f-mono);font-size:10px;letter-spacing:.05em;color:var(--muted);
+  border:1px solid var(--border);border-radius:var(--r-sm);padding:5px 9px;background:var(--surface)}
+
+/* the disclosure strip — refusals are hero content, not fine print */
+.ref{margin:28px 0 0;background:var(--surface);border:1px solid var(--border);
+  border-left:3px solid var(--warn);border-radius:0 var(--r-md) var(--r-md) 0;padding:18px 20px}
+.ref h2{font-family:var(--f-ui);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--warn);margin-bottom:10px}
+.ref ul{list-style:none;display:grid;gap:7px}
+.ref li{font-size:13.5px;line-height:1.5;color:var(--ink2);padding-left:18px;position:relative}
+.ref li::before{content:"×";position:absolute;left:0;top:0;color:var(--warn);font-family:var(--f-mono);font-weight:500}
+.ref li b{font-weight:600;color:var(--ink)}
+.ref p{margin-top:12px;font-size:12.5px;color:var(--muted);line-height:1.55}
+
+/* ── chapter ─────────────────────────────────────────────────────────────── */
+.chp{padding:72px 0;border-bottom:1px solid var(--border)}
+.chp-num{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+.chp-num b{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--accent);font-weight:500}
+.chp-num span{font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.chp-num i{flex:1;height:1px;background:var(--border);font-style:normal}
+.chp-thesis{font-family:var(--f-display);font-weight:400;letter-spacing:-.01em;line-height:1.1;
+  font-size:clamp(30px,6.6vw,54px);color:var(--ink);max-width:19ch}
+.chp-thesis u{text-decoration:none;color:var(--accent);font-style:italic}
+.chp-sub{margin-top:16px;font-size:clamp(14.5px,3.7vw,16.5px);line-height:1.62;color:var(--ink2);
+  max-width:60ch;font-weight:300}
+.chp-sub b{font-weight:600;color:var(--ink)}
+
+/* the one number */
+.fig{margin:32px 0 0;display:grid;grid-template-columns:1fr;gap:0;
+  border-top:2px solid var(--ink);border-bottom:1px solid var(--border);padding:20px 0}
+.fig-v{font-family:var(--f-mono);font-weight:500;font-size:clamp(44px,13vw,88px);line-height:1;
+  letter-spacing:-.035em;color:var(--ink);font-variant-numeric:tabular-nums}
+.fig-v.is-void{color:var(--dim)}
+.fig-l{margin-top:10px;font-size:13.5px;line-height:1.5;color:var(--muted);max-width:48ch}
+.fig-l b{color:var(--ink2);font-weight:600}
+.fig-pending{display:block;margin-top:8px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.04em;color:var(--warn)}
+
+/* chart panel */
+.pnl{margin-top:32px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:18px 16px 14px;box-shadow:0 1px 2px var(--hair)}
+.pnl+.pnl{margin-top:16px}
+.pnl-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.pnl-h b{font-family:var(--f-ui);font-size:13.5px;font-weight:600;color:var(--ink)}
+.pnl-h span{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.pnl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.pnl-box{min-width:300px;height:340px;position:relative}
+.pnl-foot{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);
+  font-family:var(--f-mono);font-size:10.5px;line-height:1.65;color:var(--muted);word-break:break-word}
+.pnl-foot b{color:var(--ink2);font-weight:500}
+
+/* the designed pending / unavailable state — never a placeholder chart */
+.void{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  text-align:center;padding:24px 16px;border-radius:var(--r-md);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px}
+.void-b{font-family:var(--f-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--warn);border:1px solid var(--warn);background:var(--warn-dim);border-radius:var(--r-xl);padding:5px 12px}
+.void-t{font-family:var(--f-ui);font-size:14px;font-weight:600;color:var(--ink)}
+.void-p{font-size:12.5px;line-height:1.6;color:var(--muted);max-width:46ch}
+.void-p code{font-family:var(--f-mono);font-size:11.5px;color:var(--ink2)}
+.void-a{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;border:1px solid var(--border2);
+  border-radius:var(--r-xl);padding:9px 18px;color:var(--ink2);min-height:44px;display:inline-flex;align-items:center}
+.void-a:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Dr. Scoop's read */
+.rd{margin-top:34px;display:grid;grid-template-columns:1fr;gap:14px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px}
+.rd-who{display:flex;align-items:center;gap:11px}
+.rd-orb{width:40px;height:40px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--s1),var(--s3));color:var(--onaccent)}
+.rd-who b{font-family:var(--f-ui);font-size:13.5px;font-weight:600;display:block;line-height:1.3}
+.rd-who span{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.rd-body p{font-family:var(--f-ui);font-size:15px;line-height:1.68;color:var(--ink2);font-weight:300}
+.rd-body p+p{margin-top:11px}
+.rd-body b{font-weight:600;color:var(--ink)}
+.rd-pull{margin-top:14px;padding-left:16px;border-left:3px solid var(--accent);
+  font-family:var(--f-display);font-style:italic;font-size:clamp(17px,4.4vw,22px);line-height:1.34;color:var(--ink)}
+
+/* caveats — first-class, authoritative, never apologetic */
+.cav{margin-top:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px}
+.cav-h{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+.cav-h b{font-family:var(--f-ui);font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.cav-h i{font-style:normal;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;color:var(--muted);
+  border:1px solid var(--border2);border-radius:var(--r-sm);padding:2px 7px}
+.cav-list{list-style:none;display:grid;gap:10px}
+.cav-list li{font-size:13.5px;line-height:1.58;color:var(--ink2);padding-left:20px;position:relative}
+.cav-list li::before{content:"";position:absolute;left:2px;top:8px;width:7px;height:7px;border-radius:2px;
+  background:var(--muted)}
+.cav-list li[data-sev="high"]::before{background:var(--warn)}
+.cav-list li[data-sev="block"]::before{background:var(--neg)}
+.cav-list li b{font-weight:600;color:var(--ink)}
+.cav-den{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);
+  font-family:var(--f-mono);font-size:10.5px;line-height:1.7;color:var(--muted);word-break:break-word}
+.cav-den b{color:var(--ink2);font-weight:500}
+.cav-flag{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-family:var(--f-mono);font-size:10px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--warn);border:1px solid var(--warn);
+  background:var(--warn-dim);border-radius:var(--r-sm);padding:4px 9px}
+
+/* hand-off */
+.hnd{margin-top:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.hnd a{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:11px 20px;border-radius:var(--r-xl);
+  background:var(--accent);color:var(--onaccent);font-size:13.5px;font-weight:600;text-decoration:none;
+  transition:transform .15s var(--ease-spring),opacity .15s}
+.hnd a:hover{transform:translateY(-1px);opacity:.92}
+.hnd a.is-ghost{background:none;color:var(--ink2);border:1px solid var(--border2);font-weight:500}
+.hnd a.is-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.hnd em{font-style:normal;font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+
+/* closing method note */
+.mth{padding:64px 0 96px}
+.mth h2{font-family:var(--f-display);font-size:clamp(26px,6vw,40px);line-height:1.14;margin-bottom:18px}
+.mth p{font-size:15px;line-height:1.68;color:var(--ink2);max-width:62ch;font-weight:300}
+.mth p+p{margin-top:12px}
+.mth p b{font-weight:600;color:var(--ink)}
+
+/* chapter rail (desktop) */
+.rail{display:none;position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:55;
+  flex-direction:column;gap:12px}
+.rail button{display:flex;align-items:center;gap:9px;flex-direction:row-reverse;color:var(--muted)}
+.rail i{display:block;width:8px;height:8px;border-radius:50%;border:1px solid var(--border2);
+  transition:all .2s var(--ease-spring)}
+.rail button.is-on i{background:var(--accent);border-color:var(--accent);transform:scale(1.35)}
+.rail b{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:400;
+  opacity:0;transform:translateX(6px);transition:all .2s var(--ease-spring);white-space:nowrap}
+.rail button:hover b,.rail button.is-on b{opacity:1;transform:none;color:var(--ink2)}
+
+/* scroll reveal — transform+opacity only */
+.rv{opacity:0;transform:translateY(22px);
+  transition:opacity .7s var(--ease-spring),transform .7s var(--ease-spring)}
+.rv.is-in{opacity:1;transform:none}
+.rv-d1{transition-delay:.08s}.rv-d2{transition-delay:.16s}.rv-d3{transition-delay:.24s}
+
+/* offline banner */
+.ban{display:none;padding:11px 20px;background:var(--warn-dim);border-bottom:1px solid var(--warn);
+  font-family:var(--f-mono);font-size:11px;line-height:1.6;color:var(--warn);text-align:center}
+.ban.is-on{display:block}
+
+/* ── tablet ──────────────────────────────────────────────────────────────── */
+@media (min-width:768px){
+  .ins-wrap{padding:0 40px}
+  .hro{padding:88px 0 56px}
+  .chp{padding:104px 0}
+  .rd{grid-template-columns:180px 1fr;gap:24px;padding:26px}
+  .rd-who{flex-direction:column;align-items:flex-start;gap:12px}
+  .pnl{padding:22px 22px 16px}
+  .pnl-box{height:400px}
+  .fig{grid-template-columns:auto 1fr;gap:28px;align-items:end}
+  .fig-l{margin-top:0;padding-bottom:8px}
+}
+/* ── desktop ─────────────────────────────────────────────────────────────── */
+@media (min-width:1280px){
+  .ins-wrap{padding:0 56px}
+  .rail{display:flex}
+  .chp{padding:120px 0}
+  .pnl-box{height:440px}
+}
+/* ── mobile-only guards ──────────────────────────────────────────────────── */
+@media (max-width:767px){
+  html,body{overflow-x:hidden;max-width:100vw}
+  .ins-wm span{display:none}
+  .pnl-box{min-width:320px}
+  .ins-tgl{min-height:44px;min-width:60px;display:inline-flex;align-items:center;justify-content:center}
+}
+/* ── reduced motion: everything static and complete ──────────────────────── */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .rv{opacity:1!important;transform:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav class="ins-nav">
+  <div class="ins-wm">SaSMaster <em>Insights</em><span>Six findings</span></div>
+  <div class="ins-navr">
+    <div class="ins-pill" id="navStatus">…</div>
+    <button class="ins-tgl" id="navTgl" aria-label="Toggle colour theme"><span id="navTglLbl">LIGHT</span></button>
+  </div>
+</nav>
+<div class="ins-prog" id="prog"></div>
+<div class="ban" id="ban"></div>
+
+<main>
+  <div class="ins-wrap">
+
+    <header class="hro">
+      <div class="hro-eye rv">Audience Signal Intelligence · Findings desk</div>
+      <h1 class="rv rv-d1">Six things the market<br>is <i>not</i> pricing.</h1>
+      <p class="hro-lede rv rv-d2">Every claim below survived an adversarial pass: three independent
+        analyses, then a reconciliation that killed more findings than it kept. What is left is
+        <b>small, measured, and honestly bounded</b> — and it disagrees with how content is
+        currently valued, ordered, and sold.</p>
+      <div class="hro-meta rv rv-d2" id="heroMeta"></div>
+
+      <section class="ref rv rv-d3">
+        <h2>What this page refuses to tell you</h2>
+        <ul>
+          <li>Any <b>time-shift lift</b> figure. Two independent methods found the stream ladder does not reconcile — the "lift" is negative on a third of telecasts. No lift table ships.</li>
+          <li>Any <b>commercial-minute</b> claim. Those columns are byte-identical copies of the program average. The names are there; the signal is not.</li>
+          <li>Any <b>audience-age</b> claim. Two measurement surfaces carry demo coverage running in opposite directions, and nothing yet says which is authoritative.</li>
+          <li>Any <b>absolute viewer count</b>. The unit is uncertified and the two surfaces disagree by roughly two orders of magnitude. Ratios, medians and ranks only.</li>
+          <li>Any <b>goodness-of-fit statistic</b>. At these sample sizes it would flatter the finding, not test it.</li>
+          <li>Any claim that <b>better-reviewed content underperforms</b>. The audience-weighted version of that pattern is a format-composition effect, and the typical title shows no effect at all. The signal fails; quality is not the variable.</li>
+        </ul>
+        <p>This is the differentiator, not a disclaimer. A finding you can act on is one whose
+          limits you were told before you acted.</p>
+      </section>
+    </header>
+
+    <div id="chapters"></div>
+
+    <section class="mth">
+      <h2 class="rv">How to read all of this.</h2>
+      <p class="rv rv-d1">Three measured universes sit behind these six chapters, and they must
+        never be mixed in one sentence. A measured-title universe of a few hundred titles across
+        three broadcast weeks. A household and person panel across twelve complete weeks. An open
+        catalogue with no audience measurement attached at all. Each chapter states which one it
+        stands on, and what that universe cannot see.</p>
+      <p class="rv rv-d1">Where a cell is thin, it is marked thin. Where a window is a rerun
+        season, the chart says so on its face. Where a number would be more persuasive than it is
+        true, it is not drawn. <b>Nothing on this page is estimated, smoothed, or filled in.</b></p>
+      <p class="rv rv-d2">The catalogue is the substrate. Each finding hands off to the underlying
+        report, where the query, the window, and the row counts are the product.</p>
+    </section>
+
+  </div>
+</main>
+
+<div class="rail" id="rail" aria-hidden="true"></div>
+
+<!-- Highcharts 11.4.8 — the only chart engine on this surface (UI constitution §5).
+     SRI-pinned; if the CDN fails or is blocked, every panel degrades to its
+     designed empty state instead of drawing anything. -->
+<script src="https://code.highcharts.com/11.4.8/highcharts.js"
+        integrity="sha384-XxsZMNol0nU0LnC2cYsyhRNbfyK7CPmF7WrlFvZDdlCKn9hzVkXsHxCHVaKwkl76"
+        crossorigin="anonymous" referrerpolicy="strict-origin-when-cross-origin"></script>
+<script src="https://code.highcharts.com/11.4.8/modules/accessibility.js"
+        integrity="sha384-RFRqB325VNHIIuDAhM+VeFF+SkZwLBzZioBGl5Eklzl88CWphk90Q7ACAcOt8R8R"
+        crossorigin="anonymous" referrerpolicy="strict-origin-when-cross-origin"></script>
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════════════════════════════════
+   SaSMaster Insights — editorial client
+   Single APP_STATE · single adapt(raw) · zero hardcoded figures.
+   Every numeral that reaches the DOM comes from GET /insights or
+   GET /insights/{id}. Until those answer, each chapter renders its designed
+   unavailable state — never a fabricated number, never a placeholder chart.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const ASK_ENDPOINT = window.ASK_ENDPOINT || 'https://sasmaster-ask-production.up.railway.app';
+const ASK_API_KEY  = window.ASK_API_KEY  || '';
+const CATALOG_HREF = 'sasmaster-research.html';
+
+/* ── the editorial scaffold ───────────────────────────────────────────────
+   Copy only. Every `{n}` is a slot the API fills; it renders as an em-dash
+   until the served finding supplies the figure. There are no numerals here. */
+const CHAPTERS = [
+  {
+    id: 'tmdb-mispricing',
+    desk: 'The Pricing Desk',
+    thesis: 'The catalogue score is not an audience signal on linear — and the reason is structural.',
+    sub: 'Catalogue metadata carries a popularity score and a review average, and both are used as demand proxies in acquisition, scheduling and packaging. Against measured audience per telecast, neither correlates. The reason is not taste: the catalogue barely rates the formats that dominate linear viewing, so a low score there is a marker of <b>format</b>, not of quality.',
+    figPath: 'supporting.news_talk_pct_of_worst_quartile', figUnit: '%',
+    figLabel: 'of the audience in the <b>lowest-scored quartile</b> comes from news and talk — formats the catalogue rates thinly or not at all.',
+    panels: [
+      { key:'quartiles', kind:'column', title:'Audience per telecast by catalogue-score quartile — pooled against median',
+        xTitle:'Catalogue-score quartile', yTitle:'Audience per telecast (unit-free ratio)' },
+      { key:'composition', kind:'column', title:'Share of each quartile’s audience coming from news and talk formats',
+        xTitle:'Catalogue-score quartile', yTitle:'Share of quartile audience (%)' },
+      { key:'correlation', kind:'bar', title:'Rank correlation against audience per telecast, by predictor',
+        xTitle:'Predictor', yTitle:'Spearman rank correlation' },
+    ],
+    scoop: [
+      'Read the two series on the first chart against each other, because <b>their disagreement is the finding</b>. Audience-weighted, the quartiles fall cleanly. At the typical title, they do not — the median is flat and out of order. A real quality effect would show up in both. A composition effect shows up in exactly one.',
+      'And the composition is the mechanism. The catalogue is built around film and scripted series; news and talk are rated thinly or not at all, and those are the formats carrying linear viewing. So a low score on a linear schedule is mostly telling you <b>what format a title is</b>. Nothing here says well-reviewed content underperforms — it says the score is measuring coverage, and anyone pricing a linear schedule off it is systematically mispricing the formats that actually deliver.'
+    ],
+    pull: 'The score fails on format, not on quality — and that is a sharper problem.',
+    exploreLabel: 'Open the underlying report'
+  },
+  {
+    id: 'episode-depth',
+    desk: 'The Programming Desk',
+    thesis: 'The best audience predictor is a field nobody cites.',
+    sub: 'Not the popularity score. Not the review average. Episode count — the plainest, dullest field in the catalogue record — out-ranks every demand metric the industry quotes, on the same titles, in the same window.',
+    figPath: 'value', figUnit: '',
+    figLabel: 'rank correlation between <b>episode count</b> and audience per telecast — more than double the popularity score on the same universe.',
+    panels: [
+      { key:'bands', kind:'column', title:'Audience per telecast by episode-count band',
+        xTitle:'Episodes in catalogue record', yTitle:'Audience per telecast (unit-free ratio)' },
+    ],
+    scoop: [
+      'Depth is a proxy for something the demand metrics never see: <b>a title that has already earned enough airings to be worth stripping</b>. Volume creates schedulability, and schedulability creates cumulative audience.',
+      'It is also the most robust of the catalogue findings — it holds on medians and on pooled totals, it survives excluding news, talk and sport, and it has a mechanism that doesn’t depend on what month you measured. It is confounded with age, and the next chapter is that confound.'
+    ],
+    pull: 'Depth is not a quality signal. It is a schedulability signal.',
+    exploreLabel: 'Open the underlying report'
+  },
+  {
+    id: 'library-economics',
+    desk: 'The Library Desk',
+    thesis: 'Old scripted television outperforms its modern equivalent.',
+    sub: 'Split the measured universe by decade of first air and by whether it was scripted, and the era curve does not slope the way acquisition budgets assume. The deepest, oldest scripted library delivers a multiple of what recent scripted delivers per telecast.',
+    figPath: 'value', figUnit: '×',
+    figLabel: 'the median per-telecast audience of <b>pre-1990 scripted</b> versus scripted first-aired in the last fifteen years.',
+    panels: [
+      { key:'era', kind:'line', title:'Audience per telecast by decade of first air',
+        xTitle:'Decade of first air', yTitle:'Audience per telecast (unit-free ratio)' },
+      { key:'split', kind:'column', title:'Scripted versus unscripted, by era bucket',
+        xTitle:'Era bucket', yTitle:'Audience per telecast (unit-free ratio)' },
+    ],
+    scoop: [
+      'The mechanism is not nostalgia. Old scripted titles that are still on air are the survivors of a brutal filter, and they arrive with the episode depth that makes stripping possible. This chapter and the last one are <b>the same phenomenon seen from two angles</b>, not two independent findings.',
+      'The honest weakness here is not sample size — it is the calendar. A short window in late spring is exactly when library programming is structurally favoured. Until a full year lands, this is a finding about a season, and it is labelled as one on the chart.'
+    ],
+    pull: 'Two angles on one phenomenon — not two findings.',
+    exploreLabel: 'Open the underlying report'
+  },
+  {
+    id: 'concentration',
+    desk: 'The Panel Desk',
+    thesis: 'There is no broad audience. There is a heavy quintile.',
+    sub: 'Rank measured persons by minutes viewed and the distribution is not skewed — it is degenerate. One fifth of the panel supplies almost all of the viewing. At network level the same shape repeats: no cable network in the measured set is broadly consumed.',
+    figPath: 'value', figUnit: '%',
+    figLabel: 'of all measured viewing minutes come from the <b>heaviest viewing quintile</b> alone.',
+    panels: [
+      { key:'quintiles', kind:'column', title:'Share of all measured minutes, by viewing quintile',
+        xTitle:'Viewing quintile', yTitle:'Share of all measured minutes (%)' },
+      { key:'networks', kind:'bar', title:'Share of a network’s minutes supplied by its heaviest tenth of households',
+        xTitle:'Network', yTitle:'Share of network minutes from top-decile households (%)' },
+    ],
+    scoop: [
+      'Every reach-based plan on the market assumes an audience that spreads. This one doesn’t. A network can post a respectable mean minutes-per-household while its <b>median household watched almost nothing</b> — the mean is being carried by a tail.',
+      'And the concentration measured here is the optimistic version. The denominator is people who viewed at least one measured minute; households who watched nothing at all are outside the table entirely. The true figure is worse than the one on the chart.'
+    ],
+    pull: 'The mean is a tail. The median is the audience you actually bought.',
+    exploreLabel: 'Open the underlying report'
+  },
+  {
+    id: 'timeshift-decay',
+    desk: 'The Currency Desk',
+    thesis: 'Time-shifting is broadcast’s — and it’s over almost immediately.',
+    sub: 'Measured on playback delay rather than on the stream ladder, delayed viewing decays faster than the currency debate assumes, and it is disproportionately a broadcast behaviour rather than a cable one. This is what actually sizes the argument over which window gets paid for.',
+    figPath: 'value', figUnit: '%',
+    figLabel: 'of all time-shifted minutes have already replayed within <b>six hours</b> of the original airing.',
+    panels: [
+      { key:'decay', kind:'area', title:'Where time-shifted minutes land, by playback delay',
+        xTitle:'Playback delay', yTitle:'Share of time-shifted minutes (%)' },
+      { key:'family', kind:'column', title:'Time-shifted share of minutes, by distribution type',
+        xTitle:'Distribution type', yTitle:'Share of minutes time-shifted (%)' },
+    ],
+    scoop: [
+      'The whole extended-window argument is a fight over the <b>thin end of this curve</b>. Once you see how little volume arrives after day three, the size of the prize stops being a matter of opinion.',
+      'One method note that matters more than it looks: this is built on measured playback delay, not on the stream ladder. The ladder does not reconcile on this warehouse — a third of telecasts run backwards on it. Any decay curve built the other way would be measuring an artefact.'
+    ],
+    pull: 'The extended-window argument is a fight over the thin end of a curve.',
+    exploreLabel: 'Open the underlying report'
+  },
+  {
+    id: 'genre-arbitrage',
+    desk: 'The Supply Desk',
+    thesis: 'Supply reallocated into the worst-surviving genres.',
+    sub: 'Across a decade of new series starts, comedy’s share of the slate roughly halved while drama’s more than doubled. Set that against how often each genre actually earns a second season and the reallocation runs against its own survival evidence.',
+    figPath: 'value.drama_multiple', figUnit: '×',
+    figLabel: 'the multiple <b>drama’s</b> share of new series starts reached against its first measured year.',
+    // the counterpart figure is read from the SAME served object; if the
+    // service stops publishing it, the sentence simply does not appear
+    figLabelExtra: (h) => {
+      const m = h && h.value && typeof h.value === 'object' ? h.value.comedy_multiple : null;
+      return (typeof m === 'number' && isFinite(m)) ? ('Comedy fell to ' + fmtNum(m) + '× over the same span.') : null;
+    },
+    panels: [
+      { key:'supply', kind:'line', title:'Share of new series starts carrying each genre tag',
+        xTitle:'Year of first air', yTitle:'Share of new series starts (%)' },
+      { key:'renewal', kind:'bar', title:'Rate of reaching a second season within three years',
+        xTitle:'Genre tag', yTitle:'Reached season two within three years (%)' },
+    ],
+    scoop: [
+      'This is a supply-side observation, and only that. It is not evidence that audiences turned away from comedy — it is evidence that <b>the industry ordered away from it</b>, into a form that historically returns less often.',
+      'Titles carry more than one genre tag here, so the two lines are incidence, not exclusive buckets, and they can legitimately sum past a hundred. That is why the direction of both lines is the claim, and no crossing point is drawn.'
+    ],
+    pull: 'Audiences didn’t turn away from comedy. Order books did.',
+    exploreLabel: 'Open the underlying report'
+  },
+];
+
+const APP_STATE = {
+  theme: null,
+  sessionId: null,
+  apiOnline: null,       // null unknown · true · false
+  index: null,           // adapted GET /insights
+  details: {},           // id -> adapted GET /insights/{id}, or null when unavailable
+  charts: {},            // "id::panelKey" -> Highcharts instance
+  chartLibOk: false,
+  reduceMotion: false,
+  fontsReady: false,
+  active: 0,
+};
+
+const $ = (id) => document.getElementById(id);
+const EM = '—';
+
+function esc(s){
+  return s == null ? '' : String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+/* truthful formatting: unknown renders as an em-dash, never a fallback figure */
+function fmtNum(v){
+  if (typeof v === 'number' && isFinite(v)) {
+    return v.toLocaleString('en-US', { maximumFractionDigits: 2 });
+  }
+  if (typeof v === 'string' && v.trim() !== '') return v.trim();
+  return EM;
+}
+function _s(v){ return (v == null || v === '') ? null : String(v); }
+function _n(v){ return (typeof v === 'number' && isFinite(v)) ? v : null; }
+function _arr(v){ return Array.isArray(v) ? v : []; }
+function _genSessionId(){
+  try { if (window.crypto && typeof crypto.randomUUID === 'function') return 'sess_' + crypto.randomUUID(); }
+  catch (e) { /* fall through */ }
+  return 'sess_' + Math.random().toString(36).slice(2,10) + '_' + Date.now();
+}
+function _headers(){
+  const h = { 'x-session-id': APP_STATE.sessionId };
+  if (ASK_API_KEY) h['x-api-key'] = ASK_API_KEY;
+  return h;
+}
+
+/* ── adapter (L4) — the ONLY place raw payload fields are touched ──────────
+   Tolerant of the field-name variants the insights service may land on;
+   renderers read the view model exclusively and never a raw field.          */
+/* Vendor / internal-identifier genericisation (no-finger-prints for UI).
+   Served caveat, denominator and method text names data vendors and warehouse
+   objects. Those must never reach the UI layer, so served prose is rewritten
+   through this single table before it is rendered. Meaning is preserved;
+   only the identifier is generalised. Applied ONLY to prose — never to a
+   figure, never to a measured category label such as a network name.        */
+const GENERIC = [
+  // specific phrases first — a bare token rule would rewrite them twice,
+  // producing artefacts like "the the stream lanes lanes"
+  [/aud\.program_viewership_base\.aa_000/g, 'the programme-average field on the programme-viewership surface'],
+  [/\bserving\s*->\s*curated_v2\b/g,   'the serving layer to the catalogue'],
+  [/\bNHI cable-dominant\b/g,            'cable-dominant'],
+  [/\bcomplete AMRLD broadcast weeks\b/g,'complete measured broadcast weeks'],
+  [/\blive_3 < live_sd\b/g,               'the delayed lane reading below the as-aired lane'],
+  [/\blive_sd\b/g,                        'the as-aired lane'],
+  [/\blive_[0-9]+\b/g,                    'the delayed lane'],
+  [/\bmedian_start_year\b/g,              'median first-air year'],
+  [/\bimdb_genres\b/g,                    'the catalogue genre tags'],
+  [/\btmdb_genres\b/g,                    'the alternate genre tags'],
+  [/\bTMDB popularity\b/g,               'popularity score'],
+  [/\bTMDB vote_average\b/g,             'review score'],
+  [/\bTMDB vote_count\b/g,               'review volume'],
+  [/\bTMDB\b/g,                          'catalogue metadata'],
+  [/\bIMDB\b/g,                          'catalogue metadata'],
+  [/serving\.title_performance_weekly/g, 'the title-performance surface'],
+  [/aud\.program_viewership_base/g,      'the programme-viewership surface'],
+  [/aud\.v_amrld_program_enriched/g,     'the enriched panel view'],
+  [/viewership\.amrld_program/g,         'the respondent-minute panel'],
+  [/curated_v2\.[a-z0-9_]+/g,            'the catalogue'],
+  [/\bcurated_v2\b/g,                    'the catalogue'],
+  [/ref\.[a-z0-9_]+/g,                   'the reference tables'],
+  [/\bserving\.[a-z0-9_]+/g,             'the serving layer'],
+  [/\btitle_performance_weekly\b/g,       'the title-performance surface'],
+  [/\bprogram_viewership_base\b/g,        'the programme-viewership surface'],
+  [/\bamrld_program\b/g,                  'the respondent-minute panel'],
+  [/audience_projection_sum/g,           'the audience-projection field'],
+  [/\baa_000\b/g,                        'the programme-average field'],
+  [/\bc[37]_aa_000\b/g,                  'the commercial-minute fields'],
+  [/\bviewing_stream\b/g,                'stream'],
+  [/\bL\+3 \/ L\+7\b/g,                  'delayed-window'],
+  [/\bL\+[37]\b/g,                       'delayed-window'],
+  [/\bNHI\b/g,                           'cable'],
+  [/\bMIT\b/g,                           'measurement'],
+  [/\bAMRLD\b/g,                         'respondent-minute'],
+  [/\bPDTCD\b/g,                         'the distribution-type code'],
+  [/\bSASMASTER_PKID\b/g,                'the resolved title key'],
+  [/\bnumber_of_episodes\b/g,            'episode count'],
+  [/\bnumber_of_seasons\b/g,             'season count'],
+  [/\bstart_year\b/g,                    'first-air year'],
+  [/\bvote_average\b/g,                  'review score'],
+  [/\bdemo_id\b/g,                       'demographic id'],
+  [/\bbroadcast_week\b/g,                'broadcast week'],
+  [/\bWEEK_DATE\b/g,                     'week date'],
+  [/\bBROADCAST_DATE\b/g,                'the broadcast date'],
+  [/\bNETWORK_ID\b/g,                     'the network identifier'],
+  [/\bV_WEIGHT\b/g,                      'the person weight'],
+  [/\bTIME_SHIFTED_V_CD\b/g,             'the time-shift code'],
+  [/\bMINIMUM_PLAY_DELAY_MINS\b/g,       'the measured playback delay'],
+  [/\btelecast_ct\b/g,                   'telecast count'],
+];
+function generic(s){
+  if (s == null) return null;
+  let out = String(s);
+  for (const [re, to] of GENERIC) out = out.replace(re, to);
+  // a substitution that supplies its own article can double one already in the
+  // served sentence ("against the the respondent-minute panel") — collapse it
+  return out
+    .replace(/\bthe the\b/gi, 'the')
+    // a substitution can land at the start of a sentence in lower case
+    .replace(/([.!?]\s+)(the\b)/g, (m, a, b) => a + 'The')
+    .replace(/[ \t]{2,}/g, ' ').trim();
+}
+
+/* Caveat severity is a PRESENTATION decision, not a served field: the service
+   ships a flat string list. Refusals ("No X is computed") read as blocking;
+   validity threats (rerun window, cohort skew) read as high; the rest are
+   notes. This changes emphasis only — never the text, never a number.       */
+function severityOf(t){
+  if (/^\s*(no|none)\b|DIRECTION ONLY|do not (quote|surface|ship)|not quotable|is wrong\b/i.test(t)) return 'block';
+  if (/rerun|threat to external validity|cannot be tested|skew|cohort|confound|short window|not seasonally/i.test(t)) return 'high';
+  return 'note';
+}
+
+function adapt(raw){
+  if (!raw || typeof raw !== 'object') return { kind:'empty', items:[] };
+  // GET /insights — live shape is {stories:[...]}; tolerate the earlier variants
+  const list = Array.isArray(raw) ? raw
+             : (Array.isArray(raw.stories) ? raw.stories
+             : (Array.isArray(raw.insights) ? raw.insights
+             : (Array.isArray(raw.items) ? raw.items : null)));
+  if (list) {
+    return {
+      kind: 'index',
+      generatedAt: _s(raw.generated_at || raw.generatedAt),
+      items: list.filter(Boolean).map((r) => ({
+        id: _s(r.story_id || r.id || r.insight_id || r.slug),
+        title: _s(r.title),
+        available: r.available !== false,
+      })).filter((r) => r.id),
+    };
+  }
+  return adaptDetail(raw);
+}
+
+/* ── adaptDetail — the ONLY place a raw payload field is read ───────────────
+   Live contract:
+     { story_id, thesis, headline_stat:{label,value,n,supporting{…}},
+       series:[ …flat rows, each carrying a `kind` discriminator, n, low_n ],
+       meta:{ source_tables, grain, n, date_window, denominator, method,
+              caveats[], query_ms } }
+   `series` is a FLAT list, not per-panel objects — it is grouped by `kind`
+   here and shaped into panels by PANEL_SPECS below.                         */
+function adaptDetail(raw){
+  if (!raw || typeof raw !== 'object') return null;
+  const head = (raw.headline_stat && typeof raw.headline_stat === 'object') ? raw.headline_stat : {};
+  const meta = (raw.meta && typeof raw.meta === 'object') ? raw.meta : {};
+  const dw   = (meta.date_window && typeof meta.date_window === 'object') ? meta.date_window : {};
+
+  const byKind = {};
+  for (const row of _arr(raw.series)) {
+    if (!row || typeof row !== 'object') continue;
+    const k = _s(row.kind);
+    if (!k) continue;
+    (byKind[k] = byKind[k] || []).push(row);
+  }
+
+  const caveats = _arr(meta.caveats).map((c) => {
+    const text = (c && typeof c === 'object') ? String(c.text || c.caveat || '') : String(c);
+    return { text: generic(text), severity: (c && c.severity) ? String(c.severity) : severityOf(text) };
+  }).filter((c) => c.text);
+
+  // The service ships no rerun flag; the rerun-window threat arrives as caveat
+  // prose. Detect it from the SERVED text so the chart can carry it — this
+  // reads what was served, it does not assert anything that was not.
+  const rerun = caveats.find((c) => /rerun/i.test(c.text)) || null;
+
+  return {
+    kind: 'detail',
+    id: _s(raw.story_id || raw.id),
+    headline: {
+      value: (head.value != null ? head.value : null),
+      supporting: (head.supporting && typeof head.supporting === 'object') ? head.supporting : {},
+      label: generic(_s(head.label)),
+      n: _n(head.n),
+    },
+    byKind: byKind,
+    caveats: caveats,
+    meta: {
+      denominator: generic(_s(meta.denominator)),
+      grain: generic(_s(meta.grain)),
+      method: generic(_s(meta.method)),
+      n: (meta.n != null ? meta.n : null),
+      windowMin: _s(dw.min),
+      windowMax: _s(dw.max),
+      weeks: _n(dw.weeks != null ? dw.weeks : dw.complete_weeks),
+      rerunSeason: !!rerun,
+      rerunNote: rerun ? 'summer rerun window — see the limits below' : null,
+      queryMs: _n(meta.query_ms),
+    },
+    // the service does not yet publish a catalogue report id for the hand-off
+    explore: {
+      reportId: _s(raw.explore && (raw.explore.report_id || raw.explore.reportId)),
+      label: _s(raw.explore && raw.explore.label),
+    },
+  };
+}
+
+/* ── PANEL_SPECS — the single place raw ROW field names are named ──────────
+   One entry per "<story_id>::<panel key>". Generic code below turns
+   byKind[kind] rows into a panel view model. A missing kind yields null,
+   which renders the designed empty state — a series is never invented.      */
+const PANEL_SPECS = {
+  'tmdb-mispricing::quartiles': {
+    kind: 'vote_average_quartile',
+    cat: (r) => 'Q' + r.quartile + (r.va_min != null && r.va_max != null
+            ? ' · ' + fmtNum(r.va_min) + '–' + fmtNum(r.va_max) : ''),
+    series: [
+      { name: 'Pooled (audience-weighted)', field: 'pooled_aa_per_telecast', unit: 'ratio' },
+      { name: 'Median title',               field: 'median_aa_per_telecast', unit: 'ratio' },
+    ],
+    sort: { field: 'quartile', dir: 1 },
+    note: 'Pooled falls; the median title does not follow it. That disagreement is the finding.',
+  },
+  'tmdb-mispricing::composition': {
+    kind: 'quartile_composition',
+    cat: (r) => 'Q' + r.quartile,
+    series: [
+      { name: 'News and talk', field: 'pct_audience_news_talk', unit: '%' },
+      { name: 'Everything else', field: 'pct_audience_other',   unit: '%' },
+    ],
+    sort: { field: 'quartile', dir: 1 },
+    stack: true,   // the two shares are a composition of one whole, not a comparison
+  },
+  'tmdb-mispricing::correlation': {
+    kind: 'correlation',
+    cat: (r) => generic(String(r.predictor || '')),
+    series: [ { name: 'Rank correlation against audience per telecast', field: 'spearman_rho', unit: 'rho' } ],
+  },
+  'episode-depth::bands': {
+    kind: 'episode_band',
+    cat: (r) => String(r.band),
+    series: [
+      { name: 'Median title', field: 'median_aa_per_telecast', unit: 'ratio' },
+      { name: 'Pooled',       field: 'pooled_aa_per_telecast', unit: 'ratio' },
+    ],
+    noteField: (r) => (r.median_start_year != null ? 'median first-air year ' + fmtNum(r.median_start_year) : null),
+  },
+  'library-economics::era': {
+    kind: 'era',
+    cat: (r) => String(r.era),
+    series: [
+      { name: 'Median title', field: 'median_aa_per_telecast', unit: 'ratio' },
+      { name: 'Pooled',       field: 'pooled_aa_per_telecast', unit: 'ratio' },
+    ],
+  },
+  'library-economics::split': {
+    kind: 'class_era',
+    cat: (r) => String(r.era),
+    pivot: { by: 'content_class' },
+    series: [ { name: 'Median title', field: 'median_aa_per_telecast', unit: 'ratio' } ],
+  },
+  'concentration::quintiles': {
+    kind: 'viewing_quintile',
+    cat: (r) => 'Q' + r.quintile,
+    series: [ { name: 'Share of all measured minutes', field: 'pct_of_weighted_minutes', unit: '%' } ],
+    sort: { field: 'quintile', dir: 1 },
+    noteField: (r) => (r.avg_minutes_in_window != null
+      ? 'average ' + fmtNum(r.avg_minutes_in_window) + ' minutes in the window' : null),
+  },
+  'concentration::networks': {
+    kind: 'network_top10pct',
+    cat: (r) => String(r.network),
+    series: [ { name: 'Share of network minutes from its heaviest tenth of households',
+                field: 'pct_minutes_from_top10pct_hh', unit: '%' } ],
+    sort: { field: 'pct_minutes_from_top10pct_hh', dir: -1 },
+    limit: 15,
+    noteField: (r) => (r.mean_minutes_per_hh != null && r.median_minutes_per_hh != null
+      ? 'mean ' + fmtNum(r.mean_minutes_per_hh) + ' vs median ' + fmtNum(r.median_minutes_per_hh) + ' minutes per household' : null),
+  },
+  'timeshift-decay::decay': {
+    kind: 'delay_bucket',
+    cat: (r) => String(r.bucket),
+    series: [
+      { name: 'Share of time-shifted minutes', field: 'pct_of_shifted', unit: '%' },
+      { name: 'Cumulative',                    field: 'cumulative_pct', unit: '%', kind: 'line' },
+    ],
+  },
+  'timeshift-decay::family': {
+    kind: 'product_family',
+    cat: (r) => String(r.product_family || r.pdtcd),
+    series: [ { name: 'Share of minutes time-shifted', field: 'pct_time_shifted', unit: '%' } ],
+    sort: { field: 'pct_time_shifted', dir: -1 },
+  },
+  'genre-arbitrage::supply': {
+    kind: 'genre_share_year',
+    cat: (r) => String(r.year),
+    series: [
+      { name: 'Comedy · full catalogue',  field: 'full_comedy_pct',    unit: '%' },
+      { name: 'Drama · full catalogue',   field: 'full_drama_pct',     unit: '%' },
+      { name: 'Comedy · matched cohort',  field: 'matched_comedy_pct', unit: '%', dashed: true },
+      { name: 'Drama · matched cohort',   field: 'matched_drama_pct',  unit: '%', dashed: true },
+    ],
+    sort: { field: 'year', dir: 1 },
+    note: 'Both cohorts are plotted. Only the direction reproduces in both — no crossing point is claimed.',
+  },
+  'genre-arbitrage::renewal': {
+    kind: 'second_season_conversion',
+    cat: (r) => String(r.genre),
+    series: [ { name: 'Reached a second season within three years',
+                field: 'pct_second_season_within_3yr', unit: '%' } ],
+    sort: { field: 'pct_second_season_within_3yr', dir: -1 },
+  },
+};
+
+/* generic row→panel shaping; the only field access is through the spec above */
+function buildPanel(storyId, panelKey, d){
+  const spec = PANEL_SPECS[storyId + '::' + panelKey];
+  if (!spec || !d || !d.byKind) return null;
+  let rows = _arr(d.byKind[spec.kind]).slice();
+  if (!rows.length) return null;
+
+  if (spec.sort) {
+    const f = spec.sort.field, dir = spec.sort.dir;
+    rows.sort((a, b) => ((_n(a[f]) || 0) - (_n(b[f]) || 0)) * dir);
+  }
+  let truncated = 0;
+  if (spec.limit && rows.length > spec.limit) { truncated = rows.length - spec.limit; rows = rows.slice(0, spec.limit); }
+
+  const pt = (r, field) => ({
+    y: _n(r[field]),
+    lowN: r.low_n === true,
+    n: _n(r.n),
+    note: spec.noteField ? spec.noteField(r) : null,
+  });
+
+  let categories, series;
+  if (spec.pivot) {
+    // rows are (group × category); pivot the group field into series
+    const cats = [], groups = [];
+    for (const r of rows) {
+      const c = spec.cat(r), g = String(r[spec.pivot.by]);
+      if (cats.indexOf(c) < 0) cats.push(c);
+      if (groups.indexOf(g) < 0) groups.push(g);
+    }
+    categories = cats;
+    series = groups.map((g) => ({
+      name: g.charAt(0).toUpperCase() + g.slice(1),
+      unit: spec.series[0].unit,
+      data: cats.map((c) => {
+        const r = rows.find((x) => spec.cat(x) === c && String(x[spec.pivot.by]) === g);
+        return r ? pt(r, spec.series[0].field) : { y: null, lowN: false, n: null, note: null };
+      }),
+    }));
+  } else {
+    categories = rows.map(spec.cat);
+    series = spec.series.map((s) => ({
+      name: s.name, unit: s.unit, kind: s.kind || null, dashed: !!s.dashed,
+      data: rows.map((r) => pt(r, s.field)),
+    })).filter((s) => s.data.some((p) => p.y != null));
+  }
+  if (!series.length) return null;
+
+  return {
+    categories, series,
+    stack: !!spec.stack,
+    note: spec.note || null,
+    truncatedNote: truncated
+      ? ('showing the ' + rows.length + ' most concentrated of ' + (rows.length + truncated) + ' measured networks')
+      : null,
+  };
+}
+
+/* a malformed or partial served payload degrades to the empty state, never throws */
+/* a malformed served payload must degrade to the unavailable state, never throw */
+function _safeAdaptDetail(raw){
+  try { return adaptDetail(raw); } catch (e) { return null; }
+}
+
+/* ── theme ────────────────────────────────────────────────────────────────── */
+function setTheme(t){
+  APP_STATE.theme = (t === 'dark') ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', APP_STATE.theme);
+  const lbl = $('navTglLbl'); if (lbl) lbl.textContent = APP_STATE.theme.toUpperCase();
+  try { localStorage.setItem('smi_theme', APP_STATE.theme); } catch (e) { /* storage unavailable */ }
+  restyleCharts();
+}
+function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('smi_theme'); } catch (e) { /* storage unavailable */ }
+  const pref = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  setTheme(saved === 'dark' || saved === 'light' ? saved : pref);
+  $('navTgl').addEventListener('click', () => setTheme(APP_STATE.theme === 'dark' ? 'light' : 'dark'));
+}
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function seriesColors(){
+  return ['--s1','--s2','--s3','--s4','--s5','--s6'].map(cssVar);
+}
+
+/* ── API ──────────────────────────────────────────────────────────────────── */
+/* The findings service queries a cold warehouse: measured round trips run to
+   ~14s for the index and ~13s for the heaviest story. Short timeouts turned a
+   slow answer into a false "no data", so these are generous on purpose, and
+   `/health` is deliberately OFF the critical path — the index IS the liveness
+   signal, and probing health first only doubled the wait.                    */
+const API_TIMEOUT_MS = 60000;
+const API_RETRIES = 1;
+
+function renderStatus(){
+  const el = $('navStatus'), ban = $('ban');
+  if (APP_STATE.apiOnline === true && APP_STATE.index) {
+    el.textContent = '● SERVED'; el.className = 'ins-pill is-live';
+    ban.classList.remove('is-on');
+  } else if (APP_STATE.apiOnline === true) {
+    el.textContent = '● SERVED'; el.className = 'ins-pill is-live';
+    ban.classList.remove('is-on');
+  } else if (APP_STATE.apiOnline === null) {
+    el.textContent = '◌ RETRIEVING'; el.className = 'ins-pill is-wait';
+    ban.textContent = 'Retrieving the served findings. Figures appear only once they arrive — '
+      + 'nothing on this page is drawn ahead of its data.';
+    ban.classList.add('is-on');
+  } else {
+    el.textContent = '◌ AWAITING FINDINGS'; el.className = 'ins-pill is-wait';
+    ban.textContent = 'The findings service has not answered. Every chapter below is rendering its '
+      + 'structure and its limits, and no figures at all — by design.';
+    ban.classList.add('is-on');
+  }
+}
+async function loadIndex(){
+  try {
+    const r = await fetch(ASK_ENDPOINT + '/insights', { headers: _headers(), signal: AbortSignal.timeout(API_TIMEOUT_MS) });
+    if (!r.ok) return null;
+    const a = adapt(await r.json());
+    return a.kind === 'index' ? a : null;
+  } catch (e) { return null; }
+}
+async function loadDetail(id){
+  // one automatic retry: warehouse latency is contention-driven and a single
+  // slow response is not evidence that the finding is unavailable
+  for (let attempt = 0; attempt <= API_RETRIES; attempt++) {
+    try {
+      const r = await fetch(ASK_ENDPOINT + '/insights/' + encodeURIComponent(id),
+        { headers: _headers(), signal: AbortSignal.timeout(API_TIMEOUT_MS) });
+      if (r.ok) return _safeAdaptDetail(await r.json());
+      if (r.status === 404) return null;   // not served — do not retry
+    } catch (e) { /* timeout or network — fall through to the retry */ }
+  }
+  return null;
+}
+
+/* ── chapter markup ───────────────────────────────────────────────────────── */
+function pad2(n){ return (n < 10 ? '0' : '') + n; }
+
+function panelMarkup(cid, p){
+  return ''
+  + '<div class="pnl rv">'
+  +   '<div class="pnl-h"><b>' + esc(p.title) + '</b><span id="' + cid + '-' + p.key + '-tag"></span></div>'
+  +   '<div class="pnl-scroll"><div class="pnl-box" id="' + cid + '-' + p.key + '">' + voidMarkup(cid) + '</div></div>'
+  +   '<div class="pnl-foot" id="' + cid + '-' + p.key + '-foot">'
+  +     '<b>x</b> ' + esc(p.xTitle) + ' &nbsp;·&nbsp; <b>y</b> ' + esc(p.yTitle)
+  +   '</div>'
+  + '</div>';
+}
+function voidMarkup(cid, mode){
+  if (mode === 'loading') {
+    return ''
+    + '<div class="void">'
+    +   '<div class="void-b">Retrieving</div>'
+    +   '<div class="void-t">Waiting for the served finding.</div>'
+    +   '<div class="void-p">The measured universe behind this chapter is queried live. '
+    +     'Nothing is drawn until it answers.</div>'
+    + '</div>';
+  }
+  return ''
+  + '<div class="void">'
+  +   '<div class="void-b">No served figures</div>'
+  +   '<div class="void-t">This chart is not drawn until the finding is served.</div>'
+  +   '<div class="void-p">Its axes, universe and limits are already stated above and below. '
+  +     'A placeholder chart would be a fabricated claim, so none is rendered. '
+  +     '<code>findings service · no response</code></div>'
+  +   '<button class="void-a" data-retry="' + esc(cid) + '">Retry this finding</button>'
+  + '</div>';
+}
+
+function chapterMarkup(cfg, i){
+  const cid = cfg.id;
+  return ''
+  + '<section class="chp" id="chp-' + esc(cid) + '" data-cid="' + esc(cid) + '">'
+  +   '<div class="chp-num rv"><b>' + pad2(i+1) + '</b><span>' + esc(cfg.desk) + '</span><i></i></div>'
+  +   '<h2 class="chp-thesis rv rv-d1" id="' + cid + '-thesis">' + esc(cfg.thesis) + '</h2>'
+  +   '<p class="chp-sub rv rv-d1">' + cfg.sub + '</p>'
+  +   '<div class="fig rv rv-d2">'
+  +     '<div class="fig-v is-void" id="' + cid + '-fig">' + EM + '</div>'
+  +     '<div class="fig-l" id="' + cid + '-figl">' + cfg.figLabel + '</div>'
+  +   '</div>'
+  +   cfg.panels.map((p) => panelMarkup(cid, p)).join('')
+  +   '<div class="rd rv">'
+  +     '<div class="rd-who">'
+  +       '<div class="rd-orb" aria-hidden="true">'
+  +         '<svg width="21" height="21" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.7"/><circle cx="9" cy="10" r="1.5" fill="currentColor"/><circle cx="15" cy="10" r="1.5" fill="currentColor"/><path d="M8 15 Q12 18 16 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg>'
+  +       '</div>'
+  +       '<div><b>Dr. Scoop’s read</b><span>' + esc(cfg.desk) + '</span></div>'
+  +     '</div>'
+  +     '<div class="rd-body" id="' + cid + '-read">'
+  +       cfg.scoop.map((p) => '<p>' + p + '</p>').join('')
+  +       '<div class="rd-pull">' + esc(cfg.pull) + '</div>'
+  +     '</div>'
+  +   '</div>'
+  +   '<div class="cav rv" id="' + cid + '-cav">'
+  +     '<div class="cav-h"><b>What this cannot tell you</b><i id="' + cid + '-cavn">awaiting n</i></div>'
+  +     '<ul class="cav-list" id="' + cid + '-cavl">'
+  +       '<li data-sev="note">The limits of this finding are served alongside it. '
+  +         'None are shown yet because the finding itself has not been served.</li>'
+  +     '</ul>'
+  +     '<div class="cav-den" id="' + cid + '-den"><b>Measured universe</b> ' + EM + '</div>'
+  +   '</div>'
+  +   '<div class="hnd rv">'
+  +     '<a id="' + cid + '-explore" href="' + CATALOG_HREF + '">' + esc(cfg.exploreLabel)
+  +       ' <span aria-hidden="true">→</span></a>'
+  +     '<em id="' + cid + '-src">source report ' + EM + '</em>'
+  +   '</div>'
+  + '</section>';
+}
+
+function renderChapters(){
+  $('chapters').innerHTML = CHAPTERS.map(chapterMarkup).join('');
+  $('rail').innerHTML = CHAPTERS.map((c, i) =>
+    '<button data-jump="' + esc(c.id) + '"><i></i><b>' + pad2(i+1) + ' ' + esc(c.desk) + '</b></button>'
+  ).join('');
+  $('rail').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-jump]'); if (!b) return;
+    const el = $('chp-' + b.getAttribute('data-jump'));
+    if (el) el.scrollIntoView({ behavior: APP_STATE.reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  });
+  $('chapters').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-retry]'); if (!b) return;
+    hydrate(b.getAttribute('data-retry'), true);
+  });
+}
+
+/* ── hydration: served finding replaces the unavailable state ─────────────── */
+/* the thesis is authored copy and carries no figure — it never changes on
+   hydration. Kept as a function so a future served thesis can override it. */
+function fillThesis(cfg){
+  const el = $(cfg.id + '-thesis');
+  if (el) el.textContent = cfg.thesis;
+}
+
+/* resolve a dot path inside headline_stat; anything missing stays null so the
+   figure renders an em-dash. There is deliberately NO substitute figure: when
+   a chapter's carrying number is absent, no other number stands in for it.  */
+function figValue(cfg, d){
+  if (!d || !d.headline || !cfg.figPath) return null;
+  let node = d.headline;
+  for (const part of cfg.figPath.split('.')) {
+    if (node == null || typeof node !== 'object') return null;
+    node = node[part];
+  }
+  return (typeof node === 'number' && isFinite(node)) ? node : null;
+}
+function hydrateFigure(cfg, d){
+  const fv = $(cfg.id + '-fig'), fl = $(cfg.id + '-figl');
+  if (!fv) return;
+  const v = figValue(cfg, d);
+  if (v == null) {
+    fv.textContent = EM; fv.classList.add('is-void');
+    // served, but this particular figure is not published yet — name that
+    // rather than letting an em-dash read as a rendering failure
+    if (fl && d && !fl.querySelector('.fig-pending')) {
+      fl.insertAdjacentHTML('beforeend',
+        '<span class="fig-pending">This figure is not yet published by the findings service.</span>');
+    }
+    return;
+  }
+  fv.textContent = fmtNum(v) + (cfg.figUnit || '');
+  fv.classList.remove('is-void');
+  // a chapter may extend its label from OTHER served values — never from a
+  // value this page computed, and never when the served value is absent
+  if (fl && typeof cfg.figLabelExtra === 'function') {
+    const extra = cfg.figLabelExtra(d.headline);
+    fl.innerHTML = cfg.figLabel + (extra ? ' ' + esc(extra) : '');
+  }
+}
+
+function hydrateCaveats(cfg, d){
+  const list = $(cfg.id + '-cavl'), den = $(cfg.id + '-den'), nEl = $(cfg.id + '-cavn');
+  if (!d) return;
+  if (d.caveats.length && list) {
+    list.innerHTML = d.caveats.map((c) =>
+      '<li data-sev="' + esc(c.severity) + '">' + esc(c.text) + '</li>').join('');
+  }
+  if (nEl) nEl.textContent = (d.meta.n != null) ? ('n = ' + fmtNum(d.meta.n)) : 'n not served';
+  if (den) {
+    const bits = [];
+    const den0 = d.meta.denominator || '';
+    if (den0) bits.push(esc(den0));
+    // the served denominator usually already states the window; only add what
+    // it does not already say, so the line reads once rather than twice
+    if (d.meta.weeks != null && !/\bweeks?\b/i.test(den0)) {
+      bits.push(esc(fmtNum(d.meta.weeks)) + ' complete broadcast weeks');
+    }
+    if (d.meta.windowMin && d.meta.windowMax && den0.indexOf(d.meta.windowMin) < 0) {
+      bits.push(esc(d.meta.windowMin) + ' → ' + esc(d.meta.windowMax));
+    }
+    den.innerHTML = '<b>Measured universe</b> ' + (bits.length ? bits.join(' &nbsp;·&nbsp; ') : EM)
+      + (d.meta.rerunSeason
+          ? '<div class="cav-flag">Window is a rerun season'
+            + (d.meta.rerunNote ? ' · ' + esc(d.meta.rerunNote) : '') + '</div>'
+          : '');
+  }
+}
+
+function hydrateScoop(cfg, d){
+  if (!d || !d.scoop || !d.scoop.paras.length) return;
+  const el = $(cfg.id + '-read');
+  el.innerHTML = d.scoop.paras.map((p) => '<p>' + esc(p) + '</p>').join('')
+    + '<div class="rd-pull">' + esc(d.scoop.pull || cfg.pull) + '</div>';
+}
+
+function hydrateHandoff(cfg, d){
+  const a = $(cfg.id + '-explore'), s = $(cfg.id + '-src');
+  if (!d) return;
+  if (d.explore.reportId) {
+    a.href = CATALOG_HREF + '#/drill/' + encodeURIComponent(d.explore.reportId);
+    if (d.explore.label) a.firstChild.nodeValue = d.explore.label + ' ';
+    if (s) s.textContent = 'source report ' + d.explore.reportId;
+  } else if (s) {
+    s.textContent = 'source report not served';
+  }
+}
+
+/* ── charts (Highcharts 11.4.8 only) ──────────────────────────────────────── */
+function chartOptions(cfg, panelCfg, panel){
+  const colors = seriesColors();
+  const ink = cssVar('--ink'), muted = cssVar('--muted'), grid = cssVar('--grid'),
+        surface = cssVar('--surface'), border = cssVar('--border'), dim = cssVar('--dim');
+  const mono = cssVar('--f-mono'), ui = cssVar('--f-ui');
+  const kind = panel.kind || panelCfg.kind || 'column';
+
+  const series = panel.series.map((s, i) => ({
+    type: s.kind || (kind === 'area' ? 'area' : kind),
+    name: s.name,
+    color: colors[i % colors.length],
+    borderWidth: 0,
+    dashStyle: s.dashed ? 'ShortDash' : undefined,
+    lineWidth: (kind === 'line' || kind === 'area') ? (s.dashed ? 1.75 : 2.5) : undefined,
+    marker: { enabled: (kind === 'line' || kind === 'area'), radius: s.dashed ? 2.5 : 3.5, symbol: 'circle' },
+    fillOpacity: kind === 'area' ? 0.18 : undefined,
+    data: s.data.map((p) => ({
+      y: p.y,
+      color: p.lowN ? dim : undefined,
+      className: p.lowN ? 'is-lown' : undefined,
+      custom: { lowN: p.lowN, note: p.note, n: p.n, unit: s.unit },
+    })),
+  }));
+
+  return {
+    chart: { type: kind === 'bar' ? 'bar' : (kind === 'area' ? 'area' : (kind === 'line' ? 'line' : 'column')),
+             backgroundColor: 'transparent', spacing: [8, 4, 4, 4],
+             height: (kind === 'bar' && panel.categories.length > 6)
+               ? Math.max(340, panel.categories.length * 26 + 96) : null,
+             animation: APP_STATE.reduceMotion ? false : { duration: 600 },
+             style: { fontFamily: ui } },
+    title: { text: null },
+    subtitle: {
+      text: panel.note || null,
+      align: 'left', x: 0,
+      style: { color: muted, fontSize: '11px', fontFamily: ui },
+    },
+    credits: { enabled: false },
+    accessibility: {
+      enabled: true,
+      description: (panelCfg.title || '') + '. '
+        + (panelCfg.xTitle || '') + ' against ' + (panelCfg.yTitle || '') + '.',
+      point: { valueDescriptionFormat: '{point.y}' },
+    },
+    legend: { enabled: series.length > 1, align: 'left', verticalAlign: 'top', margin: 14,
+              itemStyle: { color: muted, fontWeight: '500', fontSize: '11px' },
+              itemHoverStyle: { color: ink } },
+    xAxis: {
+      categories: panel.categories.length ? panel.categories : null,
+      lineColor: border, tickColor: border,
+      labels: { style: { color: muted, fontSize: '10.5px', fontFamily: mono } },
+      title: { text: null },
+    },
+    yAxis: {
+      gridLineColor: grid, lineWidth: 0,
+      labels: { style: { color: muted, fontSize: '10.5px', fontFamily: mono } },
+      title: { text: panelCfg.yTitle || null,
+               style: { color: muted, fontSize: '10.5px', fontFamily: ui } },
+    },
+    tooltip: {
+      backgroundColor: surface, borderColor: border, borderRadius: 8, shadow: false,
+      style: { color: ink, fontSize: '12px', fontFamily: ui },
+      useHTML: true,
+      formatter: function () {
+        const c = (this.point && this.point.options && this.point.options.custom) || {};
+        let h = '<b>' + esc(this.x) + '</b><br>' + esc(this.series.name) + ': <b>'
+              + fmtNum(this.y) + (c.unit ? ' ' + esc(c.unit) : '') + '</b>';
+        if (c.n != null) h += '<br>n = ' + fmtNum(c.n);
+        if (c.lowN) h += '<br><span style="opacity:.8">thin cell — not quotable</span>';
+        if (c.note) h += '<br>' + esc(c.note);
+        return h;
+      },
+    },
+    plotOptions: {
+      series: { animation: APP_STATE.reduceMotion ? false : { duration: 600 },
+                states: { inactive: { opacity: 0.35 } } },
+      column: { borderRadius: 2, pointPadding: 0.06, groupPadding: 0.14,
+                stacking: panel.stack ? 'normal' : undefined },
+      bar: { borderRadius: 2, pointPadding: 0.06, groupPadding: 0.14,
+             stacking: panel.stack ? 'normal' : undefined },
+    },
+    series: series,
+  };
+}
+
+function drawPanel(cfg, panelCfg, panel){
+  const key = cfg.id + '::' + panelCfg.key;
+  const box = $(cfg.id + '-' + panelCfg.key);
+  if (!box) return;
+  const hasData = panel && panel.series.some((s) => s.data.some((p) => p.y != null));
+  if (!APP_STATE.chartLibOk || !hasData) { box.style.height = ''; box.innerHTML = voidMarkup(cfg.id); return; }
+  // a horizontal bar chart with many categories needs the panel to grow with it
+  const kind = panelCfg.kind;
+  box.style.height = (kind === 'bar' && panel.categories.length > 6)
+    ? (Math.max(340, panel.categories.length * 26 + 96) + 'px') : '';
+  box.innerHTML = '';
+  try {
+    APP_STATE.charts[key] = Highcharts.chart(box, chartOptions(cfg, panelCfg, panel));
+  } catch (e) {
+    box.innerHTML = voidMarkup(cfg.id);
+    return;
+  }
+  const tag = $(cfg.id + '-' + panelCfg.key + '-tag');
+  const anyLow = panel.series.some((s) => s.data.some((p) => p.lowN));
+  if (tag) tag.textContent = anyLow ? 'contains thin cells' : '';
+  const foot = $(cfg.id + '-' + panelCfg.key + '-foot');
+  if (foot) {
+    foot.innerHTML = '<b>x</b> ' + esc(panelCfg.xTitle)
+      + ' &nbsp;·&nbsp; <b>y</b> ' + esc(panelCfg.yTitle)
+      + (anyLow ? ' &nbsp;·&nbsp; <b>thin cells greyed and marked in-tooltip</b>' : '')
+      + (panel.truncatedNote ? ' &nbsp;·&nbsp; <b>' + esc(panel.truncatedNote) + '</b>' : '');
+  }
+}
+
+/* re-draw every live chart from the ADAPTED payload — used on theme switch
+   and on a reduced-motion preference change */
+function restyleCharts(){
+  Object.keys(APP_STATE.charts).forEach((k) => {
+    const parts = k.split('::');
+    const cfg = CHAPTERS.find((c) => c.id === parts[0]);
+    const d = APP_STATE.details[parts[0]];
+    if (!cfg || !d) return;
+    const panelCfg = cfg.panels.find((p) => p.key === parts[1]);
+    const panel = buildPanel(cfg.id, parts[1], d);
+    if (panelCfg && panel) drawPanel(cfg, panelCfg, panel);
+  });
+}
+
+async function hydrate(id, force){
+  const cfg = CHAPTERS.find((c) => c.id === id);
+  if (!cfg) return;
+  if (APP_STATE.details[id] && !force) return;
+  cfg.panels.forEach((pc) => {
+    const box = $(cfg.id + '-' + pc.key);
+    if (box) { box.style.height = ''; box.innerHTML = voidMarkup(cfg.id, 'loading'); }
+  });
+  const d = await loadDetail(id);
+  APP_STATE.details[id] = d;
+  fillThesis(cfg);
+  if (!d) return;
+  hydrateFigure(cfg, d);
+  hydrateScoop(cfg, d);
+  hydrateCaveats(cfg, d);
+  hydrateHandoff(cfg, d);
+  // a panel whose `kind` is absent from the served series keeps its designed
+  // empty state — a missing series is never substituted or invented
+  cfg.panels.forEach((pc) => drawPanel(cfg, pc, buildPanel(cfg.id, pc.key, d)));
+}
+
+/* ── scroll: reveal, progress, rail ───────────────────────────────────────── */
+function initScroll(){
+  const revealables = Array.prototype.slice.call(document.querySelectorAll('.rv'));
+  if (APP_STATE.reduceMotion || typeof IntersectionObserver !== 'function') {
+    revealables.forEach((el) => el.classList.add('is-in'));
+  } else {
+    const io = new IntersectionObserver((ents) => {
+      ents.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+    revealables.forEach((el) => io.observe(el));
+  }
+
+  const secs = CHAPTERS.map((c) => $('chp-' + c.id)).filter(Boolean);
+  const btns = Array.prototype.slice.call($('rail').querySelectorAll('button'));
+  if (typeof IntersectionObserver === 'function') {
+    const spy = new IntersectionObserver((ents) => {
+      ents.forEach((e) => {
+        if (!e.isIntersecting) return;
+        const i = secs.indexOf(e.target);
+        if (i < 0) return;
+        APP_STATE.active = i;
+        btns.forEach((b, j) => b.classList.toggle('is-on', j === i));
+      });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    secs.forEach((s) => spy.observe(s));
+    // above the first chapter, no chapter is "current" — clear the rail
+    const hero = document.querySelector('.hro');
+    if (hero) {
+      new IntersectionObserver((ents) => {
+        ents.forEach((e) => { if (e.isIntersecting) btns.forEach((b) => b.classList.remove('is-on')); });
+      }, { rootMargin: '-20% 0px -60% 0px' }).observe(hero);
+    }
+  }
+
+  const bar = $('prog');
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = (h > 0 ? Math.min(100, (window.scrollY / h) * 100) : 0) + '%';
+      ticking = false;
+    });
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+}
+
+/* ── boot ─────────────────────────────────────────────────────────────────── */
+function initAnimations(){
+  APP_STATE.fontsReady = true;
+  initScroll();
+}
+
+(async function main(){
+  APP_STATE.sessionId = _genSessionId();
+  APP_STATE.reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  APP_STATE.chartLibOk = (typeof window.Highcharts !== 'undefined');
+
+  renderChapters();
+  initTheme();
+  renderStatus();
+
+  if (window.matchMedia) {
+    try {
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const onMq = (e) => { APP_STATE.reduceMotion = !!e.matches; restyleCharts(); };
+      if (mq.addEventListener) mq.addEventListener('change', onMq); else if (mq.addListener) mq.addListener(onMq);
+    } catch (e) { /* matchMedia listener unsupported */ }
+  }
+
+  renderHeroMeta();
+
+  // Motion is armed BEFORE any network work. The warehouse can take tens of
+  // seconds; gating the scroll reveals behind it left the whole page invisible
+  // (and left the reduced-motion path never running at all) whenever the API
+  // was slow. Structure reveals immediately; figures arrive when they arrive.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(initAnimations);
+  else initAnimations();
+
+  // The aggregate index recomputes every story's headline and measured ~28s
+  // against a cold warehouse, while individual stories return in well under a
+  // second each. Blocking the page on it turned a working API into a page of
+  // em-dashes, so the index is fetched in the BACKGROUND (status pill and
+  // generated-at only) and the six chapters are hydrated directly in parallel.
+  loadIndex()
+    .catch(() => null)
+    .then((idx) => { APP_STATE.index = idx; renderStatus(); renderHeroMeta(); });
+
+  // hydrate every authored chapter directly; a story the service does not
+  // serve simply keeps its designed empty state
+  await Promise.all(CHAPTERS.map((c) => hydrate(c.id)));
+  APP_STATE.apiOnline = CHAPTERS.some((c) => APP_STATE.details[c.id]);
+  renderStatus();
+  renderHeroMeta();
+})();
+
+function renderHeroMeta(){
+  const meta = $('heroMeta');
+  if (!meta) return;
+  const served = CHAPTERS.filter((c) => APP_STATE.details[c.id]).length;
+  const settled = CHAPTERS.filter((c) => APP_STATE.details[c.id] !== undefined).length;
+  meta.innerHTML = [
+    settled < CHAPTERS.length
+      ? ('retrieving ' + CHAPTERS.length + ' chapters')
+      : (served + ' of ' + CHAPTERS.length + ' chapters served'),
+    APP_STATE.chartLibOk ? 'charts ready' : 'chart engine unavailable',
+    APP_STATE.index && APP_STATE.index.generatedAt
+      ? 'generated ' + APP_STATE.index.generatedAt : 'generation time not served',
+  ].map((t) => '<span>' + esc(t) + '</span>').join('');
+}
+</script>
+</body>
+</html>

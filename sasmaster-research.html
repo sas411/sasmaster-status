@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster Research — Programming Research Portal</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/signal-system.css">
+<style>
+/* ─────────────────────────────────────────────────────────────────────────────
+   SaSMaster Research — SASMASTER-UI-PROGRAMMING-RESEARCH-001 Phase A+B
+   Tokens: design-system/tokens.md ONLY (token-gate enforced, fail-closed).
+   Where a signal-system.css primitive equals the tokens.md value exactly,
+   the var(--p-*) reference is used instead of a raw hex (SIGNAL-SYSTEM-001 §5).
+   Light default (ASK doctrine) · [data-theme="dark"] cinematic set.
+   ──────────────────────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden;max-width:100vw}
+
+:root{
+  /* light set — matches approved design board; every value traced to tokens.md */
+  --canvas:#F0F4F8;                    /* tokens.md · light operator canvas */
+  --surface:var(--p-white);            /* #FFFFFF */
+  --surface2:var(--p-gray-50);         /* board surface-2 value has no token — nearest blessed primitive */
+  --border:var(--p-slate-200);         /* exact board border value, via signal primitive */
+  --ink:#16162a;                       /* tokens.md · light text-primary */
+  --muted:#4b5365;                     /* tokens.md · light text-secondary */
+  --dim:#8a90a2;                       /* tokens.md · light text-dim */
+  --teal:#0EA5E9;                      /* tokens.md · --teal */
+  --violet:#7c3aed;                    /* tokens.md · light lavender */
+  --gold:#c2740a;                      /* tokens.md · light gold (AA) */
+  --emerald:#059669;                   /* tokens.md · light green-signal */
+  --rose:#dc2626;                      /* tokens.md · light red-alert */
+  --tealbright:#0891b2;                /* tokens.md · light teal-bright */
+  --grid:rgba(22,22,42,0.07);          /* tokens.md · light --grid */
+  --shadow-c:rgba(22,22,42,0.06);      /* tokens.md · light border-subtle value */
+  --gold-dim:rgba(194,116,10,0.10);    /* tokens.md · light gold-dim */
+  --teal-dim:rgba(8,145,178,0.10);     /* tokens.md · light teal-dim */
+  --violet-dim:rgba(124,58,237,0.09);  /* tokens.md · light lav-dim */
+  --font-display:'Sora',system-ui,sans-serif;
+  --font-body:'Plus Jakarta Sans',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease-spring:cubic-bezier(0.16,1,0.3,1);
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --nav-h:52px;
+  /* boot veil is cinematic-dark in BOTH themes — theme-invariant tokens.md dark values */
+  --boot-bg:#0a0a0f; --boot-surface:#12121a; --boot-border:rgba(167,139,250,0.10);
+  --boot-ink:#f8f8ff; --boot-muted:#94a3b8; --boot-dim:#4b5563;
+  --boot-violet:#a78bfa; --boot-cyan:#22d3ee; --boot-ok:#10b981;
+  --boot-border-strong:rgba(167,139,250,0.35);
+  --btn-ink:#ffffff; /* tokens.md · light text-inverse — label on solid teal in both themes */
+  --scrim:rgba(244,244,251,0.90); /* tokens.md · light bg-overlay */
+}
+[data-theme="dark"]{
+  --canvas:#0a0a0f;                    /* tokens.md · bg-base */
+  --surface:#12121a;                   /* tokens.md · bg-surface */
+  --surface2:#0d0d16;                  /* tokens.md · bg-panel */
+  --border:rgba(167,139,250,0.10);     /* tokens.md · lav-border */
+  --ink:#f8f8ff;                       /* tokens.md · text-primary */
+  --muted:#94a3b8;                     /* tokens.md · text-secondary */
+  --dim:#4b5563;                       /* tokens.md · text-dim */
+  --teal:#22d3ee;                      /* tokens.md · teal-bright */
+  --violet:#a78bfa;                    /* tokens.md · lavender */
+  --gold:#f59e0b;                      /* tokens.md · gold */
+  --emerald:#10b981;                   /* tokens.md · green-signal */
+  --rose:#ef4444;                      /* tokens.md · red-alert */
+  --tealbright:#22d3ee;                /* tokens.md · teal-bright */
+  --grid:rgba(255,255,255,0.04);       /* tokens.md · border-subtle */
+  --shadow-c:rgba(0,0,0,0.4);          /* tokens.md · elevation-1 shadow */
+  --gold-dim:rgba(245,158,11,0.10);    /* tokens.md · gold-dim */
+  --teal-dim:rgba(34,211,238,0.12);    /* tokens.md · teal-dim */
+  --violet-dim:rgba(167,139,250,0.14); /* tokens.md · lav-dim */
+  --scrim:rgba(10,10,15,0.85);         /* tokens.md · dark bg-overlay */
+}
+
+body{font-family:var(--font-body);background:var(--canvas);color:var(--ink);line-height:1.55;min-height:100vh;transition:background .3s var(--ease-spring),color .3s var(--ease-spring)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* ── boot sequence (namespaced .boot-*) ─────────────────────────────────── */
+.boot-veil{position:fixed;inset:0;z-index:90;background:var(--boot-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:20px;transition:opacity .7s}
+/* visibility (delayed to the end of the fade) takes the dead full-screen veil
+   out of the paint path entirely — a 0-opacity fixed layer still composites */
+.boot-veil.boot-gone{opacity:0;pointer-events:none;visibility:hidden;transition:opacity .7s,visibility 0s .7s}
+.boot-greet{font-family:var(--font-body);font-size:17px;color:var(--boot-muted);min-height:24px;font-weight:500;text-align:center}
+.boot-greet b{color:var(--boot-ink);font-weight:700}
+.boot-cursor{display:inline-block;width:8px;height:16px;background:var(--boot-violet);margin-left:2px;vertical-align:middle;animation:boot-cur .8s steps(1) infinite}
+@keyframes boot-cur{50%{opacity:0}}
+.boot-log{width:min(560px,86vw);background:var(--boot-surface);border:1px solid var(--boot-border);border-radius:var(--r-lg);padding:15px 20px;font-family:var(--font-mono);font-size:12px;opacity:0;transition:opacity .5s;position:relative;overflow:hidden}
+.boot-log.boot-show{opacity:1}
+.boot-row{display:flex;align-items:center;gap:10px;padding:3px 0;color:var(--boot-muted);opacity:0;transform:translateX(-6px);transition:all .35s}
+.boot-row.boot-in{opacity:1;transform:none}
+.boot-row .boot-arrow{color:var(--boot-violet)}
+.boot-row .boot-n{margin-left:auto;color:var(--boot-ink)}
+.boot-row .boot-ok{margin-left:auto;color:var(--boot-ok)}
+.boot-row .boot-tail{color:var(--boot-dim)}
+.boot-orb{width:96px;height:96px;position:relative}
+.boot-orb .boot-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--boot-violet);animation:boot-ring 2.4s ease-out infinite;opacity:0}
+.boot-orb .boot-ring:nth-child(2){animation-delay:.8s}
+.boot-orb .boot-ring:nth-child(3){animation-delay:1.6s}
+@keyframes boot-ring{0%{transform:scale(.5);opacity:.7}100%{transform:scale(1.6);opacity:0}}
+.boot-orb .boot-core{position:absolute;inset:16px;border-radius:26px;background:linear-gradient(135deg,var(--boot-violet),var(--boot-cyan));display:flex;align-items:center;justify-content:center;animation:boot-bob 3s ease-in-out infinite;color:var(--boot-bg)}
+@keyframes boot-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.boot-skip{position:fixed;top:16px;right:16px;z-index:91;background:var(--boot-surface);border:1px solid var(--boot-border-strong);color:var(--boot-muted);font-family:var(--font-mono);font-size:11px;padding:9px 14px;border-radius:20px;cursor:pointer;min-height:44px}
+
+/* ── nav (namespaced .nav-*) ────────────────────────────────────────────── */
+.nav-bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;padding:0 14px;height:var(--nav-h);border-bottom:1px solid var(--border);background:var(--surface)}
+.nav-wm{font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.02em;white-space:nowrap}
+.nav-wm b{color:var(--violet);font-weight:700}
+.nav-wm .nav-sub{font-family:var(--font-mono);font-size:9px;letter-spacing:.16em;color:var(--muted);margin-left:6px;vertical-align:1px}
+.nav-links{display:none;gap:14px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.nav-links span{cursor:default;padding-bottom:2px}
+.nav-links .nav-on{color:var(--teal);border-bottom:2px solid var(--teal)}
+.nav-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.nav-pill{font-family:var(--font-mono);font-size:10px;border:1px solid var(--border);border-radius:12px;padding:3px 9px;color:var(--muted);white-space:nowrap}
+.nav-pill.nav-live{color:var(--emerald);border-color:var(--emerald)}
+.nav-pill.nav-catalog{color:var(--gold);border-color:var(--gold)}
+.nav-tgl{border:1px solid var(--border);background:var(--surface2);color:var(--ink);font-family:var(--font-mono);font-size:11px;padding:8px 12px;border-radius:20px;cursor:pointer;min-height:44px;min-width:44px}
+@media(min-width:768px){
+  .nav-links{display:flex}
+  .nav-bar{padding:0 18px}
+  .nav-tgl{min-height:36px;min-width:0}
+}
+
+/* ── offline / catalog-mode banner ──────────────────────────────────────── */
+.nav-banner{display:none;align-items:center;gap:10px;padding:9px 14px;background:var(--gold-dim);border-bottom:1px solid var(--gold);color:var(--gold);font-family:var(--font-mono);font-size:11px;letter-spacing:.04em}
+.nav-banner.nav-banner-show{display:flex}
+.nav-banner b{font-weight:500}
+
+/* ── claims ticker (namespaced .tick-*) ─────────────────────────────────── */
+.tick-bar{display:flex;overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--border);background:var(--surface);padding:7px 0;position:relative}
+.tick-track{display:flex;gap:26px;padding:0 13px;font-family:var(--font-mono);font-size:11px;color:var(--muted);animation:tick-scroll 80s linear infinite;will-change:transform}
+.tick-bar:hover .tick-track{animation-play-state:paused}
+@keyframes tick-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tick-item{display:inline-flex;align-items:center;gap:7px}
+.tick-up{color:var(--emerald)} .tick-dn{color:var(--rose)} .tick-fl{color:var(--dim)}
+.tick-ent{color:var(--ink)}
+.tick-prov{font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;color:var(--gold);border:1px solid var(--gold);border-radius:9px;padding:1px 7px}
+
+/* ── hub layout (namespaced .hub-*) ─────────────────────────────────────── */
+.hub-wrap{max-width:1280px;margin:0 auto;padding:18px 14px 96px;opacity:0;transition:opacity .8s}
+.hub-wrap.hub-show{opacity:1}
+.hub-hero{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:20px}
+.hub-hero-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-md);padding:18px}
+.hub-hero-card h1{font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:4px}
+.hub-hero-card p{font-size:13px;color:var(--muted);max-width:60ch}
+.hub-ask{margin-top:14px;display:flex;gap:8px}
+.hub-ask input{flex:1;min-width:0;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface);color:var(--ink);padding:12px 14px;font-family:var(--font-body);font-size:13.5px;min-height:44px}
+.hub-ask input::placeholder{color:var(--dim)}
+.hub-ask input:focus{outline:2px solid var(--teal);outline-offset:0}
+.hub-ask button{background:var(--teal);color:var(--btn-ink);border:0;border-radius:var(--r-md);padding:0 18px;font-family:var(--font-display);font-weight:600;font-size:13px;cursor:pointer;min-height:44px}
+.hub-scoop{display:flex;flex-direction:column;gap:8px;justify-content:center}
+.hub-scoop-b{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;font-size:12.5px;color:var(--muted)}
+.hub-scoop-b b{color:var(--violet);font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;display:block;margin-bottom:3px}
+@media(min-width:768px){
+  .hub-wrap{padding:20px 24px 96px}
+  .hub-hero{grid-template-columns:2fr 1fr}
+}
+.hub-notice{border:1px dashed var(--violet);background:var(--violet-dim);border-radius:var(--r-md);padding:12px 14px;font-size:12.5px;color:var(--ink);margin-top:10px}
+.hub-notice b{color:var(--violet)}
+
+/* lanes — expansive browse (C1) */
+.hub-lane{margin-top:30px}
+.hub-lane-h{display:flex;align-items:baseline;gap:10px;margin:0 0 4px;flex-wrap:wrap}
+.hub-lane-h h2{font-family:var(--font-display);font-size:17px;font-weight:700;letter-spacing:.01em}
+.hub-lane-h .hub-cnt{font-family:var(--font-mono);font-size:10.5px;color:var(--muted)}
+.hub-lane-h .hub-lane-chip{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;border-radius:10px;padding:2px 8px;border:1px solid var(--teal);color:var(--teal)}
+.hub-lane-q{font-size:13px;color:var(--muted);max-width:68ch;margin:0 0 16px;line-height:1.6}
+.hub-cards{display:grid;grid-template-columns:1fr;gap:18px}
+@media(min-width:768px){.hub-cards{grid-template-columns:repeat(2,1fr);gap:20px}}
+@media(min-width:1280px){.hub-cards{grid-template-columns:repeat(3,1fr);gap:24px}}
+
+/* catalog search (namespaced .hub-search-*) */
+.hub-search-wrap{margin:16px 0 4px}
+.hub-search-in{width:100%;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface);color:var(--ink);padding:11px 14px;font-family:var(--font-body);font-size:13px;min-height:44px}
+.hub-search-in::placeholder{color:var(--dim)}
+.hub-search-in:focus{outline:2px solid var(--teal);outline-offset:0}
+@media(min-width:768px){.hub-search-wrap{max-width:420px}}
+
+/* stale-feed chip — gold token, sits next to the status pill */
+.nav-pill.nav-stale{color:var(--gold);border-color:var(--gold)}
+
+/* empty / error / loading states */
+.hub-state{border:1px dashed var(--border);border-radius:var(--r-md);background:var(--surface);padding:34px 20px;text-align:center;color:var(--muted);font-size:13px}
+.hub-state .hub-state-glyph{font-family:var(--font-mono);font-size:22px;color:var(--dim);display:block;margin-bottom:8px}
+.hub-state h3{font-family:var(--font-display);font-size:14px;color:var(--ink);margin-bottom:4px}
+.hub-state button{margin-top:14px;background:var(--surface2);border:1px solid var(--teal);color:var(--teal);border-radius:var(--r-sm);font-family:var(--font-mono);font-size:11px;padding:10px 16px;cursor:pointer;min-height:44px}
+
+/* ── animated report tiles (namespaced .tile-*) — C1 ─────────────────────── */
+.tile{position:relative;display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 16px 14px;cursor:pointer;min-height:44px;
+  transition:transform .22s var(--ease-spring),box-shadow .22s var(--ease-spring),border-color .22s var(--ease-spring)}
+.tile:hover,.tile:focus-visible{transform:translateY(-3px);box-shadow:0 14px 30px var(--shadow-c);border-color:var(--teal);z-index:31}
+.tile-top{display:flex;align-items:center;gap:8px}
+.tile-id{font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;color:var(--muted)}
+.tile-style{margin-left:auto;font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;color:var(--teal);border:1px solid var(--teal);border-radius:10px;padding:1px 7px}
+.tile-demo{display:block;margin:12px 0;height:80px;border-radius:var(--r-md);background:var(--surface2);border:1px solid var(--border);overflow:hidden}
+.tile-demo svg{display:block;width:100%;height:100%}
+.tile-title{display:block;font-family:var(--font-display);font-size:15px;font-weight:600;line-height:1.32;color:var(--ink)}
+.tile-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tile-chip{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;border-radius:10px;padding:2px 8px;border:1px solid var(--border);color:var(--muted)}
+.tile-chip.tile-new{color:var(--emerald);border-color:var(--emerald)}
+.tile-chip.tile-dev{color:var(--gold);border-color:var(--gold)}
+.tile-cta{display:block;margin-top:12px;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.12em;color:var(--dim);transition:color .2s var(--ease-spring)}
+.tile:hover .tile-cta,.tile:focus-visible .tile-cta{color:var(--teal)}
+/* expanded preview — transform + opacity only, never a layout animation */
+.tile-prev{position:absolute;left:8px;right:8px;top:calc(100% - 12px);z-index:32;background:var(--surface);border:1px solid var(--teal);border-radius:var(--r-md);box-shadow:0 16px 34px var(--shadow-c);padding:12px 14px;
+  opacity:0;visibility:hidden;transform:translateY(-8px) scale(.98);transform-origin:top center;pointer-events:none;
+  transition:opacity .22s var(--ease-spring),transform .22s var(--ease-spring),visibility .22s}
+.tile:hover .tile-prev,.tile:focus-visible .tile-prev{opacity:1;visibility:visible;transform:none}
+.tile-prev-h{display:block;font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;color:var(--muted);margin-bottom:5px}
+.tile-prev-d{display:block;font-size:12.5px;color:var(--ink);line-height:1.55}
+.tile-prev-w{display:block;margin-top:8px;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;color:var(--dim)}
+
+/* ── drill panel (namespaced .drill-*) — C2 ─────────────────────────────── */
+.drill-scrim{position:fixed;inset:0;z-index:60;background:var(--scrim);opacity:0;transition:opacity .3s var(--ease-spring)}
+.drill-scrim.drill-on{opacity:1}
+.drill-stage{position:fixed;inset:0;z-index:61;display:flex;align-items:center;justify-content:center;padding:12px;pointer-events:none}
+/* [hidden] must beat the display rules above — otherwise the closed panel
+   still renders a 2px strip over the lane and can intercept a click */
+.drill-stage[hidden],.drill-scrim[hidden]{display:none}
+.drill-panel{pointer-events:auto;width:min(720px,100%);max-height:88vh;overflow:auto;background:var(--surface);border:1px solid var(--teal);border-radius:var(--r-lg);box-shadow:0 24px 60px var(--shadow-c)}
+.drill-head{display:flex;align-items:flex-start;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.drill-eyebrow{display:block;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.14em;color:var(--muted);margin-bottom:5px}
+.drill-title{font-family:var(--font-display);font-size:17px;font-weight:700;line-height:1.28}
+.drill-x{margin-left:auto;background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:var(--r-sm);font-family:var(--font-mono);font-size:11px;padding:0 12px;min-height:44px;min-width:44px;cursor:pointer}
+.drill-x:hover{border-color:var(--teal);color:var(--teal)}
+.drill-body{padding:16px 18px}
+.drill-sec{margin-bottom:18px}
+.drill-sec:last-child{margin-bottom:0}
+.drill-sec h4{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.14em;color:var(--muted);margin-bottom:8px;font-weight:500}
+.drill-answer{font-size:13.5px;color:var(--ink);line-height:1.62;max-width:68ch}
+.drill-params{display:grid;grid-template-columns:1fr;gap:8px}
+@media(min-width:768px){.drill-params{grid-template-columns:repeat(2,1fr)}}
+.drill-param{border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;background:var(--surface2)}
+.drill-param b{display:block;font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;color:var(--muted);font-weight:500;margin-bottom:3px}
+.drill-param em{font-style:normal;font-family:var(--font-mono);font-size:12px;color:var(--ink)}
+.drill-param i{font-style:normal;font-family:var(--font-mono);font-size:9.5px;color:var(--dim);margin-left:7px}
+.drill-badges{display:flex;flex-wrap:wrap;gap:8px}
+.drill-badge{font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;border:1px solid var(--border);border-radius:10px;padding:3px 9px;color:var(--muted)}
+.drill-badge.drill-prov{color:var(--gold);border-color:var(--gold)}
+.drill-badge.drill-style{color:var(--teal);border-color:var(--teal)}
+.drill-foot{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:14px 18px;border-top:1px solid var(--border);background:var(--surface2);position:sticky;bottom:0}
+.drill-run{background:var(--teal);color:var(--btn-ink);border:0;border-radius:var(--r-md);padding:0 22px;min-height:44px;font-family:var(--font-display);font-weight:600;font-size:13px;cursor:pointer}
+.drill-note{font-size:12px;color:var(--muted);flex:1;min-width:180px}
+
+/* ── report placeholder panel (Phase C) ─────────────────────────────────── */
+.rp-panel{display:none;max-width:920px;margin:0 auto;padding:22px 14px 96px}
+.rp-panel.rp-show{display:block}
+.rp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.rp-chrome{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);padding:12px 18px;flex-wrap:wrap}
+.rp-chrome h2{font-family:var(--font-display);font-size:15px;font-weight:700}
+.rp-meta{font-family:var(--font-mono);font-size:10.5px;color:var(--muted)}
+.rp-body{padding:22px 18px}
+.rp-desc{font-size:13.5px;color:var(--muted);max-width:70ch;margin-bottom:14px}
+.rp-back{margin:0 0 14px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:var(--r-sm);font-family:var(--font-mono);font-size:11px;padding:10px 14px;cursor:pointer;min-height:44px}
+.rp-back:hover{border-color:var(--teal);color:var(--teal)}
+@media(min-width:768px){.rp-panel{padding:22px 24px 96px}.rp-back{min-height:36px}}
+/* report-surface skeleton (payload-driven; nothing rendered without data) */
+.rp-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.rp-badge{font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;border:1px solid var(--border);border-radius:10px;padding:3px 9px;color:var(--muted)}
+.rp-badge.rp-prov{color:var(--gold);border-color:var(--gold)}
+.rp-badge.rp-denom{color:var(--violet);border-color:var(--violet)}
+.rp-slot{border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface2);padding:14px;margin-bottom:14px}
+.rp-slot h3{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.14em;color:var(--muted);margin-bottom:9px;font-weight:500}
+.rp-slot p{font-size:12.5px;color:var(--muted);line-height:1.6}
+.rp-scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.rp-table{border-collapse:collapse;font-family:var(--font-mono);font-size:11.5px;min-width:100%}
+.rp-table th,.rp-table td{border-bottom:1px solid var(--border);padding:6px 10px;text-align:left;white-space:nowrap}
+.rp-table th{color:var(--muted);font-weight:500;letter-spacing:.04em}
+.rp-take{list-style:none;display:flex;flex-direction:column;gap:8px}
+.rp-take li{font-size:13px;color:var(--ink);line-height:1.55;border-left:2px solid var(--teal);padding-left:10px}
+.rp-fail{border:1px dashed var(--rose);border-radius:var(--r-md);padding:14px 16px;font-size:13px;color:var(--ink)}
+.rp-fail b{display:block;color:var(--rose);font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;margin-bottom:4px}
+
+/* ── touch targets on mobile / reduced motion ───────────────────────────── */
+@media(max-width:767px){
+  html,body{overflow-x:hidden;max-width:100vw}
+  .nav-pill{min-height:28px;display:inline-flex;align-items:center}
+  .hub-lane-h .hub-lane-chip{display:inline-flex;align-items:center}
+  .tile-chip,.tile-style,.drill-badge,.rp-badge{display:inline-flex;align-items:center}
+  .tile{padding:14px}
+  .tile-demo{height:72px}
+  .drill-stage{padding:8px}
+  .drill-panel{max-height:92vh}
+  .drill-foot{flex-direction:column;align-items:stretch}
+  .drill-run{width:100%}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .tick-track{animation:none!important}
+  /* tile demos never build an animation under reduced motion — the SVG's
+     authored state IS the settled final frame, so it renders complete */
+  .tile-prev{transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- boot sequence -->
+<div class="boot-veil" id="bootVeil">
+  <div class="boot-orb" aria-hidden="true">
+    <div class="boot-ring"></div><div class="boot-ring"></div><div class="boot-ring"></div>
+    <div class="boot-core">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/>
+        <circle cx="9" cy="10" r="1.5" fill="currentColor"/><circle cx="15" cy="10" r="1.5" fill="currentColor"/>
+        <path d="M8 15 Q12 18 16 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+  </div>
+  <div class="boot-greet" id="bootGreet" aria-live="polite"></div>
+  <div class="boot-log" id="bootLog"><div id="bootRows"></div></div>
+</div>
+<button class="boot-skip" id="bootSkip" type="button">Skip →</button>
+
+<!-- nav -->
+<header class="nav-bar">
+  <div class="nav-wm">SaS<b>Master</b><span class="nav-sub">RESEARCH</span></div>
+  <nav class="nav-links" aria-label="Sections">
+    <span class="nav-on">RESEARCH</span><span title="Coming soon">STORIES</span><span title="Coming soon">GALLERY</span>
+  </nav>
+  <div class="nav-right">
+    <span class="nav-pill" id="navStatus">…</span>
+    <button class="nav-tgl" id="navTgl" type="button" aria-label="Toggle light/dark theme">◐ <span id="navTglLbl">LIGHT</span></button>
+  </div>
+</header>
+
+<div class="nav-banner" id="offBanner" role="status">
+  <span aria-hidden="true">⚠</span><b>CATALOG MODE</b><span>— live research API unreachable; showing the bundled catalog. Ask and live counts are unavailable.</span>
+</div>
+
+<!-- claims ticker -->
+<div class="tick-bar" aria-label="Live claims ticker"><div class="tick-track" id="tickTrack"></div></div>
+
+<!-- hub -->
+<main class="hub-wrap" id="hub">
+  <div class="hub-hero">
+    <div class="hub-hero-card">
+      <h1>Programming Research</h1>
+      <p>Live from the certified spine — genre economics, network rankers, audience positioning. Curated for you, generated from your data.</p>
+      <form class="hub-ask" id="askForm">
+        <input type="text" id="askInput" placeholder="Which genres over-index in late prime?" aria-label="Ask a research question" autocomplete="off">
+        <button type="submit">ASK</button>
+      </form>
+      <div class="hub-notice" id="askNotice" hidden></div>
+    </div>
+    <div class="hub-scoop" id="scoopRail"></div>
+  </div>
+
+  <div class="hub-search-wrap">
+    <input type="search" class="hub-search-in" id="hubSearch" placeholder="Filter reports — id, title, or description" aria-label="Filter the reporting catalog" autocomplete="off">
+  </div>
+
+  <section id="lanes" aria-label="Reporting catalog"></section>
+</main>
+
+<!-- drill panel (C2) — shared-element expansion of a catalog tile -->
+<div class="drill-scrim" id="drillScrim" hidden></div>
+<div class="drill-stage" id="drillStage" hidden>
+  <section class="drill-panel" id="drillPanel" role="dialog" aria-modal="true" aria-labelledby="drillTitle" tabindex="-1"></section>
+</div>
+
+<!-- report surface (C2 run target) -->
+<section class="rp-panel" id="rpPanel" aria-label="Report">
+  <button class="rp-back" id="rpBack" type="button">‹ Back to catalog</button>
+  <div class="rp-card">
+    <div class="rp-chrome">
+      <h2 id="rpTitle"></h2>
+      <span class="rp-meta" id="rpMeta"></span>
+    </div>
+    <div class="rp-body">
+      <p class="rp-desc" id="rpDesc"></p>
+      <div class="rp-badges" id="rpBadges"></div>
+      <div id="rpSurface"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════════════════════════════════
+   SaSMaster Research — Phase A+B client
+   Single APP_STATE · single adapt(raw) · zero hardcoded figures in the DOM:
+   every numeral rendered below originates in the feed or the /reports payload.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const ASK_ENDPOINT = window.ASK_ENDPOINT || 'https://sasmaster-ask-production.up.railway.app';
+const ASK_API_KEY  = window.ASK_API_KEY  || '';
+
+const APP_STATE = {
+  theme: null,            // 'light' | 'dark'
+  sessionId: null,        // anonymous session id, sent as x-session-id
+  apiOnline: null,        // null=unknown, true, false
+  feed: null,             // adapted feed payload
+  reports: null,          // adapted report descriptors
+  reportsSource: null,    // 'api' | 'fallback'
+  activeReport: null,     // report_id from hash route
+  drillId: null,          // report_id whose drill panel is open (C2)
+  dropdowns: null,        // central dropdown vocabulary (/dropdowns)
+  searchQuery: '',        // catalog search filter (fix 9)
+  reduceMotion: false,
+  fontsReady: false,      // §3 gate — no tile motion starts before this
+  bootDone: false,
+};
+
+const $ = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/* ── session ──────────────────────────────────────────────────────────── */
+function _genSessionId(){
+  try {
+    if (window.crypto && typeof crypto.randomUUID === 'function') return 'sess_' + crypto.randomUUID();
+  } catch (e) { /* fall through to Math.random */ }
+  return 'sess_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now();
+}
+function _headers(extra){
+  const h = Object.assign({ 'x-session-id': APP_STATE.sessionId }, extra || {});
+  if (ASK_API_KEY) h['x-api-key'] = ASK_API_KEY;
+  return h;
+}
+
+/* ── adapter (L4): the ONLY place raw payload fields are touched ─────────
+   Accepts either the Rung-1 feed payload or a /reports payload and returns
+   a normalized shape. Renderers never read raw fields.                    */
+function adapt(raw){
+  if (!raw || typeof raw !== 'object') return { kind: 'empty', boot: [], ticker: [], scoop: [], reports: [] };
+
+  // flags arrive either flat (feed fallback shape: r.is_new) or nested
+  // (descriptor shape: r.flags.is_new) — read both, boolean-true only.
+  const flagOf = (r, flat, nested) =>
+    r[flat] === true || (r.flags && typeof r.flags === 'object' && r.flags[nested] === true);
+  const normReport = (r) => ({
+    id:       r.report_id != null ? String(r.report_id) : null,
+    title:    r.title != null ? String(r.title) : '—',
+    family:   String(r.family || 'PROGRAMMING').toUpperCase(),
+    style:    String(r.chart_language_style || '').toUpperCase() || null,
+    desc:     r.description != null ? String(r.description) : '',
+    path:     r.path != null ? String(r.path) : null,
+    isNew:    flagOf(r, 'is_new', 'is_new'),
+    inDev:    flagOf(r, 'is_in_dev', 'is_in_dev'),
+    subscribed: flagOf(r, 'subscribed', 'subscribed'),
+    visible:  !(r.visible === false || (r.flags && typeof r.flags === 'object' && r.flags.visible === false)),
+    status:   r.status != null ? String(r.status) : null,
+    // C2 drill fields — present on the joined /reports descriptor, absent on
+    // the bundled fallback shape. Absent means "unresolved", never invented.
+    params:   (r.default_params && typeof r.default_params === 'object' && !Array.isArray(r.default_params))
+                ? r.default_params : null,
+    refs:     Array.isArray(r.dropdown_refs) ? r.dropdown_refs.map(String) : [],
+    provenance: r.provenance != null ? String(r.provenance) : null,
+    window:   r.data_window != null ? String(r.data_window) : null,
+    blessedAt: r.blessed_at != null ? String(r.blessed_at) : null,
+  });
+
+  // /reports payload: {reports:[...]} or a bare array of descriptors
+  const list = Array.isArray(raw) ? raw : (Array.isArray(raw.reports) ? raw.reports : null);
+  if (list && !raw.boot && !raw.ticker) {
+    return { kind: 'reports', boot: [], ticker: [], scoop: [], reports: list.filter(r => r && r.report_id != null).map(normReport) };
+  }
+
+  // feed payload — boot arrives either as an ordered array of line objects
+  // (sample schema) or as a flat {metric: count} map (Rung-1 cron schema).
+  const BOOT_LABELS = {
+    movies: 'Loading movies', tv_series: 'Loading TV series', episodes: 'Resolving episodes',
+    people: 'Resolving people', spine_total: 'Building Parent-Key spine',
+    eidr_certified: 'Certifying identity registry', alt_ids: 'Linking alternate IDs',
+  };
+  let boot = [];
+  if (Array.isArray(raw.boot)) {
+    boot = raw.boot.map(b => ({
+      label: b.label != null ? String(b.label) : '',
+      tail:  b.tail != null ? String(b.tail) : null,
+      value: (typeof b.value === 'number' && isFinite(b.value)) ? b.value : null,
+      kind:  b.kind === 'check' ? 'check' : 'count',
+    }));
+  } else if (raw.boot && typeof raw.boot === 'object') {
+    boot = Object.keys(raw.boot).map(k => ({
+      label: BOOT_LABELS[k] || ('Loading ' + k.replace(/_/g, ' ')),
+      tail: null,
+      value: (typeof raw.boot[k] === 'number' && isFinite(raw.boot[k])) ? raw.boot[k] : null,
+      kind: 'count',
+    }));
+  }
+  return {
+    kind: 'feed',
+    generatedAt: raw.generated_at || null,
+    ttlHours: (raw._freshness && typeof raw._freshness.ttl_hours === 'number' && isFinite(raw._freshness.ttl_hours))
+      ? raw._freshness.ttl_hours : null,
+    boot,
+    ticker: (Array.isArray(raw.ticker) ? raw.ticker : []).map(t => ({
+      entity: t.entity != null ? String(t.entity) : '',
+      note:   t.note != null ? String(t.note) : (t.text != null ? String(t.text) : ''),
+      delta:  t.delta_label != null ? String(t.delta_label) : '',
+      dir:    (t.direction === 'up' || t.direction === 'dn') ? t.direction : 'fl',
+      provenance: t.provenance != null ? String(t.provenance) : null,
+    })),
+    scoop: (Array.isArray(raw.scoop) ? raw.scoop : []).map(s => ({
+      who: s.who != null ? String(s.who) : '', text: s.text != null ? String(s.text) : '',
+    })),
+    reports: (Array.isArray(raw.reports_fallback) ? raw.reports_fallback : [])
+      .filter(r => r && r.report_id != null).map(normReport),
+  };
+}
+
+/* ── truthful formatting: null → em-dash, never a fallback figure ───────── */
+function fmt(v){ return (typeof v === 'number' && isFinite(v)) ? v.toLocaleString('en-US') : '—'; }
+function esc(s){
+  return s == null ? '' : String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/* ── theme ────────────────────────────────────────────────────────────── */
+function setTheme(t){
+  APP_STATE.theme = (t === 'dark') ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', APP_STATE.theme);
+  $('navTglLbl').textContent = APP_STATE.theme.toUpperCase();
+  try { localStorage.setItem('smr_theme', APP_STATE.theme); } catch (e) { /* storage unavailable */ }
+}
+function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('smr_theme'); } catch (e) { /* storage unavailable */ }
+  const pref = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  setTheme(saved || pref);
+  $('navTgl').addEventListener('click', () => setTheme(APP_STATE.theme === 'dark' ? 'light' : 'dark'));
+}
+
+/* ── API layer ────────────────────────────────────────────────────────── */
+async function _probeApi(){
+  try {
+    const r = await fetch(ASK_ENDPOINT + '/health', { method: 'GET', headers: _headers(), signal: AbortSignal.timeout(3000) });
+    APP_STATE.apiOnline = r.ok;
+  } catch (e) { APP_STATE.apiOnline = false; }
+  renderStatus();
+  return APP_STATE.apiOnline;
+}
+function renderStatus(){
+  const el = $('navStatus');
+  if (APP_STATE.apiOnline === true) { el.textContent = '● LIVE'; el.className = 'nav-pill nav-live'; $('offBanner').classList.remove('nav-banner-show'); }
+  else if (APP_STATE.apiOnline === false) { el.textContent = '◌ CATALOG'; el.className = 'nav-pill nav-catalog'; $('offBanner').classList.add('nav-banner-show'); }
+  else { el.textContent = '…'; el.className = 'nav-pill'; }
+}
+
+async function loadFeed(){
+  for (const url of ['data/ask_feed.json', 'data/ask_feed.sample.json']) {
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(4000) });
+      if (!r.ok) continue;
+      const adapted = adapt(await r.json());
+      if (adapted.kind === 'feed') return adapted;
+    } catch (e) { /* try next source */ }
+  }
+  return null;
+}
+
+/* Bundled catalog: descriptors from the loaded feed if it carries them,
+   otherwise from the sample feed (same path used in catalog mode).
+   renderHubError fires ONLY when this bundled fallback ALSO fails. */
+async function loadBundledCatalog(failDetail){
+  let fallback = (APP_STATE.feed && APP_STATE.feed.reports) || [];
+  if (!fallback.length) {
+    try {
+      const r = await fetch('data/ask_feed.sample.json', { signal: AbortSignal.timeout(4000) });
+      if (r.ok) fallback = adapt(await r.json()).reports;
+    } catch (e) { /* no bundled descriptors reachable */ }
+  }
+  if (!fallback.length && failDetail) { renderHubError(failDetail); return; }
+  APP_STATE.reports = fallback;
+  APP_STATE.reportsSource = 'fallback';
+  renderLanes();
+}
+
+/* Central dropdown vocabulary — enums never live in components. Absent when
+   the API is unreachable; the drill panel then omits the alternatives count
+   rather than inventing one. */
+async function loadDropdowns(){
+  if (!APP_STATE.apiOnline) return;
+  try {
+    const r = await fetch(ASK_ENDPOINT + '/dropdowns', { method: 'GET', headers: _headers(), signal: AbortSignal.timeout(8000) });
+    if (!r.ok) return;
+    const j = await r.json();
+    if (j && j.dropdowns && typeof j.dropdowns === 'object') APP_STATE.dropdowns = j.dropdowns;
+  } catch (e) { /* vocabulary unavailable — drill renders without alt counts */ }
+}
+
+async function loadReports(){
+  const lanes = $('lanes');
+  lanes.innerHTML = stateCard('◌', 'Loading the reporting catalog…', '');
+  if (APP_STATE.apiOnline) {
+    try {
+      const r = await fetch(ASK_ENDPOINT + '/reports', { method: 'GET', headers: _headers(), signal: AbortSignal.timeout(8000) });
+      if (!r.ok) throw new Error('The catalog endpoint answered with status ' + r.status + '.');
+      const adapted = adapt(await r.json());
+      APP_STATE.reports = adapted.reports;
+      APP_STATE.reportsSource = 'api';
+      renderLanes();
+      return;
+    } catch (e) {
+      // API reachable but the reports call failed — degrade to catalog mode,
+      // never dead-end while a bundled catalog exists.
+      APP_STATE.apiOnline = false;
+      renderStatus();
+      await loadBundledCatalog('The catalog request failed: ' + (e && e.message ? e.message : 'network error'));
+      return;
+    }
+  }
+  await loadBundledCatalog(null);
+}
+
+/* ── hub states ───────────────────────────────────────────────────────── */
+function stateCard(glyph, title, body, retry){
+  return '<div class="hub-state"><span class="hub-state-glyph" aria-hidden="true">' + esc(glyph) + '</span>' +
+    '<h3>' + esc(title) + '</h3><div>' + body + '</div>' +
+    (retry ? '<br><button type="button" id="hubRetry">↻ RETRY</button>' : '') + '</div>';
+}
+function renderHubError(detail){
+  // detail arrives RAW — escaped exactly once here, never pre-escaped by callers.
+  $('lanes').innerHTML = stateCard('✕', 'The catalog could not be loaded', esc(detail) + '<br>Neither the live catalog nor the bundled catalog could be loaded.', true);
+  const b = $('hubRetry'); if (b) b.addEventListener('click', loadReports);
+}
+function renderHubEmpty(){
+  $('lanes').innerHTML = stateCard('◇', 'No reports in the catalog yet',
+    'The reporting catalog is connected but returned no published descriptors. New Programming reports land here as they are blessed.', true);
+  const b = $('hubRetry'); if (b) b.addEventListener('click', loadReports);
+}
+
+/* ═══ animated micro-demos (C1) ══════════════════════════════════════════
+   §MOTION-AS-INTELLIGENCE-001: a tile's animation IS its report's chart
+   grammar, never decoration. Shapes are SCHEMATIC diagrams of the chart form
+   — no numerals, no axis values, nothing that could read as a measured figure.
+   Static markup encodes the FINAL frame, so the reduced-motion path (which
+   never builds an animation) renders a complete, legible diagram.
+   Motion is transform / opacity / stroke-dash only — never layout.        */
+
+const EASE_SPRING = 'cubic-bezier(0.16,1,0.3,1)';
+const DEMO_STYLES = ['GRID', 'PULSE', 'SPATIAL', 'SIGNAL', 'TERMINAL'];
+const demoStyleOf = (s) => (DEMO_STYLES.indexOf(s) >= 0 ? s : 'SIGNAL');
+
+/* geometry tables — layout constants only, not data */
+const G_BARS   = [98, 80, 63, 46, 29];        // GRID: settled rank order (widths)
+const G_START  = [2, 0, 4, 1, 3];             // GRID: pre-race slot of each bar
+const T_WIDTH  = [64, 88, 40, 74, 52];        // TERMINAL: per-entity tick width
+const T_ORDER  = [3, 0, 4, 1, 2];             // TERMINAL: the re-ranked slot
+const P_CELLS  = [                            // PULSE: settled intensity pattern
+  .18,.34,.58,.42,.26,.20,
+  .30,.62,.86,.66,.38,.24,
+  .16,.28,.46,.34,.22,.16];
+const S_DOTS = [                              // SPATIAL: [cx,cy,r,dx,dy,tone]
+  [26,17,4.2,-16, 12,'t'], [33,23,3.2, 14,-13,'t'], [20,25,2.8,-18,-11,'t'],
+  [62,28,4.6, 20, -9,'v'], [70,22,3.0,-15, 13,'v'], [56,34,2.6, 17, 11,'v'],
+  [97,15,4.0,-19,-12,'g'], [104,22,3.0, 12, 14,'g'], [90,23,2.4,-11, 15,'g']];
+const ROW_Y = (slot) => 5.5 + slot * 8.6;
+
+function demoSvg(style){
+  const open = '<svg viewBox="0 0 120 48" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">';
+  switch (style) {
+    case 'GRID': { // ranker bars racing into rank order
+      let s = open + '<line x1="7" y1="3" x2="7" y2="45" stroke="var(--border)" stroke-width="1"/>';
+      for (let i = 0; i < G_BARS.length; i++) {
+        s += '<g class="d-row" data-y0="' + ROW_Y(G_START[i]) + '" data-y1="' + ROW_Y(i) + '" ' +
+             'style="transform:translateY(' + ROW_Y(i) + 'px)">' +
+             '<rect class="d-bar" x="8" y="0" width="' + G_BARS[i] + '" height="6" rx="2" ' +
+             'fill="var(--teal)" opacity="' + (0.9 - i * 0.13).toFixed(2) + '"/></g>';
+      }
+      return s + '</svg>';
+    }
+    case 'TERMINAL': { // rank ticks reordering
+      let s = open;
+      for (let i = 0; i < T_WIDTH.length; i++) {
+        s += '<g class="d-rank" data-y0="' + ROW_Y(i) + '" data-y1="' + ROW_Y(T_ORDER[i]) + '" ' +
+             'style="transform:translateY(' + ROW_Y(i) + 'px)">' +
+             '<circle cx="4" cy="3" r="2" fill="var(--violet)" opacity="' + (0.9 - i * 0.12).toFixed(2) + '"/>' +
+             '<rect x="10" y="1.5" width="' + T_WIDTH[i] + '" height="3" rx="1.5" ' +
+             'fill="var(--violet)" opacity="' + (0.75 - i * 0.11).toFixed(2) + '"/></g>';
+      }
+      return s + '</svg>';
+    }
+    case 'PULSE': { // heatmap cells breathing through an intensity cycle
+      let s = open;
+      for (let r = 0; r < 3; r++) for (let c = 0; c < 6; c++) {
+        const o = P_CELLS[r * 6 + c];
+        s += '<rect class="d-cell" data-r="' + r + '" data-c="' + c + '" data-o="' + o + '" ' +
+             'x="' + (6 + c * 19) + '" y="' + (6 + r * 13) + '" width="17" height="11" rx="2" ' +
+             'fill="var(--tealbright)" opacity="' + o + '"/>';
+      }
+      return s + '</svg>';
+    }
+    case 'SPATIAL': { // scatter points settling into clusters
+      let s = open;
+      const tone = { t: 'var(--teal)', v: 'var(--violet)', g: 'var(--gold)' };
+      S_DOTS.forEach((d) => {
+        s += '<circle class="d-dot" data-dx="' + d[3] + '" data-dy="' + d[4] + '" ' +
+             'cx="' + d[0] + '" cy="' + d[1] + '" r="' + d[2] + '" fill="' + tone[d[5]] + '" opacity="0.78"/>';
+      });
+      return s + '</svg>';
+    }
+    default: { // SIGNAL — trend lines drawing left to right
+      return open +
+        '<line x1="6" y1="44" x2="114" y2="44" stroke="var(--border)" stroke-width="1"/>' +
+        '<polyline class="d-line" fill="none" stroke="var(--teal)" stroke-width="1.8" ' +
+        'stroke-linecap="round" stroke-linejoin="round" ' +
+        'points="6,36 20,31 34,33 48,24 62,26 76,16 90,18 104,9 114,7"/>' +
+        '<polyline class="d-line" fill="none" stroke="var(--violet)" stroke-width="1.4" ' +
+        'stroke-linecap="round" stroke-linejoin="round" opacity="0.7" ' +
+        'points="6,41 20,39 34,40 48,35 62,37 76,32 90,34 104,29 114,28"/></svg>';
+    }
+  }
+}
+
+/* build the WAAPI loop for one demo — called lazily, only when a tile plays */
+function buildDemoAnims(svg, style){
+  const anims = [];
+  const add = (el, kf, opt) => {
+    try {
+      anims.push(el.animate(kf, Object.assign({ iterations: Infinity, easing: 'linear' }, opt)));
+    } catch (e) { /* element detached or WAAPI unavailable — demo stays static */ }
+  };
+  if (style === 'GRID') {
+    svg.querySelectorAll('.d-row').forEach((g, i) => {
+      const y0 = g.dataset.y0, y1 = g.dataset.y1;
+      add(g, [
+        { transform: 'translateY(' + y0 + 'px)', offset: 0 },
+        { transform: 'translateY(' + y0 + 'px)', offset: 0.22, easing: EASE_SPRING },
+        { transform: 'translateY(' + y1 + 'px)', offset: 0.58 },
+        { transform: 'translateY(' + y1 + 'px)', offset: 1 },
+      ], { duration: 4200, delay: i * 70 });
+      const bar = g.querySelector('.d-bar');
+      if (bar) add(bar, [
+        { transform: 'scaleX(0.04)', offset: 0, easing: EASE_SPRING },
+        { transform: 'scaleX(1)', offset: 0.22 },
+        { transform: 'scaleX(1)', offset: 0.93, easing: EASE_SPRING },
+        { transform: 'scaleX(0.04)', offset: 1 },
+      ], { duration: 4200, delay: i * 70 });
+    });
+  } else if (style === 'TERMINAL') {
+    svg.querySelectorAll('.d-rank').forEach((g, i) => {
+      const y0 = g.dataset.y0, y1 = g.dataset.y1;
+      add(g, [
+        { transform: 'translateY(' + y0 + 'px)', offset: 0, easing: EASE_SPRING },
+        { transform: 'translateY(' + y0 + 'px)', offset: 0.16 },
+        { transform: 'translateY(' + y1 + 'px)', offset: 0.46, easing: EASE_SPRING },
+        { transform: 'translateY(' + y1 + 'px)', offset: 0.72 },
+        { transform: 'translateY(' + y0 + 'px)', offset: 1 },
+      ], { duration: 5200, delay: i * 45 });
+    });
+  } else if (style === 'PULSE') {
+    svg.querySelectorAll('.d-cell').forEach((c) => {
+      const base = parseFloat(c.dataset.o) || 0.2;
+      const hi = Math.min(1, base + 0.42);
+      add(c, [{ opacity: base }, { opacity: hi, offset: 0.5 }, { opacity: base }],
+        { duration: 2600, delay: (parseInt(c.dataset.c, 10) * 130) + (parseInt(c.dataset.r, 10) * 210) });
+    });
+  } else if (style === 'SPATIAL') {
+    svg.querySelectorAll('.d-dot').forEach((d, i) => {
+      const t = 'translate(' + d.dataset.dx + 'px,' + d.dataset.dy + 'px)';
+      add(d, [
+        { transform: t, opacity: 0.18, offset: 0, easing: EASE_SPRING },
+        { transform: 'none', opacity: 0.78, offset: 0.48 },
+        { transform: 'none', opacity: 0.78, offset: 0.9, easing: EASE_SPRING },
+        { transform: t, opacity: 0.18, offset: 1 },
+      ], { duration: 4400, delay: i * 55 });
+    });
+  } else {
+    svg.querySelectorAll('.d-line').forEach((p, i) => {
+      let len = 0;
+      try { len = Math.ceil(p.getTotalLength()); } catch (e) { len = 0; }
+      if (!len) return;
+      p.style.strokeDasharray = String(len);
+      add(p, [
+        { strokeDashoffset: len, offset: 0, easing: EASE_SPRING },
+        { strokeDashoffset: 0, offset: 0.55 },
+        { strokeDashoffset: 0, offset: 0.9 },
+        { strokeDashoffset: len, offset: 1 },
+      ], { duration: 4200, delay: i * 240 });
+    });
+  }
+  return anims;
+}
+
+/* ── demo scheduler: viewport-gated, tab-gated, concurrency-capped ──────── */
+const DEMO_MAX = 6;
+const demoReg = new Map();       // tile element -> {style, anims, playing} (DOM order)
+const demoVisible = new Set();
+let demoIO = null;
+
+function registerDemos(){
+  if (demoIO) { demoIO.disconnect(); demoIO = null; }
+  demoReg.forEach(stopDemo);
+  demoReg.clear(); demoVisible.clear();
+  const tiles = $('lanes').querySelectorAll('.tile');
+  if (!tiles.length) return;
+  if (typeof IntersectionObserver === 'function') {
+    demoIO = new IntersectionObserver((entries) => {
+      entries.forEach(e => { e.isIntersecting ? demoVisible.add(e.target) : demoVisible.delete(e.target); });
+      syncDemos();
+    }, { rootMargin: '80px 0px', threshold: 0.15 });
+  }
+  tiles.forEach(t => {
+    demoReg.set(t, { style: demoStyleOf(t.dataset.style), anims: null, playing: false });
+    if (demoIO) demoIO.observe(t); else demoVisible.add(t);
+  });
+  syncDemos();
+}
+function stopDemo(rec){
+  if (!rec.anims) return;
+  rec.anims.forEach(a => { try { a.pause(); } catch (e) { /* already finished */ } });
+  rec.playing = false;
+}
+function startDemo(tile, rec){
+  if (!rec.anims) {
+    const svg = tile.querySelector('svg');
+    if (!svg) return;
+    rec.anims = buildDemoAnims(svg, rec.style);
+  }
+  rec.anims.forEach(a => { try { a.play(); } catch (e) { /* animation cancelled */ } });
+  rec.playing = true;
+}
+function syncDemos(){
+  if (!APP_STATE.fontsReady) return;               // §3 fonts-ready gate
+  const off = APP_STATE.reduceMotion || document.hidden || APP_STATE.drillId != null;
+  let live = 0;
+  demoReg.forEach((rec, tile) => {
+    const want = !off && demoVisible.has(tile) && live < DEMO_MAX;
+    if (want) { live++; if (!rec.playing) startDemo(tile, rec); }
+    else if (rec.playing) stopDemo(rec);
+  });
+}
+
+/* ── lanes + animated tiles ───────────────────────────────────────────── */
+const FAMILY_ORDER = ['PROGRAMMING', 'ADVERTISING', 'MARKETING'];
+/* What each lane answers — editorial copy, not data. */
+const FAMILY_Q = {
+  PROGRAMMING: 'What is working on the schedule, and why — genre economics, network rankers and audience positioning across the measured universe.',
+  ADVERTISING: 'Who a plan actually reached — delivery, composition and competitive standing against the audience it was bought for.',
+  MARKETING:   'Where demand is moving — supply, momentum and audience affinity ahead of the next slate decision.',
+};
+const FAMILY_Q_DEFAULT = 'Reports in this family, served from the catalog registry.';
+
+function provLabel(p){
+  return p === 'licensed-viewership' ? 'LICENSED AUDIENCE VIEWERSHIP' : String(p).toUpperCase();
+}
+function windowLabel(r){
+  if (r && r.window) return 'DATA WINDOW · ' + r.window;
+  if (r && r.provenance) return 'DATA WINDOW · resolved on run · ' + provLabel(r.provenance);
+  return 'DATA WINDOW · resolved on run';
+}
+function findReport(id){ return (APP_STATE.reports || []).find(x => x.id === id) || null; }
+function findTile(id){
+  return [].slice.call(document.querySelectorAll('.tile')).find(t => t.dataset.rid === id) || null;
+}
+
+function renderLanes(){
+  let reports = (APP_STATE.reports || []).filter(r => r.visible !== false);
+  if (!reports.length) { renderHubEmpty(); return; }
+  const q = (APP_STATE.searchQuery || '').trim().toLowerCase();
+  if (q) {
+    reports = reports.filter(r =>
+      (r.id || '').toLowerCase().includes(q) ||
+      (r.title || '').toLowerCase().includes(q) ||
+      (r.desc || '').toLowerCase().includes(q));
+    if (!reports.length) {
+      $('lanes').innerHTML = stateCard('◇', 'No reports match your filter',
+        'No card id, title, or description matches <b>' + esc(q) + '</b>. Clear the filter to see the full catalog.', false);
+      return;
+    }
+  }
+  const byFam = new Map();
+  reports.forEach(r => { if (!byFam.has(r.family)) byFam.set(r.family, []); byFam.get(r.family).push(r); });
+  const fams = FAMILY_ORDER.filter(f => byFam.has(f)).concat([...byFam.keys()].filter(f => !FAMILY_ORDER.includes(f)));
+  let html = '';
+  fams.forEach(fam => {
+    const rs = byFam.get(fam);
+    html += '<div class="hub-lane"><div class="hub-lane-h"><h2>' + esc(fam.charAt(0) + fam.slice(1).toLowerCase()) + '</h2>' +
+      '<span class="hub-cnt">' + esc(fmt(rs.length)) + ' reports · ' + esc(APP_STATE.reportsSource === 'api' ? 'catalog-served' : 'bundled catalog') + '</span>' +
+      '<span class="hub-lane-chip">CATALOG-DRIVEN</span></div>' +
+      '<p class="hub-lane-q">' + esc(FAMILY_Q[fam] || FAMILY_Q_DEFAULT) + '</p>';
+    html += '<div class="hub-cards">';
+    rs.forEach(r => {
+      const chips = [];
+      if (r.isNew) chips.push('<span class="tile-chip tile-new">NEW</span>');
+      if (r.inDev) chips.push('<span class="tile-chip tile-dev">IN DEV</span>');
+      if (r.status) chips.push('<span class="tile-chip">' + esc(r.status) + '</span>');
+      const sty = demoStyleOf(r.style);
+      html += '<button class="tile" type="button" data-rid="' + esc(r.id) + '" data-style="' + esc(sty) + '" aria-describedby="prev-' + esc(r.id) + '">' +
+        '<span class="tile-top"><span class="tile-id">' + esc(r.id) + '</span>' +
+        (r.style ? '<span class="tile-style">' + esc(r.style) + '</span>' : '') + '</span>' +
+        '<span class="tile-demo">' + demoSvg(sty) + '</span>' +
+        '<span class="tile-title">' + esc(r.title) + '</span>' +
+        '<span class="tile-chips">' + chips.join('') + '</span>' +
+        '<span class="tile-cta">DRILL DOWN →</span>' +
+        '<span class="tile-prev" id="prev-' + esc(r.id) + '" role="tooltip">' +
+          '<span class="tile-prev-h">WHAT IT ANSWERS</span>' +
+          '<span class="tile-prev-d">' + esc(r.desc || 'The descriptor for this report carries no description yet.') + '</span>' +
+          '<span class="tile-prev-w">' + esc(windowLabel(r)) + '</span>' +
+        '</span></button>';
+    });
+    html += '</div></div>';
+  });
+  $('lanes').innerHTML = html;
+  $('lanes').querySelectorAll('.tile').forEach(c => {
+    c.addEventListener('click', () => { location.hash = '#/drill/' + encodeURIComponent(c.dataset.rid); });
+  });
+  registerDemos();
+}
+
+/* ═══ drill panel (C2) ═══════════════════════════════════════════════════
+   Tile expands in place via a FLIP shared-element transition (WAAPI — see
+   the build note in the report for why GSAP is not loaded on this surface). */
+
+const PARAM_META = {
+  demo:            { label: 'Demographic',   list: 'demos' },
+  daypart:         { label: 'Daypart',       list: 'dayparts' },
+  viewing_stream:  { label: 'Viewing stream', list: 'viewing_streams' },
+  period:          { label: 'Period',        list: 'periods' },
+  benchmark:       { label: 'Benchmark',     list: 'benchmarks' },
+  metric:          { label: 'Metric',        list: 'chart_metrics' },
+};
+function paramLabel(k){
+  return (PARAM_META[k] && PARAM_META[k].label) || String(k).replace(/_/g, ' ');
+}
+/* vocabulary lookup — how many blessed alternatives this parameter has */
+function paramAlts(k){
+  const list = PARAM_META[k] && PARAM_META[k].list;
+  const v = APP_STATE.dropdowns && list ? APP_STATE.dropdowns[list] : null;
+  return Array.isArray(v) ? v.length : null;
+}
+
+function drillHtml(r, id){
+  const title = r ? r.title : 'Unknown report';
+  let h = '<div class="drill-head"><div><span class="drill-eyebrow">REPORT · ' + esc(id) + '</span>' +
+    '<span class="drill-title" id="drillTitle">' + esc(title) + '</span></div>' +
+    '<button class="drill-x" id="drillX" type="button" aria-label="Close report detail">ESC ✕</button></div><div class="drill-body">';
+
+  h += '<div class="drill-sec"><h4>WHAT THIS REPORT ANSWERS</h4><p class="drill-answer">' +
+    esc(r ? (r.desc || 'The descriptor for this report carries no description yet.')
+          : 'This report id is not present in the loaded catalog.') + '</p></div>';
+
+  h += '<div class="drill-sec"><h4>PARAMETERS</h4>';
+  if (r && r.params) {
+    h += '<div class="drill-params">';
+    Object.keys(r.params).forEach(k => {
+      const n = paramAlts(k);
+      h += '<div class="drill-param"><b>' + esc(paramLabel(k).toUpperCase()) + '</b>' +
+        '<em>' + esc(String(r.params[k])) + '</em>' +
+        (n ? '<i>of ' + esc(String(n)) + ' in vocabulary</i>' : '') + '</div>';
+    });
+    h += '</div>';
+  } else {
+    h += '<p class="drill-note">Parameters resolve from the report descriptor served by the catalog API. ' +
+      'The bundled catalog does not carry them, so none are shown — no defaults are invented here.</p>';
+  }
+  h += '</div>';
+
+  h += '<div class="drill-sec"><h4>DATA WINDOW &amp; PROVENANCE</h4><div class="drill-badges">';
+  h += '<span class="drill-badge">' + esc(windowLabel(r)) + '</span>';
+  if (r && r.provenance) h += '<span class="drill-badge drill-prov" data-provenance="' + esc(r.provenance) + '">' + esc(provLabel(r.provenance)) + '</span>';
+  if (r && r.style)  h += '<span class="drill-badge drill-style">' + esc(r.style) + '</span>';
+  if (r && r.status) h += '<span class="drill-badge">STATUS · ' + esc(r.status) + '</span>';
+  h += '<span class="drill-badge">CATALOG · ' + esc(APP_STATE.reportsSource === 'api' ? 'SERVED' : 'BUNDLED') + '</span>';
+  h += '</div></div></div>';
+
+  h += '<div class="drill-foot"><button class="drill-run" id="drillRun" type="button"' + (r ? '' : ' disabled') + '>Run report</button>' +
+    '<span class="drill-note">Runs against the research API with the parameters above. Every figure it returns carries its own source and denominator.</span></div>';
+  return h;
+}
+
+function flipRects(tile, panel){
+  const a = tile.getBoundingClientRect(), b = panel.getBoundingClientRect();
+  if (!a.width || !b.width || !b.height) return null;
+  return {
+    s: Math.max(0.2, Math.min(1, a.width / b.width)),
+    dx: (a.left + a.width / 2) - (b.left + b.width / 2),
+    dy: (a.top + a.height / 2) - (b.top + b.height / 2),
+  };
+}
+
+function openDrill(id){
+  if (APP_STATE.drillId === id) return;
+  const r = findReport(id);
+  APP_STATE.drillId = id;
+  const panel = $('drillPanel'), stage = $('drillStage'), scrim = $('drillScrim');
+  panel.innerHTML = drillHtml(r, id);
+  scrim.hidden = false; stage.hidden = false;
+  requestAnimationFrame(() => scrim.classList.add('drill-on'));
+  const x = $('drillX'); if (x) x.addEventListener('click', () => { location.hash = ''; });
+  const run = $('drillRun');
+  if (run && r) run.addEventListener('click', () => { location.hash = '#/report/' + encodeURIComponent(id); });
+  syncDemos();                                    // pause lane motion behind the panel
+  const tile = findTile(id);
+  if (!APP_STATE.reduceMotion && tile && panel.animate) {
+    const f = flipRects(tile, panel);
+    if (f) panel.animate(
+      [{ transform: 'translate(' + f.dx + 'px,' + f.dy + 'px) scale(' + f.s + ')', opacity: 0 },
+       { transform: 'none', opacity: 1 }],
+      { duration: 380, easing: EASE_SPRING });
+  }
+  panel.focus();
+}
+
+function closeDrill(instant){
+  const id = APP_STATE.drillId;
+  if (id == null) return;
+  APP_STATE.drillId = null;
+  const panel = $('drillPanel'), stage = $('drillStage'), scrim = $('drillScrim');
+  scrim.classList.remove('drill-on');
+  const done = () => {
+    stage.hidden = true; scrim.hidden = true; panel.innerHTML = '';
+    syncDemos();
+  };
+  const tile = findTile(id);
+  if (instant || APP_STATE.reduceMotion || !tile || !panel.animate) { done(); if (!instant && tile) tile.focus(); return; }
+  const f = flipRects(tile, panel);
+  if (!f) { done(); tile.focus(); return; }
+  const a = panel.animate(
+    [{ transform: 'none', opacity: 1 },
+     { transform: 'translate(' + f.dx + 'px,' + f.dy + 'px) scale(' + f.s + ')', opacity: 0 }],
+    { duration: 300, easing: EASE_SPRING });
+  a.onfinish = () => { done(); tile.focus(); };
+  a.oncancel = done;
+}
+
+/* ═══ report surface (C2 run target) ═════════════════════════════════════ */
+
+function renderMetaBadges(meta, r){
+  const b = [];
+  const prov = (meta && meta.provenance) || (r && r.provenance) || null;
+  if (prov) b.push('<span class="rp-badge rp-prov" data-provenance="' + esc(String(prov)) + '">' + esc(provLabel(prov)) + '</span>');
+  const denom = meta && (meta.denominator || meta.universe);
+  if (denom) b.push('<span class="rp-badge rp-denom">UNIVERSE · ' + esc(String(denom)) + '</span>');
+  const win = (meta && (meta.data_window || meta.window)) || (r && r.window) || null;
+  if (win) b.push('<span class="rp-badge">WINDOW · ' + esc(String(win)) + '</span>');
+  const gen = meta && (meta.generated_at || meta.as_of);
+  if (gen) b.push('<span class="rp-badge">AS OF · ' + esc(String(gen)) + '</span>');
+  const params = (meta && meta.params) || (r && r.params) || null;
+  if (params && typeof params === 'object') {
+    Object.keys(params).forEach(k => {
+      b.push('<span class="rp-badge">' + esc(paramLabel(k).toUpperCase()) + ' · ' + esc(String(params[k])) + '</span>');
+    });
+  }
+  if (!b.length) b.push('<span class="rp-badge">SOURCE · UNRESOLVED</span>');
+  $('rpBadges').innerHTML = b.join('');
+}
+
+function cellText(row, col){
+  const v = (row && typeof row === 'object') ? row[col] : row;
+  if (v === null || v === undefined || v === '') return '—';
+  return (typeof v === 'number' && isFinite(v)) ? v.toLocaleString('en-US') : String(v);
+}
+
+/* Real layout skeleton for an executed report. Nothing here invents a value:
+   columns, rows, takeaways and every badge come from the payload.          */
+function renderReportSurface(data, meta){
+  data = data || {}; meta = meta || {};
+  renderMetaBadges(meta, findReport(APP_STATE.activeReport));
+  const rows = Array.isArray(data.rows) ? data.rows : [];
+  const cols = Array.isArray(data.columns) && data.columns.length
+    ? data.columns.map(String)
+    : (rows.length && rows[0] && typeof rows[0] === 'object' ? Object.keys(rows[0]) : []);
+  let h = '';
+  h += '<div class="rp-slot"><h3>VISUALIZATION</h3><p>' +
+    (rows.length
+      ? 'The charted view of this result renders on the report surface; the charting engine is wired in the next phase. The returned rows are shown below exactly as the service returned them.'
+      : 'The response carried no rows, so there is nothing to chart.') + '</p></div>';
+  if (rows.length && cols.length) {
+    const cap = rows.slice(0, 50);
+    h += '<div class="rp-slot"><h3>RESULT</h3><div class="rp-scrollx"><table class="rp-table"><thead><tr>' +
+      cols.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr></thead><tbody>' +
+      cap.map(rw => '<tr>' + cols.map(c => '<td>' + esc(cellText(rw, c)) + '</td>').join('') + '</tr>').join('') +
+      '</tbody></table></div>' +
+      (rows.length > cap.length
+        ? '<p>Showing the first ' + esc(fmt(cap.length)) + ' of ' + esc(fmt(rows.length)) + ' returned rows.</p>' : '') +
+      '</div>';
+  }
+  const takes = Array.isArray(data.takeaways) ? data.takeaways : [];
+  if (takes.length) {
+    h += '<div class="rp-slot"><h3>TAKEAWAYS</h3><ul class="rp-take">' +
+      takes.map(t => '<li>' + esc(typeof t === 'string' ? t : (t && t.text) || '') + '</li>').join('') + '</ul></div>';
+  }
+  $('rpSurface').innerHTML = h;
+}
+
+function renderRunPending(){
+  $('rpSurface').innerHTML = '<div class="rp-slot"><h3>RUNNING</h3><p>Executing this report against the research service…</p></div>';
+}
+function renderRunUnavailable(detail){
+  $('rpSurface').innerHTML = '<div class="rp-fail"><b>REPORT EXECUTION NOT AVAILABLE YET</b>' +
+    'Report execution ships with the next phase — the run endpoint is not serving this report yet, so nothing is rendered. ' +
+    'No sample chart and no placeholder figures are shown.<br><br>' +
+    '<span class="rp-meta">' + esc(detail) + '</span></div>';
+}
+
+async function runReport(id){
+  const r = findReport(id);
+  renderRunPending();
+  let res;
+  const qs = (r && r.params) ? ('?' + new URLSearchParams(r.params).toString()) : '';
+  try {
+    res = await fetch(ASK_ENDPOINT + '/report/' + encodeURIComponent(id) + '/run' + qs,
+      { method: 'GET', headers: _headers(), signal: AbortSignal.timeout(15000) });
+  } catch (e) {
+    renderRunUnavailable('The research service could not be reached: ' + ((e && e.message) || 'network error') + '.');
+    return;
+  }
+  if (!res.ok) { renderRunUnavailable('The run endpoint answered with status ' + res.status + '.'); return; }
+  let payload;
+  try { payload = await res.json(); }
+  catch (e) { renderRunUnavailable('The run endpoint returned a body that could not be read as a result.'); return; }
+  const meta = (payload && payload.meta) || {};
+  const data = (payload && (payload.data || payload)) || {};
+  renderReportSurface(data, meta);
+}
+
+function openReport(id){
+  const r = findReport(id);
+  APP_STATE.activeReport = id;
+  $('rpTitle').textContent = r ? r.title : 'Unknown report';
+  $('rpMeta').textContent = r ? (r.id + (r.style ? ' · ' + r.style : '') + (r.status ? ' · ' + r.status : '')) : id;
+  $('rpDesc').textContent = r ? r.desc : 'This report id is not present in the loaded catalog.';
+  renderMetaBadges(null, r);
+  $('hub').style.display = 'none';
+  $('rpPanel').classList.add('rp-show');
+  window.scrollTo(0, 0);
+  if (r) runReport(id); else renderRunUnavailable('This report id is not present in the loaded catalog.');
+}
+function closeReport(){
+  if (APP_STATE.activeReport == null) return;
+  APP_STATE.activeReport = null;
+  $('rpPanel').classList.remove('rp-show');
+  $('rpSurface').innerHTML = '';
+  $('rpBadges').innerHTML = '';
+  $('hub').style.display = '';
+}
+
+/* ── hash routing: hub ⇄ drill ⇄ report ─────────────────────────────────── */
+function route(){
+  const h = location.hash;
+  const rm = h.match(/^#\/report\/(.+)$/);
+  const dm = h.match(/^#\/drill\/(.+)$/);
+  if (rm) { closeDrill(true); openReport(decodeURIComponent(rm[1])); return; }
+  if (dm) { closeReport(); openDrill(decodeURIComponent(dm[1])); return; }
+  closeReport();
+  closeDrill(false);
+}
+
+/* ── ask stub (Phase C) ──────────────────────────────────────────────── */
+function runAsk(q){
+  const n = $('askNotice');
+  n.hidden = false;
+  n.innerHTML = '<b>PHASE C</b> — the ask pipeline (plan → query → verify → write) ships with the report surface. ' +
+    (q ? 'Your question <b>“' + esc(q) + '”</b> was not sent anywhere; no mock answer is shown.' : 'No mock answer is shown.');
+}
+
+/* ── ticker ───────────────────────────────────────────────────────────── */
+function renderTicker(){
+  const items = (APP_STATE.feed && APP_STATE.feed.ticker) || [];
+  const track = $('tickTrack');
+  if (!items.length) { track.innerHTML = '<span class="tick-item tick-fl">— feed unavailable — live claims paused —</span>'; return; }
+  const one = items.map(t => {
+    const arrow = t.dir === 'up' ? '▲' : t.dir === 'dn' ? '▼' : '◆';
+    const prov = t.provenance === 'licensed-viewership'
+      ? ' <span class="tick-prov" data-provenance="' + esc(t.provenance) + '" title="Licensed audience viewership data">LICENSED</span>' : '';
+    return '<span class="tick-item"><span class="tick-' + t.dir + '">' + arrow + '</span>' +
+      '<span class="tick-ent">' + esc(t.entity) + '</span>' +
+      '<span>' + esc(t.note) + '</span>' +
+      '<span class="tick-' + t.dir + '">' + esc(t.delta) + '</span>' + prov + '</span>';
+  }).join('');
+  track.innerHTML = one + one; // duplicated track for a seamless marquee
+}
+
+/* ── feed staleness: generated_at + _freshness.ttl_hours (fix 8) ────────── */
+function renderStaleChip(){
+  const f = APP_STATE.feed;
+  const old = $('navStale'); if (old) old.remove();
+  if (!f || !f.generatedAt || f.ttlHours == null) return;
+  const gen = Date.parse(f.generatedAt);
+  if (!isFinite(gen)) return;
+  if (Date.now() - gen > f.ttlHours * 3600 * 1000) {
+    const chip = document.createElement('span');
+    chip.className = 'nav-pill nav-stale';
+    chip.id = 'navStale';
+    chip.title = 'Feed is past its freshness TTL — boot counts are kept but dated';
+    chip.textContent = 'as of ' + new Date(gen).toISOString().slice(0, 10);
+    $('navStatus').insertAdjacentElement('afterend', chip);
+  }
+}
+
+/* ── scoop rail ───────────────────────────────────────────────────────── */
+function renderScoop(){
+  const items = (APP_STATE.feed && APP_STATE.feed.scoop) || [];
+  $('scoopRail').innerHTML = items.length
+    ? items.map(s => '<div class="hub-scoop-b"><b>' + esc(s.who) + '</b>' + esc(s.text) + '</div>').join('')
+    : '<div class="hub-scoop-b"><b>DR. SCOOP</b>Feed unavailable — commentary paused. The catalog below still works.</div>';
+}
+
+/* ── boot sequence: countTo easing + typewriter, feed-driven ────────────── */
+function countTo(el, target, dur){
+  return new Promise(res => {
+    if (APP_STATE.reduceMotion) { el.textContent = fmt(target); res(); return; }
+    const t0 = performance.now();
+    (function step(now){
+      const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * e).toLocaleString('en-US');
+      p < 1 ? requestAnimationFrame(step) : res();
+    })(t0);
+  });
+}
+function typew(el, txt, sp){
+  return new Promise(res => {
+    if (APP_STATE.reduceMotion) { el.innerHTML = txt.replace(/\*/g, ''); res(); return; }
+    el.innerHTML = '';
+    let i = 0;
+    const c = document.createElement('span'); c.className = 'boot-cursor'; el.appendChild(c);
+    (function t(){
+      if (i < txt.length) { c.insertAdjacentHTML('beforebegin', txt[i] === '*' ? '' : esc(txt[i])); i++; setTimeout(t, sp); }
+      else { setTimeout(() => c.remove(), 500); res(); }
+    })();
+  });
+}
+async function runBoot(){
+  const rows = $('bootRows');
+  rows.innerHTML = '';
+  await typew($('bootGreet'), "Hi, I'm *Dr. Scoop. Waking up your research desk…", 24);
+  $('bootLog').classList.add('boot-show');
+  const lines = (APP_STATE.feed && APP_STATE.feed.boot) || [];
+  if (!lines.length) {
+    const row = document.createElement('div');
+    row.className = 'boot-row boot-in';
+    row.innerHTML = '<span class="boot-arrow">▸</span><span>Feed unavailable</span><span class="boot-n">—</span>';
+    rows.appendChild(row);
+  }
+  for (const b of lines) {
+    const row = document.createElement('div');
+    row.className = 'boot-row';
+    const right = (b.kind === 'check')
+      ? '<span class="boot-ok">●' + (b.tail ? ' ' + esc(b.tail) : '') + '</span>'
+      : '<span class="boot-n">' + (b.value === null ? '—' : '') + '</span>';
+    row.innerHTML = '<span class="boot-arrow">▸</span><span>' + esc(b.label) +
+      (b.kind !== 'check' && b.tail ? ' <span class="boot-tail">' + esc(b.tail) + '</span>' : '') + '</span>' + right;
+    rows.appendChild(row);
+    await sleep(APP_STATE.reduceMotion ? 0 : 42);
+    row.classList.add('boot-in');
+    if (b.kind !== 'check' && b.value !== null) await countTo(row.querySelector('.boot-n'), b.value, 320);
+    await sleep(APP_STATE.reduceMotion ? 0 : 110);
+  }
+  await sleep(APP_STATE.reduceMotion ? 0 : 380);
+  endBoot();
+}
+function endBoot(){
+  if (APP_STATE.bootDone) return;
+  APP_STATE.bootDone = true;
+  $('bootVeil').classList.add('boot-gone');
+  $('bootSkip').style.display = 'none';
+  $('hub').classList.add('hub-show');
+}
+
+/* ── animation init — gated on fonts + reduced-motion ───────────────────── */
+function initAnimations(){
+  APP_STATE.fontsReady = true;
+  renderTicker();
+  syncDemos();          // tile demos only ever start on the far side of this gate
+  runBoot();
+}
+
+/* ── drill a11y: Esc closes, Tab stays inside the dialog ─────────────────── */
+const FOCUSABLE = 'button:not([disabled]),[href],input,select,textarea,[tabindex]:not([tabindex="-1"])';
+function onDrillKey(e){
+  if (APP_STATE.drillId == null) return;
+  if (e.key === 'Escape') { e.preventDefault(); location.hash = ''; return; }
+  if (e.key !== 'Tab') return;
+  const panel = $('drillPanel');
+  const items = [].slice.call(panel.querySelectorAll(FOCUSABLE));
+  if (!items.length) { e.preventDefault(); panel.focus(); return; }
+  const first = items[0], last = items[items.length - 1];
+  if (e.shiftKey && (document.activeElement === first || document.activeElement === panel)) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+
+/* ── init: everything inside window load ─────────────────────────────────── */
+window.addEventListener('load', async () => {
+  APP_STATE.sessionId = _genSessionId();
+  APP_STATE.reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  initTheme();
+  renderStatus();
+  $('bootSkip').addEventListener('click', endBoot);
+  $('askForm').addEventListener('submit', (e) => { e.preventDefault(); runAsk($('askInput').value.trim()); });
+  $('rpBack').addEventListener('click', () => { location.hash = ''; });
+  window.addEventListener('hashchange', route);
+  document.addEventListener('keydown', onDrillKey);
+  $('drillScrim').addEventListener('click', () => { location.hash = ''; });
+  document.addEventListener('visibilitychange', syncDemos);   // pause when the tab is hidden
+  if (window.matchMedia) {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onMq = (e) => { APP_STATE.reduceMotion = !!e.matches; syncDemos(); };
+    if (typeof mq.addEventListener === 'function') mq.addEventListener('change', onMq);
+  }
+  $('hubSearch').addEventListener('input', (e) => {
+    APP_STATE.searchQuery = e.target.value;
+    if (APP_STATE.reports) renderLanes();
+  });
+
+  // data: probe + feed in parallel
+  const [ , feed] = await Promise.all([_probeApi(), loadFeed()]);
+  APP_STATE.feed = feed;
+  renderScoop();
+  renderStaleChip();
+
+  // boot starts as soon as the feed resolves; the catalog loads in parallel
+  // (fix 4 — the veil must never wait on the /reports round-trip)
+  document.fonts.ready.then(initAnimations);
+  await Promise.all([loadReports(), loadDropdowns()]);
+  route();
+});
+</script>
+</body>
+</html>

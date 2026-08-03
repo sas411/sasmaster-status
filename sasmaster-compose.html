@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaSMaster Compose — stitch a deliverable</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────────────────────
+   SaSMaster Compose — the deliverable composer.
+   Selects served findings + catalogue reports and stitches them into either a
+   long-form analysis or a slide deck. The load-bearing feature is CAVEAT
+   PROPAGATION: when findings combine, their limits combine too — merged,
+   de-duplicated, strongest-form-wins, blocking severities hoisted to the front
+   matter, and mixed denominators detected and refused rather than blended.
+
+   Theme: Theme 04 Data Narrative typography (DM Serif Display + Inter +
+   JetBrains Mono, tokens.md §Theme 04) over the same dual light/dark token set
+   the Insights surface ships, so the two surfaces read as one publication.
+   Every hex and rgba() below is declared in design-system/tokens.md —
+   token-gate enforced, fail-closed. Charts: Highcharts 11.4.8 only
+   (UI constitution §5). Motion: CSS/WAAPI + IntersectionObserver, gated on
+   document.fonts.ready; prefers-reduced-motion renders everything complete.
+   ZERO hardcoded figures: every numeral in the DOM originates in /insights,
+   /insights/{id} or /reports.
+   Classes are namespaced .cmp-* throughout (§CSS-NAMESPACE-001).
+   ──────────────────────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden;max-width:100vw}
+
+:root{
+  /* ── light editorial canvas (tokens.md §Theme 04 foundation tokens) ── */
+  --canvas:#fafaf8;
+  --surface:#ffffff;
+  --surface2:#f5f5f3;
+  --ink:#111111;
+  --ink2:#2d2d2d;
+  --muted:#888888;
+  --dim:#9CA3AF;
+  --border:#e8e8e4;
+  --border2:#d8d8d4;
+  --accent:#6C63FF;
+  --accent-dim:rgba(124,58,237,0.09);
+  --accent-line:rgba(124,58,237,0.16);
+  --warn:#c2740a;
+  --warn-dim:rgba(194,116,10,0.10);
+  --pos:#059669;
+  --pos-dim:rgba(5,150,105,0.10);
+  --neg:#dc2626;
+  --neg-dim:rgba(220,38,38,0.09);
+  --grid:rgba(22,22,42,0.07);
+  --hair:rgba(22,22,42,0.06);
+  --scrim:rgba(244,244,251,0.90);
+  --onaccent:#ffffff;
+  /* series palette — light variants (tokens.md §Theme 04 Khroma + secondary) */
+  --s1:#6C63FF;
+  --s2:#FF6B6B;
+  --s3:#0891b2;
+  --s4:#c2740a;
+  --s5:#059669;
+  --s6:#B388FF;
+  /* fonts */
+  --f-display:'DM Serif Display',Georgia,serif;
+  --f-ui:'Inter',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease-spring:cubic-bezier(0.16,1,0.3,1);
+  --r-sm:4px;--r-md:8px;--r-lg:12px;--r-xl:20px;
+  --nav-h:54px;
+  --tray-h:96px;
+}
+[data-theme="dark"]{
+  --canvas:#0a0a0f;
+  --surface:#12121a;
+  --surface2:#0d0d16;
+  --ink:#f8f8ff;
+  --ink2:#f8f8ff;
+  --muted:#94a3b8;
+  --dim:#4b5563;
+  --border:rgba(167,139,250,0.10);
+  --border2:rgba(167,139,250,0.35);
+  --accent:#a78bfa;
+  --accent-dim:rgba(167,139,250,0.14);
+  --accent-line:rgba(167,139,250,0.35);
+  --warn:#f59e0b;
+  --warn-dim:rgba(245,158,11,0.10);
+  --pos:#10b981;
+  --pos-dim:rgba(16,185,129,0.10);
+  --neg:#ef4444;
+  --neg-dim:rgba(239,68,68,0.12);
+  --grid:rgba(255,255,255,0.04);
+  --hair:rgba(255,255,255,0.04);
+  --scrim:rgba(10,10,15,0.85);
+  --onaccent:#0a0a0f;
+  /* series palette — dark variants, same domain order (ui-constitution §9 pairing) */
+  --s1:#a78bfa;
+  --s2:#ef4444;
+  --s3:#22d3ee;
+  --s4:#f59e0b;
+  --s5:#10b981;
+  --s6:#ec4899;
+}
+
+body{font-family:var(--f-ui);background:var(--canvas);color:var(--ink);line-height:1.6;
+  -webkit-font-smoothing:antialiased;min-height:100vh;
+  transition:background .35s var(--ease-spring),color .35s var(--ease-spring)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:var(--r-sm)}
+
+/* ── nav ─────────────────────────────────────────────────────────────────── */
+.cmp-nav{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  min-height:var(--nav-h);padding:8px 14px;background:var(--surface);border-bottom:1px solid var(--border)}
+.cmp-wm{font-family:var(--f-ui);font-weight:700;font-size:14px;letter-spacing:-.01em;white-space:nowrap}
+.cmp-wm em{font-family:var(--f-display);font-style:italic;font-weight:400;color:var(--accent)}
+.cmp-wm span{font-family:var(--f-mono);font-size:9px;letter-spacing:.18em;color:var(--muted);
+  margin-left:8px;vertical-align:2px;text-transform:uppercase}
+.cmp-navr{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cmp-pill{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;border:1px solid var(--border2);
+  border-radius:var(--r-xl);padding:4px 10px;color:var(--muted);white-space:nowrap}
+.cmp-pill.is-live{color:var(--pos);border-color:var(--pos);background:var(--pos-dim)}
+.cmp-pill.is-wait{color:var(--warn);border-color:var(--warn);background:var(--warn-dim)}
+.cmp-pill.is-off{color:var(--neg);border-color:var(--neg);background:var(--neg-dim)}
+.cmp-tgl{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;border:1px solid var(--border2);
+  border-radius:var(--r-xl);padding:4px 12px;color:var(--muted);min-height:44px;
+  display:inline-flex;align-items:center;justify-content:center}
+.cmp-tgl:hover{border-color:var(--accent);color:var(--accent)}
+.cmp-seg{display:flex;gap:0;border:1px solid var(--border2);border-radius:var(--r-xl);overflow:hidden}
+.cmp-seg button{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:0 12px;min-height:44px;color:var(--muted);white-space:nowrap;
+  transition:background .15s var(--ease-spring),color .15s var(--ease-spring)}
+.cmp-seg button+button{border-left:1px solid var(--border2)}
+.cmp-seg button.is-on{background:var(--accent);color:var(--onaccent)}
+.cmp-seg button[disabled]{opacity:.4;cursor:not-allowed}
+
+/* offline / slow banner */
+.cmp-ban{display:none;padding:11px 20px;background:var(--warn-dim);border-bottom:1px solid var(--warn);
+  font-family:var(--f-mono);font-size:11px;line-height:1.6;color:var(--warn);text-align:center}
+.cmp-ban.is-on{display:block}
+
+/* ── shell ───────────────────────────────────────────────────────────────── */
+.cmp-wrap{max-width:1120px;margin:0 auto;padding:0 20px calc(var(--tray-h) + 32px)}
+.cmp-view{display:none}
+.cmp-view.is-on{display:block}
+
+/* ── hero / picker ───────────────────────────────────────────────────────── */
+.cmp-hro{padding:44px 0 26px;border-bottom:1px solid var(--border)}
+.cmp-eye{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:16px}
+.cmp-hro h1{font-family:var(--f-display);font-weight:400;letter-spacing:-.015em;line-height:1.06;
+  font-size:clamp(38px,8.4vw,68px);color:var(--ink);margin-bottom:18px}
+.cmp-hro h1 i{font-style:italic;color:var(--accent)}
+.cmp-lede{font-size:clamp(15px,4vw,18px);line-height:1.62;color:var(--ink2);max-width:64ch;font-weight:300}
+.cmp-lede b{font-weight:600;color:var(--ink)}
+
+.cmp-grp{padding:34px 0 8px}
+.cmp-grp-h{display:flex;align-items:baseline;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+.cmp-grp-h b{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--accent);font-weight:500;
+  text-transform:uppercase}
+.cmp-grp-h i{flex:1;height:1px;background:var(--border);font-style:normal;min-width:20px}
+.cmp-grp-p{font-size:13.5px;line-height:1.6;color:var(--muted);max-width:62ch;margin-bottom:18px}
+
+.cmp-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.cmp-card{position:relative;display:block;width:100%;text-align:left;background:var(--surface);
+  border:1px solid var(--border);border-left:3px solid var(--border2);border-radius:var(--r-lg);
+  padding:16px 16px 14px;min-height:44px;
+  transition:border-color .15s var(--ease-spring),transform .15s var(--ease-spring)}
+.cmp-card:hover{border-color:var(--accent-line);transform:translateY(-1px)}
+.cmp-card.is-sel{border-left-color:var(--accent);border-color:var(--accent-line);background:var(--surface)}
+.cmp-card.is-blocked{border-left-color:var(--neg)}
+.cmp-card-h{display:flex;align-items:flex-start;gap:12px}
+.cmp-box{flex-shrink:0;width:20px;height:20px;border-radius:var(--r-sm);border:1.5px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;margin-top:2px;
+  font-family:var(--f-mono);font-size:12px;line-height:1;color:var(--onaccent)}
+.cmp-card.is-sel .cmp-box{background:var(--accent);border-color:var(--accent)}
+.cmp-card-t{font-family:var(--f-ui);font-size:15px;font-weight:600;line-height:1.35;color:var(--ink)}
+.cmp-card-s{margin-top:7px;font-size:13px;line-height:1.55;color:var(--ink2);font-weight:300}
+.cmp-facts{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.cmp-fact{font-family:var(--f-mono);font-size:10px;letter-spacing:.04em;color:var(--muted);
+  border:1px solid var(--border);border-radius:var(--r-sm);padding:4px 8px;background:var(--surface2)}
+.cmp-fact b{color:var(--ink2);font-weight:500}
+.cmp-fact.is-warn{color:var(--warn);border-color:var(--warn);background:var(--warn-dim)}
+.cmp-fact.is-block{color:var(--neg);border-color:var(--neg);background:var(--neg-dim)}
+.cmp-fact.is-uni{color:var(--accent);border-color:var(--accent-line);background:var(--accent-dim)}
+.cmp-den{margin-top:10px;padding-top:9px;border-top:1px solid var(--border);
+  font-family:var(--f-mono);font-size:10.5px;line-height:1.65;color:var(--muted);word-break:break-word}
+.cmp-den b{color:var(--ink2);font-weight:500}
+
+/* skeleton + empty states */
+.cmp-skel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:16px;min-height:118px;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px}
+.cmp-skel b{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--warn);font-weight:400}
+.cmp-skel p{margin-top:8px;font-size:12.5px;line-height:1.6;color:var(--muted);max-width:46ch}
+.cmp-void{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:26px 20px;text-align:center}
+.cmp-void-b{display:inline-block;font-family:var(--f-mono);font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--warn);border:1px solid var(--warn);background:var(--warn-dim);
+  border-radius:var(--r-xl);padding:5px 12px}
+.cmp-void-t{margin-top:12px;font-family:var(--f-ui);font-size:15px;font-weight:600;color:var(--ink)}
+.cmp-void-p{margin:8px auto 0;font-size:13px;line-height:1.6;color:var(--muted);max-width:52ch}
+.cmp-void-p code{font-family:var(--f-mono);font-size:11.5px;color:var(--ink2)}
+.cmp-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;
+  padding:11px 20px;border-radius:var(--r-xl);background:var(--accent);color:var(--onaccent);
+  font-size:13.5px;font-weight:600;text-decoration:none;
+  transition:transform .15s var(--ease-spring),opacity .15s}
+.cmp-btn:hover{transform:translateY(-1px);opacity:.92}
+.cmp-btn[disabled]{opacity:.38;cursor:not-allowed;transform:none}
+.cmp-btn.is-ghost{background:none;color:var(--ink2);border:1px solid var(--border2);font-weight:500}
+.cmp-btn.is-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.cmp-void .cmp-btn{margin-top:16px}
+
+/* ── composition tray ────────────────────────────────────────────────────── */
+.cmp-tray{position:fixed;left:0;right:0;bottom:0;z-index:58;background:var(--scrim);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-top:1px solid var(--border2)}
+.cmp-tray-in{max-width:1120px;margin:0 auto;padding:12px 20px;display:flex;gap:12px;
+  align-items:center;flex-wrap:wrap}
+.cmp-tray-l{flex:1;min-width:200px}
+.cmp-tray-n{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cmp-tray-n b{color:var(--ink);font-weight:500}
+.cmp-tray-chips{margin-top:7px;display:flex;flex-wrap:wrap;gap:6px}
+.cmp-tray-r{display:flex;gap:8px;flex-wrap:wrap}
+
+/* the composition-level warning — the feature's whole point */
+.cmp-alert{margin:0 0 14px;background:var(--surface);border:1px solid var(--border);
+  border-left:3px solid var(--warn);border-radius:0 var(--r-md) var(--r-md) 0;padding:16px 18px}
+.cmp-alert.is-block{border-left-color:var(--neg)}
+.cmp-alert h3{font-family:var(--f-ui);font-size:11.5px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--warn);margin-bottom:9px}
+.cmp-alert.is-block h3{color:var(--neg)}
+.cmp-alert p{font-size:13.5px;line-height:1.6;color:var(--ink2)}
+.cmp-alert p+p{margin-top:8px}
+.cmp-alert b{font-weight:600;color:var(--ink)}
+.cmp-alert ul{list-style:none;display:grid;gap:8px;margin-top:11px}
+.cmp-alert li{font-size:13px;line-height:1.55;color:var(--ink2);padding-left:18px;position:relative}
+.cmp-alert li::before{content:"";position:absolute;left:0;top:7px;width:7px;height:7px;border-radius:2px;
+  background:var(--warn)}
+.cmp-alert.is-block li::before{background:var(--neg)}
+.cmp-alert li b{font-weight:600;color:var(--ink)}
+.cmp-alert li em{font-style:normal;font-family:var(--f-mono);font-size:10.5px;color:var(--muted);
+  display:block;margin-top:3px}
+
+/* ── document mode ───────────────────────────────────────────────────────── */
+.cmp-doc{padding:36px 0 0;max-width:78ch}
+.cmp-doc-eye{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:14px}
+.cmp-doc h1{font-family:var(--f-display);font-weight:400;letter-spacing:-.015em;line-height:1.08;
+  font-size:clamp(32px,7vw,56px);color:var(--ink);margin-bottom:16px}
+.cmp-doc h2{font-family:var(--f-display);font-weight:400;letter-spacing:-.01em;line-height:1.14;
+  font-size:clamp(24px,5.4vw,38px);color:var(--ink);margin-bottom:14px}
+.cmp-doc h3{font-family:var(--f-ui);font-size:12px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.cmp-doc p{font-size:15px;line-height:1.68;color:var(--ink2);font-weight:300}
+.cmp-doc p+p{margin-top:11px}
+.cmp-doc p b{font-weight:600;color:var(--ink)}
+.cmp-sec{padding:38px 0;border-top:1px solid var(--border)}
+.cmp-sec-num{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+.cmp-sec-num b{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--accent);font-weight:500}
+.cmp-sec-num span{font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted)}
+.cmp-sec-num i{flex:1;height:1px;background:var(--border);font-style:normal}
+.cmp-fig{margin:22px 0 0;display:grid;grid-template-columns:1fr;gap:0;
+  border-top:2px solid var(--ink);border-bottom:1px solid var(--border);padding:18px 0}
+.cmp-fig-v{font-family:var(--f-mono);font-weight:500;font-size:clamp(40px,11vw,72px);line-height:1;
+  letter-spacing:-.035em;color:var(--ink);font-variant-numeric:tabular-nums}
+.cmp-fig-v.is-void{color:var(--dim)}
+.cmp-fig-l{margin-top:10px;font-size:13.5px;line-height:1.5;color:var(--muted);max-width:52ch}
+.cmp-fig-l b{color:var(--ink2);font-weight:600}
+.cmp-mech{margin-top:22px}
+.cmp-note{margin-top:18px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:16px 18px}
+.cmp-note b{display:block;font-family:var(--f-ui);font-size:11px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink);margin-bottom:8px}
+.cmp-note p{font-size:13.5px;line-height:1.6;color:var(--ink2)}
+
+/* chart panel (shared by document + slides) */
+.cmp-pnl{margin-top:22px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:16px 14px 12px;box-shadow:0 1px 2px var(--hair)}
+.cmp-pnl-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.cmp-pnl-h b{font-family:var(--f-ui);font-size:13px;font-weight:600;color:var(--ink)}
+.cmp-pnl-h span{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;color:var(--muted);
+  text-transform:uppercase}
+.cmp-pnl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.cmp-pnl-box{min-width:300px;height:320px;position:relative}
+.cmp-pnl-foot{margin-top:9px;padding-top:9px;border-top:1px solid var(--border);
+  font-family:var(--f-mono);font-size:10.5px;line-height:1.65;color:var(--muted);word-break:break-word}
+.cmp-pnl-foot b{color:var(--ink2);font-weight:500}
+.cmp-nochart{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  text-align:center;padding:22px 16px;border-radius:var(--r-md);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px}
+.cmp-nochart b{font-family:var(--f-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--warn);border:1px solid var(--warn);background:var(--warn-dim);border-radius:var(--r-xl);
+  padding:5px 12px;font-weight:400}
+.cmp-nochart p{font-size:12.5px;line-height:1.6;color:var(--muted);max-width:44ch}
+
+/* merged caveats block */
+.cmp-cav{margin-top:16px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:18px 20px}
+.cmp-cav-h{display:flex;align-items:center;gap:9px;margin-bottom:12px;flex-wrap:wrap}
+.cmp-cav-h b{font-family:var(--f-ui);font-size:11.5px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink)}
+.cmp-cav-h i{font-style:normal;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.1em;color:var(--muted);
+  border:1px solid var(--border2);border-radius:var(--r-sm);padding:2px 7px}
+.cmp-cav-list{list-style:none;display:grid;gap:12px}
+.cmp-cav-list li{font-size:13.5px;line-height:1.58;color:var(--ink2);padding-left:20px;position:relative}
+.cmp-cav-list li::before{content:"";position:absolute;left:2px;top:8px;width:7px;height:7px;border-radius:2px;
+  background:var(--muted)}
+.cmp-cav-list li[data-sev="high"]::before{background:var(--warn)}
+.cmp-cav-list li[data-sev="block"]::before{background:var(--neg)}
+.cmp-cav-list li b{font-weight:600;color:var(--ink)}
+.cmp-cav-src{display:block;margin-top:5px;font-family:var(--f-mono);font-size:10px;letter-spacing:.04em;
+  color:var(--muted)}
+.cmp-cav-src em{font-style:normal;color:var(--accent)}
+
+/* universes table */
+.cmp-uni{margin-top:16px;display:grid;gap:10px}
+.cmp-uni-row{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);
+  border-radius:0 var(--r-md) var(--r-md) 0;padding:14px 16px}
+.cmp-uni-row.is-void{border-left-color:var(--dim)}
+.cmp-uni-row b{font-family:var(--f-ui);font-size:13px;font-weight:600;color:var(--ink);display:block}
+.cmp-uni-row p{margin-top:6px;font-family:var(--f-mono);font-size:10.5px;line-height:1.65;color:var(--muted);
+  word-break:break-word;font-weight:400}
+.cmp-uni-row p b{display:inline;font-family:var(--f-mono);font-size:10.5px;color:var(--ink2);font-weight:500}
+.cmp-uni-row ul{list-style:none;margin-top:8px;display:grid;gap:4px}
+.cmp-uni-row li{font-size:12.5px;line-height:1.5;color:var(--ink2)}
+
+/* sources */
+.cmp-srclist{list-style:none;display:grid;gap:12px;margin-top:14px}
+.cmp-srclist li{border-left:2px solid var(--border2);padding-left:14px}
+.cmp-srclist b{font-family:var(--f-ui);font-size:13.5px;font-weight:600;color:var(--ink);display:block}
+.cmp-srclist span{font-family:var(--f-mono);font-size:10.5px;line-height:1.7;color:var(--muted);
+  display:block;margin-top:4px;word-break:break-word}
+
+/* ── presentation mode ───────────────────────────────────────────────────── */
+.cmp-deck{padding:20px 0 0}
+.cmp-deck-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.cmp-deck-bar .cmp-pill{cursor:default}
+.cmp-sld{display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:26px 22px;min-height:60vh}
+.cmp-sld.is-on{display:flex;flex-direction:column}
+.cmp-sld-eye{font-family:var(--f-mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:14px}
+.cmp-sld h2{font-family:var(--f-display);font-weight:400;letter-spacing:-.012em;line-height:1.1;
+  font-size:clamp(26px,6.4vw,46px);color:var(--ink);max-width:22ch}
+.cmp-sld h2 i{font-style:italic;color:var(--accent)}
+.cmp-sld-huge{font-family:var(--f-mono);font-weight:500;font-size:clamp(52px,17vw,132px);line-height:.95;
+  letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums;margin:18px 0 10px}
+.cmp-sld-huge.is-void{color:var(--dim);font-size:clamp(40px,12vw,88px)}
+.cmp-sld-cap{font-size:14px;line-height:1.55;color:var(--muted);max-width:56ch}
+.cmp-sld-cap b{color:var(--ink2);font-weight:600}
+.cmp-sld-so{margin-top:auto;padding-top:18px;border-top:1px solid var(--border);
+  font-family:var(--f-display);font-style:italic;font-size:clamp(16px,4.2vw,22px);line-height:1.35;
+  color:var(--ink);max-width:44ch}
+.cmp-sld-body{display:grid;grid-template-columns:1fr;gap:18px;margin-top:16px}
+.cmp-sld .cmp-pnl{margin-top:0}
+.cmp-sld .cmp-pnl-box{height:280px}
+.cmp-sld-foot{margin-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cmp-sld ul{list-style:none;display:grid;gap:10px;margin-top:14px}
+.cmp-sld ul li{font-size:13.5px;line-height:1.55;color:var(--ink2);padding-left:18px;position:relative}
+.cmp-sld ul li::before{content:"";position:absolute;left:0;top:7px;width:7px;height:7px;border-radius:2px;
+  background:var(--muted)}
+.cmp-sld ul li[data-sev="high"]::before{background:var(--warn)}
+.cmp-sld ul li[data-sev="block"]::before{background:var(--neg)}
+.cmp-hint{margin-top:14px;font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;color:var(--muted)}
+
+/* presenter view */
+.cmp-pres{display:none;position:fixed;inset:0;z-index:70;background:var(--canvas);
+  padding:20px;overflow-y:auto}
+.cmp-pres.is-on{display:block}
+.cmp-pres-in{max-width:900px;margin:0 auto}
+.cmp-pres h3{font-family:var(--f-mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:10px}
+.cmp-pres-now{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px}
+.cmp-pres-now b{font-family:var(--f-display);font-size:clamp(20px,5vw,30px);font-weight:400;
+  line-height:1.15;color:var(--ink);display:block}
+.cmp-pres-now p{margin-top:10px;font-size:14px;line-height:1.6;color:var(--ink2);font-weight:300}
+.cmp-pres-next{margin-top:14px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:16px}
+.cmp-pres-next b{font-family:var(--f-ui);font-size:13px;font-weight:600;color:var(--ink2);display:block}
+.cmp-pres-notes{margin-top:14px}
+.cmp-pres-notes li{font-size:13px;line-height:1.55;color:var(--ink2);list-style:none;padding-left:18px;
+  position:relative;margin-top:8px}
+.cmp-pres-notes li::before{content:"";position:absolute;left:0;top:7px;width:7px;height:7px;border-radius:2px;
+  background:var(--warn)}
+.cmp-pres-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+
+/* toast */
+.cmp-toast{position:fixed;left:50%;bottom:calc(var(--tray-h) + 18px);transform:translateX(-50%) translateY(10px);
+  z-index:80;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-xl);
+  padding:10px 18px;font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;color:var(--ink2);
+  opacity:0;pointer-events:none;transition:opacity .2s var(--ease-spring),transform .2s var(--ease-spring);
+  max-width:88vw;text-align:center}
+.cmp-toast.is-on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* scroll reveal — transform+opacity only */
+.cmp-rv{opacity:0;transform:translateY(18px);
+  transition:opacity .6s var(--ease-spring),transform .6s var(--ease-spring)}
+.cmp-rv.is-in{opacity:1;transform:none}
+
+/* ── tablet ──────────────────────────────────────────────────────────────── */
+@media (min-width:768px){
+  .cmp-wrap{padding:0 40px calc(var(--tray-h) + 40px)}
+  .cmp-hro{padding:72px 0 34px}
+  .cmp-grid{grid-template-columns:repeat(2,1fr)}
+  .cmp-pnl-box{height:380px}
+  .cmp-sld{padding:34px 30px}
+  .cmp-sld .cmp-pnl-box{height:320px}
+  .cmp-fig{grid-template-columns:auto 1fr;gap:26px;align-items:end}
+  .cmp-fig-l{margin-top:0;padding-bottom:8px}
+  .cmp-sld-body{grid-template-columns:1fr}
+}
+/* ── desktop ─────────────────────────────────────────────────────────────── */
+@media (min-width:1280px){
+  .cmp-wrap{padding:0 56px calc(var(--tray-h) + 48px)}
+  .cmp-sec{padding:48px 0}
+  .cmp-pnl-box{height:420px}
+  .cmp-sld{padding:42px 40px;min-height:66vh}
+  .cmp-sld .cmp-pnl-box{height:360px}
+  .cmp-sld-body{grid-template-columns:1.05fr 1fr;align-items:start}
+}
+/* ── mobile-only guards ──────────────────────────────────────────────────── */
+@media (max-width:767px){
+  html,body{overflow-x:hidden;max-width:100vw}
+  .cmp-wm span{display:none}
+  .cmp-pnl-box{min-width:280px}
+  .cmp-seg button{padding:0 9px;font-size:9.5px}
+  .cmp-tray-in{padding:10px 14px}
+  .cmp-btn{flex:1;min-width:130px}
+}
+/* ── reduced motion: everything static and complete ──────────────────────── */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .cmp-rv{opacity:1!important;transform:none!important}
+}
+/* ── print / PDF: the deliverable, never the app chrome ──────────────────── */
+@media print{
+  @page{margin:14mm}
+  .cmp-nav,.cmp-tray,.cmp-ban,.cmp-toast,.cmp-pres,.cmp-deck-bar,.cmp-hint,
+  #viewPick,.cmp-noprint{display:none!important}
+  html,body{background:var(--surface);color:var(--ink)}
+  .cmp-wrap{max-width:none;padding:0}
+  .cmp-rv{opacity:1!important;transform:none!important}
+  .cmp-doc{max-width:none}
+  .cmp-view{display:none}
+  .cmp-view.is-on{display:block}
+  /* the document flows; the deck paginates one slide per page */
+  .cmp-sec,.cmp-alert,.cmp-cav,.cmp-uni-row,.cmp-pnl{break-inside:avoid;page-break-inside:avoid}
+  .cmp-sld{display:flex!important;flex-direction:column;min-height:0;break-after:page;
+    page-break-after:always;border:none;padding:0 0 10mm}
+  .cmp-sld:last-child{break-after:auto;page-break-after:auto}
+  .cmp-sld-huge{font-size:64pt}
+  .cmp-btn,.cmp-seg{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav class="cmp-nav">
+  <div class="cmp-wm">SaSMaster <em>Compose</em><span>Deliverable composer</span></div>
+  <div class="cmp-navr">
+    <div class="cmp-pill" id="navStatus">…</div>
+    <div class="cmp-seg" role="tablist" aria-label="Output mode">
+      <button id="modePick" class="is-on" role="tab" aria-selected="true">Sources</button>
+      <button id="modeDoc" role="tab" aria-selected="false" disabled>Analysis</button>
+      <button id="modeDeck" role="tab" aria-selected="false" disabled>Presentation</button>
+    </div>
+    <button class="cmp-tgl" id="navTgl" aria-label="Toggle colour theme"><span id="navTglLbl">LIGHT</span></button>
+  </div>
+</nav>
+<div class="cmp-ban" id="ban"></div>
+
+<main>
+  <div class="cmp-wrap">
+
+    <!-- ── SOURCES ───────────────────────────────────────────────────────── -->
+    <section class="cmp-view is-on" id="viewPick">
+      <header class="cmp-hro">
+        <div class="cmp-eye cmp-rv">Audience Signal Intelligence · Composition desk</div>
+        <h1 class="cmp-rv">Stitch it into <i>one</i> deliverable.</h1>
+        <p class="cmp-lede cmp-rv">Pick the findings and catalogue reports you want to put in front of
+          someone. Compose picks up each one's real <b>n</b>, its measured universe, and every limit
+          served with it — then merges those limits into the deliverable instead of quietly dropping
+          them. <b>Denominators never blend.</b> If two sources stand on different universes, the
+          deliverable says so on its front page.</p>
+      </header>
+
+      <section class="cmp-grp">
+        <div class="cmp-grp-h"><b>Findings</b><i></i><span class="cmp-fact" id="cntFind">—</span></div>
+        <p class="cmp-grp-p">Adversarially reconciled analyses. Each carries a served headline figure,
+          a measured universe, and the limits that bound it.</p>
+        <div class="cmp-grid" id="srcFindings"></div>
+      </section>
+
+      <section class="cmp-grp">
+        <div class="cmp-grp-h"><b>Catalogue reports</b><i></i><span class="cmp-fact" id="cntRep">—</span></div>
+        <p class="cmp-grp-p">Registered report definitions. These carry structure — the question, the
+          parameters, the chart language — and no measured instance, so they contribute framing to a
+          deliverable and never a figure.</p>
+        <div class="cmp-grid" id="srcReports"></div>
+      </section>
+    </section>
+
+    <!-- ── COMPREHENSIVE ANALYSIS ────────────────────────────────────────── -->
+    <section class="cmp-view" id="viewDoc">
+      <article class="cmp-doc" id="docBody"></article>
+    </section>
+
+    <!-- ── PRESENTATION ──────────────────────────────────────────────────── -->
+    <section class="cmp-view" id="viewDeck">
+      <div class="cmp-deck">
+        <div class="cmp-deck-bar cmp-noprint">
+          <button class="cmp-btn is-ghost" id="deckPrev" aria-label="Previous slide">←</button>
+          <div class="cmp-pill" id="deckPos">—</div>
+          <button class="cmp-btn is-ghost" id="deckNext" aria-label="Next slide">→</button>
+          <button class="cmp-btn is-ghost" id="deckPres">Presenter view</button>
+          <span class="cmp-hint">← / → to move · P for presenter · Esc to return to sources</span>
+        </div>
+        <div id="deck"></div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- composition tray — always shows what the current selection implies -->
+<div class="cmp-tray" id="tray">
+  <div class="cmp-tray-in">
+    <div class="cmp-tray-l">
+      <div class="cmp-tray-n" id="trayN">Nothing selected</div>
+      <div class="cmp-tray-chips" id="trayChips"></div>
+    </div>
+    <div class="cmp-tray-r">
+      <button class="cmp-btn is-ghost" id="btnClear" disabled>Clear</button>
+      <button class="cmp-btn is-ghost" id="btnCopy" disabled>Copy as markdown</button>
+      <button class="cmp-btn is-ghost" id="btnPrint" disabled>Print / PDF</button>
+      <button class="cmp-btn" id="btnDoc" disabled>Comprehensive analysis</button>
+      <button class="cmp-btn" id="btnDeck" disabled>Presentation</button>
+    </div>
+  </div>
+</div>
+
+<div class="cmp-pres" id="presenter" aria-hidden="true"></div>
+<div class="cmp-toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- Highcharts 11.4.8 — the only chart engine on this surface (UI constitution §5).
+     SRI-pinned; if the CDN fails or is blocked, every panel degrades to its
+     designed empty state instead of drawing anything. -->
+<script src="https://code.highcharts.com/11.4.8/highcharts.js"
+        integrity="sha384-XxsZMNol0nU0LnC2cYsyhRNbfyK7CPmF7WrlFvZDdlCKn9hzVkXsHxCHVaKwkl76"
+        crossorigin="anonymous" referrerpolicy="strict-origin-when-cross-origin"></script>
+<script src="https://code.highcharts.com/11.4.8/modules/accessibility.js"
+        integrity="sha384-RFRqB325VNHIIuDAhM+VeFF+SkZwLBzZioBGl5Eklzl88CWphk90Q7ACAcOt8R8R"
+        crossorigin="anonymous" referrerpolicy="strict-origin-when-cross-origin"></script>
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════════════════════════════════
+   SaSMaster Compose — client
+   Single APP_STATE · single adapt() family · zero hardcoded figures.
+   Every numeral that reaches the DOM comes from GET /insights, GET
+   /insights/{id} or GET /reports. Until those answer, the picker renders its
+   designed retrieving/unavailable state — never a fabricated source, never a
+   placeholder chart.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const ASK_ENDPOINT = window.ASK_ENDPOINT || 'https://sasmaster-ask-production.up.railway.app';
+const ASK_API_KEY  = window.ASK_API_KEY  || '';
+const CATALOG_HREF = 'sasmaster-research.html';
+const INSIGHTS_HREF = 'sasmaster-insights.html';
+
+/* the findings service queries a cold warehouse: measured round trips run to
+   ~13s for the index and up to ~65s for the heaviest story. Short timeouts turn
+   a slow answer into a false "no data", so these are generous on purpose. */
+const API_TIMEOUT_MS = 90000;
+const API_RETRIES = 1;
+
+const APP_STATE = {
+  theme: null,
+  sessionId: null,
+  apiOnline: null,        // null unknown · true · false
+  findings: null,         // adapted GET /insights  (array) or null
+  reports: null,          // adapted GET /reports   (array) or null
+  findingsErr: false,
+  reportsErr: false,
+  details: {},            // story id -> adapted GET /insights/{id}, or null
+  selected: [],           // ordered list of source uids
+  mode: 'pick',           // pick · doc · deck
+  slide: 0,
+  deliverable: null,      // last composed model
+  charts: {},             // dom id -> Highcharts instance
+  chartLibOk: false,
+  reduceMotion: false,
+  presenter: false,
+};
+
+const $ = (id) => document.getElementById(id);
+const EM = '—';
+
+function esc(s){
+  return s == null ? '' : String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+/* truthful formatting: unknown renders as an em-dash, never a fallback figure */
+function fmtNum(v){
+  if (typeof v === 'number' && isFinite(v)) {
+    return v.toLocaleString('en-US', { maximumFractionDigits: 2 });
+  }
+  if (typeof v === 'string' && v.trim() !== '') return v.trim();
+  return EM;
+}
+function _s(v){ return (v == null || v === '') ? null : String(v); }
+function _n(v){ return (typeof v === 'number' && isFinite(v)) ? v : null; }
+function _arr(v){ return Array.isArray(v) ? v : []; }
+function _genSessionId(){
+  try { if (window.crypto && typeof crypto.randomUUID === 'function') return 'sess_' + crypto.randomUUID(); }
+  catch (e) { /* fall through */ }
+  return 'sess_' + Math.random().toString(36).slice(2,10) + '_' + Date.now();
+}
+function _headers(){
+  const h = { 'x-session-id': APP_STATE.sessionId };
+  if (ASK_API_KEY) h['x-api-key'] = ASK_API_KEY;
+  return h;
+}
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('is-on');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove('is-on'), 2600);
+}
+
+/* ── Vendor / internal-identifier genericisation (no-finger-prints for UI) ──
+   Served caveat, denominator, method and report prose names data vendors and
+   warehouse objects. Those must never reach the UI layer, so served prose is
+   rewritten through this single table before it is rendered. Meaning is
+   preserved; only the identifier is generalised. Applied ONLY to prose —
+   never to a figure, never to a measured category label such as a network
+   name. Carried from the Insights surface and extended for the catalogue
+   report copy, which leaks additional vendor and stream identifiers.        */
+const GENERIC = [
+  // specific phrases first — a bare token rule would rewrite them twice,
+  // producing artefacts like "the the stream lanes lanes"
+  [/aud\.program_viewership_base\.aa_000/g, 'the programme-average field on the programme-viewership surface'],
+  [/\bserving\s*->\s*curated_v2\b/g,     'the serving layer to the catalogue'],
+  [/\bNHI cable-dominant\b/g,            'cable-dominant'],
+  [/\bcomplete AMRLD broadcast weeks\b/g,'complete measured broadcast weeks'],
+  [/\blive_3 < live_sd\b/g,              'the delayed lane reading below the as-aired lane'],
+  [/\blive_sd\b/g,                       'the as-aired lane'],
+  [/\blive_[0-9]+\b/g,                   'the delayed lane'],
+  [/\bmedian_start_year\b/g,             'median first-air year'],
+  [/\bimdb_genres\b/g,                   'the catalogue genre tags'],
+  [/\btmdb_genres\b/g,                   'the alternate genre tags'],
+  [/\bTMDB popularity\b/g,               'popularity score'],
+  [/\bTMDB vote_average\b/g,             'review score'],
+  [/\bTMDB vote_count\b/g,               'review volume'],
+  [/\bTMDB-matched\b/g,                  'catalogue-matched'],
+  [/\bTMDB\b/g,                          'catalogue metadata'],
+  [/\bIMDB\b/g,                          'catalogue metadata'],
+  [/serving\.title_performance_weekly/g, 'the title-performance surface'],
+  [/aud\.program_viewership_base/g,      'the programme-viewership surface'],
+  [/aud\.v_amrld_program_enriched/g,     'the enriched panel view'],
+  [/viewership\.amrld_program/g,         'the respondent-minute panel'],
+  [/curated_v2\.[a-z0-9_]+/g,            'the catalogue'],
+  [/\bcurated_v2\b/g,                    'the catalogue'],
+  [/ref\.[a-z0-9_]+/g,                   'the reference tables'],
+  [/\bserving\.[a-z0-9_]+/g,             'the serving layer'],
+  [/\btitle_performance_weekly\b/g,      'the title-performance surface'],
+  [/\bprogram_viewership_base\b/g,       'the programme-viewership surface'],
+  [/\bamrld_program\b/g,                 'the respondent-minute panel'],
+  [/audience_projection_sum/g,           'the audience-projection field'],
+  [/\baa_000\b/g,                        'the programme-average field'],
+  [/\bc[37]_aa_000\b/g,                  'the commercial-minute fields'],
+  [/\bviewing_stream\b/g,                'stream'],
+  [/\bL\s*\+\s*3D?\s*\/\s*L\s*\+\s*7D?\b/g, 'delayed-window'],
+  [/\bL\s*\+\s*[37]\s*D?\b/g,            'delayed-window'],
+  [/\bLive\s*\+\s*[37]\b/g,              'delayed-window'],
+  [/\bLV\+[0-9]+\b/g,                    'delayed-window'],
+  [/\bNielsen\b/g,                       'measurement'],
+  [/\bNHI\b/g,                           'cable'],
+  [/\bMIT\b/g,                           'measurement'],
+  [/\bAMRLD\b/g,                         'respondent-minute'],
+  [/\bPDTCD\b/g,                         'the distribution-type code'],
+  [/\bPCD\b/g,                           'the distribution code'],
+  [/\bSASMASTER_PKID\b/g,                'the resolved title key'],
+  [/\bnumber_of_episodes\b/g,            'episode count'],
+  [/\bnumber_of_seasons\b/g,             'season count'],
+  [/\bstart_year\b/g,                    'first-air year'],
+  [/\bvote_average\b/g,                  'review score'],
+  [/\bvote_count\b/g,                    'review volume'],
+  [/\btitleType\b/g,                     'the title-type field'],
+  [/\bdemo_id\b/g,                       'demographic id'],
+  [/\bbroadcast_week\b/g,                'broadcast week'],
+  [/\bWEEK_DATE\b/g,                     'week date'],
+  [/\bBROADCAST_DATE\b/g,                'the broadcast date'],
+  [/\bNETWORK_ID\b/g,                    'the network identifier'],
+  [/\bV_WEIGHT\b/g,                      'the person weight'],
+  [/\bTIME_SHIFTED_V_CD\b/g,             'the time-shift code'],
+  [/\bMINIMUM_PLAY_DELAY_MINS\b/g,       'the measured playback delay'],
+  [/\btelecast_ct\b/g,                   'telecast count'],
+  [/\blow_n\b/g,                         'thin-cell'],
+  [/\blicensed-viewership\b/g,           'licensed viewership measurement'],
+  [/\bLICENSED_AUDIENCE_MEASUREMENT\b/g, 'licensed audience measurement'],
+  [/\bCATALOG_METADATA\b/g,              'catalogue metadata'],
+];
+function generic(s){
+  if (s == null) return null;
+  let out = String(s);
+  for (const [re, to] of GENERIC) out = out.replace(re, to);
+  return out
+    .replace(/\bthe the\b/gi, 'the')
+    .replace(/([.!?]\s+)(the\b)/g, (m, a, b) => a + 'The')
+    .replace(/[ \t]{2,}/g, ' ').trim();
+}
+
+/* Served identifiers are themselves vendor fingerprints: a story id like
+   `tmdb-mispricing` renders the vendor name straight into the UI. Displayed
+   ids run through the same genericisation so citations stay traceable in shape
+   without naming a source. The raw id is still what the client fetches with —
+   only the label changes.                                                    */
+const ID_GENERIC = [
+  [/\btmdb\b/gi, 'catalogue'],
+  [/\bimdb\b/gi, 'catalogue'],
+  [/\bamrld\b/gi, 'panel'],
+  [/\bnhi\b/gi, 'cable'],
+  [/\bnielsen\b/gi, 'measurement'],
+];
+function displayId(id){
+  if (id == null) return '';
+  let out = String(id);
+  for (const [re, to] of ID_GENERIC) out = out.replace(re, to);
+  return out;
+}
+
+/* ── FORBIDDEN CLAIMS (binding — outputs/insights/RECONCILIATION.md) ────────
+   The reconciliation pass killed a set of claim families outright. A composed
+   deliverable can pull in ANY registered source, including catalogue report
+   definitions whose own titles assert one of those dead claims. This guard
+   runs over every piece of served prose that would become a claim in the
+   deliverable. A match does two things: the source is marked with a BLOCKING
+   caveat that propagates to the deliverable's front matter, and the offending
+   sentence is refused rather than reprinted. It never silently rewrites a
+   claim into a softer one.                                                  */
+const CLAIM_GUARD = [
+  { id:'delayed-lift',
+    // L\s*\+\s*[37]D?\b — the trailing D? matters: industry notation writes "L+3D"/"L+7D",
+    // and without it \b cannot match between the digit and the D, so the raw form slipped
+    // through. It only ever fired because genericisation rewrites L+3D to "delayed-window"
+    // upstream; a guard must not depend on another stage having run first.
+    re:/\b(lift|uplift|incremental)\b[^.]{0,60}\b(delayed-window|delayed lane|L\s*\+\s*[37]D?)\b|\b(delayed-window|delayed lane)\b[^.]{0,60}\b(lift|uplift)\b/i,
+    why:'A delayed-window lift figure is not computable on this platform: the stream lanes do not reconcile — the delayed lane reads below the as-aired lane on a material share of telecasts, confirmed by two independent methods at two grains. No lift number may be quoted from this source.' },
+  { id:'commercial-minute',
+    re:/\bC[37]\b|\bcommercial[- ]minute\b|\bcommercial rating\b/i,
+    why:'A commercial-minute claim is not supported: those fields are byte-identical copies of the programme average across every measured row. The column names exist; the signal does not.' },
+  { id:'age-demo',
+    re:/\b(median age|age skew|age demographic|demo age|18-49|25-54|2-11|18\+ age)\b/i,
+    why:'No age-demographic claim is publishable: the two audience surfaces carry demographic coverage running in opposite directions and neither is documented as authoritative.' },
+  { id:'fit-stat',
+    re:/\bR\s*(²|\^?2)\b|\br-squared\b|\bgoodness[- ]of[- ]fit\b/i,
+    why:'No goodness-of-fit statistic ships: at these sample sizes it would flatter the finding rather than test it, and it implies a model that was never estimated.' },
+  { id:'absolute-viewers',
+    re:/\b(absolute (viewers?|audience)|total viewers|viewers? \(000s?\)|\(000s\) delivered)\b/i,
+    why:'No absolute viewer count is quotable as a headline: the unit is uncertified and the two measurement surfaces disagree by roughly two orders of magnitude. Ratios, medians, shares and ranks only.' },
+  { id:'quality-inverts',
+    re:/\b(better|well)[- ]reviewed\b[^.]{0,50}\b(underperform|lose|less)\b|\bquality\b[^.]{0,40}\binversely\b/i,
+    why:'The finding is that the catalogue score fails as a signal because it sorts by format, not that better-reviewed content underperforms. That phrasing was stress-tested and rejected.' },
+];
+function claimFlags(text){
+  if (!text) return [];
+  return CLAIM_GUARD.filter((g) => g.re.test(text)).map((g) => ({ id:g.id, why:g.why }));
+}
+
+/* ── Caveat severity ───────────────────────────────────────────────────────
+   Severity is a PRESENTATION decision, not a served field: the service ships a
+   flat string list. Refusals ("No X is computed") read as blocking; validity
+   threats (rerun window, cohort skew) read as high; the rest are notes. This
+   changes emphasis only — never the text, never a number.                   */
+function severityOf(t){
+  if (/^\s*(no|none)\b|DIRECTION ONLY|do not (quote|surface|ship)|not quotable|is wrong\b/i.test(t)) return 'block';
+  if (/rerun|threat to external validity|cannot be tested|skew|cohort|confound|short window|not seasonally/i.test(t)) return 'high';
+  return 'note';
+}
+const SEV_RANK = { note: 0, high: 1, block: 2 };
+const SEV_LABEL = { note: 'note', high: 'validity threat', block: 'blocking' };
+
+/* ── adapters (L4) — the ONLY places a raw payload field is touched ─────────
+   Renderers and the composition engine consume the view model exclusively and
+   never a raw field. Three payload shapes land here: the findings index, a
+   findings detail, and the report catalogue.                                */
+
+/* universe identity is derived from the SERVED measurement window, never
+   assumed: two sources share a universe only if they were measured on the same
+   column over the same span. Anything else is a different denominator.      */
+function universeOf(dw, kindLabel){
+  if (!dw || dw.column == null) {
+    return { key: 'unstated', label: 'universe not stated by the service', column: null, min: null, max: null };
+  }
+  const col = String(dw.column);
+  const min = (dw.min != null) ? String(dw.min) : null;
+  const max = (dw.max != null) ? String(dw.max) : null;
+  return {
+    key: col + '|' + min + '|' + max,
+    label: generic(col) + ' ' + (min || EM) + ' → ' + (max || EM),
+    column: generic(col), min: min, max: max,
+    weeks: _n(dw.weeks != null ? dw.weeks : dw.complete_weeks),
+    kindLabel: kindLabel || null,
+  };
+}
+
+function adaptFindingRow(r){
+  if (!r || typeof r !== 'object') return null;
+  const id = _s(r.story_id || r.id || r.insight_id || r.slug);
+  if (!id) return null;
+  const head = (r.headline_stat && typeof r.headline_stat === 'object') ? r.headline_stat : {};
+  const meta = (r.meta && typeof r.meta === 'object') ? r.meta : {};
+  const dw = (meta.date_window && typeof meta.date_window === 'object') ? meta.date_window : null;
+  const thesis = generic(_s(r.thesis));
+  const title = generic(_s(r.title));
+  const caveats = _arr(meta.caveats).map((c) => {
+    const raw = (c && typeof c === 'object') ? String(c.text || c.caveat || '') : String(c);
+    return { text: generic(raw), severity: (c && c.severity) ? String(c.severity) : severityOf(raw) };
+  }).filter((c) => c.text);
+  return {
+    uid: 'f:' + id,
+    type: 'finding',
+    id: id,
+    label: displayId(id),
+    title: title,
+    thesis: thesis,
+    headline: {
+      label: generic(_s(head.label)),
+      value: (head.value != null ? head.value : null),
+      n: _n(head.n),
+      supporting: (head.supporting && typeof head.supporting === 'object') ? head.supporting : {},
+    },
+    n: (meta.n != null ? meta.n : _n(head.n)),
+    denominator: generic(_s(meta.denominator)),
+    grain: generic(_s(meta.grain)),
+    method: generic(_s(meta.method)),
+    universe: universeOf(dw, 'measured'),
+    caveats: caveats,
+    claims: claimFlags([title, thesis, generic(_s(head.label))].filter(Boolean).join(' · ')),
+    provenance: generic(_s(r.provenance)),
+    domain: generic(_s(r.domain)),
+    href: INSIGHTS_HREF,
+  };
+}
+function adaptFindings(raw){
+  if (!raw || typeof raw !== 'object') return null;
+  const list = Array.isArray(raw) ? raw
+             : (Array.isArray(raw.stories) ? raw.stories
+             : (Array.isArray(raw.insights) ? raw.insights
+             : (Array.isArray(raw.items) ? raw.items : null)));
+  if (!list) return null;
+  return list.map(adaptFindingRow).filter(Boolean);
+}
+
+/* the catalogue serves report DEFINITIONS, not measured instances: there is no
+   n and no measured window on this payload. That absence is itself a limit,
+   so it is turned into caveats rather than papered over.                    */
+function adaptReportRow(r){
+  if (!r || typeof r !== 'object') return null;
+  const id = _s(r.report_id || r.id);
+  if (!id) return null;
+  const title = generic(_s(r.title));
+  const desc  = generic(_s(r.description));
+  const flags = (r.flags && typeof r.flags === 'object') ? r.flags : {};
+  const params = (r.default_params && typeof r.default_params === 'object') ? r.default_params : {};
+  const status = _s(r.status);
+  const blessed = _s(r.blessed_at);
+
+  const caveats = [];
+  if (!blessed || (status && status.toUpperCase() !== 'BLESSED')) {
+    caveats.push({
+      severity: 'block',
+      text: 'No measured instance of this report is served: its catalogue entry is at '
+          + (status ? status.toLowerCase() : 'definition') + ' stage with no blessed run attached. '
+          + 'It contributes the question and its parameters to this deliverable, and contributes no figure.',
+    });
+  }
+  if (flags.is_in_dev === true) {
+    caveats.push({
+      severity: 'high',
+      text: 'This report definition is still in development, so its parameters and chart language '
+          + 'may change before any instance is produced against them.',
+    });
+  }
+  const paramText = Object.keys(params).map((k) => k + ' ' + params[k]).join('; ');
+  const claims = claimFlags([title, desc, generic(paramText)].filter(Boolean).join(' · '));
+  for (const c of claims) {
+    caveats.push({ severity: 'block', text: c.why });
+  }
+  return {
+    uid: 'r:' + id,
+    type: 'report',
+    id: id,
+    label: displayId(id),
+    title: title,
+    thesis: desc,
+    headline: { label: null, value: null, n: null, supporting: {} },
+    n: null,
+    denominator: null,
+    grain: null,
+    method: null,
+    universe: { key: 'definition', label: 'definition stage — no measured instance served',
+                column: null, min: null, max: null, weeks: null, kindLabel: 'unmeasured' },
+    caveats: caveats,
+    claims: claims,
+    provenance: generic(_s(r.provenance)),
+    domain: generic(_s(r.domain)),
+    family: _s(r.family),
+    status: status,
+    chartLanguage: _s(r.chart_language_style),
+    params: Object.keys(params).map((k) => ({ k: generic(k), v: generic(String(params[k])) })),
+    href: CATALOG_HREF,
+  };
+}
+function adaptReports(raw){
+  if (!raw || typeof raw !== 'object') return null;
+  const list = Array.isArray(raw) ? raw : (Array.isArray(raw.reports) ? raw.reports : null);
+  if (!list) return null;
+  return list.map(adaptReportRow).filter(Boolean);
+}
+
+/* detail payload — same contract the Insights surface reads; `series` is a FLAT
+   list carrying a `kind` discriminator, grouped here and shaped by PANEL_SPECS */
+function adaptDetail(raw){
+  if (!raw || typeof raw !== 'object') return null;
+  const byKind = {};
+  for (const row of _arr(raw.series)) {
+    if (!row || typeof row !== 'object') continue;
+    const k = _s(row.kind);
+    if (!k) continue;
+    (byKind[k] = byKind[k] || []).push(row);
+  }
+  return { id: _s(raw.story_id || raw.id), byKind: byKind };
+}
+function _safeAdaptDetail(raw){
+  try { return adaptDetail(raw); } catch (e) { return null; }
+}
+
+/* ── API ──────────────────────────────────────────────────────────────────── */
+async function getJSON(path){
+  for (let attempt = 0; attempt <= API_RETRIES; attempt++) {
+    try {
+      const r = await fetch(ASK_ENDPOINT + path,
+        { headers: _headers(), signal: AbortSignal.timeout(API_TIMEOUT_MS) });
+      if (r.ok) return await r.json();
+      if (r.status === 404) return null;   // not served — do not retry
+    } catch (e) { /* timeout or network — fall through to the retry */ }
+  }
+  return null;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE COMPOSITION ENGINE — caveat propagation
+   ───────────────────────────────────────────────────────────────────────────
+   compose(sources) is the only place a deliverable is built, and BOTH output
+   modes and BOTH exports render from its return value. That is the structural
+   guarantee behind the rule that no export can drop the limits: there is no
+   second path that assembles content without them.
+
+   Three mechanisms:
+   1. MERGE + DEDUPE. Caveats from every selected source are pooled, normalised
+      (case, punctuation, whitespace, digits kept), and clustered by token-set
+      similarity. Exact duplicates collapse; near-identical variants cluster.
+   2. STRONGEST FORM WINS. Within a cluster the surviving text is the one with
+      the highest severity, ties broken by the longer (more specific) wording.
+      Suppressed variants are retained on the cluster so nothing is lost.
+   3. BLOCKING PROPAGATION. Any cluster whose severity is `block` is hoisted
+      into the deliverable's front matter, in both modes and both exports.
+   Plus the denominator rule: universes are grouped, never merged; more than
+   one universe raises a composition-level warning that names each separately.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+function normCav(t){
+  return String(t).toLowerCase()
+    .replace(/[^a-z0-9%.\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function tokenSet(t){
+  const stop = ' the a an and or of to in is are on for with that this it be as at by not no ';
+  const out = {};
+  normCav(t).split(' ').forEach((w) => {
+    if (w.length < 3) return;
+    if (stop.indexOf(' ' + w + ' ') >= 0) return;
+    out[w] = 1;
+  });
+  return out;
+}
+function _inter(a, b){
+  let n = 0;
+  for (const k of Object.keys(a)) if (b[k]) n++;
+  return n;
+}
+function jaccard(a, b){
+  const ka = Object.keys(a).length, kb = Object.keys(b).length;
+  if (!ka || !kb) return 0;
+  const i = _inter(a, b);
+  return i / (ka + kb - i);
+}
+/* containment catches the case Jaccard misses: one source states a limit in a
+   short form and another states the SAME limit with extra qualification. The
+   short form is a near-subset of the long one, so symmetric similarity reads
+   low while containment reads ~1. Without this the deliverable would print the
+   same limit twice in two strengths. */
+function containment(a, b){
+  const ka = Object.keys(a).length, kb = Object.keys(b).length;
+  if (!ka || !kb) return 0;
+  return _inter(a, b) / Math.min(ka, kb);
+}
+const NEAR_DUPE_THRESHOLD = 0.55;
+const CONTAINMENT_THRESHOLD = 0.80;
+function isNearDupe(a, b){
+  return jaccard(a, b) >= NEAR_DUPE_THRESHOLD || containment(a, b) >= CONTAINMENT_THRESHOLD;
+}
+
+function mergeCaveats(sources){
+  const clusters = [];
+  for (const src of sources) {
+    for (const cav of _arr(src.caveats)) {
+      const text = String(cav.text || '').trim();
+      if (!text) continue;
+      const sev = SEV_RANK[cav.severity] != null ? cav.severity : 'note';
+      const norm = normCav(text);
+      const toks = tokenSet(text);
+      let target = null;
+      for (const c of clusters) {
+        if (c.norm === norm) { target = c; break; }
+        if (isNearDupe(c.toks, toks)) { target = c; break; }
+      }
+      if (!target) {
+        clusters.push({
+          text: text, norm: norm, toks: toks, severity: sev,
+          sources: [src.label || src.id], variants: [], exactDupes: 0,
+        });
+        continue;
+      }
+      const lbl = src.label || src.id;
+      if (target.sources.indexOf(lbl) < 0) target.sources.push(lbl);
+      if (target.norm === norm) { target.exactDupes++; continue; }
+      // near-identical, not identical: keep the STRONGEST form, retain the other
+      const stronger = (SEV_RANK[sev] > SEV_RANK[target.severity])
+                    || (SEV_RANK[sev] === SEV_RANK[target.severity] && text.length > target.text.length);
+      if (stronger) {
+        target.variants.push({ text: target.text, severity: target.severity });
+        target.text = text; target.norm = norm; target.toks = toks; target.severity = sev;
+      } else {
+        target.variants.push({ text: text, severity: sev });
+      }
+    }
+  }
+  clusters.sort((a, b) => (SEV_RANK[b.severity] - SEV_RANK[a.severity]) || (b.sources.length - a.sources.length));
+  return clusters;
+}
+
+function compose(sources){
+  if (!sources.length) return null;
+
+  // ── universes: grouped, never blended ──────────────────────────────────
+  const uniMap = {};
+  for (const s of sources) {
+    const u = s.universe || { key: 'unstated', label: 'universe not stated by the service' };
+    if (!uniMap[u.key]) uniMap[u.key] = { key: u.key, label: u.label, column: u.column, min: u.min,
+                                          max: u.max, weeks: u.weeks, kindLabel: u.kindLabel, sources: [] };
+    uniMap[u.key].sources.push(s);
+  }
+  const universes = Object.keys(uniMap).map((k) => uniMap[k]);
+  const measured = universes.filter((u) => u.key !== 'definition' && u.key !== 'unstated');
+  const mixed = universes.length > 1;
+
+  // the spread between the largest and smallest served n across universes is
+  // computed from served values only; it is never presented as a combined n
+  const ns = sources.map((s) => _n(s.n)).filter((v) => v != null && v > 0);
+  const nMax = ns.length ? Math.max.apply(null, ns) : null;
+  const nMin = ns.length ? Math.min.apply(null, ns) : null;
+  const orders = (nMax != null && nMin != null && nMin > 0)
+    ? Math.floor(Math.log(nMax / nMin) / Math.LN10) : null;
+
+  const caveats = mergeCaveats(sources);
+  const blocking = caveats.filter((c) => c.severity === 'block');
+  const totalRaw = sources.reduce((a, s) => a + _arr(s.caveats).length, 0);
+
+  const claimRefusals = [];
+  for (const s of sources) {
+    for (const c of _arr(s.claims)) {
+      claimRefusals.push({ sourceId: s.label, sourceTitle: s.title, id: c.id, why: c.why });
+    }
+  }
+
+  return {
+    sources: sources,
+    universes: universes,
+    measuredUniverses: measured,
+    mixed: mixed,
+    nMax: nMax, nMin: nMin, orders: orders,
+    caveats: caveats,
+    blocking: blocking,
+    caveatsRaw: totalRaw,
+    caveatsMerged: caveats.length,
+    caveatsDropped: totalRaw - caveats.length,
+    claimRefusals: claimRefusals,
+    findings: sources.filter((s) => s.type === 'finding'),
+    reports: sources.filter((s) => s.type === 'report'),
+    builtAt: new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC',
+  };
+}
+
+/* selection helpers */
+function allSources(){
+  return _arr(APP_STATE.findings).concat(_arr(APP_STATE.reports));
+}
+function selectedSources(){
+  const byUid = {};
+  allSources().forEach((s) => { byUid[s.uid] = s; });
+  return APP_STATE.selected.map((u) => byUid[u]).filter(Boolean);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CHARTS — Highcharts 11.4.8 only (UI constitution §5)
+   PANEL_SPECS is the single place a raw SERIES ROW field name is named. A story
+   the service serves without the expected `kind` yields null, which renders the
+   designed empty state — a series is never invented.
+   ═══════════════════════════════════════════════════════════════════════════ */
+const PANEL_SPECS = {
+  'tmdb-mispricing::quartiles': {
+    kind: 'vote_average_quartile',
+    cat: (r) => 'Q' + r.quartile,
+    series: [
+      { name: 'Pooled (audience-weighted)', field: 'pooled_aa_per_telecast', unit: 'ratio' },
+      { name: 'Median title',               field: 'median_aa_per_telecast', unit: 'ratio' },
+    ],
+    sort: { field: 'quartile', dir: 1 },
+    note: 'Pooled falls; the median title does not follow it. That disagreement is the finding.',
+  },
+  'tmdb-mispricing::composition': {
+    kind: 'quartile_composition',
+    cat: (r) => 'Q' + r.quartile,
+    series: [
+      { name: 'News and talk',   field: 'pct_audience_news_talk', unit: '%' },
+      { name: 'Everything else', field: 'pct_audience_other',     unit: '%' },
+    ],
+    sort: { field: 'quartile', dir: 1 },
+    stack: true,
+  },
+  'episode-depth::bands': {
+    kind: 'episode_band',
+    cat: (r) => String(r.band),
+    series: [
+      { name: 'Median title', field: 'median_aa_per_telecast', unit: 'ratio' },
+      { name: 'Pooled',       field: 'pooled_aa_per_telecast', unit: 'ratio' },
+    ],
+  },
+  'library-economics::era': {
+    kind: 'era',
+    cat: (r) => String(r.era),
+    series: [
+      { name: 'Median title', field: 'median_aa_per_telecast', unit: 'ratio' },
+      { name: 'Pooled',       field: 'pooled_aa_per_telecast', unit: 'ratio' },
+    ],
+  },
+  'concentration::quintiles': {
+    kind: 'viewing_quintile',
+    cat: (r) => 'Q' + r.quintile,
+    series: [ { name: 'Share of all measured minutes', field: 'pct_of_weighted_minutes', unit: '%' } ],
+    sort: { field: 'quintile', dir: 1 },
+  },
+  'timeshift-decay::decay': {
+    kind: 'delay_bucket',
+    cat: (r) => String(r.bucket),
+    series: [
+      { name: 'Share of time-shifted minutes', field: 'pct_of_shifted', unit: '%' },
+      { name: 'Cumulative',                    field: 'cumulative_pct', unit: '%', kind: 'line' },
+    ],
+  },
+  'genre-arbitrage::supply': {
+    kind: 'genre_share_year',
+    cat: (r) => String(r.year),
+    series: [
+      { name: 'Comedy · full catalogue', field: 'full_comedy_pct', unit: '%' },
+      { name: 'Drama · full catalogue',  field: 'full_drama_pct',  unit: '%' },
+    ],
+    sort: { field: 'year', dir: 1 },
+    note: 'Direction only — no crossing point is claimed.',
+  },
+};
+/* display metadata for the one primary panel each finding contributes.
+   Authored copy: axis names and chart titles only, no numerals.            */
+const STORY_PANELS = {
+  'tmdb-mispricing': { key:'quartiles', kind:'column',
+    title:'Audience per telecast by catalogue-score quartile — pooled against median',
+    xTitle:'Catalogue-score quartile', yTitle:'Audience per telecast (unit-free ratio)' },
+  'episode-depth': { key:'bands', kind:'column',
+    title:'Audience per telecast by episode-count band',
+    xTitle:'Episodes in catalogue record', yTitle:'Audience per telecast (unit-free ratio)' },
+  'library-economics': { key:'era', kind:'line',
+    title:'Audience per telecast by decade of first air',
+    xTitle:'Decade of first air', yTitle:'Audience per telecast (unit-free ratio)' },
+  'concentration': { key:'quintiles', kind:'column',
+    title:'Share of all measured minutes, by viewing quintile',
+    xTitle:'Viewing quintile', yTitle:'Share of all measured minutes (%)' },
+  'timeshift-decay': { key:'decay', kind:'area',
+    title:'Where time-shifted minutes land, by playback delay',
+    xTitle:'Playback delay', yTitle:'Share of time-shifted minutes (%)' },
+  'genre-arbitrage': { key:'supply', kind:'line',
+    title:'Share of new series starts carrying each genre tag',
+    xTitle:'Year of first air', yTitle:'Share of new series starts (%)' },
+};
+/* the secondary panel a document (not a slide) may also carry */
+const STORY_PANELS_2 = {
+  'tmdb-mispricing': { key:'composition', kind:'column',
+    title:'Share of each quartile’s audience coming from news and talk formats',
+    xTitle:'Catalogue-score quartile', yTitle:'Share of quartile audience (%)' },
+};
+
+function buildPanel(storyId, panelKey, d){
+  const spec = PANEL_SPECS[storyId + '::' + panelKey];
+  if (!spec || !d || !d.byKind) return null;
+  let rows = _arr(d.byKind[spec.kind]).slice();
+  if (!rows.length) return null;
+  if (spec.sort) {
+    const f = spec.sort.field, dir = spec.sort.dir;
+    rows.sort((a, b) => ((_n(a[f]) || 0) - (_n(b[f]) || 0)) * dir);
+  }
+  const pt = (r, field) => ({ y: _n(r[field]), lowN: r.low_n === true, n: _n(r.n) });
+  const categories = rows.map(spec.cat);
+  const series = spec.series.map((s) => ({
+    name: s.name, unit: s.unit, kind: s.kind || null,
+    data: rows.map((r) => pt(r, s.field)),
+  })).filter((s) => s.data.some((p) => p.y != null));
+  if (!series.length) return null;
+  return { categories, series, stack: !!spec.stack, note: spec.note || null };
+}
+
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function seriesColors(){ return ['--s1','--s2','--s3','--s4','--s5','--s6'].map(cssVar); }
+
+function chartOptions(panelCfg, panel){
+  const colors = seriesColors();
+  const ink = cssVar('--ink'), muted = cssVar('--muted'), grid = cssVar('--grid'),
+        surface = cssVar('--surface'), border = cssVar('--border'), dim = cssVar('--dim');
+  const mono = cssVar('--f-mono'), ui = cssVar('--f-ui');
+  const kind = panelCfg.kind || 'column';
+  const series = panel.series.map((s, i) => ({
+    type: s.kind || (kind === 'area' ? 'area' : kind),
+    name: s.name,
+    color: colors[i % colors.length],
+    borderWidth: 0,
+    lineWidth: (kind === 'line' || kind === 'area') ? 2.5 : undefined,
+    marker: { enabled: (kind === 'line' || kind === 'area'), radius: 3.5, symbol: 'circle' },
+    fillOpacity: kind === 'area' ? 0.18 : undefined,
+    data: s.data.map((p) => ({
+      y: p.y,
+      color: p.lowN ? dim : undefined,
+      custom: { lowN: p.lowN, n: p.n, unit: s.unit },
+    })),
+  }));
+  return {
+    chart: { type: kind === 'bar' ? 'bar' : (kind === 'area' ? 'area' : (kind === 'line' ? 'line' : 'column')),
+             backgroundColor: 'transparent', spacing: [8, 4, 4, 4],
+             animation: APP_STATE.reduceMotion ? false : { duration: 600 },
+             style: { fontFamily: ui } },
+    title: { text: null },
+    subtitle: { text: panel.note || null, align: 'left', x: 0,
+                style: { color: muted, fontSize: '11px', fontFamily: ui } },
+    credits: { enabled: false },
+    accessibility: { enabled: true,
+      description: (panelCfg.title || '') + '. ' + (panelCfg.xTitle || '') + ' against ' + (panelCfg.yTitle || '') + '.' },
+    legend: { enabled: series.length > 1, align: 'left', verticalAlign: 'top', margin: 14,
+              itemStyle: { color: muted, fontWeight: '500', fontSize: '11px' },
+              itemHoverStyle: { color: ink } },
+    xAxis: { categories: panel.categories.length ? panel.categories : null,
+             lineColor: border, tickColor: border,
+             labels: { style: { color: muted, fontSize: '10.5px', fontFamily: mono } },
+             title: { text: null } },
+    yAxis: { gridLineColor: grid, lineWidth: 0,
+             labels: { style: { color: muted, fontSize: '10.5px', fontFamily: mono } },
+             title: { text: panelCfg.yTitle || null,
+                      style: { color: muted, fontSize: '10.5px', fontFamily: ui } } },
+    tooltip: { backgroundColor: surface, borderColor: border, borderRadius: 8, shadow: false,
+      style: { color: ink, fontSize: '12px', fontFamily: ui }, useHTML: true,
+      formatter: function () {
+        const c = (this.point && this.point.options && this.point.options.custom) || {};
+        let h = '<b>' + esc(this.x) + '</b><br>' + esc(this.series.name) + ': <b>'
+              + fmtNum(this.y) + (c.unit ? ' ' + esc(c.unit) : '') + '</b>';
+        if (c.n != null) h += '<br>n = ' + fmtNum(c.n);
+        if (c.lowN) h += '<br>thin cell — not quotable';
+        return h;
+      } },
+    plotOptions: {
+      series: { animation: APP_STATE.reduceMotion ? false : { duration: 600 },
+                states: { inactive: { opacity: 0.35 } } },
+      column: { borderRadius: 2, pointPadding: 0.06, groupPadding: 0.14,
+                stacking: panel.stack ? 'normal' : undefined },
+      bar: { borderRadius: 2, pointPadding: 0.06, groupPadding: 0.14,
+             stacking: panel.stack ? 'normal' : undefined },
+    },
+    series: series,
+  };
+}
+
+function noChartMarkup(reason){
+  return '<div class="cmp-nochart"><b>No served series</b>'
+       + '<p>' + esc(reason) + ' A placeholder chart would be a fabricated claim, so none is drawn.</p></div>';
+}
+function panelMarkup(domId, panelCfg){
+  return '<div class="cmp-pnl">'
+    + '<div class="cmp-pnl-h"><b>' + esc(panelCfg.title) + '</b></div>'
+    + '<div class="cmp-pnl-scroll"><div class="cmp-pnl-box" id="' + esc(domId) + '">'
+    +   noChartMarkup('Waiting for the served series.')
+    + '</div></div>'
+    + '<div class="cmp-pnl-foot"><b>x</b> ' + esc(panelCfg.xTitle)
+    +   ' &nbsp;·&nbsp; <b>y</b> ' + esc(panelCfg.yTitle) + '</div>'
+    + '</div>';
+}
+function drawInto(domId, panelCfg, panel){
+  const box = $(domId);
+  if (!box) return;
+  if (!APP_STATE.chartLibOk) { box.innerHTML = noChartMarkup('The chart engine did not load.'); return; }
+  if (!panel) { box.innerHTML = noChartMarkup('This finding was not served with the series behind it.'); return; }
+  box.innerHTML = '';
+  try {
+    APP_STATE.charts[domId] = Highcharts.chart(box, chartOptions(panelCfg, panel));
+  } catch (e) {
+    box.innerHTML = noChartMarkup('The chart engine refused this series.');
+  }
+}
+function destroyCharts(){
+  Object.keys(APP_STATE.charts).forEach((k) => {
+    try { APP_STATE.charts[k].destroy(); } catch (e) { /* already gone */ }
+    delete APP_STATE.charts[k];
+  });
+}
+
+/* ── theme ────────────────────────────────────────────────────────────────── */
+function setTheme(t){
+  APP_STATE.theme = (t === 'dark') ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', APP_STATE.theme);
+  const lbl = $('navTglLbl'); if (lbl) lbl.textContent = APP_STATE.theme.toUpperCase();
+  try { localStorage.setItem('smc_theme', APP_STATE.theme); } catch (e) { /* storage unavailable */ }
+  redrawVisibleCharts();
+}
+function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('smc_theme'); } catch (e) { /* storage unavailable */ }
+  const pref = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  setTheme(saved === 'dark' || saved === 'light' ? saved : pref);
+  $('navTgl').addEventListener('click', () => setTheme(APP_STATE.theme === 'dark' ? 'light' : 'dark'));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RENDER — picker
+   ═══════════════════════════════════════════════════════════════════════════ */
+function headlineParts(s){
+  const h = s.headline || {};
+  const v = h.value;
+  if (typeof v === 'number' && isFinite(v)) return { display: fmtNum(v), pairs: [] };
+  if (typeof v === 'string' && v.trim() !== '') return { display: v.trim(), pairs: [] };
+  if (v && typeof v === 'object') {
+    return {
+      display: null,
+      pairs: Object.keys(v).map((k) => ({ k: generic(k.replace(/_/g, ' ')), v: fmtNum(v[k]) })),
+    };
+  }
+  return { display: null, pairs: [] };
+}
+
+function cardMarkup(s){
+  const sel = APP_STATE.selected.indexOf(s.uid) >= 0;
+  const blockN = _arr(s.caveats).filter((c) => c.severity === 'block').length;
+  const facts = [];
+  if (s.n != null) facts.push('<span class="cmp-fact"><b>n</b> ' + esc(fmtNum(s.n)) + '</span>');
+  else facts.push('<span class="cmp-fact">n not served</span>');
+  if (s.universe && s.universe.min) {
+    facts.push('<span class="cmp-fact is-uni">' + esc(s.universe.label) + '</span>');
+  } else {
+    facts.push('<span class="cmp-fact is-uni">' + esc(s.universe ? s.universe.label : 'universe not served') + '</span>');
+  }
+  if (s.universe && s.universe.weeks != null) {
+    facts.push('<span class="cmp-fact"><b>' + esc(fmtNum(s.universe.weeks)) + '</b> weeks</span>');
+  }
+  facts.push('<span class="cmp-fact">' + _arr(s.caveats).length + ' limits</span>');
+  if (blockN) facts.push('<span class="cmp-fact is-block">' + blockN + ' blocking</span>');
+  if (s.type === 'report' && s.status) facts.push('<span class="cmp-fact is-warn">' + esc(s.status.toLowerCase()) + '</span>');
+
+  const den = (s.type === 'finding')
+    ? '<div class="cmp-den"><b>Measured universe</b> ' + esc(s.denominator || 'not served') + '</div>'
+    : '<div class="cmp-den"><b>Denominator</b> not served — the catalogue publishes this report’s definition, not a measured run.</div>';
+
+  return '<button class="cmp-card cmp-rv' + (sel ? ' is-sel' : '') + (blockN ? ' is-blocked' : '') + '"'
+    + ' data-uid="' + esc(s.uid) + '" aria-pressed="' + (sel ? 'true' : 'false') + '">'
+    + '<div class="cmp-card-h">'
+    +   '<span class="cmp-box" aria-hidden="true">' + (sel ? '✓' : '') + '</span>'
+    +   '<span><span class="cmp-card-t">' + esc(s.title || s.label) + '</span>'
+    +   (s.thesis ? '<span class="cmp-card-s">' + esc(s.thesis.length > 220 ? s.thesis.slice(0, 218) + '…' : s.thesis) + '</span>' : '')
+    +   '</span>'
+    + '</div>'
+    + '<div class="cmp-facts">' + facts.join('') + '</div>'
+    + den
+    + '</button>';
+}
+
+function renderPicker(){
+  const f = $('srcFindings'), r = $('srcReports');
+  if (APP_STATE.findings == null) {
+    f.innerHTML = APP_STATE.findingsErr
+      ? '<div class="cmp-void"><span class="cmp-void-b">Findings unavailable</span>'
+        + '<div class="cmp-void-t">The findings service has not answered.</div>'
+        + '<p class="cmp-void-p">Nothing is listed here rather than something invented. The service '
+        + 'queries a cold warehouse and can take up to a minute. <code>findings service · no response</code></p>'
+        + '<button class="cmp-btn is-ghost" data-reload="findings">Try again</button></div>'
+      : '<div class="cmp-skel"><b>Retrieving findings</b><p>The findings index recomputes every story '
+        + 'against a cold warehouse. Nothing is listed until it answers.</p></div>'
+        + '<div class="cmp-skel"><b>Retrieving findings</b><p>Each entry will carry its own n, its measured '
+        + 'universe and its served limits.</p></div>';
+  } else if (!APP_STATE.findings.length) {
+    f.innerHTML = '<div class="cmp-void"><span class="cmp-void-b">No findings served</span>'
+      + '<div class="cmp-void-t">The service answered with an empty set.</div></div>';
+  } else {
+    f.innerHTML = APP_STATE.findings.map(cardMarkup).join('');
+  }
+  $('cntFind').textContent = APP_STATE.findings ? (APP_STATE.findings.length + ' served') : 'retrieving';
+
+  if (APP_STATE.reports == null) {
+    r.innerHTML = APP_STATE.reportsErr
+      ? '<div class="cmp-void"><span class="cmp-void-b">Catalogue unavailable</span>'
+        + '<div class="cmp-void-t">The report catalogue has not answered.</div>'
+        + '<p class="cmp-void-p">A deliverable can still be composed from findings alone. '
+        + '<code>report catalogue · no response</code></p>'
+        + '<button class="cmp-btn is-ghost" data-reload="reports">Try again</button></div>'
+      : '<div class="cmp-skel"><b>Retrieving catalogue</b><p>Registered report definitions load from the '
+        + 'catalogue registry.</p></div>';
+  } else if (!APP_STATE.reports.length) {
+    r.innerHTML = '<div class="cmp-void"><span class="cmp-void-b">No reports registered</span>'
+      + '<div class="cmp-void-t">The catalogue answered with an empty registry.</div></div>';
+  } else {
+    r.innerHTML = APP_STATE.reports.map(cardMarkup).join('');
+  }
+  $('cntRep').textContent = APP_STATE.reports ? (APP_STATE.reports.length + ' registered') : 'retrieving';
+  armReveal();
+}
+
+function renderStatus(){
+  const el = $('navStatus'), ban = $('ban');
+  const anyErr = APP_STATE.findingsErr || APP_STATE.reportsErr;
+  const settled = (APP_STATE.findings !== null || APP_STATE.findingsErr)
+               && (APP_STATE.reports !== null || APP_STATE.reportsErr);
+  if (!settled) {
+    el.textContent = '◌ RETRIEVING'; el.className = 'cmp-pill is-wait';
+    ban.textContent = 'Retrieving the served sources. The warehouse behind them is cold and can take up to '
+      + 'a minute; nothing is listed ahead of its data.';
+    ban.classList.add('is-on');
+  } else if (anyErr && !allSources().length) {
+    el.textContent = '● NO SOURCES'; el.className = 'cmp-pill is-off';
+    ban.textContent = 'Neither source service answered. Compose has nothing to stitch, and will not '
+      + 'invent anything to fill the page.';
+    ban.classList.add('is-on');
+  } else if (anyErr) {
+    el.textContent = '● PARTIAL'; el.className = 'cmp-pill is-wait';
+    ban.textContent = 'One of the two source services did not answer. What is listed below is served; '
+      + 'what is missing is named as missing.';
+    ban.classList.add('is-on');
+  } else {
+    el.textContent = '● SERVED'; el.className = 'cmp-pill is-live';
+    ban.classList.remove('is-on');
+  }
+}
+
+/* ── composition tray ─────────────────────────────────────────────────────── */
+function renderTray(){
+  const sel = selectedSources();
+  const D = sel.length ? compose(sel) : null;
+  APP_STATE.deliverable = D;
+
+  const n = $('trayN'), chips = $('trayChips');
+  if (!D) {
+    n.textContent = 'Nothing selected';
+    chips.innerHTML = '<span class="cmp-fact">Pick two or more sources to see what combining them implies.</span>';
+  } else {
+    n.innerHTML = '<b>' + D.sources.length + '</b> selected &nbsp;·&nbsp; <b>' + D.caveatsMerged
+      + '</b> merged limits from <b>' + D.caveatsRaw + '</b> served';
+    const c = [];
+    c.push('<span class="cmp-fact' + (D.mixed ? ' is-warn' : '') + '">'
+      + D.universes.length + (D.universes.length === 1 ? ' universe' : ' universes') + '</span>');
+    if (D.mixed) c.push('<span class="cmp-fact is-warn">denominators do not blend</span>');
+    if (D.blocking.length) c.push('<span class="cmp-fact is-block">' + D.blocking.length + ' blocking</span>');
+    if (D.caveatsDropped > 0) c.push('<span class="cmp-fact">' + D.caveatsDropped + ' duplicates collapsed</span>');
+    if (D.claimRefusals.length) c.push('<span class="cmp-fact is-block">' + D.claimRefusals.length + ' claims refused</span>');
+    chips.innerHTML = c.join('');
+  }
+  const on = !!D;
+  ['btnDoc','btnDeck','btnCopy','btnPrint','btnClear'].forEach((id) => { $(id).disabled = !on; });
+  $('modeDoc').disabled = !on;
+  $('modeDeck').disabled = !on;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RENDER — shared deliverable blocks (used by BOTH modes and the exports)
+   ═══════════════════════════════════════════════════════════════════════════ */
+function frontMatterMarkup(D){
+  let out = '';
+  if (D.blocking.length) {
+    out += '<div class="cmp-alert is-block"><h3>Blocking limits carried into this deliverable</h3>'
+      + '<p>These arrived with the sources selected and propagate to every page, slide and export '
+      + 'below. They are not footnotes — they bound what this deliverable is allowed to claim.</p><ul>'
+      + D.blocking.map((c) => '<li>' + esc(c.text)
+          + '<em>from ' + esc(c.sources.join(' · ')) + '</em></li>').join('')
+      + '</ul></div>';
+  }
+  if (D.claimRefusals.length) {
+    out += '<div class="cmp-alert is-block"><h3>Claims refused</h3>'
+      + '<p>A selected source states a claim this platform has already retired. The source is kept for '
+      + 'its structure; the claim itself is not reproduced.</p><ul>'
+      + D.claimRefusals.map((c) => '<li><b>' + esc(c.sourceTitle || c.sourceId) + '</b> — ' + esc(c.why)
+          + '<em>source ' + esc(c.sourceId) + '</em></li>').join('')
+      + '</ul></div>';
+  }
+  if (D.mixed) {
+    const orderLine = (D.orders != null && D.orders >= 2 && D.nMax != null && D.nMin != null)
+      ? '<p>The largest and smallest served n among these sources are <b>' + esc(fmtNum(D.nMax))
+        + '</b> and <b>' + esc(fmtNum(D.nMin)) + '</b> — roughly <b>' + D.orders
+        + '</b> orders of magnitude apart. Nothing here is divided by a shared denominator, because '
+        + 'there is no shared denominator.</p>'
+      : '';
+    out += '<div class="cmp-alert"><h3>Mixed universes — denominators do not blend</h3>'
+      + '<p>The selected sources were measured on <b>' + D.universes.length + '</b> different universes. '
+      + 'Each is stated separately below and every figure stays inside the one it was measured on. '
+      + 'No figure in this deliverable is computed across more than one of them, and no share, rate or '
+      + 'total is presented as covering all of them.</p>'
+      + orderLine
+      + '<ul>' + D.universes.map((u) => '<li><b>' + esc(u.label) + '</b>'
+          + '<em>' + esc(u.sources.map((s) => s.label).join(' · ')) + ' — '
+          + esc(u.sources.map((s) => (s.n != null ? 'n ' + fmtNum(s.n) : 'n not served')).join(' · ')) + '</em></li>').join('')
+      + '</ul></div>';
+  }
+  return out;
+}
+
+function universesMarkup(D){
+  return '<div class="cmp-uni">' + D.universes.map((u) => {
+    const isVoid = (u.key === 'definition' || u.key === 'unstated');
+    return '<div class="cmp-uni-row' + (isVoid ? ' is-void' : '') + '">'
+      + '<b>' + esc(u.label) + '</b>'
+      + '<ul>' + u.sources.map((s) =>
+          '<li>' + esc(s.title || s.label) + ' — '
+          + (s.n != null ? 'n ' + esc(fmtNum(s.n)) : 'n not served')
+          + (s.grain ? ' · ' + esc(s.grain) : '') + '</li>').join('') + '</ul>'
+      + u.sources.filter((s) => s.denominator).map((s) =>
+          '<p><b>' + esc(s.label) + '</b> ' + esc(s.denominator) + '</p>').join('')
+      + '</div>';
+  }).join('') + '</div>';
+}
+
+function caveatsMarkup(D){
+  return '<div class="cmp-cav">'
+    + '<div class="cmp-cav-h"><b>What this cannot tell you</b>'
+    +   '<i>' + D.caveatsMerged + ' merged from ' + D.caveatsRaw + ' served</i>'
+    +   '<i>' + D.caveatsDropped + ' duplicates collapsed</i>'
+    +   (D.blocking.length ? '<i>' + D.blocking.length + ' blocking</i>' : '')
+    + '</div>'
+    + '<ul class="cmp-cav-list">'
+    + D.caveats.map((c) => '<li data-sev="' + esc(c.severity) + '">' + esc(c.text)
+        + '<span class="cmp-cav-src"><em>' + esc(SEV_LABEL[c.severity]) + '</em>'
+        + ' · carried by ' + esc(c.sources.join(', '))
+        + (c.variants.length ? ' · ' + c.variants.length + ' weaker wording'
+            + (c.variants.length === 1 ? '' : 's') + ' superseded' : '')
+        + '</span></li>').join('')
+    + '</ul></div>';
+}
+
+function sourcesMarkup(D){
+  return '<ul class="cmp-srclist">' + D.sources.map((s) =>
+    '<li><b>' + esc(s.title || s.label) + '</b>'
+    + '<span>' + esc(s.label) + ' · ' + esc(s.type === 'finding' ? 'served finding' : 'registered report definition')
+    + (s.provenance ? ' · ' + esc(s.provenance) : '')
+    + (s.n != null ? ' · n ' + esc(fmtNum(s.n)) : ' · n not served')
+    + ' · ' + esc(s.universe ? s.universe.label : 'universe not served') + '</span>'
+    + (s.method ? '<span>' + esc(s.method) + '</span>' : '')
+    + '</li>').join('') + '</ul>';
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RENDER — comprehensive analysis (long-form document)
+   ═══════════════════════════════════════════════════════════════════════════ */
+function sourceSectionMarkup(s, i, D){
+  const hp = headlineParts(s);
+  const panels = [];
+  if (s.type === 'finding') {
+    const p1 = STORY_PANELS[s.id];
+    if (p1) panels.push({ cfg: p1, domId: 'doc-' + s.id + '-' + p1.key });
+    const p2 = STORY_PANELS_2[s.id];
+    if (p2) panels.push({ cfg: p2, domId: 'doc-' + s.id + '-' + p2.key });
+  }
+  const own = _arr(s.caveats);
+  const ownBlock = own.filter((c) => c.severity === 'block').length;
+
+  let fig;
+  if (hp.display != null) {
+    fig = '<div class="cmp-fig"><div class="cmp-fig-v">' + esc(hp.display) + '</div>'
+        + '<div class="cmp-fig-l">' + esc(s.headline.label || 'served headline figure')
+        + (s.headline.n != null ? ' &nbsp;·&nbsp; <b>n ' + esc(fmtNum(s.headline.n)) + '</b>' : '')
+        + '</div></div>';
+  } else if (hp.pairs.length) {
+    fig = '<div class="cmp-fig"><div class="cmp-fig-v is-void">' + EM + '</div>'
+        + '<div class="cmp-fig-l">' + esc(s.headline.label || 'served headline')
+        + ' is published as a set of values rather than one number: '
+        + hp.pairs.map((p) => '<b>' + esc(p.k) + ' ' + esc(p.v) + '</b>').join(', ')
+        + '. No single figure is invented to stand for them.</div></div>';
+  } else {
+    fig = '<div class="cmp-fig"><div class="cmp-fig-v is-void">' + EM + '</div>'
+        + '<div class="cmp-fig-l">No figure is served with this source, so none is shown. '
+        + (s.type === 'report' ? 'A registered report definition carries the question and its parameters, not a measured result.' : '')
+        + '</div></div>';
+  }
+
+  return '<section class="cmp-sec cmp-rv" id="doc-sec-' + esc(s.id) + '">'
+    + '<div class="cmp-sec-num"><b>' + (i < 9 ? '0' : '') + (i + 1) + '</b>'
+    +   '<span>' + esc(s.type === 'finding' ? 'served finding' : 'report definition') + ' · ' + esc(s.label) + '</span><i></i></div>'
+    + '<h2>' + esc(s.title || s.label) + '</h2>'
+    + (s.thesis ? '<p>' + esc(s.thesis) + '</p>' : '')
+    + fig
+    + panels.map((p) => panelMarkup(p.domId, p.cfg)).join('')
+    + (s.type === 'report' && s.params && s.params.length
+        ? '<div class="cmp-note"><b>Parameters this report is defined against</b><p>'
+          + s.params.map((p) => esc(p.k) + ' — ' + esc(p.v)).join(' &nbsp;·&nbsp; ')
+          + (s.chartLanguage ? ' &nbsp;·&nbsp; chart language ' + esc(s.chartLanguage) : '')
+          + '</p></div>' : '')
+    + (s.method
+        ? '<div class="cmp-mech"><h3>The mechanism</h3><p>' + esc(s.method) + '</p></div>' : '')
+    + '<div class="cmp-note"><b>The caveat on this source alone</b>'
+    +   '<p>' + own.length + ' limit' + (own.length === 1 ? '' : 's') + ' served with it'
+    +   (ownBlock ? ', of which ' + ownBlock + ' blocking' : '')
+    +   '. All of them are merged into the combined limits below and none is dropped on the way.</p>'
+    +   (own.length ? '<ul class="cmp-cav-list" style="margin-top:10px">'
+          + own.map((c) => '<li data-sev="' + esc(c.severity) + '">' + esc(c.text) + '</li>').join('')
+          + '</ul>' : '')
+    + '</div>'
+    + '</section>';
+}
+
+function renderDoc(){
+  const D = APP_STATE.deliverable;
+  const body = $('docBody');
+  if (!D) { body.innerHTML = ''; return; }
+  destroyCharts();
+
+  const summaryLines = D.sources.map((s) =>
+    '<li>' + esc(s.title || s.label) + ' — '
+    + (s.n != null ? 'n ' + esc(fmtNum(s.n)) : 'n not served') + ', measured on '
+    + esc(s.universe ? s.universe.label : 'a universe the service does not state') + '.</li>').join('');
+
+  body.innerHTML = ''
+    + '<div class="cmp-doc-eye">Composite analysis · built ' + esc(D.builtAt) + '</div>'
+    + '<h1 class="cmp-rv">' + esc(D.sources.length) + ' sources, '
+    +   esc(D.universes.length) + ' universe' + (D.universes.length === 1 ? '' : 's') + ', '
+    +   esc(D.caveatsMerged) + ' limits that survived the merge.</h1>'
+    + frontMatterMarkup(D)
+    + '<section class="cmp-sec cmp-rv" style="border-top:none;padding-top:8px">'
+    +   '<h3>Executive summary</h3>'
+    +   '<p>This deliverable stitches <b>' + D.findings.length + '</b> served finding'
+    +     (D.findings.length === 1 ? '' : 's') + ' and <b>' + D.reports.length
+    +     '</b> registered report definition' + (D.reports.length === 1 ? '' : 's') + '. '
+    +     'Every figure below is served; nothing is recomputed here, and nothing is combined across '
+    +     'universes. The limits that arrived with each source were pooled — <b>' + D.caveatsRaw
+    +     '</b> in total — de-duplicated to <b>' + D.caveatsMerged + '</b>, and where two sources '
+    +     'stated the same limit differently the stronger wording was kept.</p>'
+    +   '<ul class="cmp-cav-list" style="margin-top:14px">' + summaryLines + '</ul>'
+    + '</section>'
+    + D.sources.map((s, i) => sourceSectionMarkup(s, i, D)).join('')
+    + '<section class="cmp-sec cmp-rv"><h2>What this cannot tell you</h2>'
+    +   '<p>Combined across everything selected. A limit that bound one source binds the deliverable '
+    +   'that carries it — that is the whole reason this section is generated rather than written.</p>'
+    +   caveatsMarkup(D)
+    + '</section>'
+    + '<section class="cmp-sec cmp-rv"><h2>Method and sources</h2>'
+    +   '<h3>Measured universes — stated separately, never pooled</h3>'
+    +   universesMarkup(D)
+    +   '<h3 style="margin-top:24px">Sources</h3>'
+    +   sourcesMarkup(D)
+    + '</section>';
+
+  // draw every panel from the ADAPTED detail payload
+  D.sources.filter((s) => s.type === 'finding').forEach((s) => {
+    const d = APP_STATE.details[s.id];
+    [STORY_PANELS[s.id], STORY_PANELS_2[s.id]].filter(Boolean).forEach((cfg) => {
+      drawInto('doc-' + s.id + '-' + cfg.key, cfg, d ? buildPanel(s.id, cfg.key, d) : null);
+    });
+  });
+  armReveal();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RENDER — presentation
+   ═══════════════════════════════════════════════════════════════════════════ */
+function buildSlides(D){
+  const slides = [];
+  slides.push({ type:'title', title:D.sources.length + ' sources, one deliverable',
+    notes:['Front matter carries ' + D.blocking.length + ' blocking limit'
+      + (D.blocking.length === 1 ? '' : 's') + '.',
+      D.mixed ? 'Mixed universes: state each denominator separately, never combine.' : 'Single universe.'] });
+  D.sources.forEach((s) => slides.push({ type:'source', src:s,
+    notes:_arr(s.caveats).filter((c) => c.severity !== 'note').map((c) => c.text) }));
+  slides.push({ type:'limits', notes:D.blocking.map((c) => c.text) });
+  slides.push({ type:'sources', notes:[] });
+  return slides;
+}
+
+function slideMarkup(sl, i, D){
+  const on = (i === APP_STATE.slide) ? ' is-on' : '';
+  const head = '<div class="cmp-sld-eye">' + esc(D.builtAt) + ' · slide ' + (i + 1) + ' of ' + D.slides.length + '</div>';
+  const foot = (label) => '<div class="cmp-sld-foot"><span>' + esc(label) + '</span>'
+    + '<span>' + (D.blocking.length ? D.blocking.length + ' blocking limits carried' : 'no blocking limits')
+    + (D.mixed ? ' · ' + D.universes.length + ' universes, not pooled' : '') + '</span></div>';
+
+  if (sl.type === 'title') {
+    return '<section class="cmp-sld' + on + '">' + head
+      + '<h2>' + esc(D.sources.length) + ' sources. <i>' + esc(D.universes.length) + '</i> universe'
+      + (D.universes.length === 1 ? '' : 's') + '. ' + esc(D.caveatsMerged) + ' limits.</h2>'
+      + '<div class="cmp-sld-so">Every figure that follows stays inside the universe it was measured on.</div>'
+      + (D.mixed || D.blocking.length ? '<div style="margin-top:18px">' + frontMatterMarkup(D) + '</div>' : '')
+      + foot('Title') + '</section>';
+  }
+  if (sl.type === 'limits') {
+    return '<section class="cmp-sld' + on + '">' + head
+      + '<h2>What this <i>cannot</i> tell you.</h2>'
+      + '<ul>' + D.caveats.map((c) => '<li data-sev="' + esc(c.severity) + '">' + esc(c.text) + '</li>').join('') + '</ul>'
+      + foot('Limits · ' + D.caveatsMerged + ' merged from ' + D.caveatsRaw + ' served') + '</section>';
+  }
+  if (sl.type === 'sources') {
+    return '<section class="cmp-sld' + on + '">' + head
+      + '<h2>Sources and universes.</h2>'
+      + universesMarkup(D)
+      + '<div style="margin-top:16px">' + sourcesMarkup(D) + '</div>'
+      + foot('Sources') + '</section>';
+  }
+  const s = sl.src;
+  const hp = headlineParts(s);
+  const cfg = (s.type === 'finding') ? STORY_PANELS[s.id] : null;
+  const so = s.type === 'finding'
+    ? (s.headline.label || 'Served headline figure.')
+    : 'Definition stage — this source contributes the question, not a figure.';
+  return '<section class="cmp-sld' + on + '">' + head
+    + '<h2>' + esc(s.title || s.label) + '</h2>'
+    + '<div class="cmp-sld-body">'
+    +   '<div>'
+    +     '<div class="cmp-sld-huge' + (hp.display == null ? ' is-void' : '') + '">'
+    +       esc(hp.display != null ? hp.display : EM) + '</div>'
+    +     '<div class="cmp-sld-cap">' + esc(so)
+    +       (s.n != null ? ' &nbsp;·&nbsp; <b>n ' + esc(fmtNum(s.n)) + '</b>' : ' &nbsp;·&nbsp; n not served')
+    +       '<br>' + esc(s.universe ? s.universe.label : 'universe not served') + '</div>'
+    +   '</div>'
+    +   (cfg ? '<div>' + panelMarkup('sld-' + s.id + '-' + cfg.key, cfg) + '</div>' : '')
+    + '</div>'
+    + '<div class="cmp-sld-so">' + esc(s.thesis ? (s.thesis.split(/(?<=\.)\s/)[0] || s.thesis) : (s.title || s.label)) + '</div>'
+    + foot(s.label) + '</section>';
+}
+
+function renderDeck(){
+  const D = APP_STATE.deliverable;
+  if (!D) { $('deck').innerHTML = ''; return; }
+  destroyCharts();
+  D.slides = buildSlides(D);
+  if (APP_STATE.slide >= D.slides.length) APP_STATE.slide = 0;
+  $('deck').innerHTML = D.slides.map((sl, i) => slideMarkup(sl, i, D)).join('');
+  drawSlideChart();
+  renderDeckPos();
+  renderPresenter();
+}
+function drawSlideChart(){
+  const D = APP_STATE.deliverable;
+  if (!D || !D.slides) return;
+  // draw every slide's chart so the printed deck is complete, not just the
+  // slide currently on screen
+  D.slides.forEach((sl) => {
+    if (sl.type !== 'source' || sl.src.type !== 'finding') return;
+    const cfg = STORY_PANELS[sl.src.id];
+    if (!cfg) return;
+    const d = APP_STATE.details[sl.src.id];
+    drawInto('sld-' + sl.src.id + '-' + cfg.key, cfg, d ? buildPanel(sl.src.id, cfg.key, d) : null);
+  });
+}
+function renderDeckPos(){
+  const D = APP_STATE.deliverable;
+  if (!D || !D.slides) return;
+  $('deckPos').textContent = (APP_STATE.slide + 1) + ' / ' + D.slides.length;
+  const nodes = $('deck').querySelectorAll('.cmp-sld');
+  Array.prototype.forEach.call(nodes, (el, i) => el.classList.toggle('is-on', i === APP_STATE.slide));
+  Object.keys(APP_STATE.charts).forEach((k) => {
+    try { APP_STATE.charts[k].reflow(); } catch (e) { /* not attached */ }
+  });
+}
+function gotoSlide(i){
+  const D = APP_STATE.deliverable;
+  if (!D || !D.slides) return;
+  APP_STATE.slide = Math.max(0, Math.min(D.slides.length - 1, i));
+  renderDeckPos();
+  renderPresenter();
+}
+function renderPresenter(){
+  const D = APP_STATE.deliverable;
+  const el = $('presenter');
+  if (!D || !D.slides || !APP_STATE.presenter) { el.classList.remove('is-on'); el.setAttribute('aria-hidden','true'); return; }
+  const cur = D.slides[APP_STATE.slide], nxt = D.slides[APP_STATE.slide + 1];
+  const nameOf = (sl) => !sl ? 'End of deck'
+    : sl.type === 'source' ? (sl.src.title || sl.src.label)
+    : sl.type === 'title' ? 'Title' : sl.type === 'limits' ? 'What this cannot tell you' : 'Sources and universes';
+  el.innerHTML = '<div class="cmp-pres-in">'
+    + '<h3>Presenter view · slide ' + (APP_STATE.slide + 1) + ' of ' + D.slides.length + '</h3>'
+    + '<div class="cmp-pres-now"><b>' + esc(nameOf(cur)) + '</b>'
+    +   (cur && cur.type === 'source' && cur.src.denominator
+        ? '<p>' + esc(cur.src.denominator) + '</p>' : '')
+    +   (cur && cur.type === 'source' && cur.src.n != null
+        ? '<p>n ' + esc(fmtNum(cur.src.n)) + ' · ' + esc(cur.src.universe.label) + '</p>' : '')
+    + '</div>'
+    + '<div class="cmp-pres-next"><b>Next — ' + esc(nameOf(nxt)) + '</b></div>'
+    + '<ul class="cmp-pres-notes">'
+    +   (cur && cur.notes && cur.notes.length
+        ? cur.notes.map((t) => '<li>' + esc(t) + '</li>').join('')
+        : '<li>No blocking or validity-threat note on this slide.</li>')
+    + '</ul>'
+    + '<div class="cmp-pres-bar">'
+    +   '<button class="cmp-btn is-ghost" data-pres="prev">← Previous</button>'
+    +   '<button class="cmp-btn is-ghost" data-pres="next">Next →</button>'
+    +   '<button class="cmp-btn" data-pres="close">Close presenter view</button>'
+    + '</div></div>';
+  el.classList.add('is-on'); el.setAttribute('aria-hidden','false');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EXPORT — markdown. Built from the SAME composed model, so it cannot drop the
+   limits: there is no code path here that assembles a body without them.
+   ═══════════════════════════════════════════════════════════════════════════ */
+function toMarkdown(D){
+  const L = [];
+  L.push('# Composite analysis — ' + D.sources.length + ' sources');
+  L.push('');
+  L.push('_Built ' + D.builtAt + ' · ' + D.universes.length + ' measured universe'
+    + (D.universes.length === 1 ? '' : 's') + ' · ' + D.caveatsMerged + ' limits merged from '
+    + D.caveatsRaw + ' served._');
+  L.push('');
+  if (D.blocking.length) {
+    L.push('## Blocking limits carried into this deliverable');
+    D.blocking.forEach((c) => L.push('- **' + SEV_LABEL[c.severity] + '** ' + c.text
+      + '  \n  _from ' + c.sources.join(' · ') + '_'));
+    L.push('');
+  }
+  if (D.claimRefusals.length) {
+    L.push('## Claims refused');
+    D.claimRefusals.forEach((c) => L.push('- **' + (c.sourceTitle || c.sourceId) + '** — ' + c.why));
+    L.push('');
+  }
+  if (D.mixed) {
+    L.push('## Mixed universes — denominators do not blend');
+    L.push('Sources here were measured on ' + D.universes.length + ' different universes. Each is stated '
+      + 'separately; no figure is computed across more than one.');
+    D.universes.forEach((u) => {
+      L.push('- **' + u.label + '** — ' + u.sources.map((s) =>
+        s.label + ' (' + (s.n != null ? 'n ' + fmtNum(s.n) : 'n not served') + ')').join(', '));
+    });
+    L.push('');
+  }
+  D.sources.forEach((s, i) => {
+    const hp = headlineParts(s);
+    L.push('## ' + (i + 1) + '. ' + (s.title || s.label));
+    L.push('');
+    if (s.thesis) { L.push(s.thesis); L.push(''); }
+    L.push('- **Figure**: ' + (hp.display != null ? hp.display
+      : (hp.pairs.length ? hp.pairs.map((p) => p.k + ' ' + p.v).join(', ') : 'not served')));
+    if (s.headline && s.headline.label) L.push('- **Measures**: ' + s.headline.label);
+    L.push('- **n**: ' + (s.n != null ? fmtNum(s.n) : 'not served'));
+    L.push('- **Universe**: ' + (s.universe ? s.universe.label : 'not served'));
+    if (s.denominator) L.push('- **Denominator**: ' + s.denominator);
+    if (s.method) L.push('- **Method**: ' + s.method);
+    L.push('');
+    const own = _arr(s.caveats);
+    if (own.length) {
+      L.push('**Limits served with this source**');
+      own.forEach((c) => L.push('- [' + SEV_LABEL[c.severity] + '] ' + c.text));
+      L.push('');
+    }
+  });
+  L.push('## What this cannot tell you');
+  L.push('');
+  L.push('_Merged across every source selected. ' + D.caveatsDropped + ' duplicate'
+    + (D.caveatsDropped === 1 ? '' : 's') + ' collapsed; where wordings conflicted the stronger form was kept._');
+  L.push('');
+  D.caveats.forEach((c) => {
+    L.push('- [' + SEV_LABEL[c.severity] + '] ' + c.text
+      + '  \n  _carried by ' + c.sources.join(', ')
+      + (c.variants.length ? '; ' + c.variants.length + ' weaker wording superseded' : '') + '_');
+  });
+  L.push('');
+  L.push('## Method and sources');
+  L.push('');
+  D.universes.forEach((u) => {
+    L.push('### ' + u.label);
+    u.sources.forEach((s) => L.push('- ' + (s.title || s.label) + ' (' + s.label + ') — '
+      + (s.n != null ? 'n ' + fmtNum(s.n) : 'n not served')
+      + (s.grain ? ' · ' + s.grain : '')));
+    L.push('');
+  });
+  return L.join('\n');
+}
+
+/* an export that carries no limits is the failure mode this feature exists to
+   prevent — refuse rather than emit one */
+function exportGuard(D, text){
+  if (!D) return 'no deliverable';
+  if (D.caveatsRaw > 0 && D.caveatsMerged === 0) return 'limits were lost in the merge';
+  if (D.caveats.length && text.indexOf('What this cannot tell you') < 0) return 'limits section missing';
+  if (D.blocking.length && text.indexOf(D.blocking[0].text.slice(0, 40)) < 0) return 'a blocking limit is missing';
+  return null;
+}
+
+async function copyMarkdown(){
+  const D = APP_STATE.deliverable;
+  if (!D) return;
+  const md = toMarkdown(D);
+  const bad = exportGuard(D, md);
+  if (bad) { toast('Export refused — ' + bad); return; }
+  try {
+    await navigator.clipboard.writeText(md);
+    toast('Copied ' + D.caveatsMerged + ' merged limits and ' + D.sources.length + ' sources as markdown');
+  } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = md; ta.setAttribute('readonly',''); ta.style.position = 'fixed'; ta.style.top = '-1000px';
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+    document.body.removeChild(ta);
+    toast(ok ? 'Copied as markdown' : 'Clipboard unavailable — use Print / PDF instead');
+  }
+}
+function doPrint(){
+  const D = APP_STATE.deliverable;
+  if (!D) return;
+  if (APP_STATE.mode === 'pick') setMode('doc');
+  const bad = exportGuard(D, 'What this cannot tell you');
+  if (bad) { toast('Export refused — ' + bad); return; }
+  setTimeout(() => window.print(), 60);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODES · events · boot
+   ═══════════════════════════════════════════════════════════════════════════ */
+function setMode(m){
+  if ((m === 'doc' || m === 'deck') && !APP_STATE.deliverable) return;
+  APP_STATE.mode = m;
+  $('viewPick').classList.toggle('is-on', m === 'pick');
+  $('viewDoc').classList.toggle('is-on', m === 'doc');
+  $('viewDeck').classList.toggle('is-on', m === 'deck');
+  [['modePick','pick'],['modeDoc','doc'],['modeDeck','deck']].forEach(([id, k]) => {
+    $(id).classList.toggle('is-on', m === k);
+    $(id).setAttribute('aria-selected', m === k ? 'true' : 'false');
+  });
+  if (m === 'doc') renderDoc();
+  if (m === 'deck') renderDeck();
+  if (m !== 'deck') { APP_STATE.presenter = false; renderPresenter(); }
+  window.scrollTo({ top: 0, behavior: APP_STATE.reduceMotion ? 'auto' : 'smooth' });
+}
+
+function toggleSelect(uid){
+  const i = APP_STATE.selected.indexOf(uid);
+  if (i >= 0) APP_STATE.selected.splice(i, 1);
+  else APP_STATE.selected.push(uid);
+  renderPicker();
+  renderTray();
+  // pull the series behind a newly-selected finding in the background
+  const s = allSources().find((x) => x.uid === uid);
+  if (s && s.type === 'finding' && APP_STATE.details[s.id] === undefined) hydrateDetail(s.id);
+}
+
+async function hydrateDetail(id){
+  APP_STATE.details[id] = null;   // in flight — prevents a duplicate fetch
+  const raw = await getJSON('/insights/' + encodeURIComponent(id));
+  APP_STATE.details[id] = raw ? _safeAdaptDetail(raw) : null;
+  if (APP_STATE.mode === 'doc') renderDoc();
+  if (APP_STATE.mode === 'deck') { drawSlideChart(); renderDeckPos(); }
+}
+
+let _io = null;
+function armReveal(){
+  const nodes = Array.prototype.slice.call(document.querySelectorAll('.cmp-rv:not(.is-in)'));
+  if (APP_STATE.reduceMotion || typeof IntersectionObserver !== 'function') {
+    nodes.forEach((el) => el.classList.add('is-in'));
+    return;
+  }
+  if (!_io) {
+    _io = new IntersectionObserver((ents) => {
+      ents.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); _io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+  }
+  nodes.forEach((el) => _io.observe(el));
+}
+function redrawVisibleCharts(){
+  if (APP_STATE.mode === 'doc') renderDoc();
+  else if (APP_STATE.mode === 'deck') renderDeck();
+}
+
+function bindEvents(){
+  $('srcFindings').addEventListener('click', onPickClick);
+  $('srcReports').addEventListener('click', onPickClick);
+  $('btnDoc').addEventListener('click', () => setMode('doc'));
+  $('btnDeck').addEventListener('click', () => { APP_STATE.slide = 0; setMode('deck'); });
+  $('btnCopy').addEventListener('click', copyMarkdown);
+  $('btnPrint').addEventListener('click', doPrint);
+  $('btnClear').addEventListener('click', () => {
+    APP_STATE.selected = []; renderPicker(); renderTray(); setMode('pick');
+  });
+  $('modePick').addEventListener('click', () => setMode('pick'));
+  $('modeDoc').addEventListener('click', () => setMode('doc'));
+  $('modeDeck').addEventListener('click', () => setMode('deck'));
+  $('deckPrev').addEventListener('click', () => gotoSlide(APP_STATE.slide - 1));
+  $('deckNext').addEventListener('click', () => gotoSlide(APP_STATE.slide + 1));
+  $('deckPres').addEventListener('click', () => { APP_STATE.presenter = !APP_STATE.presenter; renderPresenter(); });
+  $('presenter').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-pres]'); if (!b) return;
+    const a = b.getAttribute('data-pres');
+    if (a === 'prev') gotoSlide(APP_STATE.slide - 1);
+    else if (a === 'next') gotoSlide(APP_STATE.slide + 1);
+    else { APP_STATE.presenter = false; renderPresenter(); }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (APP_STATE.mode === 'deck') {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); gotoSlide(APP_STATE.slide + 1); }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); gotoSlide(APP_STATE.slide - 1); }
+      else if (e.key === 'p' || e.key === 'P') { APP_STATE.presenter = !APP_STATE.presenter; renderPresenter(); }
+      else if (e.key === 'Escape') {
+        if (APP_STATE.presenter) { APP_STATE.presenter = false; renderPresenter(); }
+        else setMode('pick');
+      }
+    } else if (e.key === 'Escape' && APP_STATE.mode === 'doc') setMode('pick');
+  });
+}
+function onPickClick(e){
+  const rl = e.target.closest('[data-reload]');
+  if (rl) { loadSources(rl.getAttribute('data-reload')); return; }
+  const b = e.target.closest('[data-uid]');
+  if (b) toggleSelect(b.getAttribute('data-uid'));
+}
+
+async function loadSources(which){
+  if (!which || which === 'findings') {
+    APP_STATE.findings = null; APP_STATE.findingsErr = false;
+    renderPicker(); renderStatus();
+    const raw = await getJSON('/insights');
+    const a = raw ? adaptFindings(raw) : null;
+    if (a) APP_STATE.findings = a; else APP_STATE.findingsErr = true;
+    renderPicker(); renderStatus(); renderTray();
+  }
+  if (!which || which === 'reports') {
+    APP_STATE.reports = null; APP_STATE.reportsErr = false;
+    renderPicker(); renderStatus();
+    const raw = await getJSON('/reports');
+    const a = raw ? adaptReports(raw) : null;
+    if (a) APP_STATE.reports = a; else APP_STATE.reportsErr = true;
+    renderPicker(); renderStatus(); renderTray();
+  }
+}
+
+function initAnimations(){ armReveal(); }
+
+(function main(){
+  APP_STATE.sessionId = _genSessionId();
+  APP_STATE.reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  APP_STATE.chartLibOk = (typeof window.Highcharts !== 'undefined');
+
+  initTheme();
+  bindEvents();
+  renderPicker();
+  renderStatus();
+  renderTray();
+
+  if (window.matchMedia) {
+    try {
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const onMq = (e) => { APP_STATE.reduceMotion = !!e.matches; armReveal(); redrawVisibleCharts(); };
+      if (mq.addEventListener) mq.addEventListener('change', onMq); else if (mq.addListener) mq.addListener(onMq);
+    } catch (e) { /* matchMedia listener unsupported */ }
+  }
+
+  // Motion is armed BEFORE any network work: gating reveals behind a cold
+  // warehouse left the whole page invisible whenever the API was slow.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(initAnimations);
+  else initAnimations();
+
+  // both source services are fetched in parallel; neither blocks the other
+  loadSources('findings');
+  loadSources('reports');
+})();
+
+
+
+</script>
+</body>
+</html>
