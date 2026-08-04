@@ -47,7 +47,7 @@ module.exports = async (req, res) => {
       method: req.method,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${TOKEN}`,
+        'x-internal-token': process.env.INTERNAL_SERVICE_TOKEN,
       },
       ...(body ? { body } : {}),
     });
