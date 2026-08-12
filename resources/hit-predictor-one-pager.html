@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HIT Predictor — Audience Signal Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --t4-bg:#fafaf8; --t4-white:#ffffff; --t4-ink:#111111; --t4-muted:#888888;
+    --t4-border:#e8e8e4; --t4-periwinkle:#6C63FF; --t4-coral:#FF6B6B;
+    --t4-teal:#4ECDC4; --t4-gold:#FFB347; --t4-violet:#B388FF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--t4-bg);color:var(--t4-ink);font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  .page{max-width:960px;margin:0 auto;padding:40px 48px 32px;background:var(--t4-white);
+    border-left:1px solid var(--t4-border);border-right:1px solid var(--t4-border);min-height:100vh;}
+
+  /* ---------- masthead ---------- */
+  .mast{display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:2px solid var(--t4-ink);padding-bottom:12px;}
+  .brand{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;}
+  .brand span{color:var(--t4-periwinkle);}
+  .mast-right{font-size:10px;color:var(--t4-muted);letter-spacing:.12em;text-transform:uppercase;text-align:right;line-height:1.6;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:24px 0 18px;border-bottom:1px solid var(--t4-border);}
+  .kicker{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--t4-periwinkle);margin-bottom:9px;}
+  h1{font-family:'DM Serif Display',serif;font-size:40px;line-height:1.05;font-weight:400;max-width:740px;}
+  .hero p{font-size:14px;line-height:1.65;color:#444;max-width:740px;margin-top:12px;}
+  .hero p b{color:var(--t4-ink);}
+
+  /* ---------- market band (why now) ---------- */
+  .mkt{border-bottom:1px solid var(--t4-border);padding:16px 0 14px;}
+  .mkt-lede{display:flex;align-items:baseline;gap:16px;margin-bottom:12px;flex-wrap:wrap;}
+  .mkt-k{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--t4-coral);white-space:nowrap;}
+  .mkt-h{font-family:'DM Serif Display',serif;font-size:16.5px;line-height:1.35;}
+  .stats{display:grid;grid-template-columns:repeat(6,1fr);border-top:1px solid var(--t4-border);}
+  .stat{padding:13px 12px 11px;border-right:1px solid var(--t4-border);}
+  .stat:last-child{border-right:none;}
+  .stat .n{font-family:'DM Serif Display',serif;font-size:24px;line-height:1;}
+  .stat .n em{font-style:normal;font-size:14px;color:var(--t4-muted);}
+  .stat .n.dn{color:var(--t4-coral);}
+  .stat .l{font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--t4-muted);
+    margin-top:6px;line-height:1.5;}
+  .mkt-src{font-size:9px;color:#aaa;margin-top:8px;letter-spacing:.03em;}
+
+  /* ---------- SIGNAL INTELLIGENCE band ---------- */
+  .sig{display:grid;grid-template-columns:1fr 380px;gap:36px;padding:22px 0 20px;
+    border-bottom:1px solid var(--t4-border);align-items:center;}
+  h2{font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;margin-bottom:8px;}
+  .sig-intro{font-size:13px;line-height:1.65;color:#444;margin-bottom:14px;}
+  .sig-intro b{color:var(--t4-ink);font-weight:600;}
+  .siglist{list-style:none;}
+  .siglist li{display:flex;gap:11px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--t4-border);}
+  .siglist li:last-child{border-bottom:none;}
+  .swatch{flex:0 0 10px;width:10px;height:10px;border-radius:50%;position:relative;top:1px;}
+  .siglist .st{font-size:12px;font-weight:700;letter-spacing:.02em;white-space:nowrap;}
+  .siglist .sd{font-size:11.5px;line-height:1.5;color:#666;}
+  .radar-wrap{text-align:center;}
+  .radar-cap{font-size:10px;color:var(--t4-muted);letter-spacing:.1em;text-transform:uppercase;margin-top:6px;}
+
+  /* ---------- body grid ---------- */
+  .grid{display:grid;grid-template-columns:1.12fr .88fr;}
+  .col{padding:20px 0;}
+  .col.left{padding-right:30px;border-right:1px solid var(--t4-border);}
+  .col.right{padding-left:30px;}
+  .sec{margin-bottom:18px;}
+  .sec p{font-size:13px;line-height:1.65;color:#444;}
+  .sec p b{color:var(--t4-ink);font-weight:600;}
+
+  /* pipeline */
+  .pipe{display:flex;gap:0;margin-top:12px;}
+  .pstep{flex:1;padding:11px 11px 10px;border:1px solid var(--t4-border);background:var(--t4-bg);position:relative;}
+  .pstep+.pstep{margin-left:16px;}
+  .pstep+.pstep::before{content:"→";position:absolute;left:-14px;top:50%;transform:translateY(-50%);
+    color:var(--t4-periwinkle);font-size:13px;font-weight:700;}
+  .pstep .t{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+  .pstep .t i{font-style:normal;color:var(--t4-periwinkle);margin-right:4px;}
+  .pstep .d{font-size:11px;line-height:1.5;color:#555;}
+
+  .insight{border-left:3px solid var(--t4-periwinkle);padding:3px 0 3px 15px;margin-top:13px;}
+  .insight p{font-family:'DM Serif Display',serif;font-style:italic;font-size:14.5px;line-height:1.5;color:var(--t4-ink);}
+
+  /* candor block */
+  .candor{background:var(--t4-ink);color:#eee;padding:17px 20px;margin:2px 0 0;}
+  .candor .ck{font-size:9.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--t4-gold);margin-bottom:7px;}
+  .candor h3{font-family:'DM Serif Display',serif;font-size:16.5px;font-weight:400;line-height:1.35;margin-bottom:7px;color:#fff;}
+  .candor p{font-size:12px;line-height:1.6;color:#bbb;}
+  .candor p b{color:#fff;font-weight:600;}
+
+  /* moat list */
+  .moat{list-style:none;margin-top:10px;}
+  .moat li{font-size:12.5px;line-height:1.55;color:#444;padding:8px 0;border-bottom:1px solid var(--t4-border);}
+  .moat li:last-child{border-bottom:none;}
+  .moat b{display:block;font-size:12px;color:var(--t4-ink);font-weight:600;margin-bottom:1px;}
+
+  /* roadmap */
+  .rmap{margin-top:10px;}
+  .rrow{display:flex;gap:13px;padding:8px 0;border-bottom:1px solid var(--t4-border);align-items:baseline;}
+  .rrow:last-child{border-bottom:none;}
+  .rtag{flex:0 0 50px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--t4-periwinkle);text-transform:uppercase;}
+  .rtxt{font-size:12px;line-height:1.5;color:#444;}
+  .rtxt b{color:var(--t4-ink);font-weight:600;}
+
+  /* footer / CTA */
+  .cta{border-top:2px solid var(--t4-ink);padding-top:14px;display:flex;
+    justify-content:space-between;align-items:center;gap:24px;}
+  .cta .msg{font-family:'DM Serif Display',serif;font-size:15.5px;line-height:1.4;max-width:580px;}
+  .cta .who{text-align:right;font-size:10.5px;line-height:1.65;color:var(--t4-muted);white-space:nowrap;}
+  .cta .who b{display:block;color:var(--t4-ink);font-size:11.5px;letter-spacing:.02em;}
+
+  @media (max-width:820px){
+    .page{padding:28px 20px;}
+    h1{font-size:30px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .stat:nth-child(2){border-right:none;}
+    .stat:nth-child(-n+2){border-bottom:1px solid var(--t4-border);}
+    .sig{grid-template-columns:1fr;}
+    .grid{grid-template-columns:1fr;}
+    .col.left{border-right:none;padding-right:0;border-bottom:1px solid var(--t4-border);}
+    .col.right{padding-left:0;}
+    .pipe{flex-direction:column;}
+    .pstep+.pstep{margin-left:0;margin-top:15px;}
+    .pstep+.pstep::before{content:"↓";left:50%;top:-14px;transform:translateX(-50%);}
+    .cta{flex-direction:column;align-items:flex-start;}
+    .cta .who{text-align:left;white-space:normal;}
+  }
+  @media print{
+    body{background:#fff;}
+    .page{border:none;padding:16px 24px;min-height:0;max-width:100%;}
+    h1{font-size:30px;}
+    .hero{padding:16px 0 14px;}
+    .sig{padding:16px 0 14px;}
+    .candor,.swatch,.tc-post,.tc-badge,.tc-sig i,.ga-bar,.leg-dot,.fm .fc,.db-dot,.db-line{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .pg2{page-break-before:always;}
+    .viz,.sig,.candor,.mkt,.hero,.tc,.cta,.grid .sec,.rr,.fm-wrap{break-inside:avoid;}
+    .p2-hero{break-after:avoid;}
+    @page{margin:0.35in;}
+  }
+
+  /* ================= PAGE 2 — VISUALIZATIONS ================= */
+  .pg2{padding-top:36px;}
+  .p2-hero{padding:20px 0 14px;border-bottom:1px solid var(--t4-border);margin-bottom:6px;}
+  .p2-hero h1{font-size:32px;}
+  .p2-hero p{font-size:13px;line-height:1.65;color:#444;max-width:720px;margin-top:8px;}
+  .viz{padding:18px 0 16px;border-bottom:1px solid var(--t4-border);}
+  .viz:last-of-type{border-bottom:none;}
+  .viz-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:4px;}
+  .viz-head .vt{font-family:'DM Serif Display',serif;font-size:18px;}
+  .viz-head .vc{font-size:10px;color:var(--t4-muted);letter-spacing:.08em;text-transform:uppercase;text-align:right;}
+  .viz-sub{font-size:12px;color:#555;line-height:1.55;margin-bottom:14px;max-width:760px;}
+  .viz2{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+
+  /* legend */
+  .leg{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;}
+  .leg span{font-size:10px;color:#555;display:flex;align-items:center;gap:5px;letter-spacing:.03em;}
+  .leg-dot{width:8px;height:8px;border-radius:2px;display:inline-block;}
+
+  /* slate title cards */
+  .rail{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;}
+  .tc{border:1px solid var(--t4-border);background:#fff;display:flex;flex-direction:column;}
+  .tc-post{position:relative;height:108px;display:flex;align-items:center;justify-content:center;}
+  .tc-post .em{font-size:46px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));}
+  .tc-genre{position:absolute;top:7px;left:7px;background:rgba(255,255,255,.94);border-radius:9px;
+    font-size:8px;font-weight:700;padding:2.5px 7px;letter-spacing:.08em;color:#111;}
+  .tc-badge{position:absolute;bottom:7px;right:7px;width:29px;height:29px;border-radius:50%;
+    background:#111;color:#fff;display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:11.5px;border:2px solid #fff;font-variant-numeric:tabular-nums;}
+  .tc-badge.miss{background:var(--t4-coral);}
+  .tc-body{padding:9px 10px 10px;display:flex;flex-direction:column;gap:7px;flex:1;}
+  .tc-title{font-family:'DM Serif Display',serif;font-size:13.5px;line-height:1.15;}
+  .tc-yr{font-size:9px;color:var(--t4-muted);margin-top:1px;}
+  .tc-fin{display:grid;gap:2.5px;margin-top:auto;}
+  .tc-fin div{display:flex;justify-content:space-between;font-size:9px;color:#666;}
+  .tc-fin b{color:#111;font-weight:700;font-variant-numeric:tabular-nums;}
+  .tc-fin .mult b{font-size:10.5px;}
+  .tc-fin .mult.up b{color:#199a90;}
+  .tc-fin .mult.dn b{color:#e05555;}
+  .tc-sig{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;}
+  .tc-sig i{height:14px;display:flex;align-items:center;justify-content:center;font-style:normal;
+    font-size:7.5px;font-weight:700;color:#1a1a1a;font-variant-numeric:tabular-nums;}
+  @media (max-width:820px){.rail{grid-template-columns:repeat(2,1fr);}}
+  .thresh-note{font-size:10px;color:var(--t4-muted);margin-top:8px;}
+
+  /* genre arbitrage */
+  .ga{display:grid;gap:9px;}
+  .ga-row{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:center;}
+  .ga-name{font-size:11px;font-weight:600;}
+  .ga-name .tag{display:inline-block;font-size:8.5px;font-weight:700;color:var(--t4-teal);
+    border:1px solid var(--t4-teal);border-radius:2px;padding:0 3px;margin-left:4px;letter-spacing:.05em;position:relative;top:-1px;}
+  .ga-bars{display:grid;gap:3px;}
+  .ga-track{position:relative;height:9px;background:var(--t4-bg);}
+  .ga-bar{position:absolute;left:0;top:0;height:100%;}
+  .ga-val{position:absolute;top:-1px;font-size:8.5px;color:#777;line-height:11px;}
+
+  /* poster images */
+  .tc-post img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .tc-post{height:150px;overflow:hidden;}
+  .tc-post .em{position:relative;z-index:0;}
+  .tc-post img{z-index:1;}
+  .tc-genre,.tc-badge{z-index:2;}
+  /* genre dumbbells (real data) */
+  .db{display:grid;gap:16px;margin-top:6px;}
+  .db-row .db-name{font-size:11px;font-weight:700;margin-bottom:5px;}
+  .db-name .dir{font-size:9px;font-weight:700;letter-spacing:.06em;margin-left:6px;}
+  .db-name .dir.up{color:#e05555;} .db-name .dir.dn{color:#199a90;}
+  .db-track{position:relative;height:22px;}
+  .db-axis{position:absolute;left:0;right:0;top:10px;height:2px;background:var(--t4-bg);}
+  .db-line{position:absolute;top:9px;height:4px;border-radius:2px;}
+  .db-dot{position:absolute;top:3px;width:16px;height:16px;border-radius:50%;border:2.5px solid #fff;
+    box-shadow:0 0 0 1px var(--t4-border);}
+  .db-lab{position:absolute;top:-6px;font-size:8.5px;font-weight:700;color:#555;transform:translateX(-50%);}
+  .db-lab b{display:block;font-size:9.5px;color:#111;text-align:center;}
+  /* real-reads strip */
+  .rr{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--t4-border);margin-top:16px;}
+  .rr div{padding:10px 14px 8px;border-right:1px solid var(--t4-border);}
+  .rr div:last-child{border-right:none;}
+  .rr .n{font-family:'DM Serif Display',serif;font-size:19px;}
+  .rr .l{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--t4-muted);margin-top:3px;line-height:1.5;}
+  /* feature matrix */
+  .fm-wrap{display:grid;grid-template-columns:340px 1fr;gap:36px;align-items:start;}
+  .fm{display:grid;grid-template-columns:64px repeat(8,1fr);gap:2.5px;font-variant-numeric:tabular-nums;}
+  .fm .fh{font-size:8px;font-weight:700;letter-spacing:.03em;color:#666;display:flex;align-items:flex-end;justify-content:center;
+    padding-bottom:2px;text-transform:uppercase;}
+  .fm .fr{font-size:8px;font-weight:700;letter-spacing:.03em;color:#666;display:flex;align-items:center;justify-content:flex-end;
+    padding-right:5px;text-transform:uppercase;}
+  .fm .fc{height:26px;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:600;color:#1a1a1a;}
+  .viz-foot{font-size:9px;color:#aaa;margin-top:12px;letter-spacing:.03em;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="mast">
+    <div class="brand"><span>HIT Predictor</span> · Audience Signal Intelligence</div>
+    <div class="mast-right">Audience Signal Intelligence · Business One-Pager · v1.3<br>Confidential · August 2026</div>
+  </div>
+
+  <div class="hero">
+    <div class="kicker">Audience Signal Intelligence — money-balling content, productized</div>
+    <h1>Increase your hit rate with Audience Signal Intelligence.</h1>
+    <p>Every year, billions in acquisition, licensing, and greenlight decisions are made on gut feel,
+    comps, and star power. <b>HIT Predictor</b> decodes the narrative DNA of a title — conflict,
+    stakes, warmth, hook, tone arc — and reads it against verified commercial performance across the
+    largest certified content-identity spine in the industry. The output is an <b>Audience Signal
+    Intelligence profile</b>: five forward-looking predictions per title, one instrument. That's
+    not a comps deck. That's a trading terminal for content.</p>
+  </div>
+
+  <div class="mkt">
+    <div class="mkt-lede">
+      <span class="mkt-k">Why now</span>
+      <span class="mkt-h">Supply is finite. Production is unaffordable. Demand is winner-take-all.
+      The margin for gut-feel greenlighting is gone.</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n">735<em>K</em></div><div class="l">Movies catalogued globally</div></div>
+      <div class="stat"><div class="n">360<em>K</em></div><div class="l">TV series &amp; minis catalogued globally</div></div>
+      <div class="stat"><div class="n dn">−46<em>%</em></div><div class="l">LA shoot days since 2022 (36.8K → 19.7K)</div></div>
+      <div class="stat"><div class="n dn">$25<em>B+</em></div><div class="l">Content write-downs across major studios</div></div>
+      <div class="stat"><div class="n">108<em>B</em></div><div class="l">1H'26 streaming minutes — concentrated in just 5 titles</div></div>
+      <div class="stat"><div class="n">$289<em>B</em></div><div class="l">Global content market up for grabs</div></div>
+    </div>
+    <div class="mkt-src">Sources: global title registry (Dec 2025) · FilmLA / ProdPro production tracking · national streaming measurement, 1H 2026 · SEC 10-K filings · #ShivSpeaks: "The Merger Paradox" &amp; "Media Freakanomics: The Genre Arbitrage" (2026)</div>
+  </div>
+
+  <!-- ============ SIGNAL INTELLIGENCE ============ -->
+  <div class="sig">
+    <div>
+      <h2>The Audience Signal Intelligence profile</h2>
+      <p class="sig-intro">One title in, five predictions out — each modeled against the ground
+      truth already fused on the spine: <b>theatrical economics, audience viewership, ad
+      delivery, streaming demand, and social conversation</b>, all resolved to a single certified
+      identity per title.</p>
+      <ul class="siglist">
+        <li><span class="swatch" style="background:var(--t4-gold)"></span>
+          <span class="st">Box Office</span>
+          <span class="sd">Theatrical revenue &amp; budget-multiplier band, from content-DNA and talent-value economics</span></li>
+        <li><span class="swatch" style="background:var(--t4-violet)"></span>
+          <span class="st">Licensing</span>
+          <span class="sd">Downstream library &amp; catalog value — window-by-window revenue potential</span></li>
+        <li><span class="swatch" style="background:var(--t4-coral)"></span>
+          <span class="st">Linear Ad</span>
+          <span class="sd">Ad-supported delivery &amp; monetizable audience across national telecast windows</span></li>
+        <li><span class="swatch" style="background:var(--t4-periwinkle)"></span>
+          <span class="st">SVOD</span>
+          <span class="sd">Streaming viewership demand &amp; retention contribution by platform profile</span></li>
+        <li><span class="swatch" style="background:var(--t4-teal)"></span>
+          <span class="st">Social</span>
+          <span class="sd">Engagement velocity, share of voice &amp; buzz durability across social platforms</span></li>
+      </ul>
+    </div>
+    <div class="radar-wrap">
+      <svg viewBox="0 0 340 320" width="100%" style="max-width:360px" role="img"
+           aria-label="Audience Signal Intelligence radar: five prediction axes for a sample title">
+        <!-- grid rings -->
+        <g fill="none" stroke="#e8e8e4" stroke-width="1">
+          <polygon points="170,40 284.1,122.9 240.6,257.1 99.4,257.1 55.9,122.9"/>
+          <polygon points="170,70 255.6,132.2 222.9,232.8 117.1,232.8 84.4,132.2"/>
+          <polygon points="170,100 227.1,141.5 205.3,208.6 134.7,208.6 112.9,141.5"/>
+          <polygon points="170,130 198.5,150.7 187.6,184.3 152.4,184.3 141.5,150.7"/>
+        </g>
+        <!-- axes -->
+        <g stroke="#e8e8e4" stroke-width="1">
+          <line x1="170" y1="160" x2="170" y2="40"/>
+          <line x1="170" y1="160" x2="284.1" y2="122.9"/>
+          <line x1="170" y1="160" x2="240.6" y2="257.1"/>
+          <line x1="170" y1="160" x2="99.4" y2="257.1"/>
+          <line x1="170" y1="160" x2="55.9" y2="122.9"/>
+        </g>
+        <!-- data polygon -->
+        <polygon points="170,61.6 243.0,136.3 220.1,228.9 107.9,245.4 83.3,131.8"
+                 fill="rgba(108,99,255,0.13)" stroke="#6C63FF" stroke-width="2" stroke-linejoin="round"/>
+        <!-- data points -->
+        <circle cx="170"   cy="61.6"  r="5" fill="#FFB347" stroke="#fff" stroke-width="1.5"/>
+        <circle cx="243.0" cy="136.3" r="5" fill="#B388FF" stroke="#fff" stroke-width="1.5"/>
+        <circle cx="220.1" cy="228.9" r="5" fill="#FF6B6B" stroke="#fff" stroke-width="1.5"/>
+        <circle cx="107.9" cy="245.4" r="5" fill="#6C63FF" stroke="#fff" stroke-width="1.5"/>
+        <circle cx="83.3"  cy="131.8" r="5" fill="#4ECDC4" stroke="#fff" stroke-width="1.5"/>
+        <!-- axis labels -->
+        <g font-family="Inter,sans-serif" font-size="11" font-weight="700" fill="#111">
+          <text x="170"   y="27"  text-anchor="middle">BOX OFFICE</text>
+          <text x="292"   y="117" text-anchor="start">LICENSING</text>
+          <text x="248"   y="274" text-anchor="middle">LINEAR AD</text>
+          <text x="94"    y="274" text-anchor="middle">SVOD</text>
+          <text x="48"    y="117" text-anchor="end">SOCIAL</text>
+        </g>
+        <!-- score labels -->
+        <g font-family="Inter,sans-serif" font-size="9.5" font-weight="600" fill="#888">
+          <text x="182" y="64"  text-anchor="start">82</text>
+          <text x="250" y="151" text-anchor="start">64</text>
+          <text x="230" y="243" text-anchor="middle">71</text>
+          <text x="98"  y="240" text-anchor="end">88</text>
+          <text x="76"  y="126" text-anchor="end">76</text>
+        </g>
+      </svg>
+      <div class="radar-cap">Illustrative signal profile · sample title · 0–100 signal index per surface</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="col left">
+
+      <div class="sec">
+        <h2>How it works</h2>
+        <p>The hard problem was never the model — it's the join. Connecting a title's creative
+        attributes to its true commercial performance across fragmented ID systems is where every
+        prior attempt died. HIT Predictor's <b>12.96M-row certified identity spine</b> solves it — a certified
+        220K-title candidate pool, with title-integrity guards that caught and rejected a 25.6%
+        bad-match rate that would silently poison anyone else's model.</p>
+        <div class="pipe">
+          <div class="pstep"><div class="t"><i>01</i>Resolve</div>
+            <div class="d">Every title dual-anchored across metadata, industry ID registries, audience measurement, and social identity — Class-A certified crosswalks, not fuzzy guesses.</div></div>
+          <div class="pstep"><div class="t"><i>02</i>Decode</div>
+            <div class="d">LLM + heuristic extraction of narrative features from title text: conflict density, stakes, warmth, humor, darkness, hook, 3-act valence arcs.</div></div>
+          <div class="pstep"><div class="t"><i>03</i>Signal</div>
+            <div class="d">Features modeled against fused ground truth on each surface — theatrical economics, ad delivery, streaming demand, social velocity — into the five-signal profile.</div></div>
+        </div>
+        <div class="insight">
+          <p>The spine is the moat. Anyone can prompt an LLM about a script. Only HIT Predictor can
+          test the answer against what audiences — and markets — actually did.</p>
+        </div>
+      </div>
+
+      <div class="candor">
+        <div class="ck">Where it stands — and why we publish it</div>
+        <h3>The v0.1 pilot found real signal in summary text — and proved it isn't enough.</h3>
+        <p>Nearly 10,000 titles scored across two runs on the linear-audience surface.
+        Marketing-copy proxies produce <b>replicable but small</b> effects (&lt;2% of variance) —
+        a finding most vendors would bury. We publish it, because it defines the build: the levers
+        are <b>script-level text, per-demographic targets, and time-series windows</b> — all on
+        the spine already. Candor is the credibility. The same discipline — title-integrity
+        guards, certified crosswalks, dedup audits — is what makes every signal trustable
+        when it lands.</p>
+      </div>
+
+    </div>
+    <div class="col right">
+
+      <div class="sec">
+        <h2>Why this team</h2>
+        <ul class="moat">
+          <li><b>The concept has shipped before.</b> The founder architected trait-based movie-performance
+          prediction inside a top-5 US media company — deployed against a live daytime acquisition
+          slate — and built audience forecasting engines running at 95%+ daily accuracy in production.</li>
+          <li><b>Award-winning methodology.</b> INFORMS Practice Award and FICO Decisions Award for
+          ML and optimization systems generating nine years of measured revenue lift on national television.</li>
+          <li><b>Clean, owned IP.</b> The Parent Key identity spine and matching methodology are
+          first-time commercial implementations — no legacy licenses, no encumbrances.</li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h2>Roadmap to v1</h2>
+        <div class="rmap">
+          <div class="rrow"><div class="rtag">Now</div><div class="rtxt"><b>Scale on the promoted pool.</b> Re-run scoring against the certified 220K-title candidate set; light up box-office and social surfaces already fused on the spine.</div></div>
+          <div class="rrow"><div class="rtag">Next</div><div class="rtxt"><b>Script-level text.</b> Replace summary proxies with dialogue and screenplay features — where the narrative signal actually lives.</div></div>
+          <div class="rrow"><div class="rtag">Then</div><div class="rtxt"><b>Per-demo &amp; per-window models.</b> Segment-level audience targets and window-by-window licensing value, not blended totals that average the signal away.</div></div>
+          <div class="rrow"><div class="rtag">v1</div><div class="rtxt"><b>The Audience Signal Intelligence instrument.</b> Five-signal slate-scoring API + bankability index inside the terminal.</div></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h2>Who it's for</h2>
+        <p><b>Content creators</b> — networks, streamers, and studios pressure-testing greenlights
+        and pricing library acquisitions. <b>Distributors</b> valuing catalogs window by window.
+        Anywhere a seven-figure content decision currently rests on a comps slide.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="cta">
+    <div class="msg">Seeking 4 individuals to co-develop the Audience Signal Intelligence
+    platform.</div>
+    <div class="who"><b>Shiv Ashish Sehgal</b>Founder<br>Former CPO, RSG Media · UCLA-NUS EMBA</div>
+  </div>
+
+</div>
+
+<!-- ==================== PAGE 2 — SIGNAL INTELLIGENCE IN ACTION ==================== -->
+<div class="page pg2">
+
+  <div class="mast">
+    <div class="brand"><span>HIT Predictor</span> · Audience Signal Intelligence</div>
+    <div class="mast-right">Audience Signal Intelligence in Action · Page 2<br>Illustrative outputs · August 2026</div>
+  </div>
+
+  <div class="p2-hero">
+    <h1>What the instrument shows you.</h1>
+    <p>Five working views from the Audience Signal Intelligence terminal — how a slate, a deal, a genre
+    strategy, and a single title's revenue stack look when the gut-feel is replaced with signal.
+    Real spine data where marked; illustrative where marked.</p>
+  </div>
+
+  <!-- ============ V1: SLATE VIEW ============ -->
+  <div class="viz">
+    <div class="viz-head">
+      <div class="vt">The Slate View — signal on real titles</div>
+      <div class="vc">Budget · box office · multiple (public figures) · signal profile 0–100</div>
+    </div>
+    <div class="viz-sub">Six recent theatricals read through the instrument. The economics are
+    real; the lesson is the moneyball one — <b>budget doesn't predict the multiple, signal
+    does</b>. A $100M animated title returned 13.6&times; while a $275M tentpole returned
+    0.7&times;. Cost is what you pay; signal is what you get.</div>
+    <div class="leg">
+      <span><i class="leg-dot" style="background:var(--t4-gold)"></i>Box Office</span>
+      <span><i class="leg-dot" style="background:var(--t4-violet)"></i>Licensing</span>
+      <span><i class="leg-dot" style="background:var(--t4-coral)"></i>Linear Ad</span>
+      <span><i class="leg-dot" style="background:var(--t4-periwinkle)"></i>SVOD</span>
+      <span><i class="leg-dot" style="background:var(--t4-teal)"></i>Social</span>
+    </div>
+    <div class="rail">
+
+      <div class="tc">
+        <div class="tc-post" style="background:linear-gradient(135deg,#E52521,#3B6FD6)">
+          <span class="tc-genre">ANIMATION</span><img src="https://image.tmdb.org/t/p/w342/qNBAXBIQlnOThrVvA6mA2B5ggV6.jpg" alt="The Super Mario Bros. Movie poster" loading="lazy" onerror="this.style.display='none'"><span class="em">&#127812;</span>
+          <span class="tc-badge">88</span>
+        </div>
+        <div class="tc-body">
+          <div><div class="tc-title">The Super Mario Bros. Movie</div><div class="tc-yr">2023 &middot; Family adventure</div></div>
+          <div class="tc-fin">
+            <div><span>Budget</span><b>$100M</b></div>
+            <div><span>Box office</span><b>$1.36B</b></div>
+            <div class="mult up"><span>Multiple</span><b>13.6&times;</b></div>
+          </div>
+          <div class="tc-sig">
+            <i style="background:rgba(255,179,71,.87)">96</i>
+            <i style="background:rgba(179,136,255,.80)">88</i>
+            <i style="background:rgba(255,107,107,.67)">74</i>
+            <i style="background:rgba(108,99,255,.84);color:#fff">92</i>
+            <i style="background:rgba(78,205,196,.82)">90</i>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc">
+        <div class="tc-post" style="background:linear-gradient(135deg,#FF6F9C,#FFC2D1)">
+          <span class="tc-genre">COMEDY</span><img src="https://image.tmdb.org/t/p/w342/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg" alt="Barbie poster" loading="lazy" onerror="this.style.display='none'"><span class="em">&#127872;</span>
+          <span class="tc-badge">85</span>
+        </div>
+        <div class="tc-body">
+          <div><div class="tc-title">Barbie</div><div class="tc-yr">2023 &middot; Event comedy</div></div>
+          <div class="tc-fin">
+            <div><span>Budget</span><b>$145M</b></div>
+            <div><span>Box office</span><b>$1.45B</b></div>
+            <div class="mult up"><span>Multiple</span><b>10.0&times;</b></div>
+          </div>
+          <div class="tc-sig">
+            <i style="background:rgba(255,179,71,.82)">90</i>
+            <i style="background:rgba(179,136,255,.75)">82</i>
+            <i style="background:rgba(255,107,107,.64)">70</i>
+            <i style="background:rgba(108,99,255,.80);color:#fff">88</i>
+            <i style="background:rgba(78,205,196,.86)">95</i>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc">
+        <div class="tc-post" style="background:linear-gradient(135deg,#0E1726,#4ECDC4)">
+          <span class="tc-genre">ACTION</span><img src="https://image.tmdb.org/t/p/w342/62HCnUTziyWcpDaBO2i1DX17ljH.jpg" alt="Top Gun: Maverick poster" loading="lazy" onerror="this.style.display='none'"><span class="em">&#9992;&#65039;</span>
+          <span class="tc-badge">85</span>
+        </div>
+        <div class="tc-body">
+          <div><div class="tc-title">Top Gun: Maverick</div><div class="tc-yr">2022 &middot; Legacy sequel</div></div>
+          <div class="tc-fin">
+            <div><span>Budget</span><b>$170M</b></div>
+            <div><span>Box office</span><b>$1.50B</b></div>
+            <div class="mult up"><span>Multiple</span><b>8.8&times;</b></div>
+          </div>
+          <div class="tc-sig">
+            <i style="background:rgba(255,179,71,.84)">92</i>
+            <i style="background:rgba(179,136,255,.82)">90</i>
+            <i style="background:rgba(255,107,107,.76)">84</i>
+            <i style="background:rgba(108,99,255,.75);color:#fff">82</i>
+            <i style="background:rgba(78,205,196,.69)">76</i>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc">
+        <div class="tc-post" style="background:linear-gradient(135deg,#1a1a1a,#FFB347)">
+          <span class="tc-genre">DRAMA</span><img src="https://image.tmdb.org/t/p/w342/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg" alt="Oppenheimer poster" loading="lazy" onerror="this.style.display='none'"><span class="em">&#9883;&#65039;</span>
+          <span class="tc-badge">83</span>
+        </div>
+        <div class="tc-body">
+          <div><div class="tc-title">Oppenheimer</div><div class="tc-yr">2023 &middot; Prestige biopic</div></div>
+          <div class="tc-fin">
+            <div><span>Budget</span><b>$100M</b></div>
+            <div><span>Box office</span><b>$976M</b></div>
+            <div class="mult up"><span>Multiple</span><b>9.8&times;</b></div>
+          </div>
+          <div class="tc-sig">
+            <i style="background:rgba(255,179,71,.80)">88</i>
+            <i style="background:rgba(179,136,255,.76)">84</i>
+            <i style="background:rgba(255,107,107,.65)">72</i>
+            <i style="background:rgba(108,99,255,.78);color:#fff">86</i>
+            <i style="background:rgba(78,205,196,.76)">84</i>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc">
+        <div class="tc-post" style="background:linear-gradient(135deg,#123C69,#6C63FF)">
+          <span class="tc-genre">SCI-FI</span><img src="https://image.tmdb.org/t/p/w342/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg" alt="Avatar: The Way of Water poster" loading="lazy" onerror="this.style.display='none'"><span class="em">&#127754;</span>
+          <span class="tc-badge">76</span>
+        </div>
+        <div class="tc-body">
+          <div><div class="tc-title">Avatar: The Way of Water</div><div class="tc-yr">2022 &middot; Franchise epic</div></div>
+          <div class="tc-fin">
+            <div><span>Budget</span><b>$350M</b></div>
+            <div><span>Box office</span><b>$2.32B</b></div>
+            <div class="mult up"><span>Multiple</span><b>6.6&times;</b></div>
+          </div>
+          <div class="tc-sig">
+            <i style="background:rgba(255,179,71,.76)">84</i>
+            <i style="background:rgba(179,136,255,.73)">80</i>
+            <i style="background:rgba(255,107,107,.60)">66</i>
+            <i style="background:rgba(108,99,255,.71);color:#fff">78</i>
+            <i style="background:rgba(78,205,196,.65)">72</i>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc">
+        <div class="tc-post" style="background:linear-gradient(135deg,#2a2350,#B388FF)">
+          <span class="tc-genre">ACTION</span><img src="https://image.tmdb.org/t/p/w342/9GBhzXMFjgcZ3FdR9w3bUMMTps5.jpg" alt="The Marvels poster" loading="lazy" onerror="this.style.display='none'"><span class="em">&#128171;</span>
+          <span class="tc-badge miss">38</span>
+        </div>
+        <div class="tc-body">
+          <div><div class="tc-title">The Marvels</div><div class="tc-yr">2023 &middot; Franchise entry</div></div>
+          <div class="tc-fin">
+            <div><span>Budget</span><b>$275M</b></div>
+            <div><span>Box office</span><b>$206M</b></div>
+            <div class="mult dn"><span>Multiple</span><b>0.7&times;</b></div>
+          </div>
+          <div class="tc-sig">
+            <i style="background:rgba(255,179,71,.27)">30</i>
+            <i style="background:rgba(179,136,255,.38)">42</i>
+            <i style="background:rgba(255,107,107,.35)">38</i>
+            <i style="background:rgba(108,99,255,.40)">44</i>
+            <i style="background:rgba(78,205,196,.33)">36</i>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="thresh-note">Budget and worldwide box office per The Numbers / Box Office Mojo (approx.; Avatar WoW budget estimates range $350&ndash;400M). Poster imagery via TMDB. Signal
+    profiles and composite badges are illustrative back-scores, not live model output &mdash; the
+    demonstration is the read, not the prediction.</div>
+  </div>
+
+  <!-- ============ V2 + V3: QUADRANT + GENRE ARBITRAGE ============ -->
+  <div class="viz">
+    <div class="viz2">
+      <div>
+        <div class="viz-head">
+          <div class="vt">The Deal Quadrant</div>
+          <div class="vc">Signal vs. price</div>
+        </div>
+        <div class="viz-sub">Every candidate plotted on what it costs against what the signal says
+        it's worth. The upper-left is where deals are won.</div>
+        <svg viewBox="0 0 340 235" width="100%" role="img" aria-label="Quadrant: signal index vs asking price">
+          <!-- quadrant fills -->
+          <rect x="40" y="30" width="130" height="85" fill="rgba(78,205,196,0.08)"/>
+          <rect x="170" y="145" width="130" height="55" fill="rgba(255,107,107,0.07)"/>
+          <!-- axes -->
+          <line x1="40" y1="200" x2="300" y2="200" stroke="#111" stroke-width="1.5"/>
+          <line x1="40" y1="30"  x2="40"  y2="200" stroke="#111" stroke-width="1.5"/>
+          <!-- midlines -->
+          <line x1="170" y1="30" x2="170" y2="200" stroke="#e8e8e4" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="40" y1="115" x2="300" y2="115" stroke="#e8e8e4" stroke-width="1" stroke-dasharray="3,3"/>
+          <!-- quadrant labels -->
+          <g font-family="Inter,sans-serif" font-size="9" font-weight="700" letter-spacing=".05em">
+            <text x="46" y="42" fill="#2fa89f">SIGNAL BARGAINS</text>
+            <text x="294" y="42" fill="#888" text-anchor="end">EARNED PREMIUMS</text>
+            <text x="46" y="194" fill="#bbb">CHEAP FOR A REASON</text>
+            <text x="294" y="194" fill="#e05555" text-anchor="end">OVERPRICED BETS</text>
+          </g>
+          <!-- points -->
+          <g stroke="#fff" stroke-width="1.2">
+            <circle cx="86.8"  cy="60.6"  r="6" fill="#4ECDC4"/>
+            <circle cx="107.6" cy="74.2"  r="5" fill="#4ECDC4"/>
+            <circle cx="128.4" cy="84.4"  r="5" fill="#4ECDC4"/>
+            <circle cx="201.2" cy="65.7"  r="6" fill="#6C63FF"/>
+            <circle cx="232.4" cy="79.3"  r="5" fill="#6C63FF"/>
+            <circle cx="97.2"  cy="135.4" r="4" fill="#cccccc"/>
+            <circle cx="131"   cy="149"   r="4" fill="#cccccc"/>
+            <circle cx="190.8" cy="142.2" r="5" fill="#FF6B6B"/>
+            <circle cx="227.2" cy="128.6" r="5" fill="#FF6B6B"/>
+            <circle cx="261"   cy="152.4" r="6" fill="#FF6B6B"/>
+          </g>
+          <!-- axis labels -->
+          <g font-family="Inter,sans-serif" font-size="9" fill="#888">
+            <text x="170" y="216" text-anchor="middle">ASKING PRICE →</text>
+            <text x="28" y="115" text-anchor="middle" transform="rotate(-90 28 115)">SIGNAL INDEX →</text>
+          </g>
+        </svg>
+      </div>
+      <div>
+        <div class="viz-head">
+          <div class="vt">The Genre Arbitrage</div>
+          <div class="vc">Audience demand vs. new commissions</div>
+        </div>
+        <div class="viz-sub">The industry herds into drama and reality while comedy and
+        animation audiences go underserved &mdash; the blind spot the signal exposes, title by
+        title. <b>The real spine read backs it (n=206,766 series):</b> comedy's share of new
+        series nearly halved 2010&rarr;2025 while drama's more than doubled &mdash; and drama
+        converts to a second season less often.</div>
+        <div class="leg">
+          <span><i class="leg-dot" style="background:#111"></i>Audience demand share</span>
+          <span><i class="leg-dot" style="background:var(--t4-coral)"></i>New-commission share</span>
+        </div>
+        <div class="ga">
+          <div class="ga-row"><div class="ga-name">Drama</div>
+            <div class="ga-bars">
+              <div class="ga-track"><div class="ga-bar" style="width:48%;background:#111"></div><span class="ga-val" style="left:50%">24%</span></div>
+              <div class="ga-track"><div class="ga-bar" style="width:76%;background:var(--t4-coral)"></div><span class="ga-val" style="left:78%">38%</span></div>
+            </div></div>
+          <div class="ga-row"><div class="ga-name">Reality</div>
+            <div class="ga-bars">
+              <div class="ga-track"><div class="ga-bar" style="width:36%;background:#111"></div><span class="ga-val" style="left:38%">18%</span></div>
+              <div class="ga-track"><div class="ga-bar" style="width:52%;background:var(--t4-coral)"></div><span class="ga-val" style="left:54%">26%</span></div>
+            </div></div>
+          <div class="ga-row"><div class="ga-name">Comedy<span class="tag">ARB</span></div>
+            <div class="ga-bars">
+              <div class="ga-track"><div class="ga-bar" style="width:44%;background:#111"></div><span class="ga-val" style="left:46%">22%</span></div>
+              <div class="ga-track"><div class="ga-bar" style="width:24%;background:var(--t4-coral)"></div><span class="ga-val" style="left:26%">12%</span></div>
+            </div></div>
+          <div class="ga-row"><div class="ga-name">Animation &amp; Kids<span class="tag">ARB</span></div>
+            <div class="ga-bars">
+              <div class="ga-track"><div class="ga-bar" style="width:32%;background:#111"></div><span class="ga-val" style="left:34%">16%</span></div>
+              <div class="ga-track"><div class="ga-bar" style="width:16%;background:var(--t4-coral)"></div><span class="ga-val" style="left:18%">8%</span></div>
+            </div></div>
+          <div class="ga-row"><div class="ga-name">Action<span class="tag">ARB</span></div>
+            <div class="ga-bars">
+              <div class="ga-track"><div class="ga-bar" style="width:28%;background:#111"></div><span class="ga-val" style="left:30%">14%</span></div>
+              <div class="ga-track"><div class="ga-bar" style="width:18%;background:var(--t4-coral)"></div><span class="ga-val" style="left:20%">9%</span></div>
+            </div></div>
+          <div class="ga-row"><div class="ga-name">Other</div>
+            <div class="ga-bars">
+              <div class="ga-track"><div class="ga-bar" style="width:12%;background:#111"></div><span class="ga-val" style="left:14%">6%</span></div>
+              <div class="ga-track"><div class="ga-bar" style="width:14%;background:var(--t4-coral)"></div><span class="ga-val" style="left:16%">7%</span></div>
+            </div></div>
+        </div>
+      </div>
+    </div>
+    <div class="rr">
+      <div><div class="n">&rho; = 0.13</div><div class="l">Catalogue popularity vs measured audience &mdash; uninformative. The industry's favorite metric doesn't predict viewing.</div></div>
+      <div><div class="n">~8&times;</div><div class="l">Pre-1990 scripted library vs 2010+ originals, median audience per telecast (summer window)</div></div>
+      <div><div class="n">82.7%</div><div class="l">Of all viewing minutes come from the heaviest one-fifth of viewers</div></div>
+    </div>
+    <div class="viz-foot">Demand/commission shares are directional, per published #ShivSpeaks analysis; the comedy/drama
+    supply shift and the three reads above are measured on the platform's identity spine (2026 windows;
+    unit-free ratios and shares; direction-level claims; genre tags are multi-label). Quadrant
+    remains illustrative.</div>
+  </div>
+
+
+  <!-- ============ V3.5: FEATURE ANALYSIS ============ -->
+  <div class="viz">
+    <div class="fm-wrap">
+      <div>
+        <div class="viz-head" style="margin-bottom:8px">
+          <div class="vt">The Feature DNA</div>
+        </div>
+        <div class="viz-sub" style="margin-bottom:10px"><b>Live output from the n=43 scored pilot
+        &mdash; real, not illustrative.</b> Every title is decoded into eight narrative features;
+        this is how they relate to each other. Conflict and darkness travel together (&rho;&nbsp;0.94);
+        warmth cuts against both; humor stands alone.</div>
+        <div class="viz-sub" style="margin-bottom:0">This matrix is the QC layer of the instrument.
+        Before a feature is trusted in a signal model, we measure what it actually captures &mdash;
+        including the honest finding that features extracted from the same text co-move, and that
+        none alone predicts delivery yet. Knowing that is the difference between a model and a
+        vibe.</div>
+      </div>
+      <div>
+        <div class="viz-head" style="margin-bottom:8px">
+          <div class="vc" style="text-align:left">Feature-vs-feature Spearman &rho; &middot; 43 scored titles &middot; teal = co-move &middot; coral = oppose</div>
+        </div>
+        <div class="fm">
+      <div></div><div class="fh">Hook</div><div class="fh">Conflict</div><div class="fh">Em. Rng</div><div class="fh">Warmth</div><div class="fh">Darkness</div><div class="fh">Humor</div><div class="fh">Serial.</div><div class="fh">Stakes</div>
+      <div class="fr">Hook</div><div class="fc" style="background:rgba(17,17,17,.88);color:#fff">1.00</div><div class="fc" style="background:rgba(78,205,196,0.77)">0.91</div><div class="fc" style="background:rgba(78,205,196,0.55)">0.65</div><div class="fc" style="background:rgba(255,107,107,0.39)">&minus;0.46</div><div class="fc" style="background:rgba(78,205,196,0.76)">0.89</div><div class="fc" style="background:rgba(255,107,107,0.15)">&minus;0.18</div><div class="fc" style="background:rgba(78,205,196,0.53)">0.62</div><div class="fc" style="background:rgba(78,205,196,0.71)">0.84</div>
+      <div class="fr">Conflict</div><div class="fc" style="background:rgba(78,205,196,0.77)">0.91</div><div class="fc" style="background:rgba(17,17,17,.88);color:#fff">1.00</div><div class="fc" style="background:rgba(78,205,196,0.55)">0.65</div><div class="fc" style="background:rgba(255,107,107,0.45)">&minus;0.53</div><div class="fc" style="background:rgba(78,205,196,0.8)">0.94</div><div class="fc" style="background:rgba(255,107,107,0.16)">&minus;0.19</div><div class="fc" style="background:rgba(78,205,196,0.55)">0.65</div><div class="fc" style="background:rgba(78,205,196,0.77)">0.90</div>
+      <div class="fr">Em. Rng</div><div class="fc" style="background:rgba(78,205,196,0.55)">0.65</div><div class="fc" style="background:rgba(78,205,196,0.55)">0.65</div><div class="fc" style="background:rgba(17,17,17,.88);color:#fff">1.00</div><div class="fc" style="background:rgba(232,232,228,.6)">0.00</div><div class="fc" style="background:rgba(78,205,196,0.53)">0.62</div><div class="fc" style="background:rgba(78,205,196,0.07)">0.08</div><div class="fc" style="background:rgba(78,205,196,0.59)">0.69</div><div class="fc" style="background:rgba(78,205,196,0.4)">0.47</div>
+      <div class="fr">Warmth</div><div class="fc" style="background:rgba(255,107,107,0.39)">&minus;0.46</div><div class="fc" style="background:rgba(255,107,107,0.45)">&minus;0.53</div><div class="fc" style="background:rgba(232,232,228,.6)">0.00</div><div class="fc" style="background:rgba(17,17,17,.88);color:#fff">1.00</div><div class="fc" style="background:rgba(255,107,107,0.52)">&minus;0.61</div><div class="fc" style="background:rgba(78,205,196,0.39)">0.46</div><div class="fc" style="background:rgba(255,107,107,0.06)">&minus;0.07</div><div class="fc" style="background:rgba(255,107,107,0.49)">&minus;0.58</div>
+      <div class="fr">Darkness</div><div class="fc" style="background:rgba(78,205,196,0.76)">0.89</div><div class="fc" style="background:rgba(78,205,196,0.8)">0.94</div><div class="fc" style="background:rgba(78,205,196,0.53)">0.62</div><div class="fc" style="background:rgba(255,107,107,0.52)">&minus;0.61</div><div class="fc" style="background:rgba(17,17,17,.88);color:#fff">1.00</div><div class="fc" style="background:rgba(255,107,107,0.18)">&minus;0.21</div><div class="fc" style="background:rgba(78,205,196,0.48)">0.57</div><div class="fc" style="background:rgba(78,205,196,0.73)">0.86</div>
+      <div class="fr">Humor</div><div class="fc" style="background:rgba(255,107,107,0.15)">&minus;0.18</div><div class="fc" style="background:rgba(255,107,107,0.16)">&minus;0.19</div><div class="fc" style="background:rgba(78,205,196,0.07)">0.08</div><div class="fc" style="background:rgba(78,205,196,0.39)">0.46</div><div class="fc" style="background:rgba(255,107,107,0.18)">&minus;0.21</div><div class="fc" style="background:rgba(17,17,17,.88);color:#fff">1.00</div><div class="fc" style="background:rgba(78,205,196,0.03)">0.04</div><div class="fc" style="background:rgba(255,107,107,0.38)">&minus;0.45</div>
+      <div class="fr">Serial.</div><div class="fc" style="background:rgba(78,205,196,0.53)">0.62</div><div class="fc" style="background:rgba(78,205,196,0.55)">0.65</div><div class="fc" style="background:rgba(78,205,196,0.59)">0.69</div><div class="fc" style="background:rgba(255,107,107,0.06)">&minus;0.07</div><div class="fc" style="background:rgba(78,205,196,0.48)">0.57</div><div class="fc" style="background:rgba(78,205,196,0.03)">0.04</div><div class="fc" style="background:rgba(17,17,17,.88);color:#fff">1.00</div><div class="fc" style="background:rgba(78,205,196,0.44)">0.52</div>
+      <div class="fr">Stakes</div><div class="fc" style="background:rgba(78,205,196,0.71)">0.84</div><div class="fc" style="background:rgba(78,205,196,0.77)">0.90</div><div class="fc" style="background:rgba(78,205,196,0.4)">0.47</div><div class="fc" style="background:rgba(255,107,107,0.49)">&minus;0.58</div><div class="fc" style="background:rgba(78,205,196,0.73)">0.86</div><div class="fc" style="background:rgba(255,107,107,0.38)">&minus;0.45</div><div class="fc" style="background:rgba(78,205,196,0.44)">0.52</div><div class="fc" style="background:rgba(17,17,17,.88);color:#fff">1.00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ V4: WINDOW WATERFALL ============ -->
+  <div class="viz">
+    <div class="viz-head">
+      <div class="vt">The Revenue Stack — one title, every window</div>
+      <div class="vc">Cumulative predicted value, $M · sample title</div>
+    </div>
+    <div class="viz-sub">The five-signal profile translated into a window-by-window P&amp;L — the
+    number a distributor actually negotiates against. Signal colors carry through: each window
+    is priced by the surface that drives it.</div>
+    <svg viewBox="0 0 620 200" width="100%" role="img" aria-label="Waterfall of cumulative revenue by distribution window">
+      <!-- baseline -->
+      <line x1="20" y1="160" x2="600" y2="160" stroke="#111" stroke-width="1.5"/>
+      <!-- connectors -->
+      <g stroke="#dcdcd6" stroke-width="1" stroke-dasharray="3,3">
+        <line x1="100" y1="106.5" x2="125" y2="106.5"/>
+        <line x1="195" y1="92.5"  x2="220" y2="92.5"/>
+        <line x1="290" y1="56.9"  x2="315" y2="56.9"/>
+        <line x1="385" y1="41.6"  x2="410" y2="41.6"/>
+        <line x1="480" y1="20"    x2="505" y2="20"/>
+      </g>
+      <!-- bars -->
+      <rect x="30"  y="106.5" width="70" height="53.5" fill="#FFB347"/>
+      <rect x="125" y="92.5"  width="70" height="14"   fill="#B388FF"/>
+      <rect x="220" y="56.9"  width="70" height="35.6" fill="#6C63FF"/>
+      <rect x="315" y="41.6"  width="70" height="15.3" fill="#FF6B6B"/>
+      <rect x="410" y="20"    width="70" height="21.6" fill="#4ECDC4"/>
+      <rect x="505" y="20"    width="70" height="140"  fill="#111111"/>
+      <!-- values -->
+      <g font-family="Inter,sans-serif" font-size="10.5" font-weight="700" fill="#111" text-anchor="middle">
+        <text x="65"  y="99">$42M</text>
+        <text x="160" y="85">+$11M</text>
+        <text x="255" y="49">+$28M</text>
+        <text x="350" y="34">+$12M</text>
+        <text x="445" y="13">+$17M</text>
+        <text x="540" y="13">$110M</text>
+      </g>
+      <!-- labels -->
+      <g font-family="Inter,sans-serif" font-size="9" fill="#888" text-anchor="middle">
+        <text x="65"  y="176">THEATRICAL</text>
+        <text x="160" y="176">PVOD / EST</text>
+        <text x="255" y="176">SVOD</text>
+        <text x="350" y="176">LINEAR / AVOD</text>
+        <text x="445" y="176">INT'L LICENSING</text>
+        <text x="540" y="176">TOTAL VALUE</text>
+      </g>
+    </svg>
+    <div class="viz-foot">All figures on this page are illustrative sample outputs, not live model
+    predictions — surfaces reach modeled ground truth on the roadmap sequence shown on page 1.
+    Genre demand/commission shares are directional, per published #ShivSpeaks analysis.</div>
+  </div>
+
+</div>
+</body>
+</html>
