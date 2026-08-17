@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Intelligence Layer for the Public Funding Ecosystem · Capstone Concept</title>
+<meta name="description" content="Executive one-pager: current state and future state of the public funding ecosystem, where the defensible asset sits, five discovery tracks, and the known tradeoffs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --t4-bg:#fafaf8; --t4-white:#ffffff; --t4-ink:#111111; --t4-body:#444444;
+  --t4-muted:#888888; --t4-border:#e8e8e4; --t4-rule:#dedbd4;
+  --t4-periwinkle:#6C63FF; --t4-coral:#FF6B6B; --t4-teal:#4ECDC4;
+  --t4-gold:#FFB347; --t4-rose:#FF8FA3; --t4-violet:#B388FF;
+  --t4-tint:rgba(108,99,255,0.07);
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'Inter',-apple-system,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+[data-theme="dark"]{
+  --t4-bg:#0e0e11; --t4-white:#17171c; --t4-ink:#f4f3ef; --t4-body:#b6b4ae;
+  --t4-muted:#7d7b76; --t4-border:#26262c; --t4-rule:#2e2e35;
+  --t4-tint:rgba(108,99,255,0.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--t4-bg); color:var(--t4-ink); font-family:var(--sans);
+  font-size:15px; line-height:1.75; -webkit-font-smoothing:antialiased;
+  transition:background .4s var(--ease),color .4s var(--ease);
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 40px}
+
+/* ---------- nav ---------- */
+.pf-nav{
+  position:fixed;top:0;left:0;right:0;height:56px;z-index:60;
+  background:color-mix(in srgb,var(--t4-bg) 88%,transparent);
+  backdrop-filter:saturate(1.4) blur(14px);
+  border-bottom:1px solid var(--t4-border);
+  display:flex;align-items:center;
+}
+.pf-nav .wrap{display:flex;align-items:center;gap:24px;width:100%}
+.pf-mark{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap}
+.pf-mark span{color:var(--t4-periwinkle)}
+.pf-sub{font-size:11px;color:var(--t4-muted);letter-spacing:.06em;border-left:1px solid var(--t4-rule);padding-left:24px;white-space:nowrap}
+.pf-links{margin-left:auto;display:flex;align-items:center;gap:26px}
+.pf-links a{color:var(--t4-muted);text-decoration:none;font-size:12px;letter-spacing:.04em;transition:color .15s var(--ease)}
+.pf-links a:hover{color:var(--t4-periwinkle)}
+.pf-toggle{
+  font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  background:none;border:1px solid var(--t4-rule);color:var(--t4-muted);
+  padding:6px 12px;border-radius:20px;cursor:pointer;transition:all .15s var(--ease);
+}
+.pf-toggle:hover{border-color:var(--t4-periwinkle);color:var(--t4-periwinkle)}
+.pf-bar{position:fixed;top:0;left:0;height:2px;width:0;background:var(--t4-periwinkle);z-index:70;transition:width .08s linear}
+
+/* ---------- hero ---------- */
+.pf-hero{padding:170px 0 76px}
+.kicker{font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:var(--t4-muted);font-weight:500;margin-bottom:26px}
+.kicker b{color:var(--t4-periwinkle);font-weight:600}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,5.6vw,68px);line-height:1.08;letter-spacing:-.015em;max-width:16ch}
+h1 em{font-style:italic;color:var(--t4-periwinkle)}
+.lede{margin-top:30px;max-width:62ch;font-size:17px;line-height:1.78;color:var(--t4-body)}
+.lede strong{color:var(--t4-ink);font-weight:600}
+.northstar{
+  margin-top:34px;max-width:60ch;border-left:3px solid var(--t4-periwinkle);
+  padding:4px 0 4px 20px;font-family:var(--serif);font-style:italic;font-size:20px;line-height:1.5;color:var(--t4-ink);
+}
+.northstar small{display:block;font-family:var(--sans);font-style:normal;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--t4-muted);margin-bottom:8px;font-weight:500}
+
+/* ---------- stat strip ---------- */
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--t4-border);border-top:1px solid var(--t4-border);border-bottom:1px solid var(--t4-border);margin-top:64px}
+.stat{background:var(--t4-bg);padding:30px 26px}
+.stat .n{font-family:var(--serif);font-size:52px;line-height:1;color:var(--t4-periwinkle)}
+.stat .l{margin-top:10px;font-size:12px;letter-spacing:.05em;color:var(--t4-muted);line-height:1.5}
+.strip-note{font-size:11px;color:var(--t4-muted);letter-spacing:.04em;padding:14px 2px 0}
+
+/* ---------- sections ---------- */
+section{padding:88px 0;border-top:1px solid var(--t4-border)}
+section:first-of-type{border-top:none}
+.counter{font-family:var(--serif);font-size:64px;line-height:.9;color:var(--t4-border);margin-bottom:14px}
+h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,3.4vw,40px);line-height:1.18;letter-spacing:-.01em;max-width:20ch}
+.body{margin-top:20px;color:var(--t4-body);max-width:46ch}
+.body p+p{margin-top:15px}
+.body strong{color:var(--t4-ink);font-weight:600}
+.insight{margin-top:24px;border-left:3px solid var(--t4-periwinkle);padding:2px 0 2px 16px;font-size:13.5px;font-style:italic;color:var(--t4-ink);max-width:44ch;line-height:1.65}
+.narrative{display:grid;grid-template-columns:1fr 1.55fr;gap:60px;align-items:center}
+.narrative.flip{grid-template-columns:1.55fr 1fr}
+.narrative.flip .col-text{order:2}
+.figure{background:var(--t4-white);border:1px solid var(--t4-border);border-radius:10px;padding:22px 20px 14px}
+.figure svg{display:block;width:100%;height:auto}
+.figcap{font-size:11px;letter-spacing:.05em;color:var(--t4-muted);padding-top:10px;border-top:1px solid var(--t4-border);margin-top:12px}
+
+/* ---------- svg type ---------- */
+.s-t{font-family:var(--sans);font-size:13px;font-weight:600;fill:var(--t4-ink)}
+.s-s{font-family:var(--sans);font-size:11.5px;font-weight:400;fill:var(--t4-muted)}
+.s-h{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.1em;fill:var(--t4-muted)}
+.s-box{fill:var(--t4-white);stroke:var(--t4-rule);stroke-width:1}
+.s-arr{stroke:var(--t4-rule);stroke-width:1.2;fill:none}
+
+/* ---------- dark interlude ---------- */
+.interlude{background:var(--t4-ink);color:var(--t4-bg);border:none;padding:96px 0}
+[data-theme="dark"] .interlude{background:#05050a}
+.interlude h2{color:var(--t4-bg);max-width:24ch}
+[data-theme="dark"] .interlude h2{color:var(--t4-ink)}
+.interlude .kicker{color:rgba(250,250,248,.5)}
+[data-theme="dark"] .interlude .kicker{color:var(--t4-muted)}
+.loop{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:40px}
+.loop .step{
+  border:1px solid rgba(250,250,248,.22);border-radius:22px;padding:9px 18px;
+  font-size:12.5px;color:rgba(250,250,248,.9);letter-spacing:.01em;white-space:nowrap;
+}
+.loop .step.hi{border-color:var(--t4-periwinkle);color:#fff;background:rgba(108,99,255,.22)}
+.loop .sep{color:rgba(250,250,248,.35);font-size:14px}
+.interlude .foot{margin-top:34px;font-size:13.5px;color:rgba(250,250,248,.65);max-width:64ch;line-height:1.75}
+[data-theme="dark"] .interlude .foot{color:var(--t4-body)}
+
+/* ---------- cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px}
+.card{background:var(--t4-white);border:1px solid var(--t4-border);border-radius:10px;padding:26px 24px;border-top:3px solid var(--t4-periwinkle);transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(17,17,17,.07)}
+.card .tag{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--t4-muted);font-weight:600}
+.card h3{font-family:var(--serif);font-weight:400;font-size:22px;line-height:1.25;margin:12px 0 12px}
+.card p{font-size:13.5px;color:var(--t4-body);line-height:1.7}
+.card .hard{margin-top:16px;padding-top:14px;border-top:1px dashed var(--t4-rule);font-size:12.5px;color:var(--t4-ink)}
+.card .hard b{color:var(--t4-periwinkle);font-weight:600;text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;display:block;margin-bottom:5px}
+
+.commodity{margin-top:34px;background:var(--t4-tint);border-radius:10px;padding:24px 26px}
+.commodity .tag{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--t4-periwinkle);font-weight:600}
+.commodity ul{list-style:none;margin-top:14px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px 32px}
+.commodity li{font-size:13.5px;color:var(--t4-body);padding-left:18px;position:relative}
+.commodity li:before{content:"—";position:absolute;left:0;color:var(--t4-muted)}
+
+/* ---------- tracks ---------- */
+.tracks{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:44px}
+.track{background:var(--t4-white);border:1px solid var(--t4-border);border-radius:10px;padding:22px 18px;border-top:3px solid var(--c);position:relative}
+.track.mine{box-shadow:0 0 0 1px var(--c)}
+.track .who{font-family:var(--serif);font-size:22px;line-height:1}
+.track .dom{margin-top:8px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--c);font-weight:600;line-height:1.5}
+.track .q{margin-top:14px;font-size:12.5px;color:var(--t4-body);line-height:1.65}
+.track .side{position:absolute;top:16px;right:16px;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--t4-muted)}
+
+/* ---------- split test ---------- */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:44px}
+.pane{border:1px solid var(--t4-border);border-radius:10px;padding:26px 24px;background:var(--t4-white)}
+.pane.win{border-color:var(--t4-periwinkle);background:var(--t4-tint)}
+.pane .tag{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--t4-muted);font-weight:600}
+.pane h3{font-family:var(--serif);font-weight:400;font-size:24px;line-height:1.25;margin:12px 0 10px}
+.pane p{font-size:13.5px;color:var(--t4-body);line-height:1.7}
+
+/* ---------- risk rows ---------- */
+.rows{margin-top:40px;border-top:1px solid var(--t4-border)}
+.row{display:grid;grid-template-columns:200px 1fr;gap:40px;padding:24px 0;border-bottom:1px solid var(--t4-border);align-items:start}
+.row .rt{font-family:var(--serif);font-size:21px;line-height:1.25}
+.row .rb{font-size:13.5px;color:var(--t4-body);line-height:1.75;max-width:70ch}
+.row .rb b{color:var(--t4-ink);font-weight:600}
+
+/* ---------- steps ---------- */
+.qlist{margin-top:40px;display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--t4-border);border:1px solid var(--t4-border);border-radius:10px;overflow:hidden}
+.q{background:var(--t4-white);padding:22px 24px}
+.q .num{font-family:var(--serif);font-size:15px;color:var(--t4-periwinkle)}
+.q p{margin-top:6px;font-size:13.5px;color:var(--t4-body);line-height:1.65}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--t4-border);padding:44px 0 70px;font-size:12px;color:var(--t4-muted);line-height:1.85}
+footer b{color:var(--t4-ink);font-weight:600}
+.chip{display:inline-block;border:1px solid var(--t4-rule);border-radius:20px;padding:5px 14px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--t4-muted);margin-bottom:18px}
+
+/* ---------- motion ---------- */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+
+/* ---------- responsive ---------- */
+@media(max-width:1000px){
+  .narrative,.narrative.flip{grid-template-columns:1fr;gap:36px}
+  .narrative.flip .col-text{order:0}
+  .cards{grid-template-columns:1fr}
+  .tracks{grid-template-columns:repeat(2,1fr)}
+  .split,.qlist,.commodity ul{grid-template-columns:1fr}
+  .strip{grid-template-columns:repeat(2,1fr)}
+  .row{grid-template-columns:1fr;gap:10px}
+  .pf-sub{display:none}
+}
+@media(max-width:600px){
+  html,body{overflow-x:hidden;max-width:100vw}
+  .wrap{padding:0 20px}
+  .pf-hero{padding:120px 0 56px}
+  section{padding:60px 0}
+  .tracks{grid-template-columns:1fr}
+  .pf-links a{display:none}
+  .body,.insight,.lede,.northstar{max-width:none}
+}
+</style>
+</head>
+<body>
+
+<div class="pf-bar" id="bar"></div>
+
+<nav class="pf-nav">
+  <div class="wrap">
+    <div class="pf-mark">The Public Funding <span>Layer</span></div>
+    <div class="pf-sub">Capstone concept · Discovery brief</div>
+    <div class="pf-links">
+      <a href="#today">Today</a>
+      <a href="#tomorrow">Tomorrow</a>
+      <a href="#moat">Moat</a>
+      <a href="#tracks">Tracks</a>
+      <a href="#risks">Risks</a>
+      <button class="pf-toggle" id="tg">Dark</button>
+    </div>
+  </div>
+</nav>
+
+<header class="pf-hero">
+  <div class="wrap">
+    <div class="kicker rv">UCLA–NUS GEMBA Intake 22 · <b>Capstone concept</b> · Pre-vertical, pre-product</div>
+    <h1 class="rv">Public capital is available. Reaching it is the <em>broken part</em>.</h1>
+    <p class="lede rv">Governments make enormous amounts of capital available every year for housing, healthcare, research, infrastructure, manufacturing and media. Organizations spend that same year hunting for exactly that capital. Between them sits no shared data structure — only fragmented programs, prose eligibility rules, bespoke applications and institutional memory. <strong>We are not proposing a better grant finder. We are proposing the intelligence and coordination layer for the ecosystem.</strong></p>
+    <div class="northstar rv"><small>North-star question</small>Does this help public capital flow more efficiently toward its intended outcomes?</div>
+
+    <div class="strip rv">
+      <div class="stat"><div class="n" data-n="5">0</div><div class="l">Discovery tracks running in parallel</div></div>
+      <div class="stat"><div class="n" data-n="4">0</div><div class="l">Demand-side verticals under test</div></div>
+      <div class="stat"><div class="n" data-n="1">0</div><div class="l">Supply-side agency lens</div></div>
+      <div class="stat"><div class="n" data-n="0">0</div><div class="l">Shared data structures between the two sides today</div></div>
+    </div>
+    <div class="strip-note rv">Scope of the discovery phase — not market sizing. No product, vertical or business model has been selected.</div>
+  </div>
+</header>
+
+<!-- ============ 01 CURRENT STATE ============ -->
+<section id="today">
+  <div class="wrap narrative">
+    <div class="col-text rv">
+      <div class="counter">01</div>
+      <div class="kicker">Current state</div>
+      <h2>Two processes that never touch</h2>
+      <div class="body">
+        <p>An organization seeking capital searches, interprets eligibility from long prose notices, assembles a stack from grants, credits, debt and equity, then files bespoke applications program by program. Large teams absorb this cost. Smaller ones cannot.</p>
+        <p>An agency designs a program from last cycle's assumptions, publishes a notice, waits, and reviews whatever pool arrives. When the pool is thin or unqualified, <strong>it has no way to learn why</strong>.</p>
+      </div>
+      <div class="insight">The friction is not in any single step. It is that both columns run top to bottom independently and nothing crosses. The consultant class exists precisely because that gap is unstructured and unpriced.</div>
+    </div>
+    <div class="figure rv">
+      <svg viewBox="0 0 680 452" role="img" aria-label="Two parallel processes — organizations seeking capital and funding agencies — separated by an opaque gap">
+        <defs><marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+        <text class="s-h" x="40" y="26">ORGANIZATIONS SEEKING CAPITAL</text>
+        <text class="s-h" x="640" y="26" text-anchor="end">FUNDING AGENCIES</text>
+
+        <g>
+          <rect class="s-box" x="40" y="48" width="212" height="62" rx="8"/><rect x="40" y="48" width="3" height="62" fill="#6C63FF"/>
+          <text class="s-t" x="60" y="74">Find programs</text><text class="s-s" x="60" y="94">Search sites, ask around</text>
+          <rect class="s-box" x="40" y="140" width="212" height="62" rx="8"/><rect x="40" y="140" width="3" height="62" fill="#6C63FF"/>
+          <text class="s-t" x="60" y="166">Check eligibility</text><text class="s-s" x="60" y="186">Read 80-page notices</text>
+          <rect class="s-box" x="40" y="232" width="212" height="62" rx="8"/><rect x="40" y="232" width="3" height="62" fill="#6C63FF"/>
+          <text class="s-t" x="60" y="258">Stack the capital</text><text class="s-s" x="60" y="278">Grants, credits, debt</text>
+          <rect class="s-box" x="40" y="324" width="212" height="62" rx="8"/><rect x="40" y="324" width="3" height="62" fill="#6C63FF"/>
+          <text class="s-t" x="60" y="350">Apply and comply</text><text class="s-s" x="60" y="370">Bespoke forms per program</text>
+          <line class="s-arr" x1="146" y1="112" x2="146" y2="134" marker-end="url(#a1)"/>
+          <line class="s-arr" x1="146" y1="204" x2="146" y2="226" marker-end="url(#a1)"/>
+          <line class="s-arr" x1="146" y1="296" x2="146" y2="318" marker-end="url(#a1)"/>
+        </g>
+
+        <rect x="282" y="40" width="116" height="380" rx="12" fill="none" stroke="#6C63FF" stroke-width="1" stroke-dasharray="4 5" opacity=".55"/>
+        <text class="s-t" x="340" y="82" text-anchor="middle" style="fill:#6C63FF">The gap</text>
+        <text class="s-s" x="340" y="140" text-anchor="middle">No shared data</text>
+        <text class="s-s" x="340" y="182" text-anchor="middle">PDFs and portals</text>
+        <text class="s-s" x="340" y="224" text-anchor="middle">Consultants bridge</text>
+        <text class="s-s" x="340" y="266" text-anchor="middle">No demand signal</text>
+        <text class="s-s" x="340" y="308" text-anchor="middle">No outcome loop</text>
+
+        <g>
+          <rect class="s-box" x="428" y="48" width="212" height="62" rx="8"/><rect x="428" y="48" width="3" height="62" fill="#4ECDC4"/>
+          <text class="s-t" x="448" y="74">Design program</text><text class="s-s" x="448" y="94">Based on last cycle</text>
+          <rect class="s-box" x="428" y="140" width="212" height="62" rx="8"/><rect x="428" y="140" width="3" height="62" fill="#4ECDC4"/>
+          <text class="s-t" x="448" y="166">Publish the notice</text><text class="s-s" x="448" y="186">Then wait</text>
+          <rect class="s-box" x="428" y="232" width="212" height="62" rx="8"/><rect x="428" y="232" width="3" height="62" fill="#4ECDC4"/>
+          <text class="s-t" x="448" y="258">Review applicants</text><text class="s-s" x="448" y="278">Thin or unqualified pool</text>
+          <rect class="s-box" x="428" y="324" width="212" height="62" rx="8"/><rect x="428" y="324" width="3" height="62" fill="#4ECDC4"/>
+          <text class="s-t" x="448" y="350">Award and report</text><text class="s-s" x="448" y="370">Outcomes measured late</text>
+          <line class="s-arr" x1="534" y1="112" x2="534" y2="134" marker-end="url(#a1)"/>
+          <line class="s-arr" x1="534" y1="204" x2="534" y2="226" marker-end="url(#a1)"/>
+          <line class="s-arr" x1="534" y1="296" x2="534" y2="318" marker-end="url(#a1)"/>
+        </g>
+      </svg>
+      <div class="figcap">Fig. 1 — The same information failure, mirrored. Neither side can see the other's funnel.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 FUTURE STATE ============ -->
+<section id="tomorrow">
+  <div class="wrap narrative flip">
+    <div class="figure rv">
+      <svg viewBox="0 0 680 424" role="img" aria-label="Future state — a shared intelligence layer both sides read from and write to">
+        <defs><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+        <rect class="s-box" x="40" y="30" width="276" height="62" rx="8"/><rect x="40" y="30" width="3" height="62" fill="#6C63FF"/>
+        <text class="s-t" x="60" y="56">Organizations</text><text class="s-s" x="60" y="76">Projects seeking capital</text>
+
+        <rect class="s-box" x="364" y="30" width="276" height="62" rx="8"/><rect x="364" y="30" width="3" height="62" fill="#4ECDC4"/>
+        <text class="s-t" x="384" y="56">Funding agencies</text><text class="s-s" x="384" y="76">Capital seeking projects</text>
+
+        <line class="s-arr" x1="140" y1="94" x2="140" y2="128" marker-end="url(#a2)"/>
+        <line class="s-arr" x1="216" y1="128" x2="216" y2="94" marker-end="url(#a2)"/>
+        <line class="s-arr" x1="464" y1="94" x2="464" y2="128" marker-end="url(#a2)"/>
+        <line class="s-arr" x1="540" y1="128" x2="540" y2="94" marker-end="url(#a2)"/>
+
+        <rect x="40" y="132" width="600" height="164" rx="14" fill="none" stroke="#6C63FF" stroke-width="1.2" opacity=".65"/>
+        <text class="s-h" x="64" y="160" style="fill:#6C63FF">SHARED INTELLIGENCE LAYER</text>
+
+        <rect class="s-box" x="64" y="180" width="176" height="92" rx="10"/>
+        <text class="s-t" x="152" y="216" text-anchor="middle">Eligibility graph</text>
+        <text class="s-s" x="152" y="238" text-anchor="middle">Programs and rules,</text>
+        <text class="s-s" x="152" y="254" text-anchor="middle">machine-evaluable</text>
+
+        <rect class="s-box" x="252" y="180" width="176" height="92" rx="10"/>
+        <text class="s-t" x="340" y="216" text-anchor="middle">Stack composer</text>
+        <text class="s-s" x="340" y="238" text-anchor="middle">Which sources combine,</text>
+        <text class="s-s" x="340" y="254" text-anchor="middle">and in what order</text>
+
+        <rect class="s-box" x="440" y="180" width="176" height="92" rx="10"/>
+        <text class="s-t" x="528" y="216" text-anchor="middle">Signal ledger</text>
+        <text class="s-s" x="528" y="238" text-anchor="middle">Demand, drop-off,</text>
+        <text class="s-s" x="528" y="254" text-anchor="middle">deployment, outcomes</text>
+
+        <line class="s-arr" x1="340" y1="296" x2="340" y2="326" marker-end="url(#a2)"/>
+        <rect x="188" y="330" width="304" height="58" rx="8" fill="#6C63FF" fill-opacity=".1" stroke="#6C63FF" stroke-width="1"/>
+        <text class="s-t" x="340" y="354" text-anchor="middle" style="fill:#6C63FF">Reinforcing loop</text>
+        <text class="s-s" x="340" y="374" text-anchor="middle">Each cycle sharpens both sides</text>
+      </svg>
+      <div class="figcap">Fig. 2 — One spine, written by both sides. Applicant behaviour becomes the agency's demand signal.</div>
+    </div>
+    <div class="col-text rv">
+      <div class="counter">02</div>
+      <div class="kicker">Future state</div>
+      <h2>One spine that both sides write to</h2>
+      <div class="body">
+        <p>Three components carry the weight. An <strong>eligibility graph</strong> that turns prose requirements into rules a project profile can be tested against. A <strong>stack composer</strong> that knows which sources of public and private capital can legally and practically combine. A <strong>signal ledger</strong> that records what applicants attempted, where they dropped, what got deployed and what it produced.</p>
+        <p>Neither side gives anything up. Both get something they cannot obtain alone.</p>
+      </div>
+      <div class="insight">The product is not the interface. The product is the structured record of what happened, which is exactly what neither a generic AI assistant nor an incumbent consultant can manufacture.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INTERLUDE ============ -->
+<section class="interlude">
+  <div class="wrap">
+    <div class="kicker rv">Why it compounds</div>
+    <h2 class="rv">The loop is the business. Everything else is a feature.</h2>
+    <div class="loop rv">
+      <span class="step">Better information for applicants</span><span class="sep">→</span>
+      <span class="step">More qualified projects</span><span class="sep">→</span>
+      <span class="step hi">Better information for agencies</span><span class="sep">→</span>
+      <span class="step">Better program design</span><span class="sep">→</span>
+      <span class="step">Better outcomes</span>
+    </div>
+    <p class="foot rv">Information generated on one side of the ecosystem makes the product more valuable to the other. That is a data and network advantage, and it is the only part of this concept that a well-funded fast follower cannot buy or prompt its way into.</p>
+  </div>
+</section>
+
+<!-- ============ 03 MOAT ============ -->
+<section id="moat">
+  <div class="wrap">
+    <div class="rv">
+      <div class="counter">03</div>
+      <div class="kicker">Differentiation</div>
+      <h2>Three assets are defensible. The rest is table stakes.</h2>
+      <div class="body">The moat is not AI. Generic tools will search documents, summarise regulation and help draft applications — and they will do it well enough, soon enough, to erase any product anchored there.</div>
+    </div>
+    <div class="cards">
+      <div class="card rv">
+        <div class="tag">Asset 01</div>
+        <h3>Eligibility as a computed graph</h3>
+        <p>Not retrieval over program PDFs — machine-evaluable rules a specific project profile can be tested against, across jurisdictions and statutes that cross-reference each other.</p>
+        <div class="hard"><b>Why it holds</b>This is a data engineering problem wearing an AI costume. It requires structuring prose that is revised mid-cycle. Generic tools will not do this work.</div>
+      </div>
+      <div class="card rv">
+        <div class="tag">Asset 02</div>
+        <h3>Stacking combinatorics</h3>
+        <p>Finding one program is a search feature. Knowing that a federal credit disqualifies a state grant, that two subsidies layer only in sequence, and that a lender waits on a specific close — that is the expertise being sold today.</p>
+        <div class="hard"><b>Why it holds</b>Rules plus precedent. The precedent half only accumulates by sitting in the flow of real transactions.</div>
+      </div>
+      <div class="card rv">
+        <div class="tag">Asset 03</div>
+        <h3>The demand signal</h3>
+        <p>Agencies cannot see their own funnel: who considered a program, where they abandoned it, and why. This is the only view that makes an agency a paying customer rather than a data source.</p>
+        <div class="hard"><b>Why it holds</b>It can only be produced by standing between both sides. There is no dataset to license and no model to prompt.</div>
+      </div>
+    </div>
+    <div class="commodity rv">
+      <div class="tag">Commoditised within 18 months — do not anchor the MVP here</div>
+      <ul>
+        <li>Plain-language explanation of program requirements</li>
+        <li>Semantic search across funding notices</li>
+        <li>Deadline tracking and reminder workflows</li>
+        <li>First-draft application and narrative generation</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 TRACKS ============ -->
+<section id="tracks">
+  <div class="wrap">
+    <div class="rv">
+      <div class="counter">04</div>
+      <div class="kicker">Discovery design</div>
+      <h2>Four demand-side verticals, one supply-side lens</h2>
+      <div class="body">Each member investigates the part of the hypothesis where they already hold domain knowledge, relationships or credibility. The objective is not four products — it is to establish whether the same coordination failure recurs across unrelated parts of the economy.</div>
+    </div>
+    <div class="tracks">
+      <div class="track rv" style="--c:#FF6B6B"><div class="side">Demand</div><div class="who">Chris</div><div class="dom">Affordable housing &amp; community development</div><div class="q">Can better intelligence materially improve a developer's ability to assemble a viable capital stack without a dedicated funding team?</div></div>
+      <div class="track rv" style="--c:#4ECDC4"><div class="side">Demand</div><div class="who">Sarita</div><div class="dom">Healthcare &amp; biomedical research</div><div class="q">Is accessing the right public research funding hard enough that better intelligence would change outcomes?</div></div>
+      <div class="track rv" style="--c:#FFB347"><div class="side">Demand</div><div class="who">Marco</div><div class="dom">Manufacturing, aerospace &amp; infrastructure</div><div class="q">Could a platform make public incentives an integrated input to private capital-allocation decisions?</div></div>
+      <div class="track mine rv" style="--c:#6C63FF"><div class="side">Demand</div><div class="who">Shiv</div><div class="dom">Entertainment &amp; media production</div><div class="q">Could better intelligence on incentives, economics and expected project performance improve production decisions — and show jurisdictions whether credits worked?</div></div>
+      <div class="track rv" style="--c:#B388FF"><div class="side">Supply</div><div class="who">Lilly</div><div class="dom">Funding agencies &amp; public sector</div><div class="q">Where does appropriated capital fail to deploy, what do agencies lack visibility into, and where do applicants fall out?</div></div>
+    </div>
+
+    <div class="split">
+      <div class="pane rv">
+        <div class="tag">If the findings diverge</div>
+        <h3>Vertical-specific solution</h3>
+        <p>Housing, healthcare, manufacturing and media turn out to have genuinely different problems. Useful information — it pushes us toward depth in one market rather than a horizontal platform, and it narrows the MVP fast.</p>
+      </div>
+      <div class="pane win rv">
+        <div class="tag">If the findings converge</div>
+        <h3>Horizontal infrastructure</h3>
+        <p>Fragmented programs, difficult eligibility analysis and incomplete information recur across all four verticals — while agency interviews reveal the mirror image. That is a far more interesting result and the one worth building for.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 RISKS ============ -->
+<section id="risks">
+  <div class="wrap">
+    <div class="rv">
+      <div class="counter">05</div>
+      <div class="kicker">Known tradeoffs</div>
+      <h2>Three things the concept has to survive</h2>
+    </div>
+    <div class="rows rv">
+      <div class="row">
+        <div class="rt">Cold start is asymmetric</div>
+        <div class="rb">The applicant side has value on day one — better search beats no search. The agency side has value only once applicant volume exists. That sequencing is fixed, which means <b>early revenue will look like a SaaS tool, not infrastructure</b>. The risk is over-serving that first customer and never building the ledger.</div>
+      </div>
+      <div class="row">
+        <div class="rt">Agencies buy slowly</div>
+        <div class="rb">Public procurement runs on 9–18 month cycles, RFPs and reference checks. If the capstone demo is agency-facing, it has to be sellable to a <b>program manager on discretionary budget</b> — not to a CIO through a formal procurement.</div>
+      </div>
+      <div class="row">
+        <div class="rt">The eligibility graph decays</div>
+        <div class="rb">Rules change every cycle, so maintenance cost scales with program coverage rather than with customers. That is the opposite of software economics — and it is precisely why the asset stays defensible. It also means <b>"cover every program" is a losing opening move</b>. Depth in one jurisdiction beats breadth.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 FIRST STEP ============ -->
+<section>
+  <div class="wrap">
+    <div class="rv">
+      <div class="counter">06</div>
+      <div class="kicker">Proposed first step</div>
+      <h2>Structured customer discovery. No commitment yet.</h2>
+      <div class="body">Each member conducts a small number of conversations in their track and brings findings back to the group — compared rather than assumed identical. Six questions decide what happens next.</div>
+    </div>
+    <div class="qlist rv">
+      <div class="q"><div class="num">01</div><p>Is there a real and sufficiently painful problem?</p></div>
+      <div class="q"><div class="num">02</div><p>Where is the pain greatest, and does it recur across industries?</p></div>
+      <div class="q"><div class="num">03</div><p>Who would actually pay to solve it — applicant, agency, or the capital provider between them?</p></div>
+      <div class="q"><div class="num">04</div><p>Where could we obtain differentiated data that others cannot?</p></div>
+      <div class="q"><div class="num">05</div><p>Which vertical offers the strongest initial wedge?</p></div>
+      <div class="q"><div class="num">06</div><p>What is the smallest product buildable during the capstone that demonstrates genuine value?</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="chip">Capstone concept · v1 · Discovery phase</div>
+    <p><b>Status.</b> Pre-vertical and pre-product. No industry, customer or business model has been selected. Figures shown describe the scope of the discovery phase only and are not market estimates.<br>
+    <b>Method.</b> Current-state and future-state models derived from the team concept brief. Differentiation, commoditisation window and tradeoff assessments are analytical positions to be tested against interview findings, not established conclusions.<br>
+    <b>Next.</b> Structured customer discovery across five tracks, then a single vertical, single customer and single narrow problem selected for the MVP.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var bar=document.getElementById('bar');
+  function prog(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    bar.style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+  }
+  window.addEventListener('scroll',prog,{passive:true}); prog();
+
+  var tg=document.getElementById('tg'), root=document.documentElement;
+  var saved=null; try{saved=localStorage.getItem('pf-theme');}catch(e){}
+  if(!saved && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) saved='dark';
+  if(saved) root.setAttribute('data-theme',saved);
+  function label(){ tg.textContent = root.getAttribute('data-theme')==='dark' ? 'Light' : 'Dark'; }
+  label();
+  tg.addEventListener('click',function(){
+    var next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('pf-theme',next);}catch(e){}
+    label();
+  });
+
+  function count(el){
+    var target=parseInt(el.getAttribute('data-n'),10);
+    if(target===0){el.textContent='0';return;}
+    var start=null, dur=1400;
+    function step(ts){
+      if(!start) start=ts;
+      var p=Math.min((ts-start)/dur,1);
+      el.textContent=Math.round(target*(1-Math.pow(1-p,3)));
+      if(p<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      e.target.classList.add('in');
+      e.target.querySelectorAll('[data-n]').forEach(count);
+      io.unobserve(e.target);
+    });
+  },{threshold:0.15});
+  document.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
+})();
+</script>
+</body>
+</html>
