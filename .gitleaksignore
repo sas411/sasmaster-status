@@ -4,3 +4,8 @@
 resources/sasmaster-knowledge-graph.html:generic-api-key:173
 resources/sasmaster-knowledge-graph-cinematic.html:generic-api-key:978
 resources/graph.json:generic-api-key:1
+
+# False positive - RESOURCE-CAPSTONE-PFL-001 (2026-08-17): generic-api-key rule
+# matching the literal prose "DuckDB/Parquet" in skill description text.
+# Not a credential; verified by inspection.
+resources/skills-manifest.json:generic-api-key:799
