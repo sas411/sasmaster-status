@@ -42,3 +42,23 @@ repos:
         stages: [pre-push]
         always_run: true
         pass_filenames: false
+      # WARROOM-CLOCK-001 (2026-08-24): value-render gate runner, this card's own
+      # deliverable. Bans ambient date formatting (toLocaleTimeString/toLocaleDateString/
+      # raw getHours()) in warroom-v5.html and generate-status.js outside
+      # lib/warroom-clock.js. WARROOM-RENDER-001 extends this same runner with the
+      # em-dash rule — do not add a second gate script for that card.
+      # Phase 1 of this card found NO CI provider that runs tests/gates on push
+      # (.github/workflows has org-health.yml + claude-review.yml — neither runs
+      # `npm test`/`npm run verify`); this hook is therefore the ONLY enforcement
+      # surface for this gate, and per this repo's existing state (SWEEPING audit,
+      # 2026-08-24: sasmaster-status has zero live git hooks installed) it ships
+      # here as a definition, NOT auto-installed via `pre-commit install` — that is
+      # an operational decision left to Shiv, matching how OPS-PREPUSH-GATE-004 above
+      # staged its own hooks before install.
+      - id: warroom-clock-gate
+        name: "warroom-clock-gate: ban ambient date formatting outside lib/warroom-clock.js"
+        entry: bash scripts/check-clock-gate.sh
+        language: system
+        stages: [pre-commit]
+        always_run: true
+        pass_filenames: false

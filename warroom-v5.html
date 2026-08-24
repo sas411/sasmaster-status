@@ -1033,7 +1033,7 @@ main.canvas-mode{overflow:hidden}
     </div>
     <div class="fin2">
       <div>
-        <div class="sec-h"><h2>Token intelligence</h2><span class="mono" style="margin-left:auto;font-size:11px;color:var(--dim)">2026-06</span></div>
+        <div class="sec-h"><h2>Token intelligence</h2><span class="mono" style="margin-left:auto;font-size:11px;color:var(--dim)" id="fin-token-period">—</span></div>
         <div class="quota4" style="grid-template-columns:repeat(4,1fr);margin-top:0">
           <div class="q4"><div class="l">Tokens MTD</div><div class="v" style="color:var(--ink)">0</div><div style="font-size:10.5px;color:var(--dim)">in + out</div></div>
           <div class="q4"><div class="l">Cost / Session</div><div class="v" style="color:var(--ink)">$0.00</div><div style="font-size:10.5px;color:var(--dim)">avg this month</div></div>
@@ -1264,6 +1264,11 @@ main.canvas-mode{overflow:hidden}
   </div>
 </div>
 
+<!-- WARROOM-CLOCK-001 (2026-08-24): the one clock module (C5) — loaded before
+     the page's own inline script so WarroomClock is available to every
+     render function below. Served as a static file (vercel.json "handle":
+     "filesystem"), same convention as this repo's other local lib includes. -->
+<script src="lib/warroom-clock.js"></script>
 <script>
 /* ============ CONFIG ============ */
 // ASK URL — routes through /api/ask Vercel proxy; key is server-side only, never in client
@@ -1723,7 +1728,20 @@ function theme(t){document.documentElement.setAttribute('data-theme',t);
   document.getElementById('tL').classList.toggle('on',t==='light');
   document.getElementById('tD').classList.toggle('on',t==='dark');}
 const p=n=>String(n).padStart(2,'0');
-setInterval(()=>{const d=new Date();document.getElementById('clk').textContent=`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;const cd=document.getElementById('clkd');if(cd)cd.textContent=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',timeZone:'America/New_York'}).toUpperCase();},1000);
+// WARROOM-CLOCK-001 (2026-08-24): was raw browser-local getHours/getMinutes/
+// getSeconds with no timeZone and no offset shown — root cause of the
+// `05:54` header vs `12:15 PM ET` cache-bar skew (§2.6): neither field was
+// actually pinned to America/New_York, so a viewer/renderer in any other
+// timezone silently mislabeled its own local time as ET. Fixed via the one
+// clock module (C5) — explicit America/New_York + visible offset.
+setInterval(()=>{
+  const d=new Date();
+  const et=WarroomClock.toEt(d);
+  const clk=document.getElementById('clk');
+  if(clk) clk.textContent=et.state==='ok'?et.display:'ERROR — clock skew';
+  const cd=document.getElementById('clkd');
+  if(cd)cd.textContent=WarroomClock.weekdayLabel(d);
+},1000);
 
 /* ============ tabs ============ */
 const mainEl=document.querySelector('main');
@@ -1815,8 +1833,14 @@ function renderMemoryBar(vm){
   if(!bar) return;
   const upd=bar.querySelector('.upd');
   if(upd&&us.cache_hit_updated){
-    const d=new Date(us.cache_hit_updated);
-    upd.textContent='cache updated '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})+' ET';
+    // WARROOM-CLOCK-001 (2026-08-24): raw toLocaleTimeString with no timeZone,
+    // hardcoded ' ET' suffix regardless of what zone actually rendered — root
+    // cause of the `cache updated 12:15 PM ET` claiming a future write (§2.6).
+    // Fixed via the one clock module: real ET conversion + explicit offset,
+    // and a genuinely future write now renders ERROR — clock skew instead of
+    // a fabricated past-looking value.
+    const et=WarroomClock.toEt(us.cache_hit_updated);
+    upd.textContent=et.state==='ok'?('cache updated '+et.display):'cache updated ERROR — clock skew';
   }
 }
 
@@ -2114,8 +2138,9 @@ function renderData(vm){
   // Wire data health run date
   const runEl=document.getElementById('data-health-run');
   if(runEl&&vm.generatedAt){
-    const d=new Date(vm.generatedAt);
-    runEl.textContent='updated '+d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    // WARROOM-CLOCK-001 (2026-08-24): no explicit timeZone — routed through
+    // the shared module for consistency with every other date label.
+    runEl.textContent='updated '+WarroomClock.dateLabel(vm.generatedAt);
   }
 }
 
@@ -2388,13 +2413,31 @@ function renderTelemetry(vm){
   }
 
   // event feed
+  // WARROOM-CLOCK-001 (2026-08-24): was combining recentActivity (has .ts) with
+  // slackFeed.builds items (ts:'', no real timestamp) then slicing WITHOUT
+  // SORTING at all — the "seven rows sorted by nothing" audit finding (§2.6).
+  // Fixed: assign a stable id, sort strictly-descending by canonical field via
+  // WarroomClock.sortFeedDesc (C6), render each row's time through
+  // WarroomClock.toEt/ageFrom (C5) instead of ambient toLocaleTimeString with
+  // no timeZone, and render the no-timestamp / clock-skew error states inline
+  // (this card defines those states; the shared four-state tile renderer is
+  // WARROOM-RENDER-001's scope, not built here).
   const evfeed=document.getElementById('evfeed');
   if(evfeed){
-    const items=[...vm.recentActivity,...(vm.slackFeed.builds||[]).map(t=>({type:'build',text:t,ts:''}))]
-      .slice(0,12);
-    if(items.length>0){
-      evfeed.innerHTML=items.map(ev=>{
-        const ts=ev.ts?new Date(ev.ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';
+    const rawItems=[
+      ...vm.recentActivity.map((a,i)=>({...a,_id:'activity-'+i})),
+      ...(vm.slackFeed.builds||[]).map((t,i)=>({type:'build',text:t,ts:'',_id:'slack-build-'+i}))
+    ];
+    const sorted=WarroomClock.sortFeedDesc(rawItems,'ts').slice(0,12);
+    if(sorted.length>0){
+      evfeed.innerHTML=sorted.map(ev=>{
+        let ts;
+        if(ev._clockState==='error'){
+          ts=`<span title="${escHtml(ev._clockReason||'clock error')}">ERROR</span>`;
+        } else {
+          const et=WarroomClock.toEt(ev.ts);
+          ts=et.state==='ok'?escHtml(et.display.replace(' ET','').split(' (')[0]):'ERROR';
+        }
         const tagCls=ev.type==='pipeline'||ev.type==='build'?'tg-stor':ev.type==='intel'?'tg-data':'tg-trig';
         const tagLabel=escHtml(String(ev.type||'EVENT').toUpperCase().substring(0,7));
         return `<div class="evrow"><span class="t">${ts}</span><span class="tag ${tagCls}">${tagLabel}</span><span class="e">${escHtml(String(ev.text||'').substring(0,60))}</span></div>`;
@@ -2626,6 +2669,17 @@ async function renderFinance(vm){
     }
   }
 
+  // WARROOM-CLOCK-001 (2026-08-24): "Token intelligence · 2026-06" was a
+  // hardcoded static span, never populated by any JS — the C1 violation
+  // named in §2.6 (a derived period label rendered as decoration). The live
+  // finance-data.json already carries a real fd.period ("2026-08" as of this
+  // build) — wire it, and fall back to WarroomClock's current ET month only
+  // if the field is ever absent, never to a hand-typed literal.
+  const periodEl=document.getElementById('fin-token-period');
+  if(periodEl){
+    periodEl.textContent = (fd&&fd.period) ? fd.period : WarroomClock.monthBuckets(1)[0];
+  }
+
   if(fd&&fd.tokens){
     const toks=fd.tokens;
     const q4=document.querySelectorAll('#v-finance .q4');
@@ -2651,6 +2705,37 @@ async function renderFinance(vm){
     setTd(rows[4],1,'$'+(inf.aws_usd||5).toFixed(2));
     setTd(rows[5],1,'$'+(b.tools_mtd||20).toFixed(2));
     if(rows[6]){const tds=rows[6].querySelectorAll('td');if(tds[1])tds[1].innerHTML='<b>$'+(b.total_mtd||0).toFixed(2)+'</b>';}
+  }
+
+  // WARROOM-CLOCK-001 (2026-08-24): the "6-month cash forecast" bars were
+  // hardcoded static markup (months 06-11 baked into the HTML, never touched
+  // by JS) — the §2.6 finding that an August board still showed month "06"
+  // first. finance-data.json's own fd.forecast array is real (6 fixed
+  // months, Jun-Nov as of this build) but was never consumed at all. Fixed:
+  // filter to months >= the current ET month (a stored past month is exactly
+  // the C1/"windows computed from now" defect this card exists to remove),
+  // sort ascending, render only what's genuinely current-or-future. If the
+  // live array runs out before 6 months of forward coverage (it currently
+  // does — data ends 2026-11), that is an honest gap in the underlying
+  // forecast data, not something this card fabricates additional months to
+  // paper over; extending fd.forecast's range is a data-population task for
+  // whichever card owns finance-data.json's generator, not this one.
+  const cashEl=document.querySelector('.cash');
+  if(cashEl&&fd&&Array.isArray(fd.forecast)){
+    const curMonth=WarroomClock.monthBuckets(1)[0];
+    const upcoming=fd.forecast.filter(f=>f.month>=curMonth).sort((a,b)=>a.month.localeCompare(b.month)).slice(0,6);
+    if(upcoming.length>0){
+      const maxAbs=Math.max(...upcoming.map(f=>Math.abs(f.net_usd||0)),1);
+      cashEl.innerHTML=upcoming.map(f=>{
+        const net=f.net_usd||0;
+        const heightPct=Math.max(18,Math.round((Math.abs(net)/maxAbs)*92));
+        const mm=f.month.slice(5,7);
+        const amt=Math.abs(net)>=1000?(net<0?'-$':'$')+(Math.abs(net)/1000).toFixed(1)+'K':(net<0?'-$':'$')+Math.abs(net).toFixed(0);
+        return `<div class="cb"><i style="height:${heightPct}%"></i><span>${escHtml(mm)}<br>${escHtml(amt)}</span></div>`;
+      }).join('');
+    } else {
+      cashEl.innerHTML='<div style="font-size:11px;color:var(--dim)">N/A — no forecast months at or after '+escHtml(curMonth)+'</div>';
+    }
   }
 
   if(fd&&fd.aug_crunch&&fd.generated_at){
@@ -2931,11 +3016,19 @@ async function fetchTodayPiece(){
   // Skip fabricated / truth-gate test artifacts — they have no real piece and
   // render the raw S3 AccessDenied XML in the iframe (CANVAS-FIX-001, 2026-06-26).
   const isTest=e=>/^SAMPLE/i.test(e.certified_id||'')||/^SAMPLE/i.test(e.query||'')||/FABRICATED/i.test(e.source||'');
-  // Pick newest pending first (awaiting bless), then newest certified
-  const pending=idx.entries.filter(e=>e.status==='pending'&&!isTest(e)).sort((a,b)=>(b.built_at||'').localeCompare(a.built_at||''));
-  const certified=idx.entries.filter(e=>e.status==='certified'&&!isTest(e)).sort((a,b)=>(b.certified_at||'').localeCompare(a.certified_at||''));
+  // WARROOM-CLOCK-001 (2026-08-24): this picked newest-by-status with NO date
+  // filter at all — the §2.6 finding that CANVAS TODAY displayed an artifact
+  // BUILT Jun 15 on a board being viewed months later. "TODAY" must mean
+  // built on the current ET calendar day; anything older belongs in ARCHIVE
+  // (a separate fetch path, unaffected by this filter — verified in
+  // WARROOM_CLOCK_SITES.md). Pick newest pending first (awaiting bless), then
+  // newest certified, but ONLY among entries actually built today.
+  const isToday=e=>WarroomClock.isSameEtCalendarDay(e.built_at,new Date());
+  const pending=idx.entries.filter(e=>e.status==='pending'&&!isTest(e)&&isToday(e)).sort((a,b)=>(b.built_at||'').localeCompare(a.built_at||''));
+  const certified=idx.entries.filter(e=>e.status==='certified'&&!isTest(e)&&isToday(e)).sort((a,b)=>(b.certified_at||'').localeCompare(a.certified_at||''));
   const entry=pending.length?pending[0]:(certified.length?certified[0]:null);
   if(!entry){
+    // No piece built today — honest empty state, not a stale prior-day fallback.
     CV.pieceExists=false; CV._empty=true; updateBadge(); renderToday(); return;
   }
   const isAlreadySettled=entry.status==='certified'||entry.status==='killed'||entry.status==='redirected';

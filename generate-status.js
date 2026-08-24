@@ -7,6 +7,7 @@
 const fs   = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const WarroomClock = require('./lib/warroom-clock.js'); // WARROOM-CLOCK-001 — the one clock module (C5)
 
 const SASMASTER   = path.join(process.env.HOME, 'SaSMaster');
 const PENDING     = path.join(SASMASTER, 'pending-approvals.json');
@@ -1139,16 +1140,14 @@ function buildSlackFeed(recentBuilds, intelFeed) {
 
   // Fallback: derive from log files
   const LOG = path.join(SASMASTER, 'logs');
+  // WARROOM-CLOCK-001 (2026-08-24): this already correctly pinned
+  // America/New_York (unlike the client-side bugs this card fixed), but
+  // duplicated the "recent time vs older date" rule ad hoc — routed through
+  // the shared module so there's exactly one implementation of that rule (C6).
   const tsShort = iso => {
     if (!iso) return '';
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return String(iso).slice(0, 16);
-    // Format: "HH:MM AM/PM EDT" vs "Apr 22" for older
-    const diffHours = (Date.now() - d.getTime()) / 36e5;
-    if (diffHours < 24) {
-      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
-    }
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' });
+    if (isNaN(new Date(iso).getTime())) return String(iso).slice(0, 16);
+    return WarroomClock.recentTimeOrDate(iso);
   };
 
   // Tail a log file and return the last N readable lines as Slack-like messages
@@ -1696,8 +1695,10 @@ function alertStaleSources(freshness) {
 
   const state = loadStaleState();
   const now   = Date.now();
-  const nowHr = new Date().getHours();
-  const nowMin = new Date().getMinutes();
+  // WARROOM-CLOCK-001 (2026-08-24): was raw host-local getHours/getMinutes —
+  // the 9AM-digest gate below would silently fire at the wrong real-world ET
+  // hour on any host whose local timezone isn't America/New_York (C5).
+  const { hour: nowHr, minute: nowMin } = WarroomClock.etHourMinute();
 
   const transitionLines   = [];  // ok→stale or stale→ok
   const persistentStale   = [];  // still stale >24h, for 9AM digest

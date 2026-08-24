@@ -4,7 +4,9 @@
   "description": "SaSMaster live status page",
   "scripts": {
     "generate": "node generate-status.js",
-    "build:archmap": "node build-arch-map.js"
+    "build:archmap": "node build-arch-map.js",
+    "test": "node --test test/",
+    "verify": "npm test && bash scripts/check-clock-gate.sh"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1054.0",
