@@ -945,7 +945,7 @@ main.canvas-mode{overflow:hidden}
       <div><div class="l">AWS S3</div><div class="v">$14.96</div><div class="s">storage+requests</div></div>
       <div><div class="l">Cache Hit</div><div class="v gold">—</div><div class="s">MTD read tokens</div></div>
     </div>
-    <div class="sec-h" style="margin-top:16px"><h2>Token quota</h2><span class="badge b-ok">SONNET 0%</span><span>Resets in RESET NOW</span></div>
+    <div class="sec-h" style="margin-top:16px"><h2>Token quota</h2><span class="badge b-ok" id="quota-sonnet-badge">SONNET —</span><span id="quota-reset-label">N/A — no reset window</span></div>
     <button class="collapse-toggle" data-target="costs-section" aria-expanded="true">
       <span class="section-label">COST BREAKDOWN</span>
       <span class="chevron">▼</span>
@@ -1029,7 +1029,7 @@ main.canvas-mode{overflow:hidden}
       <div><div class="l">Infra MTD</div><div class="v">$45.00</div><div class="s">railway+vercel+aws</div></div>
       <div><div class="l">Tools MTD</div><div class="v">$20.00</div><div class="s">cursor+other</div></div>
       <div><div class="l">Total Burn MTD</div><div class="v gold">$65.00</div><div class="s">all sources</div></div>
-      <div><div class="l">Runway</div><div class="v">—</div><div class="s">months at burn rate</div></div>
+      <div><div class="l">Runway</div><div class="v">N/A — requires revenue input</div><div class="s">months at burn rate</div></div>
     </div>
     <div class="fin2">
       <div>
@@ -1088,7 +1088,7 @@ main.canvas-mode{overflow:hidden}
       <div class="tstat"><div class="l">Events today</div><div class="v">32</div><div class="s">all layers</div></div>
       <div class="tstat"><div class="l">Active traces</div><div class="v">21</div><div class="s">last 2h</div></div>
       <div class="tstat"><div class="l">Alerts 24h</div><div class="v" style="color:var(--up)">0</div><div class="s">open + resolved</div></div>
-      <div class="tstat"><div class="l">Avg phase time</div><div class="v">--</div><div class="s">cron cycle</div></div>
+      <div class="tstat"><div class="l">Avg phase time</div><div class="v" style="font-size:12px">N/A — metric not wired</div><div class="s">cron cycle</div></div>
     </div>
     <div class="tel2">
       <div class="panel">
@@ -1269,6 +1269,7 @@ main.canvas-mode{overflow:hidden}
      render function below. Served as a static file (vercel.json "handle":
      "filesystem"), same convention as this repo's other local lib includes. -->
 <script src="lib/warroom-clock.js"></script>
+<script src="lib/warroom-render.js"></script>
 <script>
 /* ============ CONFIG ============ */
 // ASK URL — routes through /api/ask Vercel proxy; key is server-side only, never in client
@@ -1349,7 +1350,7 @@ function buildDrillBody(type, d){
 }
 function buildAgentDrill(a){
   const ok=a.status==='healthy';
-  const lastRun=a.lastRun?timeSince(a.lastRun):'never';
+  const lastRun=WarroomRender.formatAge(a.lastRun,WarroomClock,'never');
   const verdict=ok
     ?`Running on schedule. Last output: ${escHtml((a.lastOutput||a.descOverride||'—').substring(0,80))}`
     :`Error state detected. Last known output: ${escHtml((a.lastOutput||a.log||'—').substring(0,80))}`;
@@ -1386,7 +1387,7 @@ function buildDataDrill(d){
   const statusOk=['live','running'].includes(d.status||'');
   const ents=d.entities||{};
   const entLines=Object.entries(ents).map(([k,v])=>`<span class="k">${k.charAt(0).toUpperCase()+k.slice(1)}</span><span class="v">${fmtN(v)}</span>`).join('');
-  const freshness=d.last_updated?timeSince(d.last_updated):'unknown';
+  const freshness=WarroomRender.formatAge(d.last_updated,WarroomClock,'unknown');
   const verdict=statusOk
     ?`Data is live at <b>${d.size_gb!=null?d.size_gb.toFixed(2)+' GB':'—'}</b> · ${fmtN(d.object_count)} objects.`
     :`Prefix is in <b>${(d.status||'unknown').toUpperCase()}</b> state — check scraper.`;
@@ -1590,7 +1591,7 @@ function openMonkeyHealth(){
     const rwyEl=document.getElementById('mh-rwy');
     if(jarvisEl) jarvisEl.innerHTML=(vm.jarvisOk?'<span style="color:var(--up)">● ALIVE</span>':'<span style="color:var(--down)">● DOWN</span>');
     if(hbEl) hbEl.innerHTML=hb?`${dot(hb)} ${fmt(hb)}`:'<span style="color:var(--dim)">—</span>';
-    if(syncEl) syncEl.textContent=vm.generatedAt?timeSince(vm.generatedAt):'—';
+    if(syncEl) syncEl.textContent=WarroomRender.formatAge(vm.generatedAt,WarroomClock,'N/A — no sync recorded');
     if(s3El) s3El.innerHTML=s3?`${dot(s3)} ${vm.s3gb} GB`:`<span style="color:var(--ink)">${vm.s3gb} GB</span>`;
     if(rwyEl) rwyEl.innerHTML=rwy?`${dot(rwy)} ${fmt(rwy)}`:'<span style="color:var(--dim)">—</span>';
   }
@@ -1951,7 +1952,7 @@ function renderOPS(vm){
     if(running.length>0){
       const r=running[0];
       const pct=r.pct||0;
-      const ago=r.last_run?timeSince(r.last_run):'—';
+      const ago=WarroomRender.formatAge(r.last_run,WarroomClock,'N/A — no run recorded');
       runrowContainer.innerHTML=`
         <div class="rh">${escHtml(r.name)} <span class="badge b-run" style="margin-left:auto">RUNNING</span> <span class="mono" style="font-size:12px">${pct}%</span></div>
         <div class="runbar"><i style="width:${pct}%"></i></div>
@@ -1974,7 +1975,23 @@ function renderOPS(vm){
   const hpq=document.querySelector('#v-ops .hpq');
   if(hpq&&vm.highItems.length>0){
     const item=vm.highItems[0];
-    hpq.innerHTML=`<span class="lbl">${escHtml(item.tag||'HIGH')}</span>${escHtml((item.text||item.full||'').substring(0,120))}
+    // WARROOM-RENDER-001 (2026-08-24): raw internal log lines (task_id:X |
+    // ts:Y | channel:Z | status:W | created_at:V) were rendered verbatim —
+    // leaking an internal Slack channel id into a screen-shared board (§2.5).
+    // formatOpsQueueItem drops the channel field at parse; it never reaches
+    // the DOM, not just hidden by CSS.
+    const parsed=WarroomRender.formatOpsQueueItem(item.text||item.full||'',item.id||'hpq-0');
+    let bodyHtml;
+    if(parsed.state===WarroomRender.STATE.ERROR){
+      WarroomRender.incrementUnrenderable();
+      bodyHtml=escHtml('ERROR — '+parsed.query_id);
+    } else if(parsed.value.plain_text!=null){
+      bodyHtml=escHtml(parsed.value.plain_text);
+    } else {
+      const v=parsed.value;
+      bodyHtml=`<span class="mono">${escHtml(v.task_id)}</span> · ${escHtml(v.status)} · created ${escHtml(String(v.created_at).slice(0,10))}`;
+    }
+    hpq.innerHTML=`<span class="lbl">${escHtml(item.tag||'HIGH')}</span>${bodyHtml}
       <div style="margin-top:8px"><button class="btn bs">⌕ diagnose</button></div>`;
   }
 
@@ -2009,7 +2026,7 @@ function renderAgents(vm){
 
   fleet.innerHTML=agents.map((a,idx)=>{
     const ok=a.status==='healthy';
-    const lastRunStr=a.lastRun?timeSince(a.lastRun):'never';
+    const lastRunStr=WarroomRender.formatAge(a.lastRun,WarroomClock,'never');
     const console_out=escHtml((a.lastOutput||a.descOverride||a.log||'').substring(0,120));
     const name=escHtml(a.name||'—');
     const nameAttr=escJsAttr(a.name||'—');
@@ -2074,8 +2091,8 @@ function renderData(vm){
       const entStr=[['Movies',ents.movies],['TV',ents.tv_series],['Ep',ents.episodes],['People',ents.people]].filter(([,v])=>v).map(([k,v])=>`<b>${k}</b> ${fmtN(v)}`).join(' · ');
       return `<div class="ds" data-prefix-idx="${idx}" style="cursor:pointer">
         <div class="dh"><span class="p">${escHtml(d.prefix||d.path)}</span><span class="badge ${statusClass}">${statusLabel}</span></div>
-        <div class="gb">${d.size_gb!=null?d.size_gb.toFixed(2)+' GB':'— GB'}</div>
-        <div class="ob">${d.object_count!=null?fmtN(d.object_count)+' objects':'—'}</div>
+        <div class="gb">${d.size_gb!=null?d.size_gb.toFixed(2)+' GB':'<span style="font-size:11px">N/A — parse deferred</span>'}</div>
+        <div class="ob">${d.object_count!=null?fmtN(d.object_count)+' objects':'<span style="font-size:11px">N/A — parse deferred</span>'}</div>
         <div class="note">${entStr?entStr+' · ':''}${escHtml(d.note||'')}<br><span style="color:var(--accent);font-size:11px">▾ drill-down</span></div>
       </div>`;
     }).join('');
@@ -2100,7 +2117,7 @@ function renderData(vm){
       <div class="dsgrid">${upFeeds.map(d=>`
         <div class="ds">
           <div class="dh"><span class="p">${escHtml(d.prefix)}</span><span class="badge b-warn">PENDING</span></div>
-          <div class="gb">${d.size_gb!=null&&d.size_gb>0?d.size_gb.toFixed(2)+' GB':'— GB'}</div>
+          <div class="gb">${d.size_gb!=null&&d.size_gb>0?d.size_gb.toFixed(2)+' GB':'<span style="font-size:11px">N/A — parse deferred</span>'}</div>
           <div class="note">${escHtml(d.note||'Ingest not yet started')}</div>
         </div>`).join('')}</div>`;
     }
@@ -2340,6 +2357,37 @@ function renderCosts(vm){
   const allm=us.weekly_all_models_pct||0;
   const design=us.weekly_claude_design_pct||0;
   const vals=[sess,sonnet,allm,design];
+
+  // WARROOM-RENDER-001 (2026-08-24): was static markup — "SONNET 0%" and
+  // "Resets in RESET NOW" — never wired to us.weekly_sonnet_pct /
+  // us.weekly_resets_at at all (§2.5 broken-template finding). Fixed to a
+  // real duration or an explicit N/A — no fabricated "RESET NOW".
+  const sonnetBadge=document.getElementById('quota-sonnet-badge');
+  if(sonnetBadge) sonnetBadge.textContent='SONNET '+sonnet+'%';
+  const resetLabel=document.getElementById('quota-reset-label');
+  if(resetLabel){
+    const resetD=us.weekly_resets_at?new Date(us.weekly_resets_at):null;
+    if(!resetD||isNaN(resetD.getTime())){
+      resetLabel.textContent='N/A — no reset window';
+    } else {
+      // A quota reset window is legitimately a FUTURE timestamp by design —
+      // WarroomClock.toEt()/ageFrom() correctly treat any future timestamp as
+      // clock skew (that's CLOCK-001's C5 rule, meant for stale/mislabeled
+      // writes), so this is a "time until" computation, not a rendered past
+      // event, and must not call those against a future target. Uses
+      // WarroomClock.nowUtc() as the single "now" source (C5/C6) but does its
+      // own future-duration arithmetic, which the clock module doesn't expose.
+      const ms=resetD.getTime()-WarroomClock.nowUtc().getTime();
+      if(ms<=0){
+        resetLabel.textContent='N/A — no reset window';
+      } else {
+        const mins=Math.floor(ms/60000);
+        const dur=mins<60?mins+'m':mins<1440?Math.floor(mins/60)+'h '+(mins%60)+'m':Math.floor(mins/1440)+'d';
+        resetLabel.textContent='Resets in '+dur;
+      }
+    }
+  }
+
   q4.forEach((q,i)=>{
     const v=vals[i]||0;
     const vEl=q.querySelector('.v');if(vEl) vEl.textContent=v+'%';
@@ -2452,7 +2500,7 @@ function renderTelemetry(vm){
   if(alertRows){
     if(openAlerts.length>0){
       alertRows.innerHTML=openAlerts.slice(0,8).map(a=>{
-        const age=a.timestamp?timeSince(a.timestamp):'—';
+        const age=WarroomRender.formatAge(a.timestamp,WarroomClock,'N/A — no timestamp');
         return `<div class="evrow"><span class="e">${escHtml(String(a.rule_id||a.type||'ALERT'))}: ${escHtml(String(a.message||a.text||''))}</span><span class="mono" style="margin-left:auto;font-size:10px;color:var(--dim)">${age}</span></div>`;
       }).join('');
     } else {
@@ -2539,12 +2587,20 @@ async function renderFintel(){
   const data=await loadFintel();
   if(!data) return Promise.resolve();
   // update Last refresh from financial_data.json meta
+  // WARROOM-RENDER-001 (2026-08-24): was ambient Date.toLocaleString('en-US',
+  // opts) with no timeZone — banned render-code pattern (C5) missed by
+  // check-clock-gate.sh's toLocaleTimeString/toLocaleDateString-only rule
+  // since toLocaleString() is also legitimately used here for numbers
+  // elsewhere. Routed through WarroomClock.toEt (C6, single time source);
+  // was also silently leaving the FINANCIAL INTEL LAST REFRESH tile blank
+  // (§4 finding) when built_at was missing — now explicit N/A.
   const lrEl=document.getElementById('fintel-last-refresh');
-  if(lrEl&&data.meta&&data.meta.built_at){
-    const d=new Date(data.meta.built_at);
-    if(!isNaN(d)){
-      const opts={month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'};
-      lrEl.textContent=d.toLocaleString('en-US',opts);
+  if(lrEl){
+    if(data.meta&&data.meta.built_at){
+      const et=WarroomClock.toEt(data.meta.built_at);
+      lrEl.textContent=et.state==='error'?('ERROR — '+(et.reason||'clock skew')):et.display;
+    } else {
+      lrEl.textContent='N/A — no refresh timestamp available';
     }
   }
   // keep demo table if no data structured as expected
@@ -2564,15 +2620,6 @@ async function renderFintel(){
 }
 
 /* ============ helpers ============ */
-function timeSince(iso){
-  if(!iso) return '—';
-  const d=new Date(iso);if(isNaN(d)) return '—';
-  const s=Math.floor((Date.now()-d)/1000);
-  if(s<60) return s+'s ago';
-  if(s<3600) return Math.floor(s/60)+'m ago';
-  if(s<86400) return Math.floor(s/3600)+'h ago';
-  return Math.floor(s/86400)+'d ago';
-}
 function fmtN(n){
   if(n==null) return '—';
   if(n>=1e9) return (n/1e9).toFixed(1)+'B';
@@ -2592,7 +2639,7 @@ function updateStatusBar(vm){
   const medEl=document.querySelector('.statusbar span:nth-child(4)');
   if(medEl) medEl.innerHTML='MED <span style="color:#FBBF24">'+vm.queueMed+'</span>';
   const agoEl=document.getElementById('agos');
-  if(agoEl&&vm.generatedAt) agoEl.textContent=timeSince(vm.generatedAt);
+  if(agoEl&&vm.generatedAt) agoEl.textContent=WarroomRender.formatAge(vm.generatedAt,WarroomClock,'N/A — no sync recorded');
 
   const ageMs = vm.generatedAt ? (Date.now()-new Date(vm.generatedAt)) : null;
   const isStale = ageMs!=null && !isNaN(ageMs) && ageMs>STALE_AMBER_MS;
@@ -2663,7 +2710,7 @@ async function renderFinance(vm){
       if(cells[2])cells[2].querySelector('.v').textContent='$'+(b.tools_mtd||20).toFixed(2);
       const totalV=cells[3]&&cells[3].querySelector('.v');
       if(totalV){totalV.textContent='$'+(b.total_mtd||0).toFixed(2);totalV.className='v gold';}
-      if(cells[4])cells[4].querySelector('.v').textContent=b.runway_months!=null?b.runway_months+'mo':'—';
+      if(cells[4])cells[4].querySelector('.v').textContent=b.runway_months!=null?b.runway_months+'mo':'N/A — requires revenue input';
     } else if(cs.total_cost_usd){
       if(cells[0])cells[0].querySelector('.v').textContent='$'+cs.total_cost_usd.toFixed(2);
     }

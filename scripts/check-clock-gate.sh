@@ -49,10 +49,32 @@ for f in "${FILES[@]}"; do
   fi
 done
 
+for f in "${FILES[@]}"; do
+  [ -f "$f" ] || continue
+
+  # WARROOM-RENDER-001 — C2 em-dash payload rule, extended into this SAME
+  # runner (not a second gate script, per C6). The card's own text says this
+  # rule "operates on the tile payload, not on page prose" — a static grep
+  # cannot see runtime payload objects, so lib/warroom-render.js's
+  # assertValidPayload() is the real, authoritative enforcement at runtime.
+  # This is a best-effort static heuristic on top of that: it flags the exact
+  # ternary-fallback pattern that produced every em-dash bug this card fixed
+  # (`cond?value:'—'` / `'--'` / `'---'`), which is cheap to catch before
+  # runtime and catches regressions of the same shape. It will not catch every
+  # possible em-dash-as-value site and is not a substitute for the runtime
+  # assertion — documented here, not silently oversold.
+  hits=$(grep -nE "\?[^:]*:\s*['\"](\xe2\x80\x94|--|---)['\"]" "$f" || true)
+  if [ -n "$hits" ]; then
+    echo "[clock-gate] $f: ternary fallback to a bare em-dash/double-dash literal — use WarroomRender.makeNA()/makeError(), never a bare dash (C2):"
+    echo "$hits" | sed "s|^|  $f:|"
+    fail=1
+  fi
+done
+
 if [ "$fail" -ne 0 ]; then
-  echo "[clock-gate] FAIL — ambient date formatting found outside lib/warroom-clock.js."
+  echo "[clock-gate] FAIL — ambient date formatting or bare-dash payload fallback found."
   exit 1
 fi
 
-echo "[clock-gate] PASS — no ambient date formatting outside lib/warroom-clock.js."
+echo "[clock-gate] PASS — no ambient date formatting outside lib/warroom-clock.js, no bare-dash ternary fallbacks found."
 exit 0
