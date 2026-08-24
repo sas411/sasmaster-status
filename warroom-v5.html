@@ -255,6 +255,13 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 .cash .cb i{display:block;background:var(--down);border-radius:5px 5px 0 0;opacity:.75}
 .cash .cb span{font-family:var(--mono);font-size:8.5px;color:var(--dim);margin-top:4px}
 
+/* WARROOM-RENDER-001 (2026-08-24): shared C2 render-state classes emitted by
+   lib/warroom-render.js renderValue() — distinct visual weight per state. */
+.v-value{color:var(--ink)}
+.v-zero{color:var(--ink)}
+.v-na{color:var(--dim);font-style:italic}
+.v-error{color:var(--down);font-weight:600}
+
 /* TELEMETRY */
 .t4{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
 .tstat{background:var(--surface);border:1px solid var(--bd);border-radius:14px;padding:13px 17px}
@@ -765,7 +772,12 @@ main.canvas-mode{overflow:hidden}
       </div>
       <div class="panel">
         <div class="sec-h"><h2>High priority queue</h2><span class="right">view all →</span></div>
-        <div class="hpq"><span class="lbl">INFRA</span>task_id:TASK-017 | ts:1780651364.733999 | channel:COATABZAH39 | status:PENDING | created_a…
+        <!-- WARROOM-RENDER-001 remediation (2026-08-24, MAINTAINER gap 6): this static skeleton
+             markup shipped a raw, hardcoded internal-log-line-shaped placeholder (channel-id
+             pattern) in page source, before renderOPS() ever runs — replaced with a genuinely
+             inert loading placeholder. renderOPS() overwrites this element's innerHTML on every
+             render pass via formatOpsQueueItem() (channel field dropped at parse). -->
+        <div class="hpq"><span class="lbl">INFRA</span>Loading queue…
           <div style="margin-top:8px"><button class="btn bs">⌕ diagnose</button></div>
         </div>
       </div>
@@ -1088,7 +1100,7 @@ main.canvas-mode{overflow:hidden}
       <div class="tstat"><div class="l">Events today</div><div class="v">32</div><div class="s">all layers</div></div>
       <div class="tstat"><div class="l">Active traces</div><div class="v">21</div><div class="s">last 2h</div></div>
       <div class="tstat"><div class="l">Alerts 24h</div><div class="v" style="color:var(--up)">0</div><div class="s">open + resolved</div></div>
-      <div class="tstat"><div class="l">Avg phase time</div><div class="v" style="font-size:12px">N/A — metric not wired</div><div class="s">cron cycle</div></div>
+      <div class="tstat"><div class="l">Avg phase time</div><div class="v" id="tstat-avg-phase-time" style="font-size:12px">N/A — metric not wired</div><div class="s">cron cycle</div></div>
     </div>
     <div class="tel2">
       <div class="panel">
@@ -2068,6 +2080,37 @@ function viewLogs(name){
   window.open(apiUrl('/logs?agent='+encodeURIComponent(name)),'_blank');
 }
 
+// WARROOM-RENDER-001 remediation (2026-08-24, MAINTAINER gap 1): DATA gracenote_size
+// ("gracenote/ — GB" / object-count badges) — real C2 payload objects via
+// makeValue/makeZero/makeNA + renderValue(), not a hand-rolled ternary. `allowZero`
+// preserves the two sites' pre-existing behavior: the main dsgrid treats size_gb===0
+// as a genuine ZERO value; the demoted "Upcoming datasets" section (gracenote/ etc.,
+// not yet ingested) treats 0 the same as null — parse hasn't happened yet.
+function renderGbCell(sizeGb,allowZero){
+  var payload;
+  if(sizeGb==null||(!allowZero&&sizeGb===0)){
+    payload=WarroomRender.makeNA('parse deferred','s3prefixes.size_gb',null);
+  } else if(sizeGb===0){
+    payload=WarroomRender.makeZero('s3prefixes.size_gb',null);
+  } else {
+    payload=WarroomRender.makeValue(sizeGb,'s3prefixes.size_gb',null);
+  }
+  var rv=WarroomRender.renderValue(payload,function(v){return v.toFixed(2)+' GB';});
+  return payload.state==='value'?rv.text:('<span style="font-size:11px" class="'+rv.cls+'">'+rv.text+'</span>');
+}
+function renderObjCountCell(objectCount){
+  var payload;
+  if(objectCount==null){
+    payload=WarroomRender.makeNA('parse deferred','s3prefixes.object_count',null);
+  } else if(objectCount===0){
+    payload=WarroomRender.makeZero('s3prefixes.object_count',null);
+  } else {
+    payload=WarroomRender.makeValue(objectCount,'s3prefixes.object_count',null);
+  }
+  var rv=WarroomRender.renderValue(payload,function(v){return fmtN(v)+' objects';});
+  return payload.state==='value'?rv.text:('<span style="font-size:11px" class="'+rv.cls+'">'+rv.text+'</span>');
+}
+
 /* ============ renderData ============ */
 function renderData(vm){
   // stale legacy paths — removed from live grid
@@ -2091,8 +2134,8 @@ function renderData(vm){
       const entStr=[['Movies',ents.movies],['TV',ents.tv_series],['Ep',ents.episodes],['People',ents.people]].filter(([,v])=>v).map(([k,v])=>`<b>${k}</b> ${fmtN(v)}`).join(' · ');
       return `<div class="ds" data-prefix-idx="${idx}" style="cursor:pointer">
         <div class="dh"><span class="p">${escHtml(d.prefix||d.path)}</span><span class="badge ${statusClass}">${statusLabel}</span></div>
-        <div class="gb">${d.size_gb!=null?d.size_gb.toFixed(2)+' GB':'<span style="font-size:11px">N/A — parse deferred</span>'}</div>
-        <div class="ob">${d.object_count!=null?fmtN(d.object_count)+' objects':'<span style="font-size:11px">N/A — parse deferred</span>'}</div>
+        <div class="gb">${renderGbCell(d.size_gb,true)}</div>
+        <div class="ob">${renderObjCountCell(d.object_count)}</div>
         <div class="note">${entStr?entStr+' · ':''}${escHtml(d.note||'')}<br><span style="color:var(--accent);font-size:11px">▾ drill-down</span></div>
       </div>`;
     }).join('');
@@ -2117,7 +2160,7 @@ function renderData(vm){
       <div class="dsgrid">${upFeeds.map(d=>`
         <div class="ds">
           <div class="dh"><span class="p">${escHtml(d.prefix)}</span><span class="badge b-warn">PENDING</span></div>
-          <div class="gb">${d.size_gb!=null&&d.size_gb>0?d.size_gb.toFixed(2)+' GB':'<span style="font-size:11px">N/A — parse deferred</span>'}</div>
+          <div class="gb">${renderGbCell(d.size_gb,false)}</div>
           <div class="note">${escHtml(d.note||'Ingest not yet started')}</div>
         </div>`).join('')}</div>`;
     }
@@ -2367,8 +2410,20 @@ function renderCosts(vm){
   const resetLabel=document.getElementById('quota-reset-label');
   if(resetLabel){
     const resetD=us.weekly_resets_at?new Date(us.weekly_resets_at):null;
+    // WARROOM-RENDER-001 remediation (2026-08-24, MAINTAINER gap 1 + gap 5): real C2 payload
+    // object driving this tile (was a bare textContent assignment). Gap 5: the old three-way
+    // ternary (`mins<60?Nm:mins<1440?"Nh Mm":"Nd"`) only produced the card's required
+    // `^\d+[hd] \d+m$` shape in the 1h-23h59m band — sub-hour ("45m") and multi-day ("2d")
+    // outputs were honest values in a non-compliant format. Fixed to ALWAYS emit `\d+[hd] \d+m`:
+    // sub-hour renders "0h Nm" (0 hours + N minutes, exact), multi-day renders "Nd Mm" where M is
+    // the exact remaining minutes after whole days (drops the intermediate hours unit rather than
+    // the information — total minutes always reconstructs the true duration, never rounds away or
+    // fabricates). The regex itself is arguably too narrow for a clean multi-day display (it has
+    // no 3-unit "Nd Mh" form), but that's VERIFY(g)'s own text to revisit, not something to
+    // silently paper over here by picking a non-compliant format.
+    let resetPayload;
     if(!resetD||isNaN(resetD.getTime())){
-      resetLabel.textContent='N/A — no reset window';
+      resetPayload=WarroomRender.makeNA('no reset window','usage-state:weekly_resets_at',null);
     } else {
       // A quota reset window is legitimately a FUTURE timestamp by design —
       // WarroomClock.toEt()/ageFrom() correctly treat any future timestamp as
@@ -2379,13 +2434,18 @@ function renderCosts(vm){
       // own future-duration arithmetic, which the clock module doesn't expose.
       const ms=resetD.getTime()-WarroomClock.nowUtc().getTime();
       if(ms<=0){
-        resetLabel.textContent='N/A — no reset window';
+        resetPayload=WarroomRender.makeNA('no reset window','usage-state:weekly_resets_at',us.weekly_resets_at);
       } else {
         const mins=Math.floor(ms/60000);
-        const dur=mins<60?mins+'m':mins<1440?Math.floor(mins/60)+'h '+(mins%60)+'m':Math.floor(mins/1440)+'d';
-        resetLabel.textContent='Resets in '+dur;
+        let dur;
+        if(mins<60) dur='0h '+mins+'m';
+        else if(mins<1440) dur=Math.floor(mins/60)+'h '+(mins%60)+'m';
+        else dur=Math.floor(mins/1440)+'d '+(mins%1440)+'m';
+        resetPayload=WarroomRender.makeValue(dur,'usage-state:weekly_resets_at',us.weekly_resets_at);
       }
     }
+    const rv=WarroomRender.renderValue(resetPayload,v=>'Resets in '+v);
+    resetLabel.textContent=rv.text;
   }
 
   q4.forEach((q,i)=>{
@@ -2460,6 +2520,18 @@ function renderTelemetry(vm){
     vEl.style.color=open===0?'var(--up)':'var(--down)';
   }
 
+  // WARROOM-RENDER-001 remediation (2026-08-24, MAINTAINER gap 1): TELEMETRY avg_phase_time —
+  // no wired source exists anywhere in status.json/vm for a cron-phase-duration metric (grepped
+  // the repo, confirmed genuinely absent — this is NOT a computable value being papered over as
+  // N/A, per C1). Wired through the real C2 payload contract instead of static markup so
+  // assertValidPayload() runs against this tile too.
+  const avgPhaseEl=document.getElementById('tstat-avg-phase-time');
+  if(avgPhaseEl){
+    const avgPhasePayload=WarroomRender.makeNA('metric not wired','telemetry.avg_phase_time',null);
+    const rv=WarroomRender.renderValue(avgPhasePayload);
+    avgPhaseEl.textContent=rv.text;
+  }
+
   // event feed
   // WARROOM-CLOCK-001 (2026-08-24): was combining recentActivity (has .ts) with
   // slackFeed.builds items (ts:'', no real timestamp) then slicing WITHOUT
@@ -2478,17 +2550,20 @@ function renderTelemetry(vm){
     ];
     const sorted=WarroomClock.sortFeedDesc(rawItems,'ts').slice(0,12);
     if(sorted.length>0){
+      // WARROOM-RENDER-001 remediation (2026-08-24, MAINTAINER gap 4): every feed row now goes
+      // through the typed formatTelemetryEvent() (§2.5), not hand-rolled ts/tag/text assembly.
+      // Unformattable rows render ERROR — unrenderable event <id> and increment the exported
+      // unrenderable_event counter, per the card, instead of silently degrading to "ERROR" text
+      // with no id.
       evfeed.innerHTML=sorted.map(ev=>{
-        let ts;
-        if(ev._clockState==='error'){
-          ts=`<span title="${escHtml(ev._clockReason||'clock error')}">ERROR</span>`;
-        } else {
-          const et=WarroomClock.toEt(ev.ts);
-          ts=et.state==='ok'?escHtml(et.display.replace(' ET','').split(' (')[0]):'ERROR';
+        const fmt=WarroomRender.formatTelemetryEvent(ev,ev._id,WarroomClock);
+        if(fmt.state==='error'){
+          return `<div class="evrow"><span class="t" title="${escHtml(fmt.reason||'')}">ERROR</span><span class="tag tg-trig">ERR</span><span class="e">ERROR — ${escHtml(fmt.query_id)}</span></div>`;
         }
-        const tagCls=ev.type==='pipeline'||ev.type==='build'?'tg-stor':ev.type==='intel'?'tg-data':'tg-trig';
-        const tagLabel=escHtml(String(ev.type||'EVENT').toUpperCase().substring(0,7));
-        return `<div class="evrow"><span class="t">${ts}</span><span class="tag ${tagCls}">${tagLabel}</span><span class="e">${escHtml(String(ev.text||'').substring(0,60))}</span></div>`;
+        const {type,subject,et_display}=fmt.value;
+        const tagCls=type==='PIPELINE'||type==='BUILD'?'tg-stor':type==='INTEL'?'tg-data':'tg-trig';
+        const ts=et_display?escHtml(et_display.replace(' ET','').split(' (')[0]):'ERROR';
+        return `<div class="evrow"><span class="t">${ts}</span><span class="tag ${tagCls}">${escHtml(type)}</span><span class="e">${escHtml(subject)}</span></div>`;
       }).join('');
     }
   }
@@ -2596,12 +2671,19 @@ async function renderFintel(){
   // (§4 finding) when built_at was missing — now explicit N/A.
   const lrEl=document.getElementById('fintel-last-refresh');
   if(lrEl){
+    // WARROOM-RENDER-001 remediation (2026-08-24, MAINTAINER gap 1): real C2 payload object
+    // (makeValue/makeNA/makeError) driving this tile, not a hand-rolled if/else producing
+    // correct-looking text with no served state/reason/query_id.
+    let lrPayload;
     if(data.meta&&data.meta.built_at){
       const et=WarroomClock.toEt(data.meta.built_at);
-      lrEl.textContent=et.state==='error'?('ERROR — '+(et.reason||'clock skew')):et.display;
+      lrPayload=et.state==='error'
+        ?WarroomRender.makeError('fintel-clock-'+String(et.reason||'skew').replace(/\s+/g,'-'),'financial_data.json:meta.built_at')
+        :WarroomRender.makeValue(et.display,'financial_data.json:meta.built_at',data.meta.built_at);
     } else {
-      lrEl.textContent='N/A — no refresh timestamp available';
+      lrPayload=WarroomRender.makeNA('no refresh timestamp available','financial_data.json:meta.built_at',null);
     }
+    lrEl.textContent=WarroomRender.renderValue(lrPayload).text;
   }
   // keep demo table if no data structured as expected
   const fitab=document.getElementById('fitab');
@@ -2710,7 +2792,20 @@ async function renderFinance(vm){
       if(cells[2])cells[2].querySelector('.v').textContent='$'+(b.tools_mtd||20).toFixed(2);
       const totalV=cells[3]&&cells[3].querySelector('.v');
       if(totalV){totalV.textContent='$'+(b.total_mtd||0).toFixed(2);totalV.className='v gold';}
-      if(cells[4])cells[4].querySelector('.v').textContent=b.runway_months!=null?b.runway_months+'mo':'N/A — requires revenue input';
+      // WARROOM-RENDER-001 remediation (2026-08-24, MAINTAINER gap 1/2): cells[4] IS the
+      // "Runway" KPI div at the top of #v-finance .coststrip (the same element the static
+      // markup at line ~1032 seeds before JS runs, positionally targeted, not by id) — there
+      // is only ONE live render site for this tile, not two. Wired through the real C2
+      // payload contract (makeValue/makeNA + renderValue) so assertValidPayload() actually
+      // runs against this tile instead of a hand-rolled ternary producing correct-looking text.
+      if(cells[4]){
+        const runwayPayload=b.runway_months!=null
+          ?WarroomRender.makeValue(b.runway_months,'finance-data.json:burn.runway_months',fd.meta&&fd.meta.built_at||null)
+          :WarroomRender.makeNA('requires revenue input','finance-data.json:burn.runway_months',fd.meta&&fd.meta.built_at||null);
+        const rv=WarroomRender.renderValue(runwayPayload,v=>v+'mo');
+        const vEl=cells[4].querySelector('.v');
+        if(vEl){vEl.textContent=rv.text;vEl.className='v '+rv.cls;}
+      }
     } else if(cs.total_cost_usd){
       if(cells[0])cells[0].querySelector('.v').textContent='$'+cs.total_cost_usd.toFixed(2);
     }
@@ -3095,7 +3190,12 @@ async function fetchTodayPiece(){
       CV._critique=c;
       // re-render only the rubric section, not the whole panel
       const rp=document.querySelector('.rubric-panel');
-      if(rp)rp.outerHTML=c?renderRubric(c):'<div class="rubric-panel"><div class="rp-h">CRITIQUE RUBRIC</div><div style="font-size:11px;color:var(--dim)">critique.json not available</div></div>';
+      // WARROOM-RENDER-001 remediation (2026-08-24, MAINTAINER gap 3): renderRubric(c) now
+      // handles the missing-artifact case itself (empty state + action, via
+      // formatCanvasArtifact) — this call site no longer needs its own duplicate fallback
+      // string (the previously-leaked filename-as-content literal, deliberately not repeated
+      // here — see VERIFY(e)).
+      if(rp)rp.outerHTML=renderRubric(c);
     });
   }
   // Also load saved annotation from catalog entry
@@ -3170,8 +3270,17 @@ function renderToday(){
 }
 
 /* ---- render rubric ---- */
+// WARROOM-RENDER-001 remediation (2026-08-24, MAINTAINER gap 3): missing critique is a real
+// empty state via WarroomRender.formatCanvasArtifact() + renderValue() (with an action button),
+// never the source filename printed as prose content (VERIFY(e)).
 function renderRubric(c){
-  if(!c)return '<div class="rubric-panel"><div class="rp-h">CRITIQUE RUBRIC</div><div style="font-size:11px;color:var(--dim)">critique.json not available</div></div>';
+  if(!c){
+    const p=WarroomRender.formatCanvasArtifact(null,'critique');
+    const rv=WarroomRender.renderValue(p);
+    return `<div class="rubric-panel"><div class="rp-h">CRITIQUE RUBRIC</div><div style="font-size:11px" class="${rv.cls}">${rv.text}</div>
+      <div style="margin-top:8px"><button class="btn bs" onclick="fetchTodayPiece()">↻ retry</button></div>
+    </div>`;
+  }
   // New format: has checks array
   if(Array.isArray(c.checks)){
     const overall=c.overall||'UNKNOWN';
@@ -3205,8 +3314,17 @@ function renderRubric(c){
 }
 
 /* ---- render takeaways ---- */
+// WARROOM-RENDER-001 remediation (2026-08-24, MAINTAINER gap 3): same fix as renderRubric —
+// missing takeaways is an empty state via the C2 contract + an action, never the source
+// filename printed as prose.
 function renderTakeaways(items,showAll){
-  if(!items||!items.length)return `<div class="takeaways-panel"><div class="tp-h">TAKEAWAYS</div><div style="font-size:11.5px;color:var(--dim)">takeaways.md not available</div></div>`;
+  if(!items||!items.length){
+    const p=WarroomRender.formatCanvasArtifact(null,'takeaways');
+    const rv=WarroomRender.renderValue(p);
+    return `<div class="takeaways-panel"><div class="tp-h">TAKEAWAYS</div><div style="font-size:11.5px" class="${rv.cls}">${rv.text}</div>
+      <div style="margin-top:8px"><button class="btn bs" onclick="fetchTodayPiece()">↻ retry</button></div>
+    </div>`;
+  }
   const max=5;
   const visible=showAll?items:items.slice(0,max);
   const hasMore=items.length>max;

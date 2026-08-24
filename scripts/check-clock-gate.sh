@@ -16,7 +16,10 @@ cd "$(dirname "$0")/.."
 
 FILES=("$@")
 if [ ${#FILES[@]} -eq 0 ]; then
-  FILES=(warroom-v5.html generate-status.js)
+  # WARROOM-RENDER-001 remediation (2026-08-24, MAINTAINER gap 7): lib/warroom-render.js was
+  # never in the default scan set, so its own em-dash-fallback pattern (formatAge()) went
+  # unchecked by the gate that this same card introduced. Added.
+  FILES=(warroom-v5.html generate-status.js lib/warroom-render.js)
 fi
 
 fail=0
