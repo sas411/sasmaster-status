@@ -1282,6 +1282,7 @@ main.canvas-mode{overflow:hidden}
      "filesystem"), same convention as this repo's other local lib includes. -->
 <script src="lib/warroom-clock.js"></script>
 <script src="lib/warroom-render.js"></script>
+<script src="lib/warroom-health.js"></script>
 <script>
 /* ============ CONFIG ============ */
 // ASK URL — routes through /api/ask Vercel proxy; key is server-side only, never in client
@@ -1361,11 +1362,12 @@ function buildDrillBody(type, d){
   return '<div style="color:var(--dim);font-size:13px">No detail available.</div>';
 }
 function buildAgentDrill(a){
-  const ok=a.status==='healthy';
+  const badge=agentHealthBadge(a);
+  const ok=badge.ok;
   const lastRun=WarroomRender.formatAge(a.lastRun,WarroomClock,'never');
   const verdict=ok
     ?`Running on schedule. Last output: ${escHtml((a.lastOutput||a.descOverride||'—').substring(0,80))}`
-    :`Error state detected. Last known output: ${escHtml((a.lastOutput||a.log||'—').substring(0,80))}`;
+    :`${escHtml(badge.text)}. Last known output: ${escHtml((a.lastOutput||a.log||'—').substring(0,80))}`;
   const nowWhat=ok
     ?'<span class="nw-lbl">NOW WHAT</span>No action needed. Monitor next scheduled run.'
     :`<span class="nw-lbl">NOW WHAT</span>1. Check logs via <b>📄 Logs</b> button on the card.<br>2. Verify schedule is active in crontab.<br>3. Re-run manually if last run > 24h.`;
@@ -1374,7 +1376,7 @@ function buildAgentDrill(a){
   <div class="dd-sec">
     <div class="dd-sl">STATUS OVERVIEW</div>
     <div class="dd-kv">
-      <span class="k">Status</span><span class="v ${ok?'pos':'neg'}">${ok?'● HEALTHY':'● ERROR'}</span>
+      <span class="k">Status</span><span class="v ${ok?'pos':'neg'}" title="${escHtml(badge.ariaTitle)}">${ok?'● ':'● '}${escHtml(badge.text)}</span>
       <span class="k">Last run</span><span class="v">${lastRun}</span>
       <span class="k">Schedule</span><span class="v">${escHtml(a.schedule||'—')}</span>
       <span class="k">Next run</span><span class="v">${escHtml(a.nextRun||'—')}</span>
@@ -1685,6 +1687,12 @@ function adapt(d){
     agentsLive:d.kpis&&d.kpis.agents_running!=null?d.kpis.agents_running:0,
     agentsTotal:d.kpis&&d.kpis.agents_total!=null?d.kpis.agents_total:0,
     agentsLiveTotal:d.kpis&&d.kpis.agents_live_total!=null?d.kpis.agents_live_total:0,
+    // WARROOM-HEALTH-001 / GATE-B (S5b): the computed ratio and whether Shiv has actually
+    // ruled on fleet classification yet. Every render site showing "N healthy" must check
+    // agentsGateBRuled before showing a number (C1) — see renderAgentRatio() below.
+    agentsHealthyComputed:d.kpis&&d.kpis.agents_healthy_computed!=null?d.kpis.agents_healthy_computed:0,
+    agentsClassifiedDenominator:d.kpis&&d.kpis.agents_classified_denominator!=null?d.kpis.agents_classified_denominator:0,
+    agentsGateBRuled:Boolean(d.kpis&&d.kpis.agents_gate_b_ruled),
     // TRUTHFUL-VITALS-001: prefer server-computed health score; never fall back to a calm constant.
     // When score is genuinely unknown (no data), use null — renders as "—", not a lying 0% or 71%.
     healthPct:d.health&&d.health.score!=null?d.health.score
@@ -1805,7 +1813,7 @@ function renderHeader(vm){
   const pills=document.querySelectorAll('header.top .pill');
   if(pills[0]) pills[0].innerHTML=`<span class="dot ${vm.jarvisOk?'dg':'dr'}"></span>JARVIS`;
   if(pills[1]){const s3v=vm.s3gb;const s3disp=s3v>=1000?`${(s3v/1000).toFixed(2)} TB`:`${s3v} GB`;pills[1].innerHTML=`<span class="dot dg"></span>S3 <b>${s3disp}</b>`;}
-  if(pills[2]) pills[2].innerHTML=`<span class="dot ${vm.agentsLive>0?'dg':'da'}"></span>Agents <b>${vm.agentsLive}/${vm.agentsTotal}</b>`;
+  if(pills[2]) pills[2].innerHTML=`<span class="dot ${vm.agentsLive>0?'dg':'da'}"></span>Agents <b>${escHtml(renderAgentRatio(vm,{short:true}))}</b>`;
   // health bar — TRUTHFUL-VITALS-001: grade drives color, pct drives width
   const bar=document.querySelector('.healthbar .bar i');
   const pct=vm.healthPct;  // null = unknown; never coerce to 0
@@ -1824,7 +1832,7 @@ function renderKPIStrip(vm){
   const strip=document.querySelector('.kstrip');
   if(!strip) return;
   const cells=strip.querySelectorAll('.k');
-  if(cells[0]){cells[0].querySelector('.v').textContent=k.agentsLive+'/'+k.agentsTotal;cells[0].querySelector('.c').textContent=k.agentsLive+' live healthy';}
+  if(cells[0]){cells[0].querySelector('.v').textContent=renderAgentRatio(vm,{short:true});cells[0].querySelector('.c').textContent=vm.agentsGateBRuled?(vm.agentsHealthyComputed+' live healthy'):'fleet unclassified (§5b)';}
   if(cells[1]){const sv=k.s3gb;const isTB=sv>=1000;cells[1].querySelector('.v').innerHTML=isTB?`${(sv/1000).toFixed(2)} <small>TB</small>`:sv+' <small>GB</small>';cells[1].querySelector('.c').textContent=isTB?'TB total':'GB total';}
   // TRUTHFUL-VITALS-001: followUp = server-computed real follow-up count, not tasks-open count
   if(cells[2]){const fu=vm.followUp??0;const v=cells[2].querySelector('.v');v.textContent=fu;v.style.color=fu===0?'var(--up)':'var(--warn)';cells[2].querySelector('.c').textContent=fu===0?'all clear':fu+' need attention';}
@@ -2033,23 +2041,60 @@ function renderOPS(vm){
 }
 
 /* ============ renderAgents ============ */
+// WARROOM-HEALTH-001 / GATE-B (S5b): the one place the "N healthy" ratio text is built —
+// every render site below calls this instead of formatting vm.agentsLive/vm.agentsTotal
+// itself (C6). Renders the computed ratio only once Shiv has ruled on fleet classification;
+// before that, an honest N/A per C1 rather than a number with no valid denominator.
+function renderAgentRatio(vm,opts){
+  opts=opts||{};
+  if(!vm.agentsGateBRuled){
+    return opts.short?'N/A':'N/A — fleet unclassified (§5b)';
+  }
+  return vm.agentsHealthyComputed+'/'+vm.agentsClassifiedDenominator;
+}
+
+// WARROOM-HEALTH-001 (C3/C6): the ONE place an agent's healthEval.state maps to badge
+// text/class/aria-title. No badge string is ever asserted outside this function — every
+// caller (card grid, drill-down) reads its return value, never a.status literal.
+function agentHealthBadge(a){
+  const he=a.healthEval||{state:'na',age:null,reason:'health not computed',inputs:null};
+  const st=he.state;
+  const ageSuffix=he.age?(' '+he.age):'';
+  const map={
+    healthy:  {text:'HEALTHY', cls:'b-ok',  ok:true},
+    late:     {text:'LATE'+ageSuffix, cls:'b-warn', ok:false},
+    stale:    {text:'STALE'+ageSuffix, cls:'b-err', ok:false},
+    failed:   {text:'FAILED', cls:'b-err', ok:false},
+    never_run:{text:'NEVER RUN', cls:'b-err', ok:false},
+    blocked:  {text:'BLOCKED', cls:'b-warn', ok:false},
+    retired:  {text:'RETIRED', cls:'b-warn', ok:false},
+    na:       {text:'N/A — '+(he.reason||'not evaluated'), cls:'b-warn', ok:false},
+    error:    {text:'ERROR — '+(he.reason||'evaluator error'), cls:'b-err', ok:false}
+  };
+  const b=map[st]||map.na;
+  const inp=he.inputs||{};
+  const ariaTitle=`last_run=${inp.last_run||'—'} exit_code=${inp.last_exit!=null?inp.last_exit:'—'} cadence=${inp.cadence_ms!=null?(inp.cadence_ms/3600000).toFixed(1)+'h':'none'} age=${inp.age||'—'}`;
+  return {text:b.text, cls:b.cls, ok:b.ok, ariaTitle};
+}
+
 function renderAgents(vm){
   const fleet=document.getElementById('fleet');
   if(!fleet) return;
   const agents=vm.agents.length>0?vm.agents:DEMO_DATA.agents;
   const hdr=document.querySelector('#v-agents .sec-h span');
-  if(hdr) hdr.textContent=agents.length+' agents · '+vm.agentsLive+' healthy';
+  if(hdr) hdr.textContent=agents.length+' agents · '+renderAgentRatio(vm,{short:true})+' healthy';
   const hdr2=document.querySelector('#v-agents .sec-h .right');
   if(hdr2) hdr2.textContent='LIVE & CRON AGENTS · '+vm.agentsLiveTotal;
 
   fleet.innerHTML=agents.map((a,idx)=>{
-    const ok=a.status==='healthy';
+    const badge=agentHealthBadge(a);
+    const ok=badge.ok;
     const lastRunStr=WarroomRender.formatAge(a.lastRun,WarroomClock,'never');
     const console_out=escHtml((a.lastOutput||a.descOverride||a.log||'').substring(0,120));
     const name=escHtml(a.name||'—');
     const nameAttr=escJsAttr(a.name||'—');
     return `<div class="acard ${ok?'':'err'}" data-agent-idx="${idx}" style="cursor:pointer">
-      <div class="ah"><span>${a.icon||'🤖'}</span><span class="nm">${name}</span><span class="badge ${ok?'b-ok':'b-err'}">${ok?'HEALTHY':'ERROR'}</span></div>
+      <div class="ah"><span>${a.icon||'🤖'}</span><span class="nm">${name}</span><span class="badge ${badge.cls}" title="${escHtml(badge.ariaTitle)}" aria-label="${escHtml(badge.ariaTitle)}">${escHtml(badge.text)}</span></div>
       <div class="meta">
         <div><div class="l">Last run</div><div class="v" style="color:${ok?'var(--up)':'var(--down)'}">${lastRunStr}</div></div>
         <div><div class="l">Schedule</div><div class="v">${escHtml(a.schedule||'—')}</div></div>

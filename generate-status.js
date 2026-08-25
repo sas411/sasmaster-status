@@ -8,6 +8,7 @@ const fs   = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const WarroomClock = require('./lib/warroom-clock.js'); // WARROOM-CLOCK-001 — the one clock module (C5)
+const WarroomHealth = require('./lib/warroom-health.js'); // WARROOM-HEALTH-001 — the one health evaluator (C6)
 
 const SASMASTER   = path.join(process.env.HOME, 'SaSMaster');
 const PENDING     = path.join(SASMASTER, 'pending-approvals.json');
@@ -217,8 +218,101 @@ function parsePending() {
 // ── Agent fleet ──────────────────────────────────────────────────────────────
 // `jobId` maps to Command API /trigger VALID_JOBS — null means no Run button.
 // `channel` is the primary Slack destination — used by UI without a hardcoded map.
+// WARROOM-HEALTH-001 — cadence/job registry for the 14 live/cron agents. Source of truth
+// (this table is authoritative at runtime; WARROOM_AGENT_INVENTORY.md in ~/SaSMaster mirrors
+// it for human review/edit — see that file's own note on keeping the two in sync, C6: this
+// is the ONE place cadence_ms/job/expected_state are declared, the doc is documentation of
+// it, not a second source). cadence_ms=null means no scheduler entry exists (GATE-C) — never
+// guessed. `job` is the real `ops.run_log.job` column value, resolved from
+// docs/JOB_ID_NAMING.md + the Phase-0 crontab capture where parseAgents()'s own `jobId` field
+// is absent or doesn't match (SEC EDGAR, Financial Analyst, Security Watchdog, Railway
+// Monitor have no jobId here at all; IAB Intel's jobId 'iab-intel' doesn't match the real job
+// 'iab-agent' — both gaps flagged in WARROOM_AGENT_INVENTORY.md, not silently patched over).
+const AGENT_HEALTH_CONFIG = {
+  'JARVIS':            { job: null,                  cadence_ms: null,                expected_state: 'active' },
+  'Media Intel':       { job: 'media-intel-agent',   cadence_ms: 24 * 3600000,        expected_state: 'active' },
+  'TMDB Daily':        { job: 'tmdb-daily-agent',    cadence_ms: 24 * 3600000,        expected_state: 'active' },
+  'DoneLog Analyst':   { job: 'donelog-analyst',     cadence_ms: 24 * 3600000,        expected_state: 'active' }, // crontab says daily; parseAgents() label says "Post-build" — discrepancy flagged in WARROOM_AGENT_INVENTORY.md, crontab wins per GATE-C
+  'LinkedIn Agent':    { job: 'linkedin-agent',      cadence_ms: 7 * 24 * 3600000,     expected_state: 'active' },
+  'SEC EDGAR':         { job: 'edgar-scraper',       cadence_ms: 24 * 3600000,        expected_state: 'active' },
+  'Tech Intel':        { job: 'tech-intel-agent',    cadence_ms: 7 * 24 * 3600000,     expected_state: 'active' },
+  'Financial Analyst': { job: 'financial-analyst',   cadence_ms: 7 * 24 * 3600000,     expected_state: 'active' },
+  'Weekly Review':     { job: 'weekly-review-agent', cadence_ms: 7 * 24 * 3600000,     expected_state: 'active' },
+  'IAB Intel':         { job: 'iab-agent',           cadence_ms: 7 * 24 * 3600000,     expected_state: 'active' },
+  'Security Watchdog': { job: 'security-watchdog',   cadence_ms: 24 * 3600000,        expected_state: 'active' },
+  'Railway Monitor':   { job: 'railway-monitor',     cadence_ms: 15 * 60000,          expected_state: 'active' },
+  'Research Portal':   { job: null,                  cadence_ms: null,                expected_state: 'active' },
+  'Data Guardian':     { job: null,                  cadence_ms: null,                expected_state: 'active' },
+};
+
+// GATE-A (Shiv-only): S2.1 vs C4 threshold contradiction, unresolved in the spec itself.
+// No default committed — left null so evaluateHealth() throws and the caller renders
+// `ERROR — gate-a-unresolved` (C2) instead of guessing a threshold. Set both to a number
+// only once Shiv rules on GATE-A (see WARROOM-HEALTH-001 card, options i/ii/iii).
+const AGENT_STALE_MULT = null;
+const FEED_STALE_MULT  = null;
+
+// WARROOM-HEALTH-001 Phase 4 — fetches the latest run_log row per job for the agents in
+// AGENT_HEALTH_CONFIG, in one batched query. Same MOTHERDUCK_TOKEN-as-env-var pattern as
+// readSentinelStatus() (line ~1815) — never interpolated into the connection string.
+// Fails OPEN (empty map) on any read error: an unreadable run-log is not proof of
+// never_run, it just means this cycle can't compute health, which the evaluator surfaces
+// as `has_run_record: false` -> never_run is the honest fallback, not a fabricated state.
+function fetchAgentRunLog() {
+  try {
+    const token = readEnvVar('MOTHERDUCK_TOKEN');
+    if (!token) return {};
+    const jobs = Object.values(AGENT_HEALTH_CONFIG).map(c => c.job).filter(Boolean);
+    if (jobs.length === 0) return {};
+    const jobList = jobs.map(j => `'${j.replace(/'/g, "''")}'`).join(',');
+    const sql = `SELECT job, arg_max(exit_code, started_at) AS last_exit, max(started_at) AS last_started FROM ops.run_log WHERE job IN (${jobList}) GROUP BY job`;
+    const out = execSync(
+      `/opt/homebrew/bin/duckdb -json -c "${sql}" md:sasmaster`,
+      { encoding: 'utf8', timeout: 15000, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, motherduck_token: token } }
+    );
+    const rows = JSON.parse(out);
+    const byJob = {};
+    for (const r of rows) byJob[r.job] = { last_exit: r.last_exit, last_started: r.last_started };
+    return byJob;
+  } catch (e) {
+    return {};
+  }
+}
+
+// WARROOM-HEALTH-001 — computes the evaluator result for one agent. Pulled out of
+// parseAgents()'s .map() so every return branch (including the three early-return paths
+// for statusOverride/no-log/no-logfile agents) gets a healthEval, never a missing field a
+// render call site would crash on.
+function computeAgentHealthEval(a, runLogByJob) {
+  const cfg = AGENT_HEALTH_CONFIG[a.name];
+  if (!cfg) {
+    // Marketplace/subagent/drafted agents (37 of 51) — not in the live-cron denominator
+    // (parseAgents()'s own pre-existing type filter excludes them); no health claim made.
+    return { state: 'na', age: null, reason: 'on-demand, not schedule-evaluated', inputs: null };
+  }
+  const runRow = cfg.job ? runLogByJob[cfg.job] : undefined;
+  try {
+    return WarroomHealth.evaluateHealth({
+      last_run: runRow ? runRow.last_started : null,
+      last_exit: runRow ? runRow.last_exit : null,
+      cadence_ms: cfg.cadence_ms,
+      expected_state: cfg.expected_state,
+      has_run_record: !!runRow,
+      blocked_signal: null, // no agent yet emits the structured C7 signal contract (Phase 4 note)
+      now: WarroomClock.nowUtc(),
+      agentStaleMult: AGENT_STALE_MULT,
+      feedStaleMult: FEED_STALE_MULT
+    });
+  } catch (e) {
+    // GATE-A unresolved (AGENT_STALE_MULT/FEED_STALE_MULT both null) -> evaluateHealth()
+    // throws by design; surfaced as an explicit gate-blocked state, never a guessed one.
+    return { state: 'error', age: null, reason: 'gate-a-unresolved', inputs: null };
+  }
+}
+
 function parseAgents() {
   const LOG = path.join(SASMASTER, 'logs');
+  const runLogByJob = fetchAgentRunLog();
   const agents = [
     { name: 'JARVIS',            icon: '🤖', schedule: 'HTTP API',      nextRun: 'Always on',       log: 'jarvis.log',            channel: 'HTTP Events API',    jobId: null, descOverride: 'HTTP Events API (Railway) — Socket Mode daemon retired' },
     { name: 'Media Intel',       icon: '📡', schedule: '6AM daily',     nextRun: 'Tomorrow 6AM',    log: 'media-intel.log',       channel: '#sasmaster-intel',   jobId: 'media-intel' },
@@ -296,10 +390,11 @@ function parseAgents() {
   ];
 
   return agents.map(a => {
-    if (a.statusOverride) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: a.statusOverride };
-    if (!a.log) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'idle' };
+    const healthEval = computeAgentHealthEval(a, runLogByJob);
+    if (a.statusOverride) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: a.statusOverride, healthEval };
+    if (!a.log) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'idle', healthEval };
     const logFile = path.join(LOG, a.log);
-    if (!fs.existsSync(logFile)) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'never' };
+    if (!fs.existsSync(logFile)) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'never', healthEval };
 
     const lines = fs.readFileSync(logFile, 'utf8').split('\n').filter(Boolean);
     const last  = lines[lines.length - 1] || '';
@@ -313,9 +408,14 @@ function parseAgents() {
 
     const routingErr = /not_in_channel/i.test(last);
     const hardError  = !routingErr && /error|fatal/i.test(last);
+    // Preserved as-is: 'routing'/'error'/'healthy' here feed OTHER consumers outside this
+    // card's scope (e.g. the DATA-tab SEC EDGAR scraper indicator, which reads
+    // a.status==='routing') — not the AGENTS-tab health badge, which now reads healthEval
+    // instead of this field (C6: one evaluator for the badge; this field's remaining
+    // consumers are a genuinely different signal, not a second health computation).
     const status     = hardError ? 'error' : routingErr ? 'routing' : 'healthy';
 
-    return { ...a, lastRun, lastOutput: summary, status };
+    return { ...a, lastRun, lastOutput: summary, status, healthEval };
   });
 }
 
@@ -925,10 +1025,23 @@ function getBuildTrends() {
 }
 
 // ── KPIs (derived) ───────────────────────────────────────────────────────────
+// GATE-B (S5b, Shiv-only): the fleet classification is mechanically defaulted
+// (WARROOM_AGENT_INVENTORY.md — every agent 'active'/'on-demand', none 'retired') but not
+// yet RULED BY SHIV. Per the card: until this gate closes, the header ratio is not rendered
+// as a number at all, even though a computed value exists underneath. Flip to true (and
+// review WARROOM_AGENT_INVENTORY.md's expected_state column for any retired agents) once
+// Shiv rules on S5b.
+const AGENT_FLEET_CLASSIFICATION_RULED = false;
+
 function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haikuPctToday, warroomS3Total) {
   // agents_running counts only live/cron agents (not idle sub-agents or marketplace)
   const liveAgents    = agents.filter(a => !a.type || a.type === 'live');
+  // Pre-WARROOM-HEALTH-001 literal-status count — retained ONLY as the input to the
+  // legacy 'routing' consumers elsewhere (DATA-tab SEC EDGAR indicator); the AGENTS-tab
+  // ratio below uses healthEval.state, the computed value (C3/C6).
   const agents_running = liveAgents.filter(a => a.status === 'healthy' || a.status === 'routing').length;
+  const agents_healthy_computed = liveAgents.filter(a => a.healthEval && a.healthEval.state === 'healthy').length;
+  const agents_classified_denominator = liveAgents.filter(a => !a.healthEval || a.healthEval.state !== 'retired').length;
   const scrapers_live  = scrapers.filter(s => s.status === 'live').length;
   // Prefer warroom-data.json total (4x/day refresh) over stale s3-inventory.json sum
   const s3_gb = warroomS3Total != null
@@ -939,8 +1052,14 @@ function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haiku
 
   return {
     agents_running,
-    agents_total: agents.length,       // 50 — full fleet (live + sub-agents + marketplace)
+    agents_total: agents.length,       // 51 — full fleet (live + sub-agents + marketplace)
     agents_live_total: liveAgents.length, // 14 — live/cron only, used for health bar
+    // WARROOM-HEALTH-001: the ratio C1/GATE-B actually govern. The render layer renders
+    // `N/A — fleet unclassified (S5b)` while gateBRuled is false, a real number once true —
+    // never a guessed value in between (renderValue()'s NA/value branches, not this file).
+    agents_healthy_computed,
+    agents_classified_denominator,
+    agents_gate_b_ruled: AGENT_FLEET_CLASSIFICATION_RULED,
     scrapers_live,
     scrapers_total: scrapers.length,
     s3_gb: Math.round(s3_gb * 10) / 10,
@@ -1851,7 +1970,9 @@ function computeHealthScore(agentList, freshnessList, cronList, sentinelStatus, 
   // ── Component 1: agents (35%) — live/cron type only ──
   const liveAgents  = agentList.filter(a => !a.type || a.type === 'live');
   const agentTotal  = liveAgents.length;
-  const agentHealthy = liveAgents.filter(a => a.status === 'healthy' || a.status === 'routing').length;
+  // WARROOM-HEALTH-001: uses the computed evaluator state (C6 — same function that drives
+  // the AGENTS-tab badge), not the pre-fix asserted 'healthy'/'routing' literal.
+  const agentHealthy = liveAgents.filter(a => a.healthEval && a.healthEval.state === 'healthy').length;
   const agentPct    = agentTotal > 0 ? agentHealthy / agentTotal : 1;
 
   // ── Component 2: canaries (30%) — unexpected fails only (known_fail excluded) ──
