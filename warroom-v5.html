@@ -1695,8 +1695,12 @@ function adapt(d){
     agentsGateBRuled:Boolean(d.kpis&&d.kpis.agents_gate_b_ruled),
     // TRUTHFUL-VITALS-001: prefer server-computed health score; never fall back to a calm constant.
     // When score is genuinely unknown (no data), use null — renders as "—", not a lying 0% or 71%.
+    // WARROOM-HEALTH-001 remediation (2026-08-24): this fallback previously divided the
+    // literal-status-derived agents_running by agents_total — the exact "drift favors green"
+    // failure C6 warns about, one hop removed from the badge. Now uses the evaluateHealth()-
+    // derived agents_healthy_computed / agents_classified_denominator instead.
     healthPct:d.health&&d.health.score!=null?d.health.score
-      :(d.kpis&&d.kpis.agents_total>0?Math.round((d.kpis.agents_running/d.kpis.agents_total)*100):null),
+      :(d.kpis&&d.kpis.agents_classified_denominator>0?Math.round((d.kpis.agents_healthy_computed/d.kpis.agents_classified_denominator)*100):null),
     healthGrade:d.health?.grade??null,
     // TRUTHFUL-VITALS-001: follow_up_count = server-computed (agent ERRORs + canary fails + freshness breaches + blocked)
     followUp:typeof d.follow_up_count==='number'?d.follow_up_count:(kanban.blocked?.length??0),
@@ -1813,7 +1817,10 @@ function renderHeader(vm){
   const pills=document.querySelectorAll('header.top .pill');
   if(pills[0]) pills[0].innerHTML=`<span class="dot ${vm.jarvisOk?'dg':'dr'}"></span>JARVIS`;
   if(pills[1]){const s3v=vm.s3gb;const s3disp=s3v>=1000?`${(s3v/1000).toFixed(2)} TB`:`${s3v} GB`;pills[1].innerHTML=`<span class="dot dg"></span>S3 <b>${s3disp}</b>`;}
-  if(pills[2]) pills[2].innerHTML=`<span class="dot ${vm.agentsLive>0?'dg':'da'}"></span>Agents <b>${escHtml(renderAgentRatio(vm,{short:true}))}</b>`;
+  // WARROOM-HEALTH-001 remediation (2026-08-24): dot color previously read vm.agentsLive
+  // (literal-status-derived agents_running) — could light green while every agent's
+  // healthEval.state was 'error'/'gate-a-unresolved'. Now reads the computed count.
+  if(pills[2]) pills[2].innerHTML=`<span class="dot ${vm.agentsHealthyComputed>0?'dg':'da'}"></span>Agents <b>${escHtml(renderAgentRatio(vm))}</b>`;
   // health bar — TRUTHFUL-VITALS-001: grade drives color, pct drives width
   const bar=document.querySelector('.healthbar .bar i');
   const pct=vm.healthPct;  // null = unknown; never coerce to 0
@@ -1832,7 +1839,7 @@ function renderKPIStrip(vm){
   const strip=document.querySelector('.kstrip');
   if(!strip) return;
   const cells=strip.querySelectorAll('.k');
-  if(cells[0]){cells[0].querySelector('.v').textContent=renderAgentRatio(vm,{short:true});cells[0].querySelector('.c').textContent=vm.agentsGateBRuled?(vm.agentsHealthyComputed+' live healthy'):'fleet unclassified (§5b)';}
+  if(cells[0]){cells[0].querySelector('.v').textContent=vm.agentsGateBRuled?renderAgentRatio(vm):'N/A';cells[0].querySelector('.c').textContent=vm.agentsGateBRuled?(vm.agentsHealthyComputed+' live healthy'):'fleet unclassified (§5b)';}
   if(cells[1]){const sv=k.s3gb;const isTB=sv>=1000;cells[1].querySelector('.v').innerHTML=isTB?`${(sv/1000).toFixed(2)} <small>TB</small>`:sv+' <small>GB</small>';cells[1].querySelector('.c').textContent=isTB?'TB total':'GB total';}
   // TRUTHFUL-VITALS-001: followUp = server-computed real follow-up count, not tasks-open count
   if(cells[2]){const fu=vm.followUp??0;const v=cells[2].querySelector('.v');v.textContent=fu;v.style.color=fu===0?'var(--up)':'var(--warn)';cells[2].querySelector('.c').textContent=fu===0?'all clear':fu+' need attention';}
@@ -2045,10 +2052,14 @@ function renderOPS(vm){
 // every render site below calls this instead of formatting vm.agentsLive/vm.agentsTotal
 // itself (C6). Renders the computed ratio only once Shiv has ruled on fleet classification;
 // before that, an honest N/A per C1 rather than a number with no valid denominator.
-function renderAgentRatio(vm,opts){
-  opts=opts||{};
+// WARROOM-HEALTH-001 remediation (2026-08-24): previously took an {short:true} opts flag
+// that made every render site return a bare 'N/A' with the '§5b' reason silently dropped —
+// the full-string branch was dead code, never reached by any real caller. Now always
+// returns the full string via WarroomRender's own contract (makeNA()+renderValue()) instead
+// of hand-writing the 'N/A — ...' text a second time (C6: one source for the NA string).
+function renderAgentRatio(vm){
   if(!vm.agentsGateBRuled){
-    return opts.short?'N/A':'N/A — fleet unclassified (§5b)';
+    return WarroomRender.renderValue(WarroomRender.makeNA('fleet unclassified (§5b)','agents.expected_state')).text;
   }
   return vm.agentsHealthyComputed+'/'+vm.agentsClassifiedDenominator;
 }
@@ -2082,7 +2093,14 @@ function renderAgents(vm){
   if(!fleet) return;
   const agents=vm.agents.length>0?vm.agents:DEMO_DATA.agents;
   const hdr=document.querySelector('#v-agents .sec-h span');
-  if(hdr) hdr.textContent=agents.length+' agents · '+renderAgentRatio(vm,{short:true})+' healthy';
+  // WARROOM-HEALTH-001 remediation (2026-08-24): previously showed the raw unclassified
+  // agents.length (51 — the full marketplace/subagent/drafted roster, not a valid
+  // denominator per GATE-B/§5b) next to a bare "N/A". Once classification is ruled, show
+  // the real classified denominator; until then, show only the full N/A reason string —
+  // no raw count implying a denominator that doesn't exist yet.
+  if(hdr) hdr.textContent=vm.agentsGateBRuled
+    ? (vm.agentsClassifiedDenominator+' agents · '+renderAgentRatio(vm)+' healthy')
+    : renderAgentRatio(vm);
   const hdr2=document.querySelector('#v-agents .sec-h .right');
   if(hdr2) hdr2.textContent='LIVE & CRON AGENTS · '+vm.agentsLiveTotal;
 

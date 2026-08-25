@@ -1053,7 +1053,11 @@ function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haiku
   return {
     agents_running,
     agents_total: agents.length,       // 51 — full fleet (live + sub-agents + marketplace)
-    agents_live_total: liveAgents.length, // 14 — live/cron only, used for health bar
+    // 13, not 14: parseAgents() lists 14 rows in the live/cron table, but Data Guardian
+    // carries type:'subagent' and is filtered out by the liveAgents filter above (it's
+    // event-triggered from nielsen_puller.py, not cron-scheduled) — confirmed live
+    // 2026-08-24. Re-derive from liveAgents.length, never hardcode the count again.
+    agents_live_total: liveAgents.length, // live/cron only, used for health bar
     // WARROOM-HEALTH-001: the ratio C1/GATE-B actually govern. The render layer renders
     // `N/A — fleet unclassified (S5b)` while gateBRuled is false, a real number once true —
     // never a guessed value in between (renderValue()'s NA/value branches, not this file).
