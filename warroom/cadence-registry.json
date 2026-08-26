@@ -1,0 +1,21 @@
+{
+  "_comment": "WARROOM-READPLANE-001 DECISION GATE 5c — ruled by Shiv 2026-08-26, recorded verbatim in ~/SaSMaster/FEEDBACK.md. No cadence here is inferred or defaulted; every value traces to that ruling.",
+  "ruled_at": "2026-08-26",
+  "ruled_by": "shiv",
+  "feedback_ref": "~/SaSMaster/FEEDBACK.md [2026-08-26] WARROOM-READPLANE-001 DECISION GATE 5c",
+  "tabs": {
+    "OPS":             { "transport": "sse",  "cadence_seconds": 30, "stale_at_seconds": 60 },
+    "TELEMETRY":        { "transport": "sse",  "cadence_seconds": 30, "stale_at_seconds": 60 },
+    "AGENTS":           { "transport": "poll", "cadence_seconds": 120, "stale_at_seconds": 240 },
+    "DATA":             { "transport": "poll", "cadence_seconds": 120, "stale_at_seconds": 240 },
+    "QUEUE":            { "transport": "poll", "cadence_seconds": 120, "stale_at_seconds": 240 },
+    "COSTS":            { "transport": "poll", "cadence_seconds": 120, "stale_at_seconds": 240 },
+    "TOKENS":           { "transport": "poll", "cadence_seconds": 120, "stale_at_seconds": 240 },
+    "CANVAS":           { "transport": "poll", "cadence_seconds": 120, "stale_at_seconds": 240 },
+    "FINANCE":          { "transport": "poll", "cadence_seconds": 86400, "stale_at_seconds": 172800 },
+    "FINANCIAL_INTEL":  { "transport": "poll", "cadence_seconds": 86400, "stale_at_seconds": 172800 },
+    "RESOURCES":        { "transport": "poll", "cadence_seconds": 86400, "stale_at_seconds": 172800 }
+  },
+  "query_budget_policy": "placeholder-pending-costcanon-001",
+  "query_budget_note": "Per-tab daily query caps derived from READPLANE_SNAPSHOT_MAP.md's query-count estimates until WARROOM-COSTCANON-001 supplies real MotherDuck billing figures. See that card's Phase 3 for the actual cap values."
+}
