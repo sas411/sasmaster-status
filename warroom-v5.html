@@ -1302,11 +1302,63 @@ main.canvas-mode{overflow:hidden}
 window.READPLANE_LIVE = { telemetry: false, ops: false };
 
 // Fetches a tab's live state from its /api/state/<tab> endpoint (WARROOM-READPLANE-001).
-// Not yet called anywhere — see window.READPLANE_LIVE comment above.
 async function fetchLiveTabState(tab) {
   const r = await fetch('/api/state/' + tab, { cache: 'no-store' });
   if (!r.ok) throw new Error('live state fetch failed: ' + tab + ' ' + r.status);
   return r.json();
+}
+
+// ── live overlay, wired 2026-08-26 — gated by window.READPLANE_LIVE ────────
+// Scoped honestly to the ONE tile per tab that /api/state/<tab> actually has a
+// real source for today (api/state/telemetry.js / ops.js: everything else on
+// those endpoints is still N/A — no wired source this pass). Both overlays are
+// fire-and-forget async calls appended at the end of renderTelemetry()/
+// renderOPS() — they touch only the specific DOM elements they own and leave
+// the rest of the tab on the existing snapshot-vm render path, per the card's
+// explicit "delete the old path only after that tab passes production
+// verification, in the same commit as the flag removal" rule. window.
+// READPLANE_LIVE stays {telemetry:false, ops:false} in this commit — flip
+// per-tab only once command-api's new routes are confirmed deployed and
+// reachable in production.
+async function renderLiveTelemetryOverlay() {
+  const statEl = document.querySelectorAll('#v-telemetry .tstat')[2];
+  if (!statEl) return;
+  const vEl = statEl.querySelector('.v');
+  if (!vEl) return;
+  try {
+    const live = await fetchLiveTabState('telemetry');
+    const field = live && live.fields && live.fields.alerts_24h;
+    if (!field) throw new Error('alerts_24h missing from live payload');
+    const rendered = WarroomRender.renderValue(field);
+    vEl.textContent = rendered.text;
+    vEl.style.color = field.state === 'value' && field.value === 0 ? 'var(--up)' : 'var(--down)';
+    vEl.title = 'live: ' + (field.source || 'unknown') + ' · ' + (field.freshness || '');
+  } catch (e) {
+    // C1: a failed live fetch renders ERROR, never silently keeps the last
+    // vm-based number with no indication the live path is broken.
+    vEl.textContent = 'ERROR — telemetry:alerts_24h:' + (e && e.message ? e.message : 'fetch_failed');
+    vEl.style.color = 'var(--down)';
+  }
+}
+
+async function renderLiveOpsOverlay() {
+  const runrowContainer = document.querySelector('#v-ops .runrow');
+  if (!runrowContainer) return;
+  try {
+    const live = await fetchLiveTabState('ops');
+    const field = live && live.fields && live.fields.tmdb_bulk_loader_run_state;
+    if (!field) throw new Error('tmdb_bulk_loader_run_state missing from live payload');
+    const rendered = WarroomRender.renderValue(field);
+    const ageTxt = field.freshness ? (' · ' + field.freshness) : '';
+    runrowContainer.innerHTML =
+      '<div class="rh">TMDB bulk loader <span class="badge b-run" style="margin-left:auto">' +
+      escHtml(rendered.text.toUpperCase()) + '</span></div>' +
+      '<div style="font-family:var(--mono);font-size:11px;color:var(--dim)">live: ' +
+      escHtml((field.source || 'unknown') + ageTxt) + '</div>';
+  } catch (e) {
+    runrowContainer.innerHTML = '<div class="rh" style="color:var(--down);font-size:13px">ERROR — ops:tmdb_bulk_loader_run_state:' +
+      escHtml(e && e.message ? e.message : 'fetch_failed') + '</div>';
+  }
 }
 
 // ASK URL — routes through /api/ask Vercel proxy; key is server-side only, never in client
@@ -2109,6 +2161,14 @@ function renderOPS(vm){
     const sendBtn=document.querySelector('#v-ops .cmd .send');
     if(sendBtn) sendBtn.addEventListener('click',send);
   }
+
+  // WARROOM-READPLANE-001 live overlay (2026-08-26) — gated by window.READPLANE_LIVE.ops.
+  // Fire-and-forget: overlays the one tile (TMDB bulk loader run state) that
+  // /api/state/ops has a real source for; the rest of this function's
+  // snapshot-vm rendering above is untouched and still runs synchronously.
+  if(window.READPLANE_LIVE && window.READPLANE_LIVE.ops){
+    renderLiveOpsOverlay().catch(()=>{/* overlay itself renders its own ERROR state on failure */});
+  }
 }
 
 /* ============ renderAgents ============ */
@@ -2787,6 +2847,14 @@ function renderTelemetry(vm){
   }
 
   renderSkillRouting().catch(()=>{});
+
+  // WARROOM-READPLANE-001 live overlay (2026-08-26) — gated by window.READPLANE_LIVE.telemetry.
+  // Fire-and-forget: overlays only the "open alerts" stat, the one tile
+  // /api/state/telemetry has a real source for; the event feed, bug-fix panel
+  // and monitoring table above are still snapshot-vm-based and untouched.
+  if(window.READPLANE_LIVE && window.READPLANE_LIVE.telemetry){
+    renderLiveTelemetryOverlay().catch(()=>{/* overlay itself renders its own ERROR state on failure */});
+  }
 }
 
 /* ============ Skill Routing Gate panel (SKILL-ROUTING-GATE-001 P4) ============ */
