@@ -1923,7 +1923,17 @@ function renderHeader(vm){
   // pills
   const pills=document.querySelectorAll('header.top .pill');
   if(pills[0]) pills[0].innerHTML=`<span class="dot ${vm.jarvisOk?'dg':'dr'}"></span>JARVIS`;
-  if(pills[1]){const s3v=vm.s3gb;const s3disp=s3v>=1000?`${(s3v/1000).toFixed(2)} TB`:`${s3v} GB`;pills[1].innerHTML=`<span class="dot dg"></span>S3 <b>${s3disp}</b>`;}
+  // WARROOM-DATA-RECONCILE-001 remediation (2026-08-26): this rebuild used to emit
+  // <b> with no id, destroying id="hd-s3-total" on first fire and silently breaking
+  // renderArtifact()'s later setEl('hd-s3-total',...) forever (getElementById found
+  // nothing). Now (a) the id is preserved across every rebuild, and (b) once
+  // renderArtifact() has painted the authoritative artifact_metrics_latest.json value
+  // (window._s3ArtifactLoaded), this stale status.json-derived value is not written at
+  // all -- same latch already used for #kpi-s3-total, extended here for consistency.
+  if(pills[1] && !window._s3ArtifactLoaded){
+    const s3v=vm.s3gb;const s3disp=s3v>=1000?`${(s3v/1000).toFixed(2)} TB`:`${s3v} GB`;
+    pills[1].innerHTML=`<span class="dot dg"></span>S3 <b id="hd-s3-total">${s3disp}</b>`;
+  }
   // WARROOM-HEALTH-001 remediation (2026-08-24): dot color previously read vm.agentsLive
   // (literal-status-derived agents_running) — could light green while every agent's
   // healthEval.state was 'error'/'gate-a-unresolved'. Now reads the computed count.
