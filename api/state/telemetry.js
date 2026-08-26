@@ -23,6 +23,7 @@ const WarroomReadplane = require('../../lib/warroom-readplane');
 const WarroomRender = require('../../lib/warroom-render');
 const cadenceRegistry = require('../../warroom/cadence-registry.json');
 const queryBudget = require('../../warroom/query-budget.json');
+const WarroomBudgetAlert = require('../../lib/warroom-budget-alert');
 
 const TAB = 'TELEMETRY';
 const TILE_IDS = ['alerts_24h', 'slack_feed', 'avg_phase_time', 'active_traces', 'bug_fixes'];
@@ -69,16 +70,32 @@ module.exports = async (req, res) => {
     }
   }
 
+  // MAINTAINER Gap A/B fix (2026-08-26) — see api/state/ops.js for the full
+  // rationale: on breach, serve the cached last-successful payload (state
+  // unchanged, freshness recomputed) and emit a real budget_breach alert row.
+  if (!budget.allowed) {
+    try {
+      WarroomBudgetAlert.emitBudgetBreachAlert(TAB, {
+        query_id: `${TAB.toLowerCase()}:budget_breach`,
+        count: budget.count,
+        cap: budget.cap
+      });
+    } catch (e) {
+      console.warn('[WARN] warroom budget_breach alert write failed for', TAB, '-', e && e.message);
+    }
+    const breach = WarroomReadplane.renderBreachFields(TAB, TILE_IDS, cadenceSeconds);
+    res.status(200).json({
+      fields: breach.fields,
+      computed_at: nowIso,
+      source: breach.source,
+      budget: { allowed: budget.allowed, count: budget.count, cap: budget.cap, served_from_cache: breach.servedFromCache }
+    });
+    return;
+  }
+
   const fields = {};
   TILE_IDS.forEach((tileId) => {
     const queryId = `${TAB.toLowerCase()}:${tileId}`;
-    if (!budget.allowed) {
-      fields[tileId] = WarroomReadplane.renderTile(
-        { value: null, state: 'error', query_id: queryId + ':budget_breach', source: 'budget-cap' },
-        cadenceSeconds
-      );
-      return;
-    }
     if (fetchError) {
       fields[tileId] = WarroomReadplane.renderTile(
         WarroomRender.makeError(queryId, 'proxy-unreachable:' + fetchError),
@@ -89,6 +106,10 @@ module.exports = async (req, res) => {
     const payload = WarroomReadplane.mapBlobToTile(tileId, queryId, blob, (b) => mapTile(tileId, queryId, b));
     fields[tileId] = WarroomReadplane.renderTile(payload, cadenceSeconds);
   });
+
+  if (!fetchError) {
+    WarroomReadplane.cacheSuccessfulPayload(TAB, fields, nowIso, (blob && blob.source) || 'unknown');
+  }
 
   res.status(200).json({
     fields: fields,

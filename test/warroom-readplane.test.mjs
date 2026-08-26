@@ -65,3 +65,51 @@ test('fetchTileData: unwired source renders ERROR, never a fabricated value (C1)
   assert.equal(payload.query_id, 'some:query');
   assert.equal(payload.value, null);
 });
+
+// MAINTAINER Gap B fix (2026-08-26) — breach-serves-last-payload was
+// previously uncovered by this suite (flagged in DONE_LOG as an overstated
+// commit claim). These tests exercise the actual cache+breach path.
+
+test('renderBreachFields: no cache yet (cold start) -> honest ERROR, never fabricated', () => {
+  WarroomReadplane._resetPayloadCacheForTest();
+  const out = WarroomReadplane.renderBreachFields('COLDTAB', ['tile_a'], 30, new Date('2026-08-26T12:00:00Z'));
+  assert.equal(out.servedFromCache, false);
+  assert.equal(out.fields.tile_a.state, 'error');
+});
+
+test('renderBreachFields: cached payload served with state UNCHANGED and freshness recomputed live, never fresh', () => {
+  WarroomReadplane._resetPayloadCacheForTest();
+  const cadenceSeconds = 30;
+  const computedAt = '2026-08-26T12:00:00Z';
+  const fields = {
+    tile_a: { value: 7, state: 'value', freshness: 'fresh', source: 'motherduck:test', query_id: 'ops:tile_a', computed_at: computedAt }
+  };
+  WarroomReadplane.cacheSuccessfulPayload('OPS', fields, computedAt, 'motherduck:test');
+
+  // 10s later: within cadence, would compute 'fresh' if not floored -- assert it is NOT fresh on breach.
+  const soonAfter = new Date('2026-08-26T12:00:10Z');
+  const soon = WarroomReadplane.renderBreachFields('OPS', ['tile_a'], cadenceSeconds, soonAfter);
+  assert.equal(soon.servedFromCache, true);
+  assert.equal(soon.fields.tile_a.state, 'value'); // UNCHANGED from cached state
+  assert.notEqual(soon.fields.tile_a.freshness, 'fresh'); // never fresh on a breached response
+  assert.equal(soon.fields.tile_a.freshness, 'late');
+  assert.equal(soon.fields.tile_a.value, 7); // cached value preserved
+
+  // 200s later: past stale_at (cadence*2=60s) -- must compute genuinely stale, not just floored-to-late.
+  const muchLater = new Date('2026-08-26T12:03:20Z');
+  const later = WarroomReadplane.renderBreachFields('OPS', ['tile_a'], cadenceSeconds, muchLater);
+  assert.equal(later.fields.tile_a.state, 'value'); // state still unchanged from cache
+  assert.equal(later.fields.tile_a.freshness, 'stale');
+});
+
+test('renderBreachFields: cached ERROR state stays ERROR (state unchanged means unchanged either way)', () => {
+  WarroomReadplane._resetPayloadCacheForTest();
+  const computedAt = '2026-08-26T12:00:00Z';
+  const fields = {
+    tile_b: { value: null, state: 'error', freshness: 'fresh', source: 'proxy', query_id: 'ops:tile_b', computed_at: computedAt, reason: 'proxy-unreachable' }
+  };
+  WarroomReadplane.cacheSuccessfulPayload('OPS', fields, computedAt, 'proxy');
+  const out = WarroomReadplane.renderBreachFields('OPS', ['tile_b'], 30, new Date('2026-08-26T12:00:05Z'));
+  assert.equal(out.fields.tile_b.state, 'error');
+  assert.equal(out.fields.tile_b.reason, 'proxy-unreachable');
+});

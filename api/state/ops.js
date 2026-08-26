@@ -23,6 +23,7 @@ const WarroomReadplane = require('../../lib/warroom-readplane');
 const WarroomRender = require('../../lib/warroom-render');
 const cadenceRegistry = require('../../warroom/cadence-registry.json');
 const queryBudget = require('../../warroom/query-budget.json');
+const WarroomBudgetAlert = require('../../lib/warroom-budget-alert');
 
 const TAB = 'OPS';
 const TILE_IDS = ['tmdb_bulk_loader_run_state', 'high_priority_queue_row', 'cron_dot_legend', 'agent_timeline_24h'];
@@ -79,16 +80,36 @@ module.exports = async (req, res) => {
     }
   }
 
+  // MAINTAINER Gap A/B fix (2026-08-26): on budget breach, serve the cached
+  // last-successful payload (state unchanged, freshness recomputed) instead
+  // of a blanket state:'error', and emit a real budget_breach alert row —
+  // both were previously missing (query-budget.json's own on_breach doc
+  // claimed them; neither existed in code). Best-effort alert write: never
+  // let it block or corrupt the tile response (see warroom-budget-alert.js
+  // header for the disclosed Vercel-runtime limitation).
+  if (!budget.allowed) {
+    try {
+      WarroomBudgetAlert.emitBudgetBreachAlert(TAB, {
+        query_id: `${TAB.toLowerCase()}:budget_breach`,
+        count: budget.count,
+        cap: budget.cap
+      });
+    } catch (e) {
+      console.warn('[WARN] warroom budget_breach alert write failed for', TAB, '-', e && e.message);
+    }
+    const breach = WarroomReadplane.renderBreachFields(TAB, TILE_IDS, cadenceSeconds);
+    res.status(200).json({
+      fields: breach.fields,
+      computed_at: nowIso,
+      source: breach.source,
+      budget: { allowed: budget.allowed, count: budget.count, cap: budget.cap, served_from_cache: breach.servedFromCache }
+    });
+    return;
+  }
+
   const fields = {};
   TILE_IDS.forEach((tileId) => {
     const queryId = `${TAB.toLowerCase()}:${tileId}`;
-    if (!budget.allowed) {
-      fields[tileId] = WarroomReadplane.renderTile(
-        { value: null, state: 'error', query_id: queryId + ':budget_breach', source: 'budget-cap' },
-        cadenceSeconds
-      );
-      return;
-    }
     if (fetchError) {
       fields[tileId] = WarroomReadplane.renderTile(
         WarroomRender.makeError(queryId, 'proxy-unreachable:' + fetchError),
@@ -99,6 +120,12 @@ module.exports = async (req, res) => {
     const payload = WarroomReadplane.mapBlobToTile(tileId, queryId, blob, (b) => mapTile(tileId, queryId, b));
     fields[tileId] = WarroomReadplane.renderTile(payload, cadenceSeconds);
   });
+
+  // Cache this successful render (only when the fetch genuinely succeeded)
+  // so a future breach on this tab has real data to serve instead of ERROR.
+  if (!fetchError) {
+    WarroomReadplane.cacheSuccessfulPayload(TAB, fields, nowIso, (blob && blob.source) || 'unknown');
+  }
 
   res.status(200).json({
     fields: fields,
