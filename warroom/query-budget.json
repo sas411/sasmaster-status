@@ -1,0 +1,20 @@
+{
+  "_comment": "WARROOM-READPLANE-001 Phase 3 — per-tab daily query cap, enforced in code by the endpoint layer. Placeholder cap, per Shiv's ruling 2026-08-26 (FEEDBACK.md): proceed now, tighten once WARROOM-COSTCANON-001 supplies real MotherDuck billing figures.",
+  "assumption": "This is Shiv's personal ops board, not a multi-tenant product. Budgeted for 1-3 concurrent viewers, not per-request scaling.",
+  "policy": "placeholder-pending-costcanon-001",
+  "on_breach": "serve last successful payload unchanged in state; recompute freshness from that payload's true computed_at (never re-stamped fresh); emit rule_id='budget_breach' to sasmaster.ops.alerts (dry-run/table-write only per this session's no-live-Slack-send constraint); log the breach to sasmaster.ops.run_log",
+  "tabs": {
+    "OPS":             { "transport": "sse",  "server_query_executions_per_day_cap": 2880,  "basis": "cadence_seconds=30, server-side push not per-viewer poll" },
+    "TELEMETRY":        { "transport": "sse",  "server_query_executions_per_day_cap": 2880,  "basis": "cadence_seconds=30, server-side push not per-viewer poll" },
+    "AGENTS":           { "transport": "poll", "server_query_executions_per_day_cap": 2160,  "basis": "cadence_seconds=120 * 3 concurrent viewers * 86400/120" },
+    "DATA":             { "transport": "poll", "server_query_executions_per_day_cap": 2160,  "basis": "cadence_seconds=120 * 3 concurrent viewers" },
+    "QUEUE":            { "transport": "poll", "server_query_executions_per_day_cap": 2160,  "basis": "cadence_seconds=120 * 3 concurrent viewers" },
+    "COSTS":            { "transport": "poll", "server_query_executions_per_day_cap": 2160,  "basis": "cadence_seconds=120 * 3 concurrent viewers" },
+    "TOKENS":           { "transport": "poll", "server_query_executions_per_day_cap": 2160,  "basis": "cadence_seconds=120 * 3 concurrent viewers" },
+    "CANVAS":           { "transport": "poll", "server_query_executions_per_day_cap": 2160,  "basis": "cadence_seconds=120 * 3 concurrent viewers" },
+    "FINANCE":          { "transport": "poll", "server_query_executions_per_day_cap": 3,     "basis": "cadence_seconds=86400 * 3 concurrent viewers" },
+    "FINANCIAL_INTEL":  { "transport": "poll", "server_query_executions_per_day_cap": 3,     "basis": "cadence_seconds=86400 * 3 concurrent viewers" },
+    "RESOURCES":        { "transport": "poll", "server_query_executions_per_day_cap": 3,     "basis": "cadence_seconds=86400 * 3 concurrent viewers" }
+  },
+  "follow_up": "Whoever builds this card's remaining 9 tabs (or revisits Phase 3) should pull a real per-query-second cost figure from the MotherDuck account's actual billing dashboard/API and replace these query-count caps with a cost-derived cap, per READPLANE_SNAPSHOT_MAP.md's own recommendation."
+}

@@ -1283,8 +1283,32 @@ main.canvas-mode{overflow:hidden}
 <script src="lib/warroom-clock.js"></script>
 <script src="lib/warroom-render.js"></script>
 <script src="lib/warroom-health.js"></script>
+<script src="lib/warroom-readplane.js"></script>
 <script>
 /* ============ CONFIG ============ */
+
+// WARROOM-READPLANE-001 — cutover flag, OFF by default. Per the card's own
+// rule: a tab's snapshot code path is deleted only after that tab is
+// re-pointed AND verified in production, and both paths must never render
+// into the same tile simultaneously. Flipping a flag to true here, with
+// nothing else changed, has NO effect yet — fetchLiveTabState() below exists
+// but is not called from renderTelemetry()/renderOps(); that render-path
+// rewiring is deliberately NOT done in this pass (see DONE_LOG for why: it
+// needs those two ~large render functions read and modified carefully, and
+// the live query path itself isn't wired yet either — see
+// lib/warroom-readplane.js header). Flip these only once BOTH the query path
+// and the render-path integration are real, then delete the old snapshot
+// reads for that tab in the SAME commit as removing its flag, per the card.
+window.READPLANE_LIVE = { telemetry: false, ops: false };
+
+// Fetches a tab's live state from its /api/state/<tab> endpoint (WARROOM-READPLANE-001).
+// Not yet called anywhere — see window.READPLANE_LIVE comment above.
+async function fetchLiveTabState(tab) {
+  const r = await fetch('/api/state/' + tab, { cache: 'no-store' });
+  if (!r.ok) throw new Error('live state fetch failed: ' + tab + ' ' + r.status);
+  return r.json();
+}
+
 // ASK URL — routes through /api/ask Vercel proxy; key is server-side only, never in client
 let ASK_URL = 'sasmaster-ask-v3.html';
 function buildAskUrl(vm) {
@@ -1294,6 +1318,14 @@ function buildAskUrl(vm) {
   return `sasmaster-ask-v3.html?ask_url=${encodeURIComponent(cfg.url || '/api/ask')}`;
 }
 const API_BASE = '/api/command';
+// WARROOM-CONTROL-001 Phase-1 finding (2026-08-26): only these 11 agent names have a real
+// dispatch target in command-api's JARVIS_RUNNABLE map (railway.ts). Every other agent card's
+// Run button 501s if pressed today. Kept as a literal list, not derived, so it stays in sync
+// only when someone deliberately updates both sides — see warroom/jobs.json for the audit.
+const JARVIS_RUNNABLE_NAMES = new Set(['SEC EDGAR','Media Intel','TMDB Daily','DoneLog Analyst',
+  'LinkedIn Agent','Tech Intel','Financial Analyst','Weekly Review','IAB Intel',
+  'Security Watchdog','Railway Monitor']);
+const CANVAS_RERUN_RUNNABLE = false; // 'daily-visuals' has no generator pipeline; always 501s.
 function apiUrl(path){ return API_BASE + '?path=' + encodeURIComponent(path); }
 function authHeaders(){ const t=localStorage.getItem('wr-api-token')||''; return t?{'Authorization':'Bearer '+t}:{}; }
 // escHtml: global HTML-escaper. Previously scoped inside the TOKENS IIFE only (~line 3600) —
@@ -1393,7 +1425,9 @@ function buildAgentDrill(a){
   </div>
   ${a.lastOutput?`<div class="dd-sec"><div class="dd-sl">LAST OUTPUT</div><div class="dd-logbox">${escHtml(a.lastOutput)}</div></div>`:''}
   <div style="display:flex;gap:8px;margin-top:4px">
-    <button class="btn bp" onclick="runAgent('${escJsAttr(a.name||'')}');closeDrillDown()">▶ Run now</button>
+    ${JARVIS_RUNNABLE_NAMES.has(a.name||'')
+      ? `<button class="btn bp" onclick="runAgent('${escJsAttr(a.name||'')}');closeDrillDown()">▶ Run now</button>`
+      : `<button class="btn bs" disabled title="No dispatch target wired yet — this agent has no runnable job in command-api" style="opacity:.4;cursor:not-allowed">▶ Run now</button>`}
     <button class="btn bs" onclick="viewLogs('${escJsAttr(a.name||'')}')">📄 Logs</button>
   </div>`;
 }
@@ -2152,7 +2186,11 @@ function renderAgents(vm){
       <div class="chan">→ ${escHtml(a.channel||'—')}</div>
       <div class="console ${ok?'':'errline'}">${console_out}</div>
       <div class="acts">
-        <button class="btn ${ok?'bp':'bs'}" onclick="event.stopPropagation();runAgent('${nameAttr}')">▶ Run</button>
+        ${(()=>{const runnable=JARVIS_RUNNABLE_NAMES.has(a.name||'');
+          return runnable
+            ? `<button class="btn ${ok?'bp':'bs'}" onclick="event.stopPropagation();runAgent('${nameAttr}')">▶ Run</button>`
+            : `<button class="btn bs" disabled title="No dispatch target wired yet — this agent has no runnable job in command-api" style="opacity:.4;cursor:not-allowed" onclick="event.stopPropagation()">▶ Run</button>`;
+        })()}
         <button class="btn bs" onclick="event.stopPropagation();viewLogs('${nameAttr}')">📄 Logs</button>
       </div>
     </div>`;
@@ -3546,7 +3584,7 @@ function renderErrorPanel(m,s){
   return `<div class="canvas-error-panel">
     <div class="cep-h">⛔ Daily Visuals Failed — ${escHtml(CV.piece_date)}</div>
     <div class="cep-msg">Error: ${escHtml(errMsg)}<br>Run ID: ${escHtml(runId)}</div>
-    <button class="btn bs" onclick="canvasRerun()">▶ Re-run Daily Visuals</button>
+    <button class="btn bs" disabled title="No generator pipeline exists yet — this always fails" style="opacity:.4;cursor:not-allowed" onclick="event.preventDefault()">▶ Re-run Daily Visuals</button>
   </div>`;
 }
 
@@ -3831,7 +3869,7 @@ async function renderFailed(){
       <span class="cfr-date">${escHtml(f.date)}</span>
       <span class="cfr-msg">${escHtml(f.error||f.note||'Unknown error')}</span>
       <span style="font-family:var(--mono);font-size:10px;color:var(--dim);min-width:140px;text-align:right">${escHtml(f.run_id||'')}</span>
-      <button class="btn bs" style="white-space:nowrap;padding:5px 10px" onclick="canvasRerunDate('${escJsAttr(f.date)}')">▶ Re-run</button>
+      <button class="btn bs" disabled title="No generator pipeline exists yet — this always fails" style="white-space:nowrap;padding:5px 10px;opacity:.4;cursor:not-allowed" onclick="event.preventDefault()">▶ Re-run</button>
     </div>`).join('');
 }
 window.canvasRerunDate=async function(date){
