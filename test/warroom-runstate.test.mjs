@@ -13,7 +13,7 @@ const NOW = new Date('2026-08-24T12:00:00Z');
 test('never_run: no row at all', () => {
   const r = WarroomRunstate.run_state({ job: 'ghost-job', latestRow: null, now: NOW });
   assert.equal(r.state, 'never_run');
-  assert.equal(r.reason, 'N/A -- never run');
+  assert.equal(r.reason, 'N/A — never run');
   assert.equal(r.run_id, null);
 });
 
@@ -87,7 +87,7 @@ test('bootstrap: fewer than N terminal records -> N/A insufficient history, neve
   });
   assert.equal(r.state, 'na_insufficient_history');
   assert.equal(r.bootstrap_mode, 'iii_interim');
-  assert.equal(r.reason, `N/A -- insufficient history (2/${WarroomRunstate.BOOTSTRAP_N} runs)`);
+  assert.equal(r.reason, `N/A — insufficient history (2/${WarroomRunstate.BOOTSTRAP_N} runs)`);
   assert.notEqual(r.state, 'running', 'bootstrap gap must never silently render running');
 });
 
@@ -108,7 +108,7 @@ test('C5 clock skew: started_at in the future renders ERROR, not running/succeed
     latestRow: { run_id: 'future-run', started_at: future, finished_at: null, exit_code: null },
   });
   assert.equal(r.state, 'error');
-  assert.equal(r.reason, 'ERROR -- clock skew');
+  assert.equal(r.reason, 'ERROR — clock skew');
 });
 
 test('readError forces error state regardless of any row data', () => {
@@ -117,7 +117,7 @@ test('readError forces error state regardless of any row data', () => {
     latestRow: { run_id: 'irrelevant', started_at: '2026-08-01T00:00:00Z', finished_at: null, exit_code: null },
   });
   assert.equal(r.state, 'error');
-  assert.equal(r.reason, 'ERROR -- run_state:x');
+  assert.equal(r.reason, 'ERROR — run_state:x');
 });
 
 test('computeP95 on empty/null input returns null (bootstrap trigger)', () => {
