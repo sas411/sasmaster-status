@@ -1947,7 +1947,14 @@ function renderKPIStrip(vm){
   if(!strip) return;
   const cells=strip.querySelectorAll('.k');
   if(cells[0]){cells[0].querySelector('.v').textContent=vm.agentsGateBRuled?renderAgentRatio(vm):'N/A';cells[0].querySelector('.c').textContent=vm.agentsGateBRuled?(vm.agentsHealthyComputed+' live healthy'):'fleet unclassified (§5b)';}
-  if(cells[1]){const sv=k.s3gb;const isTB=sv>=1000;cells[1].querySelector('.v').innerHTML=isTB?`${(sv/1000).toFixed(2)} <small>TB</small>`:sv+' <small>GB</small>';cells[1].querySelector('.c').textContent=isTB?'TB total':'GB total';}
+  // WARROOM-DATA-RECONCILE-001 (2026-08-26): kpi-s3-total is also written by
+  // renderArtifact() (ARTIFACT-PULL-001, the whole-bucket §33 authority) from a
+  // separately-cadenced, separately-deployed feed. Both writers targeting the
+  // same DOM node with no ordering guarantee was the root cause of the historical
+  // 60GB oscillation (two "real" numbers racing on independent timers). Once the
+  // authoritative feed has loaded once, it owns the cell permanently; this path
+  // is now fallback-only, for the window before that first load completes.
+  if(cells[1]&&!window._s3ArtifactLoaded){const sv=k.s3gb;const isTB=sv>=1000;cells[1].querySelector('.v').innerHTML=isTB?`${(sv/1000).toFixed(2)} <small>TB</small>`:sv+' <small>GB</small>';}
   // TRUTHFUL-VITALS-001: followUp = server-computed real follow-up count, not tasks-open count
   if(cells[2]){const fu=vm.followUp??0;const v=cells[2].querySelector('.v');v.textContent=fu;v.style.color=fu===0?'var(--up)':'var(--warn)';cells[2].querySelector('.c').textContent=fu===0?'all clear':fu+' need attention';}
   if(cells[3]){cells[3].querySelector('.v').textContent=k.blessQueue||'—';cells[3].querySelector('.c').textContent='HIGH (live)';}
@@ -4252,6 +4259,10 @@ document.addEventListener('DOMContentLoaded',()=>{
       const tb = (d.s3_bucket_total_gb / 1024).toFixed(2);
       setEl('hd-s3-total', tb + ' TB');
       setHTML('kpi-s3-total', tb + ' <small>TB</small>');
+      // WARROOM-DATA-RECONCILE-001 (2026-08-26): latch — this feed (whole-bucket,
+      // §33) is the declared authority for this cell. Once it has painted once,
+      // renderKPIStrip's status.json-sourced fallback stops overwriting it.
+      window._s3ArtifactLoaded = true;
     }
     const ts = document.getElementById('artifact-generated-at');
     if(ts && d.generated_at) ts.textContent = d.generated_at.slice(0,10);
