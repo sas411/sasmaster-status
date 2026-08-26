@@ -7,6 +7,10 @@
 const fs   = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const WarroomClock = require('./lib/warroom-clock.js'); // WARROOM-CLOCK-001 — the one clock module (C5)
+const WarroomHealth = require('./lib/warroom-health.js'); // WARROOM-HEALTH-001 — the one health evaluator (C6)
+const WarroomRunstate = require('./lib/warroom-runstate.js'); // WARROOM-RUNSTATE-001 — the one run-state evaluator (C6)
+const JobCadence = require('./lib/job-cadence-registry.js'); // WARROOM-RUNSTATE-001 — the one job-cadence source, shared with ~/SaSMaster/scripts/alert-engine.js (C4/C6)
 
 const SASMASTER   = path.join(process.env.HOME, 'SaSMaster');
 const PENDING     = path.join(SASMASTER, 'pending-approvals.json');
@@ -216,8 +220,146 @@ function parsePending() {
 // ── Agent fleet ──────────────────────────────────────────────────────────────
 // `jobId` maps to Command API /trigger VALID_JOBS — null means no Run button.
 // `channel` is the primary Slack destination — used by UI without a hardcoded map.
-function parseAgents() {
+// WARROOM-HEALTH-001 — cadence/job registry for the 14 live/cron agents. Source of truth
+// (this table is authoritative at runtime; WARROOM_AGENT_INVENTORY.md in ~/SaSMaster mirrors
+// it for human review/edit — see that file's own note on keeping the two in sync, C6: this
+// is the ONE place cadence_ms/job/expected_state are declared, the doc is documentation of
+// it, not a second source). cadence_ms=null means no scheduler entry exists (GATE-C) — never
+// guessed. `job` is the real `ops.run_log.job` column value, resolved from
+// docs/JOB_ID_NAMING.md + the Phase-0 crontab capture where parseAgents()'s own `jobId` field
+// is absent or doesn't match (SEC EDGAR, Financial Analyst, Security Watchdog, Railway
+// Monitor have no jobId here at all; IAB Intel's jobId 'iab-intel' doesn't match the real job
+// 'iab-agent' — both gaps flagged in WARROOM_AGENT_INVENTORY.md, not silently patched over).
+const AGENT_HEALTH_CONFIG = {
+  'JARVIS':            { job: null,                  cadence_ms: null,                expected_state: 'active' },
+  'Media Intel':       { job: 'media-intel-agent',   cadence_ms: 24 * 3600000,        expected_state: 'active' },
+  'TMDB Daily':        { job: 'tmdb-daily-agent',    cadence_ms: 24 * 3600000,        expected_state: 'active' },
+  'DoneLog Analyst':   { job: 'donelog-analyst',     cadence_ms: 24 * 3600000,        expected_state: 'active' }, // crontab says daily; parseAgents() label says "Post-build" — discrepancy flagged in WARROOM_AGENT_INVENTORY.md, crontab wins per GATE-C
+  'LinkedIn Agent':    { job: 'linkedin-agent',      cadence_ms: 7 * 24 * 3600000,     expected_state: 'active' },
+  'SEC EDGAR':         { job: 'edgar-scraper',       cadence_ms: 24 * 3600000,        expected_state: 'active' },
+  'Tech Intel':        { job: 'tech-intel-agent',    cadence_ms: 7 * 24 * 3600000,     expected_state: 'active' },
+  'Financial Analyst': { job: 'financial-analyst',   cadence_ms: 7 * 24 * 3600000,     expected_state: 'active' },
+  'Weekly Review':     { job: 'weekly-review-agent', cadence_ms: 7 * 24 * 3600000,     expected_state: 'active' },
+  'IAB Intel':         { job: 'iab-agent',           cadence_ms: 7 * 24 * 3600000,     expected_state: 'active' },
+  'Security Watchdog': { job: 'security-watchdog',   cadence_ms: 24 * 3600000,        expected_state: 'active' },
+  'Railway Monitor':   { job: 'railway-monitor',     cadence_ms: 15 * 60000,          expected_state: 'active' },
+  'Research Portal':   { job: null,                  cadence_ms: null,                expected_state: 'active' },
+  'Data Guardian':     { job: null,                  cadence_ms: null,                expected_state: 'active' },
+};
+
+// GATE-A (Shiv-only): S2.1 vs C4 threshold contradiction, unresolved in the spec itself.
+// No default committed — left null so evaluateHealth() throws and the caller renders
+// `ERROR — gate-a-unresolved` (C2) instead of guessing a threshold. Set both to a number
+// only once Shiv rules on GATE-A (see WARROOM-HEALTH-001 card, options i/ii/iii).
+const AGENT_STALE_MULT = null;
+const FEED_STALE_MULT  = null;
+
+// WARROOM-HEALTH-001 Phase 4 — fetches the latest run_log row per job for the agents in
+// AGENT_HEALTH_CONFIG, in one batched query. Same MOTHERDUCK_TOKEN-as-env-var pattern as
+// readSentinelStatus() (line ~1815) — never interpolated into the connection string.
+// Fails OPEN (empty map) on any read error: an unreadable run-log is not proof of
+// never_run, it just means this cycle can't compute health, which the evaluator surfaces
+// as `has_run_record: false` -> never_run is the honest fallback, not a fabricated state.
+// WARROOM-RUNSTATE-001 -- the shared terminal-record query (C6). Both
+// computeAgentHealthEval() (via fetchAgentRunLog(), below) and run-state cells
+// (buildScrapers()'s TMDB tile) read this SAME query, not two independent ones --
+// one number, one source, per the card's C6 extension to health.
+//
+// Returns, per job: {run_id, last_started, last_finished, last_exit, terminalDurationsMs}.
+// `terminalDurationsMs` is every terminal run's (finished_at - started_at) in ms, most
+// recent 20, used for WarroomRunstate's p95 bootstrap -- capped at 20 rows/job so this
+// stays a cheap query, not a full-table scan per generation cycle.
+function fetchRunLogTerminalByJob(jobs) {
+  try {
+    const token = readEnvVar('MOTHERDUCK_TOKEN');
+    if (!token || !jobs || jobs.length === 0) return {};
+    const jobList = jobs.map(j => `'${j.replace(/'/g, "''")}'`).join(',');
+    const sql = `
+      WITH latest AS (
+        SELECT job, run_id, started_at, finished_at, exit_code,
+               row_number() OVER (PARTITION BY job ORDER BY started_at DESC) AS rn
+        FROM ops.run_log WHERE job IN (${jobList})
+      ),
+      terminal_durs AS (
+        SELECT job, epoch(finished_at) - epoch(started_at) AS dur_s,
+               row_number() OVER (PARTITION BY job ORDER BY started_at DESC) AS rn
+        FROM ops.run_log WHERE job IN (${jobList}) AND finished_at IS NOT NULL
+      )
+      SELECT l.job, l.run_id, l.started_at, l.finished_at, l.exit_code,
+             (SELECT list(dur_s) FROM terminal_durs t WHERE t.job = l.job AND t.rn <= 20) AS durs_s
+      FROM latest l WHERE l.rn = 1`;
+    const out = execSync(
+      `/opt/homebrew/bin/duckdb -json -c "${sql.replace(/\n/g, ' ')}" md:sasmaster`,
+      { encoding: 'utf8', timeout: 15000, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, motherduck_token: token } }
+    );
+    const rows = JSON.parse(out);
+    const byJob = {};
+    for (const r of rows) {
+      byJob[r.job] = {
+        run_id: r.run_id,
+        last_started: r.started_at,
+        last_finished: r.finished_at,
+        last_exit: r.exit_code,
+        terminalDurationsMs: (r.durs_s || []).map(s => s * 1000),
+      };
+    }
+    return byJob;
+  } catch (e) {
+    return {};
+  }
+}
+
+// WARROOM-HEALTH-001 Phase 4 -- projects the latest run_log row per job for the agents in
+// AGENT_HEALTH_CONFIG out of an already-fetched byJob map.
+// WARROOM-RUNSTATE-001 remediation (gap 3, C6 tightened): this used to call
+// fetchRunLogTerminalByJob() a SECOND time with its own job list -- same query shape as the
+// TMDB tile's call, but a genuinely separate execSync/duckdb round trip, so health and
+// run-state could in principle observe two different snapshots of the run-log within the
+// same generation cycle. Now takes the single runstateByJob result computed once in main
+// (ALL_WIRED_JOBS, see below) and projects from it -- one query, three consumers (TMDB
+// tile, health, QUEUE jobs-running count), not "one query shape called three times".
+function fetchAgentRunLog(byJob) {
+  const out = {};
+  for (const job in (byJob || {})) {
+    out[job] = { last_exit: byJob[job].last_exit, last_started: byJob[job].last_started };
+  }
+  return out;
+}
+
+// WARROOM-HEALTH-001 — computes the evaluator result for one agent. Pulled out of
+// parseAgents()'s .map() so every return branch (including the three early-return paths
+// for statusOverride/no-log/no-logfile agents) gets a healthEval, never a missing field a
+// render call site would crash on.
+function computeAgentHealthEval(a, runLogByJob) {
+  const cfg = AGENT_HEALTH_CONFIG[a.name];
+  if (!cfg) {
+    // Marketplace/subagent/drafted agents (37 of 51) — not in the live-cron denominator
+    // (parseAgents()'s own pre-existing type filter excludes them); no health claim made.
+    return { state: 'na', age: null, reason: 'on-demand, not schedule-evaluated', inputs: null };
+  }
+  const runRow = cfg.job ? runLogByJob[cfg.job] : undefined;
+  try {
+    return WarroomHealth.evaluateHealth({
+      last_run: runRow ? runRow.last_started : null,
+      last_exit: runRow ? runRow.last_exit : null,
+      cadence_ms: cfg.cadence_ms,
+      expected_state: cfg.expected_state,
+      has_run_record: !!runRow,
+      blocked_signal: null, // no agent yet emits the structured C7 signal contract (Phase 4 note)
+      now: WarroomClock.nowUtc(),
+      agentStaleMult: AGENT_STALE_MULT,
+      feedStaleMult: FEED_STALE_MULT
+    });
+  } catch (e) {
+    // GATE-A unresolved (AGENT_STALE_MULT/FEED_STALE_MULT both null) -> evaluateHealth()
+    // throws by design; surfaced as an explicit gate-blocked state, never a guessed one.
+    return { state: 'error', age: null, reason: 'gate-a-unresolved', inputs: null };
+  }
+}
+
+function parseAgents(allWiredRunstateByJob) {
   const LOG = path.join(SASMASTER, 'logs');
+  const runLogByJob = fetchAgentRunLog(allWiredRunstateByJob);
   const agents = [
     { name: 'JARVIS',            icon: '🤖', schedule: 'HTTP API',      nextRun: 'Always on',       log: 'jarvis.log',            channel: 'HTTP Events API',    jobId: null, descOverride: 'HTTP Events API (Railway) — Socket Mode daemon retired' },
     { name: 'Media Intel',       icon: '📡', schedule: '6AM daily',     nextRun: 'Tomorrow 6AM',    log: 'media-intel.log',       channel: '#sasmaster-intel',   jobId: 'media-intel' },
@@ -295,10 +437,11 @@ function parseAgents() {
   ];
 
   return agents.map(a => {
-    if (a.statusOverride) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: a.statusOverride };
-    if (!a.log) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'idle' };
+    const healthEval = computeAgentHealthEval(a, runLogByJob);
+    if (a.statusOverride) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: a.statusOverride, healthEval };
+    if (!a.log) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'idle', healthEval };
     const logFile = path.join(LOG, a.log);
-    if (!fs.existsSync(logFile)) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'never' };
+    if (!fs.existsSync(logFile)) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'never', healthEval };
 
     const lines = fs.readFileSync(logFile, 'utf8').split('\n').filter(Boolean);
     const last  = lines[lines.length - 1] || '';
@@ -312,9 +455,14 @@ function parseAgents() {
 
     const routingErr = /not_in_channel/i.test(last);
     const hardError  = !routingErr && /error|fatal/i.test(last);
+    // Preserved as-is: 'routing'/'error'/'healthy' here feed OTHER consumers outside this
+    // card's scope (e.g. the DATA-tab SEC EDGAR scraper indicator, which reads
+    // a.status==='routing') — not the AGENTS-tab health badge, which now reads healthEval
+    // instead of this field (C6: one evaluator for the badge; this field's remaining
+    // consumers are a genuinely different signal, not a second health computation).
     const status     = hardError ? 'error' : routingErr ? 'routing' : 'healthy';
 
-    return { ...a, lastRun, lastOutput: summary, status };
+    return { ...a, lastRun, lastOutput: summary, status, healthEval };
   });
 }
 
@@ -523,7 +671,7 @@ function parseCrontab() {
 // Real status hydrated from (a) S3 inventory object counts, (b) agent log
 // mtimes, (c) progress JSON. Designed = no data + no script exists. Landing =
 // S3 has data but pipeline not fully automated. Live = automated + running.
-function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents, imdbStatus) {
+function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents, imdbStatus, runstateByJob, runstateJobMap) {
   const prefix = name => (s3Inv?.prefixes || []).find(p => p.prefix === name) || {};
   const agentByName = {};
   (agents || []).forEach(a => { agentByName[a.name] = a; });
@@ -544,16 +692,50 @@ function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents, imdbStatus) {
 
   return [
     // ── Phase 1 — Identity base
-    {
-      name: 'TMDB bulk loader',
-      phase: '1',
-      status: tmdbProgress?.running ? 'running' : (tmdbProgress?.phase === 'complete' ? 'live' : 'running'),
-      pct: tmdbProgress?.pct ?? null,
-      row_count: tmdbProgress?.complete ?? null,
-      total: tmdbProgress?.total ?? null,
-      last_run: tmdbProgress?.last_updated ?? tmdbP.last_modified ?? null,
-      s3_path: tmdbProgress?.s3_path ?? 's3://sasmaster-2026/tmdb_dev/',
-    },
+    (() => {
+      // WARROOM-RUNSTATE-001 -- replaces the pre-fix status ternary
+      // (`tmdbProgress?.running ? 'running' : (tmdbProgress?.phase === 'complete' ? 'live' : 'running')`)
+      // whose inner ELSE branch also returned 'running' -- so a stale/never-cleared
+      // tmdb-progress.json rendered 'running' no matter what. Status now derives
+      // exclusively from run_state() over the run-log's terminal record for
+      // 'load-tmdb-to-s3' (C3, C6). tmdbProgress.pct is still used for percent display,
+      // but ONLY when run_state() itself reports the job as non-terminal (structural
+      // invariant: percent is meaningless on a terminal record, WARROOM-RUNSTATE-001 test).
+      const job = runstateJobMap && runstateJobMap['TMDB bulk loader'];
+      const row = job && runstateByJob ? runstateByJob[job] : null;
+      const rs = WarroomRunstate.run_state({
+        job, now: WarroomClock.nowUtc(),
+        latestRow: row ? { run_id: row.run_id, started_at: row.last_started, finished_at: row.last_finished, exit_code: row.last_exit } : null,
+        terminalDurationsMs: row ? row.terminalDurationsMs : [],
+        percent: tmdbProgress?.pct ?? null,
+        readError: !runstateByJob,
+        queryId: 'run_state:load-tmdb-to-s3',
+        // WARROOM-RUNSTATE-001 gap 4 -- C4 staleness gate was wired into run_state() itself
+        // but this call site (the OPS tile) never passed cadence_ms, so a TERMINAL
+        // succeeded/failed TMDB record could never age into STALE here even though the
+        // QUEUE/health call sites (below, via ALL_WIRED_JOBS/runStateAll) already did.
+        // Same registry as those call sites (C6) -- job is not re-derived twice.
+        cadence_ms: job ? JobCadence.get(job) : null,
+      });
+      // Map run_state()'s state vocabulary onto this tile's pre-existing render vocabulary
+      // (running/live/queued/designed etc) rather than inventing a parallel one (C6): a
+      // terminal succeeded run renders 'live' (this loader's steady-state, matching the
+      // sibling TMDB entity-loader rows below), failed/stuck surface distinctly, non-terminal
+      // stays 'running', and the bootstrap/never_run/error states pass through as-is so the
+      // renderer (WARROOM-RENDER-001's contract) can apply N/A / ERROR handling.
+      const statusMap = { succeeded: 'live', failed: 'failed', running: 'running', stuck: 'stuck', never_run: 'never_run', na_insufficient_history: 'na_insufficient_history', error: 'error' };
+      return {
+        name: 'TMDB bulk loader',
+        phase: '1',
+        status: statusMap[rs.state] || rs.state,
+        pct: rs.percent,
+        row_count: tmdbProgress?.complete ?? null,
+        total: tmdbProgress?.total ?? null,
+        last_run: rs.finished_at || rs.started_at || tmdbP.last_modified || null,
+        s3_path: tmdbProgress?.s3_path ?? 's3://sasmaster-2026/tmdb_dev/',
+        run_state: rs, // full run_state() result incl. run_id, threshold, p95, reason -- for provenance / drill-down
+      };
+    })(),
     { name: 'TMDB delta (biweekly)', phase: '1', status: 'queued', pct: 0, last_run: null,
       note: 'cron: 1st + 16th of month; fetches /movie|tv|person/changes since last run' },
     // TMDB expanded ingest — one scraper per entity loader
@@ -704,9 +886,20 @@ function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
   return gridPrefixes.map(p => {
     const meta = META[p.prefix] || { label: p.prefix, phase: '—', status_hint: 'landing' };
     const ec   = (entityCounts || {})[p.prefix] || {};
-    // TMDB prefix: while bulk loader is running, status=landing not live
     let status = meta.status_hint;
-    if (p.prefix === 'tmdb_dev/' && tmdb?.status === 'running') status = 'landing';
+    // WARROOM-RUNSTATE-001 gap 3 -- DATA's tmdb_dev/ badge is the second named §2.7 lie
+    // (OPS's hardcoded "Running now" RUNNING badge was the first -- see runningNow filter
+    // in warroom-v5.html). META's status_hint above is a hardcoded 'running' literal for
+    // tmdb_dev/ that the OLD override line only ever replaced with 'landing' -- i.e.
+    // backwards for every OTHER state: succeeded/failed/stuck/stale/never_run all fell
+    // through untouched to the hardcoded 'running' hint, badging a genuinely terminal
+    // loader RUNNING regardless of what run_state() actually said (confirmed: with today's
+    // live TMDB row terminal/succeeded, the old condition `tmdb?.status === 'running'` was
+    // false, so status stayed 'running' from the literal). Now derives directly from the
+    // SAME run_state()-backed `tmdb.status` OPS's own tile already computed above (C6: one
+    // query, one number, same render vocabulary for both tabs) instead of an independent
+    // hardcoded literal.
+    if (p.prefix === 'tmdb_dev/') status = tmdb ? tmdb.status : meta.status_hint;
 
     const freshData = (s3Freshness || {})[p.prefix] || { age_hours: null, fresh: false };
     const computedAt = ec.computed_at || null;
@@ -716,6 +909,11 @@ function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
       prefix: p.prefix,
       phase: meta.phase,
       status,
+      // WARROOM-RUNSTATE-001 gap 4 -- carries run_state.reason (the ONLY field with the
+      // exact C2/C4 text: 'STALE <age>', 'N/A -- never run', 'ERROR -- <query id>') through
+      // to the DATA badge, same object OPS's tile already exposes. null for every prefix
+      // except tmdb_dev/ (the only prefix currently wired to run_state()).
+      run_state: (p.prefix === 'tmdb_dev/' && tmdb) ? tmdb.run_state : null,
       size_gb: +(p.size_gb.toFixed(2)),
       object_count: p.object_count,
       last_updated: p.last_modified,
@@ -924,10 +1122,23 @@ function getBuildTrends() {
 }
 
 // ── KPIs (derived) ───────────────────────────────────────────────────────────
+// GATE-B (S5b, Shiv-only): the fleet classification is mechanically defaulted
+// (WARROOM_AGENT_INVENTORY.md — every agent 'active'/'on-demand', none 'retired') but not
+// yet RULED BY SHIV. Per the card: until this gate closes, the header ratio is not rendered
+// as a number at all, even though a computed value exists underneath. Flip to true (and
+// review WARROOM_AGENT_INVENTORY.md's expected_state column for any retired agents) once
+// Shiv rules on S5b.
+const AGENT_FLEET_CLASSIFICATION_RULED = false;
+
 function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haikuPctToday, warroomS3Total) {
   // agents_running counts only live/cron agents (not idle sub-agents or marketplace)
   const liveAgents    = agents.filter(a => !a.type || a.type === 'live');
+  // Pre-WARROOM-HEALTH-001 literal-status count — retained ONLY as the input to the
+  // legacy 'routing' consumers elsewhere (DATA-tab SEC EDGAR indicator); the AGENTS-tab
+  // ratio below uses healthEval.state, the computed value (C3/C6).
   const agents_running = liveAgents.filter(a => a.status === 'healthy' || a.status === 'routing').length;
+  const agents_healthy_computed = liveAgents.filter(a => a.healthEval && a.healthEval.state === 'healthy').length;
+  const agents_classified_denominator = liveAgents.filter(a => !a.healthEval || a.healthEval.state !== 'retired').length;
   const scrapers_live  = scrapers.filter(s => s.status === 'live').length;
   // Prefer warroom-data.json total (4x/day refresh) over stale s3-inventory.json sum
   const s3_gb = warroomS3Total != null
@@ -938,8 +1149,18 @@ function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haiku
 
   return {
     agents_running,
-    agents_total: agents.length,       // 50 — full fleet (live + sub-agents + marketplace)
-    agents_live_total: liveAgents.length, // 14 — live/cron only, used for health bar
+    agents_total: agents.length,       // 51 — full fleet (live + sub-agents + marketplace)
+    // 13, not 14: parseAgents() lists 14 rows in the live/cron table, but Data Guardian
+    // carries type:'subagent' and is filtered out by the liveAgents filter above (it's
+    // event-triggered from nielsen_puller.py, not cron-scheduled) — confirmed live
+    // 2026-08-24. Re-derive from liveAgents.length, never hardcode the count again.
+    agents_live_total: liveAgents.length, // live/cron only, used for health bar
+    // WARROOM-HEALTH-001: the ratio C1/GATE-B actually govern. The render layer renders
+    // `N/A — fleet unclassified (S5b)` while gateBRuled is false, a real number once true —
+    // never a guessed value in between (renderValue()'s NA/value branches, not this file).
+    agents_healthy_computed,
+    agents_classified_denominator,
+    agents_gate_b_ruled: AGENT_FLEET_CLASSIFICATION_RULED,
     scrapers_live,
     scrapers_total: scrapers.length,
     s3_gb: Math.round(s3_gb * 10) / 10,
@@ -1139,16 +1360,14 @@ function buildSlackFeed(recentBuilds, intelFeed) {
 
   // Fallback: derive from log files
   const LOG = path.join(SASMASTER, 'logs');
+  // WARROOM-CLOCK-001 (2026-08-24): this already correctly pinned
+  // America/New_York (unlike the client-side bugs this card fixed), but
+  // duplicated the "recent time vs older date" rule ad hoc — routed through
+  // the shared module so there's exactly one implementation of that rule (C6).
   const tsShort = iso => {
     if (!iso) return '';
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return String(iso).slice(0, 16);
-    // Format: "HH:MM AM/PM EDT" vs "Apr 22" for older
-    const diffHours = (Date.now() - d.getTime()) / 36e5;
-    if (diffHours < 24) {
-      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
-    }
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' });
+    if (isNaN(new Date(iso).getTime())) return String(iso).slice(0, 16);
+    return WarroomClock.recentTimeOrDate(iso);
   };
 
   // Tail a log file and return the last N readable lines as Slack-like messages
@@ -1220,7 +1439,25 @@ const { entries: recentBuilds, heatmap } = parseDoneLog();
 const pendingItems  = parsePending();
 const intelFeed     = parseIntelFeed();
 const alerts        = parseAlerts();
-const agents        = parseAgents();
+// WARROOM-RUNSTATE-001 -- run-log-backed run state for jobs whose OPS/DATA/QUEUE tiles
+// previously derived "running" from something other than the run-log's terminal record.
+// 'TMDB bulk loader' maps to run-log job id 'load-tmdb-to-s3' -- the closest semantic match
+// in docs/JOB_ID_NAMING.md (no job literally named "tmdb bulk loader" exists; this mapping
+// is a judgment call, recorded here and in DONE_LOG.md, not silently assumed).
+const RUNSTATE_JOB_MAP = { 'TMDB bulk loader': 'load-tmdb-to-s3' };
+// WARROOM-RUNSTATE-001 remediation (gap 3, C6): ALL_WIRED_JOBS is the union of every job
+// this generation cycle needs a run-state answer for -- the TMDB tile's job, PLUS every
+// AGENT_HEALTH_CONFIG job (§2.1 health). ONE fetchRunLogTerminalByJob() call for all of
+// them, computed here (before parseAgents()) and threaded through to (a) buildScrapers()'s
+// TMDB tile, (b) parseAgents()->fetchAgentRunLog() for health, and (c) the new QUEUE
+// jobs-running-or-stuck count below -- three consumers, one query, not three.
+const ALL_WIRED_JOBS = Array.from(new Set([
+  ...Object.values(RUNSTATE_JOB_MAP),
+  ...Object.values(AGENT_HEALTH_CONFIG).map(c => c.job).filter(Boolean),
+]));
+const runstateByJob = fetchRunLogTerminalByJob(ALL_WIRED_JOBS);
+const runstateReadError = ALL_WIRED_JOBS.length > 0 && Object.keys(runstateByJob).length === 0;
+const agents        = parseAgents(runstateByJob);
 const tmdbProgress  = parseTMDBProgress();
 const s3Inv         = parseS3Inventory();
 const warroomS3Total = parseWarroomDataS3Total();
@@ -1229,7 +1466,27 @@ const warroomS3Total = parseWarroomDataS3Total();
 const entityCounts  = parseS3EntityCounts();
 const movieUniverse = (entityCounts || {})['_movie_universe'] || null;
 const imdbStatus    = parseImdbStatus();
-const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents, imdbStatus);
+const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents, imdbStatus, runstateByJob, RUNSTATE_JOB_MAP);
+// WARROOM-RUNSTATE-001 gap 1 remediation -- QUEUE's "jobs currently running" count.
+// Genuinely distinct concept from tasks.wipItems (TASKS.md work-item Kanban column, a real
+// project-management concept the QUEUE tab's Kanban board renders as its own "IN PROGRESS"
+// column and is NOT owned by this card -- see report). This is
+// `COUNT(*) FROM run_state_all WHERE state IN ('running','stuck')` per the card's own VERIFY
+// text, genuinely derived from run_state() over ALL_WIRED_JOBS, not merged into the WIP
+// count (that would be exactly the C6 violation of collapsing two real concepts into one).
+const runStateAll = ALL_WIRED_JOBS.map(job => {
+  const row = runstateByJob[job];
+  const rs = WarroomRunstate.run_state({
+    job, now: WarroomClock.nowUtc(),
+    latestRow: row ? { run_id: row.run_id, started_at: row.last_started, finished_at: row.last_finished, exit_code: row.last_exit } : null,
+    terminalDurationsMs: row ? row.terminalDurationsMs : [],
+    cadence_ms: JobCadence.get(job),
+    readError: runstateReadError,
+    queryId: `run_state:${job}`,
+  });
+  return { job, ...rs };
+});
+const jobsRunningOrStuck = runStateAll.filter(r => r.state === 'running' || r.state === 'stuck').length;
 const qaDrafts      = parseQADrafts();
 const { phaseStatus, pending: memoryPending } = parseMemoryContext();
 
@@ -1261,10 +1518,21 @@ const kanban = {
   // Summary for KPI strip
   counts: {
     backlog:    tasks.highItems.length + tasks.medItems.length + tasks.exploreItems.length,
+    // inProgress = TASKS.md work-item WIP count (Kanban "IN PROGRESS" column) -- a real,
+    // separate project-management concept, NOT job-execution state. Kept as-is; see
+    // jobsRunningOrStuck below for the genuinely distinct run_state()-derived number
+    // (WARROOM-RUNSTATE-001 gap 1: two real concepts, two labeled numbers, never merged).
     inProgress: tasks.wipItems.length,
     blocked:    tasks.blockedItems.length,
     review:     tasks.reviewItems.length + pendingItems.length + qaDrafts.length,
     qaDrafts:   qaDrafts.length,
+    // WARROOM-RUNSTATE-001 gap 1 -- COUNT(*) FROM run_state_all WHERE state IN
+    // ('running','stuck'), across ALL_WIRED_JOBS. This is QUEUE's job-execution-state
+    // number; jobsRunningOrStuckJobs carries the per-job provenance (job, state, run_id)
+    // for drill-down/anti-fabrication (every rendered cell must resolve a run_id).
+    jobsRunningOrStuck: jobsRunningOrStuck,
+    jobsRunningOrStuckJobs: runStateAll.filter(r => r.state === 'running' || r.state === 'stuck')
+      .map(r => ({ job: r.job, state: r.state, run_id: r.run_id, reason: r.reason })),
   },
 };
 
@@ -1696,8 +1964,10 @@ function alertStaleSources(freshness) {
 
   const state = loadStaleState();
   const now   = Date.now();
-  const nowHr = new Date().getHours();
-  const nowMin = new Date().getMinutes();
+  // WARROOM-CLOCK-001 (2026-08-24): was raw host-local getHours/getMinutes —
+  // the 9AM-digest gate below would silently fire at the wrong real-world ET
+  // hour on any host whose local timezone isn't America/New_York (C5).
+  const { hour: nowHr, minute: nowMin } = WarroomClock.etHourMinute();
 
   const transitionLines   = [];  // ok→stale or stale→ok
   const persistentStale   = [];  // still stale >24h, for 9AM digest
@@ -1850,7 +2120,9 @@ function computeHealthScore(agentList, freshnessList, cronList, sentinelStatus, 
   // ── Component 1: agents (35%) — live/cron type only ──
   const liveAgents  = agentList.filter(a => !a.type || a.type === 'live');
   const agentTotal  = liveAgents.length;
-  const agentHealthy = liveAgents.filter(a => a.status === 'healthy' || a.status === 'routing').length;
+  // WARROOM-HEALTH-001: uses the computed evaluator state (C6 — same function that drives
+  // the AGENTS-tab badge), not the pre-fix asserted 'healthy'/'routing' literal.
+  const agentHealthy = liveAgents.filter(a => a.healthEval && a.healthEval.state === 'healthy').length;
   const agentPct    = agentTotal > 0 ? agentHealthy / agentTotal : 1;
 
   // ── Component 2: canaries (30%) — unexpected fails only (known_fail excluded) ──
@@ -2003,7 +2275,18 @@ const status = {
     wipItems:     tasks.wipItems,
     blockedItems: tasks.blockedItems,
     reviewItems:  tasks.reviewItems,
+    // WARROOM-RUNSTATE-001 gap 1 -- run_state()-derived, genuinely distinct from wipItems
+    // (TASKS.md work items) above. jobsInProgress is the count; jobsInProgressDetail carries
+    // per-job run_id/state provenance so a rendered cell can always resolve a run_id.
+    jobsInProgress:       jobsRunningOrStuck,
+    jobsInProgressDetail: runStateAll.filter(r => r.state === 'running' || r.state === 'stuck')
+      .map(r => ({ job: r.job, state: r.state, run_id: r.run_id, reason: r.reason })),
   },
+  // WARROOM-RUNSTATE-001 -- the full run_state() result for every job in ALL_WIRED_JOBS,
+  // one evaluation per generation cycle (C6). Source of truth for OPS/DATA/QUEUE run-state
+  // cells and for the anti-fabrication + C6 delete-list VERIFY assertions (paste-able
+  // per-job output, run_id always present or state is one of never_run/error).
+  run_state_all: runStateAll,
   kanban,
   heatmap,
   target10: parseTarget10(),
@@ -2021,6 +2304,8 @@ const status = {
     const kpis = buildKPIs(agents, scrapers, s3_lake, tasks, parentKeyScraper, buildEventsCount, haikuPctToday, warroomS3Total);
     kpis.builds_7d       = buildTrends?.builds_7d   || 0;
     kpis.error_rate_7d   = buildTrends?.error_rate   || 0;
+    // WARROOM-RUNSTATE-001 gap 1 -- distinct KPI tile input, run_state()-derived job count.
+    kpis.jobs_running_or_stuck = jobsRunningOrStuck;
     return kpis;
   })(),
   build_trends:        buildTrends,

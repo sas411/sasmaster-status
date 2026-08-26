@@ -476,7 +476,7 @@ table.rs-t tr.total td{background:var(--surface2);font-weight:800;border-top:2px
             <tr><td><div class="nm">Alternate IDs linked</div><div class="nt">cross-system identifier bridges</div></td><td class="r mono">33,003</td><td class="r">EIDR-anchored 32,953</td></tr>
             <tr class="total"><td>Parent Key spine</td><td class="r mono">10,955,204</td><td class="r">one resolved key</td></tr>
           </tbody></table>
-          <div class="rs-tfoot"><span id="liveRefreshTs">Refreshed today · 06:00</span><span class="dl">⤓ Export CSV</span></div>
+          <div class="rs-tfoot"><span id="liveRefreshTs">—</span><span class="dl">⤓ Export CSV</span></div>
         </div></div>
         <div class="rs-mode" data-m="viz"><div class="rs-panel"><div class="rs-vizbody">
           <h3>What the spine is made of</h3><div class="rs-bars" id="rsBars"></div>
@@ -610,6 +610,20 @@ function renderLiveResult(data, q) {
   // live badge
   if ($('liveBadge')) $('liveBadge').style.display = 'inline';
 }
+// ASK-P0-TRUTH-001: explicit failure state — never leave fabricated/stale numbers on screen
+// with no indication they're fake. Called whenever fetchAsk() fails, times out, or the
+// backend returns {error}. Overwrites every surface renderLiveResult() would have touched.
+function renderErrorResult(q) {
+  if ($('liveAskTitle')) $('liveAskTitle').textContent = q || 'Result unavailable';
+  if ($('liveAskBy')) $('liveAskBy').innerHTML = `<b>Dr. Scoop</b> · couldn't reach the data layer — no live data to show`;
+  if ($('liveTable')) $('liveTable').innerHTML = `<thead><tr><th>—</th></tr></thead><tbody><tr><td style="color:var(--dim);text-align:center;padding:24px">Couldn't reach the data layer. No numbers are shown here because cached ones could be stale.</td></tr></tbody>`;
+  if ($('liveTableDesc')) $('liveTableDesc').textContent = 'Live query failed or timed out — try again in a moment.';
+  if ($('liveRefreshTs')) $('liveRefreshTs').textContent = 'Not connected — no live data';
+  if ($('liveArticle')) $('liveArticle').innerHTML = `<div class="kicker">The Scoop · Live Query</div><h1>${q || 'Result unavailable'}</h1><p class="lede" style="color:var(--dim)">Dr. Scoop couldn't reach the data layer for this query, so nothing is being asserted. Try again shortly.</p>`;
+  if ($('liveInsights')) $('liveInsights').innerHTML = `<div class="rs-ins" style="color:var(--dim)">No insights — live data unavailable.</div>`;
+  if ($('liveClaims')) $('liveClaims').innerHTML = `<div class="rs-claim" style="color:var(--dim)">No claims verified this run.</div>`;
+  if ($('liveBadge')) $('liveBadge').style.display = 'none';
+}
 
 function theme(m){document.body.dataset.theme=m;$('tgL').classList.toggle('on',m==='light');$('tgD').classList.toggle('on',m==='dark');}
 
@@ -621,11 +635,17 @@ function theme(m){document.body.dataset.theme=m;$('tgL').classList.toggle('on',m
     s+=`<g><path d="${d}" fill="none" stroke="${w.col}" stroke-width="2.2" opacity="${w.op}"/><animateTransform attributeName="transform" type="translate" from="0 0" to="${-w.wl} 0" dur="${w.dur}s" repeatCount="indefinite"/></g>`;});
   svg.innerHTML=s;})();
 
+// regen: ASK-P0-TRUTH-001 (2026-08-17) — decorative boot-sequence numbers, NOT live-fetched.
+// These animate during the intro only; they do not call /api/ask. Wiring this to a real
+// ground-truth batch fetch needs a lightweight endpoint that doesn't exist yet — flagged
+// as follow-up scope, not silently left as if it were already fixed.
 const LOG=[['Connecting to the data lake',' sasmaster.prod',null],['Loading movies','',903060],['Loading TV series','',370729],['Resolving episodes','',9681539],['Resolving people','',3220202],['Building Parent-Key spine','',10955204],['Certifying EIDR','',227395],['Linking alt-IDs','',33003],['Loading audience viewership','','679.9 GB'],['Loading ad occurrences','','20.5 GB'],['Initializing social footprint','','online'],['Loading box office','','online'],['Calibrating advisors',' Dr. Scoop + cast',null],['Personalizing for Shiv',' ✓ ready',null]];
 async function runLog(){const w=$('logrows');w.innerHTML='';for(const[l,t,v] of LOG){const isN=typeof v==='number',isS=typeof v==='string';const r=isN?`<span class="n" data-n="${v}">0</span>`:isS?`<span class="n" style="color:#22d3ee">${v}</span>`:`<span class="n ck">●</span>`;const row=document.createElement('div');row.className='lg';row.innerHTML=`<span class="ld">▸</span><span>${l}${t?`<span style="color:#6B7480">${t}</span>`:''}</span>`+r;w.appendChild(row);await sleep(42);row.classList.add('in');if(isN)await countTo(row.querySelector('[data-n]'),v,320);await sleep(isS?210:120);}}
 function countTo(el,t,d){return new Promise(res=>{const s=performance.now();(function f(n){const p=Math.min(1,(n-s)/d),e=1-Math.pow(1-p,3);el.textContent=Math.round(t*e).toLocaleString();p<1?requestAnimationFrame(f):res();})(s);});}
 function typew(el,txt,sp=27){return new Promise(res=>{el.innerHTML='';let i=0;const c=document.createElement('span');c.className='cursor';el.appendChild(c);(function t(){if(i<txt.length){c.insertAdjacentHTML('beforebegin',txt[i]==='*'?'':txt[i]);i++;setTimeout(t,sp);}else{setTimeout(()=>c.remove(),500);res();}})();});}
 
+// regen: ASK-P0-TRUTH-001 (2026-08-17) — decorative ticker content, NOT live-fetched. Same
+// follow-up scope note as LOG above.
 const CLAIMS=[{d:'up',e:'The White Lotus',ds:'#1 drama by reach · A18-34F',dl:'+22.1% WoW'},{d:'fl',e:'EIDR coverage',ds:'227,395 movies certified',dl:'25% of catalog'},{d:'up',e:'2022',ds:'peak content supply · 23,423 new titles',dl:'all-time high'},{d:'up',e:'Documentary',ds:'#2 genre · 177,923 titles',dl:'streaming surge'},{d:'up',e:'Primetime A',ds:'CPM $34.2',dl:'+$3.8 vs LM'},{d:'dn',e:'Linear share',ds:'38% of viewing',dl:'−4 pts'},{d:'up',e:'Streaming SOV',ds:'social share of voice',dl:'+18% WoW'},{d:'up',e:'A18-34F',ds:'over-indexing late prime',dl:'index 148'},{d:'fl',e:'Drama',ds:'largest genre',dl:'224,812 titles'}];
 $('track').innerHTML=(()=>{const o=CLAIMS.map(c=>{const a=c.d==='up'?'▲':c.d==='dn'?'▼':'◆';return `<span class="claim"><span class="ar ${c.d}">${a}</span><b>${c.e}</b><span class="ds">${c.ds}</span><span class="dl ${c.d}">${c.dl}</span></span>`;}).join('');return o+o;})();
 
@@ -766,6 +786,9 @@ document.querySelectorAll('#tmTog button').forEach(b=>b.onclick=()=>{document.qu
 document.querySelectorAll('.tm-time button').forEach(b=>b.onclick=()=>document.querySelectorAll('.tm-time button').forEach(x=>x.classList.toggle('on',x===b)));
 
 /* ===== RESULT VIEW routing + behavior ===== */
+// regen: ASK-P0-TRUTH-001 (2026-08-17) — the Visualization tab's bar chart is seeded from
+// this static array; it is never overwritten by renderLiveResult() on a real query. Same
+// follow-up scope note as LOG above.
 const RSSPINE=[['Episodes',9681539,'#7C5CFC'],['People',3220202,'#0EA5E9'],['Movies',903060,'#22D3EE'],['TV series',370729,'#14B8A6'],['Alt-IDs',33003,'#F59E0B']];
 function drawRsBars(){const mx=Math.max(...RSSPINE.map(s=>s[1]));$('rsBars').innerHTML=RSSPINE.map((s,i)=>{const w=Math.max(3,Math.sqrt(s[1]/mx)*100);return `<div class="rs-bar"><div class="lab">${s[0]}</div><div class="track"><div class="fill" style="width:${w.toFixed(1)}%;background:${s[2]};animation-delay:${i*.08}s"></div></div><div class="val">${s[1].toLocaleString()}</div></div>`;}).join('');}
 document.querySelectorAll('.rs-tab').forEach(t=>t.onclick=()=>{const m=t.dataset.m;document.querySelectorAll('.rs-tab').forEach(x=>x.classList.toggle('on',x===t));document.querySelectorAll('.rs-mode').forEach(x=>x.classList.toggle('on',x.dataset.m===m));if(m==='viz')drawRsBars();});
@@ -778,7 +801,7 @@ async function runRsWork(){
     (async()=>{const rows=[...document.querySelectorAll('.rs-step')];await sleep(280);for(let i=0;i<rows.length;i++){rows[i].classList.add('on');await sleep(420);rows[i].classList.add('done');await sleep(150);}})(),
     fetchAsk(q)
   ]);
-  if(liveData && !liveData.error) renderLiveResult(liveData, q);
+  if(liveData && !liveData.error) renderLiveResult(liveData, q); else renderErrorResult(q);
   await sleep(260);$('rsWork').classList.add('gone');await sleep(380);$('rsResult').classList.add('show');
 }
 function openResult(q){if(q)$('rsQ').value=q;$('rsWorkQ').textContent='"'+$('rsQ').value+'"';$('app').style.display='none';$('navdots').style.display='none';$('rs').classList.add('show');window.scrollTo(0,0);runRsWork();}
