@@ -4,19 +4,59 @@
 // Cadence per warroom/cadence-registry.json (Shiv's ruling, 2026-08-26): SSE,
 // 30s cadence, stale at 60s.
 //
-// ⚠️ Every field below currently renders ERROR — motherduck-not-wired — see
-// api/state-telemetry.js and lib/warroom-readplane.js for why, and the swap
-// point once a real query path is decided. Not a fabricated value.
+// Live query path wired 2026-08-26: proxies through api.sasmaster.dev's new
+// GET /api/warroom/state/ops route (see api/state/telemetry.js for the full
+// architecture note — same proxy, same S3-cache doctrine, same LaunchAgent
+// dependency, currently STAGED not installed).
+//
+// `tmdb_bulk_loader_run_state` is the named §2.7 example this whole card
+// exists to fix (three tabs, three answers, on a job that finished 8 days
+// ago) — it resolves to the SAME run_state()-backed value DATA/QUEUE render
+// (RUNSTATE-001's shared query, C6), matched here by job id
+// `load-tmdb-to-s3` per the documented judgment call in WARROOM-RUNSTATE-001's
+// own report (no job is literally named "tmdb bulk loader" in the run-log;
+// this is the closest semantic match from JOB_ID_NAMING.md).
+// high_priority_queue_row/cron_dot_legend/agent_timeline_24h have no wired
+// source in this pass — honest N/A, not a fabricated mapping.
 
 const WarroomReadplane = require('../../lib/warroom-readplane');
+const WarroomRender = require('../../lib/warroom-render');
 const cadenceRegistry = require('../../warroom/cadence-registry.json');
 const queryBudget = require('../../warroom/query-budget.json');
 
 const TAB = 'OPS';
-// TMDB bulk loader is the named §2.7 example this whole card exists to fix —
-// this tile MUST resolve to the same run_state()-backed value DATA/QUEUE
-// render once wired, per RUNSTATE-001's shared query (C6).
 const TILE_IDS = ['tmdb_bulk_loader_run_state', 'high_priority_queue_row', 'cron_dot_legend', 'agent_timeline_24h'];
+const TMDB_JOB_ID = 'load-tmdb-to-s3';
+
+function withQueryId(payload, queryId) {
+  payload.query_id = queryId;
+  return payload;
+}
+
+function mapTile(tileId, queryId, blob) {
+  if (tileId === 'tmdb_bulk_loader_run_state') {
+    const job = (blob.jobs || []).find((j) => j.job === TMDB_JOB_ID);
+    if (!job) {
+      return withQueryId(WarroomRender.makeNA('job ' + TMDB_JOB_ID + ' not found in run-log', blob.source, blob.computed_at), queryId);
+    }
+    if (job.state === 'error') {
+      // makeError(queryId, source) — job.run_id is the real provenance here,
+      // carried in `source` since makeError has no separate field for it.
+      return WarroomRender.makeError(queryId, 'run_state:' + (job.reason || 'error') + (job.run_id ? ' run_id=' + job.run_id : ''));
+    }
+    if (job.state === 'never_run' || job.state === 'na_insufficient_history') {
+      return withQueryId(WarroomRender.makeNA(job.reason || job.state, blob.source, blob.computed_at), queryId);
+    }
+    // makeValue(value, source, computedAt) — job.run_id (real provenance for
+    // the §2.7 named example) travels in `source` alongside blob.source since
+    // the contract has no separate run_id field; both are useful for debugging.
+    return withQueryId(
+      WarroomRender.makeValue(job.state, (blob.source || '') + ' run_id=' + job.run_id, blob.computed_at),
+      queryId
+    );
+  }
+  return withQueryId(WarroomRender.makeNA('source not wired this pass', blob.source, blob.computed_at), queryId);
+}
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -29,18 +69,41 @@ module.exports = async (req, res) => {
   const budget = WarroomReadplane.checkAndIncrementBudget(TAB, cap);
 
   const nowIso = new Date().toISOString();
+  let blob = null;
+  let fetchError = null;
+  if (budget.allowed) {
+    try {
+      blob = await WarroomReadplane.fetchTabBlob('ops');
+    } catch (e) {
+      fetchError = e && e.message ? e.message : 'unknown_fetch_error';
+    }
+  }
+
   const fields = {};
   TILE_IDS.forEach((tileId) => {
-    const payload = budget.allowed
-      ? WarroomReadplane.fetchTileData(tileId, `${TAB.toLowerCase()}:${tileId}`)
-      : { value: null, state: 'error', query_id: `${TAB.toLowerCase()}:${tileId}:budget_breach`, source: 'budget-cap' };
+    const queryId = `${TAB.toLowerCase()}:${tileId}`;
+    if (!budget.allowed) {
+      fields[tileId] = WarroomReadplane.renderTile(
+        { value: null, state: 'error', query_id: queryId + ':budget_breach', source: 'budget-cap' },
+        cadenceSeconds
+      );
+      return;
+    }
+    if (fetchError) {
+      fields[tileId] = WarroomReadplane.renderTile(
+        WarroomRender.makeError(queryId, 'proxy-unreachable:' + fetchError),
+        cadenceSeconds
+      );
+      return;
+    }
+    const payload = WarroomReadplane.mapBlobToTile(tileId, queryId, blob, (b) => mapTile(tileId, queryId, b));
     fields[tileId] = WarroomReadplane.renderTile(payload, cadenceSeconds);
   });
 
   res.status(200).json({
     fields: fields,
     computed_at: nowIso,
-    source: 'motherduck-not-wired',
+    source: fetchError ? ('ERROR — ' + fetchError) : (blob && blob.source) || 'unknown',
     budget: { allowed: budget.allowed, count: budget.count, cap: budget.cap }
   });
 };
