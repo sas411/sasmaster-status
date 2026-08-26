@@ -10,6 +10,7 @@ const { execSync } = require('child_process');
 const WarroomClock = require('./lib/warroom-clock.js'); // WARROOM-CLOCK-001 — the one clock module (C5)
 const WarroomHealth = require('./lib/warroom-health.js'); // WARROOM-HEALTH-001 — the one health evaluator (C6)
 const WarroomRunstate = require('./lib/warroom-runstate.js'); // WARROOM-RUNSTATE-001 — the one run-state evaluator (C6)
+const JobCadence = require('./lib/job-cadence-registry.js'); // WARROOM-RUNSTATE-001 — the one job-cadence source, shared with ~/SaSMaster/scripts/alert-engine.js (C4/C6)
 
 const SASMASTER   = path.join(process.env.HOME, 'SaSMaster');
 const PENDING     = path.join(SASMASTER, 'pending-approvals.json');
@@ -308,17 +309,18 @@ function fetchRunLogTerminalByJob(jobs) {
   }
 }
 
-// WARROOM-HEALTH-001 Phase 4 -- fetches the latest run_log row per job for the agents in
-// AGENT_HEALTH_CONFIG. Wraps fetchRunLogTerminalByJob() (WARROOM-RUNSTATE-001's shared
-// query) rather than running a second, independent query -- C6.
-// Fails OPEN (empty map) on any read error: an unreadable run-log is not proof of
-// never_run, it just means this cycle can't compute health, which the evaluator surfaces
-// as `has_run_record: false` -> never_run is the honest fallback, not a fabricated state.
-function fetchAgentRunLog() {
-  const jobs = Object.values(AGENT_HEALTH_CONFIG).map(c => c.job).filter(Boolean);
-  const byJob = fetchRunLogTerminalByJob(jobs);
+// WARROOM-HEALTH-001 Phase 4 -- projects the latest run_log row per job for the agents in
+// AGENT_HEALTH_CONFIG out of an already-fetched byJob map.
+// WARROOM-RUNSTATE-001 remediation (gap 3, C6 tightened): this used to call
+// fetchRunLogTerminalByJob() a SECOND time with its own job list -- same query shape as the
+// TMDB tile's call, but a genuinely separate execSync/duckdb round trip, so health and
+// run-state could in principle observe two different snapshots of the run-log within the
+// same generation cycle. Now takes the single runstateByJob result computed once in main
+// (ALL_WIRED_JOBS, see below) and projects from it -- one query, three consumers (TMDB
+// tile, health, QUEUE jobs-running count), not "one query shape called three times".
+function fetchAgentRunLog(byJob) {
   const out = {};
-  for (const job in byJob) {
+  for (const job in (byJob || {})) {
     out[job] = { last_exit: byJob[job].last_exit, last_started: byJob[job].last_started };
   }
   return out;
@@ -355,9 +357,9 @@ function computeAgentHealthEval(a, runLogByJob) {
   }
 }
 
-function parseAgents() {
+function parseAgents(allWiredRunstateByJob) {
   const LOG = path.join(SASMASTER, 'logs');
-  const runLogByJob = fetchAgentRunLog();
+  const runLogByJob = fetchAgentRunLog(allWiredRunstateByJob);
   const agents = [
     { name: 'JARVIS',            icon: '🤖', schedule: 'HTTP API',      nextRun: 'Always on',       log: 'jarvis.log',            channel: 'HTTP Events API',    jobId: null, descOverride: 'HTTP Events API (Railway) — Socket Mode daemon retired' },
     { name: 'Media Intel',       icon: '📡', schedule: '6AM daily',     nextRun: 'Tomorrow 6AM',    log: 'media-intel.log',       channel: '#sasmaster-intel',   jobId: 'media-intel' },
@@ -708,6 +710,12 @@ function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents, imdbStatus, run
         percent: tmdbProgress?.pct ?? null,
         readError: !runstateByJob,
         queryId: 'run_state:load-tmdb-to-s3',
+        // WARROOM-RUNSTATE-001 gap 4 -- C4 staleness gate was wired into run_state() itself
+        // but this call site (the OPS tile) never passed cadence_ms, so a TERMINAL
+        // succeeded/failed TMDB record could never age into STALE here even though the
+        // QUEUE/health call sites (below, via ALL_WIRED_JOBS/runStateAll) already did.
+        // Same registry as those call sites (C6) -- job is not re-derived twice.
+        cadence_ms: job ? JobCadence.get(job) : null,
       });
       // Map run_state()'s state vocabulary onto this tile's pre-existing render vocabulary
       // (running/live/queued/designed etc) rather than inventing a parallel one (C6): a
@@ -878,9 +886,20 @@ function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
   return gridPrefixes.map(p => {
     const meta = META[p.prefix] || { label: p.prefix, phase: '—', status_hint: 'landing' };
     const ec   = (entityCounts || {})[p.prefix] || {};
-    // TMDB prefix: while bulk loader is running, status=landing not live
     let status = meta.status_hint;
-    if (p.prefix === 'tmdb_dev/' && tmdb?.status === 'running') status = 'landing';
+    // WARROOM-RUNSTATE-001 gap 3 -- DATA's tmdb_dev/ badge is the second named §2.7 lie
+    // (OPS's hardcoded "Running now" RUNNING badge was the first -- see runningNow filter
+    // in warroom-v5.html). META's status_hint above is a hardcoded 'running' literal for
+    // tmdb_dev/ that the OLD override line only ever replaced with 'landing' -- i.e.
+    // backwards for every OTHER state: succeeded/failed/stuck/stale/never_run all fell
+    // through untouched to the hardcoded 'running' hint, badging a genuinely terminal
+    // loader RUNNING regardless of what run_state() actually said (confirmed: with today's
+    // live TMDB row terminal/succeeded, the old condition `tmdb?.status === 'running'` was
+    // false, so status stayed 'running' from the literal). Now derives directly from the
+    // SAME run_state()-backed `tmdb.status` OPS's own tile already computed above (C6: one
+    // query, one number, same render vocabulary for both tabs) instead of an independent
+    // hardcoded literal.
+    if (p.prefix === 'tmdb_dev/') status = tmdb ? tmdb.status : meta.status_hint;
 
     const freshData = (s3Freshness || {})[p.prefix] || { age_hours: null, fresh: false };
     const computedAt = ec.computed_at || null;
@@ -1415,7 +1434,25 @@ const { entries: recentBuilds, heatmap } = parseDoneLog();
 const pendingItems  = parsePending();
 const intelFeed     = parseIntelFeed();
 const alerts        = parseAlerts();
-const agents        = parseAgents();
+// WARROOM-RUNSTATE-001 -- run-log-backed run state for jobs whose OPS/DATA/QUEUE tiles
+// previously derived "running" from something other than the run-log's terminal record.
+// 'TMDB bulk loader' maps to run-log job id 'load-tmdb-to-s3' -- the closest semantic match
+// in docs/JOB_ID_NAMING.md (no job literally named "tmdb bulk loader" exists; this mapping
+// is a judgment call, recorded here and in DONE_LOG.md, not silently assumed).
+const RUNSTATE_JOB_MAP = { 'TMDB bulk loader': 'load-tmdb-to-s3' };
+// WARROOM-RUNSTATE-001 remediation (gap 3, C6): ALL_WIRED_JOBS is the union of every job
+// this generation cycle needs a run-state answer for -- the TMDB tile's job, PLUS every
+// AGENT_HEALTH_CONFIG job (§2.1 health). ONE fetchRunLogTerminalByJob() call for all of
+// them, computed here (before parseAgents()) and threaded through to (a) buildScrapers()'s
+// TMDB tile, (b) parseAgents()->fetchAgentRunLog() for health, and (c) the new QUEUE
+// jobs-running-or-stuck count below -- three consumers, one query, not three.
+const ALL_WIRED_JOBS = Array.from(new Set([
+  ...Object.values(RUNSTATE_JOB_MAP),
+  ...Object.values(AGENT_HEALTH_CONFIG).map(c => c.job).filter(Boolean),
+]));
+const runstateByJob = fetchRunLogTerminalByJob(ALL_WIRED_JOBS);
+const runstateReadError = ALL_WIRED_JOBS.length > 0 && Object.keys(runstateByJob).length === 0;
+const agents        = parseAgents(runstateByJob);
 const tmdbProgress  = parseTMDBProgress();
 const s3Inv         = parseS3Inventory();
 const warroomS3Total = parseWarroomDataS3Total();
@@ -1424,14 +1461,27 @@ const warroomS3Total = parseWarroomDataS3Total();
 const entityCounts  = parseS3EntityCounts();
 const movieUniverse = (entityCounts || {})['_movie_universe'] || null;
 const imdbStatus    = parseImdbStatus();
-// WARROOM-RUNSTATE-001 -- run-log-backed run state for jobs whose OPS/DATA/QUEUE tiles
-// previously derived "running" from something other than the run-log's terminal record.
-// 'TMDB bulk loader' maps to run-log job id 'load-tmdb-to-s3' -- the closest semantic match
-// in docs/JOB_ID_NAMING.md (no job literally named "tmdb bulk loader" exists; this mapping
-// is a judgment call, recorded here and in DONE_LOG.md, not silently assumed).
-const RUNSTATE_JOB_MAP = { 'TMDB bulk loader': 'load-tmdb-to-s3' };
-const runstateByJob = fetchRunLogTerminalByJob(Object.values(RUNSTATE_JOB_MAP));
 const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents, imdbStatus, runstateByJob, RUNSTATE_JOB_MAP);
+// WARROOM-RUNSTATE-001 gap 1 remediation -- QUEUE's "jobs currently running" count.
+// Genuinely distinct concept from tasks.wipItems (TASKS.md work-item Kanban column, a real
+// project-management concept the QUEUE tab's Kanban board renders as its own "IN PROGRESS"
+// column and is NOT owned by this card -- see report). This is
+// `COUNT(*) FROM run_state_all WHERE state IN ('running','stuck')` per the card's own VERIFY
+// text, genuinely derived from run_state() over ALL_WIRED_JOBS, not merged into the WIP
+// count (that would be exactly the C6 violation of collapsing two real concepts into one).
+const runStateAll = ALL_WIRED_JOBS.map(job => {
+  const row = runstateByJob[job];
+  const rs = WarroomRunstate.run_state({
+    job, now: WarroomClock.nowUtc(),
+    latestRow: row ? { run_id: row.run_id, started_at: row.last_started, finished_at: row.last_finished, exit_code: row.last_exit } : null,
+    terminalDurationsMs: row ? row.terminalDurationsMs : [],
+    cadence_ms: JobCadence.get(job),
+    readError: runstateReadError,
+    queryId: `run_state:${job}`,
+  });
+  return { job, ...rs };
+});
+const jobsRunningOrStuck = runStateAll.filter(r => r.state === 'running' || r.state === 'stuck').length;
 const qaDrafts      = parseQADrafts();
 const { phaseStatus, pending: memoryPending } = parseMemoryContext();
 
@@ -1463,10 +1513,21 @@ const kanban = {
   // Summary for KPI strip
   counts: {
     backlog:    tasks.highItems.length + tasks.medItems.length + tasks.exploreItems.length,
+    // inProgress = TASKS.md work-item WIP count (Kanban "IN PROGRESS" column) -- a real,
+    // separate project-management concept, NOT job-execution state. Kept as-is; see
+    // jobsRunningOrStuck below for the genuinely distinct run_state()-derived number
+    // (WARROOM-RUNSTATE-001 gap 1: two real concepts, two labeled numbers, never merged).
     inProgress: tasks.wipItems.length,
     blocked:    tasks.blockedItems.length,
     review:     tasks.reviewItems.length + pendingItems.length + qaDrafts.length,
     qaDrafts:   qaDrafts.length,
+    // WARROOM-RUNSTATE-001 gap 1 -- COUNT(*) FROM run_state_all WHERE state IN
+    // ('running','stuck'), across ALL_WIRED_JOBS. This is QUEUE's job-execution-state
+    // number; jobsRunningOrStuckJobs carries the per-job provenance (job, state, run_id)
+    // for drill-down/anti-fabrication (every rendered cell must resolve a run_id).
+    jobsRunningOrStuck: jobsRunningOrStuck,
+    jobsRunningOrStuckJobs: runStateAll.filter(r => r.state === 'running' || r.state === 'stuck')
+      .map(r => ({ job: r.job, state: r.state, run_id: r.run_id, reason: r.reason })),
   },
 };
 
@@ -2209,7 +2270,18 @@ const status = {
     wipItems:     tasks.wipItems,
     blockedItems: tasks.blockedItems,
     reviewItems:  tasks.reviewItems,
+    // WARROOM-RUNSTATE-001 gap 1 -- run_state()-derived, genuinely distinct from wipItems
+    // (TASKS.md work items) above. jobsInProgress is the count; jobsInProgressDetail carries
+    // per-job run_id/state provenance so a rendered cell can always resolve a run_id.
+    jobsInProgress:       jobsRunningOrStuck,
+    jobsInProgressDetail: runStateAll.filter(r => r.state === 'running' || r.state === 'stuck')
+      .map(r => ({ job: r.job, state: r.state, run_id: r.run_id, reason: r.reason })),
   },
+  // WARROOM-RUNSTATE-001 -- the full run_state() result for every job in ALL_WIRED_JOBS,
+  // one evaluation per generation cycle (C6). Source of truth for OPS/DATA/QUEUE run-state
+  // cells and for the anti-fabrication + C6 delete-list VERIFY assertions (paste-able
+  // per-job output, run_id always present or state is one of never_run/error).
+  run_state_all: runStateAll,
   kanban,
   heatmap,
   target10: parseTarget10(),
@@ -2227,6 +2299,8 @@ const status = {
     const kpis = buildKPIs(agents, scrapers, s3_lake, tasks, parentKeyScraper, buildEventsCount, haikuPctToday, warroomS3Total);
     kpis.builds_7d       = buildTrends?.builds_7d   || 0;
     kpis.error_rate_7d   = buildTrends?.error_rate   || 0;
+    // WARROOM-RUNSTATE-001 gap 1 -- distinct KPI tile input, run_state()-derived job count.
+    kpis.jobs_running_or_stuck = jobsRunningOrStuck;
     return kpis;
   })(),
   build_trends:        buildTrends,

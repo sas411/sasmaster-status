@@ -1723,10 +1723,31 @@ function adapt(d){
     s3lake:(d.s3_lake||[]).slice(0,8),
     scrapers:d.scrapers||[],
     sourceFreshness:d.source_freshness||[],
-    runningNow:(d.scrapers||[]).filter(s=>['live','running'].includes(s.status)).slice(0,3),
+    // WARROOM-RUNSTATE-001 gap 3 remediation -- this is the literal §2.7 defect the card
+    // exists to remove: 'live' is a legacy steady-state label used by scrapers that have
+    // never been wired to run_state() (TMDB Configuration, IMDb parser, etc. -- 'live'
+    // there means "operational", not "executing right now"). Once TMDB bulk loader also
+    // carries a run_state (this card's own gap 1/2 work), its terminal 'succeeded' run
+    // maps to status:'live' too (buildScrapers()'s statusMap) -- so the OLD ['live',
+    // 'running'] filter below picked up a SUCCEEDED, TERMINAL run and fed it straight into
+    // the hardcoded "RUNNING" badge two lines down in renderData(): the exact "RUNNING,
+    // 100% / complete · 8d ago" contradiction the card's WHY section names, reproduced
+    // live in production (confirmed 2026-08-26 against the deployed status.json: TMDB
+    // bulk loader run_state.state==='succeeded', status==='live', and this filter still
+    // included it). Any scraper carrying a run_state object now derives ONLY from
+    // run_state.state==='running' (never the legacy 'live' label) -- C3, no start-marker
+    // literal ever counts as "running". Legacy unwired scrapers (no run_state field) keep
+    // the old literal-status check, since they have no run-log-backed alternative yet.
+    runningNow:(d.scrapers||[]).filter(s=>s.run_state?s.run_state.state==='running':s.status==='running').slice(0,3),
     highItems:queue.highItems||[],
     queueHigh:queue.high!=null?queue.high:0,
     queueMed:queue.med!=null?queue.med:0,
+    // WARROOM-RUNSTATE-001 gap 1 -- run_state()-derived job-execution count, genuinely
+    // distinct from the TASKS.md work-item kanban.inProgress column above. Never merged
+    // into queueHigh/queueMed/kanban.inProgress (that would recreate the C6 defect this
+    // card exists to remove).
+    queueJobsInProgress:queue.jobsInProgress!=null?queue.jobsInProgress:0,
+    queueJobsInProgressDetail:queue.jobsInProgressDetail||[],
     agents:d.agents||[],
     s3prefixes:d.s3_lake||[],
     movieUniverse:d.movie_universe||{},
@@ -1980,8 +2001,14 @@ function renderOPS(vm){
       const r=running[0];
       const pct=r.pct||0;
       const ago=WarroomRender.formatAge(r.last_run,WarroomClock,'N/A — no run recorded');
+      // WARROOM-RUNSTATE-001 gap 3 -- badge text derived from the actual state (C3: never
+      // a stored/hardcoded literal), not a hardcoded "RUNNING" string. Post-filter above,
+      // every item here is genuinely running (run_state.state==='running' or legacy
+      // status==='running'), so this renders the same text as before for the true-positive
+      // case -- it only stops lying for the terminal case the filter now excludes.
+      const badgeText=escHtml((r.run_state?r.run_state.state:r.status||'running').toUpperCase());
       runrowContainer.innerHTML=`
-        <div class="rh">${escHtml(r.name)} <span class="badge b-run" style="margin-left:auto">RUNNING</span> <span class="mono" style="font-size:12px">${pct}%</span></div>
+        <div class="rh">${escHtml(r.name)} <span class="badge b-run" style="margin-left:auto">${badgeText}</span> <span class="mono" style="font-size:12px">${pct}%</span></div>
         <div class="runbar"><i style="width:${pct}%"></i></div>
         <div style="font-family:var(--mono);font-size:11px;color:var(--dim)">${pct===100?'complete':'in progress'} · ${ago}</div>`;
     } else {
@@ -2290,12 +2317,33 @@ function renderQueue(vm){
   const queueTab=document.querySelector('.tab[data-v="queue"] .cnt');
   if(queueTab) queueTab.textContent=vm.queueHigh+vm.queueMed;
 
+  // WARROOM-RUNSTATE-001 gap 1 -- jobs-currently-running/stuck stat line, run_state()-
+  // derived, genuinely distinct from the "IN PROGRESS (tasks)" kanban column below (that
+  // column is TASKS.md work-item WIP, a real and separate concept, left untouched per §6
+  // protected-surface ruling on QUEUE's board-math tiles). Additive DOM node -- does not
+  // replace or rename any existing kanban structure.
+  let jobsRunEl=document.getElementById('queue-jobs-running');
+  if(!jobsRunEl){
+    const chipsRow=document.querySelector('#v-queue .phasechips');
+    if(chipsRow&&chipsRow.parentNode){
+      jobsRunEl=document.createElement('div');
+      jobsRunEl.id='queue-jobs-running';
+      jobsRunEl.style.cssText='margin:8px 0;font-family:var(--mono);font-size:11px;color:var(--dim)';
+      chipsRow.parentNode.insertBefore(jobsRunEl,chipsRow.nextSibling);
+    }
+  }
+  if(jobsRunEl){
+    const n=vm.queueJobsInProgress;
+    const detail=(vm.queueJobsInProgressDetail||[]).map(j=>`${escHtml(j.job)}:${escHtml(j.state)}${j.run_id?' ('+escHtml(j.run_id)+')':''}`).join(', ');
+    jobsRunEl.textContent=`JOBS RUNNING/STUCK (run-log): ${n}`+(detail?` — ${detail}`:'');
+  }
+
   // Kanban columns
   const kan=document.getElementById('kan');
   if(!kan) return;
   const cols=[
     {key:'backlog',label:'BACKLOG',items:vm.kanban.backlog},
-    {key:'inProgress',label:'IN PROGRESS',items:vm.kanban.inProgress},
+    {key:'inProgress',label:'IN PROGRESS (tasks)',items:vm.kanban.inProgress},
     {key:'blocked',label:'BLOCKED',items:vm.kanban.blocked},
     {key:'review',label:'REVIEW',items:vm.kanban.review},
     {key:'done',label:'DONE',items:vm.kanban.done}
