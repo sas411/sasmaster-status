@@ -9,6 +9,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 const WarroomClock = require('./lib/warroom-clock.js'); // WARROOM-CLOCK-001 — the one clock module (C5)
 const WarroomHealth = require('./lib/warroom-health.js'); // WARROOM-HEALTH-001 — the one health evaluator (C6)
+const WarroomRunstate = require('./lib/warroom-runstate.js'); // WARROOM-RUNSTATE-001 — the one run-state evaluator (C6)
 
 const SASMASTER   = path.join(process.env.HOME, 'SaSMaster');
 const PENDING     = path.join(SASMASTER, 'pending-approvals.json');
@@ -258,25 +259,69 @@ const FEED_STALE_MULT  = null;
 // Fails OPEN (empty map) on any read error: an unreadable run-log is not proof of
 // never_run, it just means this cycle can't compute health, which the evaluator surfaces
 // as `has_run_record: false` -> never_run is the honest fallback, not a fabricated state.
-function fetchAgentRunLog() {
+// WARROOM-RUNSTATE-001 -- the shared terminal-record query (C6). Both
+// computeAgentHealthEval() (via fetchAgentRunLog(), below) and run-state cells
+// (buildScrapers()'s TMDB tile) read this SAME query, not two independent ones --
+// one number, one source, per the card's C6 extension to health.
+//
+// Returns, per job: {run_id, last_started, last_finished, last_exit, terminalDurationsMs}.
+// `terminalDurationsMs` is every terminal run's (finished_at - started_at) in ms, most
+// recent 20, used for WarroomRunstate's p95 bootstrap -- capped at 20 rows/job so this
+// stays a cheap query, not a full-table scan per generation cycle.
+function fetchRunLogTerminalByJob(jobs) {
   try {
     const token = readEnvVar('MOTHERDUCK_TOKEN');
-    if (!token) return {};
-    const jobs = Object.values(AGENT_HEALTH_CONFIG).map(c => c.job).filter(Boolean);
-    if (jobs.length === 0) return {};
+    if (!token || !jobs || jobs.length === 0) return {};
     const jobList = jobs.map(j => `'${j.replace(/'/g, "''")}'`).join(',');
-    const sql = `SELECT job, arg_max(exit_code, started_at) AS last_exit, max(started_at) AS last_started FROM ops.run_log WHERE job IN (${jobList}) GROUP BY job`;
+    const sql = `
+      WITH latest AS (
+        SELECT job, run_id, started_at, finished_at, exit_code,
+               row_number() OVER (PARTITION BY job ORDER BY started_at DESC) AS rn
+        FROM ops.run_log WHERE job IN (${jobList})
+      ),
+      terminal_durs AS (
+        SELECT job, epoch(finished_at) - epoch(started_at) AS dur_s,
+               row_number() OVER (PARTITION BY job ORDER BY started_at DESC) AS rn
+        FROM ops.run_log WHERE job IN (${jobList}) AND finished_at IS NOT NULL
+      )
+      SELECT l.job, l.run_id, l.started_at, l.finished_at, l.exit_code,
+             (SELECT list(dur_s) FROM terminal_durs t WHERE t.job = l.job AND t.rn <= 20) AS durs_s
+      FROM latest l WHERE l.rn = 1`;
     const out = execSync(
-      `/opt/homebrew/bin/duckdb -json -c "${sql}" md:sasmaster`,
+      `/opt/homebrew/bin/duckdb -json -c "${sql.replace(/\n/g, ' ')}" md:sasmaster`,
       { encoding: 'utf8', timeout: 15000, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, motherduck_token: token } }
     );
     const rows = JSON.parse(out);
     const byJob = {};
-    for (const r of rows) byJob[r.job] = { last_exit: r.last_exit, last_started: r.last_started };
+    for (const r of rows) {
+      byJob[r.job] = {
+        run_id: r.run_id,
+        last_started: r.started_at,
+        last_finished: r.finished_at,
+        last_exit: r.exit_code,
+        terminalDurationsMs: (r.durs_s || []).map(s => s * 1000),
+      };
+    }
     return byJob;
   } catch (e) {
     return {};
   }
+}
+
+// WARROOM-HEALTH-001 Phase 4 -- fetches the latest run_log row per job for the agents in
+// AGENT_HEALTH_CONFIG. Wraps fetchRunLogTerminalByJob() (WARROOM-RUNSTATE-001's shared
+// query) rather than running a second, independent query -- C6.
+// Fails OPEN (empty map) on any read error: an unreadable run-log is not proof of
+// never_run, it just means this cycle can't compute health, which the evaluator surfaces
+// as `has_run_record: false` -> never_run is the honest fallback, not a fabricated state.
+function fetchAgentRunLog() {
+  const jobs = Object.values(AGENT_HEALTH_CONFIG).map(c => c.job).filter(Boolean);
+  const byJob = fetchRunLogTerminalByJob(jobs);
+  const out = {};
+  for (const job in byJob) {
+    out[job] = { last_exit: byJob[job].last_exit, last_started: byJob[job].last_started };
+  }
+  return out;
 }
 
 // WARROOM-HEALTH-001 — computes the evaluator result for one agent. Pulled out of
@@ -624,7 +669,7 @@ function parseCrontab() {
 // Real status hydrated from (a) S3 inventory object counts, (b) agent log
 // mtimes, (c) progress JSON. Designed = no data + no script exists. Landing =
 // S3 has data but pipeline not fully automated. Live = automated + running.
-function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents, imdbStatus) {
+function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents, imdbStatus, runstateByJob, runstateJobMap) {
   const prefix = name => (s3Inv?.prefixes || []).find(p => p.prefix === name) || {};
   const agentByName = {};
   (agents || []).forEach(a => { agentByName[a.name] = a; });
@@ -645,16 +690,44 @@ function buildScrapers(tmdbProgress, doneEntries, s3Inv, agents, imdbStatus) {
 
   return [
     // ── Phase 1 — Identity base
-    {
-      name: 'TMDB bulk loader',
-      phase: '1',
-      status: tmdbProgress?.running ? 'running' : (tmdbProgress?.phase === 'complete' ? 'live' : 'running'),
-      pct: tmdbProgress?.pct ?? null,
-      row_count: tmdbProgress?.complete ?? null,
-      total: tmdbProgress?.total ?? null,
-      last_run: tmdbProgress?.last_updated ?? tmdbP.last_modified ?? null,
-      s3_path: tmdbProgress?.s3_path ?? 's3://sasmaster-2026/tmdb_dev/',
-    },
+    (() => {
+      // WARROOM-RUNSTATE-001 -- replaces the pre-fix status ternary
+      // (`tmdbProgress?.running ? 'running' : (tmdbProgress?.phase === 'complete' ? 'live' : 'running')`)
+      // whose inner ELSE branch also returned 'running' -- so a stale/never-cleared
+      // tmdb-progress.json rendered 'running' no matter what. Status now derives
+      // exclusively from run_state() over the run-log's terminal record for
+      // 'load-tmdb-to-s3' (C3, C6). tmdbProgress.pct is still used for percent display,
+      // but ONLY when run_state() itself reports the job as non-terminal (structural
+      // invariant: percent is meaningless on a terminal record, WARROOM-RUNSTATE-001 test).
+      const job = runstateJobMap && runstateJobMap['TMDB bulk loader'];
+      const row = job && runstateByJob ? runstateByJob[job] : null;
+      const rs = WarroomRunstate.run_state({
+        job, now: WarroomClock.nowUtc(),
+        latestRow: row ? { run_id: row.run_id, started_at: row.last_started, finished_at: row.last_finished, exit_code: row.last_exit } : null,
+        terminalDurationsMs: row ? row.terminalDurationsMs : [],
+        percent: tmdbProgress?.pct ?? null,
+        readError: !runstateByJob,
+        queryId: 'run_state:load-tmdb-to-s3',
+      });
+      // Map run_state()'s state vocabulary onto this tile's pre-existing render vocabulary
+      // (running/live/queued/designed etc) rather than inventing a parallel one (C6): a
+      // terminal succeeded run renders 'live' (this loader's steady-state, matching the
+      // sibling TMDB entity-loader rows below), failed/stuck surface distinctly, non-terminal
+      // stays 'running', and the bootstrap/never_run/error states pass through as-is so the
+      // renderer (WARROOM-RENDER-001's contract) can apply N/A / ERROR handling.
+      const statusMap = { succeeded: 'live', failed: 'failed', running: 'running', stuck: 'stuck', never_run: 'never_run', na_insufficient_history: 'na_insufficient_history', error: 'error' };
+      return {
+        name: 'TMDB bulk loader',
+        phase: '1',
+        status: statusMap[rs.state] || rs.state,
+        pct: rs.percent,
+        row_count: tmdbProgress?.complete ?? null,
+        total: tmdbProgress?.total ?? null,
+        last_run: rs.finished_at || rs.started_at || tmdbP.last_modified || null,
+        s3_path: tmdbProgress?.s3_path ?? 's3://sasmaster-2026/tmdb_dev/',
+        run_state: rs, // full run_state() result incl. run_id, threshold, p95, reason -- for provenance / drill-down
+      };
+    })(),
     { name: 'TMDB delta (biweekly)', phase: '1', status: 'queued', pct: 0, last_run: null,
       note: 'cron: 1st + 16th of month; fetches /movie|tv|person/changes since last run' },
     // TMDB expanded ingest — one scraper per entity loader
@@ -1351,7 +1424,14 @@ const warroomS3Total = parseWarroomDataS3Total();
 const entityCounts  = parseS3EntityCounts();
 const movieUniverse = (entityCounts || {})['_movie_universe'] || null;
 const imdbStatus    = parseImdbStatus();
-const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents, imdbStatus);
+// WARROOM-RUNSTATE-001 -- run-log-backed run state for jobs whose OPS/DATA/QUEUE tiles
+// previously derived "running" from something other than the run-log's terminal record.
+// 'TMDB bulk loader' maps to run-log job id 'load-tmdb-to-s3' -- the closest semantic match
+// in docs/JOB_ID_NAMING.md (no job literally named "tmdb bulk loader" exists; this mapping
+// is a judgment call, recorded here and in DONE_LOG.md, not silently assumed).
+const RUNSTATE_JOB_MAP = { 'TMDB bulk loader': 'load-tmdb-to-s3' };
+const runstateByJob = fetchRunLogTerminalByJob(Object.values(RUNSTATE_JOB_MAP));
+const scrapers      = buildScrapers(tmdbProgress, recentBuilds, s3Inv, agents, imdbStatus, runstateByJob, RUNSTATE_JOB_MAP);
 const qaDrafts      = parseQADrafts();
 const { phaseStatus, pending: memoryPending } = parseMemoryContext();
 
