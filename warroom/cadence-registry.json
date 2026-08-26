@@ -17,5 +17,146 @@
     "RESOURCES":        { "transport": "poll", "cadence_seconds": 86400, "stale_at_seconds": 172800 }
   },
   "query_budget_policy": "placeholder-pending-costcanon-001",
-  "query_budget_note": "Per-tab daily query caps derived from READPLANE_SNAPSHOT_MAP.md's query-count estimates until WARROOM-COSTCANON-001 supplies real MotherDuck billing figures. See that card's Phase 3 for the actual cap values."
+  "query_budget_note": "Per-tab daily query caps derived from READPLANE_SNAPSHOT_MAP.md's query-count estimates until WARROOM-COSTCANON-001 supplies real MotherDuck billing figures. See that card's Phase 3 for the actual cap values.",
+
+  "_sources_comment": "WARROOM-FRESHNESS-001 Phase 1 — per-source registry, built from WARROOM_TILE_INVENTORY.md (173 rows), cross-referenced against docs/RUN_LOG_COVERAGE.md and sasmaster.ops.run_log. expected_cadence_seconds is populated ONLY where a real producing cron/LaunchAgent exists and its schedule is confirmed live. Sources with no producing job, or a manual/editorial origin, carry cadence_status:DECISION-PENDING-5c-EXT and are NOT defaulted — see the Phase 2 decision-gate table this same builder pass produced for Shiv.",
+  "sources": {
+    "s3-inventory": {
+      "human_name": "S3 bucket inventory listing",
+      "producer": "cron 0 */6 * * *",
+      "expected_cadence_seconds": 21600,
+      "owner": "data-platform",
+      "dependent_tiles": ["DATA:1a", "DATA:1b", "cross-tab:19", "cross-tab:30d"],
+      "cadence_status": "derived-from-cron"
+    },
+    "cost-agent-collect-active": {
+      "human_name": "AWS/infra cost collector (active hours)",
+      "producer": "cron (RUN_LOG_COVERAGE row, wired=yes)",
+      "expected_cadence_seconds": 86400,
+      "owner": "cost-sentinel",
+      "dependent_tiles": ["COSTS:5"],
+      "cadence_status": "derived-from-cron"
+    },
+    "railway-monitor": {
+      "human_name": "Railway backend health probe",
+      "producer": "cron */15 * * * *",
+      "expected_cadence_seconds": 900,
+      "owner": "infra",
+      "dependent_tiles": ["cross-tab:30e"],
+      "cadence_status": "derived-from-cron"
+    },
+    "com.sasmaster.worker-heartbeat": {
+      "human_name": "Mac worker heartbeat LaunchAgent",
+      "producer": "LaunchAgent, ~5 min interval",
+      "expected_cadence_seconds": 300,
+      "owner": "infra",
+      "dependent_tiles": ["cross-tab:30b"],
+      "cadence_status": "derived-from-cron",
+      "known_defect": "FABRICATION_REGISTER.md Row 1 — exit_code=0 observed even on a Slack-paged control-plane failure; last-successful-run is weaker evidence of real health than other wired jobs. Not this card's to fix, flagged for whoever consumes this source."
+    },
+    "sync-finance": {
+      "human_name": "Nightly finance-data.json regeneration",
+      "producer": "cron 58 23 * * *",
+      "expected_cadence_seconds": 86400,
+      "owner": "financial-analyst",
+      "dependent_tiles": ["COSTS:1","COSTS:2","COSTS:3","COSTS:4","COSTS:12a","COSTS:15","FINANCE:1","FINANCE:2","FINANCE:3","FINANCE:4","FINANCE:7","FINANCE:8","FINANCE:9","FINANCE:10","FINANCE:11","FINANCE:15","FINANCE:16","FINTEL:3"],
+      "cadence_status": "derived-from-cron",
+      "note": "Wired but zero confirmed successful run in this session's run_log pull window (inception gap, not failure) — see WARROOM_TILE_INVENTORY.md rows citing this source."
+    },
+    "nielsen-clock-gen": {
+      "human_name": "Nielsen Clock date-obligation generator",
+      "producer": "cron 35 5 * * *",
+      "expected_cadence_seconds": 86400,
+      "owner": "nielsen-orchestrator",
+      "dependent_tiles": ["cross-tab:14"],
+      "cadence_status": "derived-from-cron"
+    },
+    "generate-status-js": {
+      "human_name": "War Room page generator (the snapshot writer itself)",
+      "producer": "cron */5 * * * * (RUN_LOG_COVERAGE row 21, wired=proposed-no — NOT wired to run_log)",
+      "expected_cadence_seconds": 300,
+      "owner": "sasmaster-status",
+      "dependent_tiles": ["the majority of STALE-classified tiles across OPS, AGENTS, QUEUE, TELEMETRY, CANVAS, cross-tab — see WARROOM_TILE_INVENTORY.md, any row whose Blocking-gap cites 'generate-status.js itself is not wired to run_log'"],
+      "cadence_status": "derived-from-cron-but-unverifiable-freshness",
+      "note": "This is the single biggest freshness gap on the whole board: the generator's own cron fires every 5 min but writes no run_log row, so every tile it feeds is honestly STALE (not LIVE) under this document's rule regardless of how fresh the underlying data actually is. Wiring generate-status.js to run_log (a small, well-scoped fix — RUNLOG-001 explicitly skipped rewriting its 'cd && node' chain shape rather than guess at a safe rewrite) would upgrade dozens of tiles from STALE to LIVE-capable in one move. Flagged as a high-leverage follow-up, not built here."
+    },
+    "com.sasmaster.token-metrics": {
+      "human_name": "Token/cost metrics LaunchAgent",
+      "producer": "LaunchAgent, StartCalendarInterval 06:00 daily — WIRE-CANDIDATE, not yet wired to run_log",
+      "expected_cadence_seconds": 86400,
+      "owner": "cost-sentinel",
+      "dependent_tiles": ["TOKENS:1-19 (all)", "COSTS:9-13", "FINANCE:7-11"],
+      "cadence_status": "derived-from-cron-but-unverifiable-freshness"
+    },
+    "spine-artifact-pipeline": {
+      "human_name": "Parent Key spine / curated catalog artifact build",
+      "producer": "not confirmed in RUN_LOG_COVERAGE's 96-job roster this pass",
+      "expected_cadence_seconds": null,
+      "owner": "data-modeler",
+      "dependent_tiles": ["DATA:7","DATA:8","DATA:9-18","DATA:21-27","DATA:29","DATA:30"],
+      "cadence_status": "DECISION-PENDING-5c-EXT",
+      "note": "Real computed values, but this pass could not confirm whether the producing pipeline has any cron/LaunchAgent coverage at all — a future pass should check before this source can get a confirmed cadence."
+    },
+    "canvas-piece-pipeline": {
+      "human_name": "CANVAS daily piece generation",
+      "producer": "not independently confirmed wired this pass",
+      "expected_cadence_seconds": null,
+      "owner": "canvas-catalog-builder",
+      "dependent_tiles": ["CANVAS:2","CANVAS:3","CANVAS:6","CANVAS:7","CANVAS:8","CANVAS:10","CANVAS:13","CANVAS:14","CANVAS:17"],
+      "cadence_status": "DECISION-PENDING-5c-EXT"
+    },
+    "skill-routing-telemetry": {
+      "human_name": "Skill routing gate telemetry file",
+      "producer": "on-demand fetch, no confirmed cron in the 96-job roster",
+      "expected_cadence_seconds": null,
+      "owner": "skill-routing",
+      "dependent_tiles": ["TELEMETRY:17","TELEMETRY:18","TELEMETRY:19"],
+      "cadence_status": "DECISION-PENDING-5c-EXT"
+    },
+    "cost-ledger-manual": {
+      "human_name": "COST LEDGER manual entries",
+      "producer": "manual (Shiv or a future editorial flow) — currently a static hardcoded table, not wired to any producer at all",
+      "expected_cadence_seconds": null,
+      "owner": "shiv",
+      "dependent_tiles": ["COSTS:15"],
+      "cadence_status": "DECISION-PENDING-5c-EXT",
+      "gate_table_entry": true
+    },
+    "resources-artifact-verification": {
+      "human_name": "RESOURCES artifact 'last verified' event",
+      "producer": "manual/on-demand — a verification pass that loads the artifact and confirms its live figures resolve (per card's own definition, not a file mtime)",
+      "expected_cadence_seconds": null,
+      "owner": "shiv",
+      "dependent_tiles": ["RESOURCES:2 (all ~31 resource cards)"],
+      "cadence_status": "DECISION-PENDING-5c-EXT",
+      "gate_table_entry": true
+    },
+    "emba-date-obligation": {
+      "human_name": "EMBA UCLA payment due-date obligation",
+      "producer": "manual — a hand-maintained date in finance-data.json, no producing cron",
+      "expected_cadence_seconds": null,
+      "owner": "shiv",
+      "dependent_tiles": ["FINANCE:14"],
+      "cadence_status": "DECISION-PENDING-5c-EXT",
+      "gate_table_entry": true
+    },
+    "nielsen-clock-date-obligation": {
+      "human_name": "Nielsen Clock date-driven obligation (distinct from nielsen-clock-gen's generation cadence — this is the underlying obligation's own staleness, not the generator's)",
+      "producer": "manual — obligation dates are set by external Nielsen delivery contract terms, not computed",
+      "expected_cadence_seconds": null,
+      "owner": "shiv",
+      "dependent_tiles": ["cross-tab:14 (obligation-lapse aspect, distinct from the generator-freshness aspect already covered by nielsen-clock-gen above)"],
+      "cadence_status": "DECISION-PENDING-5c-EXT",
+      "gate_table_entry": true
+    },
+    "hardcoded-static-arrays": {
+      "human_name": "All hand-authored static/demo arrays (Nielsen/BARB dataset cards, OPS Timeline TL, FINTEL FI table, CANVAS DEMO_FAILED, Memory-bar tier hand-stamps, Social IDs hand-stamp, TELEMETRY Intelligent-Debugging demo content, Activity grid)",
+      "producer": "none — these are MOCK per C3, not real sources at all",
+      "expected_cadence_seconds": null,
+      "owner": "n/a",
+      "dependent_tiles": ["FABRICATION_REGISTER.md Rows 10-13, 21-26 — see WARROOM_TILE_INVENTORY.md for the full per-row list"],
+      "cadence_status": "not-applicable-mock-not-source",
+      "note": "These are not 'sources with an unknown cadence' — they are hardcoded literals with NO backing source at all. Assigning them a cadence would be meaningless; the fix is deleting the hardcoding (a render-code change, out of this card's registry-only Phase 1 scope), not registering a cadence for fabricated data. Excluded from the Phase 2 decision-gate table for this reason — flagging the distinction explicitly so a future pass doesn't try to rule a cadence for a MOCK tile."
+    }
+  }
 }
