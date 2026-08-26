@@ -1283,8 +1283,32 @@ main.canvas-mode{overflow:hidden}
 <script src="lib/warroom-clock.js"></script>
 <script src="lib/warroom-render.js"></script>
 <script src="lib/warroom-health.js"></script>
+<script src="lib/warroom-readplane.js"></script>
 <script>
 /* ============ CONFIG ============ */
+
+// WARROOM-READPLANE-001 — cutover flag, OFF by default. Per the card's own
+// rule: a tab's snapshot code path is deleted only after that tab is
+// re-pointed AND verified in production, and both paths must never render
+// into the same tile simultaneously. Flipping a flag to true here, with
+// nothing else changed, has NO effect yet — fetchLiveTabState() below exists
+// but is not called from renderTelemetry()/renderOps(); that render-path
+// rewiring is deliberately NOT done in this pass (see DONE_LOG for why: it
+// needs those two ~large render functions read and modified carefully, and
+// the live query path itself isn't wired yet either — see
+// lib/warroom-readplane.js header). Flip these only once BOTH the query path
+// and the render-path integration are real, then delete the old snapshot
+// reads for that tab in the SAME commit as removing its flag, per the card.
+window.READPLANE_LIVE = { telemetry: false, ops: false };
+
+// Fetches a tab's live state from its /api/state/<tab> endpoint (WARROOM-READPLANE-001).
+// Not yet called anywhere — see window.READPLANE_LIVE comment above.
+async function fetchLiveTabState(tab) {
+  const r = await fetch('/api/state/' + tab, { cache: 'no-store' });
+  if (!r.ok) throw new Error('live state fetch failed: ' + tab + ' ' + r.status);
+  return r.json();
+}
+
 // ASK URL — routes through /api/ask Vercel proxy; key is server-side only, never in client
 let ASK_URL = 'sasmaster-ask-v3.html';
 function buildAskUrl(vm) {
