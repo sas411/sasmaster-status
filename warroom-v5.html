@@ -1952,7 +1952,10 @@ function renderSidebar(vm){
     const top=vm.scrapers.slice(0,6);
     scraperEl.innerHTML=top.map(s=>{
       const live=['live','running'].includes(s.status);
-      return `<div class="scraperrow">${escHtml(s.name)} <span class="tagchip ${live?'tc-live':'tc-q'}">${escHtml(s.status)}</span></div>`;
+      // WARROOM-RUNSTATE-001 gap 4 -- same reason-over-raw-token rule as the DATA badge
+      // above: s.run_state.reason (when present) carries the exact STALE/N-A/ERROR text.
+      const label=s.run_state&&s.run_state.reason ? s.run_state.reason : s.status;
+      return `<div class="scraperrow">${escHtml(s.name)} <span class="tagchip ${live?'tc-live':'tc-q'}">${escHtml(label)}</span></div>`;
     }).join('');
   }
 
@@ -2225,7 +2228,13 @@ function renderData(vm){
     const _prefixes=nonNielsen;
     dsgrid.innerHTML=nonNielsen.map((d,idx)=>{
       const statusClass=d.status==='live'?'b-ok':d.status==='running'?'b-run':d.status==='error'?'b-err':'b-warn';
-      const statusLabel=escHtml((d.status||'?').toUpperCase());
+      // WARROOM-RUNSTATE-001 gap 4 -- d.status alone can't express C4/C2's exact render
+      // text (STALE <age> / N/A -- never run / ERROR -- <query id>) since it's just the
+      // raw state token. d.run_state.reason (set only for tmdb_dev/, the one wired prefix)
+      // carries that text pre-formatted by run_state() itself (C6: one source for the
+      // string, not a second hand-written copy here) -- fall back to the raw token
+      // uppercased for every prefix that isn't wired yet, same as before this fix.
+      const statusLabel=escHtml(d.run_state&&d.run_state.reason ? d.run_state.reason : (d.status||'?').toUpperCase());
       const ents=d.entities||{};
       const entStr=[['Movies',ents.movies],['TV',ents.tv_series],['Ep',ents.episodes],['People',ents.people]].filter(([,v])=>v).map(([k,v])=>`<b>${k}</b> ${fmtN(v)}`).join(' · ');
       return `<div class="ds" data-prefix-idx="${idx}" style="cursor:pointer">

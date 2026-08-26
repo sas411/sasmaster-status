@@ -909,6 +909,11 @@ function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
       prefix: p.prefix,
       phase: meta.phase,
       status,
+      // WARROOM-RUNSTATE-001 gap 4 -- carries run_state.reason (the ONLY field with the
+      // exact C2/C4 text: 'STALE <age>', 'N/A -- never run', 'ERROR -- <query id>') through
+      // to the DATA badge, same object OPS's tile already exposes. null for every prefix
+      // except tmdb_dev/ (the only prefix currently wired to run_state()).
+      run_state: (p.prefix === 'tmdb_dev/' && tmdb) ? tmdb.run_state : null,
       size_gb: +(p.size_gb.toFixed(2)),
       object_count: p.object_count,
       last_updated: p.last_modified,
