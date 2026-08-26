@@ -1299,7 +1299,7 @@ main.canvas-mode{overflow:hidden}
 // lib/warroom-readplane.js header). Flip these only once BOTH the query path
 // and the render-path integration are real, then delete the old snapshot
 // reads for that tab in the SAME commit as removing its flag, per the card.
-window.READPLANE_LIVE = { telemetry: false, ops: false };
+window.READPLANE_LIVE = { telemetry: true, ops: true };
 
 // Fetches a tab's live state from its /api/state/<tab> endpoint (WARROOM-READPLANE-001).
 async function fetchLiveTabState(tab) {
