@@ -292,9 +292,13 @@ const AGENT_HEALTH_CONFIG = {
 // would have done to them. Feeds stay tighter at 2× because a stale feed silently poisons
 // every tile downstream of it, so it should shout sooner than a late agent.
 //
-// Reversible in one line each: change the number and rerun `node --test test/`. The synthetic
-// suite reads these constants live, so its expected table regenerates rather than being
-// hand-edited (WARROOM-HEALTH-001 Phase 5).
+// Reversible in one line each. NOTE, verified 2026-08-27 rather than assumed: the synthetic
+// suite does NOT read these constants — test/warroom-synthetic-suite.test.mjs declares its own
+// `const AGENT_STALE_MULT = 3; const FEED_STALE_MULT = 3;` locally (and its FEED value does not
+// even match the ruled 2). That is why the suite passed 178/178 unchanged across the null→3
+// flip here: it is a no-regression signal for the evaluator's logic, NOT coverage of these
+// production values. Changing a multiplier here therefore requires updating that test file by
+// hand — the Phase-5 "regenerates rather than hand-edited" property is not actually built yet.
 const AGENT_STALE_MULT = 3;
 const FEED_STALE_MULT  = 2;
 
@@ -483,11 +487,26 @@ const AGENT_REGISTRY_ID = {
   'Viz Evaluator':     'SaSMaster-viz-evaluator-quarterly',
   'Mac Worker':        'mac-worker',
 };
+// How old the registry may be before its expressions stop being presented as current.
+// agent-registry.json is a ONE-SHOT artifact today: WARROOM-AGENTLIB-001 shipped the generator
+// but its generation trigger is still an open gate ("no scheduler/plist/service installed"),
+// so nothing regenerates it. That means this override moves the drift class rather than
+// eliminating it — the board can no longer disagree with the registry, but the REGISTRY can
+// silently disagree with the crontab the moment a line is edited. Until the generation trigger
+// lands, surface the staleness instead of presenting a possibly-stale expression as current.
+// 7 days: long enough that a normal week of no scheduler edits stays quiet, short enough that
+// an edited-and-forgotten crontab surfaces well before it misleads anyone.
+const AGENT_REGISTRY_MAX_AGE_MS = 7 * 24 * 3600000;
 function readRegistrySchedule() {
   try {
     const reg = JSON.parse(fs.readFileSync(AGENT_REGISTRY_FILE, 'utf8'));
+    const genAt = reg.generated_at ? new Date(reg.generated_at).getTime() : NaN;
+    const ageMs = isNaN(genAt) ? null : (Date.now() - genAt);
     const byId = {};
     for (const row of (reg.agents || [])) byId[row.id] = row;
+    // Attached under a non-id key so it can't collide with a real agent id.
+    byId.__meta = { generated_at: reg.generated_at || null, ageMs,
+                    stale: ageMs == null || ageMs > AGENT_REGISTRY_MAX_AGE_MS };
     return byId;
   } catch {
     return {};
@@ -502,9 +521,16 @@ function applyRegistrySchedule(a, byId) {
   const row = byId[id];
   if (!row || !row.schedule_raw) return a;
 
-  const out = { ...a, scheduleSource: 'agent-registry.json#' + id, scheduleRaw: row.schedule_raw };
+  const meta = byId.__meta || {};
+  const out = { ...a, scheduleSource: 'agent-registry.json#' + id, scheduleRaw: row.schedule_raw,
+                scheduleSourceGeneratedAt: meta.generated_at || null,
+                scheduleSourceStale: !!meta.stale };
   if (row.schedule_kind === 'cron') {
-    out.schedule = row.schedule_raw;
+    // A stale registry's expression may no longer match the installed crontab — mark it rather
+    // than presenting it as current. The label still shows the expression (it is the best
+    // evidence available and almost always still right); the suffix is what stops it from
+    // being read as freshly verified.
+    out.schedule = meta.stale ? row.schedule_raw + ' (registry stale)' : row.schedule_raw;
   } else {
     // launchd / always-on descriptors already read as prose in the registry (e.g. mac-worker's
     // "KeepAlive=true (launchd always-on; ...)"). Keep them, but trim to the card's width.
@@ -636,7 +662,10 @@ function parseAgents(allWiredRunstateByJob) {
     { name: 'Data Guardian',     icon: '🛡️', schedule: 'Post-ingestion', nextRun: 'After next pull', log: 'data-guardian.log',         channel: '#sasmaster-builds',  jobId: null, type: 'subagent', descOverride: 'Post-ingestion integrity enforcer — snapshot → AMRLD anomaly detection (RULE-HH-01..04) → Tier 2 gate. Wired into nielsen_puller.py via _run_data_guardian(). Event-triggered (not scheduled) — excluded from live-cron liveness denominator.' },
 
     // ── Drafted (on-demand, no cron yet) ────────────────────
-    { name: 'Gracenote OnConnect', icon: '🎬', schedule: 'on-demand (JARVIS)', nextRun: '—', log: 'gn-onconnect.log', channel: '#sasmaster-builds', jobId: null, type: 'drafted', statusOverride: 'drafted', descOverride: 'Resolve+fuse drafted · self-tests green · spine-promotion GATED (tier UNCONFIRMED)' },
+    // WARROOM-AGENT-RUNPLANE-001 (2026-08-27): nextRun was a bare '—' (a real C2 violation the
+    // contract gate flagged once this pass touched the file). C2 requires a stated reason, never
+    // a bare dash — and there IS a real reason here: it is drafted, so nothing schedules it.
+    { name: 'Gracenote OnConnect', icon: '🎬', schedule: 'on-demand (JARVIS)', nextRun: 'N/A — drafted, not scheduled', log: 'gn-onconnect.log', channel: '#sasmaster-builds', jobId: null, type: 'drafted', statusOverride: 'drafted', descOverride: 'Resolve+fuse drafted · self-tests green · spine-promotion GATED (tier UNCONFIRMED)' },
 
     // ── SaSMaster Claude Code sub-agents ────────────────────
     { name: 'Autonomous Coder',     icon: '⚡', schedule: 'On-demand',     nextRun: 'Contextual',   log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Primary build executor. Phase I pipeline. cost-log writer (13-field schema). Reads build-discipline before every task. Model: Sonnet 4.6.' },
@@ -1482,7 +1511,7 @@ function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haiku
   // and event-triggered agents in a denominator they can never score healthy against.
   // 'retired' stays excluded from BOTH numerator and denominator per the card.
   const scheduledAgents = agents.filter(a => a.classification === 'scheduled');
-  const agents_healthy_computed = scheduledAgents.filter(a => a.healthEval && a.healthEval.state === 'healthy').length;
+  const agents_healthy_computed = scheduledAgents.filter(a => a.healthEval && a.healthEval.state === 'healthy').length; // CONTRACT-EXEMPT: C3 — reads the evaluator's own computed state off healthEval to COUNT it; the literal is the comparison target, never an asserted status. Pre-existing line, newly diff-flagged only because this pass changed liveAgents->scheduledAgents on it — 2026-11-27
   const agents_classified_denominator = scheduledAgents.filter(a => !a.healthEval || a.healthEval.state !== 'retired').length;
   const agents_by_class = {
     scheduled: agents.filter(a => a.classification === 'scheduled').length,
@@ -1504,7 +1533,12 @@ function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haiku
     // carries type:'subagent' and is filtered out by the liveAgents filter above (it's
     // event-triggered from nielsen_puller.py, not cron-scheduled) — confirmed live
     // 2026-08-24. Re-derive from liveAgents.length, never hardcode the count again.
-    agents_live_total: liveAgents.length, // live/cron only, used for health bar
+    // WARROOM-AGENT-RUNPLANE-001 (2026-08-27): was liveAgents.length (a type-field filter),
+    // which rendered "LIVE & CRON AGENTS · 14" directly beside the ruled header's "12 agents ·
+    // 9/12 healthy" — two counts of the same thing, disagreeing, on the same line. Now the
+    // scheduled class, so the section heading and the ratio denominate identically (§22: one
+    // fact, computed once). The full-fleet figure stays available as agents_total.
+    agents_live_total: scheduledAgents.length,
     // WARROOM-HEALTH-001: the ratio C1/GATE-B actually govern. The render layer renders
     // `N/A — fleet unclassified (S5b)` while gateBRuled is false, a real number once true —
     // never a guessed value in between (renderValue()'s NA/value branches, not this file).
@@ -2799,7 +2833,18 @@ const status = {
   },
 };
 
-fs.writeFileSync(OUT, JSON.stringify(status, null, 2));
+// WARROOM-AGENT-RUNPLANE-001 (2026-08-27): staging + atomic rename, not a direct write.
+// This file is ~166 KB and was written straight to its final path on a */5 cron. As of this
+// pass alert-engine.js's ruleR1 READS it, on the same */5 cadence with no ordering between
+// them — so a direct write leaves a window where the reader JSON.parses a half-written file
+// and, per its own fail-loud contract, emits a CRITICAL "fleet health cannot be evaluated"
+// page. A false critical from a torn read is worse than the gap it was meant to catch.
+// rename(2) within the same filesystem is atomic: a reader sees either the old complete file
+// or the new complete file, never a partial one. Same staging-then-rename discipline the
+// data plane already uses for _manifest.json (MANIFEST-001).
+const OUT_TMP = OUT + '.tmp';
+fs.writeFileSync(OUT_TMP, JSON.stringify(status, null, 2));
+fs.renameSync(OUT_TMP, OUT);
 console.log(`[generate-status] wrote status.json — ${new Date().toISOString()}`);
 
 // Push to S3 — two paths so Railway heartbeat can promote without cross-prefix IAM
