@@ -170,6 +170,31 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 .tlpill{position:absolute;top:5px;left:2px;right:auto;font-family:var(--mono);font-size:9px;color:#fff;background:var(--violet);border-radius:9px;padding:3px 7px;white-space:nowrap;z-index:1}
 .tlpill.g{background:var(--up)}.tlpill.a{background:var(--warn)}.tlpill.c{background:var(--accent)}
 
+/* WARROOM-OPSTIMELINE-001 — one state->style map, shared by the 24h timeline
+   marks and the Cron Today dots (data-state carries the same string both
+   places; the legend below is the single key both consume, C4/legend
+   completeness). Every color comes from an existing theme token — no
+   literal hex — so this renders correctly across all brand themes without
+   a second per-theme override. */
+.tlpill.st-ran_ok,.d2.st-ran_ok{background:var(--up)}
+.tlpill.st-ran_failed,.d2.st-ran_failed{background:var(--down)}
+.tlpill.st-running,.d2.st-running{background:var(--accent)}
+.tlpill.st-stuck,.d2.st-stuck{background:var(--warn)}
+.tlpill.st-pending,.d2.st-pending{background:var(--bd2)}
+.tlpill.st-not_scheduled,.d2.st-not_scheduled{background:var(--bd2);opacity:.5}
+.tlpill.st-unclassified,.d2.st-unclassified{background:var(--violet)}
+.tlpill.st-grace_unset,.d2.st-grace_unset{background:transparent;border:1.5px dashed var(--warn)}
+.tlpill.st-error,.d2.st-error{background:var(--down);outline:1.5px dashed #fff}
+/* MISSED — hollow, red-outlined, text-labeled (Phase 3): absence must never
+   look like a healthy schedule again (§4 OPS defect this card removes). */
+.tlpill.st-missed{background:transparent;border:1.5px solid var(--down);color:var(--down);font-weight:700}
+.d2.st-missed{background:transparent;border:1.5px solid var(--down)}
+.tl-trigger-manual{border:1.5px dashed currentColor}
+.ops-legend{display:flex;flex-wrap:wrap;gap:10px 14px;font-size:10.5px;color:var(--mut);margin:8px 0 4px;padding:8px 10px;background:var(--surface2);border:1px solid var(--bd);border-radius:8px}
+.ops-legend .lg-item{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.ops-legend .lg-dot{width:8px;height:8px;border-radius:50%;flex:none}
+.ops-legend .lg-dot.hollow{background:transparent}
+
 /* AGENTS */
 .fleet{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .acard{background:var(--surface);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh-sm);overflow:hidden;transition:transform .18s cubic-bezier(.16,1,.3,1),box-shadow .18s}
@@ -378,16 +403,6 @@ main.canvas-mode{overflow:hidden}
 .bless-btn{background:linear-gradient(110deg,#059669,#10B981);color:#fff;font-family:var(--sans);font-size:12px;font-weight:700;border:none;border-radius:9px;padding:8px 16px;cursor:pointer;transition:filter .15s}
 .bless-btn:hover{filter:brightness(1.1)}
 .bless-btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
-/* WARROOM-WORKQUEUE-001 — bless queue panel (CANVAS work_queue projection).
-   All colors are existing theme tokens (var(--...)), never a literal hex, so
-   this renders correctly across every theme without a per-theme override. */
-.bless-queue-panel{margin-bottom:18px}
-.bless-queue-row{background:var(--surface);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--sh-sm)}
-.bqr-subject{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink)}
-.bqr-meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:4px}
-.bqr-esc{color:var(--warn)}
-.bqr-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.bqr-actions .v-na{font-size:10px;color:var(--dim);margin-left:4px}
 .redirect-btn{background:transparent;border:1.5px solid #D4620A;color:#D4620A;font-family:var(--sans);font-size:12px;font-weight:700;border-radius:9px;padding:7px 14px;cursor:pointer;transition:all .15s}
 .redirect-btn:hover{background:rgba(212,98,10,.1)}
 .redirect-btn:disabled{opacity:.4;cursor:not-allowed}
@@ -793,13 +808,18 @@ main.canvas-mode{overflow:hidden}
       </div>
     </div>
 
-    <div class="sec-h" style="margin-top:18px"><h2>24-hour agent timeline</h2><span>All times ET · live crontab</span></div>
+    <!-- WARROOM-OPSTIMELINE-001: retitled off "live crontab" (§4 OPS — the old
+         label claimed this plots execution; it only ever plotted schedule).
+         The label now states what's actually rendered: schedule + execution
+         overlay, joined against the run-log (see buildTimeline()). -->
+    <div class="sec-h" style="margin-top:18px"><h2>24-hour agent timeline</h2><span>All times ET · schedule + execution (run-log overlay)</span></div>
     <button class="collapse-toggle" data-target="timeline-section" aria-expanded="true">
       <span class="section-label">BUILD STATUS</span>
       <span class="chevron">▼</span>
     </button>
     <div class="panel tl collapse-section is-expanded" id="timeline-section">
       <div class="tlgrid" id="tlgrid"></div>
+      <div class="ops-legend" id="ops-timeline-legend"></div>
     </div>
   </section>
 
@@ -1303,6 +1323,12 @@ main.canvas-mode{overflow:hidden}
 <script src="lib/warroom-render.js"></script>
 <script src="lib/warroom-health.js"></script>
 <script src="lib/warroom-readplane.js"></script>
+<!-- WARROOM-RUNSTATE-001 / WARROOM-OPSTIMELINE-001: the §2.7 watchdog +
+     the one slot-state evaluator + legend (C4/C6) — loaded client-side so
+     the timeline/Cron Today legend renders from the exact same LEGEND array
+     the server-side join consumes, never a second hand-typed legend. -->
+<script src="lib/warroom-runstate.js"></script>
+<script src="lib/warroom-ops-timeline.js"></script>
 <!-- WARROOM-WORKQUEUE-001: the one work_queue model (C6) — CANVAS/AGENTS/QUEUE/OPS
      all read WQ.cache below, never four independent lists. -->
 <script src="lib/work-queue.js"></script>
@@ -2370,11 +2396,6 @@ function renderOPS(vm){
       const v=parsed.value;
       bodyHtml=`<span class="mono">${escHtml(v.task_id)}</span> · ${escHtml(v.status)} · created ${escHtml(String(v.created_at).slice(0,10))}`;
     }
-    // data-ops-item-id matches this exact TASKS.md row to its work_queue
-    // item_id ('ops_task:'+id, lib/work-queue.js) so renderOpsQueueAging()
-    // annotates the SAME row being displayed, not whichever ops_task item
-    // the (independently age-sorted) work_queue model happens to list first.
-    hpq.setAttribute('data-ops-item-id','ops_task:'+(item.id||item.lineIndex));
     hpq.innerHTML=`<span class="lbl">${escHtml(item.tag||'HIGH')}</span>${bodyHtml}
       <div style="margin-top:4px;font-size:11px;color:var(--dim)" data-ops-age>…</div>
       <div style="margin-top:8px"><button class="btn bs">⌕ diagnose</button></div>`;
@@ -3270,26 +3291,110 @@ function updateStatusBar(vm){
   }
 }
 
-/* ============ OPS timeline (static, built once) ============ */
-function buildTimeline(){
-  const TL=[
-    ['Nightly Build',0,'12:00 AM','v'],['TMDB Bulk → S3',2,'2:00 AM','g'],
-    ['Daily Briefing',5,'5:00 AM','v'],['Daily Visuals',5,'5:02 AM','v'],
-    ['TMDB Daily',5,'5:00 AM','g'],['Media Intel',6,'6:00 AM','v'],
-    ['SEC EDGAR',6.5,'6:30 AM','c'],['IAB Intel ʷᵏˡʸ',7,'7:00 AM','v'],
-    ['DoneLog Analyst',12,'12:00 PM','c'],['Tech Intel ʷᵏˡʸ',18,'6:00 PM','a'],
-    ['LinkedIn Agent ʷᵏˡʸ',20,'8:00 PM','a'],['Financial Analyst ʷᵏˡʸ',20.2,'8:10 PM','a']];
+/* ============ OPS timeline + Cron Today — WARROOM-OPSTIMELINE-001 ============
+ * §4 OPS: "Overlay actual runs from the run-log against scheduled slots — a
+ * missed slot must be visibly missed." Both panels fetch GET /api/ops/* (the
+ * one join, lib/warroom-ops-join.js server-side) and render off `state`,
+ * never a literal color/status string (C3) — `state` IS the CSS class
+ * suffix (st-<state>), by construction, so a state with no matching class
+ * renders unstyled rather than silently mis-colored.
+ *
+ * OPS refresh cadence: ruled SSE / 30s cadence, 60s stale (READPLANE-001,
+ * reused per this card's own instruction not to re-rule it — see
+ * warroom/cadence-registry.json tabs.OPS). This pass polls these two NEW
+ * endpoints every 30s (the ruled cadence NUMBER) rather than true SSE
+ * transport — api/stream/ops.js's existing SSE mechanism is single-tile-
+ * value shaped (WarroomReadplane.fetchTileData contract) and does not fit
+ * an array-of-rows response without a broader redesign; a real, disclosed
+ * transport gap (see DONE_LOG), not a re-litigation of the cadence ruling.
+ */
+const OPS_TIMELINE_LEGEND = (typeof WarroomOpsTimeline !== 'undefined') ? WarroomOpsTimeline.LEGEND : [];
+
+function renderOpsLegend(containerId){
+  const el=document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML=OPS_TIMELINE_LEGEND.map(e=>`
+    <span class="lg-item" title="${escHtml(e.description)}">
+      <span class="lg-dot st-${escHtml(e.state)}${e.hollow?' hollow':''}"></span>${escHtml(e.label)}
+    </span>`).join('');
+}
+
+function opsRowLabel(r){
+  if(r.state==='ran_ok'||r.state==='ran_failed') return r.finished_at?new Date(r.finished_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}):r.state;
+  if(r.state==='missed') return 'MISSED';
+  return null; // most states render as an unlabeled colored dot/pill, per the legend, not repeated prose
+}
+
+async function fetchOpsJson(path){
+  try{
+    const r=await fetch(path,{cache:'no-store'});
+    if(!r.ok) throw new Error('http '+r.status);
+    return await r.json();
+  }catch(e){
+    return {rows:[],state:'error',query_id:path+':fetch-failed',reason:'ERROR — '+(e&&e.message||e)};
+  }
+}
+
+async function buildTimeline(){
   const tg=document.getElementById('tlgrid');
   if(!tg) return;
+  const payload=await fetchOpsJson('/api/ops/timeline?window=24h');
+  renderOpsLegend('ops-timeline-legend');
+  if(payload.state==='error'){
+    tg.innerHTML=`<div class="agname" style="color:var(--down)">ERROR — ${escHtml(payload.query_id||'ops-timeline')}</div>`;
+    return;
+  }
+  const rows=payload.rows||[];
+  // Group by job, preserving each job's own slots in ascending scheduled_at
+  // order (C5: axis strictly monotonic) — server already sorts; group here
+  // only for the grid's one-row-per-job layout.
+  const byJob=new Map();
+  rows.forEach(r=>{ if(!byJob.has(r.job)) byJob.set(r.job,{display:r.display_name||r.job,slots:[]}); byJob.get(r.job).slots.push(r); });
+
   let h='<div class="agname" style="font-family:var(--mono);font-size:10px;color:var(--dim)">JARVIS ● HTTP Events API<br>(Railway)</div>';
   for(let i=0;i<24;i++) h+=`<div class="hh">${i}</div>`;
-  TL.forEach(([n,hr,lbl,cl])=>{
-    h+=`<div class="agname">${n}</div>`;
+  byJob.forEach((job)=>{
+    h+=`<div class="agname">${escHtml(job.display)}</div>`;
     for(let i=0;i<24;i++){
-      h+=`<div class="cell">${Math.floor(hr)===i?`<span class="tlpill ${cl==='g'?'g':cl==='a'?'a':cl==='c'?'c':''}">${lbl}</span>`:''}</div>`;
+      const slot=job.slots.find(s=>s.scheduled_at && new Date(s.scheduled_at).getHours()===i);
+      if(!slot){ h+='<div class="cell"></div>'; continue; }
+      const label=opsRowLabel(slot);
+      const triggerCls=slot.trigger==='manual'?' tl-trigger-manual':'';
+      const et=new Date(slot.scheduled_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'});
+      h+=`<div class="cell"><span class="tlpill st-${escHtml(slot.state)}${triggerCls}" `+
+         `data-job="${escHtml(slot.job)}" data-slot-at="${escHtml(slot.scheduled_at)}" data-state="${escHtml(slot.state)}" `+
+         `data-trigger="${escHtml(slot.trigger||'')}" data-run-id="${escHtml(slot.run_id||'')}" `+
+         `title="${escHtml(slot.job)} · ${et} ET · ${escHtml(slot.state)}${slot.reason?' · '+escHtml(slot.reason):''}${slot.run_id?' · run_id='+escHtml(slot.run_id):''}">`+
+         `${label?escHtml(label):''}</span></div>`;
     }
   });
   tg.innerHTML=h;
+}
+
+async function renderOpsCronToday(){
+  const cronEl=document.querySelector('#sidebar-crons');
+  const legendId='ops-crontoday-legend';
+  const payload=await fetchOpsJson('/api/ops/cron-today');
+  renderOpsLegend(legendId);
+  if(!cronEl) return; // sidebar not built yet this cycle — next poll retries
+  if(payload.state==='error'){
+    cronEl.innerHTML=`<div class="cronrow" style="color:var(--down)">ERROR — ${escHtml(payload.query_id||'ops-cron-today')}</div>`;
+    return;
+  }
+  const rows=payload.rows||[];
+  cronEl.innerHTML=rows.map(r=>{
+    const timeLabel=r.scheduled_at?new Date(r.scheduled_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}):'—';
+    return `<div class="cronrow" data-job="${escHtml(r.job)}" data-state="${escHtml(r.state)}" data-run-id="${escHtml(r.run_id||'')}" data-trigger="${escHtml(r.trigger||'')}" title="${escHtml(r.state)}${r.reason?' · '+escHtml(r.reason):''}">`+
+      `<span class="t">${escHtml(timeLabel)}</span><span class="d2 st-${escHtml(r.state)}${r.trigger==='manual'?' tl-trigger-manual':''}"></span>${escHtml(r.display_name||r.job)}</div>`;
+  }).join('') || '<div class="cronrow">N/A — no jobs in today\'s window</div>';
+}
+
+let _opsOverlayTimer=null;
+function startOpsOverlayPolling(){
+  if(_opsOverlayTimer) return;
+  const CADENCE_MS=(typeof cadenceRegistry!=='undefined'&&cadenceRegistry.tabs&&cadenceRegistry.tabs.OPS&&cadenceRegistry.tabs.OPS.cadence_seconds)?cadenceRegistry.tabs.OPS.cadence_seconds*1000:30000;
+  buildTimeline(); renderOpsCronToday();
+  _opsOverlayTimer=setInterval(()=>{ buildTimeline(); renderOpsCronToday(); },CADENCE_MS);
 }
 
 /* ============ Finance tab (loads finance-data.json) ============ */
@@ -3586,12 +3691,15 @@ document.querySelectorAll('.chips').forEach(group=>{
 });
 
 /* ============ INIT ============ */
-buildTimeline();
 renderDataStatic();
 buildFintelTable();
 loadFintel(); // pre-warm finance-data.json cache so renderCosts gets MTD on first cycle
 loadAndRender();
 setInterval(loadAndRender,30000);
+// WARROOM-OPSTIMELINE-001: after loadAndRender's first pass builds the
+// sidebar (#sidebar-crons), start the timeline/Cron Today overlay polling —
+// independent of the vm/status.json cadence above, on the ruled OPS cadence.
+setTimeout(startOpsOverlayPolling,50);
 // WARROOM-WORKQUEUE-001 — the one work_queue fetch (C6 "one model"). Its own
 // interval, independent of loadAndRender's status.json cycle since it hits a
 // different endpoint (/api/work-queue) on its own cadence.
