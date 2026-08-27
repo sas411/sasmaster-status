@@ -23,10 +23,15 @@ const OUT         = path.join(__dirname, 'status.json');
 // HTTP Events API responds to /health.
 function jarvisAlive() {
   try {
-    const out = execSync(
-      'curl -sf --max-time 4 https://api.sasmaster.dev/health',
-      { encoding: 'utf8' }
+    // STATUS-PROCLEAK-001: array-form, no shell. Also adds an outer timeout —
+    // --max-time bounds curl's own transfer, but nothing bounded the wait if
+    // curl itself wedged, which would stall the whole generator.
+    const _r = spawnSync(
+      '/usr/bin/curl',
+      ['-sf', '--max-time', '4', 'https://api.sasmaster.dev/health'],
+      { encoding: 'utf8', timeout: 8000, killSignal: 'SIGKILL', stdio: ['ignore', 'pipe', 'pipe'] }
     );
+    const out = (_r.status === 0 && _r.stdout) ? _r.stdout : '';
     return out.includes('"status"') && out.includes('"ok"');
   } catch { return false; }
 }
@@ -294,10 +299,18 @@ function fetchRunLogTerminalByJob(jobs) {
       SELECT l.job, l.run_id, l.started_at, l.finished_at, l.exit_code,
              (SELECT list(dur_s) FROM terminal_durs t WHERE t.job = l.job AND t.rn <= 20) AS durs_s
       FROM latest l WHERE l.rn = 1`;
-    const out = execSync(
-      `/opt/homebrew/bin/duckdb -json -c "${sql.replace(/\n/g, ' ')}" md:sasmaster`,
-      { encoding: 'utf8', timeout: 15000, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, motherduck_token: token } }
+    // STATUS-PROCLEAK-001: array-form spawnSync, NOT execSync-through-a-shell.
+    // execSync's timeout kills only /bin/sh, orphaning the duckdb grandchild
+    // (which holds a live MotherDuck connection) forever. Direct-binary spawn
+    // makes duckdb the direct child, so killSignal actually reaps it. Passing
+    // the SQL as its own argv entry also removes the shell-quoting hazard.
+    const _r = spawnSync(
+      '/opt/homebrew/bin/duckdb',
+      ['-json', '-c', sql.replace(/\n/g, ' '), 'md:sasmaster'],
+      { encoding: 'utf8', timeout: 15000, killSignal: 'SIGKILL',
+        stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, motherduck_token: token } }
     );
+    const out = (_r.status === 0 && _r.stdout) ? _r.stdout : '';
     const rows = JSON.parse(out);
     const byJob = {};
     for (const r of rows) {
@@ -608,10 +621,31 @@ function parseEidrProgress() {
 // The DATA tab stale badge, the War Room KPI freshness chip, and the health score
 // freshness component ALL read from s3_lake[].fresh (computed here).
 // No other freshness logic for S3 prefixes exists in this file.
-// Authority source: aws s3 ls --recursive per prefix, most-recent object timestamp.
+// Authority source: `aws s3api list-objects-v2` per prefix, most-recent LastModified.
+// Prefixes too large to enumerate within budget resolve via FRESHNESS_MARKER_PREFIX
+// (below) instead of being reported as permanently stale.
+// STATUS-PROCLEAK-001 phase 7 — prefixes that cannot be enumerated within the
+// 8s budget. `nielsen/laapp/` holds millions of objects across 4,095+
+// `_date_str=YYYY-MM-DD` partitions; listing it always timed out, so it has been
+// silently reporting `fresh: false` forever — a permanent false-stale feeding the
+// DATA tab badge, the KPI chip, and the health score.
+//
+// Resolve those via a small marker prefix instead. For laapp that is `_hwm/`,
+// which s3-data-architect names the single source of truth for restart position:
+// 13 small JSON markers, one LIST, no GETs, sub-second.
+//
+// Deliberately NOT `_freshness/run_manifest.json` — that records when the puller
+// LAUNCHED, not when data COMMITTED. On 2026-08-27 it read 2026-08-19 while the
+// newest committed data was 2026-06-20. Trusting it would have reported a fresh
+// green on a prefix 67 days stale, which is worse than the false-stale it replaces.
+const FRESHNESS_MARKER_PREFIX = {
+  'nielsen/laapp/': 'nielsen/laapp/_hwm/',
+};
+
 function getS3Freshness(prefixes = []) {
   const result = {};
   for (const prefix of prefixes) {
+    const listPrefix = FRESHNESS_MARKER_PREFIX[prefix] || prefix;
     try {
       // PROCESS-LEAK FIX (2026-08-27): this used to be
       //   execSync(`aws s3 ls ${prefix} --recursive | sort | tail -1`, { timeout: 8000 })
@@ -631,7 +665,7 @@ function getS3Freshness(prefixes = []) {
         '/opt/homebrew/bin/aws',
         ['s3api', 'list-objects-v2',
          '--bucket', 'sasmaster-2026',
-         '--prefix', prefix,
+         '--prefix', listPrefix,
          '--query', 'sort_by(Contents,&LastModified)[-1].[LastModified]',
          '--output', 'text'],
         { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
@@ -639,12 +673,21 @@ function getS3Freshness(prefixes = []) {
       );
       const out = (r.status === 0 && r.stdout) ? r.stdout : '';
       const match = out.match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/);
-      if (!match) { result[prefix] = { age_hours: null, fresh: false }; continue; }
+      if (!match) {
+        // Distinguish 'we could not measure' from 'measured, and it is old'.
+        // Both used to collapse to the same {null,false}, so a prefix too large
+        // to enumerate was indistinguishable from a genuinely stale one — an
+        // unmeasured prefix rendered as a confident red. `reason` is additive;
+        // existing consumers reading .fresh/.age_hours are unaffected.
+        const reason = r.error ? 'unmeasured:list-timeout' : 'no-objects';
+        result[prefix] = { age_hours: null, fresh: false, reason };
+        continue;
+      }
       const lastMod = new Date(match[1] + 'Z');
       const ageHours = Math.round(((Date.now() - lastMod.getTime()) / 3600000) * 10) / 10;
-      result[prefix] = { age_hours: ageHours, fresh: ageHours < 24 };
+      result[prefix] = { age_hours: ageHours, fresh: ageHours < 24, reason: null };
     } catch {
-      result[prefix] = { age_hours: null, fresh: false };
+      result[prefix] = { age_hours: null, fresh: false, reason: 'error' };
     }
   }
   return result;
@@ -956,7 +999,7 @@ function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
     // hardcoded literal.
     if (p.prefix === 'tmdb_dev/') status = tmdb ? tmdb.status : meta.status_hint;
 
-    const freshData = (s3Freshness || {})[p.prefix] || { age_hours: null, fresh: false };
+    const freshData = (s3Freshness || {})[p.prefix] || { age_hours: null, fresh: false, reason: 'not-checked' };
     const computedAt = ec.computed_at || null;
     const stale      = countBlockStale(p.prefix, computedAt);
     return {
@@ -974,6 +1017,7 @@ function buildS3Lake(scrapers, s3Inv, entityCounts, s3Freshness) {
       last_updated: p.last_modified,
       fresh: freshData.fresh,
       age_hours: freshData.age_hours,
+      freshness_reason: freshData.reason || null,
       // entity_type drives renderer: 'entity' | 'entity_funnel' | 'measurement' | 'na'
       entity_type: ec.type || null,
       // Per-type counts (entity datasets)
@@ -1705,10 +1749,18 @@ function fetchTokenCostCanonical() {
         (SELECT list({'agent_id':agent_id,'model':model,'cost_usd':cost_usd,'tokens':tokens,'calls':calls} ORDER BY cost_usd DESC) FROM agents) AS agents,
         (SELECT list({'model':model,'cost_usd':cost_usd,'calls':calls}) FROM models) AS models
     `;
-    const out = execSync(
-      `/opt/homebrew/bin/duckdb -json -c "${sql.replace(/\n/g, ' ')}" md:sasmaster`,
-      { encoding: 'utf8', timeout: 15000, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, motherduck_token: token } }
+    // STATUS-PROCLEAK-001: array-form spawnSync, NOT execSync-through-a-shell.
+    // execSync's timeout kills only /bin/sh, orphaning the duckdb grandchild
+    // (which holds a live MotherDuck connection) forever. Direct-binary spawn
+    // makes duckdb the direct child, so killSignal actually reaps it. Passing
+    // the SQL as its own argv entry also removes the shell-quoting hazard.
+    const _r = spawnSync(
+      '/opt/homebrew/bin/duckdb',
+      ['-json', '-c', sql.replace(/\n/g, ' '), 'md:sasmaster'],
+      { encoding: 'utf8', timeout: 15000, killSignal: 'SIGKILL',
+        stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, motherduck_token: token } }
     );
+    const out = (_r.status === 0 && _r.stdout) ? _r.stdout : '';
     const rows = JSON.parse(out);
     return rows[0] || null;
   } catch (e) {
@@ -2228,10 +2280,14 @@ function readSentinelStatus() {
   try {
     const token = readEnvVar('MOTHERDUCK_TOKEN');
     if (!token) return { status: 'unknown', error: 'no_motherduck_token' };
-    const out = execSync(
-      `/opt/homebrew/bin/duckdb -json -c "SELECT value FROM ops.platform_state WHERE key = 'sentinel_status'" md:sasmaster`,
-      { encoding: 'utf8', timeout: 15000, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, motherduck_token: token } }
+    // STATUS-PROCLEAK-001: see the note at the other duckdb call sites.
+    const _r = spawnSync(
+      '/opt/homebrew/bin/duckdb',
+      ['-json', '-c', "SELECT value FROM ops.platform_state WHERE key = 'sentinel_status'", 'md:sasmaster'],
+      { encoding: 'utf8', timeout: 15000, killSignal: 'SIGKILL',
+        stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, motherduck_token: token } }
     );
+    const out = (_r.status === 0 && _r.stdout) ? _r.stdout : '';
     const rows = JSON.parse(out);
     const status = (rows[0] && rows[0].value) ? String(rows[0].value).toLowerCase() : 'unknown';
     return { status, error: null };
@@ -2503,7 +2559,16 @@ const pushFailures = [];
 
 function pushToS3(src, dest) {
   try {
-    execSync(`/opt/homebrew/bin/aws s3 cp "${src}" ${dest} --content-type application/json`, { stdio: 'pipe' });
+    // STATUS-PROCLEAK-001: array-form + bounded. Was unbounded, so a wedged
+    // upload stalled status generation indefinitely. Non-zero is re-thrown so
+    // the existing catch (which reads e.message) behaves exactly as before.
+    const _r = spawnSync(
+      '/opt/homebrew/bin/aws',
+      ['s3', 'cp', src, dest, '--content-type', 'application/json'],
+      { encoding: 'utf8', timeout: 60000, killSignal: 'SIGKILL', stdio: ['ignore', 'pipe', 'pipe'] }
+    );
+    if (_r.error) throw _r.error;
+    if (_r.status !== 0) throw new Error((_r.stderr || '').trim() || `aws s3 cp exited ${_r.status}`);
     console.log(`[generate-status] pushed to ${dest}`);
     return true;
   } catch (e) {
