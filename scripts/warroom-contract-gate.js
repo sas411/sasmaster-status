@@ -90,6 +90,14 @@ const TILE_INVENTORY_PATH = path.join(REPO_ROOT, 'WARROOM_TILE_INVENTORY.md');
 const ALLOWED_SITES_PATH = path.join(REPO_ROOT, 'WARROOM_ALLOWED_SITES.yml');
 const METRIC_CANON_PATH = path.join(REPO_ROOT, 'WARROOM_METRIC_CANON.json');
 
+// WARROOM-RUNBOOK-001 — the alert plane's own source (scripts/alert-engine.js) and its
+// registry/runbook live in the SaSMaster repo, not here (C6 precedent: alert-engine.js
+// already reaches into sasmaster-status via HOME-relative paths for its shared modules;
+// this check does the mirror-image reach the other way).
+const SASMASTER_REPO = path.join(process.env.HOME || '', 'SaSMaster');
+const ALERT_TYPE_REGISTRY_PATH = path.join(SASMASTER_REPO, 'ALERT_TYPE_REGISTRY.json');
+const WARROOM_RUNBOOK_PATH = path.join(SASMASTER_REPO, 'WARROOM_RUNBOOK.md');
+
 // ---------------------------------------------------------------------------------------
 // small utilities
 // ---------------------------------------------------------------------------------------
@@ -439,6 +447,49 @@ function check_cadence_declared() {
 }
 
 // ---------------------------------------------------------------------------------------
+// CHECK — WARROOM-RUNBOOK-001 Phase 1: every alert type scripts/alert-engine.js can emit
+// (SaSMaster/ALERT_TYPE_REGISTRY.json) must have exactly one entry in
+// SaSMaster/WARROOM_RUNBOOK.md ("### <id> — ..."), and vice versa (JARVIS exempted — it is
+// a named subject inside R1, not its own registry id, by the runbook's own documented
+// design). An alert type with no runbook entry is a defect per the card's own text: "An
+// alert type that can fire with no runbook entry is a defect."
+// ---------------------------------------------------------------------------------------
+function check_alert_type_routed() {
+  if (!fs.existsSync(ALERT_TYPE_REGISTRY_PATH) || !fs.existsSync(WARROOM_RUNBOOK_PATH)) {
+    return {
+      status: 'BLOCKED',
+      reason: `ALERT_TYPE_REGISTRY.json and/or WARROOM_RUNBOOK.md not found at ${ALERT_TYPE_REGISTRY_PATH} / ${WARROOM_RUNBOOK_PATH} — this check activates once WARROOM-RUNBOOK-001 ships both files`,
+      violations: [],
+    };
+  }
+  let registry;
+  try {
+    registry = JSON.parse(fs.readFileSync(ALERT_TYPE_REGISTRY_PATH, 'utf8'));
+  } catch (e) {
+    return { status: 'FAIL', violations: [{ contract: 'alert-type-routed', file: ALERT_TYPE_REGISTRY_PATH, line: null, message: `could not parse ALERT_TYPE_REGISTRY.json: ${e.message}` }] };
+  }
+  const runbook = fs.readFileSync(WARROOM_RUNBOOK_PATH, 'utf8');
+  const registryIds = (registry.alert_types || []).map((a) => a.id);
+  const headingRe = /^###\s+([A-Za-z0-9_-]+)\s+—/gm;
+  const runbookIds = new Set();
+  let m;
+  while ((m = headingRe.exec(runbook)) !== null) runbookIds.add(m[1]);
+
+  const violations = [];
+  for (const id of registryIds) {
+    if (!runbookIds.has(id)) {
+      violations.push({ contract: 'alert-type-routed', file: WARROOM_RUNBOOK_PATH, line: null, message: `alert type '${id}' is emitted by scripts/alert-engine.js (per ALERT_TYPE_REGISTRY.json) but has no runbook entry — an alert type that can fire with no runbook entry is a defect` });
+    }
+  }
+  for (const id of runbookIds) {
+    if (id !== 'JARVIS' && !registryIds.includes(id)) {
+      violations.push({ contract: 'alert-type-routed', file: WARROOM_RUNBOOK_PATH, line: null, message: `runbook entry '${id}' does not match any id in ALERT_TYPE_REGISTRY.json (JARVIS is the one documented exception — a named subject inside R1, not its own alert type)` });
+    }
+  }
+  return { status: violations.length ? 'FAIL' : 'PASS', violations };
+}
+
+// ---------------------------------------------------------------------------------------
 // CHECK 6 — C6: one source per number, driven by WARROOM_METRIC_CANON.json (gate-owned
 // seed registry — see module header; NOT the long-term WARROOM_TILE_INVENTORY.md-backed
 // registry the card text describes, which does not exist yet).
@@ -745,6 +796,7 @@ function runStaticChecks(files, opts) {
     'cadence-declared': check_cadence_declared(),
     C6: { status: c6.status, reason: c6.reason, violations: c6.violations },
     'trend-glyph': { violations: check_trend_glyph_sign(files) },
+    'alert-type-routed': check_alert_type_routed(),
   };
   return { results, allowedSites };
 }
@@ -844,6 +896,7 @@ module.exports = {
   check_one_source_per_number,
   check_trend_glyph_sign,
   check_rendered_values_traceable,
+  check_alert_type_routed,
   parseAllowedSites,
   findExemptionsInFiles,
   addedLineSet,
