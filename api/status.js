@@ -1,9 +1,12 @@
 // Vercel serverless route: GET /api/status
 // 1. Tries api.sasmaster.dev/status (live machine — near-real-time)
 // 2. Falls back to s3://sasmaster-2026/status/status.json (last push when machine was up)
-// 3. Falls back to /status.json static file (last git commit)
+// 3. Both unreachable -> 503 (no step-3 static-file fallback is implemented below — an
+//    honest 503 beats silently serving a possibly-days-stale committed file as "live").
 //
-// War Room fetches /api/status instead of /status.json directly.
+// WARROOM-STATUS-CADENCE-001 (2026-08-27): this comment already claimed "War Room fetches
+// /api/status instead of /status.json directly" before it was true — warroom-v5.html's
+// loadAndRender() fetched the static file until this same commit fixed it.
 
 const https = require('https');
 

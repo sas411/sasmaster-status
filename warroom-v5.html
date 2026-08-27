@@ -3711,12 +3711,19 @@ async function loadAndRender(){
   try{ const rc=await fetch('data/nielsen-clock.json?t='+Date.now()); if(rc.ok) window._nielsenClock=await rc.json(); }
   catch(e){ console.warn('[nielsen-clock] fetch failed — falling back to freshness heuristic',e); }
   try{
-    const r=await fetch('status.json?t='+Date.now());
+    // WARROOM-STATUS-CADENCE-001 (2026-08-27): was fetch('status.json...') — the STATIC file
+    // committed to git, only as fresh as the last commit+deploy. api/status.js's own header
+    // comment already documented "War Room fetches /api/status instead of /status.json
+    // directly" as if this were already true; it wasn't. api/status.js proxies the live
+    // machine, then s3://sasmaster-2026/status/status.json (regenerated every 5 min by a
+    // confirmed-live cron entry) -- both fresher than the committed file, same response shape
+    // (raw body passed through unmodified), so this is a drop-in fetch-target swap.
+    const r=await fetch('/api/status?t='+Date.now());
     if(!r.ok) throw new Error('HTTP '+r.status);
     const raw=await r.json();
     vm=adapt(raw);
   } catch(e){
-    console.warn('status.json fetch failed, using demo',e);
+    console.warn('status fetch failed, using demo',e);
     showToast('⚡ Live data unavailable — showing demo snapshot',3000);
     vm=DEMO_DATA;
   }
