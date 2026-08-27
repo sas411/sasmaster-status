@@ -1,0 +1,69 @@
+{
+  "_comment": "WARROOM-SYNTHETIC-001 declarative scenario table (card §🟢). One row per scenario: name, injection, expected tile state, expected alert, teardown. Executed by test/warroom-synthetic-suite.test.mjs, which looks up the handler for `id` — adding scenario 8 is a new row here plus one new handler function, never a refactor of the runner.",
+  "scenarios": [
+    {
+      "id": "S1",
+      "name": "Killed cron, three-stage progression",
+      "injection": "Stop writing run rows for a staging job of known cadence; evaluate at age<1.5x, 1.5x<=age<=3x, age>3x cadence",
+      "expected_tile_state": ["healthy", "late", "stale"],
+      "expected_alert": "BLOCKED — GATE-A unresolved (see report): production R1 is a fleet-wide config_gap placeholder, not a per-job late/stale rule. Render half asserted in full; alert half asserted against REAL current R1 behavior (fires config_gap, not per-job).",
+      "teardown": "none (in-memory only)"
+    },
+    {
+      "id": "S2",
+      "name": "Non-zero exit (Tech Intel)",
+      "injection": "Synthetic run_log row: job=tech-intel, exit_code=1, error set",
+      "expected_tile_state": "failed",
+      "expected_alert": "R4 job-failed-or-zero-rows, provenance_id=run_id (verbatim)",
+      "teardown": "none (in-memory only)"
+    },
+    {
+      "id": "S3",
+      "name": "Stalled run / STUCK",
+      "injection": "Synthetic run_log row: started_at set, finished_at null, age > 2x p95",
+      "expected_tile_state": "stuck",
+      "expected_alert": "rule_id=stuck, provenance_id=run_id (verbatim)",
+      "teardown": "none (in-memory only)"
+    },
+    {
+      "id": "S3b",
+      "name": "Cross-source agreement (OPS/DATA/QUEUE, state-endpoint level)",
+      "injection": "Same run_state() result fed through the one shared join (warroom-ops-join.js) consumed by both /api/ops/timeline and /api/ops/cron-today",
+      "expected_tile_state": "identical run_id + state string across both call sites for the same job/slot",
+      "expected_alert": "n/a (structural agreement check, not an alert scenario)",
+      "teardown": "none (in-memory only)"
+    },
+    {
+      "id": "S4",
+      "name": "Stale feed propagation",
+      "injection": "Staging feed file aged past cadence x2 (fs.utimesSync on a file under a temp staging root, never the real finance-data.json)",
+      "expected_tile_state": "STALE <age>",
+      "expected_alert": "R2 feed staleness, provenance_id=file:<staging path>",
+      "teardown": "temp staging root removed"
+    },
+    {
+      "id": "S5",
+      "name": "Unrenderable payload (5x)",
+      "injection": "5 payloads matching the observed [object Object] shape passed to WarroomRender.formatTelemetryEvent",
+      "expected_tile_state": "ERROR — unrenderable event <id> (x5)",
+      "expected_alert": "BLOCKED — counter exists (WarroomRender.counters.unrenderable_event) but is not yet consumed by any alert-engine.js rule (confirmed by code inspection, not fabricated). Counter-increment half asserted in full.",
+      "teardown": "WarroomRender.resetUnrenderableCounter() before and after"
+    },
+    {
+      "id": "S6",
+      "name": "Clock skew",
+      "injection": "Event timestamped in the future relative to `now`",
+      "expected_tile_state": "ERROR — clock skew, no numeric/time value rendered, sort order uncorrupted",
+      "expected_alert": "BLOCKED — no §2.2 rule named for clock-skew events specifically (confirmed by code inspection of alert-engine.js's R1-R6 + stuck watchdog)",
+      "teardown": "none (in-memory only)"
+    },
+    {
+      "id": "S7",
+      "name": "Single source per number (cache_hit_rate)",
+      "injection": "cache_hit_rate changed by a known delta in the canonical view input",
+      "expected_tile_state": "every tile reading that figure moves by exactly the delta in the same evaluation",
+      "expected_alert": "n/a (runtime single-source check, not an alert scenario)",
+      "teardown": "none (in-memory only)"
+    }
+  ]
+}

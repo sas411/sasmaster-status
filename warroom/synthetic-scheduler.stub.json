@@ -1,0 +1,10 @@
+{
+  "_comment": "WARROOM-SYNTHETIC-001 scheduler stub. Registered here, disabled by design, per card CONSTRAINTS §5c: 'the card is DONE with the scheduler stub present and explicitly disabled'. Do NOT set enabled:true or wire this into cron/launchd without a Shiv ruling on cadence (§5c) recorded in DONE_LOG.md.",
+  "job_id": "warroom-synthetic-suite",
+  "enabled": false,
+  "cadence": "UNRULED — awaiting §5c",
+  "command": "node --test test/warroom-synthetic-suite.test.mjs test/warroom-synthetic-negative-controls.test.mjs",
+  "cwd": "~/sasmaster-status",
+  "on_missed_window": "self-monitor rule (see report): the suite's own silence must page — a missed run of this job is treated as a rule violation like any other cron once §5c/§5d are ruled and this stub is enabled",
+  "delivery": "UNRULED — awaiting §5d, no Slack routing implemented"
+}
