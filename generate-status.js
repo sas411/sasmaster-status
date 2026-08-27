@@ -1607,6 +1607,114 @@ try {
   console.warn('[generate-status] usage-state.json missing or invalid:', e.message);
 }
 
+// ── Canonical token/cost view (WARROOM-COSTCANON-001 Phase 3) ────────────────
+// ONE-SOURCE-004: sasmaster.costs.v_token_cost_canonical is now the single source for
+// per-agent / per-model / cache-hit token+cost aggregation feeding the COSTS, TOKENS and
+// FINANCE tabs. This replaces the old per-line cost-log.jsonl `agentCost` parse (deleted
+// below, in the token-projection block) — that parse duplicated per-agent attribution the
+// canonical view now provides, and is one of the two rival paths this card requires
+// deleted, not deprecated. It does NOT replace the weekly burn-rate total below (that stays
+// on cost-log.jsonl — a different figure, not one of the named contradictions).
+// The view currently carries only 2 rows (run_id NULL — a known agent_id/job naming
+// mismatch, a separate finding, not fixed here); sparse/near-zero output below is the
+// honest reflection of that, not a bug in this query — do not pad it.
+function fetchTokenCostCanonical() {
+  try {
+    const token = readEnvVar('MOTHERDUCK_TOKEN');
+    if (!token) return null;
+    const sql = `
+      WITH base AS (SELECT * FROM sasmaster.costs.v_token_cost_canonical),
+      cutover AS (SELECT min(ts_utc) AS ts FROM base WHERE cache_read_input_tokens IS NOT NULL),
+      agents AS (
+        SELECT COALESCE(agent_id,'unattributed') AS agent_id, model,
+               sum(cost_usd) AS cost_usd,
+               sum(COALESCE(input_tokens,0)+COALESCE(output_tokens,0)) AS tokens,
+               count(*) AS calls
+        FROM base GROUP BY 1,2
+      ),
+      models AS (
+        SELECT model, sum(cost_usd) AS cost_usd, count(*) AS calls
+        FROM base GROUP BY 1
+      )
+      SELECT
+        (SELECT count(*) FROM base) AS row_count,
+        (SELECT ts FROM cutover) AS v2_cutover_ts,
+        (SELECT sum(cost_usd) FROM base) AS total_cost_usd,
+        (SELECT sum(COALESCE(input_tokens,0)+COALESCE(output_tokens,0)) FROM base) AS total_tokens,
+        (SELECT sum(COALESCE(input_tokens,0)) FROM base) AS total_input_tokens,
+        (SELECT sum(COALESCE(output_tokens,0)) FROM base) AS total_output_tokens,
+        (SELECT sum(cache_read_input_tokens) FROM base WHERE cache_read_input_tokens IS NOT NULL) AS cache_read_tokens,
+        (SELECT sum(cache_creation_input_tokens) FROM base WHERE cache_creation_input_tokens IS NOT NULL) AS cache_write_tokens,
+        (SELECT sum(COALESCE(input_tokens,0)) FROM base WHERE cache_read_input_tokens IS NOT NULL) AS cache_window_input_tokens,
+        (SELECT count(*) FROM base WHERE cache_read_input_tokens IS NOT NULL) AS cache_row_count,
+        (SELECT list({'agent_id':agent_id,'model':model,'cost_usd':cost_usd,'tokens':tokens,'calls':calls} ORDER BY cost_usd DESC) FROM agents) AS agents,
+        (SELECT list({'model':model,'cost_usd':cost_usd,'calls':calls}) FROM models) AS models
+    `;
+    const out = execSync(
+      `/opt/homebrew/bin/duckdb -json -c "${sql.replace(/\n/g, ' ')}" md:sasmaster`,
+      { encoding: 'utf8', timeout: 15000, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, motherduck_token: token } }
+    );
+    const rows = JSON.parse(out);
+    return rows[0] || null;
+  } catch (e) {
+    console.warn('[generate-status] token cost canonical query failed:', e.message);
+    return null;
+  }
+}
+
+// Builds the render-ready costCanonical block. C2 (four render states) applied here, once,
+// so every tab consumes an already-honest value instead of re-deriving N/A logic itself.
+function buildCostCanonical() {
+  const row = fetchTokenCostCanonical();
+  if (!row) {
+    return {
+      available: false,
+      reason: 'no_motherduck_token_or_query_failed',
+      source: 'sasmaster.costs.v_token_cost_canonical',
+      computed_at: new Date().toISOString(),
+    };
+  }
+  const rowCount = Number(row.row_count) || 0;
+  const cacheRowCount = Number(row.cache_row_count) || 0;
+  const cacheDenom = (Number(row.cache_read_tokens) || 0) + (Number(row.cache_window_input_tokens) || 0);
+  const hasCacheData = cacheRowCount > 0;
+  // Measured zero is a valid rate (C2) — only null when no row has ever carried cache fields,
+  // or the denominator is genuinely zero (no traffic in the cache-capable window).
+  const cacheHitRate = hasCacheData && cacheDenom > 0
+    ? (Number(row.cache_read_tokens) || 0) / cacheDenom
+    : (hasCacheData ? 0 : null);
+  const agents = Array.isArray(row.agents) ? row.agents : [];
+  const models = Array.isArray(row.models) ? row.models : [];
+  const topAgent = agents.length
+    ? agents.reduce((a, b) => (Number(b.cost_usd) > Number(a.cost_usd) ? b : a))
+    : null;
+  return {
+    available: true,
+    source: 'sasmaster.costs.v_token_cost_canonical',
+    computed_at: new Date().toISOString(),
+    row_count: rowCount,
+    v2_cutover_ts: row.v2_cutover_ts || null,
+    total_cost_usd: row.total_cost_usd != null ? Number(row.total_cost_usd) : null,
+    total_tokens: row.total_tokens != null ? Number(row.total_tokens) : null,
+    total_input_tokens: row.total_input_tokens != null ? Number(row.total_input_tokens) : null,
+    total_output_tokens: row.total_output_tokens != null ? Number(row.total_output_tokens) : null,
+    cache_read_tokens: hasCacheData ? Number(row.cache_read_tokens) || 0 : null,
+    cache_write_tokens: row.cache_write_tokens != null ? Number(row.cache_write_tokens) : null,
+    cache_has_data: hasCacheData,
+    cache_hit_rate: cacheHitRate, // 0..1, or null when no window has cache fields captured yet
+    top_agent: topAgent ? topAgent.agent_id : null,
+    top_agent_is_real: !!(topAgent && topAgent.agent_id && topAgent.agent_id !== 'other'),
+    agents: agents,
+    models: models.map(m => ({
+      model: m.model,
+      cost_usd: Number(m.cost_usd) || 0,
+      calls: Number(m.calls) || 0,
+      pct_spend: row.total_cost_usd ? (Number(m.cost_usd) || 0) / Number(row.total_cost_usd) * 100 : 0,
+    })),
+  };
+}
+const costCanonical = buildCostCanonical();
+
 // ── Token burn rate projection from cost-log.jsonl ────────────────────────────
 let tokenProjection = null;
 try {
@@ -1623,7 +1731,6 @@ try {
 
     const resetAt = usageState ? new Date(usageState.weekly_resets_at) : new Date(weekStart.getTime() + 7 * 86400000);
     const dailyCost = {};
-    const agentCost = {};
     let weekCostTotal = 0;
     let weekTokensTotal = 0;
 
@@ -1638,10 +1745,6 @@ try {
         weekTokensTotal += t;
         const dayStr = ts.toISOString().slice(0, 10);
         dailyCost[dayStr] = (dailyCost[dayStr] || 0) + c;
-        const ag = e.agent_id || e.agent || e.task_id || 'unknown';
-        if (!agentCost[ag]) agentCost[ag] = { cost_usd: 0, tokens: 0, model: e.model || 'unknown' };
-        agentCost[ag].cost_usd += c;
-        agentCost[ag].tokens += t;
       } catch (_) {}
     }
 
@@ -1650,24 +1753,31 @@ try {
     const pctElapsed = Math.min(1, msElapsed / msTotal);
     const projectedCost = weekCostTotal / pctElapsed;
 
-    const topConsumers = Object.entries(agentCost)
-      .sort((a, b) => b[1].tokens - a[1].tokens)
+    // WARROOM-COSTCANON-001 Phase 3: per-agent attribution (topConsumers, R1/R2 below) used
+    // to come from a second, independent parse of cost-log.jsonl (`agentCost`, deleted here)
+    // — a rival path duplicating exactly what sasmaster.costs.v_token_cost_canonical now
+    // provides (C6, "one source per number, enforced by deletion"). Both now read
+    // costCanonical.agents, built once above from the canonical MotherDuck view.
+    const topConsumers = (costCanonical.agents || [])
+      .slice()
+      .sort((a, b) => (Number(b.tokens) || 0) - (Number(a.tokens) || 0))
       .slice(0, 10)
-      .map(([id, d]) => ({ id, ...d }));
+      .map(a => ({ id: a.agent_id, cost_usd: Number(a.cost_usd) || 0, tokens: Number(a.tokens) || 0, model: a.model }));
 
     // Auto-generate optimization recommendations
     const recommendations = [];
 
     // R1: Agents invoking Opus on low-token tasks (Sonnet would suffice)
-    for (const [id, d] of Object.entries(agentCost)) {
+    for (const d of (costCanonical.agents || [])) {
       const m = (d.model || '').toLowerCase();
-      const avgTokens = d.tokens;
+      const avgTokens = Number(d.tokens) || 0;
+      const costUsd = Number(d.cost_usd) || 0;
       if (m.includes('opus') && avgTokens < 50000 && avgTokens > 0) {
-        const estSave = Math.round(d.cost_usd * 0.6 * 100) / 100;
+        const estSave = Math.round(costUsd * 0.6 * 100) / 100;
         recommendations.push({
           type: 'model-downgrade',
-          agent: id,
-          action: `Downgrade ${id} from Opus → Sonnet (avg ${d.tokens.toLocaleString()} tokens — below 50K threshold)`,
+          agent: d.agent_id,
+          action: `Downgrade ${d.agent_id} from Opus → Sonnet (avg ${avgTokens.toLocaleString()} tokens — below 50K threshold)`,
           est_save_usd_wk: estSave,
           severity: 'amber',
         });
@@ -1675,14 +1785,16 @@ try {
     }
 
     // R2: Agents invoking Sonnet on very low-token tasks (Haiku would suffice)
-    for (const [id, d] of Object.entries(agentCost)) {
+    for (const d of (costCanonical.agents || [])) {
       const m = (d.model || '').toLowerCase();
-      if (m.includes('sonnet') && d.tokens < 10000 && d.tokens > 0) {
-        const estSave = Math.round(d.cost_usd * 0.7 * 100) / 100;
+      const avgTokens = Number(d.tokens) || 0;
+      const costUsd = Number(d.cost_usd) || 0;
+      if (m.includes('sonnet') && avgTokens < 10000 && avgTokens > 0) {
+        const estSave = Math.round(costUsd * 0.7 * 100) / 100;
         recommendations.push({
           type: 'model-downgrade',
-          agent: id,
-          action: `Downgrade ${id} from Sonnet → Haiku (avg ${d.tokens.toLocaleString()} tokens — below 10K threshold)`,
+          agent: d.agent_id,
+          action: `Downgrade ${d.agent_id} from Sonnet → Haiku (avg ${avgTokens.toLocaleString()} tokens — below 10K threshold)`,
           est_save_usd_wk: estSave,
           severity: 'amber',
         });
@@ -2326,6 +2438,7 @@ const status = {
   portal_coverage: portalCoverage,
   usage_state: usageState,
   token_projection: tokenProjection,
+  cost_canonical: costCanonical,
   source_freshness: sourceFreshness,
 
   // ── TRUTHFUL-VITALS-001 — derived from first principles every cycle ──────────

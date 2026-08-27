@@ -1707,7 +1707,11 @@ const DEMO_DATA = {
   generatedAt:'demo', jarvisOk:true, s3gb:1619,
   agentsLive:10, agentsTotal:51, agentsLiveTotal:14, healthPct:71,
   kpis:{agentsLive:10,agentsTotal:51,s3gb:1619,tasksOpen:13,buildEventsToday:0,blessQueue:4,nielsen:{days:0,warn:false}},
-  usageState:{session_used_pct:44,weekly_all_models_pct:63,weekly_sonnet_pct:0,weekly_claude_design_pct:23,cache_hit_rate_pct:100,weekly_resets_at:''},
+  usageState:{session_used_pct:44,weekly_all_models_pct:63,weekly_sonnet_pct:0,weekly_claude_design_pct:23,weekly_resets_at:''},
+  // WARROOM-COSTCANON-001 Phase 3: demo snapshot mirrors the real costCanonical shape —
+  // deliberately sparse (2 rows) rather than a fabricated round number, matching the
+  // canonical view's actual current state (see task card Phase 1 finding).
+  costCanonical:{available:true,source:'sasmaster.costs.v_token_cost_canonical',computed_at:'demo',row_count:2,v2_cutover_ts:'2026-08-24T01:15:26',total_cost_usd:0.0088,total_tokens:1556,total_input_tokens:1212,total_output_tokens:344,cache_has_data:true,cache_hit_rate:0,cache_read_tokens:0,cache_write_tokens:0,top_agent:'costcanon-selftest',top_agent_is_real:true,agents:[{agent_id:'costcanon-selftest',model:'claude-sonnet-5-20260101',cost_usd:0.0087,tokens:1540,calls:1},{agent_id:'sasmaster-build',model:'claude-haiku-4-5-20251001',cost_usd:0.0001,tokens:16,calls:1}],models:[{model:'claude-sonnet-5-20260101',cost_usd:0.0087,calls:1,pct_spend:98.9},{model:'claude-haiku-4-5-20251001',cost_usd:0.0001,calls:1,pct_spend:1.1}]},
   crons:[{time:'12:00 AM',name:'async build',status:'done'},{time:'12:00 AM',name:'tmdb delta biweekly',status:'pending'},{time:'*:*/5',name:'build auto reaper',status:'pending'},{time:'*:*/5',name:'generate status.js',status:'pending'}],
   s3lake:[{prefix:'tmdb_dev/',size_gb:33.9,status:'running'},{prefix:'imdb/',size_gb:5.7,status:'live'},{prefix:'nielsen/',size_gb:679.9,status:'live'}],
   scrapers:[{name:'TMDB bulk loader',status:'live',pct:100}],
@@ -1848,6 +1852,12 @@ function adapt(d){
     claudeUsage:d.claudeUsage||{},
     costSummary:d.cost_summary||{},
     tokenProjection:d.token_projection||{},
+    // WARROOM-COSTCANON-001 Phase 3: single source for cache-hit/token/agent-attribution
+    // figures on COSTS, TOKENS and FINANCE — sasmaster.costs.v_token_cost_canonical via
+    // generate-status.js's costCanonical block, never usage_state.cache_hit_rate_pct
+    // (a hand-pasted usage-page number, not a measured cache figure) and never the
+    // separate resources/token_metrics_latest.json path.
+    costCanonical:d.cost_canonical||{available:false,reason:'field_absent'},
     alerts:d.alerts||[],
     intelFeed:d.intel_feed||[],
     recentActivity:d.recent_activity||[],
@@ -2625,13 +2635,32 @@ function renderCosts(vm){
     const codeCost=cu&&cu.claudecode&&cu.claudecode.mtd_cost?'$'+Number(cu.claudecode.mtd_cost).toFixed(2):(fdApiMtd!=null?'$'+fdApiMtd.toFixed(2):'NO DATA');
     const designCost=cu&&cu.claudedesign&&cu.claudedesign.mtd_cost?'$'+Number(cu.claudedesign.mtd_cost).toFixed(2):'$0.00';
     const s3Cost=awsUsd!=null?'$'+awsUsd.toFixed(2):'NO DATA';
-    const cacheHit=us.cache_hit_rate_pct!=null?us.cache_hit_rate_pct+'%':'—';
+    // WARROOM-COSTCANON-001 Phase 3: was `us.cache_hit_rate_pct` — a hand-pasted value from
+    // ~/.sasmaster/usage-state.json (manual copy off claude.ai/settings/usage), rendered here
+    // as if it were a measured cache-hit rate. That value ("100%") is the exact "most
+    // dangerous number on the board" the card names: a claim of perfect efficiency from a
+    // system that, at that path, cannot measure cache at all. Now sourced from
+    // sasmaster.costs.v_token_cost_canonical (vm.costCanonical), with the required N/A state
+    // for any pre-v2 window instead of a fabricated percentage.
+    const cc=vm.costCanonical||{};
+    let cacheHit,cacheHitSub;
+    if(!cc.available){
+      cacheHit='N/A'; cacheHitSub='canonical view unavailable';
+    } else if(!cc.cache_has_data||cc.cache_hit_rate==null){
+      cacheHit='N/A'; cacheHitSub='no cache fields before '+(cc.v2_cutover_ts?new Date(cc.v2_cutover_ts).toISOString().slice(0,10):'v2 cutover');
+    } else {
+      cacheHit=(cc.cache_hit_rate*100).toFixed(1)+'%'; cacheHitSub='measured · '+(cc.row_count||0)+' rows MTD';
+    }
     if(cells[0]){cells[0].querySelector('.v').textContent=total;cells[0].querySelector('.s').textContent='api+infra+tools MTD';}
     if(cells[1]){cells[1].querySelector('.v').textContent=codeCost;}
     if(cells[2]){cells[2].querySelector('.v').textContent=aiCost;}
     if(cells[3]){cells[3].querySelector('.v').textContent=designCost;}
     if(cells[4]){cells[4].querySelector('.v').textContent=s3Cost;}
-    if(cells[5]){cells[5].querySelector('.v').textContent=cacheHit;cells[5].querySelector('.v').className='v'+(cacheHit!=='—'?' gold':'');}
+    if(cells[5]){
+      cells[5].querySelector('.v').textContent=cacheHit;
+      cells[5].querySelector('.v').className='v'+(cacheHit!=='N/A'?' gold':'');
+      const subEl=cells[5].querySelector('.s'); if(subEl) subEl.textContent=cacheHitSub;
+    }
   }
 
   // quota
@@ -3093,7 +3122,14 @@ async function renderFinance(vm){
     if(q4[0])q4[0].querySelector('.v').textContent=fmtN(toks.total_tokens_this_month||0);
     if(q4[1])q4[1].querySelector('.v').textContent='$'+(toks.avg_cost_per_session_usd||0).toFixed(2);
     if(q4[2])q4[2].querySelector('.v').textContent=String(toks.total_sessions_this_month||0);
-    if(q4[3])q4[3].querySelector('.v').textContent=toks.most_expensive_agent||'—';
+    // WARROOM-COSTCANON-001 Phase 3: TOP AGENT re-pointed to the canonical view's own
+    // agent_id attribution (vm.costCanonical.top_agent) instead of finance-data.json's
+    // most_expensive_agent, whose fallback was the uninformative literal 'other' (§4
+    // FINANCE finding). top_agent_is_real distinguishes a genuine agent_id named 'other'
+    // from the old fallback meaning "no attribution" — never render the fallback as a fact.
+    const cc=vm.costCanonical||{};
+    if(q4[3]) q4[3].querySelector('.v').textContent =
+      (cc.available && cc.top_agent) ? cc.top_agent : 'N/A — no canonical attribution yet';
     const mix=toks.model_mix_pct||{};
     document.querySelectorAll('#v-finance .mono').forEach(el=>{
       if(el.textContent.includes('Opus')&&el.textContent.includes('Sonnet')&&el.textContent.includes('Haiku')){
@@ -4059,11 +4095,13 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 
 <script>
-/* ── TOKEN-METER-001 Ph2 — TOKENS tab renderer ──────────────── */
+/* ── TOKEN-METER-001 Ph2 — TOKENS tab renderer ──────────────────────────────
+   WARROOM-COSTCANON-001 Phase 3: this used to fetch resources/token_metrics_latest.json
+   independently of the COSTS/FINANCE tabs — a third, rival data path (a static file
+   committed nightly by an out-of-repo script) with its own notion of cache hit rate,
+   token volume and model mix. Deleted. This now reads vm.costCanonical, the SAME
+   sasmaster.costs.v_token_cost_canonical-derived block COSTS reads (C6, one source). */
 (function(){
-  // Reads static file committed nightly by token_metrics_nightly.sh
-  const STATIC_METRICS = 'resources/token_metrics_latest.json';
-
   function fmt(n){
     if(n === null || n === undefined) return '—';
     if(n >= 1e6) return (n/1e6).toFixed(1)+'M';
@@ -4076,50 +4114,69 @@ document.addEventListener('DOMContentLoaded',()=>{
   function setVal(id,v){ const e=el(id); if(e) e.textContent=v; }
 
   function renderMetrics(d){
+    // d is vm.costCanonical — sasmaster.costs.v_token_cost_canonical, aggregated in
+    // generate-status.js's buildCostCanonical(). Not available (no MOTHERDUCK_TOKEN /
+    // query failure) renders every hero tile N/A rather than silently going blank (C1/C2).
+    if(!d || !d.available){
+      ['tm-cache-hit','tm-cache-rw','tm-daily-cost','tm-batch-pct','tm-web-search'].forEach(id=>setVal(id,'N/A'));
+      setVal('tm-cache-hit-sub','canonical view unavailable');
+      setVal('tm-daily-sub', d&&d.reason ? d.reason : 'canonical view unavailable');
+      setEl('tm-source-line','<span>sasmaster.costs.v_token_cost_canonical — unavailable</span>');
+      renderInsights([{sev:'warn',label:'Canonical view unavailable',text:'sasmaster.costs.v_token_cost_canonical could not be queried this cycle ('+(d&&d.reason||'unknown reason')+') — no cost/token figures fabricated in its place.'}]);
+      setVal('tm-last-refresh','No data — canonical view unavailable');
+      return;
+    }
+
     // Hero strip
     const hitRate = typeof d.cache_hit_rate === 'number' ? d.cache_hit_rate : null;
-    const hasCache = d.cache_data_available;
-    setVal('tm-cache-hit', hitRate !== null ? pct(hitRate) : '—');
-    setVal('tm-cache-hit-sub', hasCache ? 'measured · '+d.window_hours+'h window' : 'no cache fields yet');
-    if(el('tm-cache-hit') && hitRate !== null && hitRate >= 0.5) el('tm-cache-hit').style.color='var(--up)';
-    if(el('tm-cache-hit') && hitRate !== null && hitRate < 0.5 && hasCache) el('tm-cache-hit').style.color='var(--down)';
+    const hasCache = !!d.cache_has_data;
+    setVal('tm-cache-hit', hitRate !== null ? pct(hitRate) : 'N/A');
+    setVal('tm-cache-hit-sub', hasCache ? 'measured · '+(d.row_count||0)+' rows' : 'no cache fields before '+(d.v2_cutover_ts?new Date(d.v2_cutover_ts).toISOString().slice(0,10):'v2 cutover'));
+    if(el('tm-cache-hit')) el('tm-cache-hit').style.color = (hitRate !== null && hitRate >= 0.5) ? 'var(--up)' : (hitRate !== null && hasCache ? 'var(--down)' : '');
 
-    setVal('tm-cache-rw', typeof d.cache_read_write_ratio === 'number' ? d.cache_read_write_ratio.toFixed(1)+'×' : '—');
-    setVal('tm-daily-cost', typeof d.total_cost_usd === 'number' ? '$'+d.total_cost_usd.toFixed(4) : '—');
-    setVal('tm-daily-sub', d.window_hours+'h window · '+d.total_calls+' calls');
-    setVal('tm-batch-pct', typeof d.pct_calls_via_batch === 'number' ? d.pct_calls_via_batch.toFixed(1)+'%' : '—');
-    setVal('tm-web-search', typeof d.web_search_call_count === 'number' ? d.web_search_call_count : '—');
+    // Cache read/write ratio — genuinely not derivable as a ratio when write tokens are 0 (div-by-zero
+    // is not "no data", it just means no cache breakpoints have been created yet); N/A either way is honest.
+    const rw = (hasCache && d.cache_write_tokens) ? (d.cache_read_tokens||0)/d.cache_write_tokens : null;
+    setVal('tm-cache-rw', rw !== null ? rw.toFixed(1)+'×' : 'N/A');
+    setVal('tm-daily-cost', typeof d.total_cost_usd === 'number' ? '$'+d.total_cost_usd.toFixed(4) : 'N/A');
+    setVal('tm-daily-sub', (d.row_count||0)+' calls MTD');
+    // Batch-API % and web-search count are not columns on the canonical view yet — honest N/A,
+    // not the old static file's fabricated figures for a metric this view can't produce.
+    setVal('tm-batch-pct', 'N/A');
+    setVal('tm-web-search', 'N/A');
 
     // Source badge
     setEl('tm-source-line', '<span>'+escHtml(d.source||'—')+'</span>');
     const srcBadge = el('tokens-source-badge');
-    if(srcBadge){ srcBadge.style.display='inline'; srcBadge.textContent = d.source && d.source.startsWith('ANTHROPIC') ? 'API' : 'LOG'; }
+    if(srcBadge){ srcBadge.style.display='inline'; srcBadge.textContent = 'CANONICAL'; }
 
-    // Model bars
-    const spend = d.pct_spend_by_model || {};
+    // Model bars — from costCanonical.models (grouped in generate-status.js), not a separate parse
+    const byTier = {opus:null, sonnet:null, haiku:null};
+    (d.models||[]).forEach(m=>{
+      const lm=(m.model||'').toLowerCase();
+      const tier = lm.includes('opus')?'opus':lm.includes('sonnet')?'sonnet':lm.includes('haiku')?'haiku':null;
+      if(tier) byTier[tier]=m;
+    });
     ['opus','sonnet','haiku'].forEach(tier => {
-      const m = spend[tier] || {};
-      const pctVal = typeof m.pct_spend === 'number' ? m.pct_spend : 0;
+      const m = byTier[tier];
+      const pctVal = m && typeof m.pct_spend === 'number' ? m.pct_spend : 0;
       const bar = el('tm-bar-'+tier);
       if(!bar) return;
       bar.querySelector('.v').textContent = pctVal.toFixed(1)+'%';
       bar.querySelector('i').style.width = Math.min(pctVal,100)+'%';
-      bar.querySelector('.s').textContent = (m.call_count||0)+' calls · $'+(m.cost_usd||0).toFixed(4);
+      bar.querySelector('.s').textContent = (m?m.calls:0)+' calls · $'+(m?m.cost_usd:0).toFixed(4);
     });
 
-    // Agent type tokens
-    const avgIn = d.avg_input_tokens || {};
-    setVal('tm-scoop-tokens', avgIn.dr_scoop ? fmt(avgIn.dr_scoop) : '—');
-    setVal('tm-scoop-calls', (avgIn.scoop_calls||0)+' calls in window');
-    setVal('tm-jarvis-tokens', avgIn.jarvis ? fmt(avgIn.jarvis) : '—');
-    setVal('tm-jarvis-calls', (avgIn.jarvis_calls||0)+' calls in window');
+    // Per-agent-type avg tokens (Dr. Scoop / JARVIS) is not a dimension the canonical view
+    // carries — honest N/A rather than the old file's fabricated per-agent-type breakdown.
+    setVal('tm-scoop-tokens', 'N/A'); setVal('tm-scoop-calls', 'not wired on canonical view');
+    setVal('tm-jarvis-tokens', 'N/A'); setVal('tm-jarvis-calls', 'not wired on canonical view');
 
     // Volume
-    const tok = d.total_tokens || {};
-    setVal('tm-input-total', fmt(tok.input));
-    setVal('tm-cache-read', fmt(tok.cache_read));
-    setVal('tm-cache-write', fmt(tok.cache_write));
-    setVal('tm-output-total', fmt(tok.output));
+    setVal('tm-input-total', fmt(d.total_input_tokens));
+    setVal('tm-cache-read', hasCache ? fmt(d.cache_read_tokens) : 'N/A');
+    setVal('tm-cache-write', hasCache ? fmt(d.cache_write_tokens) : 'N/A');
+    setVal('tm-output-total', fmt(d.total_output_tokens));
 
     // Alerts
     const alertRow = el('tm-alert-row');
@@ -4131,7 +4188,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(monthlyRunRate > 500)
       alerts.push('🔴 Daily $'+(d.total_cost_usd||0).toFixed(2)+' → projected $'+monthlyRunRate.toFixed(0)+'/mo (cap: $500)');
     if(!hasCache)
-      alerts.push('ℹ Cache fields not yet in cost-log — upgrade cost-guard.sh to v2 for real cache_hit_rate');
+      alerts.push('ℹ Cache fields not yet captured for any row — upgrade cost-guard.sh to v2 for a real cache_hit_rate');
     if(alertRow && alertText){
       if(alerts.length){ alertRow.style.display='block'; alertText.textContent=alerts.join(' · '); }
       else alertRow.style.display='none';
@@ -4141,8 +4198,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     renderInsights(computeInsights(adapt(d)));
 
     // Timestamp
-    const ts = d.generated_at ? new Date(d.generated_at).toLocaleString() : '—';
-    setVal('tm-last-refresh', 'Source: '+escHtml(d.source||'—')+'  ·  Generated: '+ts);
+    const ts = d.computed_at ? new Date(d.computed_at).toLocaleString() : '—';
+    setVal('tm-last-refresh', 'Source: '+escHtml(d.source||'—')+'  ·  Computed: '+ts);
   }
 
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -4150,18 +4207,19 @@ document.addEventListener('DOMContentLoaded',()=>{
   // L4 adapter — single source of truth for raw field access; renderers below only touch the view model
   function adapt(raw){
     const d = raw || {};
-    const spend = d.pct_spend_by_model || {};
-    const tok = d.total_tokens || {};
-    const tierPct = t => typeof spend[t]?.pct_spend === 'number' ? spend[t].pct_spend : null;
+    const tierPct = t => {
+      const m = (d.models||[]).find(x=>(x.model||'').toLowerCase().includes(t));
+      return m && typeof m.pct_spend === 'number' ? m.pct_spend : null;
+    };
     return {
-      hasCache: !!d.cache_data_available,
+      hasCache: !!d.cache_has_data,
       hitRate: typeof d.cache_hit_rate === 'number' ? d.cache_hit_rate : null,
       dailyCost: typeof d.total_cost_usd === 'number' ? d.total_cost_usd : null,
-      totalCalls: typeof d.total_calls === 'number' ? d.total_calls : null,
-      batchPct: typeof d.pct_calls_via_batch === 'number' ? d.pct_calls_via_batch : null,
-      webSearches: typeof d.web_search_call_count === 'number' ? d.web_search_call_count : null,
+      totalCalls: typeof d.row_count === 'number' ? d.row_count : null,
+      batchPct: null, // not a dimension on the canonical view yet — never fabricated
+      webSearches: null,
       opusPct: tierPct('opus'), sonnetPct: tierPct('sonnet'), haikuPct: tierPct('haiku'),
-      tokenVolumeTotal: ['input','output','cache_read','cache_write'].reduce((s,k)=> s + (typeof tok[k]==='number'?tok[k]:0), 0),
+      tokenVolumeTotal: ['total_input_tokens','total_output_tokens','cache_read_tokens','cache_write_tokens'].reduce((s,k)=> s + (typeof d[k]==='number'?d[k]:0), 0),
     };
   }
 
@@ -4232,13 +4290,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   window.tmRefresh = function(){
-    setVal('tm-last-refresh', 'Loading…');
-    fetch(STATIC_METRICS + '?_='+Date.now())
-      .then(r => r.ok ? r.json() : Promise.reject('not found'))
-      .then(d => renderMetrics(d))
-      .catch(() => {
-        setVal('tm-last-refresh', 'No data yet — nightly job runs at 02:00 ET · run token_metrics_nightly.sh to seed');
-      });
+    // WARROOM-COSTCANON-001 Phase 3: no independent fetch — status.json (already loaded by
+    // loadAndRender) carries cost_canonical, and _lastVm.costCanonical is that same object.
+    // Re-rendering here (rather than only in the loadAndRender guard) keeps the manual
+    // "↻ Refresh" button and the tab-activation hook honest against whatever the last load cycle saw.
+    renderMetrics(_lastVm ? _lastVm.costCanonical : null);
   };
 
   // Auto-load when TOKENS tab is activated
