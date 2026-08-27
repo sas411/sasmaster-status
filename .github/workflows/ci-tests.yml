@@ -29,3 +29,36 @@ jobs:
 
       - name: Run test suite (node --test test/)
         run: npm test
+
+  # WARROOM-CONTRACT-CI-001 — mechanical regression gate for the War Room render contracts
+  # (C2 bare em-dash, C3 status literals, C5 one clock, C6 one source per number, trend-
+  # glyph sign agreement). One shared module with the pre-commit hook
+  # (.pre-commit-config.yaml's warroom-contract-gate id) — no copied logic, per the card's
+  # own "the drift will always favor green" warning. Second job in this SAME workflow file
+  # (not a new workflow) so it shares ci-tests's trigger and doesn't need its own.
+  #
+  # fetch-depth: 0 is REQUIRED here, not cosmetic: the gate is diff-scoped (judges only
+  # lines added since the merge-base — see scripts/warroom-contract-gate.js module header
+  # for why whole-file scanning of a 4,492-line page would be a false-positive wall). The
+  # default shallow checkout makes `git diff origin/main...HEAD` resolve against a
+  # nonexistent history and silently see zero changed files, which would make this job
+  # permanently green with no teeth — exactly the failure mode a mechanical gate exists to
+  # prevent. `git fetch origin main` before the diff guarantees the base ref actually
+  # resolves in the runner's checkout regardless of which ref triggered the job.
+  contract-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch main for diff base
+        run: git fetch origin main
+
+      - name: Run War Room contract gate (diff-scoped)
+        run: node scripts/warroom-contract-gate.js --base origin/main

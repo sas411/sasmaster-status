@@ -6,7 +6,7 @@
     "generate": "node generate-status.js",
     "build:archmap": "node build-arch-map.js",
     "test": "node --test test/",
-    "verify": "npm test && bash scripts/check-clock-gate.sh"
+    "verify": "npm test && bash scripts/check-clock-gate.sh && node scripts/warroom-contract-gate.js --base origin/main"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1054.0",

@@ -1,0 +1,22 @@
+{
+  "_comment": "WARROOM-CONTRACT-CI-001 — minimal canonical-source registry for check_one_source_per_number (C6). NOT the full canonical-cost-view WARROOM-COSTCANON-001 will build (that card owns the real fix + the authoritative registry once it lands) — this is the gate's own tiny seed config, in scope for this Phase 0 card because check_one_source_per_number needs SOME declared 'this figure has exactly one legitimate source expression' registry to compare against, and WARROOM_TILE_INVENTORY.md (the intended long-term source of that registry, per the card text) does not exist yet (WARROOM-INVENTORY-001 not built). Seeded with the two figures already named as real, currently-unresolved C6 defects in the WARROOM_OPS_SPEC.md audit (cache_hit_rate) plus one placeholder for the fixture demo. Each entry: `patterns` are regexes (source strings, JS-flavor) naming distinct ways this figure's VALUE is read in render code; if 2+ distinct patterns both match anywhere in the scanned files, that's a C6 finding. `reconciled: true` means a Phase 1+ card already fixed this and the check is now a regression trap (should read 0 matches for the OLD pattern going forward); `reconciled: false` means this is a live, still-real duplication the gate is intentionally NOT hiding.",
+  "figures": [
+    {
+      "figure": "cache_hit_rate",
+      "reconciled": false,
+      "owner_card": "WARROOM-COSTGUARD-002 (not yet landed)",
+      "patterns": [
+        { "id": "usage-state-pct", "regex": "\\bcache_hit_rate_pct\\b", "source_label": "usageState.cache_hit_rate_pct (hardcoded snapshot field)" },
+        { "id": "cost-log-real", "regex": "\\bd\\.cache_hit_rate\\b", "source_label": "cost-log d.cache_hit_rate (real, per generate-status.js R-series)" }
+      ]
+    },
+    {
+      "figure": "avg_input_tokens",
+      "reconciled": true,
+      "owner_card": "WARROOM-CONTRACT-CI-001 (seed — single source confirmed at build time)",
+      "patterns": [
+        { "id": "cost-log-avg-in", "regex": "\\bd\\.avg_input_tokens\\b", "source_label": "cost-log d.avg_input_tokens" }
+      ]
+    }
+  ]
+}

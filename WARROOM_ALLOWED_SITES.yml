@@ -1,0 +1,39 @@
+# WARROOM_ALLOWED_SITES.yml — WARROOM-CONTRACT-CI-001 allow-list.
+#
+# Schema (each entry under `sites:`):
+#   - id:            unique short slug, kebab-case
+#     file:          path relative to repo root (must exist)
+#     function:      (optional) the enclosing function name, for docs/audit only —
+#                     the gate matches by FILE, not by function boundary (a grep-based
+#                     gate cannot reliably parse JS scope), so two entries are needed if
+#                     the same producer legitimately spans two files (e.g. the health
+#                     evaluator's warroom-v5.html-side badge mapper vs its lib/ module).
+#     contract:       which check this exempts — one of: C3 (status-literal),
+#                     C5 (clock/time formatting)
+#     reason:         why this site is the legitimate single producer (one sentence)
+#     registered_by:  the task-card ID that owns this site and asserts it is correct
+#     expiry:         REQUIRED, ISO date (YYYY-MM-DD). An allow-list entry with no
+#                     expiry, or an expired one, is itself a gate failure — allow-list
+#                     entries are re-reviewed, not permanent by default. Use a far-future
+#                     date (e.g. 2099-01-01) only for a genuinely permanent module
+#                     boundary (lib/warroom-clock.js, lib/warroom-health.js) — anything
+#                     narrower gets a real review date.
+#
+# Per WARROOM-CONTRACT-CI-001 CONSTRAINTS (🔴 no forward dependency): this file ships
+# EMPTY in Phase 0. The C5 check exempts lib/warroom-clock.js and the C3 check exempts
+# lib/warroom-health.js by FILE PATH unconditionally (that module boundary is this
+# card's own day-one design, not a registered "site" — see scripts/warroom-contract-gate.js
+# CLOCK_MODULE_FILE / HEALTH_MODULE_FILE constants). This YAML is for ADDITIONAL sites
+# outside those two module files — e.g. warroom-v5.html's agentHealthBadge() function,
+# which legitimately maps WarroomHealth's computed `state` to display text but is NOT
+# itself inside lib/warroom-health.js. As of this card's build, that site is NOT yet
+# registered here (DoD requires zero entries at ship time) — WARROOM-HEALTH-001 already
+# shipped before this file existed, so its full-tree C3 scan is NOT clean today; this is
+# recorded honestly in DONE_LOG.md as a real (not fabricated) baseline finding, not hidden
+# to make the number look better. Each future Phase 1/2 card that needs a site here adds
+# its own entry as part of its own DoD, per this card's CONSTRAINTS.
+#
+# This file is read by BOTH the pre-commit hook and CI (one shared module, no copies —
+# scripts/warroom-contract-gate.js is the only reader).
+
+sites: []
