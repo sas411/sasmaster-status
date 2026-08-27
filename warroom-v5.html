@@ -2396,6 +2396,11 @@ function renderOPS(vm){
       const v=parsed.value;
       bodyHtml=`<span class="mono">${escHtml(v.task_id)}</span> · ${escHtml(v.status)} · created ${escHtml(String(v.created_at).slice(0,10))}`;
     }
+    // data-ops-item-id matches this exact TASKS.md row to its work_queue
+    // item_id ('ops_task:'+id, lib/work-queue.js) so renderOpsQueueAging()
+    // annotates the SAME row being displayed, not whichever ops_task item
+    // the (independently age-sorted) work_queue model happens to list first.
+    hpq.setAttribute('data-ops-item-id','ops_task:'+(item.id||item.lineIndex));
     hpq.innerHTML=`<span class="lbl">${escHtml(item.tag||'HIGH')}</span>${bodyHtml}
       <div style="margin-top:4px;font-size:11px;color:var(--dim)" data-ops-age>…</div>
       <div style="margin-top:8px"><button class="btn bs">⌕ diagnose</button></div>`;
