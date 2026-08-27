@@ -1,0 +1,31 @@
+# CI-TESTS-001 — run the repo's node --test suite on every push/PR to main.
+#
+# Closes the gap in WARROOM-TREND-001: the trend-sign property tests (and the
+# rest of test/) had real teeth (manually proven — an inverted sign() failed
+# them) but nothing in CI actually executed them. This wires `npm test`
+# (node --test test/) into a required check so a regression fails the build,
+# not just a local run.
+
+name: ci-tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run test suite (node --test test/)
+        run: npm test
