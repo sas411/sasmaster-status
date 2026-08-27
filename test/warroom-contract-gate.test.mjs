@@ -244,9 +244,26 @@ test('comment-stripping: a quoted status literal inside an HTML <!-- --> comment
   fs.unlinkSync(f);
 });
 
-test('WARROOM_ALLOWED_SITES.yml parses as an empty list today (Phase 0 DoD)', () => {
+test('WARROOM_ALLOWED_SITES.yml parses to well-formed entries (shape, not emptiness)', () => {
+  // Was: assert.deepEqual(sites, []) — a "Phase 0 DoD" snapshot that hard-asserted the live
+  // repo file stays empty forever. The file's own header says the opposite is the design:
+  // "Each future Phase 1/2 card that needs a site here adds its own entry as part of its own
+  // DoD." WARROOM-NOWPLANE-001 did exactly that (now-plane-chip-state-map) in the same commit
+  // this test landed in, so the old assertion was never green on main — it fought the file it
+  // was reading. Replaced with a shape check: whatever entries exist (zero or more) must carry
+  // the required fields the header documents, so drift in the YAML's structure still fails loud.
   const sites = gate.parseAllowedSites();
-  assert.deepEqual(sites, []);
+  assert.ok(Array.isArray(sites));
+  const REQUIRED_FIELDS = ['id', 'file', 'contract', 'reason', 'registered_by', 'expiry'];
+  for (const site of sites) {
+    for (const field of REQUIRED_FIELDS) {
+      assert.ok(
+        Object.prototype.hasOwnProperty.call(site, field) && site[field],
+        `WARROOM_ALLOWED_SITES.yml entry '${site.id || '(no id)'}' missing required field '${field}'`
+      );
+    }
+    assert.match(site.expiry, /^\d{4}-\d{2}-\d{2}$/, `entry '${site.id}' expiry must be ISO YYYY-MM-DD`);
+  }
 });
 
 test('CLI --files mode: the seeded 6-violation fixture fails with the right file:lines (proof of teeth)', async () => {

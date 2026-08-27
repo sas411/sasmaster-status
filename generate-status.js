@@ -2049,19 +2049,20 @@ function readEnvVar(name) {
   return '';
 }
 
-function readWebhook() {
-  return readEnvVar('SASMASTER_SLACK_WEBHOOK');
-}
-
-// MAC-WAKE-RELIABILITY-001 — bot-token alert path. The webhook path above is
-// dead while SASMASTER_SLACK_WEBHOOK is unset; SLACK_BOT_TOKEN is populated.
-function postSlackBot(text) {
+// MAC-WAKE-RELIABILITY-001 — bot-token alert path. SLACK_BOT_TOKEN is populated;
+// the alternate SASMASTER_SLACK_WEBHOOK path has been unset for 81+ days (confirmed
+// 2026-08-27 review) and was removed (see alertStaleSources()) rather than left as
+// unreachable dead code — reintroduce only with a live webhook + a canary probe (§21).
+// `attachments` (optional) matches chat.postMessage's own shape.
+function postSlackBot(text, attachments) {
   const token   = readEnvVar('SLACK_BOT_TOKEN');
   const channel = readEnvVar('SLACK_BUILDS_CHANNEL_ID');
   if (!token || !channel) return false;
   try {
     const https = require('https');
-    const body  = JSON.stringify({ channel, text });
+    const payload = { channel, text };
+    if (attachments) payload.attachments = attachments;
+    const body  = JSON.stringify(payload);
     const req   = https.request({
       hostname: 'slack.com',
       path:     '/api/chat.postMessage',
@@ -2079,22 +2080,6 @@ function postSlackBot(text) {
   } catch { return false; }
 }
 
-function postSlackWebhook(webhook, body) {
-  try {
-    const https = require('https');
-    const url   = new URL(webhook);
-    const req   = https.request({
-      hostname: url.hostname,
-      path:     url.pathname + (url.search || ''),
-      method:   'POST',
-      headers:  { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
-    });
-    req.on('error', () => {});
-    req.write(body);
-    req.end();
-  } catch {}
-}
-
 function fmtAge(age_mins) {
   if (age_mins == null) return 'unknown';
   return (age_mins < 60 ? `${age_mins}m` : `${Math.round(age_mins / 60)}h`) + ' ago';
@@ -2105,9 +2090,10 @@ function fmtThreshold(threshold_mins) {
 }
 
 function alertStaleSources(freshness) {
-  const webhook = readWebhook();
-  if (!webhook) return;
-
+  // Was gated on readWebhook()/SASMASTER_SLACK_WEBHOOK, which has been unset for 81+ days
+  // (confirmed 2026-08-27 review) — this early-return made the whole edge-triggered stale-
+  // alert state machine dead code on every single run, silently. Switched to postSlackBot(),
+  // the same working bot-token path already used for job-failure/S3-recovery alerts below.
   const state = loadStaleState();
   const now   = Date.now();
   // WARROOM-CLOCK-001 (2026-08-24): was raw host-local getHours/getMinutes —
@@ -2155,11 +2141,9 @@ function alertStaleSources(freshness) {
 
   // Fire transition alert immediately
   if (transitionLines.length) {
-    const body = JSON.stringify({
-      text: transitionLines.join('\n'),
-      attachments: [{ color: transitionLines.some(l => l.includes('STALE')) ? 'danger' : 'good', footer: 'generate-status.js · stale-source monitor (edge-triggered)' }],
-    });
-    postSlackWebhook(webhook, body);
+    postSlackBot(transitionLines.join('\n'), [
+      { color: transitionLines.some(l => l.includes('STALE')) ? 'danger' : 'good', footer: 'generate-status.js · stale-source monitor (edge-triggered)' },
+    ]);
   }
 
   // Daily 9AM digest for persistent stale sources (fires in the 9:00-9:14 window)
@@ -2167,15 +2151,9 @@ function alertStaleSources(freshness) {
     const digestLines = persistentStale.map(s =>
       `⚠️ *${s.source}* — stale ${fmtAge(s.age_mins)} (threshold ${fmtThreshold(s.threshold_mins)}) · \`!ack WAR-ROOM-STALE ${s.source}\` to snooze 24h`
     );
-    const body = JSON.stringify({
-      text: `📋 *Daily stale-source digest* — ${persistentStale.length} source(s) still stale:`,
-      attachments: [{
-        color: 'warning',
-        text: digestLines.join('\n'),
-        footer: 'generate-status.js · 9AM stale digest',
-      }],
-    });
-    postSlackWebhook(webhook, body);
+    postSlackBot(`📋 *Daily stale-source digest* — ${persistentStale.length} source(s) still stale:`, [
+      { color: 'warning', text: digestLines.join('\n'), footer: 'generate-status.js · 9AM stale digest' },
+    ]);
     // Mark last_alerted_at so we don't re-digest until tomorrow
     for (const s of persistentStale) {
       if (state[s.source]) state[s.source].last_alerted_at = new Date().toISOString();
