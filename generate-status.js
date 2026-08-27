@@ -242,7 +242,20 @@ function parsePending() {
 // Monitor have no jobId here at all; IAB Intel's jobId 'iab-intel' doesn't match the real job
 // 'iab-agent' — both gaps flagged in WARROOM_AGENT_INVENTORY.md, not silently patched over).
 const AGENT_HEALTH_CONFIG = {
-  'JARVIS':            { job: null,                  cadence_ms: null,                expected_state: 'active' },
+  // WARROOM-AGENT-RUNPLANE-001 follow-up (2026-08-27): JARVIS, Research Portal, and Data
+  // Guardian used to carry {job: null, cadence_ms: null} entries here. Because
+  // computeAgentHealthEval() only reaches the `!cfg` -> 'na' short-circuit when the agent has
+  // NO entry at all, and evaluateHealth()'s own precedence checks has_run_record before
+  // cadence_ms, a null-job entry can never produce a run record and was therefore
+  // structurally locked to 'never_run' -- misreading as a dead cron job on the board (JARVIS
+  // is an always-on HTTP daemon; Data Guardian is an in-process call inside
+  // nielsen_puller.py; Research Portal is a scaffold pending RESEARCH-PORTAL-001). Mac
+  // Worker, Nielsen Orchestrator, and Gracenote OnConnect were already correctly OMITTED from
+  // this table for the identical reason and render 'na' via that short-circuit. Removing
+  // these three entries makes the treatment consistent -- classification as `event` is
+  // unaffected (AGENT_EVENT_CLASS membership, not AGENT_HEALTH_CONFIG, drives that), and the
+  // `scheduled` denominator is unaffected (these three never had a numeric cadence_ms to
+  // begin with).
   'Media Intel':       { job: 'media-intel-agent',   cadence_ms: 24 * 3600000,        expected_state: 'active' },
   'TMDB Daily':        { job: 'tmdb-daily-agent',    cadence_ms: 24 * 3600000,        expected_state: 'active' },
   'DoneLog Analyst':   { job: 'donelog-analyst',     cadence_ms: 24 * 3600000,        expected_state: 'active' }, // crontab says daily; parseAgents() label says "Post-build" — discrepancy flagged in WARROOM_AGENT_INVENTORY.md, crontab wins per GATE-C
@@ -254,16 +267,51 @@ const AGENT_HEALTH_CONFIG = {
   'IAB Intel':         { job: 'iab-agent',           cadence_ms: 7 * 24 * 3600000,     expected_state: 'active' },
   'Security Watchdog': { job: 'security-watchdog',   cadence_ms: 24 * 3600000,        expected_state: 'active' },
   'Railway Monitor':   { job: 'railway-monitor',     cadence_ms: 15 * 60000,          expected_state: 'active' },
-  'Research Portal':   { job: null,                  cadence_ms: null,                expected_state: 'active' },
-  'Data Guardian':     { job: null,                  cadence_ms: null,                expected_state: 'active' },
+  // WARROOM-AGENT-RUNPLANE-001 (2026-08-27) — 15th schedule-evaluated agent. It was typed
+  // `subagent` in parseAgents() and so fell to the "N/A — on-demand, not schedule-evaluated"
+  // branch, which was simply untrue: `0 9 1 */3 *` is installed in the live crontab under the
+  // tag SaSMaster-viz-evaluator-quarterly. cadence_ms is READ OFF that expression, not chosen:
+  // consecutive fires are Jan1→Apr1→Jul1→Oct1, whose LARGEST gap is 92 days (Jul→Oct); taking
+  // the max rather than the mean is what stops a correct on-time run from being scored late in
+  // the longest quarter. `job` is null because no ops.run_log rows are written under a
+  // viz-evaluator job name (its cron line is one of the few that does NOT go through
+  // runlog_wrap) — so it evaluates as never_run until that is wired, which is the honest state
+  // and is tracked in the card, NOT smoothed over by pointing at some other job's rows.
+  'Viz Evaluator':     { job: null,                  cadence_ms: 92 * 24 * 3600000,   expected_state: 'active' },
 };
 
-// GATE-A (Shiv-only): S2.1 vs C4 threshold contradiction, unresolved in the spec itself.
-// No default committed — left null so evaluateHealth() throws and the caller renders
-// `ERROR — gate-a-unresolved` (C2) instead of guessing a threshold. Set both to a number
-// only once Shiv rules on GATE-A (see WARROOM-HEALTH-001 card, options i/ii/iii).
-const AGENT_STALE_MULT = null;
-const FEED_STALE_MULT  = null;
+// GATE-A — RULED BY SHIV 2026-08-27 ("fix the underlying staleness and null — make this
+// production ready"), WARROOM-AGENT-RUNPLANE-001. Previously both null, so evaluateHealth()
+// threw and every schedule-evaluated agent rendered `ERROR — gate-a-unresolved`; that also
+// kept alert-engine.js's ruleR1 a fleet-wide placeholder incapable of firing a per-agent
+// late/stale alert. Both are now real numbers, so the badges AND the alert plane compute.
+//
+// The resolution is option (i)'s values carried by option (iii)'s structure — the constants
+// were already separately named, and the two spec clauses turn out to govern different
+// surfaces rather than contradicting each other:
+//   §2.1 defines `stale := age > cadence × 3`. It is the clause that DEFINES staleness, and
+//     the card's Phase-5 fixture table was authored against it — so AGENTS get 3.
+//   C4's "exceeding cadence × 2 flips every dependent tile to STALE and fires an alert" is
+//     about dependent data-FEED tiles, which is exactly what FEED_STALE_MULT governs — so
+//     FEEDS get 2.
+// Read that way each clause lands on its own surface, and neither number is a compromise.
+//
+// What this decides concretely: the healthy ceiling stays 1.5× (fixed in warroom-health.js,
+// never a GATE-A knob). An agent between 1.5× and 3× cadence reads `late`; beyond 3×, `stale`.
+// Financial Analyst and Weekly Review at 1.86× therefore read LATE — visible and escalating —
+// rather than sitting below the line and reading healthy, which is what a ×2 AGENT threshold
+// would have done to them. Feeds stay tighter at 2× because a stale feed silently poisons
+// every tile downstream of it, so it should shout sooner than a late agent.
+//
+// Reversible in one line each. NOTE, verified 2026-08-27 rather than assumed: the synthetic
+// suite does NOT read these constants — test/warroom-synthetic-suite.test.mjs declares its own
+// `const AGENT_STALE_MULT = 3; const FEED_STALE_MULT = 3;` locally (and its FEED value does not
+// even match the ruled 2). That is why the suite passed 178/178 unchanged across the null→3
+// flip here: it is a no-regression signal for the evaluator's logic, NOT coverage of these
+// production values. Changing a multiplier here therefore requires updating that test file by
+// hand — the Phase-5 "regenerates rather than hand-edited" property is not actually built yet.
+const AGENT_STALE_MULT = 3;
+const FEED_STALE_MULT  = 2;
 
 // WARROOM-HEALTH-001 Phase 4 — fetches the latest run_log row per job for the agents in
 // AGENT_HEALTH_CONFIG, in one batched query. Same MOTHERDUCK_TOKEN-as-env-var pattern as
@@ -403,6 +451,208 @@ function computeAgentHealthEval(a, runLogByJob, blockedSignalsByJob) {
   }
 }
 
+// ── WARROOM-AGENT-RUNPLANE-001 (2026-08-27) — schedule/next-fire from the scheduler, not prose ──
+// ONE-SOURCE-001 (§22) + GATE-C. parseAgents()'s agent literals below carry hand-typed
+// `schedule`/`nextRun` prose ("Daily 5:30AM", "Tomorrow 6AM", "Post 12AM build"). Those strings
+// are written once and then rot silently against the real scheduler, and three had already
+// drifted when this pass measured them against the live crontab:
+//   - Security Watchdog  displayed "Daily 5:30AM"  · actually `30 9 * * *`  (9:30 AM)
+//   - DoneLog Analyst    displayed "Post-build"    · actually `0 12 * * *`  (noon daily)
+//   - Financial Analyst  displayed "Sunday 8PM"    · actually `10 20 * * 0` (Sun 8:10 PM)
+// (the crontab COMMENT lies too — `# SaSMaster-security-watchdog-daily530am` on the 9:30 line —
+// which is exactly why the label must be derived from the expression, never from any prose.)
+//
+// Authority is WARROOM-AGENTLIB-001's `~/SaSMaster/agent-registry.json`: a generated,
+// DO-NOT-EDIT-BY-HAND join of crontab + launchd + manifest + run_log whose `schedule_raw` is
+// the real scheduler expression and whose `next_fire_utc` comes from its own cron expansion
+// module (scripts/agentlib/lib/next-fire.js). We read it; we do not re-derive it here (C6).
+//
+// Fails OPEN: an unreadable/absent/stale registry leaves every agent's existing literal exactly
+// as it was — this override can correct a label, never blank one. It also only ever REPLACES a
+// value for an agent the registry actually holds a schedule for; it never invents one for an
+// agent with no scheduler entry (GATE-C: guessing a cadence silently invents the threshold that
+// decides green).
+const AGENT_REGISTRY_FILE = path.join(SASMASTER, 'agent-registry.json');
+// The registry generator's own cron-expansion module — imported, never reimplemented (C6).
+// Optional: if it can't be loaded, applyRegistrySchedule() still corrects the SCHEDULE label
+// (the drift that matters most) and simply declines to state a next fire, rather than falling
+// back to a second, divergent cron implementation.
+let NextFire = null;
+try { NextFire = require(path.join(SASMASTER, 'scripts', 'agentlib', 'lib', 'next-fire.js')); }
+catch { NextFire = null; }
+// Display name -> agent-registry.json `id`. Most match AGENT_HEALTH_CONFIG's `job`; the two
+// that don't are recorded here rather than papered over by fuzzy matching.
+const AGENT_REGISTRY_ID = {
+  'Media Intel':       'media-intel-agent',
+  'TMDB Daily':        'tmdb-daily-agent',
+  'DoneLog Analyst':   'donelog-analyst',
+  'LinkedIn Agent':    'linkedin-agent',
+  'SEC EDGAR':         'edgar-scraper',
+  'Tech Intel':        'tech-intel-agent',
+  'Financial Analyst': 'financial-analyst',
+  'Weekly Review':     'weekly-review-agent',
+  'IAB Intel':         'iab-agent',
+  'Security Watchdog': 'security-watchdog',
+  'Railway Monitor':   'railway-monitor',
+  // id differs from the job name — the crontab comment tag is the registry id here.
+  'Viz Evaluator':     'SaSMaster-viz-evaluator-quarterly',
+  'Mac Worker':        'mac-worker',
+};
+// How old the registry may be before its expressions stop being presented as current.
+// agent-registry.json is a ONE-SHOT artifact today: WARROOM-AGENTLIB-001 shipped the generator
+// but its generation trigger is still an open gate ("no scheduler/plist/service installed"),
+// so nothing regenerates it. That means this override moves the drift class rather than
+// eliminating it — the board can no longer disagree with the registry, but the REGISTRY can
+// silently disagree with the crontab the moment a line is edited. Until the generation trigger
+// lands, surface the staleness instead of presenting a possibly-stale expression as current.
+// 7 days: long enough that a normal week of no scheduler edits stays quiet, short enough that
+// an edited-and-forgotten crontab surfaces well before it misleads anyone.
+const AGENT_REGISTRY_MAX_AGE_MS = 7 * 24 * 3600000;
+function readRegistrySchedule() {
+  try {
+    const reg = JSON.parse(fs.readFileSync(AGENT_REGISTRY_FILE, 'utf8'));
+    const genAt = reg.generated_at ? new Date(reg.generated_at).getTime() : NaN;
+    const ageMs = isNaN(genAt) ? null : (Date.now() - genAt);
+    const byId = {};
+    for (const row of (reg.agents || [])) byId[row.id] = row;
+    // Attached under a non-id key so it can't collide with a real agent id.
+    byId.__meta = { generated_at: reg.generated_at || null, ageMs,
+                    stale: ageMs == null || ageMs > AGENT_REGISTRY_MAX_AGE_MS };
+    return byId;
+  } catch {
+    return {};
+  }
+}
+// Renders a scheduler expression as the two display strings the AGENTS cards show.
+// `schedule` = what the scheduler says (the expression, verbatim, plus its kind).
+// `nextRun`  = the registry's computed next fire, in ET to match the rest of the board.
+function applyRegistrySchedule(a, byId) {
+  const id = AGENT_REGISTRY_ID[a.name];
+  if (!id) return a;
+  const row = byId[id];
+  if (!row || !row.schedule_raw) return a;
+
+  const meta = byId.__meta || {};
+  const out = { ...a, scheduleSource: 'agent-registry.json#' + id, scheduleRaw: row.schedule_raw,
+                scheduleSourceGeneratedAt: meta.generated_at || null,
+                scheduleSourceStale: !!meta.stale };
+  if (row.schedule_kind === 'cron') {
+    // A stale registry's expression may no longer match the installed crontab — mark it rather
+    // than presenting it as current. The label still shows the expression (it is the best
+    // evidence available and almost always still right); the suffix is what stops it from
+    // being read as freshly verified.
+    out.schedule = meta.stale ? row.schedule_raw + ' (registry stale)' : row.schedule_raw;
+  } else {
+    // launchd / always-on descriptors already read as prose in the registry (e.g. mac-worker's
+    // "KeepAlive=true (launchd always-on; ...)"). Keep them, but trim to the card's width.
+    out.schedule = String(row.schedule_raw).split('(')[0].trim();
+  }
+  // C6 — compute the INSTANT here, from the registry's expression, using the SAME module the
+  // registry generator uses (scripts/agentlib/lib/next-fire.js). We do not re-implement cron
+  // expansion, and we do not read the registry's STORED next_fire_utc: the registry regenerates
+  // on its own cadence while this runs every 5 minutes, so its stored instant is routinely in
+  // the past by the time we read it (measured: every daily agent, hours stale, rendering a
+  // already-elapsed time as the NEXT run). Expression = registry's to declare; instant = ours to
+  // evaluate at render time. The module is ET-aware, which matters because the crontab it came
+  // from is interpreted in local ET, not UTC.
+  let nextFireUtc = null;
+  if (NextFire && row.schedule_kind === 'cron') {
+    try {
+      nextFireUtc = NextFire.computeNextFire(
+        { schedule_kind: 'cron', schedule_raw: row.schedule_raw }, Date.now()
+      ).next_fire_utc;
+    } catch { nextFireUtc = null; }
+  }
+
+  if (nextFireUtc) {
+    // Two traps this formatting has to avoid, both caught by verifying the FIRST version of
+    // this function against real registry rows rather than trusting it:
+    //
+    // (1) STALE REGISTRY. agent-registry.json is generated on its own cadence, so a fast-cadence
+    //     agent's stored next_fire is already in the past by the time the 5-min status cycle
+    //     reads it (Railway Monitor, */15, was rendering "Thu 2:45 AM" — a past instant printed
+    //     as the NEXT run). A next-fire in the past is not a next fire; say the registry is
+    //     stale rather than print a time that has already happened.
+    // (2) DROPPED DATE. A weekday+time-only format collapses every future fire into "this week":
+    //     Viz Evaluator's real next fire, 2026-10-01, rendered as "Thu 9:00 AM" — indistinguishable
+    //     from tomorrow. Include the calendar date whenever the fire is more than a week out.
+    const fire = new Date(nextFireUtc);
+    const ageMs = Date.now() - fire.getTime();
+    if (!(fire instanceof Date) || isNaN(fire.getTime())) {
+      out.nextRun = 'N/A — unparseable next_fire in registry';
+    } else if (ageMs > 0) {
+      out.nextRun = 'N/A — registry next-fire is stale (' + fire.toISOString().slice(0, 16) + 'Z)';
+    } else {
+      const withinAWeek = (-ageMs) < 7 * 24 * 3600000;
+      out.nextRun = fire.toLocaleString('en-US', withinAWeek
+        ? { timeZone: 'America/New_York', weekday: 'short', hour: 'numeric', minute: '2-digit' }
+        : { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    }
+  } else {
+    // No next fire is a real fact for an always-on daemon — say that, don't leave a stale date.
+    out.nextRun = 'always on';
+  }
+  return out;
+}
+
+// ── GATE-B fleet classification (RULED 2026-08-27) ───────────────────────────────────────
+// Three classes, each defined by an observable fact about the agent, never by a hand-kept list
+// that would drift the moment an agent gains or loses a scheduler entry:
+//
+//   'scheduled'  — has a real installed scheduler entry AND a declared cadence, so its liveness
+//                  is a cadence question. These are the PRIMARY agents: they are the health
+//                  denominator, and they sort first (Shiv's ruling: prioritise the primary
+//                  agents over the nice-to-haves).
+//   'event'      — genuinely live but not cadence-evaluated: always-on daemons (JARVIS, Mac
+//                  Worker), event-triggered in-process calls (Data Guardian), scaffolds
+//                  (Research Portal) and drafted-but-gated agents (Gracenote OnConnect).
+//                  Liveness here is a process/trigger question, so scoring them against a
+//                  cadence would mark a perfectly healthy daemon stale.
+//   'invocable'  — Claude Code persona definitions (.claude/agents/*.md). No process, no log,
+//                  no exit code. They cannot be cron-scheduled or job-queue dispatched, and
+//                  inventing a cadence for them would fabricate liveness — exactly what GATE-B
+//                  exists to prevent. Excluded from the health denominator; never 'retired',
+//                  which would hide them.
+//
+// 'scheduled' is derived from AGENT_HEALTH_CONFIG holding a numeric cadence — the same table
+// the evaluator reads — so an agent cannot be counted in the denominator by one rule and
+// health-evaluated by another (C6).
+// The 'event' class is an EXPLICIT named set, not a type-field heuristic. `type:'subagent'`
+// mixes two unlike things — real processes (Mac Worker's launchd daemon) and Claude Code
+// persona definitions (Autonomous Coder, Data Modeler) — so classifying on it put personas in
+// the live class. Each name below was inspected this pass and has a real process, trigger, or
+// scaffold behind it; everything else that isn't scheduled is a persona.
+const AGENT_EVENT_CLASS = new Set([
+  'JARVIS',               // Railway HTTP Events API daemon — always on
+  'Mac Worker',           // com.sasmaster.mac-worker, launchd KeepAlive daemon
+  'Data Guardian',        // event-triggered in-process call after ingestion
+  'Research Portal',      // scaffolded, no entrypoint on disk yet
+  'Gracenote OnConnect',  // drafted, spine-promotion GATED
+  'Nielsen Orchestrator', // real orchestrator, but no scheduler entry of its own (2026-08-27 audit)
+]);
+function classifyAgent(a) {
+  const cfg = AGENT_HEALTH_CONFIG[a.name];
+  // 'scheduled' is derived from a NUMERIC cadence in the evaluator's own table — so an agent
+  // in AGENT_HEALTH_CONFIG with cadence_ms:null (JARVIS, Research Portal, Data Guardian) is
+  // correctly NOT counted in a denominator it could never score healthy against.
+  if (cfg && typeof cfg.cadence_ms === 'number') return { ...a, classification: 'scheduled' };
+  if (AGENT_EVENT_CLASS.has(a.name)) return { ...a, classification: 'event' };
+  return { ...a, classification: 'invocable' };
+}
+const FLEET_CLASS_ORDER = { scheduled: 0, event: 1, invocable: 2 };
+// Stable sort: primary (scheduled) agents first, then event/daemon, then personas. Within a
+// class the original hand-authored order is preserved — Array.prototype.sort is stable in
+// Node 20, and the index tiebreak makes that explicit rather than relying on it.
+function sortFleetByPriority(agents) {
+  return agents
+    .map((a, i) => ({ a, i }))
+    .sort((x, y) => {
+      const d = (FLEET_CLASS_ORDER[x.a.classification] ?? 9) - (FLEET_CLASS_ORDER[y.a.classification] ?? 9);
+      return d !== 0 ? d : x.i - y.i;
+    })
+    .map(x => x.a);
+}
+
 function parseAgents(allWiredRunstateByJob) {
   const LOG = path.join(SASMASTER, 'logs');
   const runLogByJob = fetchAgentRunLog(allWiredRunstateByJob);
@@ -423,14 +673,39 @@ function parseAgents(allWiredRunstateByJob) {
     { name: 'Data Guardian',     icon: '🛡️', schedule: 'Post-ingestion', nextRun: 'After next pull', log: 'data-guardian.log',         channel: '#sasmaster-builds',  jobId: null, type: 'subagent', descOverride: 'Post-ingestion integrity enforcer — snapshot → AMRLD anomaly detection (RULE-HH-01..04) → Tier 2 gate. Wired into nielsen_puller.py via _run_data_guardian(). Event-triggered (not scheduled) — excluded from live-cron liveness denominator.' },
 
     // ── Drafted (on-demand, no cron yet) ────────────────────
-    { name: 'Gracenote OnConnect', icon: '🎬', schedule: 'on-demand (JARVIS)', nextRun: '—', log: 'gn-onconnect.log', channel: '#sasmaster-builds', jobId: null, type: 'drafted', statusOverride: 'drafted', descOverride: 'Resolve+fuse drafted · self-tests green · spine-promotion GATED (tier UNCONFIRMED)' },
+    // WARROOM-AGENT-RUNPLANE-001 (2026-08-27): nextRun was a bare '—' (a real C2 violation the
+    // contract gate flagged once this pass touched the file). C2 requires a stated reason, never
+    // a bare dash — and there IS a real reason here: it is drafted, so nothing schedules it.
+    { name: 'Gracenote OnConnect', icon: '🎬', schedule: 'on-demand (JARVIS)', nextRun: 'N/A — drafted, not scheduled', log: 'gn-onconnect.log', channel: '#sasmaster-builds', jobId: null, type: 'drafted', statusOverride: 'drafted', descOverride: 'Resolve+fuse drafted · self-tests green · spine-promotion GATED (tier UNCONFIRMED)' },
 
     // ── SaSMaster Claude Code sub-agents ────────────────────
     { name: 'Autonomous Coder',     icon: '⚡', schedule: 'On-demand',     nextRun: 'Contextual',   log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Primary build executor. Phase I pipeline. cost-log writer (13-field schema). Reads build-discipline before every task. Model: Sonnet 4.6.' },
     { name: 'Data Modeler',         icon: '📐', schedule: 'On-demand',     nextRun: 'Contextual',   log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Schema design, S3 paths, DuckDB query patterns, Parent Key v1. Consults before any dataset onboarding or schema change. Model: Opus 4.7.' },
-    { name: 'Viz Evaluator',        icon: '📊', schedule: 'Quarterly',     nextRun: '1 Aug 9AM',    log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Benchmarks all 14 chart renderers vs npm ecosystem. Proposes swaps via Slack. cron 0 9 1 */3 *. Never auto-swaps without approval.' },
-    { name: 'Nielsen Orchestrator', icon: '📡', schedule: 'Tue 5PM',       nextRun: 'Next Tue 5PM', log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Staleness check → scope decision → triggers nielsen_puller.py → validates row counts → JARVIS summary. launchd Tue 5PM.' },
-    { name: 'Mac Worker',           icon: '💻', schedule: '5min heartbeat',nextRun: 'In ≤5min',     log: 'mac-worker.log', channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Mac 64GB compute worker. Polls Railway /tasks/pending-compute. Capabilities: duckdb / scraper / claude-code / ml.' },
+    // WARROOM-AGENT-RUNPLANE-001 (2026-08-27): was `type: 'subagent'`, which routed it to
+    // computeAgentHealthEval()'s "N/A — on-demand, not schedule-evaluated" branch. That was
+    // false: it has a real installed cron entry (`0 9 1 */3 *`, tag
+    // SaSMaster-viz-evaluator-quarterly, confirmed in the live crontab), so it IS
+    // schedule-evaluated and belongs in the live denominator. Its `nextRun` literal was also
+    // stale-in-the-past ("1 Aug 9AM"); both fields now come from agent-registry.json (next
+    // fire 2026-10-01) via applyRegistrySchedule(), so they cannot drift again.
+    { name: 'Viz Evaluator',        icon: '📊', schedule: '0 9 1 */3 *',  nextRun: 'Wed, 1 Oct, 9:00 AM', log: 'viz-evaluate-cron.log', channel: '#sasmaster-builds', jobId: null, descOverride: 'Benchmarks all 14 chart renderers vs npm ecosystem. Proposes swaps via Slack. cron 0 9 1 */3 *. Never auto-swaps without approval.' },
+    // WARROOM-AGENT-RUNPLANE-001 (2026-08-27): "Tue 5PM / Next Tue 5PM / launchd Tue 5PM" was
+    // an unbacked claim — there is no orchestrator entry in the crontab and no
+    // com.sasmaster.nielsen-orchestrator plist. The only related scheduler entry is
+    // com.sasmaster.nielsen-puller (StartCalendarInterval Weekday=3, Hour=6 → WEDNESDAY 6AM),
+    // and nielsen-puller-launch.sh does not invoke the orchestrator (grepped: no match). So
+    // this agent has no scheduler of its own. Per GATE-C that renders as "no cadence declared"
+    // — it is NOT re-labelled to the puller's Wed 6AM, which would attribute someone else's
+    // schedule to it. Closing this properly is a Shiv call, tracked in the card.
+    { name: 'Nielsen Orchestrator', icon: '📡', schedule: 'no scheduler entry', nextRun: 'N/A — no cadence declared', log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Staleness check → scope decision → triggers nielsen_puller.py → validates row counts → JARVIS summary. NO scheduler entry of its own (2026-08-27 audit) — the Tue 5PM claim was unbacked; nearest real entry is com.sasmaster.nielsen-puller, Wed 6AM, which does not call it.' },
+    // WARROOM-AGENT-RUNPLANE-001 (2026-08-27): "5min heartbeat / In ≤5min" conflated this with
+    // com.sasmaster.worker-heartbeat (a real StartInterval=300 job — a DIFFERENT launchd unit).
+    // Mac Worker itself is com.sasmaster.mac-worker: KeepAlive=true, i.e. an always-on daemon
+    // (agents/mac-worker.js is three setInterval loops that never exit; the 5-min figure is one
+    // interval INSIDE the running process, not a scheduler cadence). Labelled always-on, and
+    // deliberately left out of AGENT_HEALTH_CONFIG: a daemon's liveness is a process check, not
+    // a cadence check, and giving it a fake cadence would make an alive daemon score "stale".
+    { name: 'Mac Worker',           icon: '💻', schedule: 'launchd KeepAlive', nextRun: 'always on', log: 'mac-worker.log', channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Mac 64GB compute worker (persistent launchd daemon, KeepAlive). Polls Railway /tasks/pending-compute every 60s; heartbeat every 5 min in-process. Capabilities: duckdb / scraper / claude-code / ml.' },
 
     // ── Marketplace T1 — python-development ─────────────────
     { name: 'python-pro',           icon: '🐍', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'python-development',    descOverride: 'Master Python 3.12+ — async, performance optimization, uv/ruff/pydantic/FastAPI. T1 marketplace.' },
@@ -483,7 +758,10 @@ function parseAgents(allWiredRunstateByJob) {
   ];
 
   const blockedSignalsByJob = readAgentBlockedSignals();
-  return agents.map(a => {
+  const registrySchedule = readRegistrySchedule();
+  return sortFleetByPriority(agents.map(a => {
+    a = applyRegistrySchedule(a, registrySchedule);
+    a = classifyAgent(a);
     const healthEval = computeAgentHealthEval(a, runLogByJob, blockedSignalsByJob);
     if (a.statusOverride) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: a.statusOverride, healthEval };
     if (!a.log) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'idle', healthEval };
@@ -510,7 +788,7 @@ function parseAgents(allWiredRunstateByJob) {
     const status     = hardError ? 'error' : routingErr ? 'routing' : 'healthy';
 
     return { ...a, lastRun, lastOutput: summary, status, healthEval };
-  });
+  }));
 }
 
 // ── Intel feed ───────────────────────────────────────────────────────────────
@@ -1227,7 +1505,9 @@ function getBuildTrends() {
 // as a number at all, even though a computed value exists underneath. Flip to true (and
 // review WARROOM_AGENT_INVENTORY.md's expected_state column for any retired agents) once
 // Shiv rules on S5b.
-const AGENT_FLEET_CLASSIFICATION_RULED = false;
+// GATE-B — RULED BY SHIV 2026-08-27 ("Three Classes as proposed — but we should be
+// prioritizing the primary agents over the 'nice to have' agents"), WARROOM-AGENT-RUNPLANE-001.
+const AGENT_FLEET_CLASSIFICATION_RULED = true;
 
 function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haikuPctToday, warroomS3Total) {
   // agents_running counts only live/cron agents (not idle sub-agents or marketplace)
@@ -1236,8 +1516,19 @@ function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haiku
   // legacy 'routing' consumers elsewhere (DATA-tab SEC EDGAR indicator); the AGENTS-tab
   // ratio below uses healthEval.state, the computed value (C3/C6).
   const agents_running = liveAgents.filter(a => a.status === 'healthy' || a.status === 'routing').length;
-  const agents_healthy_computed = liveAgents.filter(a => a.healthEval && a.healthEval.state === 'healthy').length;
-  const agents_classified_denominator = liveAgents.filter(a => !a.healthEval || a.healthEval.state !== 'retired').length;
+  // GATE-B RULED 2026-08-27 — the health ratio is over the 'scheduled' class only: the agents
+  // whose liveness is genuinely a cadence question. Before the ruling this read `liveAgents`
+  // (a type-field filter), which is a different set and would have counted always-on daemons
+  // and event-triggered agents in a denominator they can never score healthy against.
+  // 'retired' stays excluded from BOTH numerator and denominator per the card.
+  const scheduledAgents = agents.filter(a => a.classification === 'scheduled');
+  const agents_healthy_computed = scheduledAgents.filter(a => a.healthEval && a.healthEval.state === 'healthy').length; // CONTRACT-EXEMPT: C3 — reads the evaluator's own computed state off healthEval to COUNT it; the literal is the comparison target, never an asserted status. Pre-existing line, newly diff-flagged only because this pass changed liveAgents->scheduledAgents on it — 2026-11-27
+  const agents_classified_denominator = scheduledAgents.filter(a => !a.healthEval || a.healthEval.state !== 'retired').length;
+  const agents_by_class = {
+    scheduled: agents.filter(a => a.classification === 'scheduled').length,
+    event:     agents.filter(a => a.classification === 'event').length,
+    invocable: agents.filter(a => a.classification === 'invocable').length,
+  };
   const scrapers_live  = scrapers.filter(s => s.status === 'live').length;
   // Prefer warroom-data.json total (4x/day refresh) over stale s3-inventory.json sum
   const s3_gb = warroomS3Total != null
@@ -1253,13 +1544,19 @@ function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haiku
     // carries type:'subagent' and is filtered out by the liveAgents filter above (it's
     // event-triggered from nielsen_puller.py, not cron-scheduled) — confirmed live
     // 2026-08-24. Re-derive from liveAgents.length, never hardcode the count again.
-    agents_live_total: liveAgents.length, // live/cron only, used for health bar
+    // WARROOM-AGENT-RUNPLANE-001 (2026-08-27): was liveAgents.length (a type-field filter),
+    // which rendered "LIVE & CRON AGENTS · 14" directly beside the ruled header's "12 agents ·
+    // 9/12 healthy" — two counts of the same thing, disagreeing, on the same line. Now the
+    // scheduled class, so the section heading and the ratio denominate identically (§22: one
+    // fact, computed once). The full-fleet figure stays available as agents_total.
+    agents_live_total: scheduledAgents.length,
     // WARROOM-HEALTH-001: the ratio C1/GATE-B actually govern. The render layer renders
     // `N/A — fleet unclassified (S5b)` while gateBRuled is false, a real number once true —
     // never a guessed value in between (renderValue()'s NA/value branches, not this file).
     agents_healthy_computed,
     agents_classified_denominator,
     agents_gate_b_ruled: AGENT_FLEET_CLASSIFICATION_RULED,
+    agents_by_class,
     scrapers_live,
     scrapers_total: scrapers.length,
     s3_gb: Math.round(s3_gb * 10) / 10,
@@ -2547,7 +2844,18 @@ const status = {
   },
 };
 
-fs.writeFileSync(OUT, JSON.stringify(status, null, 2));
+// WARROOM-AGENT-RUNPLANE-001 (2026-08-27): staging + atomic rename, not a direct write.
+// This file is ~166 KB and was written straight to its final path on a */5 cron. As of this
+// pass alert-engine.js's ruleR1 READS it, on the same */5 cadence with no ordering between
+// them — so a direct write leaves a window where the reader JSON.parses a half-written file
+// and, per its own fail-loud contract, emits a CRITICAL "fleet health cannot be evaluated"
+// page. A false critical from a torn read is worse than the gap it was meant to catch.
+// rename(2) within the same filesystem is atomic: a reader sees either the old complete file
+// or the new complete file, never a partial one. Same staging-then-rename discipline the
+// data plane already uses for _manifest.json (MANIFEST-001).
+const OUT_TMP = OUT + '.tmp';
+fs.writeFileSync(OUT_TMP, JSON.stringify(status, null, 2));
+fs.renameSync(OUT_TMP, OUT);
 console.log(`[generate-status] wrote status.json — ${new Date().toISOString()}`);
 
 // Push to S3 — two paths so Railway heartbeat can promote without cross-prefix IAM
