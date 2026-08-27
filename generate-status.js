@@ -332,11 +332,29 @@ function fetchAgentRunLog(byJob) {
   return out;
 }
 
+// WARROOM-PIPELINE-RESTORE-001 (2026-08-27) — the C7 structured blocked_signal contract
+// the line above used to note as unimplemented ("no agent yet emits..."). An agent that
+// needs to report a genuine, non-crash "blocked, awaiting Shiv" state (LinkedIn Agent's
+// "No theme set" is the first/reference case) writes a structured entry to this file —
+// never by this module regexing lastOutput/log prose (C7 forbids that explicitly). Fails
+// open (empty map) on any read error: an unreadable/missing signals file is not evidence
+// of "nothing is blocked," it just means this cycle can't add that signal — the evaluator
+// falls through to its normal has_run_record/cadence-based classification, same as before
+// this file existed.
+const AGENT_BLOCKED_SIGNALS_FILE = path.join(SASMASTER, 'data', 'agent-blocked-signals.json');
+function readAgentBlockedSignals() {
+  try {
+    return JSON.parse(fs.readFileSync(AGENT_BLOCKED_SIGNALS_FILE, 'utf8')) || {};
+  } catch {
+    return {};
+  }
+}
+
 // WARROOM-HEALTH-001 — computes the evaluator result for one agent. Pulled out of
 // parseAgents()'s .map() so every return branch (including the three early-return paths
 // for statusOverride/no-log/no-logfile agents) gets a healthEval, never a missing field a
 // render call site would crash on.
-function computeAgentHealthEval(a, runLogByJob) {
+function computeAgentHealthEval(a, runLogByJob, blockedSignalsByJob) {
   const cfg = AGENT_HEALTH_CONFIG[a.name];
   if (!cfg) {
     // Marketplace/subagent/drafted agents (37 of 51) — not in the live-cron denominator
@@ -344,6 +362,7 @@ function computeAgentHealthEval(a, runLogByJob) {
     return { state: 'na', age: null, reason: 'on-demand, not schedule-evaluated', inputs: null };
   }
   const runRow = cfg.job ? runLogByJob[cfg.job] : undefined;
+  const blockedSignal = (cfg.job && blockedSignalsByJob && blockedSignalsByJob[cfg.job]) || null;
   try {
     return WarroomHealth.evaluateHealth({
       last_run: runRow ? runRow.last_started : null,
@@ -351,7 +370,7 @@ function computeAgentHealthEval(a, runLogByJob) {
       cadence_ms: cfg.cadence_ms,
       expected_state: cfg.expected_state,
       has_run_record: !!runRow,
-      blocked_signal: null, // no agent yet emits the structured C7 signal contract (Phase 4 note)
+      blocked_signal: blockedSignal, // WARROOM-PIPELINE-RESTORE-001: read from readAgentBlockedSignals(), see above
       now: WarroomClock.nowUtc(),
       agentStaleMult: AGENT_STALE_MULT,
       feedStaleMult: FEED_STALE_MULT
@@ -359,6 +378,14 @@ function computeAgentHealthEval(a, runLogByJob) {
   } catch (e) {
     // GATE-A unresolved (AGENT_STALE_MULT/FEED_STALE_MULT both null) -> evaluateHealth()
     // throws by design; surfaced as an explicit gate-blocked state, never a guessed one.
+    // NOTE (WARROOM-PIPELINE-RESTORE-001): this throw fires BEFORE evaluateHealth() ever
+    // reaches its blocked_signal check, so an agent with a real, correctly-wired
+    // blockedSignal (e.g. LinkedIn Agent) still renders 'error | gate-a-unresolved', not
+    // 'blocked', until Shiv rules on GATE-A (see WARROOM-HEALTH-001 card, options i/ii/iii).
+    // That is a real, pre-existing, orthogonal blocker on ALL 14 schedule-evaluated agents
+    // (confirmed live in status.json at the time of this pass) — not something this card
+    // should route around by relaxing the guard (that would be exactly the "guessed
+    // threshold" GATE-A exists to prevent).
     return { state: 'error', age: null, reason: 'gate-a-unresolved', inputs: null };
   }
 }
@@ -442,8 +469,9 @@ function parseAgents(allWiredRunstateByJob) {
     { name: 'mlops-engineer',       icon: '⚙️', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T2', plugin: 'machine-learning-ops',    descOverride: 'MLflow, Kubeflow, automated training pipelines, model registries, ML monitoring. T2 marketplace.' },
   ];
 
+  const blockedSignalsByJob = readAgentBlockedSignals();
   return agents.map(a => {
-    const healthEval = computeAgentHealthEval(a, runLogByJob);
+    const healthEval = computeAgentHealthEval(a, runLogByJob, blockedSignalsByJob);
     if (a.statusOverride) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: a.statusOverride, healthEval };
     if (!a.log) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'idle', healthEval };
     const logFile = path.join(LOG, a.log);
