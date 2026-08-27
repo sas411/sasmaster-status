@@ -1424,13 +1424,41 @@ function buildAskUrl(vm) {
   return `sasmaster-ask-v3.html?ask_url=${encodeURIComponent(cfg.url || '/api/ask')}`;
 }
 const API_BASE = '/api/command';
-// WARROOM-CONTROL-001 Phase-1 finding (2026-08-26): only these 11 agent names have a real
+// WARROOM-CONTROL-001 Phase-1 finding (2026-08-26): only these agent names have a real
 // dispatch target in command-api's JARVIS_RUNNABLE map (railway.ts). Every other agent card's
 // Run button 501s if pressed today. Kept as a literal list, not derived, so it stays in sync
 // only when someone deliberately updates both sides — see warroom/jobs.json for the audit.
+// WARROOM-AGENT-RUNPLANE-001 (2026-08-27): + Viz Evaluator — the first non-.js entrypoint
+// (scripts/viz-evaluate.sh). It is runnable only because process-jobs.sh's run_agent handler
+// now selects the interpreter by file extension; it hardcoded node before this pass, so a bash
+// entrypoint would have been handed to node and its syntax error reported as an agent failure.
 const JARVIS_RUNNABLE_NAMES = new Set(['SEC EDGAR','Media Intel','TMDB Daily','DoneLog Analyst',
   'LinkedIn Agent','Tech Intel','Financial Analyst','Weekly Review','IAB Intel',
-  'Security Watchdog','Railway Monitor']);
+  'Security Watchdog','Railway Monitor','Viz Evaluator']);
+// WARROOM-AGENT-RUNPLANE-001: why a given agent's Run is disabled. The single previous string
+// ("No dispatch target wired yet") asserted the same cause for two genuinely different things:
+// an agent that SHOULD be runnable and simply isn't wired, versus one that is not a dispatchable
+// process at all (a persistent daemon, an event-triggered in-process call, or a Claude Code
+// persona definition with no process, no log, and no exit code). Collapsing those reads as
+// "39 agents still to wire" when the real wiring backlog is far smaller. Each reason below is
+// grounded in an inspected fact recorded in the card — never a guess about why.
+const RUN_DISABLED_REASON = {
+  'JARVIS':              'Not a job — this is the HTTP Events API daemon on Railway (always on).',
+  'Mac Worker':          'Not a job — persistent launchd daemon (KeepAlive); three setInterval loops that never exit.',
+  'Data Guardian':       'Not independently runnable — invoked in-process as _run_data_guardian() by nielsen_puller.py after ingestion.',
+  'Research Portal':     'No entrypoint on disk — SCAFFOLDED, pending RESEARCH-PORTAL-001 launch.',
+  'Gracenote OnConnect': 'Drafted, spine-promotion GATED (tier UNCONFIRMED) — write path not cleared for one-click dispatch.',
+};
+function runDisabledReason(a){
+  const explicit = RUN_DISABLED_REASON[a && a.name];
+  if (explicit) return explicit;
+  // Claude Code persona definitions (.claude/agents/*.md) — invoked inside a Claude Code
+  // session, not by the S3 job queue. There is no process for this page to start.
+  if (a && (a.type === 'marketplace' || a.type === 'subagent')) {
+    return 'Not a schedulable process — Claude Code sub-agent, invoked in-session, not via the job queue.';
+  }
+  return 'No dispatch target wired yet — this agent has no runnable job in command-api.';
+}
 const CANVAS_RERUN_RUNNABLE = false; // 'daily-visuals' has no generator pipeline; always 501s.
 function apiUrl(path){ return API_BASE + '?path=' + encodeURIComponent(path); }
 function authHeaders(){ const t=localStorage.getItem('wr-api-token')||''; return t?{'Authorization':'Bearer '+t}:{}; }
@@ -1546,7 +1574,7 @@ function buildAgentDrill(a){
   <div style="display:flex;gap:8px;margin-top:4px">
     ${JARVIS_RUNNABLE_NAMES.has(a.name||'')
       ? `<button class="btn bp" onclick="runAgent('${escJsAttr(a.name||'')}');closeDrillDown()">▶ Run now</button>`
-      : `<button class="btn bs" disabled title="No dispatch target wired yet — this agent has no runnable job in command-api" style="opacity:.4;cursor:not-allowed">▶ Run now</button>`}
+      : `<button class="btn bs" disabled title="${escHtml(runDisabledReason(a))}" style="opacity:.4;cursor:not-allowed">▶ Run now</button>`}
     <button class="btn bs" onclick="viewLogs('${escJsAttr(a.name||'')}')">📄 Logs</button>
   </div>`;
 }
@@ -2552,7 +2580,7 @@ function renderAgents(vm){
         ${(()=>{const runnable=JARVIS_RUNNABLE_NAMES.has(a.name||'');
           return runnable
             ? `<button class="btn ${ok?'bp':'bs'}" onclick="event.stopPropagation();runAgent('${nameAttr}')">▶ Run</button>`
-            : `<button class="btn bs" disabled title="No dispatch target wired yet — this agent has no runnable job in command-api" style="opacity:.4;cursor:not-allowed" onclick="event.stopPropagation()">▶ Run</button>`;
+            : `<button class="btn bs" disabled title="${escHtml(runDisabledReason(a))}" style="opacity:.4;cursor:not-allowed" onclick="event.stopPropagation()">▶ Run</button>`;
         })()}
         <button class="btn bs" onclick="event.stopPropagation();viewLogs('${nameAttr}')">📄 Logs</button>
       </div>

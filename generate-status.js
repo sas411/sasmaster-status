@@ -256,6 +256,17 @@ const AGENT_HEALTH_CONFIG = {
   'Railway Monitor':   { job: 'railway-monitor',     cadence_ms: 15 * 60000,          expected_state: 'active' },
   'Research Portal':   { job: null,                  cadence_ms: null,                expected_state: 'active' },
   'Data Guardian':     { job: null,                  cadence_ms: null,                expected_state: 'active' },
+  // WARROOM-AGENT-RUNPLANE-001 (2026-08-27) — 15th schedule-evaluated agent. It was typed
+  // `subagent` in parseAgents() and so fell to the "N/A — on-demand, not schedule-evaluated"
+  // branch, which was simply untrue: `0 9 1 */3 *` is installed in the live crontab under the
+  // tag SaSMaster-viz-evaluator-quarterly. cadence_ms is READ OFF that expression, not chosen:
+  // consecutive fires are Jan1→Apr1→Jul1→Oct1, whose LARGEST gap is 92 days (Jul→Oct); taking
+  // the max rather than the mean is what stops a correct on-time run from being scored late in
+  // the longest quarter. `job` is null because no ops.run_log rows are written under a
+  // viz-evaluator job name (its cron line is one of the few that does NOT go through
+  // runlog_wrap) — so it evaluates as never_run until that is wired, which is the honest state
+  // and is tracked in the card, NOT smoothed over by pointing at some other job's rows.
+  'Viz Evaluator':     { job: null,                  cadence_ms: 92 * 24 * 3600000,   expected_state: 'active' },
 };
 
 // GATE-A (Shiv-only): S2.1 vs C4 threshold contradiction, unresolved in the spec itself.
@@ -403,6 +414,128 @@ function computeAgentHealthEval(a, runLogByJob, blockedSignalsByJob) {
   }
 }
 
+// ── WARROOM-AGENT-RUNPLANE-001 (2026-08-27) — schedule/next-fire from the scheduler, not prose ──
+// ONE-SOURCE-001 (§22) + GATE-C. parseAgents()'s agent literals below carry hand-typed
+// `schedule`/`nextRun` prose ("Daily 5:30AM", "Tomorrow 6AM", "Post 12AM build"). Those strings
+// are written once and then rot silently against the real scheduler, and three had already
+// drifted when this pass measured them against the live crontab:
+//   - Security Watchdog  displayed "Daily 5:30AM"  · actually `30 9 * * *`  (9:30 AM)
+//   - DoneLog Analyst    displayed "Post-build"    · actually `0 12 * * *`  (noon daily)
+//   - Financial Analyst  displayed "Sunday 8PM"    · actually `10 20 * * 0` (Sun 8:10 PM)
+// (the crontab COMMENT lies too — `# SaSMaster-security-watchdog-daily530am` on the 9:30 line —
+// which is exactly why the label must be derived from the expression, never from any prose.)
+//
+// Authority is WARROOM-AGENTLIB-001's `~/SaSMaster/agent-registry.json`: a generated,
+// DO-NOT-EDIT-BY-HAND join of crontab + launchd + manifest + run_log whose `schedule_raw` is
+// the real scheduler expression and whose `next_fire_utc` comes from its own cron expansion
+// module (scripts/agentlib/lib/next-fire.js). We read it; we do not re-derive it here (C6).
+//
+// Fails OPEN: an unreadable/absent/stale registry leaves every agent's existing literal exactly
+// as it was — this override can correct a label, never blank one. It also only ever REPLACES a
+// value for an agent the registry actually holds a schedule for; it never invents one for an
+// agent with no scheduler entry (GATE-C: guessing a cadence silently invents the threshold that
+// decides green).
+const AGENT_REGISTRY_FILE = path.join(SASMASTER, 'agent-registry.json');
+// The registry generator's own cron-expansion module — imported, never reimplemented (C6).
+// Optional: if it can't be loaded, applyRegistrySchedule() still corrects the SCHEDULE label
+// (the drift that matters most) and simply declines to state a next fire, rather than falling
+// back to a second, divergent cron implementation.
+let NextFire = null;
+try { NextFire = require(path.join(SASMASTER, 'scripts', 'agentlib', 'lib', 'next-fire.js')); }
+catch { NextFire = null; }
+// Display name -> agent-registry.json `id`. Most match AGENT_HEALTH_CONFIG's `job`; the two
+// that don't are recorded here rather than papered over by fuzzy matching.
+const AGENT_REGISTRY_ID = {
+  'Media Intel':       'media-intel-agent',
+  'TMDB Daily':        'tmdb-daily-agent',
+  'DoneLog Analyst':   'donelog-analyst',
+  'LinkedIn Agent':    'linkedin-agent',
+  'SEC EDGAR':         'edgar-scraper',
+  'Tech Intel':        'tech-intel-agent',
+  'Financial Analyst': 'financial-analyst',
+  'Weekly Review':     'weekly-review-agent',
+  'IAB Intel':         'iab-agent',
+  'Security Watchdog': 'security-watchdog',
+  'Railway Monitor':   'railway-monitor',
+  // id differs from the job name — the crontab comment tag is the registry id here.
+  'Viz Evaluator':     'SaSMaster-viz-evaluator-quarterly',
+  'Mac Worker':        'mac-worker',
+};
+function readRegistrySchedule() {
+  try {
+    const reg = JSON.parse(fs.readFileSync(AGENT_REGISTRY_FILE, 'utf8'));
+    const byId = {};
+    for (const row of (reg.agents || [])) byId[row.id] = row;
+    return byId;
+  } catch {
+    return {};
+  }
+}
+// Renders a scheduler expression as the two display strings the AGENTS cards show.
+// `schedule` = what the scheduler says (the expression, verbatim, plus its kind).
+// `nextRun`  = the registry's computed next fire, in ET to match the rest of the board.
+function applyRegistrySchedule(a, byId) {
+  const id = AGENT_REGISTRY_ID[a.name];
+  if (!id) return a;
+  const row = byId[id];
+  if (!row || !row.schedule_raw) return a;
+
+  const out = { ...a, scheduleSource: 'agent-registry.json#' + id, scheduleRaw: row.schedule_raw };
+  if (row.schedule_kind === 'cron') {
+    out.schedule = row.schedule_raw;
+  } else {
+    // launchd / always-on descriptors already read as prose in the registry (e.g. mac-worker's
+    // "KeepAlive=true (launchd always-on; ...)"). Keep them, but trim to the card's width.
+    out.schedule = String(row.schedule_raw).split('(')[0].trim();
+  }
+  // C6 — compute the INSTANT here, from the registry's expression, using the SAME module the
+  // registry generator uses (scripts/agentlib/lib/next-fire.js). We do not re-implement cron
+  // expansion, and we do not read the registry's STORED next_fire_utc: the registry regenerates
+  // on its own cadence while this runs every 5 minutes, so its stored instant is routinely in
+  // the past by the time we read it (measured: every daily agent, hours stale, rendering a
+  // already-elapsed time as the NEXT run). Expression = registry's to declare; instant = ours to
+  // evaluate at render time. The module is ET-aware, which matters because the crontab it came
+  // from is interpreted in local ET, not UTC.
+  let nextFireUtc = null;
+  if (NextFire && row.schedule_kind === 'cron') {
+    try {
+      nextFireUtc = NextFire.computeNextFire(
+        { schedule_kind: 'cron', schedule_raw: row.schedule_raw }, Date.now()
+      ).next_fire_utc;
+    } catch { nextFireUtc = null; }
+  }
+
+  if (nextFireUtc) {
+    // Two traps this formatting has to avoid, both caught by verifying the FIRST version of
+    // this function against real registry rows rather than trusting it:
+    //
+    // (1) STALE REGISTRY. agent-registry.json is generated on its own cadence, so a fast-cadence
+    //     agent's stored next_fire is already in the past by the time the 5-min status cycle
+    //     reads it (Railway Monitor, */15, was rendering "Thu 2:45 AM" — a past instant printed
+    //     as the NEXT run). A next-fire in the past is not a next fire; say the registry is
+    //     stale rather than print a time that has already happened.
+    // (2) DROPPED DATE. A weekday+time-only format collapses every future fire into "this week":
+    //     Viz Evaluator's real next fire, 2026-10-01, rendered as "Thu 9:00 AM" — indistinguishable
+    //     from tomorrow. Include the calendar date whenever the fire is more than a week out.
+    const fire = new Date(nextFireUtc);
+    const ageMs = Date.now() - fire.getTime();
+    if (!(fire instanceof Date) || isNaN(fire.getTime())) {
+      out.nextRun = 'N/A — unparseable next_fire in registry';
+    } else if (ageMs > 0) {
+      out.nextRun = 'N/A — registry next-fire is stale (' + fire.toISOString().slice(0, 16) + 'Z)';
+    } else {
+      const withinAWeek = (-ageMs) < 7 * 24 * 3600000;
+      out.nextRun = fire.toLocaleString('en-US', withinAWeek
+        ? { timeZone: 'America/New_York', weekday: 'short', hour: 'numeric', minute: '2-digit' }
+        : { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    }
+  } else {
+    // No next fire is a real fact for an always-on daemon — say that, don't leave a stale date.
+    out.nextRun = 'always on';
+  }
+  return out;
+}
+
 function parseAgents(allWiredRunstateByJob) {
   const LOG = path.join(SASMASTER, 'logs');
   const runLogByJob = fetchAgentRunLog(allWiredRunstateByJob);
@@ -428,9 +561,31 @@ function parseAgents(allWiredRunstateByJob) {
     // ── SaSMaster Claude Code sub-agents ────────────────────
     { name: 'Autonomous Coder',     icon: '⚡', schedule: 'On-demand',     nextRun: 'Contextual',   log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Primary build executor. Phase I pipeline. cost-log writer (13-field schema). Reads build-discipline before every task. Model: Sonnet 4.6.' },
     { name: 'Data Modeler',         icon: '📐', schedule: 'On-demand',     nextRun: 'Contextual',   log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Schema design, S3 paths, DuckDB query patterns, Parent Key v1. Consults before any dataset onboarding or schema change. Model: Opus 4.7.' },
-    { name: 'Viz Evaluator',        icon: '📊', schedule: 'Quarterly',     nextRun: '1 Aug 9AM',    log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Benchmarks all 14 chart renderers vs npm ecosystem. Proposes swaps via Slack. cron 0 9 1 */3 *. Never auto-swaps without approval.' },
-    { name: 'Nielsen Orchestrator', icon: '📡', schedule: 'Tue 5PM',       nextRun: 'Next Tue 5PM', log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Staleness check → scope decision → triggers nielsen_puller.py → validates row counts → JARVIS summary. launchd Tue 5PM.' },
-    { name: 'Mac Worker',           icon: '💻', schedule: '5min heartbeat',nextRun: 'In ≤5min',     log: 'mac-worker.log', channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Mac 64GB compute worker. Polls Railway /tasks/pending-compute. Capabilities: duckdb / scraper / claude-code / ml.' },
+    // WARROOM-AGENT-RUNPLANE-001 (2026-08-27): was `type: 'subagent'`, which routed it to
+    // computeAgentHealthEval()'s "N/A — on-demand, not schedule-evaluated" branch. That was
+    // false: it has a real installed cron entry (`0 9 1 */3 *`, tag
+    // SaSMaster-viz-evaluator-quarterly, confirmed in the live crontab), so it IS
+    // schedule-evaluated and belongs in the live denominator. Its `nextRun` literal was also
+    // stale-in-the-past ("1 Aug 9AM"); both fields now come from agent-registry.json (next
+    // fire 2026-10-01) via applyRegistrySchedule(), so they cannot drift again.
+    { name: 'Viz Evaluator',        icon: '📊', schedule: '0 9 1 */3 *',  nextRun: 'Wed, 1 Oct, 9:00 AM', log: 'viz-evaluate-cron.log', channel: '#sasmaster-builds', jobId: null, descOverride: 'Benchmarks all 14 chart renderers vs npm ecosystem. Proposes swaps via Slack. cron 0 9 1 */3 *. Never auto-swaps without approval.' },
+    // WARROOM-AGENT-RUNPLANE-001 (2026-08-27): "Tue 5PM / Next Tue 5PM / launchd Tue 5PM" was
+    // an unbacked claim — there is no orchestrator entry in the crontab and no
+    // com.sasmaster.nielsen-orchestrator plist. The only related scheduler entry is
+    // com.sasmaster.nielsen-puller (StartCalendarInterval Weekday=3, Hour=6 → WEDNESDAY 6AM),
+    // and nielsen-puller-launch.sh does not invoke the orchestrator (grepped: no match). So
+    // this agent has no scheduler of its own. Per GATE-C that renders as "no cadence declared"
+    // — it is NOT re-labelled to the puller's Wed 6AM, which would attribute someone else's
+    // schedule to it. Closing this properly is a Shiv call, tracked in the card.
+    { name: 'Nielsen Orchestrator', icon: '📡', schedule: 'no scheduler entry', nextRun: 'N/A — no cadence declared', log: null, channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Staleness check → scope decision → triggers nielsen_puller.py → validates row counts → JARVIS summary. NO scheduler entry of its own (2026-08-27 audit) — the Tue 5PM claim was unbacked; nearest real entry is com.sasmaster.nielsen-puller, Wed 6AM, which does not call it.' },
+    // WARROOM-AGENT-RUNPLANE-001 (2026-08-27): "5min heartbeat / In ≤5min" conflated this with
+    // com.sasmaster.worker-heartbeat (a real StartInterval=300 job — a DIFFERENT launchd unit).
+    // Mac Worker itself is com.sasmaster.mac-worker: KeepAlive=true, i.e. an always-on daemon
+    // (agents/mac-worker.js is three setInterval loops that never exit; the 5-min figure is one
+    // interval INSIDE the running process, not a scheduler cadence). Labelled always-on, and
+    // deliberately left out of AGENT_HEALTH_CONFIG: a daemon's liveness is a process check, not
+    // a cadence check, and giving it a fake cadence would make an alive daemon score "stale".
+    { name: 'Mac Worker',           icon: '💻', schedule: 'launchd KeepAlive', nextRun: 'always on', log: 'mac-worker.log', channel: '#sasmaster-builds', jobId: null, type: 'subagent', descOverride: 'Mac 64GB compute worker (persistent launchd daemon, KeepAlive). Polls Railway /tasks/pending-compute every 60s; heartbeat every 5 min in-process. Capabilities: duckdb / scraper / claude-code / ml.' },
 
     // ── Marketplace T1 — python-development ─────────────────
     { name: 'python-pro',           icon: '🐍', schedule: 'On-demand', nextRun: 'Contextual', log: null, channel: null, jobId: null, type: 'marketplace', tier: 'T1', plugin: 'python-development',    descOverride: 'Master Python 3.12+ — async, performance optimization, uv/ruff/pydantic/FastAPI. T1 marketplace.' },
@@ -483,7 +638,9 @@ function parseAgents(allWiredRunstateByJob) {
   ];
 
   const blockedSignalsByJob = readAgentBlockedSignals();
+  const registrySchedule = readRegistrySchedule();
   return agents.map(a => {
+    a = applyRegistrySchedule(a, registrySchedule);
     const healthEval = computeAgentHealthEval(a, runLogByJob, blockedSignalsByJob);
     if (a.statusOverride) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: a.statusOverride, healthEval };
     if (!a.log) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'idle', healthEval };
