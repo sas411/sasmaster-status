@@ -20,6 +20,12 @@ function tmpFile(content) {
   return p;
 }
 
+function tmpFileExt(content, ext) {
+  const p = path.join(os.tmpdir(), `wcg-test-${process.pid}-${Math.random().toString(36).slice(2)}.${ext}`);
+  fs.writeFileSync(p, content);
+  return p;
+}
+
 test('check_no_bare_emdash: ternary fallback to bare em-dash is flagged, with a file:line', () => {
   const f = tmpFile("function x(v){ return v!=null ? v : '—'; }\n");
   const v = gate.check_no_bare_emdash([f]);
@@ -121,6 +127,120 @@ test('exemption: an EXPIRED CONTRACT-EXEMPT does not suppress, and is reported e
   const ledger = gate.findExemptionsInFiles([f]);
   assert.equal(ledger.length, 1);
   assert.equal(ledger[0].expired, true);
+  fs.unlinkSync(f);
+});
+
+// ---------------------------------------------------------------------------------------
+// CORRECTION (08-27): C2/C3/C6 (and, verified independently, C5 and trend-glyph) originally
+// regex-matched RAW source text including comments — this is the false-positive class
+// documented in DONE_LOG.md's C6 "cache_hit_rate dual-source" CORRECTION note (a comment
+// describing a fix, mentioning the old removed pattern by name, was counted as a live read).
+// These tests reproduce that exact class and prove the fix: a comment naming the banned
+// pattern is NOT flagged, while a real (non-comment) violation on another line still is.
+// ---------------------------------------------------------------------------------------
+
+test('check_no_bare_emdash: a comment describing the bare em-dash bug is not flagged, real code still is', () => {
+  const f = tmpFile([
+    "// old code used to do: v != null ? v : '—'  -- fixed below, do not reintroduce",
+    "function fallback(v){ return v != null ? v : '—'; }",
+    '',
+  ].join('\n'));
+  const v = gate.check_no_bare_emdash([f]);
+  assert.equal(v.length, 1);
+  assert.equal(v[0].line, 2);
+  fs.unlinkSync(f);
+});
+
+test('check_no_status_literal: a comment mentioning HEALTHY is not flagged, real code still is', () => {
+  const f = tmpFile([
+    "// this badge used to hardcode 'HEALTHY' before routing through WarroomHealth — do not revert",
+    "el.textContent = 'HEALTHY';",
+    '',
+  ].join('\n'));
+  const v = gate.check_no_status_literal([f], []);
+  assert.equal(v.length, 1);
+  assert.equal(v[0].line, 2);
+  fs.unlinkSync(f);
+});
+
+test('check_one_source_per_number: a comment naming the old cache_hit_rate_pct path is not counted as a live source (the exact CORRECTION-note false positive)', () => {
+  const f = tmpFile([
+    '// NOTE: this used to read usageState.cache_hit_rate_pct before COSTCANON-001 Phase 3 removed it',
+    'function renderCache(d){ return d.cache_hit_rate; }',
+    '',
+  ].join('\n'));
+  const result = gate.check_one_source_per_number([f]);
+  assert.equal(result.violations.length, 0); // only ONE live pattern (cost-log-real); comment must not count as a second source
+  fs.unlinkSync(f);
+});
+
+test('check_one_source_per_number: real (non-comment) code for both patterns is still flagged', () => {
+  const f = tmpFile([
+    '// (this comment mentions cache_hit_rate_pct too — must not change the count below)',
+    'const a = usageState.cache_hit_rate_pct;',
+    'const b = d.cache_hit_rate;',
+    '',
+  ].join('\n'));
+  const result = gate.check_one_source_per_number([f]);
+  assert.ok(result.violations.some((v) => /cache_hit_rate/.test(v.message)));
+  fs.unlinkSync(f);
+});
+
+test('check_one_clock: a comment mentioning toLocaleTimeString() is not flagged, real code still is', () => {
+  const f = tmpFile([
+    '// this used to call .toLocaleTimeString() directly before the fix',
+    'function t(){ return new Date().toLocaleTimeString(); }',
+    '',
+  ].join('\n'));
+  const v = gate.check_one_clock([f], { includeBareNewDate: false });
+  assert.equal(v.length, 1);
+  assert.equal(v[0].line, 2);
+  fs.unlinkSync(f);
+});
+
+test('check_trend_glyph_sign: a comment mentioning a glyph literal is not flagged (structural check)', () => {
+  const f = tmpFile([
+    '// example glyph shown in the old markup: >↑<',
+    'const x = 1;',
+    '',
+  ].join('\n'));
+  const v = gate.check_trend_glyph_sign([f]);
+  assert.equal(v.length, 0);
+  fs.unlinkSync(f);
+});
+
+test('comment-stripping: "//" inside a string literal (e.g. a URL) is not treated as a comment start', () => {
+  const f = tmpFile("const url = 'https://example.com'; el.textContent = 'HEALTHY';\n");
+  const v = gate.check_no_status_literal([f], []);
+  assert.equal(v.length, 1); // HEALTHY still flagged — the URL's "//" must not swallow the rest of the line
+  fs.unlinkSync(f);
+});
+
+test('comment-stripping: /* */ block comment spanning lines does not shift line numbers', () => {
+  const f = tmpFile([
+    '/* this is a stale block comment',
+    '   mentioning HEALTHY across multiple lines',
+    '   should not be flagged */',
+    "el.textContent = 'HEALTHY';",
+    '',
+  ].join('\n'));
+  const v = gate.check_no_status_literal([f], []);
+  assert.equal(v.length, 1);
+  assert.equal(v[0].line, 4); // real violation's line number must survive the multi-line strip
+  fs.unlinkSync(f);
+});
+
+test('comment-stripping: a quoted status literal inside an HTML <!-- --> comment is not flagged, a real one in <script> still is', () => {
+  const f = tmpFileExt([
+    "<!-- the badge used to say 'HEALTHY' directly before routing through WarroomHealth -->",
+    '<script>',
+    "el.textContent = 'HEALTHY';",
+    '</script>',
+    '',
+  ].join('\n'), 'html');
+  const v = gate.check_no_status_literal([f], []);
+  assert.equal(v.length, 1);
+  assert.equal(v[0].line, 3);
   fs.unlinkSync(f);
 });
 

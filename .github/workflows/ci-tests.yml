@@ -43,8 +43,17 @@ jobs:
   # default shallow checkout makes `git diff origin/main...HEAD` resolve against a
   # nonexistent history and silently see zero changed files, which would make this job
   # permanently green with no teeth — exactly the failure mode a mechanical gate exists to
-  # prevent. `git fetch origin main` before the diff guarantees the base ref actually
-  # resolves in the runner's checkout regardless of which ref triggered the job.
+  # prevent.
+  #
+  # CORRECTION (08-27): on a `push` trigger, `origin/main...HEAD` is ALSO a no-teeth bug,
+  # for a different reason — `git fetch origin main` fetches the SAME ref this workflow was
+  # triggered by, so by the time the diff runs, origin/main == HEAD (the push already landed
+  # on main) and the diff is empty even with full history. `pull_request` doesn't have this
+  # problem (origin/main is the PR's target branch, genuinely behind HEAD's merge commit),
+  # so only the push path needs a different base. `github.event.before` (the pre-push SHA)
+  # is the correct base for a push event; it falls back to origin/main for anything else
+  # (pull_request, or the all-zero SHA GitHub sends on a branch's first push, which can't be
+  # fetched as a real commit).
   contract-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -57,8 +66,18 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Fetch main for diff base
-        run: git fetch origin main
+      - name: Determine diff base ref (push uses event.before, else origin/main)
+        id: diffbase
+        run: |
+          BEFORE_SHA="${{ github.event.before }}"
+          ZERO_SHA="0000000000000000000000000000000000000000"
+          if [ "${{ github.event_name }}" = "push" ] && [ -n "$BEFORE_SHA" ] && [ "$BEFORE_SHA" != "$ZERO_SHA" ]; then
+            git fetch origin "$BEFORE_SHA"
+            echo "base=$BEFORE_SHA" >> "$GITHUB_OUTPUT"
+          else
+            git fetch origin main
+            echo "base=origin/main" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Run War Room contract gate (diff-scoped)
-        run: node scripts/warroom-contract-gate.js --base origin/main
+        run: node scripts/warroom-contract-gate.js --base ${{ steps.diffbase.outputs.base }}

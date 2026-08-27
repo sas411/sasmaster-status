@@ -105,6 +105,85 @@ function readFileLinesAbs(absPath) {
   return fs.readFileSync(absPath, 'utf8').split('\n');
 }
 
+// ---------------------------------------------------------------------------------------
+// comment stripping — CORRECTION (08-27): C2/C3/C6 (and, verified independently below, the
+// trend-glyph structural check) originally regex-matched RAW source text, comments included.
+// This produced a real false positive: a `//` comment describing a fix (mentioning a banned
+// pattern by name, as fix commentary legitimately does) was flagged as if it were live code.
+// This strips `//` and `/* */` comments (plus `<!-- -->` for .html — where inline <script>
+// blocks are still treated as JS so their own // and /* */ comments strip too) from a COPY of
+// the source, preserving line count and non-comment column content exactly, so line numbers
+// (and therefore diff-scoping) stay correct. Only NORMAL-state `//`/`/*` are treated as
+// comment openers — a `//` inside a string literal (e.g. `"http://..."`) is left alone,
+// because the scan tracks string-literal state and never inspects for `//`/`/*` while inside
+// one. Deliberately NOT a full JS lexer (no regex-literal-vs-divide disambiguation) — matches
+// this module's existing "simple heuristic over a real lexer" tradeoff (see
+// extractQuotedStrings' own comment), documented rather than silently assumed correct.
+// ---------------------------------------------------------------------------------------
+
+function stripCommentsPreserveLines(text, isHtml) {
+  const n = text.length;
+  let out = '';
+  let i = 0;
+  let inScript = !isHtml; // non-html files are "always JS"
+  let state = 'NORMAL'; // NORMAL | LINE_COMMENT | BLOCK_COMMENT | HTML_COMMENT | STR_SINGLE | STR_DOUBLE | STR_TEMPLATE
+
+  while (i < n) {
+    const c = text[i];
+    const c2 = i + 1 < n ? text[i + 1] : '';
+
+    if (state === 'LINE_COMMENT') {
+      if (c === '\n') { out += '\n'; state = 'NORMAL'; i += 1; continue; }
+      out += ' '; i += 1; continue;
+    }
+    if (state === 'BLOCK_COMMENT') {
+      if (c === '*' && c2 === '/') { out += '  '; i += 2; state = 'NORMAL'; continue; }
+      out += c === '\n' ? '\n' : ' ';
+      i += 1; continue;
+    }
+    if (state === 'HTML_COMMENT') {
+      if (c === '-' && text[i + 1] === '-' && text[i + 2] === '>') { out += '   '; i += 3; state = 'NORMAL'; continue; }
+      out += c === '\n' ? '\n' : ' ';
+      i += 1; continue;
+    }
+    if (state === 'STR_SINGLE' || state === 'STR_DOUBLE' || state === 'STR_TEMPLATE') {
+      if (c === '\\' && i + 1 < n) { out += c + text[i + 1]; i += 2; continue; }
+      const q = state === 'STR_SINGLE' ? "'" : state === 'STR_DOUBLE' ? '"' : '`';
+      out += c;
+      if (c === q) state = 'NORMAL';
+      i += 1; continue;
+    }
+
+    // NORMAL state
+    if (isHtml && !inScript) {
+      if (text.slice(i, i + 4) === '<!--') { state = 'HTML_COMMENT'; out += '    '; i += 4; continue; }
+      const openM = text.slice(i).match(/^<script\b[^>]*>/i);
+      if (openM) { inScript = true; out += openM[0]; i += openM[0].length; continue; }
+      out += c; i += 1; continue;
+    }
+    if (isHtml && inScript) {
+      const closeM = text.slice(i).match(/^<\/script\s*>/i);
+      if (closeM) { inScript = false; out += closeM[0]; i += closeM[0].length; continue; }
+    }
+    if (c === '/' && c2 === '/') { state = 'LINE_COMMENT'; out += '  '; i += 2; continue; }
+    if (c === '/' && c2 === '*') { state = 'BLOCK_COMMENT'; out += '  '; i += 2; continue; }
+    if (c === "'") { state = 'STR_SINGLE'; out += c; i += 1; continue; }
+    if (c === '"') { state = 'STR_DOUBLE'; out += c; i += 1; continue; }
+    if (c === '`') { state = 'STR_TEMPLATE'; out += c; i += 1; continue; }
+    out += c; i += 1;
+  }
+  return out.split('\n');
+}
+
+const _strippedLineCache = new Map(); // rel path -> stripped lines array, per-process only
+
+function readFileLinesStripped(rel, rawLines) {
+  if (_strippedLineCache.has(rel)) return _strippedLineCache.get(rel);
+  const stripped = stripCommentsPreserveLines(rawLines.join('\n'), rel.endsWith('.html') || rel.endsWith('.htm'));
+  _strippedLineCache.set(rel, stripped);
+  return stripped;
+}
+
 function todayIso() {
   // Gate infrastructure, not render code — not subject to its own C5 rule (that rule bans
   // ambient date formatting in the RENDER surfaces feeding the deployed page, not in the
@@ -217,11 +296,13 @@ function check_no_bare_emdash(files) {
   const OR_FALLBACK = /(\|\||\?\?)\s*['"](—|--|---)['"]/;
 
   for (const rel of files) {
-    const lines = readFileLines(rel);
-    if (!lines) continue;
+    const rawLines = readFileLines(rel);
+    if (!rawLines) continue;
+    const strippedLines = readFileLinesStripped(rel, rawLines);
     const isJs = rel.endsWith('.js');
-    lines.forEach((line, i) => {
-      if (lineIsExemptFor(line, 'C2')) return;
+    rawLines.forEach((rawLine, i) => {
+      if (lineIsExemptFor(rawLine, 'C2')) return; // exemption ledger comment — checked on RAW line, never stripped
+      const line = strippedLines[i]; // comment-stripped — see stripCommentsPreserveLines
       let hit = null;
       if (TERNARY_FALLBACK.test(line)) hit = 'ternary fallback to a bare em-dash/double-dash literal';
       else if (OR_FALLBACK.test(line)) hit = '||/?? fallback to a bare em-dash/double-dash literal';
@@ -231,7 +312,7 @@ function check_no_bare_emdash(files) {
         }
       }
       if (hit) {
-        violations.push({ file: rel, line: i + 1, contract: 'C2', message: `bare em-dash/dash placeholder in a rendered value slot (${hit})`, raw: line.trim() });
+        violations.push({ file: rel, line: i + 1, contract: 'C2', message: `bare em-dash/dash placeholder in a rendered value slot (${hit})`, raw: rawLine.trim() });
       }
     });
   }
@@ -260,11 +341,13 @@ function check_no_status_literal(files, allowedSites) {
   const violations = [];
   for (const rel of files) {
     if (rel === HEALTH_MODULE_FILE) continue; // the one allowed producer, by module boundary
-    const lines = readFileLines(rel);
-    if (!lines) continue;
-    lines.forEach((line, i) => {
-      if (lineIsExemptFor(line, 'C3')) return;
+    const rawLines = readFileLines(rel);
+    if (!rawLines) continue;
+    const strippedLines = readFileLinesStripped(rel, rawLines);
+    rawLines.forEach((rawLine, i) => {
+      if (lineIsExemptFor(rawLine, 'C3')) return; // exemption ledger comment — checked on RAW line, never stripped
       if (isAllowedSite(allowedSites, 'C3', rel)) return;
+      const line = strippedLines[i]; // comment-stripped — see stripCommentsPreserveLines
       for (const q of extractQuotedStrings(line)) {
         for (const tok of STATUS_TOKENS) {
           if (tok.test(q.content)) {
@@ -273,7 +356,7 @@ function check_no_status_literal(files, allowedSites) {
               line: i + 1,
               contract: 'C3',
               message: `hardcoded status literal "${tok.name}" outside the computed-health producer (${HEALTH_MODULE_FILE}) or a registered WARROOM_ALLOWED_SITES.yml site`,
-              raw: line.trim(),
+              raw: rawLine.trim(),
             });
           }
         }
@@ -297,15 +380,20 @@ function check_one_clock(files, opts) {
 
   for (const rel of files) {
     if (rel === CLOCK_MODULE_FILE) continue; // the one allowed producer
-    const lines = readFileLines(rel);
-    if (!lines) continue;
-    lines.forEach((line, i) => {
-      if (lineIsExemptFor(line, 'C5')) return;
+    const rawLines = readFileLines(rel);
+    if (!rawLines) continue;
+    const strippedLines = readFileLinesStripped(rel, rawLines);
+    rawLines.forEach((rawLine, i) => {
+      if (lineIsExemptFor(rawLine, 'C5')) return; // exemption ledger comment — checked on RAW line, never stripped
+      const line = strippedLines[i]; // comment-stripped — see stripCommentsPreserveLines. Verified
+      // independently (08-27): this check had the same raw-line-regex bug as C2/C3/C6 — a
+      // comment mentioning `.toLocaleTimeString()` (e.g. fix commentary) false-positived
+      // identically to the CORRECTION note's C6 finding. Fixed the same way.
       if (AMBIENT_FORMAT.test(line)) {
-        violations.push({ file: rel, line: i + 1, contract: 'C5', message: 'ambient toLocaleTimeString()/toLocaleDateString() outside WarroomClock — must go through WarroomClock.toEt()', raw: line.trim() });
+        violations.push({ file: rel, line: i + 1, contract: 'C5', message: 'ambient toLocaleTimeString()/toLocaleDateString() outside WarroomClock — must go through WarroomClock.toEt()', raw: rawLine.trim() });
       }
       if (RAW_GET.test(line)) {
-        violations.push({ file: rel, line: i + 1, contract: 'C5', message: 'raw Date getHours()/getMinutes()/getSeconds() outside WarroomClock', raw: line.trim() });
+        violations.push({ file: rel, line: i + 1, contract: 'C5', message: 'raw Date getHours()/getMinutes()/getSeconds() outside WarroomClock', raw: rawLine.trim() });
       }
       // Bare new Date()/Date.now() is intentionally NOT flagged by default (opt-in via
       // --strict-new-date only). Empirically checked during this card's own build: this
@@ -319,7 +407,7 @@ function check_one_clock(files, opts) {
       // bug class (a Date value converted to a shown string/number without going through
       // WarroomClock) with a verified-clean full-tree baseline.
       if (opts.includeBareNewDate && (BARE_NEW_DATE.test(line) || DATE_NOW.test(line)) && !/\.toISOString\(\)/.test(line)) {
-        violations.push({ file: rel, line: i + 1, contract: 'C5', message: 'bare new Date()/Date.now() (ambient current time) outside WarroomClock — opt-in heuristic (--strict-new-date), verify manually before acting', raw: line.trim() });
+        violations.push({ file: rel, line: i + 1, contract: 'C5', message: 'bare new Date()/Date.now() (ambient current time) outside WarroomClock — opt-in heuristic (--strict-new-date), verify manually before acting', raw: rawLine.trim() });
       }
     });
   }
@@ -365,9 +453,15 @@ function check_one_source_per_number(files) {
   for (const figure of canon.figures || []) {
     const matchesByPattern = {}; // pattern.id -> [{file,line}]
     for (const rel of files) {
-      const lines = readFileLines(rel);
-      if (!lines) continue;
-      lines.forEach((line, i) => {
+      const rawLines = readFileLines(rel);
+      if (!rawLines) continue;
+      const strippedLines = readFileLinesStripped(rel, rawLines);
+      strippedLines.forEach((line, i) => {
+        // comment-stripped — see stripCommentsPreserveLines. Without this, a `//` comment
+        // documenting a fix (mentioning the OLD query path by name, as fix commentary does)
+        // matches the pattern regex exactly like a live read — the CORRECTION note's exact
+        // false positive (a stale `cache_hit_rate_pct` finding sourced from comments, not
+        // live code).
         for (const p of figure.patterns) {
           const re = new RegExp(p.regex);
           if (re.test(line)) {
@@ -410,10 +504,15 @@ function check_trend_glyph_sign(files) {
   // computed value — banned unconditionally regardless of whether the sign happens to agree.
   for (const rel of files) {
     if (rel === TREND_MODULE_FILE) continue;
-    const lines = readFileLines(rel);
-    if (!lines) continue;
-    lines.forEach((line, i) => {
-      if (lineIsExemptFor(line, 'C4') || lineIsExemptFor(line, 'C2')) return; // §2.4 has no dedicated letter; both tags honored
+    const rawLines = readFileLines(rel);
+    if (!rawLines) continue;
+    const strippedLines = readFileLinesStripped(rel, rawLines);
+    rawLines.forEach((rawLine, i) => {
+      if (lineIsExemptFor(rawLine, 'C4') || lineIsExemptFor(rawLine, 'C2')) return; // §2.4 has no dedicated letter; both tags honored — checked on RAW line
+      const line = strippedLines[i]; // comment-stripped — see stripCommentsPreserveLines. Verified
+      // independently (08-27): same raw-line bug as C2/C3/C6/C5 — a comment referencing a
+      // glyph character (e.g. `// example: <td>↑</td>`) false-positived identically. Fixed
+      // the same way.
       let literalGlyph = null;
       for (const g of GLYPH_CHARS) {
         if (line.includes(`>${g}<`)) { literalGlyph = g; break; }
@@ -424,7 +523,7 @@ function check_trend_glyph_sign(files) {
         }
       }
       if (literalGlyph) {
-        violations.push({ file: rel, line: i + 1, contract: 'C4-TREND', message: `trend glyph "${literalGlyph}" assigned as a literal — must come from WarroomTrend.trend(current,prior).glyph, never hand-written`, raw: line.trim() });
+        violations.push({ file: rel, line: i + 1, contract: 'C4-TREND', message: `trend glyph "${literalGlyph}" assigned as a literal — must come from WarroomTrend.trend(current,prior).glyph, never hand-written`, raw: rawLine.trim() });
       }
     });
   }
@@ -434,9 +533,10 @@ function check_trend_glyph_sign(files) {
   // WarroomTrend.trend() and flag a contradiction by name.
   const ROW_RE = /<tr>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>\$?([\d,]+\.\d+)<\/td>\s*<td[^>]*>\$?([\d,]+\.\d+)<\/td>\s*<td[^>]*>(↑|↓|→)<\/td>\s*<\/tr>/;
   for (const rel of files) {
-    const lines = readFileLines(rel);
-    if (!lines) continue;
-    lines.forEach((line, i) => {
+    const rawLines = readFileLines(rel);
+    if (!rawLines) continue;
+    const strippedLines = readFileLinesStripped(rel, rawLines);
+    strippedLines.forEach((line, i) => {
       const m = line.match(ROW_RE);
       if (!m) return;
       const label = m[1].trim();
