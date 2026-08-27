@@ -3325,7 +3325,11 @@ function renderOpsLegend(containerId){
 }
 
 function opsRowLabel(r){
-  if(r.state==='ran_ok'||r.state==='ran_failed') return r.finished_at?new Date(r.finished_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}):r.state;
+  if(r.state==='ran_ok'||r.state==='ran_failed'){
+    if(!r.finished_at) return r.state;
+    const et=WarroomClock.toEt(r.finished_at); // C5: one clock helper, not ambient toLocaleTimeString
+    return et.state==='ok'?et.display:('ERROR — '+(et.reason||'clock'));
+  }
   if(r.state==='missed') return 'MISSED';
   return null; // most states render as an unlabeled colored dot/pill, per the legend, not repeated prose
 }
@@ -3361,15 +3365,18 @@ async function buildTimeline(){
   byJob.forEach((job)=>{
     h+=`<div class="agname">${escHtml(job.display)}</div>`;
     for(let i=0;i<24;i++){
-      const slot=job.slots.find(s=>s.scheduled_at && new Date(s.scheduled_at).getHours()===i);
+      // WarroomClock.etHourMinute() — one clock helper (C5), not ambient getHours()
+      // which returns the HOST's local hour, silently wrong off America/New_York.
+      const slot=job.slots.find(s=>s.scheduled_at && WarroomClock.etHourMinute(s.scheduled_at).hour===i);
       if(!slot){ h+='<div class="cell"></div>'; continue; }
       const label=opsRowLabel(slot);
       const triggerCls=slot.trigger==='manual'?' tl-trigger-manual':'';
-      const et=new Date(slot.scheduled_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'});
+      const etObj=WarroomClock.toEt(slot.scheduled_at);
+      const et=etObj.state==='ok'?etObj.display:('ERROR — '+(etObj.reason||'clock'));
       h+=`<div class="cell"><span class="tlpill st-${escHtml(slot.state)}${triggerCls}" `+
          `data-job="${escHtml(slot.job)}" data-slot-at="${escHtml(slot.scheduled_at)}" data-state="${escHtml(slot.state)}" `+
          `data-trigger="${escHtml(slot.trigger||'')}" data-run-id="${escHtml(slot.run_id||'')}" `+
-         `title="${escHtml(slot.job)} · ${et} ET · ${escHtml(slot.state)}${slot.reason?' · '+escHtml(slot.reason):''}${slot.run_id?' · run_id='+escHtml(slot.run_id):''}">`+
+         `title="${escHtml(slot.job)} · ${et} · ${escHtml(slot.state)}${slot.reason?' · '+escHtml(slot.reason):''}${slot.run_id?' · run_id='+escHtml(slot.run_id):''}">`+
          `${label?escHtml(label):''}</span></div>`;
     }
   });
@@ -3388,7 +3395,11 @@ async function renderOpsCronToday(){
   }
   const rows=payload.rows||[];
   cronEl.innerHTML=rows.map(r=>{
-    const timeLabel=r.scheduled_at?new Date(r.scheduled_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}):'—';
+    let timeLabel='N/A — no scheduled time';
+    if(r.scheduled_at){
+      const etObj=WarroomClock.toEt(r.scheduled_at); // C5: one clock helper, not ambient toLocaleTimeString
+      timeLabel=etObj.state==='ok'?etObj.display:('ERROR — '+(etObj.reason||'clock'));
+    }
     return `<div class="cronrow" data-job="${escHtml(r.job)}" data-state="${escHtml(r.state)}" data-run-id="${escHtml(r.run_id||'')}" data-trigger="${escHtml(r.trigger||'')}" title="${escHtml(r.state)}${r.reason?' · '+escHtml(r.reason):''}">`+
       `<span class="t">${escHtml(timeLabel)}</span><span class="d2 st-${escHtml(r.state)}${r.trigger==='manual'?' tl-trigger-manual':''}"></span>${escHtml(r.display_name||r.job)}</div>`;
   }).join('') || '<div class="cronrow">N/A — no jobs in today\'s window</div>';
