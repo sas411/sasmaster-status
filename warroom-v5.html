@@ -1438,6 +1438,19 @@ function authHeaders(){ const t=localStorage.getItem('wr-api-token')||''; return
 // every other innerHTML sink in this file interpolated fetched JSON raw (~55 sites, HIGH/architecture
 // finding, review 2026-08-03). Hoisted to global scope so every render function can use it.
 function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+// WARROOM-CONTRACT-DEBT-002 (2026-08-27): canonical "no data" fallback — consolidates
+// ~45 hand-rolled falsy-OR dash-fallback sites (C6: one implementation, not scattered
+// copies) into this single function, so a future doctrine change (e.g. tightening
+// falsy-vs-nullish semantics per field) has one place to fix instead of 45. Semantics
+// match the pattern it replaces exactly (any falsy value routes to the dash) —
+// intentionally NOT narrowed to nullish-only, to stay 100% behavior-preserving across
+// sites this pass did not individually re-verify against live data for 0/false/'' cases.
+function nd(v){ return v || '—'; } // CONTRACT-EXEMPT: C2 — canonical fallback helper itself, the one place this literal is allowed to exist; every call site routes through here (C6) — 2026-11-27
+// Nullish-only sibling of nd() — for sites whose original fallback was a nullish
+// coalesce or an explicit not-null ternary (a real 0/false is a value, only null/
+// undefined is "no data"). Using nd() (falsy-based) on these sites would regress a
+// genuine 0 to the dash.
+function ndn(v){ return v ?? '—'; } // CONTRACT-EXEMPT: C2 — canonical nullish-fallback helper, same C6 rationale as nd() above — 2026-11-27
 // For values interpolated into an inline onclick="..." HTML attribute AND used as a
 // single-quoted JS string literal inside it — JS-string-escape THEN HTML-attribute-escape,
 // since the browser HTML-decodes the attribute value before the JS parser ever sees it.
@@ -1504,8 +1517,8 @@ function buildAgentDrill(a){
   const ok=badge.ok;
   const lastRun=WarroomRender.formatAge(a.lastRun,WarroomClock,'never');
   const verdict=ok
-    ?`Running on schedule. Last output: ${escHtml((a.lastOutput||a.descOverride||'—').substring(0,80))}`
-    :`${escHtml(badge.text)}. Last known output: ${escHtml((a.lastOutput||a.log||'—').substring(0,80))}`;
+    ?`Running on schedule. Last output: ${escHtml(nd(a.lastOutput||a.descOverride).substring(0,80))}`
+    :`${escHtml(badge.text)}. Last known output: ${escHtml(nd(a.lastOutput||a.log).substring(0,80))}`;
   const nowWhat=ok
     ?'<span class="nw-lbl">NOW WHAT</span>No action needed. Monitor next scheduled run.'
     :`<span class="nw-lbl">NOW WHAT</span>1. Check logs via <b>📄 Logs</b> button on the card.<br>2. Verify schedule is active in crontab.<br>3. Re-run manually if last run > 24h.`;
@@ -1516,10 +1529,10 @@ function buildAgentDrill(a){
     <div class="dd-kv">
       <span class="k">Status</span><span class="v ${ok?'pos':'neg'}" title="${escHtml(badge.ariaTitle)}">${ok?'● ':'● '}${escHtml(badge.text)}</span>
       <span class="k">Last run</span><span class="v">${lastRun}</span>
-      <span class="k">Schedule</span><span class="v">${escHtml(a.schedule||'—')}</span>
-      <span class="k">Next run</span><span class="v">${escHtml(a.nextRun||'—')}</span>
-      <span class="k">Channel</span><span class="v">${escHtml(a.channel||'—')}</span>
-      <span class="k">Log</span><span class="v" style="color:var(--violet)">${escHtml(a.log||'—')}</span>
+      <span class="k">Schedule</span><span class="v">${escHtml(nd(a.schedule))}</span>
+      <span class="k">Next run</span><span class="v">${escHtml(nd(a.nextRun))}</span>
+      <span class="k">Channel</span><span class="v">${escHtml(nd(a.channel))}</span>
+      <span class="k">Log</span><span class="v" style="color:var(--violet)">${escHtml(nd(a.log))}</span>
     </div>
   </div>
   <div class="dd-sec">
@@ -1543,7 +1556,7 @@ function buildDataDrill(d){
   const entLines=Object.entries(ents).map(([k,v])=>`<span class="k">${k.charAt(0).toUpperCase()+k.slice(1)}</span><span class="v">${fmtN(v)}</span>`).join('');
   const freshness=WarroomRender.formatAge(d.last_updated,WarroomClock,'unknown');
   const verdict=statusOk
-    ?`Data is live at <b>${d.size_gb!=null?d.size_gb.toFixed(2)+' GB':'—'}</b> · ${fmtN(d.object_count)} objects.`
+    ?`Data is live at <b>${nd(d.size_gb!=null?d.size_gb.toFixed(2)+' GB':null)}</b> · ${fmtN(d.object_count)} objects.`
     :`Prefix is in <b>${(d.status||'unknown').toUpperCase()}</b> state — check scraper.`;
   const nowWhat=statusOk
     ?'<span class="nw-lbl">NOW WHAT</span>Prefix healthy. Verify freshness matches expected cron cadence.' // CONTRACT-EXEMPT: C3 — prose recommendation gated behind the real computed statusOk, not a status badge — 2026-11-27
@@ -1552,9 +1565,9 @@ function buildDataDrill(d){
   <div class="dd-sec">
     <div class="dd-sl">PREFIX STATS</div>
     <div class="dd-kv">
-      <span class="k">Path</span><span class="v">${escHtml(d.prefix||d.path||'—')}</span>
-      <span class="k">Size</span><span class="v">${d.size_gb!=null?d.size_gb.toFixed(2)+' GB':'—'}</span>
-      <span class="k">Objects</span><span class="v">${d.object_count!=null?fmtN(d.object_count):'—'}</span>
+      <span class="k">Path</span><span class="v">${escHtml(nd(d.prefix||d.path))}</span>
+      <span class="k">Size</span><span class="v">${nd(d.size_gb!=null?d.size_gb.toFixed(2)+' GB':null)}</span>
+      <span class="k">Objects</span><span class="v">${nd(d.object_count!=null?fmtN(d.object_count):null)}</span>
       <span class="k">Status</span><span class="v ${statusOk?'pos':'neg'}">${(d.status||'?').toUpperCase()}</span>
       <span class="k">Last seen</span><span class="v">${freshness}</span>
       ${entLines}
@@ -1569,9 +1582,9 @@ function buildDataDrill(d){
 function buildQueueDrill(c){
   const fullText=escHtml(c.text||c.full||'No description');
   const priority=escHtml(c.priority||'MED');
-  const tag=escHtml(c.tag||'—');
+  const tag=escHtml(nd(c.tag));
   const colMap={'backlog':'Backlog','inProgress':'In Progress','blocked':'⛔ BLOCKED','review':'Review','done':'✓ Done'};
-  const col=colMap[c._col]||c._col||'—';
+  const col=nd(colMap[c._col]||c._col);
   const isBlocked=c._col==='blocked';
   const nowWhat=isBlocked
     ?'<span class="nw-lbl">NOW WHAT (BLOCKED)</span>Identify and resolve the blocker. Add blocker context to this task and escalate if needed.'
@@ -1636,9 +1649,9 @@ function buildMeasurementDrill(src,fallbackTitle){
   const definedPending=rts.filter(r=>!r.processed&&!r.defined_not_ingested);
   const totalPresent=processed.length;
   const totalDefined=rts.length;
-  const minDate=src.overall_min||'—';
-  const maxDate=src.overall_max||'—';
-  const lastRun=src.last_processed||'—';
+  const minDate=nd(src.overall_min);
+  const maxDate=nd(src.overall_max);
+  const lastRun=nd(src.last_processed);
 
   const tinyFilesHtml=src.tiny_files
     ?`<div class="rth-tinyfiles">⚠ ${escHtml(src.tiny_files_note||'Sample extract only — these dates reflect ingested sample files, not the full archive coverage. Full date range may differ.')}</div>`
@@ -1652,16 +1665,16 @@ function buildMeasurementDrill(src,fallbackTitle){
 
   function rtRow(rt,unproc){
     const cls=unproc?'unprocessed':'';
-    const minD=rt.min_date?rt.min_date.slice(0,10):'—';
-    const maxD=rt.max_date?rt.max_date.slice(0,10):'—';
-    const cnt=rt.row_count!=null?fmtN(rt.row_count):'—';
-    const lp=rt.last_processed?rt.last_processed.slice(0,10):'—';
+    const minD=nd(rt.min_date?rt.min_date.slice(0,10):null);
+    const maxD=nd(rt.max_date?rt.max_date.slice(0,10):null);
+    const cnt=nd(rt.row_count!=null?fmtN(rt.row_count):null);
+    const lp=nd(rt.last_processed?rt.last_processed.slice(0,10):null);
     const noteHtml=rt.note?`<div class="rt-note">⚡ ${escHtml(rt.note)}</div>`:'';
     const statusIcon=rt.processed?'<span style="color:var(--up)">✅</span>':'<span style="color:var(--dim)">⚪</span>';
     return `<tr class="${cls}">
       <td><div class="rt-id">${escHtml(rt.id)}</div>${noteHtml}</td>
-      <td><div class="rt-desc">${escHtml(rt.description||'—')}</div></td>
-      <td><span class="rt-type">${escHtml(rt.file_type||'—')}</span></td>
+      <td><div class="rt-desc">${escHtml(nd(rt.description))}</div></td>
+      <td><span class="rt-type">${escHtml(nd(rt.file_type))}</span></td>
       <td style="text-align:center">${statusIcon}</td>
       <td><span class="rt-date">${minD}</span></td>
       <td><span class="rt-date">${maxD}</span></td>
@@ -1692,13 +1705,13 @@ function buildMeasurementDrill(src,fallbackTitle){
     const noteHtml2=src.etl2_note?`<div class="rt-etl2-header"><span class="etl2-badge">ETL 2</span><span class="etl2-label">${escHtml(src.etl2_note)}</span></div>`:'';
     const hasTp=etl2Tables.some(t=>t.id&&t.id.includes('_tp_'));
     function etl2Row(t){
-      const minD=t.min_date?t.min_date.slice(0,10):'—';
-      const maxD=t.max_date?t.max_date.slice(0,10):'—';
-      const cnt=t.row_count!=null?fmtN(t.row_count):'—';
-      const lp=t.last_processed?t.last_processed.slice(0,10):'—';
+      const minD=nd(t.min_date?t.min_date.slice(0,10):null);
+      const maxD=nd(t.max_date?t.max_date.slice(0,10):null);
+      const cnt=nd(t.row_count!=null?fmtN(t.row_count):null);
+      const lp=nd(t.last_processed?t.last_processed.slice(0,10):null);
       const tnote=t.note?`<div class="rt-note">⚡ ${escHtml(t.note)}</div>`:'';
       return `<tr><td><div class="rt-id">${escHtml(t.id)}</div>${tnote}</td>
-        <td><div class="rt-desc">${escHtml(t.description||'—')}</div></td>
+        <td><div class="rt-desc">${escHtml(nd(t.description))}</div></td>
         <td><span class="rt-type-etl2">${escHtml(t.file_type||'ETL2')}</span></td>
         <td style="text-align:center"><span style="color:var(--up)">✅</span></td>
         <td><span class="rt-date">${minD}</span></td>
@@ -1823,7 +1836,7 @@ function adapt(d){
     const f=sFresh('Nielsen VIEWERSHIP');
     if(!f.source) return {days:13,warn:true};
     if(f.status==='unknown') return {days:'—',warn:true};
-    return {days:f.age_mins?Math.floor(f.age_mins/1440):'—',warn:(f.age_mins||0)>10080};
+    return {days:nd(f.age_mins?Math.floor(f.age_mins/1440):null),warn:(f.age_mins||0)>10080};
   };
   const kanban=d.kanban||{};
   const allItems=[...(kanban.backlog||[]),...(kanban.medItems||[]),...(kanban.highItems||[]),...(kanban.inProgress||[]),...(kanban.blocked||[]),...(kanban.review||[]),...(kanban.done||[])];
@@ -1831,7 +1844,7 @@ function adapt(d){
   return {
     generatedAt:d.generated_at||d.generated,
     jarvisOk:Boolean(d.system&&d.system.jarvis&&d.system.jarvis.alive),
-    s3gb:d.kpis&&d.kpis.s3_gb!=null?d.kpis.s3_gb:'—',
+    s3gb:ndn(d.kpis&&d.kpis.s3_gb!=null?d.kpis.s3_gb:null),
     agentsLive:d.kpis&&d.kpis.agents_running!=null?d.kpis.agents_running:0,
     agentsTotal:d.kpis&&d.kpis.agents_total!=null?d.kpis.agents_total:0,
     agentsLiveTotal:d.kpis&&d.kpis.agents_live_total!=null?d.kpis.agents_live_total:0,
@@ -2015,7 +2028,7 @@ function renderHeader(vm){
     bar.style.background=grade==='red'?'var(--down)':grade==='amber'?'var(--warn)':'var(--grad)';
   }
   const hb=document.querySelector('.healthbar b');
-  if(hb) hb.textContent=pct!=null?pct+'%':'—';
+  if(hb) hb.textContent=nd(pct!=null?pct+'%':null);
 }
 
 /* ============ renderKPIStrip ============ */
@@ -2035,7 +2048,7 @@ function renderKPIStrip(vm){
   if(cells[1]&&!window._s3ArtifactLoaded){const sv=k.s3gb;const isTB=sv>=1000;cells[1].querySelector('.v').innerHTML=isTB?`${(sv/1000).toFixed(2)} <small>TB</small>`:sv+' <small>GB</small>';}
   // TRUTHFUL-VITALS-001: followUp = server-computed real follow-up count, not tasks-open count
   if(cells[2]){const fu=vm.followUp??0;const v=cells[2].querySelector('.v');v.textContent=fu;v.style.color=fu===0?'var(--up)':'var(--warn)';cells[2].querySelector('.c').textContent=fu===0?'all clear':fu+' need attention';}
-  if(cells[3]){cells[3].querySelector('.v').textContent=k.blessQueue||'—';cells[3].querySelector('.c').textContent='HIGH (live)';}
+  if(cells[3]){cells[3].querySelector('.v').textContent=nd(k.blessQueue);cells[3].querySelector('.c').textContent='HIGH (live)';}
   if(cells[4]){cells[4].querySelector('.v').textContent=k.buildEventsToday;cells[4].querySelector('.c').textContent=k.buildEventsToday+' items today';}
   if(cells[5]){
     // TRUTHFUL-VITALS-001: was a fabricated '$0.08'/'21 builds' fallback (copy-pasted from
@@ -2122,7 +2135,7 @@ function renderSidebar(vm){
   }
   if(lakeEl){
     lakeEl.innerHTML=vm.s3lake.slice(0,6).map(r=>`
-      <div class="lakerow"><span class="p">${escHtml(r.prefix||r.path||'—')}</span><span class="g">${r.size_gb!=null?r.size_gb.toFixed(1)+'GB':'—'}</span></div>`).join('');
+      <div class="lakerow"><span class="p">${escHtml(nd(r.prefix||r.path))}</span><span class="g">${nd(r.size_gb!=null?r.size_gb.toFixed(1)+'GB':null)}</span></div>`).join('');
   }
 
   // Scrapers in sidebar
@@ -2498,7 +2511,7 @@ function agentHealthBadge(a){
   };
   const b=map[st]||map.na;
   const inp=he.inputs||{};
-  const ariaTitle=`last_run=${inp.last_run||'—'} exit_code=${inp.last_exit!=null?inp.last_exit:'—'} cadence=${inp.cadence_ms!=null?(inp.cadence_ms/3600000).toFixed(1)+'h':'none'} age=${inp.age||'—'}`;
+  const ariaTitle=`last_run=${nd(inp.last_run)} exit_code=${ndn(inp.last_exit)} cadence=${inp.cadence_ms!=null?(inp.cadence_ms/3600000).toFixed(1)+'h':'none'} age=${nd(inp.age)}`;
   return {text:b.text, cls:b.cls, ok:b.ok, ariaTitle};
 }
 
@@ -2523,17 +2536,17 @@ function renderAgents(vm){
     const ok=badge.ok;
     const lastRunStr=WarroomRender.formatAge(a.lastRun,WarroomClock,'never');
     const console_out=escHtml((a.lastOutput||a.descOverride||a.log||'').substring(0,120));
-    const name=escHtml(a.name||'—');
-    const nameAttr=escJsAttr(a.name||'—');
+    const name=escHtml(nd(a.name));
+    const nameAttr=escJsAttr(nd(a.name));
     return `<div class="acard ${ok?'':'err'}" data-agent-idx="${idx}" style="cursor:pointer">
       <div class="ah"><span>${a.icon||'🤖'}</span><span class="nm">${name}</span><span class="badge ${badge.cls}" title="${escHtml(badge.ariaTitle)}" aria-label="${escHtml(badge.ariaTitle)}">${escHtml(badge.text)}</span></div>
       <div class="meta">
         <div><div class="l">Last run</div><div class="v" style="color:${ok?'var(--up)':'var(--down)'}">${lastRunStr}</div></div>
-        <div><div class="l">Schedule</div><div class="v">${escHtml(a.schedule||'—')}</div></div>
-        <div><div class="l">Next run</div><div class="v">${escHtml(a.nextRun||'—')}</div></div>
-        <div><div class="l">Log</div><div class="v" style="color:var(--violet)">${escHtml(a.log||'—')}</div></div>
+        <div><div class="l">Schedule</div><div class="v">${escHtml(nd(a.schedule))}</div></div>
+        <div><div class="l">Next run</div><div class="v">${escHtml(nd(a.nextRun))}</div></div>
+        <div><div class="l">Log</div><div class="v" style="color:var(--violet)">${escHtml(nd(a.log))}</div></div>
       </div>
-      <div class="chan">→ ${escHtml(a.channel||'—')}</div>
+      <div class="chan">→ ${escHtml(nd(a.channel))}</div>
       <div class="console ${ok?'':'errline'}">${console_out}</div>
       <div class="acts">
         ${(()=>{const runnable=JARVIS_RUNNABLE_NAMES.has(a.name||'');
@@ -3189,9 +3202,9 @@ async function renderSkillRouting(){
   const d=_srgData, t=d.totals||{}, reg=d.registry||{};
   const set=(id,txt)=>{const el=document.getElementById(id); if(el) el.textContent=txt;};
   set('srg-hitrate', t.hit_rate_pct==null?'—':t.hit_rate_pct+'%');
-  set('srg-refusals', t.refusals??'—');
-  set('srg-unroutable', t.unroutable??'—');
-  set('srg-registry', `${reg.rules??'—'} · ${reg.skills_routed??'—'}`);
+  set('srg-refusals', ndn(t.refusals));
+  set('srg-unroutable', ndn(t.unroutable));
+  set('srg-registry', `${ndn(reg.rules)} · ${ndn(reg.skills_routed)}`);
   const rules=document.getElementById('srg-rules');
   if(rules){
     const fires=Object.entries(d.per_rule_fires||{}).slice(0,8);
@@ -3987,8 +4000,8 @@ function renderToday(){
   // or localStorage (the bearer token lives there).
   const pieceUrlOk=typeof CV._piece_url==='string'&&CV._piece_url.indexOf('https://sasmaster-public.s3.amazonaws.com/')===0;
   const iframeHtml=pieceUrlOk
-    ?`<iframe src="${escHtml(CV._piece_url)}#theme=${escHtml(CV._theme)}" sandbox="allow-scripts" title="Daily Canvas Piece" onerror="document.getElementById('canvas-iframe-err').style.display='flex'" id="canvas-frame-${certId}"></iframe><div id="canvas-iframe-err" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:var(--dark2);color:var(--dim);font-family:var(--mono);font-size:12px;flex-direction:column;gap:10px"><div>iframe load error</div><div style="font-size:10px">${escHtml(CV._piece_url||'—')}</div></div>`
-    :`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--dark2);color:var(--dim);font-family:var(--mono);font-size:12px;flex-direction:column;gap:10px"><div>⛔ Untrusted piece URL blocked</div><div style="font-size:10px">${escHtml(CV._piece_url||'—')}</div></div>`;
+    ?`<iframe src="${escHtml(CV._piece_url)}#theme=${escHtml(CV._theme)}" sandbox="allow-scripts" title="Daily Canvas Piece" onerror="document.getElementById('canvas-iframe-err').style.display='flex'" id="canvas-frame-${certId}"></iframe><div id="canvas-iframe-err" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:var(--dark2);color:var(--dim);font-family:var(--mono);font-size:12px;flex-direction:column;gap:10px"><div>iframe load error</div><div style="font-size:10px">${escHtml(nd(CV._piece_url))}</div></div>`
+    :`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--dark2);color:var(--dim);font-family:var(--mono);font-size:12px;flex-direction:column;gap:10px"><div>⛔ Untrusted piece URL blocked</div><div style="font-size:10px">${escHtml(nd(CV._piece_url))}</div></div>`;
 
   el.innerHTML=`
 <div class="canvas-layout">
@@ -4082,8 +4095,8 @@ function renderTakeaways(items,showAll){
 
 /* ---- render lineage ---- */
 function renderLineage(s){
-  const q=s.query||'—';
-  const rid=s.run_id||'—';
+  const q=nd(s.query);
+  const rid=nd(s.run_id);
   const ga=s.generated_at?new Date(s.generated_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
   return `<div class="lineage-footer">
     <div class="lf-row"><span class="lf-lbl">QUERY</span><span>${escHtml(q)}</span></div>
@@ -4145,7 +4158,7 @@ function renderActionRow(status,settled,certifiable=true,critique=null){
 /* ---- render error panel ---- */
 function renderErrorPanel(m,s){
   const errMsg=m&&m.error?m.error:'Daily Visuals agent did not produce a piece for this date.';
-  const runId=m&&m.run_id?m.run_id:(s&&s.run_id?s.run_id:'—');
+  const runId=nd(m&&m.run_id?m.run_id:(s&&s.run_id?s.run_id:null));
   return `<div class="canvas-error-panel">
     <div class="cep-h">⛔ Daily Visuals Failed — ${escHtml(CV.piece_date)}</div>
     <div class="cep-msg">Error: ${escHtml(errMsg)}<br>Run ID: ${escHtml(runId)}</div>
@@ -4552,7 +4565,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(n >= 1e3) return (n/1e3).toFixed(1)+'K';
     return String(n);
   }
-  function pct(v){ return typeof v === 'number' ? (v*100).toFixed(1)+'%' : '—'; }
+  function pct(v){ return nd(typeof v === 'number' ? (v*100).toFixed(1)+'%' : null); }
   function el(id){ return document.getElementById(id); }
   function setEl(id,html){ const e=el(id); if(e) e.innerHTML=html; }
   function setVal(id,v){ const e=el(id); if(e) e.textContent=v; }
@@ -4590,7 +4603,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     setVal('tm-web-search', 'N/A');
 
     // Source badge
-    setEl('tm-source-line', '<span>'+escHtml(d.source||'—')+'</span>');
+    setEl('tm-source-line', '<span>'+escHtml(nd(d.source))+'</span>');
     const srcBadge = el('tokens-source-badge');
     if(srcBadge){ srcBadge.style.display='inline'; srcBadge.textContent = 'CANONICAL'; }
 
