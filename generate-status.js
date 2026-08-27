@@ -242,7 +242,20 @@ function parsePending() {
 // Monitor have no jobId here at all; IAB Intel's jobId 'iab-intel' doesn't match the real job
 // 'iab-agent' — both gaps flagged in WARROOM_AGENT_INVENTORY.md, not silently patched over).
 const AGENT_HEALTH_CONFIG = {
-  'JARVIS':            { job: null,                  cadence_ms: null,                expected_state: 'active' },
+  // WARROOM-AGENT-RUNPLANE-001 follow-up (2026-08-27): JARVIS, Research Portal, and Data
+  // Guardian used to carry {job: null, cadence_ms: null} entries here. Because
+  // computeAgentHealthEval() only reaches the `!cfg` -> 'na' short-circuit when the agent has
+  // NO entry at all, and evaluateHealth()'s own precedence checks has_run_record before
+  // cadence_ms, a null-job entry can never produce a run record and was therefore
+  // structurally locked to 'never_run' -- misreading as a dead cron job on the board (JARVIS
+  // is an always-on HTTP daemon; Data Guardian is an in-process call inside
+  // nielsen_puller.py; Research Portal is a scaffold pending RESEARCH-PORTAL-001). Mac
+  // Worker, Nielsen Orchestrator, and Gracenote OnConnect were already correctly OMITTED from
+  // this table for the identical reason and render 'na' via that short-circuit. Removing
+  // these three entries makes the treatment consistent -- classification as `event` is
+  // unaffected (AGENT_EVENT_CLASS membership, not AGENT_HEALTH_CONFIG, drives that), and the
+  // `scheduled` denominator is unaffected (these three never had a numeric cadence_ms to
+  // begin with).
   'Media Intel':       { job: 'media-intel-agent',   cadence_ms: 24 * 3600000,        expected_state: 'active' },
   'TMDB Daily':        { job: 'tmdb-daily-agent',    cadence_ms: 24 * 3600000,        expected_state: 'active' },
   'DoneLog Analyst':   { job: 'donelog-analyst',     cadence_ms: 24 * 3600000,        expected_state: 'active' }, // crontab says daily; parseAgents() label says "Post-build" — discrepancy flagged in WARROOM_AGENT_INVENTORY.md, crontab wins per GATE-C
@@ -254,8 +267,6 @@ const AGENT_HEALTH_CONFIG = {
   'IAB Intel':         { job: 'iab-agent',           cadence_ms: 7 * 24 * 3600000,     expected_state: 'active' },
   'Security Watchdog': { job: 'security-watchdog',   cadence_ms: 24 * 3600000,        expected_state: 'active' },
   'Railway Monitor':   { job: 'railway-monitor',     cadence_ms: 15 * 60000,          expected_state: 'active' },
-  'Research Portal':   { job: null,                  cadence_ms: null,                expected_state: 'active' },
-  'Data Guardian':     { job: null,                  cadence_ms: null,                expected_state: 'active' },
   // WARROOM-AGENT-RUNPLANE-001 (2026-08-27) — 15th schedule-evaluated agent. It was typed
   // `subagent` in parseAgents() and so fell to the "N/A — on-demand, not schedule-evaluated"
   // branch, which was simply untrue: `0 9 1 */3 *` is installed in the live crontab under the
