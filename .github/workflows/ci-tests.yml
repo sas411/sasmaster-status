@@ -81,3 +81,18 @@ jobs:
 
       - name: Run War Room contract gate (diff-scoped)
         run: node scripts/warroom-contract-gate.js --base ${{ steps.diffbase.outputs.base }}
+
+  # WARROOM-CLOCK-DEDUP-002 (2026-08-27) — scripts/check-clock-gate.sh (WARROOM-CLOCK-001's own
+  # regression gate) existed only in the local `npm run verify` chain and an uninstalled
+  # pre-commit hook — zero CI enforcement, the same "advisory only" gap found and closed for
+  # contract-gate in PR #41. Whole-file, not diff-scoped (the script's own default FILES set is
+  # the two fixed render surfaces, already confirmed clean — no "wall of legacy hits" risk the
+  # way a whole-repo scan would have).
+  clock-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run War Room clock gate (ambient date formatting, raw ms-arithmetic age calcs)
+        run: bash scripts/check-clock-gate.sh

@@ -74,6 +74,24 @@ for f in "${FILES[@]}"; do
   fi
 done
 
+for f in "${FILES[@]}"; do
+  [ -f "$f" ] || continue
+
+  # WARROOM-CLOCK-DEDUP-002 (2026-08-27) — raw millisecond-arithmetic age calc, the class of
+  # bug that survived WARROOM-CLOCK-001's timeSince() removal by changing shape: instead of a
+  # named duplicate function, hand-rolled `Date.now()-X)/86400000` (or /3600000, /60000) age
+  # math with no clock-skew guard. Same-line heuristic (a raw Date subtraction AND a
+  # ms-per-unit division on the SAME line) — deliberately does not flag a duration computed on
+  # one line and divided on another (the legitimate future-countdown pattern at this card's own
+  # documented exemption site uses exactly that separation). Fix: WarroomClock.ageFrom(ts,now).ms.
+  hits=$(grep -nE '(Date\.now\(\)|new Date\()[^;]*\/(86400000|3600000|60000)\b' "$f" | grep -v 'warroom-clock\.js' || true)
+  if [ -n "$hits" ]; then
+    echo "[clock-gate] $f: raw Date.now()/new Date(...) subtraction divided inline by a ms-per-unit constant — no clock-skew guard, use WarroomClock.ageFrom(ts,now).ms:"
+    echo "$hits" | sed "s|^|  $f:|"
+    fail=1
+  fi
+done
+
 if [ "$fail" -ne 0 ]; then
   echo "[clock-gate] FAIL — ambient date formatting or bare-dash payload fallback found."
   exit 1
