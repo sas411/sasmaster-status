@@ -269,12 +269,34 @@ const AGENT_HEALTH_CONFIG = {
   'Viz Evaluator':     { job: null,                  cadence_ms: 92 * 24 * 3600000,   expected_state: 'active' },
 };
 
-// GATE-A (Shiv-only): S2.1 vs C4 threshold contradiction, unresolved in the spec itself.
-// No default committed — left null so evaluateHealth() throws and the caller renders
-// `ERROR — gate-a-unresolved` (C2) instead of guessing a threshold. Set both to a number
-// only once Shiv rules on GATE-A (see WARROOM-HEALTH-001 card, options i/ii/iii).
-const AGENT_STALE_MULT = null;
-const FEED_STALE_MULT  = null;
+// GATE-A — RULED BY SHIV 2026-08-27 ("fix the underlying staleness and null — make this
+// production ready"), WARROOM-AGENT-RUNPLANE-001. Previously both null, so evaluateHealth()
+// threw and every schedule-evaluated agent rendered `ERROR — gate-a-unresolved`; that also
+// kept alert-engine.js's ruleR1 a fleet-wide placeholder incapable of firing a per-agent
+// late/stale alert. Both are now real numbers, so the badges AND the alert plane compute.
+//
+// The resolution is option (i)'s values carried by option (iii)'s structure — the constants
+// were already separately named, and the two spec clauses turn out to govern different
+// surfaces rather than contradicting each other:
+//   §2.1 defines `stale := age > cadence × 3`. It is the clause that DEFINES staleness, and
+//     the card's Phase-5 fixture table was authored against it — so AGENTS get 3.
+//   C4's "exceeding cadence × 2 flips every dependent tile to STALE and fires an alert" is
+//     about dependent data-FEED tiles, which is exactly what FEED_STALE_MULT governs — so
+//     FEEDS get 2.
+// Read that way each clause lands on its own surface, and neither number is a compromise.
+//
+// What this decides concretely: the healthy ceiling stays 1.5× (fixed in warroom-health.js,
+// never a GATE-A knob). An agent between 1.5× and 3× cadence reads `late`; beyond 3×, `stale`.
+// Financial Analyst and Weekly Review at 1.86× therefore read LATE — visible and escalating —
+// rather than sitting below the line and reading healthy, which is what a ×2 AGENT threshold
+// would have done to them. Feeds stay tighter at 2× because a stale feed silently poisons
+// every tile downstream of it, so it should shout sooner than a late agent.
+//
+// Reversible in one line each: change the number and rerun `node --test test/`. The synthetic
+// suite reads these constants live, so its expected table regenerates rather than being
+// hand-edited (WARROOM-HEALTH-001 Phase 5).
+const AGENT_STALE_MULT = 3;
+const FEED_STALE_MULT  = 2;
 
 // WARROOM-HEALTH-001 Phase 4 — fetches the latest run_log row per job for the agents in
 // AGENT_HEALTH_CONFIG, in one batched query. Same MOTHERDUCK_TOKEN-as-env-var pattern as
@@ -536,6 +558,64 @@ function applyRegistrySchedule(a, byId) {
   return out;
 }
 
+// ── GATE-B fleet classification (RULED 2026-08-27) ───────────────────────────────────────
+// Three classes, each defined by an observable fact about the agent, never by a hand-kept list
+// that would drift the moment an agent gains or loses a scheduler entry:
+//
+//   'scheduled'  — has a real installed scheduler entry AND a declared cadence, so its liveness
+//                  is a cadence question. These are the PRIMARY agents: they are the health
+//                  denominator, and they sort first (Shiv's ruling: prioritise the primary
+//                  agents over the nice-to-haves).
+//   'event'      — genuinely live but not cadence-evaluated: always-on daemons (JARVIS, Mac
+//                  Worker), event-triggered in-process calls (Data Guardian), scaffolds
+//                  (Research Portal) and drafted-but-gated agents (Gracenote OnConnect).
+//                  Liveness here is a process/trigger question, so scoring them against a
+//                  cadence would mark a perfectly healthy daemon stale.
+//   'invocable'  — Claude Code persona definitions (.claude/agents/*.md). No process, no log,
+//                  no exit code. They cannot be cron-scheduled or job-queue dispatched, and
+//                  inventing a cadence for them would fabricate liveness — exactly what GATE-B
+//                  exists to prevent. Excluded from the health denominator; never 'retired',
+//                  which would hide them.
+//
+// 'scheduled' is derived from AGENT_HEALTH_CONFIG holding a numeric cadence — the same table
+// the evaluator reads — so an agent cannot be counted in the denominator by one rule and
+// health-evaluated by another (C6).
+// The 'event' class is an EXPLICIT named set, not a type-field heuristic. `type:'subagent'`
+// mixes two unlike things — real processes (Mac Worker's launchd daemon) and Claude Code
+// persona definitions (Autonomous Coder, Data Modeler) — so classifying on it put personas in
+// the live class. Each name below was inspected this pass and has a real process, trigger, or
+// scaffold behind it; everything else that isn't scheduled is a persona.
+const AGENT_EVENT_CLASS = new Set([
+  'JARVIS',               // Railway HTTP Events API daemon — always on
+  'Mac Worker',           // com.sasmaster.mac-worker, launchd KeepAlive daemon
+  'Data Guardian',        // event-triggered in-process call after ingestion
+  'Research Portal',      // scaffolded, no entrypoint on disk yet
+  'Gracenote OnConnect',  // drafted, spine-promotion GATED
+  'Nielsen Orchestrator', // real orchestrator, but no scheduler entry of its own (2026-08-27 audit)
+]);
+function classifyAgent(a) {
+  const cfg = AGENT_HEALTH_CONFIG[a.name];
+  // 'scheduled' is derived from a NUMERIC cadence in the evaluator's own table — so an agent
+  // in AGENT_HEALTH_CONFIG with cadence_ms:null (JARVIS, Research Portal, Data Guardian) is
+  // correctly NOT counted in a denominator it could never score healthy against.
+  if (cfg && typeof cfg.cadence_ms === 'number') return { ...a, classification: 'scheduled' };
+  if (AGENT_EVENT_CLASS.has(a.name)) return { ...a, classification: 'event' };
+  return { ...a, classification: 'invocable' };
+}
+const FLEET_CLASS_ORDER = { scheduled: 0, event: 1, invocable: 2 };
+// Stable sort: primary (scheduled) agents first, then event/daemon, then personas. Within a
+// class the original hand-authored order is preserved — Array.prototype.sort is stable in
+// Node 20, and the index tiebreak makes that explicit rather than relying on it.
+function sortFleetByPriority(agents) {
+  return agents
+    .map((a, i) => ({ a, i }))
+    .sort((x, y) => {
+      const d = (FLEET_CLASS_ORDER[x.a.classification] ?? 9) - (FLEET_CLASS_ORDER[y.a.classification] ?? 9);
+      return d !== 0 ? d : x.i - y.i;
+    })
+    .map(x => x.a);
+}
+
 function parseAgents(allWiredRunstateByJob) {
   const LOG = path.join(SASMASTER, 'logs');
   const runLogByJob = fetchAgentRunLog(allWiredRunstateByJob);
@@ -639,8 +719,9 @@ function parseAgents(allWiredRunstateByJob) {
 
   const blockedSignalsByJob = readAgentBlockedSignals();
   const registrySchedule = readRegistrySchedule();
-  return agents.map(a => {
+  return sortFleetByPriority(agents.map(a => {
     a = applyRegistrySchedule(a, registrySchedule);
+    a = classifyAgent(a);
     const healthEval = computeAgentHealthEval(a, runLogByJob, blockedSignalsByJob);
     if (a.statusOverride) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: a.statusOverride, healthEval };
     if (!a.log) return { ...a, lastRun: null, lastOutput: a.descOverride || null, status: 'idle', healthEval };
@@ -667,7 +748,7 @@ function parseAgents(allWiredRunstateByJob) {
     const status     = hardError ? 'error' : routingErr ? 'routing' : 'healthy';
 
     return { ...a, lastRun, lastOutput: summary, status, healthEval };
-  });
+  }));
 }
 
 // ── Intel feed ───────────────────────────────────────────────────────────────
@@ -1384,7 +1465,9 @@ function getBuildTrends() {
 // as a number at all, even though a computed value exists underneath. Flip to true (and
 // review WARROOM_AGENT_INVENTORY.md's expected_state column for any retired agents) once
 // Shiv rules on S5b.
-const AGENT_FLEET_CLASSIFICATION_RULED = false;
+// GATE-B — RULED BY SHIV 2026-08-27 ("Three Classes as proposed — but we should be
+// prioritizing the primary agents over the 'nice to have' agents"), WARROOM-AGENT-RUNPLANE-001.
+const AGENT_FLEET_CLASSIFICATION_RULED = true;
 
 function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haikuPctToday, warroomS3Total) {
   // agents_running counts only live/cron agents (not idle sub-agents or marketplace)
@@ -1393,8 +1476,19 @@ function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haiku
   // legacy 'routing' consumers elsewhere (DATA-tab SEC EDGAR indicator); the AGENTS-tab
   // ratio below uses healthEval.state, the computed value (C3/C6).
   const agents_running = liveAgents.filter(a => a.status === 'healthy' || a.status === 'routing').length;
-  const agents_healthy_computed = liveAgents.filter(a => a.healthEval && a.healthEval.state === 'healthy').length;
-  const agents_classified_denominator = liveAgents.filter(a => !a.healthEval || a.healthEval.state !== 'retired').length;
+  // GATE-B RULED 2026-08-27 — the health ratio is over the 'scheduled' class only: the agents
+  // whose liveness is genuinely a cadence question. Before the ruling this read `liveAgents`
+  // (a type-field filter), which is a different set and would have counted always-on daemons
+  // and event-triggered agents in a denominator they can never score healthy against.
+  // 'retired' stays excluded from BOTH numerator and denominator per the card.
+  const scheduledAgents = agents.filter(a => a.classification === 'scheduled');
+  const agents_healthy_computed = scheduledAgents.filter(a => a.healthEval && a.healthEval.state === 'healthy').length;
+  const agents_classified_denominator = scheduledAgents.filter(a => !a.healthEval || a.healthEval.state !== 'retired').length;
+  const agents_by_class = {
+    scheduled: agents.filter(a => a.classification === 'scheduled').length,
+    event:     agents.filter(a => a.classification === 'event').length,
+    invocable: agents.filter(a => a.classification === 'invocable').length,
+  };
   const scrapers_live  = scrapers.filter(s => s.status === 'live').length;
   // Prefer warroom-data.json total (4x/day refresh) over stale s3-inventory.json sum
   const s3_gb = warroomS3Total != null
@@ -1417,6 +1511,7 @@ function buildKPIs(agents, scrapers, s3_lake, tasks, pk, buildEventsCount, haiku
     agents_healthy_computed,
     agents_classified_denominator,
     agents_gate_b_ruled: AGENT_FLEET_CLASSIFICATION_RULED,
+    agents_by_class,
     scrapers_live,
     scrapers_total: scrapers.length,
     s3_gb: Math.round(s3_gb * 10) / 10,
