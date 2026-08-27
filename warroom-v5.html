@@ -2027,7 +2027,18 @@ function renderKPIStrip(vm){
   if(cells[2]){const fu=vm.followUp??0;const v=cells[2].querySelector('.v');v.textContent=fu;v.style.color=fu===0?'var(--up)':'var(--warn)';cells[2].querySelector('.c').textContent=fu===0?'all clear':fu+' need attention';}
   if(cells[3]){cells[3].querySelector('.v').textContent=k.blessQueue||'—';cells[3].querySelector('.c').textContent='HIGH (live)';}
   if(cells[4]){cells[4].querySelector('.v').textContent=k.buildEventsToday;cells[4].querySelector('.c').textContent=k.buildEventsToday+' items today';}
-  if(cells[5]){const cost=k.costMtd!=null?'$'+Number(k.costMtd).toFixed(2):'$0.08';cells[5].querySelector('.v').textContent=cost;cells[5].querySelector('.c').textContent=(vm.costSummary&&vm.costSummary.entry_count)||21+' builds';}
+  if(cells[5]){
+    // TRUTHFUL-VITALS-001: was a fabricated '$0.08'/'21 builds' fallback (copy-pasted from
+    // DEMO_DATA) presented as a real reading when cost/entry data hadn't loaded. Unknown
+    // now renders '—', not a plausible-looking fake number. Also fixes an operator-precedence
+    // bug: `(x&&x.y)||21+' builds'` parsed as `||(21+' builds')`, so a falsy entry_count showed
+    // the literal fabricated text "21 builds" and a truthy one silently dropped the ' builds' suffix.
+    const costPayload=k.costMtd!=null?WarroomRender.makeValue(k.costMtd):WarroomRender.makeNA('no cost_summary loaded');
+    cells[5].querySelector('.v').textContent=WarroomRender.renderValue(costPayload,v=>'$'+Number(v).toFixed(2)).text;
+    const entryCount=vm.costSummary&&vm.costSummary.entry_count;
+    const entryPayload=entryCount!=null?WarroomRender.makeValue(entryCount):WarroomRender.makeNA('no cost_summary loaded');
+    cells[5].querySelector('.c').textContent=WarroomRender.renderValue(entryPayload,v=>v+' builds').text;
+  }
   // cells[6] ("BLESS QUEUE") is now a projection of the one work_queue model
   // (C6) — WARROOM-WORKQUEUE-001 fixed this cell reading `k.blessQueue`
   // (really `tasks.highItems.length`, the OPS HIGH count aliased onto this
@@ -3417,17 +3428,21 @@ function startOpsOverlayPolling(){
 async function renderFinance(vm){
   const cs=vm.costSummary;
   const fd=await loadFintel(); // reuses cached finance-data.json (same as loadFintel)
+  // TRUTHFUL-VITALS-001: a missing cost reading must render '—', never a plausible fake
+  // dollar figure — this function previously used `||45`/`||20`/`||5` fallbacks lifted
+  // from DEMO_DATA that looked identical to real spend.
+  const usd=v=>WarroomRender.renderValue(v!=null?WarroomRender.makeValue(v):WarroomRender.makeNA('no finance-data.json reading'),n=>'$'+Number(n).toFixed(2)).text;
 
   const strip=document.querySelector('#v-finance .coststrip');
   if(strip){
     const cells=strip.querySelectorAll(':scope > div');
     if(fd&&fd.burn){
       const b=fd.burn;
-      if(cells[0])cells[0].querySelector('.v').textContent='$'+(b.api_mtd||0).toFixed(2);
-      if(cells[1])cells[1].querySelector('.v').textContent='$'+(b.infra_mtd||45).toFixed(2);
-      if(cells[2])cells[2].querySelector('.v').textContent='$'+(b.tools_mtd||20).toFixed(2);
+      if(cells[0])cells[0].querySelector('.v').textContent=usd(b.api_mtd);
+      if(cells[1])cells[1].querySelector('.v').textContent=usd(b.infra_mtd);
+      if(cells[2])cells[2].querySelector('.v').textContent=usd(b.tools_mtd);
       const totalV=cells[3]&&cells[3].querySelector('.v');
-      if(totalV){totalV.textContent='$'+(b.total_mtd||0).toFixed(2);totalV.className='v gold';}
+      if(totalV){totalV.textContent=usd(b.total_mtd);totalV.className='v gold';}
       // WARROOM-RENDER-001 remediation (2026-08-24, MAINTAINER gap 1/2): cells[4] IS the
       // "Runway" KPI div at the top of #v-finance .coststrip (the same element the static
       // markup at line ~1032 seeds before JS runs, positionally targeted, not by id) — there
@@ -3484,12 +3499,12 @@ async function renderFinance(vm){
     const b=fd.burn;const inf=fd.infrastructure||{};
     const rows=document.querySelectorAll('#v-finance .dt tr');
     const setTd=(row,col,text)=>{if(!row)return;const tds=row.querySelectorAll('td');if(tds[col])tds[col].textContent=text;};
-    setTd(rows[1],1,'$'+(b.api_mtd||0).toFixed(2));
-    setTd(rows[2],1,'$'+(inf.railway_usd||20).toFixed(2));
-    setTd(rows[3],1,'$'+(inf.vercel_usd||20).toFixed(2));
-    setTd(rows[4],1,'$'+(inf.aws_usd||5).toFixed(2));
-    setTd(rows[5],1,'$'+(b.tools_mtd||20).toFixed(2));
-    if(rows[6]){const tds=rows[6].querySelectorAll('td');if(tds[1])tds[1].innerHTML='<b>$'+(b.total_mtd||0).toFixed(2)+'</b>';}
+    setTd(rows[1],1,usd(b.api_mtd));
+    setTd(rows[2],1,usd(inf.railway_usd));
+    setTd(rows[3],1,usd(inf.vercel_usd));
+    setTd(rows[4],1,usd(inf.aws_usd));
+    setTd(rows[5],1,usd(b.tools_mtd));
+    if(rows[6]){const tds=rows[6].querySelectorAll('td');if(tds[1])tds[1].innerHTML='<b>'+usd(b.total_mtd)+'</b>';}
   }
 
   // WARROOM-CLOCK-001 (2026-08-24): the "6-month cash forecast" bars were
@@ -4556,9 +4571,11 @@ document.addEventListener('DOMContentLoaded',()=>{
     // Insights & areas for optimization — L4: only touches the adapted view model, never raw `d`
     renderInsights(computeInsights(adapt(d)));
 
-    // Timestamp
-    const ts = d.computed_at ? new Date(d.computed_at).toLocaleString() : '—';
-    setVal('tm-last-refresh', 'Source: '+escHtml(d.source||'—')+'  ·  Computed: '+ts);
+    // Timestamp — routed through WarroomRender's typed payload (C2: no hand-rolled dash fallback)
+    const tsPayload = d.computed_at ? WarroomRender.makeValue(new Date(d.computed_at).toLocaleString()) : WarroomRender.makeNA('no computed_at from source');
+    const srcPayload = d.source ? WarroomRender.makeValue(d.source) : WarroomRender.makeNA('no source label from upstream');
+    const ts = WarroomRender.renderValue(tsPayload).text;
+    setVal('tm-last-refresh', 'Source: '+WarroomRender.renderValue(srcPayload).text+'  ·  Computed: '+ts);
   }
 
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
