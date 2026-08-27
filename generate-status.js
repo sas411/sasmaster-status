@@ -213,6 +213,12 @@ function parsePending() {
       tag: 'PENDING',
       priority: 'REVIEW',
       approvalId: p.id,
+      // WARROOM-WORKQUEUE-001 — real `opened_at` for the work_queue model's
+      // `review` kind (C6). Previously dropped entirely (only id/description
+      // survived), which is why the review column had no age anywhere on the
+      // board. `p.timestamp` is the file's own field — not derived, not the
+      // date inside `description`'s free text.
+      openedAt: p.timestamp || null,
     }));
   } catch { return []; }
 }
