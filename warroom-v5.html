@@ -1793,18 +1793,22 @@ function adapt(d){
        last_pull_ts + its own cadence instead of trusting the frozen fields. */
     const nc=window._nielsenClock;
     if(nc&&Array.isArray(nc.families)&&nc.families.length){
-      const now=Date.now();
+      // WARROOM-CLOCK-DEDUP-002: was raw (now-lastPull)/86400000 — no clock-skew guard, bypassed
+      // WarroomClock (C6). ageFrom() carries the same skew check the rest of the file relies on.
       let worst=null;
       nc.families.forEach(fam=>{
-        const lastPull=Date.parse(fam.last_pull_ts.replace(' ','T')+(fam.last_pull_ts.includes('Z')?'':'Z'));
-        if(isNaN(lastPull))return;
-        const realDays=(now-lastPull)/86400000;
+        const lastPullIso=fam.last_pull_ts.replace(' ','T')+(fam.last_pull_ts.includes('Z')?'':'Z');
+        const age=WarroomClock.ageFrom(lastPullIso,WarroomClock.nowUtc());
+        if(age.state==='error')return;
+        const realDays=age.ms/86400000;
         const cadence=fam.pull_cadence_days||15;
         if(!worst||realDays>worst.realDays) worst={realDays,cadence,family:fam.dataset_family};
       });
       const due=(nc.families||[]).map(x=>x.next_due).filter(Boolean).sort()[0]||null;
       if(worst){
-        const clockAgeDays=(now-Date.parse(nc.generated_at))/86400000;
+        const clockAge=WarroomClock.ageFrom(nc.generated_at,WarroomClock.nowUtc());
+        // Unreadable/skewed generated_at can't be proven fresh — treat as stale (fail toward the alert).
+        const clockAgeDays=clockAge.state==='error'?Infinity:clockAge.ms/86400000;
         const warn=worst.realDays>worst.cadence||clockAgeDays>2; // clock file itself stale >2d is an amber trigger too
         const red=worst.realDays>worst.cadence+3;
         return {days:Math.floor(worst.realDays),warn:warn||red,red,due,worstFamily:worst.family};
@@ -3275,8 +3279,13 @@ function updateStatusBar(vm){
   const agoEl=document.getElementById('agos');
   if(agoEl&&vm.generatedAt) agoEl.textContent=WarroomRender.formatAge(vm.generatedAt,WarroomClock,'N/A — no sync recorded');
 
-  const ageMs = vm.generatedAt ? (Date.now()-new Date(vm.generatedAt)) : null;
-  const isStale = ageMs!=null && !isNaN(ageMs) && ageMs>STALE_AMBER_MS;
+  // WARROOM-CLOCK-DEDUP-002: was raw Date.now()-new Date(...) with no clock-skew guard — a
+  // generator clock ahead of this client's would go negative and silently read as NOT stale.
+  // A skewed/unreadable timestamp can't be proven fresh -> fails toward the stale alert, never away.
+  const _genAge = vm.generatedAt ? WarroomClock.ageFrom(vm.generatedAt,WarroomClock.nowUtc()) : null;
+  const genAgeSkewed = !!(_genAge && _genAge.state==='error');
+  const ageMs = _genAge && !genAgeSkewed ? _genAge.ms : null;
+  const isStale = genAgeSkewed || (ageMs!=null && ageMs>STALE_AMBER_MS);
 
   // sync counter: only reset when the underlying feed actually advanced — a frozen
   // generated_at with SYNCED reset to 0S every cycle is exactly the "green over stale"
@@ -3295,12 +3304,14 @@ function updateStatusBar(vm){
   const banner=document.getElementById('staleness-banner');
   if(banner){
     if(isStale){
-      const hrs=(ageMs/3600000).toFixed(1);
+      const red=genAgeSkewed||ageMs>STALE_RED_MS;
       banner.style.display='block';
-      banner.style.background=ageMs>STALE_RED_MS?'#3a1414':'#3a2c14';
-      banner.style.color=ageMs>STALE_RED_MS?'#F87171':'#FBBF24';
+      banner.style.background=red?'#3a1414':'#3a2c14';
+      banner.style.color=red?'#F87171':'#FBBF24';
       banner.style.borderColor=banner.style.color;
-      banner.textContent=`⚠ status.json is ${hrs}h old (generated ${vm.generatedAt}) — the numbers below may not reflect current state. Generator likely stalled.`;
+      banner.textContent=genAgeSkewed
+        ? `⚠ status.json timestamp (${vm.generatedAt}) is unreadable or ahead of this client's clock — age cannot be verified. Treating as stale.`
+        : `⚠ status.json is ${(ageMs/3600000).toFixed(1)}h old (generated ${vm.generatedAt}) — the numbers below may not reflect current state. Generator likely stalled.`;
     } else {
       banner.style.display='none';
     }
@@ -3560,9 +3571,12 @@ async function renderFinance(vm){
       oblEl.parentElement.appendChild(ageEl);
     }
     if(ageEl){
-      const ageHrs=((Date.now()-genDate)/3600000).toFixed(0);
-      ageEl.textContent=`finance-data.json as of ${fd.generated_at.slice(0,10)} (${ageHrs}h old)${ageHrs>24?' — STALE':''}`;
-      ageEl.style.color=ageHrs>24?'#F87171':'var(--dim)';
+      // WARROOM-CLOCK-DEDUP-002: was raw wall-clock subtraction divided by ms-per-hour, no clock-skew guard.
+      const fdAge=WarroomClock.ageFrom(fd.generated_at,WarroomClock.nowUtc());
+      const stale=fdAge.state==='error'||fdAge.ms/3600000>24;
+      const ageHrs=fdAge.state==='error'?'—':(fdAge.ms/3600000).toFixed(0);
+      ageEl.textContent=`finance-data.json as of ${fd.generated_at.slice(0,10)} (${ageHrs}h old)${stale?' — STALE':''}`;
+      ageEl.style.color=stale?'#F87171':'var(--dim)';
     }
   }
 }
