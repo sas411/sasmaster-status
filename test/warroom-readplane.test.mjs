@@ -75,6 +75,21 @@ test('renderBreachFields: no cache yet (cold start) -> honest ERROR, never fabri
   const out = WarroomReadplane.renderBreachFields('COLDTAB', ['tile_a'], 30, new Date('2026-08-26T12:00:00Z'));
   assert.equal(out.servedFromCache, false);
   assert.equal(out.fields.tile_a.state, 'error');
+  // Gap D regression (WARROOM-READPLANE-001, fixed 2026-08-27): a cold-start
+  // miss never obtained a reading — state:'error' + freshness:'fresh' was the
+  // contradictory pair a prior audit found here. Must never be fresh.
+  assert.notEqual(out.fields.tile_a.freshness, 'fresh');
+  assert.equal(out.fields.tile_a.freshness, 'stale');
+});
+
+test('renderTile: Gap E regression -- honors registry stale_at_seconds over cadence*2', () => {
+  // cadence=30 would give cadence*2=60s stale threshold; registry rules 45s instead.
+  const now = new Date('2026-08-26T12:00:50Z'); // 50s after computed_at
+  const payload = WarroomRender.makeValue(1, 'q', '2026-08-26T12:00:00Z');
+  const viaFallback = WarroomReadplane.renderTile(payload, 30, now); // no registry value -> cadence*2=60s -> not yet stale
+  assert.equal(viaFallback.freshness, 'late');
+  const viaRegistry = WarroomReadplane.renderTile(payload, 30, now, 45); // registry says stale at 45s
+  assert.equal(viaRegistry.freshness, 'stale');
 });
 
 test('renderBreachFields: cached payload served with state UNCHANGED and freshness recomputed live, never fresh', () => {

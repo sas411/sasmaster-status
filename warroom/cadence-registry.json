@@ -19,6 +19,16 @@
   "query_budget_policy": "placeholder-pending-costcanon-001",
   "query_budget_note": "Per-tab daily query caps derived from READPLANE_SNAPSHOT_MAP.md's query-count estimates until WARROOM-COSTCANON-001 supplies real MotherDuck billing figures. See that card's Phase 3 for the actual cap values.",
 
+  "_queue_kinds_comment": "WARROOM-WORKQUEUE-001 DECISION GATE — ruled by Shiv 2026-08-26, recorded verbatim in ~/SaSMaster/FEEDBACK.md: escalation cadence per queue kind derives from each kind's own source cadence (self-maintaining), not a uniform threshold or hand-set per-kind values. This pass could NOT complete that derivation for any of the 4 kinds: no source producer is named anywhere in this repo for bless, blocked_agent, review, or ops_task (checked warroom-v5.html, docs/, this file's own sources section — nothing maps a kind to a producing cron/LaunchAgent). Two derivations were deliberately rejected rather than guessed: (1) tabs.QUEUE.cadence_seconds (120s) is a READPLANE-001 UI poll interval, a different quantity on a different scale, not a source cadence, and using it would launder that ruling into this one; (2) sources.canvas-piece-pipeline looked like a tempting fit for 'bless' but its own expected_cadence_seconds is null / cadence_status DECISION-PENDING-5c-EXT, so deriving from it derives from nothing. Per the ruling's own interim rule, a kind with no declared cadence stays escalation_state='unset' until a future pass names its source in this registry.",
+  "queue_kinds": {
+    "bless":         { "source": null, "expected_cadence_seconds": null, "escalation_state": "unset", "cadence_status": "DECISION-PENDING-WORKQUEUE-001", "note": "No producing source for the bless queue identified in this repo this pass." },
+    "blocked_agent": { "source": null, "expected_cadence_seconds": null, "escalation_state": "unset", "cadence_status": "DECISION-PENDING-WORKQUEUE-001", "note": "No producing source for blocked-agent items identified in this repo this pass." },
+    "review":        { "source": null, "expected_cadence_seconds": null, "escalation_state": "unset", "cadence_status": "DECISION-PENDING-WORKQUEUE-001", "note": "No producing source for review-queue items identified in this repo this pass." },
+    "ops_task":      { "source": null, "expected_cadence_seconds": null, "escalation_state": "unset", "cadence_status": "DECISION-PENDING-WORKQUEUE-001", "note": "No producing source for ops_task items identified in this repo this pass." }
+  },
+  "queue_kinds_ruled_by": "shiv",
+  "queue_kinds_feedback_ref": "~/SaSMaster/FEEDBACK.md [2026-08-26] WARROOM-WORKQUEUE-001 DECISION GATE",
+
   "_sources_comment": "WARROOM-FRESHNESS-001 Phase 1 — per-source registry, built from WARROOM_TILE_INVENTORY.md (173 rows), cross-referenced against docs/RUN_LOG_COVERAGE.md and sasmaster.ops.run_log. expected_cadence_seconds is populated ONLY where a real producing cron/LaunchAgent exists and its schedule is confirmed live. Sources with no producing job, or a manual/editorial origin, carry cadence_status:DECISION-PENDING-5c-EXT and are NOT defaulted — see the Phase 2 decision-gate table this same builder pass produced for Shiv.",
   "sources": {
     "s3-inventory": {

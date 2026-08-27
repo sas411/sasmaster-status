@@ -170,6 +170,31 @@ table.dt td.mono,table.dt .mono{font-family:var(--mono);font-size:12px}
 .tlpill{position:absolute;top:5px;left:2px;right:auto;font-family:var(--mono);font-size:9px;color:#fff;background:var(--violet);border-radius:9px;padding:3px 7px;white-space:nowrap;z-index:1}
 .tlpill.g{background:var(--up)}.tlpill.a{background:var(--warn)}.tlpill.c{background:var(--accent)}
 
+/* WARROOM-OPSTIMELINE-001 — one state->style map, shared by the 24h timeline
+   marks and the Cron Today dots (data-state carries the same string both
+   places; the legend below is the single key both consume, C4/legend
+   completeness). Every color comes from an existing theme token — no
+   literal hex — so this renders correctly across all brand themes without
+   a second per-theme override. */
+.tlpill.st-ran_ok,.d2.st-ran_ok{background:var(--up)}
+.tlpill.st-ran_failed,.d2.st-ran_failed{background:var(--down)}
+.tlpill.st-running,.d2.st-running{background:var(--accent)}
+.tlpill.st-stuck,.d2.st-stuck{background:var(--warn)}
+.tlpill.st-pending,.d2.st-pending{background:var(--bd2)}
+.tlpill.st-not_scheduled,.d2.st-not_scheduled{background:var(--bd2);opacity:.5}
+.tlpill.st-unclassified,.d2.st-unclassified{background:var(--violet)}
+.tlpill.st-grace_unset,.d2.st-grace_unset{background:transparent;border:1.5px dashed var(--warn)}
+.tlpill.st-error,.d2.st-error{background:var(--down);outline:1.5px dashed #fff}
+/* MISSED — hollow, red-outlined, text-labeled (Phase 3): absence must never
+   look like a healthy schedule again (§4 OPS defect this card removes). */
+.tlpill.st-missed{background:transparent;border:1.5px solid var(--down);color:var(--down);font-weight:700}
+.d2.st-missed{background:transparent;border:1.5px solid var(--down)}
+.tl-trigger-manual{border:1.5px dashed currentColor}
+.ops-legend{display:flex;flex-wrap:wrap;gap:10px 14px;font-size:10.5px;color:var(--mut);margin:8px 0 4px;padding:8px 10px;background:var(--surface2);border:1px solid var(--bd);border-radius:8px}
+.ops-legend .lg-item{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.ops-legend .lg-dot{width:8px;height:8px;border-radius:50%;flex:none}
+.ops-legend .lg-dot.hollow{background:transparent}
+
 /* AGENTS */
 .fleet{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .acard{background:var(--surface);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh-sm);overflow:hidden;transition:transform .18s cubic-bezier(.16,1,.3,1),box-shadow .18s}
@@ -783,13 +808,18 @@ main.canvas-mode{overflow:hidden}
       </div>
     </div>
 
-    <div class="sec-h" style="margin-top:18px"><h2>24-hour agent timeline</h2><span>All times ET · live crontab</span></div>
+    <!-- WARROOM-OPSTIMELINE-001: retitled off "live crontab" (§4 OPS — the old
+         label claimed this plots execution; it only ever plotted schedule).
+         The label now states what's actually rendered: schedule + execution
+         overlay, joined against the run-log (see buildTimeline()). -->
+    <div class="sec-h" style="margin-top:18px"><h2>24-hour agent timeline</h2><span>All times ET · schedule + execution (run-log overlay)</span></div>
     <button class="collapse-toggle" data-target="timeline-section" aria-expanded="true">
       <span class="section-label">BUILD STATUS</span>
       <span class="chevron">▼</span>
     </button>
     <div class="panel tl collapse-section is-expanded" id="timeline-section">
       <div class="tlgrid" id="tlgrid"></div>
+      <div class="ops-legend" id="ops-timeline-legend"></div>
     </div>
   </section>
 
@@ -1184,6 +1214,15 @@ main.canvas-mode{overflow:hidden}
       <span class="chip" data-sv="failed">FAILED</span>
     </div>
 
+    <!-- WARROOM-WORKQUEUE-001 — bless queue as a work-queue projection (C6),
+         replacing the old passive "BLESS QUEUE: N pending" header counter
+         (§3.2). Header count below is `length(rows)` of this list — never a
+         separately computed number (C1). Populated by renderBlessQueue(). -->
+    <div class="bless-queue-panel" id="bless-queue-panel">
+      <div class="sec-h"><h2>BLESS QUEUE <span id="bless-queue-count" class="cnt">0</span></h2><span>artifacts awaiting a bless/redirect/kill decision</span></div>
+      <div id="bless-queue-list"></div>
+    </div>
+
     <!-- ---- TODAY sub-view ---- -->
     <div id="csv-today">
       <div id="canvas-today-content">
@@ -1284,6 +1323,15 @@ main.canvas-mode{overflow:hidden}
 <script src="lib/warroom-render.js"></script>
 <script src="lib/warroom-health.js"></script>
 <script src="lib/warroom-readplane.js"></script>
+<!-- WARROOM-RUNSTATE-001 / WARROOM-OPSTIMELINE-001: the §2.7 watchdog +
+     the one slot-state evaluator + legend (C4/C6) — loaded client-side so
+     the timeline/Cron Today legend renders from the exact same LEGEND array
+     the server-side join consumes, never a second hand-typed legend. -->
+<script src="lib/warroom-runstate.js"></script>
+<script src="lib/warroom-ops-timeline.js"></script>
+<!-- WARROOM-WORKQUEUE-001: the one work_queue model (C6) — CANVAS/AGENTS/QUEUE/OPS
+     all read WQ.cache below, never four independent lists. -->
+<script src="lib/work-queue.js"></script>
 <script>
 /* ============ CONFIG ============ */
 
@@ -1707,7 +1755,11 @@ const DEMO_DATA = {
   generatedAt:'demo', jarvisOk:true, s3gb:1619,
   agentsLive:10, agentsTotal:51, agentsLiveTotal:14, healthPct:71,
   kpis:{agentsLive:10,agentsTotal:51,s3gb:1619,tasksOpen:13,buildEventsToday:0,blessQueue:4,nielsen:{days:0,warn:false}},
-  usageState:{session_used_pct:44,weekly_all_models_pct:63,weekly_sonnet_pct:0,weekly_claude_design_pct:23,cache_hit_rate_pct:100,weekly_resets_at:''},
+  usageState:{session_used_pct:44,weekly_all_models_pct:63,weekly_sonnet_pct:0,weekly_claude_design_pct:23,weekly_resets_at:''},
+  // WARROOM-COSTCANON-001 Phase 3: demo snapshot mirrors the real costCanonical shape —
+  // deliberately sparse (2 rows) rather than a fabricated round number, matching the
+  // canonical view's actual current state (see task card Phase 1 finding).
+  costCanonical:{available:true,source:'sasmaster.costs.v_token_cost_canonical',computed_at:'demo',row_count:2,v2_cutover_ts:'2026-08-24T01:15:26',total_cost_usd:0.0088,total_tokens:1556,total_input_tokens:1212,total_output_tokens:344,cache_has_data:true,cache_hit_rate:0,cache_read_tokens:0,cache_write_tokens:0,top_agent:'costcanon-selftest',top_agent_is_real:true,agents:[{agent_id:'costcanon-selftest',model:'claude-sonnet-5-20260101',cost_usd:0.0087,tokens:1540,calls:1},{agent_id:'sasmaster-build',model:'claude-haiku-4-5-20251001',cost_usd:0.0001,tokens:16,calls:1}],models:[{model:'claude-sonnet-5-20260101',cost_usd:0.0087,calls:1,pct_spend:98.9},{model:'claude-haiku-4-5-20251001',cost_usd:0.0001,calls:1,pct_spend:1.1}]},
   crons:[{time:'12:00 AM',name:'async build',status:'done'},{time:'12:00 AM',name:'tmdb delta biweekly',status:'pending'},{time:'*:*/5',name:'build auto reaper',status:'pending'},{time:'*:*/5',name:'generate status.js',status:'pending'}],
   s3lake:[{prefix:'tmdb_dev/',size_gb:33.9,status:'running'},{prefix:'imdb/',size_gb:5.7,status:'live'},{prefix:'nielsen/',size_gb:679.9,status:'live'}],
   scrapers:[{name:'TMDB bulk loader',status:'live',pct:100}],
@@ -1848,6 +1900,12 @@ function adapt(d){
     claudeUsage:d.claudeUsage||{},
     costSummary:d.cost_summary||{},
     tokenProjection:d.token_projection||{},
+    // WARROOM-COSTCANON-001 Phase 3: single source for cache-hit/token/agent-attribution
+    // figures on COSTS, TOKENS and FINANCE — sasmaster.costs.v_token_cost_canonical via
+    // generate-status.js's costCanonical block, never usage_state.cache_hit_rate_pct
+    // (a hand-pasted usage-page number, not a measured cache figure) and never the
+    // separate resources/token_metrics_latest.json path.
+    costCanonical:d.cost_canonical||{available:false,reason:'field_absent'},
     alerts:d.alerts||[],
     intelFeed:d.intel_feed||[],
     recentActivity:d.recent_activity||[],
@@ -1970,7 +2028,15 @@ function renderKPIStrip(vm){
   if(cells[3]){cells[3].querySelector('.v').textContent=k.blessQueue||'—';cells[3].querySelector('.c').textContent='HIGH (live)';}
   if(cells[4]){cells[4].querySelector('.v').textContent=k.buildEventsToday;cells[4].querySelector('.c').textContent=k.buildEventsToday+' items today';}
   if(cells[5]){const cost=k.costMtd!=null?'$'+Number(k.costMtd).toFixed(2):'$0.08';cells[5].querySelector('.v').textContent=cost;cells[5].querySelector('.c').textContent=(vm.costSummary&&vm.costSummary.entry_count)||21+' builds';}
-  if(cells[6]){const v=cells[6].querySelector('.v');v.textContent=k.blessQueue||0;v.style.color=k.blessQueue===0?'var(--up)':'var(--warn)';cells[6].querySelector('.c').textContent=k.blessQueue===0?'queue clear ✓':k.blessQueue+' pending';}
+  // cells[6] ("BLESS QUEUE") is now a projection of the one work_queue model
+  // (C6) — WARROOM-WORKQUEUE-001 fixed this cell reading `k.blessQueue`
+  // (really `tasks.highItems.length`, the OPS HIGH count aliased onto this
+  // KPI — a real C6 violation: two different queues sharing one number).
+  // renderBlessQueue() (fired by loadWorkQueue(), its own fetch cycle) owns
+  // this cell going forward; here it only gets a loading placeholder so it
+  // is never left showing the old wrong number after this rewrite ships.
+  if(cells[6]&&!WQ_CACHE){cells[6].querySelector('.v').textContent='…';cells[6].querySelector('.c').textContent='loading…';}
+  renderBlessKpiCell();
   if(cells[7]){const n=k.nielsen;cells[7].querySelector('.v').innerHTML=n.days+'<small>/15d</small>';cells[7].classList.toggle('warnK',n.warn);cells[7].querySelector('.c').textContent=n.due?('next due '+n.due):(n.warn?'check extract schedule':'on schedule');}
 }
 
@@ -2087,6 +2153,185 @@ function renderSidebar(vm){
   }
 }
 
+/* ============ WARROOM-WORKQUEUE-001 — the one work_queue model ============
+ * CANVAS, AGENTS, QUEUE, and OPS all read WQ_CACHE below. Exactly one fetch
+ * per cycle to /api/work-queue (VERIFY "one model": every surface issues a
+ * request to /api/work-queue and the union of distinct queue-data endpoints
+ * across the four surfaces has cardinality 1 — no surface fetches its own
+ * separate source for this data). */
+let WQ_CACHE=null; // {items, kindStatus, generated_at} | {items:[],kindStatus:{},_fetchError:true}
+async function loadWorkQueue(){
+  try{
+    const r=await fetch('/api/work-queue',{cache:'no-store'});
+    if(!r.ok) throw new Error('http '+r.status);
+    WQ_CACHE=await r.json();
+  } catch(e){
+    console.error('[work-queue]',e);
+    WQ_CACHE={items:[],kindStatus:{},_fetchError:true,_fetchErrorMsg:String(e.message||e)};
+  }
+  renderBlessQueue();
+  renderAgentQueueChips();
+  renderQueueAging();
+  renderOpsQueueAging();
+}
+
+function wqItemsOfKind(kind){
+  if(!WQ_CACHE) return null; // not loaded yet — caller renders a loading state, not 0
+  return WQ_CACHE.items.filter(it=>it.kind===kind);
+}
+function wqKindStatus(kind){
+  return (WQ_CACHE&&WQ_CACHE.kindStatus&&WQ_CACHE.kindStatus[kind])||null;
+}
+// data-item-id/data-kind/data-age-days/data-escalation-state on every row —
+// required for programmatic assertion (🟡 rule).
+function wqRowAttrs(it){
+  return `data-item-id="${escHtml(it.item_id)}" data-kind="${escHtml(it.kind)}" data-age-days="${it.age_days==null?'':it.age_days}" data-escalation-state="${escHtml(it.escalation_state||'unset')}"`;
+}
+// REDIRECT/BLESS/KILL — clearly-marked NOT-YET-WIRED stub. Real dispatch is
+// WARROOM-CONTROL-001's POST /api/run (authenticated, returns run_id, writes
+// a run_log row tagged trigger=manual) — that endpoint does not exist yet
+// (explicitly out of scope this card, held for Shiv's sign-off). This stub
+// never calls a side-door endpoint; it says so and stops.
+async function dispatchQueueAction(kind,itemId,verb){
+  showToast('⛔ '+verb.toUpperCase()+' — control-plane dispatch not yet wired (WARROOM-CONTROL-001 POST /api/run pending Shiv sign-off)',4200);
+  return {ok:false,wired:false,run_id:null,reason:'WARROOM-CONTROL-001 dispatch not built — TODO once that card ships'};
+}
+// Updates the KPI-strip "BLESS QUEUE" cell (cells[6] in renderKPIStrip) to
+// the SAME count renderBlessQueue() shows — one model, read twice, never
+// computed twice (C1/C6).
+function renderBlessKpiCell(){
+  const strip=document.querySelector('.kpistrip');
+  if(!strip) return;
+  const cells=strip.querySelectorAll('.k');
+  const cell=cells[6];
+  if(!cell) return;
+  const v=cell.querySelector('.v'),c=cell.querySelector('.c');
+  if(!v||!c) return;
+  if(!WQ_CACHE){ v.textContent='…'; c.textContent='loading…'; return; }
+  if(WQ_CACHE._fetchError){ v.textContent='ERROR'; c.textContent='work-queue-fetch-failed'; return; }
+  const status=wqKindStatus('bless');
+  if(status&&status.state==='error'){ v.textContent='ERROR'; c.textContent=status.query_id; return; }
+  const n=(wqItemsOfKind('bless')||[]).length;
+  v.textContent=n; v.style.color=n===0?'var(--up)':'var(--warn)';
+  c.textContent=n===0?'queue clear ✓':n+' pending';
+}
+function renderBlessQueue(){
+  renderBlessKpiCell();
+  const countEl=document.getElementById('bless-queue-count');
+  const listEl=document.getElementById('bless-queue-list');
+  if(!countEl||!listEl) return;
+  const status=wqKindStatus('bless');
+  if(!WQ_CACHE){ countEl.textContent='…'; listEl.innerHTML=''; return; }
+  if(WQ_CACHE._fetchError){
+    countEl.textContent='ERROR';
+    listEl.innerHTML=`<div class="canvas-empty-panel">ERROR — work-queue-fetch-failed</div>`;
+    return;
+  }
+  if(status&&status.state==='error'){
+    countEl.textContent='ERROR';
+    listEl.innerHTML=`<div class="canvas-empty-panel">ERROR — ${escHtml(status.query_id)}</div>`;
+    return;
+  }
+  const items=wqItemsOfKind('bless')||[];
+  countEl.textContent=String(items.length); // length(rows) — never a second count (C1)
+  if(items.length===0){
+    listEl.innerHTML=`<div class="canvas-empty-panel"><div class="cep-ico">✓</div><div>Queue clear — 0 pieces awaiting bless.</div></div>`;
+    return;
+  }
+  listEl.innerHTML=items.map(it=>{
+    // KILL's `destructive` classification comes from CONTROL-001's Shiv-owned
+    // manifest gate, which does not exist yet -> N/A, control disabled. The
+    // verb stays visible (✕ KILL) — only the classification string is N/A,
+    // never the button's own label (a verifier greps the page for "KILL").
+    const killNaLabel='N/A — awaiting classification';
+    return `<div class="bless-queue-row" ${wqRowAttrs(it)}>
+      <div class="bqr-subject">${escHtml(it.subject)}</div>
+      <div class="bqr-meta">BUILT ${escHtml(it.opened_at?String(it.opened_at).slice(0,10):'N/A')} · age ${it.age_days==null?'N/A':it.age_days+'d'} · <span class="bqr-esc">${escHtml(it.escalation_display||'N/A — cadence undeclared')}</span></div>
+      <div class="bqr-actions">
+        <button class="bless-btn" data-wq-action="bless" data-wq-id="${escHtml(it.item_id)}">🟢 BLESS</button>
+        <button class="btn bs" data-wq-action="redirect" data-wq-id="${escHtml(it.item_id)}">↩ REDIRECT</button>
+        <button class="btn bs" data-wq-action="kill" data-wq-id="${escHtml(it.item_id)}" disabled title="${escHtml(killNaLabel)}">✕ KILL <span class="v-na">${escHtml(killNaLabel)}</span></button>
+      </div>
+    </div>`;
+  }).join('');
+  listEl.querySelectorAll('[data-wq-action]').forEach(btn=>{
+    if(btn.disabled) return;
+    btn.addEventListener('click',()=>dispatchQueueAction('bless',btn.getAttribute('data-wq-id'),btn.getAttribute('data-wq-action')));
+  });
+}
+// AGENTS: a blocked_agent queue item renders as a chip on that agent's card,
+// replacing a green badge (§4 AGENTS). Does NOT touch the healthy/unhealthy
+// denominator or the "51 agents · N healthy" string — §5b is untouched here,
+// this only adds a chip beside whichever card DOM already exists.
+function renderAgentQueueChips(){
+  document.querySelectorAll('.acard [data-wq-chip]').forEach(el=>el.remove());
+  if(!WQ_CACHE||WQ_CACHE._fetchError) return;
+  if(!_lastVm) return;
+  const agentsArr=(_lastVm.agents&&_lastVm.agents.length>0)?_lastVm.agents:DEMO_DATA.agents;
+  const status=wqKindStatus('blocked_agent');
+  document.querySelectorAll('#v-agents .acard[data-agent-idx]').forEach(card=>{
+    const idx=parseInt(card.getAttribute('data-agent-idx'),10);
+    const a=agentsArr[idx];
+    const name=a&&a.name;
+    if(!name) return;
+    const chip=document.createElement('span');
+    chip.setAttribute('data-wq-chip','1');
+    chip.className='chip';
+    if(status&&status.state==='error'){
+      chip.textContent='queue: ERROR — gate-unresolved';
+      chip.title=status.reason||'';
+      card.querySelector('.ah').appendChild(chip);
+      return;
+    }
+    const item=(wqItemsOfKind('blocked_agent')||[]).find(it=>it.owner===name);
+    if(item){
+      chip.textContent=item.subject;
+      card.setAttribute('data-state','blocked');
+      card.querySelector('.ah').appendChild(chip);
+    }
+  });
+}
+// QUEUE tab: attach age_days/escalation to REVIEW rows (§4 QUEUE). Board
+// totals (25+0+0+3+3=31 in the card's own snapshot; live totals drift and
+// that is correct per C5/C1) are untouched — this only annotates rows
+// already rendered by renderQueue(), never recomputes the counts (§6).
+function renderQueueAging(){
+  if(!WQ_CACHE||WQ_CACHE._fetchError) return;
+  const reviewItems=wqItemsOfKind('review')||[];
+  document.querySelectorAll('#v-queue [data-review-row]').forEach(row=>{
+    const id=row.getAttribute('data-review-row');
+    const it=reviewItems.find(r=>r.item_id==='review:'+id);
+    if(!it) return;
+    row.setAttribute('data-item-id',it.item_id);
+    row.setAttribute('data-kind','review');
+    row.setAttribute('data-age-days',it.age_days==null?'':it.age_days);
+    row.setAttribute('data-escalation-state',it.escalation_state||'unset');
+    const ageEl=row.querySelector('[data-review-age]');
+    if(ageEl) ageEl.textContent=it.age_days==null?'N/A — no opened_at':it.age_days+'d · '+(it.escalation_display||'N/A — cadence undeclared');
+  });
+}
+// OPS: same model's ops_task kind. The HPQ row already goes through
+// WarroomRender.formatOpsQueueItem (channel dropped) — this adds the
+// PENDING <n>d age + ET timestamp with offset (C5, via WarroomClock — one
+// clock, not a second age computation) on top of that existing parse.
+// Matched by item_id (not items[0]) — the model sorts age-descending across
+// ALL kinds, so the ops_task kind's own oldest row is not necessarily the
+// same row renderOPS() chose to display; matching by id is what keeps the
+// task_id and the age/timestamp shown next to it about the SAME row.
+function renderOpsQueueAging(){
+  const hpqRoot=document.querySelector('#v-ops .hpq');
+  const ageEl=hpqRoot&&hpqRoot.querySelector('[data-ops-age]');
+  if(!ageEl) return;
+  if(!WQ_CACHE||WQ_CACHE._fetchError){ ageEl.textContent=''; return; }
+  const displayedId=hpqRoot.getAttribute('data-ops-item-id');
+  const opsItems=wqItemsOfKind('ops_task')||[];
+  const it=displayedId?opsItems.find(r=>r.item_id===displayedId):null;
+  if(!it){ ageEl.textContent=''; return; }
+  const etDisplay=it.opened_at?WarroomClock.toEt(it.opened_at):{state:'error'};
+  const etText=etDisplay.state==='ok'?etDisplay.display:'N/A — no timestamp';
+  ageEl.textContent=(it.age_days==null?'N/A':'PENDING '+it.age_days+'d')+' · '+etText+' · '+(it.escalation_display||'N/A — cadence undeclared');
+}
+
 /* ============ renderOPS ============ */
 function renderOPS(vm){
   // Banner: show alert if any
@@ -2151,8 +2396,15 @@ function renderOPS(vm){
       const v=parsed.value;
       bodyHtml=`<span class="mono">${escHtml(v.task_id)}</span> · ${escHtml(v.status)} · created ${escHtml(String(v.created_at).slice(0,10))}`;
     }
+    // data-ops-item-id matches this exact TASKS.md row to its work_queue
+    // item_id ('ops_task:'+id, lib/work-queue.js) so renderOpsQueueAging()
+    // annotates the SAME row being displayed, not whichever ops_task item
+    // the (independently age-sorted) work_queue model happens to list first.
+    hpq.setAttribute('data-ops-item-id','ops_task:'+(item.id||item.lineIndex));
     hpq.innerHTML=`<span class="lbl">${escHtml(item.tag||'HIGH')}</span>${bodyHtml}
+      <div style="margin-top:4px;font-size:11px;color:var(--dim)" data-ops-age>…</div>
       <div style="margin-top:8px"><button class="btn bs">⌕ diagnose</button></div>`;
+    renderOpsQueueAging();
   } else if(hpq){
     // WARROOM-RENDER-001 remediation (2026-08-24, MAINTAINER gap 6 follow-up): the empty-queue
     // case previously fell through and left the static skeleton markup (a placeholder) on
@@ -2481,7 +2733,12 @@ function renderQueue(vm){
       const txt=escHtml((c.text||c.full||'').substring(0,120));
       const tag=escHtml(c.tag||'');
       const done=col.key==='done';
-      return `<div class="kcard ${done?'done':''}" data-kcard-idx="${globalIdx}" style="cursor:pointer"><span class="kt">${tag}</span><div>${txt}</div></div>`;
+      // WARROOM-WORKQUEUE-001: REVIEW column rows carry a work_queue row id +
+      // age/escalation slot, filled by renderQueueAging() once WQ_CACHE loads
+      // (§4 QUEUE aging — board math/counts above are untouched, §6).
+      const reviewAttrs=col.key==='review'?` data-review-row="${escHtml(c.id||'')}"`:'';
+      const ageSlot=col.key==='review'?`<div style="font-size:10px;color:var(--dim);margin-top:2px" data-review-age>…</div>`:'';
+      return `<div class="kcard ${done?'done':''}" data-kcard-idx="${globalIdx}"${reviewAttrs} style="cursor:pointer"><span class="kt">${tag}</span><div>${txt}</div>${ageSlot}</div>`;
     }).join('');
     return `<div class="kcol">
       <div class="kh">${col.label} <span class="n">${items.length}</span></div>
@@ -2625,13 +2882,32 @@ function renderCosts(vm){
     const codeCost=cu&&cu.claudecode&&cu.claudecode.mtd_cost?'$'+Number(cu.claudecode.mtd_cost).toFixed(2):(fdApiMtd!=null?'$'+fdApiMtd.toFixed(2):'NO DATA');
     const designCost=cu&&cu.claudedesign&&cu.claudedesign.mtd_cost?'$'+Number(cu.claudedesign.mtd_cost).toFixed(2):'$0.00';
     const s3Cost=awsUsd!=null?'$'+awsUsd.toFixed(2):'NO DATA';
-    const cacheHit=us.cache_hit_rate_pct!=null?us.cache_hit_rate_pct+'%':'—';
+    // WARROOM-COSTCANON-001 Phase 3: was `us.cache_hit_rate_pct` — a hand-pasted value from
+    // ~/.sasmaster/usage-state.json (manual copy off claude.ai/settings/usage), rendered here
+    // as if it were a measured cache-hit rate. That value ("100%") is the exact "most
+    // dangerous number on the board" the card names: a claim of perfect efficiency from a
+    // system that, at that path, cannot measure cache at all. Now sourced from
+    // sasmaster.costs.v_token_cost_canonical (vm.costCanonical), with the required N/A state
+    // for any pre-v2 window instead of a fabricated percentage.
+    const cc=vm.costCanonical||{};
+    let cacheHit,cacheHitSub;
+    if(!cc.available){
+      cacheHit='N/A'; cacheHitSub='canonical view unavailable';
+    } else if(!cc.cache_has_data||cc.cache_hit_rate==null){
+      cacheHit='N/A'; cacheHitSub='no cache fields before '+(cc.v2_cutover_ts?new Date(cc.v2_cutover_ts).toISOString().slice(0,10):'v2 cutover');
+    } else {
+      cacheHit=(cc.cache_hit_rate*100).toFixed(1)+'%'; cacheHitSub='measured · '+(cc.row_count||0)+' rows MTD';
+    }
     if(cells[0]){cells[0].querySelector('.v').textContent=total;cells[0].querySelector('.s').textContent='api+infra+tools MTD';}
     if(cells[1]){cells[1].querySelector('.v').textContent=codeCost;}
     if(cells[2]){cells[2].querySelector('.v').textContent=aiCost;}
     if(cells[3]){cells[3].querySelector('.v').textContent=designCost;}
     if(cells[4]){cells[4].querySelector('.v').textContent=s3Cost;}
-    if(cells[5]){cells[5].querySelector('.v').textContent=cacheHit;cells[5].querySelector('.v').className='v'+(cacheHit!=='—'?' gold':'');}
+    if(cells[5]){
+      cells[5].querySelector('.v').textContent=cacheHit;
+      cells[5].querySelector('.v').className='v'+(cacheHit!=='N/A'?' gold':'');
+      const subEl=cells[5].querySelector('.s'); if(subEl) subEl.textContent=cacheHitSub;
+    }
   }
 
   // quota
@@ -3020,26 +3296,121 @@ function updateStatusBar(vm){
   }
 }
 
-/* ============ OPS timeline (static, built once) ============ */
-function buildTimeline(){
-  const TL=[
-    ['Nightly Build',0,'12:00 AM','v'],['TMDB Bulk → S3',2,'2:00 AM','g'],
-    ['Daily Briefing',5,'5:00 AM','v'],['Daily Visuals',5,'5:02 AM','v'],
-    ['TMDB Daily',5,'5:00 AM','g'],['Media Intel',6,'6:00 AM','v'],
-    ['SEC EDGAR',6.5,'6:30 AM','c'],['IAB Intel ʷᵏˡʸ',7,'7:00 AM','v'],
-    ['DoneLog Analyst',12,'12:00 PM','c'],['Tech Intel ʷᵏˡʸ',18,'6:00 PM','a'],
-    ['LinkedIn Agent ʷᵏˡʸ',20,'8:00 PM','a'],['Financial Analyst ʷᵏˡʸ',20.2,'8:10 PM','a']];
+/* ============ OPS timeline + Cron Today — WARROOM-OPSTIMELINE-001 ============
+ * §4 OPS: "Overlay actual runs from the run-log against scheduled slots — a
+ * missed slot must be visibly missed." Both panels fetch GET /api/ops/* (the
+ * one join, lib/warroom-ops-join.js server-side) and render off `state`,
+ * never a literal color/status string (C3) — `state` IS the CSS class
+ * suffix (st-<state>), by construction, so a state with no matching class
+ * renders unstyled rather than silently mis-colored.
+ *
+ * OPS refresh cadence: ruled SSE / 30s cadence, 60s stale (READPLANE-001,
+ * reused per this card's own instruction not to re-rule it — see
+ * warroom/cadence-registry.json tabs.OPS). This pass polls these two NEW
+ * endpoints every 30s (the ruled cadence NUMBER) rather than true SSE
+ * transport — api/stream/ops.js's existing SSE mechanism is single-tile-
+ * value shaped (WarroomReadplane.fetchTileData contract) and does not fit
+ * an array-of-rows response without a broader redesign; a real, disclosed
+ * transport gap (see DONE_LOG), not a re-litigation of the cadence ruling.
+ */
+const OPS_TIMELINE_LEGEND = (typeof WarroomOpsTimeline !== 'undefined') ? WarroomOpsTimeline.LEGEND : [];
+
+function renderOpsLegend(containerId){
+  const el=document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML=OPS_TIMELINE_LEGEND.map(e=>`
+    <span class="lg-item" title="${escHtml(e.description)}">
+      <span class="lg-dot st-${escHtml(e.state)}${e.hollow?' hollow':''}"></span>${escHtml(e.label)}
+    </span>`).join('');
+}
+
+function opsRowLabel(r){
+  if(r.state==='ran_ok'||r.state==='ran_failed'){
+    if(!r.finished_at) return r.state;
+    const et=WarroomClock.toEt(r.finished_at); // C5: one clock helper, not ambient toLocaleTimeString
+    return et.state==='ok'?et.display:('ERROR — '+(et.reason||'clock'));
+  }
+  if(r.state==='missed') return 'MISSED';
+  return null; // most states render as an unlabeled colored dot/pill, per the legend, not repeated prose
+}
+
+async function fetchOpsJson(path){
+  try{
+    const r=await fetch(path,{cache:'no-store'});
+    if(!r.ok) throw new Error('http '+r.status);
+    return await r.json();
+  }catch(e){
+    return {rows:[],state:'error',query_id:path+':fetch-failed',reason:'ERROR — '+(e&&e.message||e)};
+  }
+}
+
+async function buildTimeline(){
   const tg=document.getElementById('tlgrid');
   if(!tg) return;
+  const payload=await fetchOpsJson('/api/ops/timeline?window=24h');
+  renderOpsLegend('ops-timeline-legend');
+  if(payload.state==='error'){
+    tg.innerHTML=`<div class="agname" style="color:var(--down)">ERROR — ${escHtml(payload.query_id||'ops-timeline')}</div>`;
+    return;
+  }
+  const rows=payload.rows||[];
+  // Group by job, preserving each job's own slots in ascending scheduled_at
+  // order (C5: axis strictly monotonic) — server already sorts; group here
+  // only for the grid's one-row-per-job layout.
+  const byJob=new Map();
+  rows.forEach(r=>{ if(!byJob.has(r.job)) byJob.set(r.job,{display:r.display_name||r.job,slots:[]}); byJob.get(r.job).slots.push(r); });
+
   let h='<div class="agname" style="font-family:var(--mono);font-size:10px;color:var(--dim)">JARVIS ● HTTP Events API<br>(Railway)</div>';
   for(let i=0;i<24;i++) h+=`<div class="hh">${i}</div>`;
-  TL.forEach(([n,hr,lbl,cl])=>{
-    h+=`<div class="agname">${n}</div>`;
+  byJob.forEach((job)=>{
+    h+=`<div class="agname">${escHtml(job.display)}</div>`;
     for(let i=0;i<24;i++){
-      h+=`<div class="cell">${Math.floor(hr)===i?`<span class="tlpill ${cl==='g'?'g':cl==='a'?'a':cl==='c'?'c':''}">${lbl}</span>`:''}</div>`;
+      // WarroomClock.etHourMinute() — one clock helper (C5), not ambient getHours()
+      // which returns the HOST's local hour, silently wrong off America/New_York.
+      const slot=job.slots.find(s=>s.scheduled_at && WarroomClock.etHourMinute(s.scheduled_at).hour===i);
+      if(!slot){ h+='<div class="cell"></div>'; continue; }
+      const label=opsRowLabel(slot);
+      const triggerCls=slot.trigger==='manual'?' tl-trigger-manual':'';
+      const etObj=WarroomClock.toEt(slot.scheduled_at);
+      const et=etObj.state==='ok'?etObj.display:('ERROR — '+(etObj.reason||'clock'));
+      h+=`<div class="cell"><span class="tlpill st-${escHtml(slot.state)}${triggerCls}" `+
+         `data-job="${escHtml(slot.job)}" data-slot-at="${escHtml(slot.scheduled_at)}" data-state="${escHtml(slot.state)}" `+
+         `data-trigger="${escHtml(slot.trigger||'')}" data-run-id="${escHtml(slot.run_id||'')}" `+
+         `title="${escHtml(slot.job)} · ${et} · ${escHtml(slot.state)}${slot.reason?' · '+escHtml(slot.reason):''}${slot.run_id?' · run_id='+escHtml(slot.run_id):''}">`+
+         `${label?escHtml(label):''}</span></div>`;
     }
   });
   tg.innerHTML=h;
+}
+
+async function renderOpsCronToday(){
+  const cronEl=document.querySelector('#sidebar-crons');
+  const legendId='ops-crontoday-legend';
+  const payload=await fetchOpsJson('/api/ops/cron-today');
+  renderOpsLegend(legendId);
+  if(!cronEl) return; // sidebar not built yet this cycle — next poll retries
+  if(payload.state==='error'){
+    cronEl.innerHTML=`<div class="cronrow" style="color:var(--down)">ERROR — ${escHtml(payload.query_id||'ops-cron-today')}</div>`;
+    return;
+  }
+  const rows=payload.rows||[];
+  cronEl.innerHTML=rows.map(r=>{
+    let timeLabel='N/A — no scheduled time';
+    if(r.scheduled_at){
+      const etObj=WarroomClock.toEt(r.scheduled_at); // C5: one clock helper, not ambient toLocaleTimeString
+      timeLabel=etObj.state==='ok'?etObj.display:('ERROR — '+(etObj.reason||'clock'));
+    }
+    return `<div class="cronrow" data-job="${escHtml(r.job)}" data-state="${escHtml(r.state)}" data-run-id="${escHtml(r.run_id||'')}" data-trigger="${escHtml(r.trigger||'')}" title="${escHtml(r.state)}${r.reason?' · '+escHtml(r.reason):''}">`+
+      `<span class="t">${escHtml(timeLabel)}</span><span class="d2 st-${escHtml(r.state)}${r.trigger==='manual'?' tl-trigger-manual':''}"></span>${escHtml(r.display_name||r.job)}</div>`;
+  }).join('') || '<div class="cronrow">N/A — no jobs in today\'s window</div>';
+}
+
+let _opsOverlayTimer=null;
+function startOpsOverlayPolling(){
+  if(_opsOverlayTimer) return;
+  const CADENCE_MS=(typeof cadenceRegistry!=='undefined'&&cadenceRegistry.tabs&&cadenceRegistry.tabs.OPS&&cadenceRegistry.tabs.OPS.cadence_seconds)?cadenceRegistry.tabs.OPS.cadence_seconds*1000:30000;
+  buildTimeline(); renderOpsCronToday();
+  _opsOverlayTimer=setInterval(()=>{ buildTimeline(); renderOpsCronToday(); },CADENCE_MS);
 }
 
 /* ============ Finance tab (loads finance-data.json) ============ */
@@ -3093,7 +3464,14 @@ async function renderFinance(vm){
     if(q4[0])q4[0].querySelector('.v').textContent=fmtN(toks.total_tokens_this_month||0);
     if(q4[1])q4[1].querySelector('.v').textContent='$'+(toks.avg_cost_per_session_usd||0).toFixed(2);
     if(q4[2])q4[2].querySelector('.v').textContent=String(toks.total_sessions_this_month||0);
-    if(q4[3])q4[3].querySelector('.v').textContent=toks.most_expensive_agent||'—';
+    // WARROOM-COSTCANON-001 Phase 3: TOP AGENT re-pointed to the canonical view's own
+    // agent_id attribution (vm.costCanonical.top_agent) instead of finance-data.json's
+    // most_expensive_agent, whose fallback was the uninformative literal 'other' (§4
+    // FINANCE finding). top_agent_is_real distinguishes a genuine agent_id named 'other'
+    // from the old fallback meaning "no attribution" — never render the fallback as a fact.
+    const cc=vm.costCanonical||{};
+    if(q4[3]) q4[3].querySelector('.v').textContent =
+      (cc.available && cc.top_agent) ? cc.top_agent : 'N/A — no canonical attribution yet';
     const mix=toks.model_mix_pct||{};
     document.querySelectorAll('#v-finance .mono').forEach(el=>{
       if(el.textContent.includes('Opus')&&el.textContent.includes('Sonnet')&&el.textContent.includes('Haiku')){
@@ -3292,6 +3670,15 @@ async function loadAndRender(){
   guard(()=>renderAgents(vm),'renderAgents','agents');
   guard(()=>renderData(vm),'renderData','data');
   guard(()=>renderQueue(vm),'renderQueue','queue');
+  // WARROOM-WORKQUEUE-001: re-apply the already-fetched work_queue model onto
+  // whatever DOM this cycle just rebuilt (renderQueue/renderAgents/renderOPS
+  // rebuild their containers from scratch each cycle — WQ_CACHE itself is
+  // only refetched by loadWorkQueue()'s own 30s interval, per "one model,
+  // one fetch cardinality", not re-requested here).
+  guard(()=>renderBlessQueue(),'renderBlessQueue','canvas');
+  guard(()=>renderAgentQueueChips(),'renderAgentQueueChips','agents');
+  guard(()=>renderQueueAging(),'renderQueueAging','queue');
+  guard(()=>renderOpsQueueAging(),'renderOpsQueueAging','ops');
   guard(()=>renderCosts(vm),'renderCosts','costs');
   guard(()=>renderTelemetry(vm),'renderTelemetry','telemetry');
   guard(()=>updateStatusBar(vm),'updateStatusBar');
@@ -3320,12 +3707,20 @@ document.querySelectorAll('.chips').forEach(group=>{
 });
 
 /* ============ INIT ============ */
-buildTimeline();
 renderDataStatic();
 buildFintelTable();
 loadFintel(); // pre-warm finance-data.json cache so renderCosts gets MTD on first cycle
 loadAndRender();
 setInterval(loadAndRender,30000);
+// WARROOM-OPSTIMELINE-001: after loadAndRender's first pass builds the
+// sidebar (#sidebar-crons), start the timeline/Cron Today overlay polling —
+// independent of the vm/status.json cadence above, on the ruled OPS cadence.
+setTimeout(startOpsOverlayPolling,50);
+// WARROOM-WORKQUEUE-001 — the one work_queue fetch (C6 "one model"). Its own
+// interval, independent of loadAndRender's status.json cycle since it hits a
+// different endpoint (/api/work-queue) on its own cadence.
+loadWorkQueue();
+setInterval(loadWorkQueue,30000);
 
 /* ============ CANVAS TAB ============ */
 (function(){
@@ -4059,11 +4454,13 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 
 <script>
-/* ── TOKEN-METER-001 Ph2 — TOKENS tab renderer ──────────────── */
+/* ── TOKEN-METER-001 Ph2 — TOKENS tab renderer ──────────────────────────────
+   WARROOM-COSTCANON-001 Phase 3: this used to fetch resources/token_metrics_latest.json
+   independently of the COSTS/FINANCE tabs — a third, rival data path (a static file
+   committed nightly by an out-of-repo script) with its own notion of cache hit rate,
+   token volume and model mix. Deleted. This now reads vm.costCanonical, the SAME
+   sasmaster.costs.v_token_cost_canonical-derived block COSTS reads (C6, one source). */
 (function(){
-  // Reads static file committed nightly by token_metrics_nightly.sh
-  const STATIC_METRICS = 'resources/token_metrics_latest.json';
-
   function fmt(n){
     if(n === null || n === undefined) return '—';
     if(n >= 1e6) return (n/1e6).toFixed(1)+'M';
@@ -4076,50 +4473,69 @@ document.addEventListener('DOMContentLoaded',()=>{
   function setVal(id,v){ const e=el(id); if(e) e.textContent=v; }
 
   function renderMetrics(d){
+    // d is vm.costCanonical — sasmaster.costs.v_token_cost_canonical, aggregated in
+    // generate-status.js's buildCostCanonical(). Not available (no MOTHERDUCK_TOKEN /
+    // query failure) renders every hero tile N/A rather than silently going blank (C1/C2).
+    if(!d || !d.available){
+      ['tm-cache-hit','tm-cache-rw','tm-daily-cost','tm-batch-pct','tm-web-search'].forEach(id=>setVal(id,'N/A'));
+      setVal('tm-cache-hit-sub','canonical view unavailable');
+      setVal('tm-daily-sub', d&&d.reason ? d.reason : 'canonical view unavailable');
+      setEl('tm-source-line','<span>sasmaster.costs.v_token_cost_canonical — unavailable</span>');
+      renderInsights([{sev:'warn',label:'Canonical view unavailable',text:'sasmaster.costs.v_token_cost_canonical could not be queried this cycle ('+(d&&d.reason||'unknown reason')+') — no cost/token figures fabricated in its place.'}]);
+      setVal('tm-last-refresh','No data — canonical view unavailable');
+      return;
+    }
+
     // Hero strip
     const hitRate = typeof d.cache_hit_rate === 'number' ? d.cache_hit_rate : null;
-    const hasCache = d.cache_data_available;
-    setVal('tm-cache-hit', hitRate !== null ? pct(hitRate) : '—');
-    setVal('tm-cache-hit-sub', hasCache ? 'measured · '+d.window_hours+'h window' : 'no cache fields yet');
-    if(el('tm-cache-hit') && hitRate !== null && hitRate >= 0.5) el('tm-cache-hit').style.color='var(--up)';
-    if(el('tm-cache-hit') && hitRate !== null && hitRate < 0.5 && hasCache) el('tm-cache-hit').style.color='var(--down)';
+    const hasCache = !!d.cache_has_data;
+    setVal('tm-cache-hit', hitRate !== null ? pct(hitRate) : 'N/A');
+    setVal('tm-cache-hit-sub', hasCache ? 'measured · '+(d.row_count||0)+' rows' : 'no cache fields before '+(d.v2_cutover_ts?new Date(d.v2_cutover_ts).toISOString().slice(0,10):'v2 cutover'));
+    if(el('tm-cache-hit')) el('tm-cache-hit').style.color = (hitRate !== null && hitRate >= 0.5) ? 'var(--up)' : (hitRate !== null && hasCache ? 'var(--down)' : '');
 
-    setVal('tm-cache-rw', typeof d.cache_read_write_ratio === 'number' ? d.cache_read_write_ratio.toFixed(1)+'×' : '—');
-    setVal('tm-daily-cost', typeof d.total_cost_usd === 'number' ? '$'+d.total_cost_usd.toFixed(4) : '—');
-    setVal('tm-daily-sub', d.window_hours+'h window · '+d.total_calls+' calls');
-    setVal('tm-batch-pct', typeof d.pct_calls_via_batch === 'number' ? d.pct_calls_via_batch.toFixed(1)+'%' : '—');
-    setVal('tm-web-search', typeof d.web_search_call_count === 'number' ? d.web_search_call_count : '—');
+    // Cache read/write ratio — genuinely not derivable as a ratio when write tokens are 0 (div-by-zero
+    // is not "no data", it just means no cache breakpoints have been created yet); N/A either way is honest.
+    const rw = (hasCache && d.cache_write_tokens) ? (d.cache_read_tokens||0)/d.cache_write_tokens : null;
+    setVal('tm-cache-rw', rw !== null ? rw.toFixed(1)+'×' : 'N/A');
+    setVal('tm-daily-cost', typeof d.total_cost_usd === 'number' ? '$'+d.total_cost_usd.toFixed(4) : 'N/A');
+    setVal('tm-daily-sub', (d.row_count||0)+' calls MTD');
+    // Batch-API % and web-search count are not columns on the canonical view yet — honest N/A,
+    // not the old static file's fabricated figures for a metric this view can't produce.
+    setVal('tm-batch-pct', 'N/A');
+    setVal('tm-web-search', 'N/A');
 
     // Source badge
     setEl('tm-source-line', '<span>'+escHtml(d.source||'—')+'</span>');
     const srcBadge = el('tokens-source-badge');
-    if(srcBadge){ srcBadge.style.display='inline'; srcBadge.textContent = d.source && d.source.startsWith('ANTHROPIC') ? 'API' : 'LOG'; }
+    if(srcBadge){ srcBadge.style.display='inline'; srcBadge.textContent = 'CANONICAL'; }
 
-    // Model bars
-    const spend = d.pct_spend_by_model || {};
+    // Model bars — from costCanonical.models (grouped in generate-status.js), not a separate parse
+    const byTier = {opus:null, sonnet:null, haiku:null};
+    (d.models||[]).forEach(m=>{
+      const lm=(m.model||'').toLowerCase();
+      const tier = lm.includes('opus')?'opus':lm.includes('sonnet')?'sonnet':lm.includes('haiku')?'haiku':null;
+      if(tier) byTier[tier]=m;
+    });
     ['opus','sonnet','haiku'].forEach(tier => {
-      const m = spend[tier] || {};
-      const pctVal = typeof m.pct_spend === 'number' ? m.pct_spend : 0;
+      const m = byTier[tier];
+      const pctVal = m && typeof m.pct_spend === 'number' ? m.pct_spend : 0;
       const bar = el('tm-bar-'+tier);
       if(!bar) return;
       bar.querySelector('.v').textContent = pctVal.toFixed(1)+'%';
       bar.querySelector('i').style.width = Math.min(pctVal,100)+'%';
-      bar.querySelector('.s').textContent = (m.call_count||0)+' calls · $'+(m.cost_usd||0).toFixed(4);
+      bar.querySelector('.s').textContent = (m?m.calls:0)+' calls · $'+(m?m.cost_usd:0).toFixed(4);
     });
 
-    // Agent type tokens
-    const avgIn = d.avg_input_tokens || {};
-    setVal('tm-scoop-tokens', avgIn.dr_scoop ? fmt(avgIn.dr_scoop) : '—');
-    setVal('tm-scoop-calls', (avgIn.scoop_calls||0)+' calls in window');
-    setVal('tm-jarvis-tokens', avgIn.jarvis ? fmt(avgIn.jarvis) : '—');
-    setVal('tm-jarvis-calls', (avgIn.jarvis_calls||0)+' calls in window');
+    // Per-agent-type avg tokens (Dr. Scoop / JARVIS) is not a dimension the canonical view
+    // carries — honest N/A rather than the old file's fabricated per-agent-type breakdown.
+    setVal('tm-scoop-tokens', 'N/A'); setVal('tm-scoop-calls', 'not wired on canonical view');
+    setVal('tm-jarvis-tokens', 'N/A'); setVal('tm-jarvis-calls', 'not wired on canonical view');
 
     // Volume
-    const tok = d.total_tokens || {};
-    setVal('tm-input-total', fmt(tok.input));
-    setVal('tm-cache-read', fmt(tok.cache_read));
-    setVal('tm-cache-write', fmt(tok.cache_write));
-    setVal('tm-output-total', fmt(tok.output));
+    setVal('tm-input-total', fmt(d.total_input_tokens));
+    setVal('tm-cache-read', hasCache ? fmt(d.cache_read_tokens) : 'N/A');
+    setVal('tm-cache-write', hasCache ? fmt(d.cache_write_tokens) : 'N/A');
+    setVal('tm-output-total', fmt(d.total_output_tokens));
 
     // Alerts
     const alertRow = el('tm-alert-row');
@@ -4131,7 +4547,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(monthlyRunRate > 500)
       alerts.push('🔴 Daily $'+(d.total_cost_usd||0).toFixed(2)+' → projected $'+monthlyRunRate.toFixed(0)+'/mo (cap: $500)');
     if(!hasCache)
-      alerts.push('ℹ Cache fields not yet in cost-log — upgrade cost-guard.sh to v2 for real cache_hit_rate');
+      alerts.push('ℹ Cache fields not yet captured for any row — upgrade cost-guard.sh to v2 for a real cache_hit_rate');
     if(alertRow && alertText){
       if(alerts.length){ alertRow.style.display='block'; alertText.textContent=alerts.join(' · '); }
       else alertRow.style.display='none';
@@ -4141,8 +4557,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     renderInsights(computeInsights(adapt(d)));
 
     // Timestamp
-    const ts = d.generated_at ? new Date(d.generated_at).toLocaleString() : '—';
-    setVal('tm-last-refresh', 'Source: '+escHtml(d.source||'—')+'  ·  Generated: '+ts);
+    const ts = d.computed_at ? new Date(d.computed_at).toLocaleString() : '—';
+    setVal('tm-last-refresh', 'Source: '+escHtml(d.source||'—')+'  ·  Computed: '+ts);
   }
 
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -4150,18 +4566,19 @@ document.addEventListener('DOMContentLoaded',()=>{
   // L4 adapter — single source of truth for raw field access; renderers below only touch the view model
   function adapt(raw){
     const d = raw || {};
-    const spend = d.pct_spend_by_model || {};
-    const tok = d.total_tokens || {};
-    const tierPct = t => typeof spend[t]?.pct_spend === 'number' ? spend[t].pct_spend : null;
+    const tierPct = t => {
+      const m = (d.models||[]).find(x=>(x.model||'').toLowerCase().includes(t));
+      return m && typeof m.pct_spend === 'number' ? m.pct_spend : null;
+    };
     return {
-      hasCache: !!d.cache_data_available,
+      hasCache: !!d.cache_has_data,
       hitRate: typeof d.cache_hit_rate === 'number' ? d.cache_hit_rate : null,
       dailyCost: typeof d.total_cost_usd === 'number' ? d.total_cost_usd : null,
-      totalCalls: typeof d.total_calls === 'number' ? d.total_calls : null,
-      batchPct: typeof d.pct_calls_via_batch === 'number' ? d.pct_calls_via_batch : null,
-      webSearches: typeof d.web_search_call_count === 'number' ? d.web_search_call_count : null,
+      totalCalls: typeof d.row_count === 'number' ? d.row_count : null,
+      batchPct: null, // not a dimension on the canonical view yet — never fabricated
+      webSearches: null,
       opusPct: tierPct('opus'), sonnetPct: tierPct('sonnet'), haikuPct: tierPct('haiku'),
-      tokenVolumeTotal: ['input','output','cache_read','cache_write'].reduce((s,k)=> s + (typeof tok[k]==='number'?tok[k]:0), 0),
+      tokenVolumeTotal: ['total_input_tokens','total_output_tokens','cache_read_tokens','cache_write_tokens'].reduce((s,k)=> s + (typeof d[k]==='number'?d[k]:0), 0),
     };
   }
 
@@ -4232,13 +4649,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   window.tmRefresh = function(){
-    setVal('tm-last-refresh', 'Loading…');
-    fetch(STATIC_METRICS + '?_='+Date.now())
-      .then(r => r.ok ? r.json() : Promise.reject('not found'))
-      .then(d => renderMetrics(d))
-      .catch(() => {
-        setVal('tm-last-refresh', 'No data yet — nightly job runs at 02:00 ET · run token_metrics_nightly.sh to seed');
-      });
+    // WARROOM-COSTCANON-001 Phase 3: no independent fetch — status.json (already loaded by
+    // loadAndRender) carries cost_canonical, and _lastVm.costCanonical is that same object.
+    // Re-rendering here (rather than only in the loadAndRender guard) keeps the manual
+    // "↻ Refresh" button and the tab-activation hook honest against whatever the last load cycle saw.
+    renderMetrics(_lastVm ? _lastVm.costCanonical : null);
   };
 
   // Auto-load when TOKENS tab is activated

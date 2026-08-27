@@ -62,3 +62,23 @@ repos:
         stages: [pre-commit]
         always_run: true
         pass_filenames: false
+      # WARROOM-CONTRACT-CI-001 (2026-08-27): mechanical regression gate for C2 (bare
+      # em-dash), C3 (hardcoded status literals), C5 (one clock — supersedes/extends
+      # warroom-clock-gate above with the same rules plus WARROOM_ALLOWED_SITES.yml-aware
+      # exemptions), C6 (one source per number, WARROOM_METRIC_CANON.json-driven), and
+      # trend-glyph sign agreement (reuses lib/warroom-trend.js's own trend() — never
+      # re-derives sign logic). Diff-scoped against origin/main by default (see
+      # scripts/warroom-contract-gate.js module header) — same module CI imports in
+      # .github/workflows/ci-tests.yml's contract-gate job, no copied logic. Two checks
+      # (tile-registered, cadence-declared) report BLOCKED, not PASS/FAIL, pending
+      # WARROOM-INVENTORY-001's WARROOM_TILE_INVENTORY.md — real, not silently dropped.
+      # Ships as a DEFINITION only, same precedent as warroom-clock-gate above: this repo
+      # has zero installed git hooks today (pre-commit install not run) — flipping that on
+      # is Shiv's operational call, not this card's.
+      - id: warroom-contract-gate
+        name: "warroom-contract-gate: C2/C3/C5/C6/trend-glyph mechanical gate (WARROOM-CONTRACT-CI-001)"
+        entry: node scripts/warroom-contract-gate.js --base origin/main
+        language: system
+        stages: [pre-commit]
+        always_run: true
+        pass_filenames: false
