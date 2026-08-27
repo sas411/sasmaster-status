@@ -6,7 +6,7 @@
 
 const fs   = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, spawnSync } = require('child_process');
 const WarroomClock = require('./lib/warroom-clock.js'); // WARROOM-CLOCK-001 — the one clock module (C5)
 const WarroomHealth = require('./lib/warroom-health.js'); // WARROOM-HEALTH-001 — the one health evaluator (C6)
 const WarroomRunstate = require('./lib/warroom-runstate.js'); // WARROOM-RUNSTATE-001 — the one run-state evaluator (C6)
@@ -613,13 +613,34 @@ function getS3Freshness(prefixes = []) {
   const result = {};
   for (const prefix of prefixes) {
     try {
-      const out = execSync(
-        `/opt/homebrew/bin/aws s3 ls s3://sasmaster-2026/${prefix} --recursive | sort | tail -1`,
-        { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], timeout: 8000 }
+      // PROCESS-LEAK FIX (2026-08-27): this used to be
+      //   execSync(`aws s3 ls ${prefix} --recursive | sort | tail -1`, { timeout: 8000 })
+      // execSync's `timeout` kills ONLY the direct child (/bin/sh) — never its
+      // children. So every prefix that exceeded 8s orphaned a live `aws` + `sort`
+      // + `tail` trio (reparented to launchd, running forever). On big prefixes
+      // like nielsen/laapp/ the recursive listing never finishes, so this leaked
+      // 3 processes per such prefix PER RUN. Measured 2026-08-27: 911 orphans,
+      // load average 467, box unusable — Obsidian couldn't even get scheduled.
+      // Verified empirically that day: spawnSync-through-a-shell still leaked 2
+      // grandchildren; a direct-binary spawnSync with no shell and no pipeline
+      // leaked 0, because the timed-out process IS the direct child.
+      //
+      // So: no shell, no pipe. One `aws` process, sorted server-side-ish via
+      // JMESPath instead of piping millions of keys through `sort`.
+      const r = spawnSync(
+        '/opt/homebrew/bin/aws',
+        ['s3api', 'list-objects-v2',
+         '--bucket', 'sasmaster-2026',
+         '--prefix', prefix,
+         '--query', 'sort_by(Contents,&LastModified)[-1].[LastModified]',
+         '--output', 'text'],
+        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+          timeout: 8000, killSignal: 'SIGKILL' }
       );
-      const match = out.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/);
+      const out = (r.status === 0 && r.stdout) ? r.stdout : '';
+      const match = out.match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})/);
       if (!match) { result[prefix] = { age_hours: null, fresh: false }; continue; }
-      const lastMod = new Date(match[1] + ' UTC');
+      const lastMod = new Date(match[1] + 'Z');
       const ageHours = Math.round(((Date.now() - lastMod.getTime()) / 3600000) * 10) / 10;
       result[prefix] = { age_hours: ageHours, fresh: ageHours < 24 };
     } catch {
