@@ -1087,12 +1087,17 @@ main.canvas-mode{overflow:hidden}
         <div class="panel">
           <table class="dt">
             <tr><th>Category</th><th>MTD</th><th>Last Mo</th><th>Trend</th></tr>
-            <tr><td class="mono">Anthropic API</td><td class="mono">$0.00</td><td class="mono">$0.00</td><td class="pos">↓</td></tr>
-            <tr><td class="mono">Railway</td><td class="mono">$20.00</td><td class="mono">$20.00</td><td class="mono">→</td></tr>
-            <tr><td class="mono">Vercel</td><td class="mono">$20.00</td><td class="mono">$20.00</td><td class="mono">→</td></tr>
-            <tr><td class="mono">AWS</td><td class="mono">$5.00</td><td class="mono">$5.00</td><td class="mono">→</td></tr>
-            <tr><td class="mono">Tools</td><td class="mono">$20.00</td><td class="mono">$20.00</td><td class="mono">→</td></tr>
-            <tr><td class="mono"><b>TOTAL</b></td><td class="mono"><b>$65.00</b></td><td class="mono"><b>$65.00</b></td><td class="mono">→</td></tr>
+            <!-- WARROOM-CONTRACT-DEBT-001 (2026-08-27): MTD/Last Mo/Trend were frozen static
+                 values, one (Anthropic API's "↓") provably wrong (contract-gate: current=0/
+                 prior=0 computes flat, not down). All three columns are now written live by
+                 renderFinance() on load; these are pre-hydration placeholders only, matching
+                 this codebase's own em-dash-skeleton convention elsewhere (C2). -->
+            <tr><td class="mono">Anthropic API</td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td></tr>
+            <tr><td class="mono">Railway</td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td></tr>
+            <tr><td class="mono">Vercel</td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td></tr>
+            <tr><td class="mono">AWS</td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td></tr>
+            <tr><td class="mono">Tools</td><td class="mono">—</td><td class="mono">—</td><td class="mono">—</td></tr>
+            <tr><td class="mono"><b>TOTAL</b></td><td class="mono"><b>—</b></td><td class="mono"><b>—</b></td><td class="mono">—</td></tr>
           </table>
         </div>
       </div>
@@ -1321,6 +1326,7 @@ main.canvas-mode{overflow:hidden}
      "filesystem"), same convention as this repo's other local lib includes. -->
 <script src="lib/warroom-clock.js"></script>
 <script src="lib/warroom-render.js"></script>
+<script src="lib/warroom-trend.js"></script>
 <script src="lib/warroom-health.js"></script>
 <script src="lib/warroom-readplane.js"></script>
 <!-- WARROOM-RUNSTATE-001 / WARROOM-OPSTIMELINE-001: the §2.7 watchdog +
@@ -1540,7 +1546,7 @@ function buildDataDrill(d){
     ?`Data is live at <b>${d.size_gb!=null?d.size_gb.toFixed(2)+' GB':'—'}</b> · ${fmtN(d.object_count)} objects.`
     :`Prefix is in <b>${(d.status||'unknown').toUpperCase()}</b> state — check scraper.`;
   const nowWhat=statusOk
-    ?'<span class="nw-lbl">NOW WHAT</span>Prefix healthy. Verify freshness matches expected cron cadence.'
+    ?'<span class="nw-lbl">NOW WHAT</span>Prefix healthy. Verify freshness matches expected cron cadence.' // CONTRACT-EXEMPT: C3 — prose recommendation gated behind the real computed statusOk, not a status badge — 2026-11-27
     :'<span class="nw-lbl">NOW WHAT</span>1. Check scraper status in <b>OPS → Running now</b>.<br>2. Re-trigger via command bar if stale > 48h.';
   return `
   <div class="dd-sec">
@@ -1767,11 +1773,11 @@ const DEMO_DATA = {
   runningNow:[{name:'TMDB bulk loader',pct:100,status:'live',last_run:''}],
   highItems:[{tag:'INFRA',text:'TASK-017 | status:PENDING | 2026-06-12'}],
   queueHigh:4, queueMed:9,
-  agents:[{name:'JARVIS',icon:'🤖',status:'healthy',lastRun:'11d ago',schedule:'HTTP API',nextRun:'Always on',log:'jarvis.log',channel:'#sasmaster-ops',lastOutput:'HTTP Events API (Railway)'},{name:'Media Intel',icon:'📡',status:'healthy',lastRun:'never',schedule:'6AM daily',nextRun:'Tomorrow 6AM',log:'media-intel.log',channel:'#sasmaster-intel',lastOutput:'Node.js v20.20.2'}],
+  agents:[{name:'JARVIS',icon:'🤖',status:'healthy',lastRun:'11d ago',schedule:'HTTP API',nextRun:'Always on',log:'jarvis.log',channel:'#sasmaster-ops',lastOutput:'HTTP Events API (Railway)'},{name:'Media Intel',icon:'📡',status:'healthy',lastRun:'never',schedule:'6AM daily',nextRun:'Tomorrow 6AM',log:'media-intel.log',channel:'#sasmaster-intel',lastOutput:'Node.js v20.20.2'}], // CONTRACT-EXEMPT: C3 — DEMO_DATA fixture values, fed through the same live-data renderer as real status, not display literals bypassing it — 2026-11-27
   s3prefixes:[{prefix:'tmdb_dev/',size_gb:33.9,object_count:7962,status:'running',note:'TMDB bulk',entities:{movies:1199613,tv_series:221866,episodes:6009730,people:4720934}},{prefix:'imdb/',size_gb:5.7,object_count:0,status:'live',note:'IMDB raw',entities:{}},{prefix:'nielsen/',size_gb:679.9,object_count:111000,status:'live',note:'Measurement grain',entities:{}}],
   movieUniverse:{combined_movie_universe:20053,gn_movies:17210,fyi_movies:17448,opus_movies:33924},
   kanban:{backlog:[{id:'t1',text:'KB-CI-002 phase1-complete',tag:'INFRA',priority:'MED'}],inProgress:[],blocked:[],review:[],done:[]},
-  phaseStatus:{phase_1:{status:'LIVE',desc:'TMDB+IMDB scrapers+Parent Key resolver'},phase_1b:{status:'IN_PROGRESS',desc:'EIDR backfill (auth gate pending)'},phase_2a:{status:'NEXT',desc:'RSG API snapshots'}},
+  phaseStatus:{phase_1:{status:'LIVE',desc:'TMDB+IMDB scrapers+Parent Key resolver'},phase_1b:{status:'IN_PROGRESS',desc:'EIDR backfill (auth gate pending)'},phase_2a:{status:'NEXT',desc:'RSG API snapshots'}}, // CONTRACT-EXEMPT: C3 — DEMO_DATA fixture value, same as agents[] above — 2026-11-27
   claudeUsage:{claudeai:null,claudecode:null,claudedesign:null,claudemax:null},
   costSummary:{total_cost_usd:34.96,entry_count:21,model_breakdown:{}},
   tokenProjection:{week_cost_usd:0,projected_week_cost_usd:0,pct_elapsed:100,recommendations:[]},
@@ -2014,7 +2020,7 @@ function renderKPIStrip(vm){
   const strip=document.querySelector('.kstrip');
   if(!strip) return;
   const cells=strip.querySelectorAll('.k');
-  if(cells[0]){cells[0].querySelector('.v').textContent=vm.agentsGateBRuled?renderAgentRatio(vm):'N/A';cells[0].querySelector('.c').textContent=vm.agentsGateBRuled?(vm.agentsHealthyComputed+' live healthy'):'fleet unclassified (§5b)';}
+  if(cells[0]){cells[0].querySelector('.v').textContent=vm.agentsGateBRuled?renderAgentRatio(vm):'N/A';cells[0].querySelector('.c').textContent=vm.agentsGateBRuled?(vm.agentsHealthyComputed+' live healthy'):'fleet unclassified (§5b)';} // CONTRACT-EXEMPT: C3 — "healthy" names the real computed agentsHealthyComputed count, gated behind agentsGateBRuled — 2026-11-27
   // WARROOM-DATA-RECONCILE-001 (2026-08-26): kpi-s3-total is also written by
   // renderArtifact() (ARTIFACT-PULL-001, the whole-bucket §33 authority) from a
   // separately-cadenced, separately-deployed feed. Both writers targeting the
@@ -2476,7 +2482,7 @@ function agentHealthBadge(a){
   const st=he.state;
   const ageSuffix=he.age?(' '+he.age):'';
   const map={
-    healthy:  {text:'HEALTHY', cls:'b-ok',  ok:true},
+    healthy:  {text:'HEALTHY', cls:'b-ok',  ok:true}, // CONTRACT-EXEMPT: C3 — agentHealthBadge()'s own state->text map, keyed by he.state from a.healthEval (computed by WarroomHealth); the literal names a real computed state, never overrides one — 2026-11-27
     late:     {text:'LATE'+ageSuffix, cls:'b-warn', ok:false},
     stale:    {text:'STALE'+ageSuffix, cls:'b-err', ok:false},
     failed:   {text:'FAILED', cls:'b-err', ok:false},
@@ -2503,10 +2509,10 @@ function renderAgents(vm){
   // the real classified denominator; until then, show only the full N/A reason string —
   // no raw count implying a denominator that doesn't exist yet.
   if(hdr) hdr.textContent=vm.agentsGateBRuled
-    ? (vm.agentsClassifiedDenominator+' agents · '+renderAgentRatio(vm)+' healthy')
+    ? (vm.agentsClassifiedDenominator+' agents · '+renderAgentRatio(vm)+' healthy') // CONTRACT-EXEMPT: C3 — "healthy" names a real computed ratio (renderAgentRatio(vm)), gated behind agentsGateBRuled — 2026-11-27
     : renderAgentRatio(vm);
   const hdr2=document.querySelector('#v-agents .sec-h .right');
-  if(hdr2) hdr2.textContent='LIVE & CRON AGENTS · '+vm.agentsLiveTotal;
+  if(hdr2) hdr2.textContent='LIVE & CRON AGENTS · '+vm.agentsLiveTotal; // CONTRACT-EXEMPT: C3 — section heading label, not a status assertion; count is the real vm.agentsLiveTotal — 2026-11-27
 
   fleet.innerHTML=agents.map((a,idx)=>{
     const badge=agentHealthBadge(a);
@@ -2990,7 +2996,12 @@ function renderCosts(vm){
   if(projValEl){
     if(projCost!=null){
       projValEl.textContent='$'+projCost.toFixed(2)+' / week';
-      if(projBadgeEl){projBadgeEl.textContent='ON TRACK';projBadgeEl.className='badge b-ok';}
+      // WARROOM-CONTRACT-DEBT-001 (2026-08-27): was 'ON TRACK' unconditionally whenever a
+      // week-based projection existed — no budget threshold was ever compared, so a real
+      // overspend would still say "on track". No budget figure is ruled anywhere in this
+      // codebase to compare against (not this card's call to invent one) — renamed to a
+      // neutral label that claims only what's actually computed: a real projected figure.
+      if(projBadgeEl){projBadgeEl.textContent='PROJECTED';projBadgeEl.className='badge b-ok';}
       if(projMetaEl) projMetaEl.textContent=(tp.pct_elapsed||0)+'% of week elapsed';
     } else if(fdTotalMtd!=null&&fdTotalMtd>0&&_fintelData&&_fintelData.generated_at){
       // MTD-based weekly estimate: (MTD cost / day-of-month) × 7 — but ONLY when finance-data's
@@ -3123,7 +3134,7 @@ function renderTelemetry(vm){
         return `<div class="evrow"><span class="e">${escHtml(String(a.rule_id||a.type||'ALERT'))}: ${escHtml(String(a.message||a.text||''))}</span><span class="mono" style="margin-left:auto;font-size:10px;color:var(--dim)">${age}</span></div>`;
       }).join('');
     } else {
-      alertRows.innerHTML='<div class="evrow"><span class="e" style="color:var(--dim);font-style:italic">No open alerts</span></div>';
+      alertRows.innerHTML='<div class="evrow"><span class="e" style="color:var(--dim);font-style:italic">No open alerts</span></div>'; // CONTRACT-EXEMPT: C3 — gated behind openAlerts.length>0 above; a genuinely-computed real zero, not fabricated — 2026-11-27
     }
   }
 
@@ -3133,7 +3144,7 @@ function renderTelemetry(vm){
   if(bugfixEl){
     bugfixEl.style.fontStyle='italic';
     if(openAlerts.length===0){
-      bugfixEl.textContent='No pending fixes — system healthy';
+      bugfixEl.textContent='No pending fixes — system healthy'; // CONTRACT-EXEMPT: C3 — gated behind openAlerts.length===0, a genuinely-computed real zero — 2026-11-27
       bugfixEl.style.color='var(--dim)';
     } else {
       bugfixEl.textContent=`${openAlerts.length} open alert${openAlerts.length===1?'':'s'} — see ALERTING above`;
@@ -3289,7 +3300,7 @@ function updateStatusBar(vm){
   const liveBadge=document.getElementById('live-badge');
   if(liveBadge){
     if(isStale){ liveBadge.textContent='● STALE'; liveBadge.style.color='#F87171'; }
-    else { liveBadge.textContent='● LIVE QUEUE'; liveBadge.style.color=''; }
+    else { liveBadge.textContent='● LIVE QUEUE'; liveBadge.style.color=''; } // CONTRACT-EXEMPT: C3 — gated behind the real computed !isStale — 2026-11-27
   }
 
   const banner=document.getElementById('staleness-banner');
@@ -3505,6 +3516,44 @@ async function renderFinance(vm){
     setTd(rows[4],1,usd(inf.aws_usd));
     setTd(rows[5],1,usd(b.tools_mtd));
     if(rows[6]){const tds=rows[6].querySelectorAll('td');if(tds[1])tds[1].innerHTML='<b>'+usd(b.total_mtd)+'</b>';}
+
+    // WARROOM-CONTRACT-DEBT-001 (2026-08-27): "Last Mo" (col 2) and "Trend" (col 3) were
+    // static skeleton markup, never touched by any JS since this table shipped — frozen
+    // forever, one row (Anthropic API) provably wrong (contract-gate: current=0/prior=0
+    // computes flat "→", markup hardcoded "↓"). finance-data.json's history{} carries real
+    // prior-month totals for 3 of 6 rows (Anthropic API/Tools/TOTAL) — no per-provider split
+    // exists for Railway/Vercel/AWS, so those three render an honest unknown trend rather
+    // than fabricating one from the combined infra_usd bucket.
+    const prevPeriod=(()=>{ if(!fd.period)return null; const [y,m]=fd.period.split('-').map(Number); const d=new Date(Date.UTC(y,m-2,1)); return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0'); })();
+    const prevRow=prevPeriod&&fd.history?fd.history[prevPeriod]:null;
+    const trendClass=state=>state==='up'||state==='anomaly'?'neg':state==='down'?'pos':'mono';
+    // usd(null) already renders an honest N/A via WarroomRender.makeNA (see usd() above) —
+    // no separate ternary-to-dash needed here.
+    const prevUsd=field=>usd(prevRow?prevRow[field]:null);
+    const setTrend=(row,current,prior)=>{
+      if(!row)return;
+      const tds=row.querySelectorAll('td');
+      const cell=tds[3];
+      if(!cell)return;
+      if(current==null||prior==null){
+        const na=WarroomRender.renderValue(WarroomRender.makeNA('no prior-period figure to compare'));
+        cell.textContent=na.text; cell.className=na.cls; return;
+      }
+      const t=WarroomTrend.trend(current,prior); // current/prior both non-null here -> t.glyph is never null
+      cell.textContent=t.glyph;
+      cell.className=trendClass(t.state);
+    };
+    setTd(rows[1],2,prevUsd('api_costs_usd'));
+    setTrend(rows[1],b.api_mtd,prevRow?prevRow.api_costs_usd:null);
+    setTd(rows[5],2,prevUsd('tools_usd'));
+    setTrend(rows[5],b.tools_mtd,prevRow?prevRow.tools_usd:null);
+    if(rows[6]){
+      const tds=rows[6].querySelectorAll('td');
+      if(tds[2])tds[2].innerHTML='<b>'+prevUsd('total_usd')+'</b>';
+    }
+    setTrend(rows[6],b.total_mtd,prevRow?prevRow.total_usd:null);
+    // Railway/Vercel/AWS: no per-provider history exists yet — honest unknown, not fabricated.
+    [rows[2],rows[3],rows[4]].forEach(row=>{ setTd(row,2,usd(null)); setTrend(row,null,null); });
   }
 
   // WARROOM-CLOCK-001 (2026-08-24): the "6-month cash forecast" bars were
@@ -4694,7 +4743,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   function renderArtifact(d) {
     const badge = document.getElementById('artifact-source-badge');
-    if(badge) badge.textContent = d.source === 'motherduck' ? 'LIVE' : 'CACHED';
+    if(badge) badge.textContent = d.source === 'motherduck' ? 'LIVE' : 'CACHED'; // CONTRACT-EXEMPT: C3 — ternary on the real computed d.source field, not a hardcoded assertion — 2026-11-27
     // §33 S3 authority: header pill + KPI read whole-bucket total from this
     // feed — never a prefix sum (WARROOM-REGEN-001; hardcoded 1.62 TB retired 2026-07-16)
     if (typeof d.s3_bucket_total_gb === 'number') {
