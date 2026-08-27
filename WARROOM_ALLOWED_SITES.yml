@@ -36,4 +36,18 @@
 # This file is read by BOTH the pre-commit hook and CI (one shared module, no copies —
 # scripts/warroom-contract-gate.js is the only reader).
 
-sites: []
+sites:
+  - id: now-plane-chip-state-map
+    file: lib/warroom-now-plane.js
+    function: computeChipState
+    contract: C3
+    reason: >
+      CHIP_STATES token definitions + the map{} translating WarroomRunstate.run_state()'s
+      own computed vocabulary (succeeded/failed/running/stuck/stale/never_run) onto the
+      card's nine chip tokens — not a hardcoded status assertion; the literal never
+      overrides a live computed value, it names one. Health-derived tokens (LATE, BLOCKED)
+      are correctly unreachable until Phase 5 wires computeChipState() to call
+      lib/warroom-health.js's evaluateHealth() directly, per WARROOM-NOWPLANE-001's own
+      phasing. Retire this entry when that wiring lands.
+    registered_by: WARROOM-NOWPLANE-001
+    expiry: 2026-10-15
