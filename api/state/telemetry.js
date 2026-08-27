@@ -56,6 +56,7 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
 
   const cadenceSeconds = cadenceRegistry.tabs[TAB].cadence_seconds;
+  const staleAtSeconds = cadenceRegistry.tabs[TAB].stale_at_seconds;
   const cap = queryBudget.tabs[TAB].server_query_executions_per_day_cap;
   const budget = WarroomReadplane.checkAndIncrementBudget(TAB, cap);
 
@@ -83,7 +84,7 @@ module.exports = async (req, res) => {
     } catch (e) {
       console.warn('[WARN] warroom budget_breach alert write failed for', TAB, '-', e && e.message);
     }
-    const breach = WarroomReadplane.renderBreachFields(TAB, TILE_IDS, cadenceSeconds);
+    const breach = WarroomReadplane.renderBreachFields(TAB, TILE_IDS, cadenceSeconds, undefined, staleAtSeconds);
     res.status(200).json({
       fields: breach.fields,
       computed_at: nowIso,
@@ -99,12 +100,14 @@ module.exports = async (req, res) => {
     if (fetchError) {
       fields[tileId] = WarroomReadplane.renderTile(
         WarroomRender.makeError(queryId, 'proxy-unreachable:' + fetchError),
-        cadenceSeconds
+        cadenceSeconds,
+        undefined,
+        staleAtSeconds
       );
       return;
     }
     const payload = WarroomReadplane.mapBlobToTile(tileId, queryId, blob, (b) => mapTile(tileId, queryId, b));
-    fields[tileId] = WarroomReadplane.renderTile(payload, cadenceSeconds);
+    fields[tileId] = WarroomReadplane.renderTile(payload, cadenceSeconds, undefined, staleAtSeconds);
   });
 
   if (!fetchError) {

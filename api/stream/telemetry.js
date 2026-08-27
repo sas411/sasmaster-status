@@ -25,6 +25,7 @@ const STREAM_MAX_MS = 55000; // stay under common Vercel Node function limits
 
 function buildPayload() {
   const cadenceSeconds = cadenceRegistry.tabs[TAB].cadence_seconds;
+  const staleAtSeconds = cadenceRegistry.tabs[TAB].stale_at_seconds;
   const cap = queryBudget.tabs[TAB].server_query_executions_per_day_cap;
   const budget = WarroomReadplane.checkAndIncrementBudget(TAB, cap);
   const nowIso = new Date().toISOString();
@@ -33,7 +34,7 @@ function buildPayload() {
     const payload = budget.allowed
       ? WarroomReadplane.fetchTileData(tileId, `${TAB.toLowerCase()}:${tileId}`)
       : { value: null, state: 'error', query_id: `${TAB.toLowerCase()}:${tileId}:budget_breach`, source: 'budget-cap' };
-    fields[tileId] = WarroomReadplane.renderTile(payload, cadenceSeconds);
+    fields[tileId] = WarroomReadplane.renderTile(payload, cadenceSeconds, undefined, staleAtSeconds);
   });
   return { fields: fields, computed_at: nowIso, source: 'motherduck-not-wired' };
 }
