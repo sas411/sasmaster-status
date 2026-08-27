@@ -125,7 +125,11 @@ test('S1 ALERT HALF (documents real gap, does not fabricate a pass): ' +
 // ---------------------------------------------------------------------------
 // S2 — non-zero exit (Tech Intel). BOTH halves real, both pass.
 // ---------------------------------------------------------------------------
-test('S2 RENDER HALF: state literal is "failed"', () => {
+test('S2 RENDER HALF: computed state literal is "failed" (card requires BOTH this AND the ' +
+  'displayed tile text == "FAILED" -- the second half is NOT independently assertable: no shared ' +
+  'health-state-to-tile-text formatter exists in lib/ at the time of this pass; the uppercase render ' +
+  'happens in generate-status.js/warroom-v5.html, outside this session\'s inspection. Recorded as ' +
+  'not-asserted, not fabricated as passing.)', () => {
   const r = WarroomHealth.evaluateHealth({
     last_run: new Date(NOW.getTime() - HOUR), last_exit: 1, cadence_ms: CADENCE_MS,
     expected_state: 'active', has_run_record: true, blocked_signal: null, now: NOW,
@@ -256,7 +260,7 @@ test('S4 denominator (WARROOM_TILE_INVENTORY.md): file does not exist in this re
 // ---------------------------------------------------------------------------
 // S5 — unrenderable payload (5x). Render + counter half: full pass.
 // ---------------------------------------------------------------------------
-test('S5: 5 unrenderable payloads render the exact error string and increment the counter by exactly 5', () => {
+test('S5a: non-object ev (undefined/null/number/string/function) IS caught -- render+counter half full pass', () => {
   WarroomRender.resetUnrenderableCounter();
   const before5 = WarroomRender.counters.unrenderable_event;
   const badPayloads = [undefined, null, 42, 'a string, not an object', () => {}];
@@ -270,6 +274,43 @@ test('S5: 5 unrenderable payloads render the exact error string and increment th
   WarroomRender.resetUnrenderableCounter();
 });
 
+test('S5b (LIVE, UNFIXED REGRESSION -- reproduces the ACTUAL observed defect shape): ' +
+  'an object-valued ev.text renders literal "[object Object]" as VALUE, not ERROR; counter does not move', () => {
+  // The originally observed defect (card CONTEXT, §2.5) was five TELEMETRY
+  // rows rendering `[object Object]` -- i.e. an object survived to display,
+  // it did not fail to render at all. S5a above (non-object `ev`) does NOT
+  // reproduce that shape; this does: `ev` is a well-formed object, but its
+  // `text` FIELD is itself an object, so `String(ev.text)` (formatTelemetryEvent's
+  // internal coercion) silently stringifies it to the literal "[object Object]"
+  // and returns state:VALUE -- the unrenderable-guard never fires, the
+  // counter never increments, and the exact original defect string reaches
+  // the render layer. This is a REAL, LIVE gap in lib/warroom-render.js
+  // discovered by this suite doing its job, not a suite bug -- reported in
+  // DONE_LOG.md as a finding, not silently routed around.
+  WarroomRender.resetUnrenderableCounter();
+  const before5 = WarroomRender.counters.unrenderable_event;
+  // formatTelemetryEvent(ev, id, clock) calls clock.toEt(ev.ts) with NO `now`
+  // argument -- toEt() then defaults to the REAL wall clock (Date.now()),
+  // not this file's fixture NOW (which is a fixed future-dated constant for
+  // determinism elsewhere). Anchoring off the actual current time here,
+  // not NOW, is required for these timestamps to land safely in the past.
+  const realNow = Date.now();
+  const objectTextPayloads = [0, 1, 2, 3, 4].map((i) => ({
+    ts: new Date(realNow - (i + 1) * HOUR).toISOString(), // safely in the real past, not a clock-skew hit
+    type: 'EVENT',
+    text: { unexpected: 'object', i: i }, // the actual observed-defect shape
+  }));
+  const results = objectTextPayloads.map((p, i) => WarroomRender.formatTelemetryEvent(p, 'synthetic-obj-' + i, WarroomClock));
+  const after5 = WarroomRender.counters.unrenderable_event;
+
+  const anyRenderedAsObjectString = results.some((r) => r.state === 'value' && r.value.subject === '[object Object]');
+  assert.equal(anyRenderedAsObjectString, true,
+    'if this ever starts failing (false), the defect has been fixed upstream -- rewrite this test to assert the FIXED behavior (ERROR, counter+5), not this regression');
+  assert.equal(after5 - before5, 0,
+    'if this ever starts failing (nonzero), the counter now catches this shape -- the fix landed, rewrite this test');
+  WarroomRender.resetUnrenderableCounter();
+});
+
 test('S5 ALERT HALF (documents real gap): no alert-engine.js rule reads counters.unrenderable_event', () => {
   const engineSrc = fs.readFileSync(path.join(os.homedir(), 'SaSMaster/scripts/alert-engine.js'), 'utf8');
   assert.equal(engineSrc.indexOf('unrenderable_event'), -1,
@@ -279,13 +320,32 @@ test('S5 ALERT HALF (documents real gap): no alert-engine.js rule reads counters
 // ---------------------------------------------------------------------------
 // S6 — clock skew. Render half: full pass. Alert half: documented N/A.
 // ---------------------------------------------------------------------------
-test('S6: future timestamp renders exactly "ERROR — clock skew", never a value', () => {
+test('S6: future timestamp renders state:error/reason:"clock skew", never a value', () => {
   const futureIso = new Date(NOW.getTime() + HOUR).toISOString(); // 06:55-observed-at-05:55 shape
   const payload = WarroomRender.makeValue(99, 'synthetic-feed', futureIso);
   const rendered = WarroomReadplane.renderTile(payload, CADENCE_MS / 1000, NOW);
   assert.equal(rendered.state, 'error');
   assert.equal(rendered.reason, 'clock skew');
   assert.equal(rendered.value, null);
+});
+
+test('S6 (LIVE, UNFIXED FINDING): the ACTUAL user-facing tile text via WarroomRender.renderValue() ' +
+  'is "ERROR — clock_skew" (underscore), NOT the card\'s literal "ERROR — clock skew" (space)', () => {
+  // C5/card language requires the exact string "ERROR — clock skew". The
+  // payload-level object (asserted above) carries reason:'clock skew' with a
+  // space -- but the DISPLAYED text comes from WarroomRender.renderValue(),
+  // which reads payload.query_id, not payload.reason. renderTile()'s
+  // clock-skew branch falls back to query_id:'clock_skew' (underscore, an
+  // identifier-shaped default) when the payload carries no query_id of its
+  // own -- so renderValue emits 'ERROR — ' + 'clock_skew'. This is a real,
+  // live C5 exact-string gap in the render layer, found by running this
+  // suite, not a suite bug -- reported in DONE_LOG.md as a finding.
+  const futureIso = new Date(NOW.getTime() + HOUR).toISOString();
+  const payload = WarroomRender.makeValue(99, 'synthetic-feed', futureIso); // no query_id supplied, matching most real tile payloads
+  const rendered = WarroomReadplane.renderTile(payload, CADENCE_MS / 1000, NOW);
+  const displayed = WarroomRender.renderValue(rendered);
+  assert.equal(displayed.text, 'ERROR — clock_skew',
+    'if this ever starts failing (i.e. equals "ERROR — clock skew"), the gap has been fixed -- flip this assertion to the fixed literal');
 });
 
 test('S6: skewed row does not corrupt strict-descending sort order', () => {
