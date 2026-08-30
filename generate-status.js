@@ -11,12 +11,18 @@ const WarroomClock = require('./lib/warroom-clock.js'); // WARROOM-CLOCK-001 —
 const WarroomHealth = require('./lib/warroom-health.js'); // WARROOM-HEALTH-001 — the one health evaluator (C6)
 const WarroomRunstate = require('./lib/warroom-runstate.js'); // WARROOM-RUNSTATE-001 — the one run-state evaluator (C6)
 const JobCadence = require('./lib/job-cadence-registry.js'); // WARROOM-RUNSTATE-001 — the one job-cadence source, shared with ~/SaSMaster/scripts/alert-engine.js (C4/C6)
+const crypto = require('crypto');
 
 const SASMASTER   = path.join(process.env.HOME, 'SaSMaster');
+// ORCH-LEDGER-GENESIS-001 (2026-08-29) — canonical dual-write heartbeat helper, reused
+// rather than reimplemented (SASMASTER cross-repo require is an established pattern in
+// this file already — see the TASKS_FILE/DONE_FILE/PENDING consts below).
+const { writeHeartbeat } = require(path.join(SASMASTER, 'lib', 'heartbeat-write.js'));
 const PENDING     = path.join(SASMASTER, 'pending-approvals.json');
 const TASKS_FILE  = path.join(SASMASTER, 'TASKS.md');
 const DONE_FILE   = path.join(SASMASTER, 'DONE_LOG.md');
 const OUT         = path.join(__dirname, 'status.json');
+const GEN_STARTED_AT = new Date().toISOString(); // ORCH §10 run_log.started_at
 
 // ── JARVIS ───────────────────────────────────────────────────────────────────
 // Socket Mode daemon is dead (JARVIS-ARCH-001). JARVIS is alive when Railway
@@ -373,6 +379,147 @@ function fetchRunLogTerminalByJob(jobs) {
     return byJob;
   } catch (e) {
     return {};
+  }
+}
+
+// ── ORCHESTRATION-SPEC.md §8 Wk1 / WARROOM-KANBAN-SPEC.md §4+§6 — Agent Team shadow block ──
+// Wk1 scope only (KANBAN §6): a BETA-FLAGGED agent_team block, generator-side only —
+// `kanban` above stays untouched (tasks.db-sourced) until Wk2's build-verify cutover.
+// cost_team is NOT built here: gated on ops.agent_telemetry existing (KANBAN §3), which
+// does not exist yet (verified live 2026-08-29 — only ops.agent_traces/ops.cost_log_v2
+// exist, neither keyed to this ledger's work_id format). mtd_cost_usd/budget_mtd_usd are
+// therefore omitted per role rather than rendered as fabricated zeros (TRUTHFUL-VITALS-001,
+// autonomous-ui-designer skill). Every timestamp is absolute (ORCH §10.4 / KANBAN §4's
+// central fix) — the client computes age/countdown from `generated_at` at the status.json
+// root, never a value baked in at generation time.
+const AGENT_TEAM_ROLES = ['orchestrator', 'prototyper', 'builder', 'sweeper', 'grower', 'maintainer', 'verifier'];
+
+function fetchAgentTeamShadow() {
+  const fail = (msg) => ({ beta: true, roles: {}, strip: null, error: msg });
+  const token = readEnvVar('MOTHERDUCK_TOKEN');
+  if (!token) return fail('no MOTHERDUCK_TOKEN');
+
+  const runSql = (sql) => {
+    // STATUS-PROCLEAK-001 pattern (see fetchRunLogTerminalByJob below) — array-form
+    // spawnSync direct to the duckdb binary, not execSync-through-a-shell.
+    const _r = spawnSync(
+      '/opt/homebrew/bin/duckdb',
+      ['-json', '-c', sql.replace(/\n/g, ' '), 'md:sasmaster'],
+      { encoding: 'utf8', timeout: 15000, killSignal: 'SIGKILL',
+        stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, motherduck_token: token } }
+    );
+    if (_r.status !== 0 || _r.stdout == null) {
+      throw new Error((_r.stderr || 'duckdb query failed').toString().slice(0, 300));
+    }
+    const out = _r.stdout.trim();
+    return out ? JSON.parse(out) : [];
+  };
+
+  try {
+    const ledger = runSql(`
+      SELECT work_id, role, state, priority, claim_expires, claimed_by, created_at, gate_state
+      FROM ops.work_ledger`);
+    const certs = runSql(`SELECT agent, status, expires_at FROM gov.agent_certification`);
+    const heartbeats = runSql(`
+      SELECT work_id, payload, ts FROM (
+        SELECT work_id, payload, ts,
+               row_number() OVER (PARTITION BY work_id ORDER BY ts DESC) AS rn
+        FROM ops.work_events WHERE event_type = 'HEARTBEAT'
+      ) WHERE rn = 1`);
+    // "First-pass rate" (KANBAN §2 role-tile spec) is the rate at which a role's OWN
+    // work passes VERIFIER on the first attempt — join the VERDICT event back to the
+    // work item's role, not the VERIFIER's own role, which is why this joins work_ledger.
+    const verdicts = runSql(`
+      SELECT e.work_id, e.payload, w.role
+      FROM ops.work_events e JOIN ops.work_ledger w ON w.work_id = e.work_id
+      WHERE e.event_type = 'VERDICT' AND e.ts > now() - INTERVAL 30 DAY`);
+    const reclaimsToday = runSql(`
+      SELECT count(*) AS n FROM ops.work_events
+      WHERE event_type = 'RECLAIMED' AND ts >= current_date`)[0]?.n || 0;
+    const blessMtd = runSql(`
+      SELECT count(*) AS n FROM gov.bless_log
+      WHERE blessed_at >= date_trunc('month', now())`)[0]?.n || 0;
+
+    const certByAgent = {};
+    for (const c of certs) certByAgent[String(c.agent).toLowerCase()] = c;
+    const hbByWorkId = {};
+    for (const h of heartbeats) hbByWorkId[h.work_id] = h;
+
+    const doneWk = {}, verdictTotal = {}, verdictPass = {};
+    for (const v of verdicts) {
+      let p; try { p = JSON.parse(v.payload); } catch { continue; }
+      const r = String(v.role || '').toLowerCase();
+      verdictTotal[r] = (verdictTotal[r] || 0) + 1;
+      if (p && p.verdict === 'PASS') verdictPass[r] = (verdictPass[r] || 0) + 1;
+    }
+    const weekAgoMs = Date.now() - 7 * 86400000;
+    for (const w of ledger) {
+      if (w.state === 'DONE' && w.created_at && new Date(w.created_at).getTime() >= weekAgoMs) {
+        const r = String(w.role || '').toLowerCase();
+        doneWk[r] = (doneWk[r] || 0) + 1;
+      }
+    }
+
+    const roles = {};
+    for (const roleName of AGENT_TEAM_ROLES) {
+      const cert = certByAgent[roleName];
+      const running = ledger.find(w => String(w.role || '').toLowerCase() === roleName
+        && (w.state === 'CLAIMED' || w.state === 'RUNNING'));
+      const hb = running ? hbByWorkId[running.work_id] : null;
+      let hbPayload = null;
+      if (hb) { try { hbPayload = JSON.parse(hb.payload); } catch { /* malformed payload — leave null */ } }
+      const n = verdictTotal[roleName] || 0;
+      // MIN-SAMPLE-FLOOR (KANBAN §2) — renders "n/a" below 10 verdicts rather than a
+      // misleading 0%/100% off a tiny sample.
+      roles[roleName] = {
+        state: running ? running.state.toLowerCase() : 'idle',
+        work_id: running ? running.work_id : null,
+        phase: hbPayload ? (hbPayload.phase_label || null) : null,
+        pct: hbPayload ? (hbPayload.pct ?? null) : null,
+        lease_expires: running ? running.claim_expires : null,
+        last_heartbeat_at: hb ? hb.ts : null,
+        instance: running ? running.claimed_by : null,
+        first_pass_rate_30d: n >= 10 ? Math.round(((verdictPass[roleName] || 0) / n) * 100) / 100 : null,
+        first_pass_sample_n: n,
+        done_wk: doneWk[roleName] || 0,
+        cert: cert ? { status: cert.status, expires: cert.expires_at } : null,
+      };
+    }
+
+    const in15m = Date.now() + 15 * 60000;
+    const leasesExpiring15m = ledger.filter(w => w.claim_expires
+      && new Date(w.claim_expires).getTime() > Date.now()
+      && new Date(w.claim_expires).getTime() < in15m).length;
+    const queued = ledger.filter(w => w.state === 'QUEUED' && w.gate_state !== 'pending_human');
+    const oldestQueuedSince = queued.length
+      ? queued.reduce((a, b) => new Date(a.created_at) < new Date(b.created_at) ? a : b).created_at
+      : null;
+    const pendingApproval = ledger.filter(w => w.gate_state === 'pending_human');
+    const oldestPendingApprovalSince = pendingApproval.length
+      ? pendingApproval.reduce((a, b) => new Date(a.created_at) < new Date(b.created_at) ? a : b).created_at
+      : null;
+    const verifyQueue = ledger.filter(w => String(w.role || '').toLowerCase() === 'verifier'
+      && w.state === 'QUEUED').length;
+
+    return {
+      beta: true,
+      roles,
+      strip: {
+        open_by_role: Object.fromEntries(AGENT_TEAM_ROLES.map(r =>
+          [r, ledger.filter(w => String(w.role || '').toLowerCase() === r
+            && !['DONE', 'FAILED', 'CANCELLED'].includes(w.state)).length])),
+        leases_expiring_before: new Date(in15m).toISOString(),
+        leases_expiring_count: leasesExpiring15m,
+        reclaims_today: reclaimsToday,
+        bless_mtd: blessMtd,
+        oldest_queued_since: oldestQueuedSince,
+        oldest_pending_approval_since: oldestPendingApprovalSince,
+        verify_queue: verifyQueue,
+      },
+      error: null,
+    };
+  } catch (e) {
+    return fail((e && e.message || String(e)).slice(0, 300));
   }
 }
 
@@ -2758,6 +2905,7 @@ function loadPortalCoverage() {
   } catch { return null; }
 }
 const portalCoverage = loadPortalCoverage();
+const agentTeamShadow = fetchAgentTeamShadow();
 
 const status = {
   generated:    new Date().toISOString(),
@@ -2786,6 +2934,9 @@ const status = {
   // per-job output, run_id always present or state is one of never_run/error).
   run_state_all: runStateAll,
   kanban,
+  // ORCH §8 Wk1 / KANBAN §4+§6 — shadow block, beta-flagged. Additive only; `kanban`
+  // above is untouched (still tasks.db-sourced) per Wk1's explicit scope.
+  agent_team: agentTeamShadow,
   heatmap,
   target10: parseTarget10(),
   agents,
@@ -2926,3 +3077,42 @@ if (fs.existsSync(MANIFEST_SRC)) {
   }
   try { fs.writeFileSync(PUSH_STATE_FILE, JSON.stringify(pushState, null, 2)); } catch {}
 })();
+
+// ── ORCH §10 — generator liveness, independent of the ledger it reads ──────────────────
+// Registers job_id='status_generator' in the EXISTING ops.heartbeat table and writes one
+// ops.run_log row per pass (ORCH §10.1) — reuses the two live platform tables rather than
+// a new ops.generator_runs table (§1's correction). Both writes are best-effort: a
+// heartbeat/run_log failure must never take down status.json generation itself, which is
+// why this block runs last, after OUT is already written and pushed.
+function writeGeneratorRunLog(startedAtIso, agentTeam) {
+  try {
+    const token = readEnvVar('MOTHERDUCK_TOKEN');
+    if (!token) return;
+    const rowsWritten = agentTeam && agentTeam.roles ? Object.keys(agentTeam.roles).length : 0;
+    const exitCode = agentTeam && agentTeam.error ? 1 : 0;
+    const esc = (s) => (s == null ? 'NULL' : `'${String(s).replace(/'/g, "''")}'`);
+    const toSql = (iso) => `TIMESTAMP '${iso.replace('T', ' ').replace('Z', '')}'`;
+    const sql =
+      'INSERT INTO ops.run_log (run_id, job, trigger, started_at, finished_at, exit_code, rows_written, error, actor) VALUES (' +
+      `'${crypto.randomUUID()}', 'status_generator', 'cron', ${toSql(startedAtIso)}, ${toSql(new Date().toISOString())}, ` +
+      `${exitCode}, ${rowsWritten}, ${esc(agentTeam && agentTeam.error)}, 'generate-status.js');`;
+    const _r = spawnSync('/opt/homebrew/bin/duckdb', ['md:sasmaster', '-c', sql], {
+      encoding: 'utf8', timeout: 15000, killSignal: 'SIGKILL',
+      stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, motherduck_token: token },
+    });
+    if (_r.status !== 0) console.warn(`[generate-status] run_log write failed: ${(_r.stderr || '').toString().slice(0, 300)}`);
+  } catch (e) {
+    console.warn(`[generate-status] run_log write failed: ${e.message}`);
+  }
+}
+
+writeGeneratorRunLog(GEN_STARTED_AT, agentTeamShadow);
+// Async S3+MotherDuck dual-write (lib/heartbeat-write.js) — fire-and-forget is safe here:
+// no process.exit() anywhere in this script, so Node's event loop stays alive until the
+// promise settles.
+writeHeartbeat('status_generator', 300, {
+  detail: agentTeamShadow && agentTeamShadow.error
+    ? `agent_team shadow block failed: ${agentTeamShadow.error}`
+    : `agent_team shadow block ok — ${Object.keys((agentTeamShadow && agentTeamShadow.roles) || {}).length} roles`,
+  status: agentTeamShadow && agentTeamShadow.error ? 'error' : 'ok',
+}).catch(e => console.warn(`[generate-status] heartbeat write failed: ${e.message}`));
