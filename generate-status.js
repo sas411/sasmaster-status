@@ -921,9 +921,15 @@ function parseAgents(allWiredRunstateByJob) {
     const tsMatch = last.match(/\[(\d{4}-\d{2}-\d{2}T[\d:.]+Z)\]/);
     const lastRun = tsMatch ? tsMatch[1] : null;
 
+    // ORCH-WARROOM-FIX-001 finding 4 (truncation half): this used to `.slice(0, 80)` here,
+    // ON TOP OF the AGENTS-tab card already capping the rendered console_out at 120 chars
+    // (warroom-v5.html renderAgents()) — a redundant, tighter, uncoordinated second cutoff
+    // that silently chopped real error text mid-sentence (e.g. "...FAILED [business]: Cannot "
+    // with the actual reason lost). One truncation point only, at the client's existing
+    // display budget (120) — server no longer pre-truncates the summary shorter than what
+    // the UI can actually show.
     const summary = a.descOverride || last.replace(/^\[\d{4}-\d{2}-\d{2}T[\d:.]+Z\]\s*/, '')
-                        .replace(/^\[[A-Z0-9_-]+\]\s*/i, '')
-                        .slice(0, 80);
+                        .replace(/^\[[A-Z0-9_-]+\]\s*/i, '');
 
     const routingErr = /not_in_channel/i.test(last);
     const hardError  = !routingErr && /error|fatal/i.test(last);
