@@ -1,0 +1,867 @@
+<title>Proving Ground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* ============ SaSMaster house tokens — dark default, light override ============ */
+:root, [data-theme="dark"]{
+  --bg-base:#0a0a0f; --bg-surface:#12121a; --bg-elevated:#1a1a2e; --bg-panel:#0d0d16; --bg-inset:#0e0e18;
+  --lavender:#a78bfa; --teal-bright:#22d3ee; --gold:#f59e0b; --red-alert:#ef4444; --green-signal:#10b981;
+  --lav-dim:rgba(167,139,250,0.14); --teal-dim:rgba(34,211,238,0.12); --gold-dim:rgba(245,158,11,0.10);
+  --red-dim:rgba(239,68,68,0.12); --green-dim:rgba(16,185,129,0.12);
+  --text-primary:#f8f8ff; --text-secondary:#94a3b8; --text-dim:#4b5563; --text-inverse:#0a0a0f;
+  --border:rgba(167,139,250,0.10); --border-active:rgba(167,139,250,0.35);
+  --border-subtle:rgba(255,255,255,0.05); --border-strong:rgba(167,139,250,0.50);
+  --grid:rgba(255,255,255,0.06); --shadow:0 1px 0 rgba(255,255,255,0.03);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg-base:#f4f4fb; --bg-surface:#ffffff; --bg-elevated:#ffffff; --bg-panel:#ecebf6; --bg-inset:#ededf8;
+    --lavender:#7c3aed; --teal-bright:#0891b2; --gold:#c2740a; --red-alert:#dc2626; --green-signal:#059669;
+    --lav-dim:rgba(124,58,237,0.09); --teal-dim:rgba(8,145,178,0.10); --gold-dim:rgba(194,116,10,0.10);
+    --red-dim:rgba(220,38,38,0.09); --green-dim:rgba(5,150,105,0.10);
+    --text-primary:#16162a; --text-secondary:#4b5365; --text-dim:#8a90a2; --text-inverse:#ffffff;
+    --border:rgba(124,58,237,0.16); --border-active:rgba(124,58,237,0.42);
+    --border-subtle:rgba(22,22,42,0.07); --border-strong:rgba(124,58,237,0.55);
+    --grid:rgba(22,22,42,0.07); --shadow:0 1px 2px rgba(22,22,42,0.05);
+  }
+}
+[data-theme="light"]{
+  --bg-base:#f4f4fb; --bg-surface:#ffffff; --bg-elevated:#ffffff; --bg-panel:#ecebf6; --bg-inset:#ededf8;
+  --lavender:#7c3aed; --teal-bright:#0891b2; --gold:#c2740a; --red-alert:#dc2626; --green-signal:#059669;
+  --lav-dim:rgba(124,58,237,0.09); --teal-dim:rgba(8,145,178,0.10); --gold-dim:rgba(194,116,10,0.10);
+  --red-dim:rgba(220,38,38,0.09); --green-dim:rgba(5,150,105,0.10);
+  --text-primary:#16162a; --text-secondary:#4b5365; --text-dim:#8a90a2; --text-inverse:#ffffff;
+  --border:rgba(124,58,237,0.16); --border-active:rgba(124,58,237,0.42);
+  --border-subtle:rgba(22,22,42,0.07); --border-strong:rgba(124,58,237,0.55);
+  --grid:rgba(22,22,42,0.07); --shadow:0 1px 2px rgba(22,22,42,0.05);
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0; background:var(--bg-base); color:var(--text-primary);
+  font-family:'Barlow Condensed','Helvetica Neue',Arial,sans-serif; font-size:15px; line-height:1.6;
+  -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1060px; margin:0 auto; padding:0 28px 96px;}
+
+/* --- type roles --- */
+.disp{font-family:'Bebas Neue','Arial Narrow',sans-serif; font-weight:400; letter-spacing:2px; line-height:1;}
+.mono{font-family:'Share Tech Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums;}
+.eyebrow{font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2.2px; text-transform:uppercase; color:var(--text-dim);}
+
+/* --- masthead --- */
+header{padding:52px 0 30px; border-bottom:1px solid var(--border-strong); margin-bottom:44px;}
+.rule-top{height:3px; background:linear-gradient(90deg,var(--lavender) 0%,var(--teal-bright) 55%,var(--gold) 100%); border-radius:2px; margin-bottom:34px;}
+h1{margin:0; font-size:clamp(52px,9vw,92px); text-wrap:balance;}
+h1 .thin{color:var(--lavender);}
+.tagline{margin:14px 0 0; font-size:20px; font-weight:300; color:var(--text-secondary); max-width:60ch; text-wrap:balance;}
+.meta-row{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:24px;}
+.pill{font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1.4px; text-transform:uppercase;
+  border:1px solid var(--border-active); color:var(--text-secondary); padding:4px 10px; border-radius:3px; background:var(--lav-dim);}
+.pill.warn{border-color:var(--gold); color:var(--gold); background:var(--gold-dim);}
+.pill.live{border-color:var(--green-signal); color:var(--green-signal); background:var(--green-dim);}
+.toggle{margin-left:auto; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1.4px; text-transform:uppercase;
+  background:transparent; border:1px solid var(--border-active); color:var(--lavender); padding:5px 12px; border-radius:3px; cursor:pointer;}
+.toggle:hover{background:var(--lav-dim);}
+.toggle:focus-visible{outline:2px solid var(--lavender); outline-offset:2px;}
+
+/* --- sections --- */
+section{margin-bottom:52px;}
+.sec-head{display:flex; align-items:baseline; gap:14px; margin-bottom:6px; border-bottom:1px solid var(--border); padding-bottom:8px;}
+.sec-num{font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--lavender); letter-spacing:1px;}
+h2{margin:0; font-family:'Bebas Neue','Arial Narrow',sans-serif; font-weight:400; font-size:27px; letter-spacing:2px;}
+.sec-note{margin-left:auto; font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); letter-spacing:1px; text-transform:uppercase;}
+p{max-width:72ch;}
+.lede{font-size:18px; font-weight:300; line-height:1.62; color:var(--text-primary); max-width:74ch;}
+.lede strong{font-weight:600; color:var(--lavender);}
+.dim{color:var(--text-secondary);}
+
+/* --- stat grid --- */
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(168px,1fr)); gap:1px; background:var(--border-subtle);
+  border:1px solid var(--border); margin-top:20px;}
+.stat{background:var(--bg-surface); padding:20px 18px 16px;}
+.stat .v{font-family:'Bebas Neue','Arial Narrow',sans-serif; font-size:40px; letter-spacing:1px; line-height:1; color:var(--teal-bright);}
+.stat .v.lav{color:var(--lavender);} .stat .v.gold{color:var(--gold);} .stat .v.red{color:var(--red-alert);}
+.stat .k{margin-top:9px; font-size:13.5px; line-height:1.4; color:var(--text-primary);}
+.stat .s{margin-top:8px; font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.8px; color:var(--text-dim); text-transform:uppercase;}
+
+/* --- interactive loop stepper --- */
+.stepper{display:flex; flex-wrap:wrap; gap:8px; margin-top:22px;}
+.stage-btn{flex:1 1 152px; text-align:left; background:var(--bg-surface); border:1px solid var(--border);
+  border-top:2px solid var(--text-dim); padding:12px 14px 14px; cursor:pointer; font-family:inherit; color:var(--text-secondary);}
+.stage-btn .n{font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); letter-spacing:1.5px; display:block;}
+.stage-btn .t{display:block; margin-top:5px; font-family:'Bebas Neue','Arial Narrow',sans-serif; font-size:21px; letter-spacing:1.6px; color:var(--text-primary); line-height:1;}
+.stage-btn[aria-selected="true"]{border-color:var(--border-active); background:var(--bg-elevated);}
+.stage-btn[aria-selected="true"] .n{color:var(--lavender);}
+.stage-btn:nth-child(1)[aria-selected="true"]{border-top-color:var(--lavender);}
+.stage-btn:nth-child(2)[aria-selected="true"]{border-top-color:var(--teal-bright);}
+.stage-btn:nth-child(3)[aria-selected="true"]{border-top-color:var(--gold);}
+.stage-btn:nth-child(4)[aria-selected="true"]{border-top-color:var(--teal-bright);}
+.stage-btn:nth-child(5)[aria-selected="true"]{border-top-color:var(--green-signal);}
+.stage-btn:focus-visible{outline:2px solid var(--lavender); outline-offset:2px;}
+.stage-panel{border:1px solid var(--border-active); background:var(--bg-surface); padding:20px 22px; margin-top:10px;}
+.stage-panel h3{margin:0 0 8px; font-family:'Bebas Neue','Arial Narrow',sans-serif; font-weight:400; font-size:24px; letter-spacing:1.8px;}
+.stage-panel p{margin:0 0 12px; font-size:14.5px; line-height:1.6; color:var(--text-secondary); max-width:none;}
+.stage-panel p em{font-style:normal; color:var(--text-primary); font-weight:500;}
+.chip-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;}
+.model-chip{font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase;
+  border:1px solid var(--border-active); color:var(--teal-bright); background:var(--teal-dim); padding:4px 9px; border-radius:3px; white-space:nowrap;}
+.model-chip.lav{color:var(--lavender); background:var(--lav-dim);}
+.model-chip.gold{color:var(--gold); background:var(--gold-dim); border-color:var(--gold);}
+.model-chip.grn{color:var(--green-signal); background:var(--green-dim); border-color:var(--green-signal);}
+.telemetry{margin-top:14px; padding-top:12px; border-top:1px dashed var(--border);
+  font-family:'Share Tech Mono',monospace; font-size:10.5px; letter-spacing:0.8px; color:var(--text-dim); text-transform:uppercase;}
+.stepper-ctl{display:flex; gap:10px; align-items:center; margin-top:12px;}
+.btn{font-family:'Share Tech Mono',monospace; font-size:10.5px; letter-spacing:1.4px; text-transform:uppercase;
+  background:transparent; border:1px solid var(--border-active); color:var(--lavender); padding:7px 14px; border-radius:3px; cursor:pointer;}
+.btn:hover{background:var(--lav-dim);}
+.btn:focus-visible{outline:2px solid var(--lavender); outline-offset:2px;}
+.btn.primary{border-color:var(--teal-bright); color:var(--teal-bright);}
+.btn.primary:hover{background:var(--teal-dim);}
+
+/* --- model stack cards --- */
+.models{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1px; background:var(--border-subtle);
+  border:1px solid var(--border); margin-top:20px;}
+.model{background:var(--bg-surface); padding:18px 18px 16px; display:flex; flex-direction:column;}
+.model .role{font-family:'Share Tech Mono',monospace; font-size:9.5px; letter-spacing:1.6px; text-transform:uppercase; color:var(--text-dim);}
+.model h4{margin:7px 0 2px; font-family:'Bebas Neue','Arial Narrow',sans-serif; font-weight:400; font-size:24px; letter-spacing:1.6px; color:var(--text-primary);}
+.model .vendor{font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--teal-bright); text-transform:uppercase;}
+.model p{margin:10px 0 0; font-size:13.5px; line-height:1.55; color:var(--text-secondary); max-width:none; flex:1;}
+.model .swap{margin-top:12px; padding-top:10px; border-top:1px dashed var(--border);
+  font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1.2px; color:var(--text-dim); text-transform:uppercase;}
+
+/* --- vote arena --- */
+.arena{display:grid; grid-template-columns:1fr 56px 1fr; gap:14px; align-items:stretch; margin-top:22px;}
+.contender{border:1px solid var(--border); background:var(--bg-surface); padding:18px 18px 16px; display:flex; flex-direction:column; gap:10px;}
+.contender .genre{align-self:flex-start; font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1.4px;
+  text-transform:uppercase; border:1px solid var(--border-active); color:var(--lavender); background:var(--lav-dim); padding:3px 8px; border-radius:3px;}
+.contender h4{margin:0; font-family:'Bebas Neue','Arial Narrow',sans-serif; font-weight:400; font-size:30px; letter-spacing:2px; line-height:1;}
+.contender .logline{margin:0; font-size:14px; line-height:1.55; color:var(--text-secondary); max-width:none; flex:1;}
+.reel{position:relative; height:6px; background:var(--bg-inset); border:1px solid var(--border-subtle); overflow:hidden;}
+.reel i{position:absolute; inset:0; width:0%; background:linear-gradient(90deg,var(--lavender),var(--teal-bright)); transition:width 0.9s ease;}
+.rev-metrics{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+.rev-metrics div{font-family:'Share Tech Mono',monospace; font-size:9.5px; letter-spacing:0.6px; color:var(--text-dim); text-transform:uppercase; line-height:1.5;}
+.rev-metrics b{display:block; font-size:14px; color:var(--text-primary); font-weight:400;}
+.idx-row{display:flex; align-items:baseline; gap:10px;}
+.idx-row .lbl{font-family:'Share Tech Mono',monospace; font-size:9.5px; letter-spacing:1.2px; color:var(--text-dim); text-transform:uppercase;}
+.idx-row .val{font-family:'Bebas Neue','Arial Narrow',sans-serif; font-size:34px; letter-spacing:1px; color:var(--teal-bright); line-height:1;}
+.vote-btn{font-family:'Share Tech Mono',monospace; font-size:10.5px; letter-spacing:1.6px; text-transform:uppercase;
+  border:1px solid var(--teal-bright); color:var(--teal-bright); background:var(--teal-dim); padding:10px 0; width:100%; cursor:pointer; border-radius:3px;}
+.vote-btn:hover{background:var(--bg-elevated);}
+.vote-btn:disabled{opacity:0.4; cursor:default;}
+.vote-btn:focus-visible{outline:2px solid var(--teal-bright); outline-offset:2px;}
+.contender.won{border-color:var(--green-signal);}
+.vs{align-self:center; text-align:center; font-family:'Bebas Neue','Arial Narrow',sans-serif; font-size:26px; letter-spacing:2px; color:var(--text-dim);}
+.arena-status{margin-top:12px; border:1px solid var(--border); border-left:3px solid var(--teal-bright); background:var(--bg-surface);
+  padding:14px 16px; font-size:14px; color:var(--text-secondary);}
+.arena-status b{color:var(--text-primary); font-weight:600;}
+.arena-foot{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:12px;}
+.round-tag{font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1.4px; color:var(--text-dim); text-transform:uppercase;}
+
+/* --- economics panel --- */
+.econ{display:grid; grid-template-columns:minmax(260px,5fr) minmax(280px,7fr); gap:14px; margin-top:22px;}
+.econ-ctl{border:1px solid var(--border); background:var(--bg-surface); padding:18px 20px;}
+.ctl-row{margin-bottom:16px;}
+.ctl-row:last-child{margin-bottom:0;}
+.ctl-row label{display:flex; justify-content:space-between; align-items:baseline; font-family:'Share Tech Mono',monospace;
+  font-size:9.5px; letter-spacing:1.3px; text-transform:uppercase; color:var(--text-dim); margin-bottom:7px;}
+.ctl-row label output{font-size:13px; color:var(--teal-bright); letter-spacing:0.6px;}
+input[type="range"]{width:100%; accent-color:var(--lavender); background:transparent; height:22px; margin:0;}
+input[type="range"]:focus-visible{outline:2px solid var(--lavender); outline-offset:2px;}
+.econ-out{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--border-subtle); border:1px solid var(--border); align-content:stretch;}
+.eo{background:var(--bg-surface); padding:16px 16px 14px; display:flex; flex-direction:column; justify-content:flex-start;}
+.eo .v{font-family:'Bebas Neue','Arial Narrow',sans-serif; font-size:34px; letter-spacing:1px; line-height:1; color:var(--teal-bright);}
+.eo .v.gold{color:var(--gold);} .eo .v.grn{color:var(--green-signal);} .eo .v.lav{color:var(--lavender);}
+.eo .k{margin-top:8px; font-size:12.5px; line-height:1.4; color:var(--text-secondary);}
+.econ-note{grid-column:1 / -1; margin-top:0; font-family:'Share Tech Mono',monospace; font-size:9.5px; letter-spacing:0.8px;
+  color:var(--text-dim); text-transform:uppercase; padding:10px 2px 0;}
+
+/* --- tables --- */
+.tbl-scroll{overflow-x:auto; margin-top:20px; border:1px solid var(--border);}
+table{width:100%; border-collapse:collapse; background:var(--bg-surface); min-width:640px;}
+th{text-align:left; font-family:'Share Tech Mono',monospace; font-size:9.5px; letter-spacing:1.4px; text-transform:uppercase;
+  color:var(--text-dim); padding:11px 14px; border-bottom:1px solid var(--border-active); background:var(--bg-panel); vertical-align:bottom;}
+td{padding:13px 14px; border-bottom:1px solid var(--border-subtle); font-size:14px; line-height:1.5; vertical-align:top; color:var(--text-secondary);}
+tr:last-child td{border-bottom:none;}
+td.lead{color:var(--text-primary); font-weight:600; white-space:nowrap;}
+td .seq{display:inline-block; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px;
+  border:1px solid var(--border-active); color:var(--lavender); padding:2px 7px; border-radius:3px; background:var(--lav-dim); white-space:nowrap;}
+td .seq.now{border-color:var(--green-signal); color:var(--green-signal); background:var(--green-dim);}
+td .seq.later{border-color:var(--border); color:var(--text-dim); background:transparent;}
+
+/* --- risk / wave cards --- */
+.cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; margin-top:20px;}
+.card{background:var(--bg-surface); border:1px solid var(--border); border-left:2px solid var(--red-alert); padding:15px 16px;}
+.card.wave{border-left-color:var(--teal-bright);}
+.card h4{margin:0 0 7px; font-size:15px; font-weight:700; letter-spacing:0.2px; color:var(--text-primary);}
+.card p{margin:0; font-size:13.5px; line-height:1.55; color:var(--text-secondary); max-width:none;}
+.card .tag{display:block; font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1.4px;
+  text-transform:uppercase; color:var(--text-dim); margin-bottom:6px;}
+
+/* --- callout --- */
+.callout{margin-top:22px; border:1px solid var(--border-active); border-left:3px solid var(--gold);
+  background:var(--gold-dim); padding:18px 20px;}
+.callout p{margin:0; font-size:15px; line-height:1.6; color:var(--text-primary);}
+.callout p + p{margin-top:10px;}
+.callout .tag{font-family:'Share Tech Mono',monospace; font-size:9.5px; letter-spacing:1.6px;
+  text-transform:uppercase; color:var(--gold); display:block; margin-bottom:8px;}
+
+/* --- moat block --- */
+.moat{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1px; background:var(--border-subtle);
+  border:1px solid var(--border); margin-top:20px;}
+.moat > div{background:var(--bg-surface); padding:18px;}
+.moat h4{margin:0 0 8px; font-family:'Bebas Neue','Arial Narrow',sans-serif; font-weight:400; font-size:19px;
+  letter-spacing:1.4px; color:var(--lavender);}
+.moat p{margin:0; font-size:13.5px; line-height:1.55; color:var(--text-secondary); max-width:none;}
+.moat .fig{font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--teal-bright); letter-spacing:0.6px; display:block; margin-top:9px;}
+
+/* --- timeline figure --- */
+figure{margin:22px 0 0; padding:0;}
+.fig-box{border:1px solid var(--border); background:var(--bg-surface); padding:22px 20px 16px; overflow-x:auto;}
+figcaption{margin-top:10px; font-family:'Share Tech Mono',monospace; font-size:9.5px; letter-spacing:0.8px;
+  color:var(--text-dim); text-transform:uppercase;}
+
+/* --- footer --- */
+footer{border-top:1px solid var(--border-strong); padding-top:28px; margin-top:12px;}
+.cta{font-family:'Bebas Neue','Arial Narrow',sans-serif; font-size:30px; letter-spacing:2px; margin:0 0 12px;}
+.sig{margin-top:20px; display:flex; flex-wrap:wrap; gap:8px 22px; font-family:'Share Tech Mono',monospace;
+  font-size:10.5px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase;}
+.sources{margin-top:26px; font-size:12.5px; line-height:1.7; color:var(--text-dim); max-width:none;}
+.sources b{color:var(--text-secondary); font-weight:600;}
+
+/* --- motion system (Premium archetype · signature ease · fonts-gated init) --- */
+:root{--ease:cubic-bezier(0.4,0,0.2,1); --ease-out:cubic-bezier(0.05,0.7,0.1,1);}
+header{position:relative; overflow:hidden;}
+#sigField{position:absolute; inset:0; width:100%; height:100%; display:block; pointer-events:none; opacity:0.9;}
+header > *{position:relative; z-index:1;}
+.rule-top{background-size:220% 100%; animation:ruleDrift 9s ease-in-out infinite alternate;}
+@keyframes ruleDrift{from{background-position:0% 0;} to{background-position:100% 0;}}
+.rv{opacity:0; transform:translateY(16px); transition:opacity .55s var(--ease-out), transform .55s var(--ease-out);}
+.rv.in{opacity:1; transform:translateY(0);}
+.spend-fill{opacity:0; transition:opacity .9s var(--ease) .35s;}
+.spend-fill.in{opacity:1;}
+.spend-markers{opacity:0; transition:opacity .5s var(--ease);}
+.spend-markers.in{opacity:1;}
+.chip-row .model-chip{opacity:0; transform:translateY(6px); animation:chipIn .38s var(--ease-out) forwards;}
+@keyframes chipIn{to{opacity:1; transform:none;}}
+.eo .v.tick{animation:vTick .32s var(--ease-out);}
+@keyframes vTick{from{opacity:0.3;} to{opacity:1;}}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  .rv{opacity:1; transform:none;}
+  .spend-fill,.spend-markers{opacity:1; transition:none;}
+  .chip-row .model-chip{animation:none; opacity:1; transform:none;}
+  .rule-top{animation:none;}
+}
+@media (max-width:700px){
+  .arena{grid-template-columns:1fr;}
+  .vs{padding:2px 0;}
+  .econ{grid-template-columns:1fr;}
+}
+@media (max-width:600px){
+  html,body{overflow-x:hidden; max-width:100vw;}
+  .wrap{padding:0 16px 64px;}
+  .sec-note{display:none;}
+}
+@media print{
+  body{background:#fff; color:#111;}
+  .toggle,.stepper-ctl,.vote-btn{display:none;}
+  section{break-inside:avoid;}
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <canvas id="sigField" aria-hidden="true"></canvas>
+  <div class="rule-top"></div>
+  <h1 class="disp">PROVING <span class="thin">GROUND</span></h1>
+  <p class="tagline">A market for stories that don't exist yet. Unmade scripts rendered as 30-second trailers, voted on by fans worldwide, priced by the audience that would have to show up.</p>
+  <div class="meta-row">
+    <span class="pill">Business One-Pager · v2.0</span>
+    <span class="pill live">Interactive</span>
+    <span class="pill">August 2026</span>
+    <span class="pill">A SaSMaster Instrument</span>
+    <span class="pill warn">Confidential</span>
+    <button class="toggle" id="tt" type="button">Theme</button>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head"><span class="sec-num">01</span><h2>The Thesis</h2><span class="sec-note">First principles</span></div>
+  <p class="lede">Strip the industry to first principles and it has exactly two unsolved problems, and they are the same problem. <strong>Demand:</strong> every signal the business owns is a post-mortem — box office, Nielsen delivery, streaming minutes all measure things already written, already cast, already paid for. The one forward-looking instrument, the test screening, arrives at rough cut: <strong>$10–20K, 300–500 recruits, and 100% of the negative already spent.</strong> <strong>Supply:</strong> the best-liked scripts in Hollywood sit unmade, because nobody can price the audience for a thing that doesn't exist.</p>
+  <p class="lede" style="margin-top:14px;">Proving Ground prices it. It renders unmade scripts and concepts as watchable <strong>30-second trailers</strong>, puts them in front of a live global audience, and converts what that audience <strong>watches, finishes, replays and ranks head-to-head</strong> into a priced demand signal — resolved against the same certified identity spine that already ties viewership, metadata and financial ground truth into one comparable frame.</p>
+  <div class="callout">
+    <span class="tag">The one-line version</span>
+    <p>Move the audience test from rough cut to first draft, drop the cost of asking by three orders of magnitude, and sell the answer to the people writing the cheques.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">02</span><h2>Market Context</h2><span class="sec-note">Sourced · Aug 2026</span></div>
+  <div class="stats">
+    <div class="stat"><div class="v">$255B</div><div class="k">Global content spend in 2026 — the capital this instrument is designed to de-risk.</div><div class="s">Ampere Analysis</div></div>
+    <div class="stat"><div class="v lav">$100B+</div><div class="k">Streamer content spend crosses twelve figures for the first time in 2026.</div><div class="s">Ampere via Deadline</div></div>
+    <div class="stat"><div class="v gold">$7.8B</div><div class="k">Forecast 2026 in-app micro-series revenue, up from $3.8B in 2025 — the short-form format is already proven.</div><div class="s">Deloitte TMT Predictions</div></div>
+    <div class="stat"><div class="v red">55%</div><div class="k">Of the 1,000+ screenplays the Black List has named since 2005, roughly 450 got produced. The rest are the best-liked scripts in Hollywood, unmade.</div><div class="s">The Black List</div></div>
+    <div class="stat"><div class="v">n=400</div><div class="k">Typical test-screening sample, run once, in one city, at rough cut. That is the incumbent instrument.</div><div class="s">Industry practice</div></div>
+    <div class="stat"><div class="v" style="color:var(--green-signal)">~$2</div><div class="k">To render one 30-second trailer take at 2026 API rates ($0.07/sec, to $0.40 at 4K). The cost of asking collapses.</div><div class="s">Public model pricing</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">03</span><h2>The Loop</h2><span class="sec-note">Click a stage · each one instrumented</span></div>
+  <p class="dim" style="max-width:74ch;">Five stages, script to certificate. Step through them — each stage names the models doing the work and the telemetry it emits.</p>
+  <div class="stepper" role="tablist" aria-label="Pipeline stages" id="stepper"></div>
+  <div class="stage-panel" id="stagePanel" role="tabpanel" aria-live="polite"></div>
+  <div class="stepper-ctl">
+    <button class="btn" id="stepPrev" type="button">◂ Prev</button>
+    <button class="btn" id="stepNext" type="button">Next ▸</button>
+    <button class="btn primary" id="stepPlay" type="button">Auto-play</button>
+  </div>
+
+  <figure>
+    <div class="fig-box">
+      <svg viewBox="0 0 860 168" width="100%" height="168" role="img" aria-label="Development timeline showing that today's audience signal arrives at rough cut after most spend is committed, while Proving Ground reads signal at the concept stage.">
+        <defs><linearGradient id="spendGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="var(--green-signal)" stop-opacity="0.30"/>
+          <stop offset="55%" stop-color="var(--gold)" stop-opacity="0.42"/>
+          <stop offset="100%" stop-color="var(--red-alert)" stop-opacity="0.55"/>
+        </linearGradient></defs>
+        <path class="spend-fill" d="M40 118 L200 112 L380 96 L560 58 L720 30 L820 24 L820 128 L40 128 Z" fill="url(#spendGrad)"/>
+        <path id="spendPath" d="M40 118 L200 112 L380 96 L560 58 L720 30 L820 24" fill="none" stroke="var(--red-alert)" stroke-width="1.6"/>
+        <line x1="40" y1="128" x2="820" y2="128" stroke="var(--grid)" stroke-width="1"/>
+        <g font-family="Share Tech Mono, monospace" font-size="9.5" fill="var(--text-dim)" letter-spacing="1">
+          <text x="40" y="146">CONCEPT</text><text x="196" y="146">DRAFT</text><text x="372" y="146">PACKAGE</text>
+          <text x="548" y="146">SHOOT</text><text x="712" y="146">ROUGH CUT</text>
+        </g>
+        <text x="40" y="18" font-family="Share Tech Mono, monospace" font-size="9.5" fill="var(--text-dim)" letter-spacing="1.4">CAPITAL COMMITTED →</text>
+        <g class="spend-markers">
+          <line x1="742" y1="24" x2="742" y2="128" stroke="var(--red-alert)" stroke-width="1.4" stroke-dasharray="4 3"/>
+          <circle cx="742" cy="24" r="4" fill="var(--red-alert)"/>
+          <text x="734" y="112" text-anchor="end" font-family="Barlow Condensed, sans-serif" font-size="13" font-weight="600" fill="var(--red-alert)">Test screening reads here</text>
+          <line x1="62" y1="118" x2="62" y2="128" stroke="var(--green-signal)" stroke-width="1.4" stroke-dasharray="4 3"/>
+          <circle cx="62" cy="118" r="4" fill="var(--green-signal)"/>
+          <text x="74" y="92" font-family="Barlow Condensed, sans-serif" font-size="13" font-weight="600" fill="var(--green-signal)">Proving Ground reads here</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>Schematic, not measured data. The shape is the argument: signal arrives today only after the money is unrecoverable.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">04</span><h2>The Stack — Different Models, Different Jobs</h2><span class="sec-note">Best-in-role · every seat swappable</span></div>
+  <p class="lede">No single model can run this loop well, so none is asked to. Each seat goes to the model that currently wins it — and every seat sits behind the <strong>Model Gateway</strong>, a provenance wall where a model earns production status through a bake-off and loses it the same way. The models are components. The spine, the telemetry and the certificates are the IP.</p>
+  <div class="models">
+    <div class="model">
+      <span class="role">Seat 01 · Orchestrator &amp; Creative Director</span>
+      <h4>CLAUDE</h4><span class="vendor">Anthropic</span>
+      <p>Runs the agent fleet end to end: rights triage on intake, prompt direction per shot, and the QC gate that holds every render to one fixed house standard — so the test measures the story, not the generator. Also the surface the platform itself is built and shipped on.</p>
+      <span class="swap">Swap cost: highest — orchestration is the deepest integration</span>
+    </div>
+    <div class="model">
+      <span class="role">Seat 02 · Script Decomposition</span>
+      <h4>GEMINI</h4><span class="vendor">Google</span>
+      <p>Reads a full 110-page screenplay in one pass and returns structure: beat sheet, the three most trailer-able moments, shot plan, tone and casting references. Long-context comprehension is the whole job description for this seat.</p>
+      <span class="swap">Swap cost: low — structured output, re-run the bake-off</span>
+    </div>
+    <div class="model">
+      <span class="role">Seat 03 · Trailer Generation</span>
+      <h4>SEEDANCE</h4><span class="vendor">ByteDance</span>
+      <p>Turns the shot plan into the 30-second trailer: multi-shot text-and-image-to-video with character consistency across cuts, at roughly $2 a take. The fastest-moving seat in the stack — which is exactly why it is a seat and not a foundation.</p>
+      <span class="swap">Swap cost: lowest — renderers leapfrog quarterly by design</span>
+    </div>
+    <div class="model">
+      <span class="role">Seat 04 · Neural Pre-Screen</span>
+      <h4>TRIBE</h4><span class="vendor">Meta FAIR</span>
+      <p>A trimodal brain encoder that predicts human neural response to video — winner of the Algonauts 2025 challenge. Ranks candidate renders by predicted engagement <em>before</em> real audience attention is spent. Experimental tier: a calibration layer, never a verdict.</p>
+      <span class="swap">Swap cost: n/a — advisory only, gated from the certificate</span>
+    </div>
+  </div>
+  <div class="callout">
+    <span class="tag">The posture</span>
+    <p><b>Named today, married never.</b> Every external model enters through the Gateway with a scored bake-off against the incumbent and a walk-away threshold. If a better decomposer, renderer or encoder ships next quarter, the seat turns over in weeks — and the demand data, the identity spine and every certificate already issued do not move an inch.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">05</span><h2>Try the Instrument</h2><span class="sec-note">Simulated panel · live demo</span></div>
+  <p class="dim" style="max-width:74ch;">Two concept trailers, head-to-head. Pick the one you'd watch. Your vote joins a simulated panel and the demand index updates — this is the exact interaction a Proving Ground viewer has, and the exact telemetry a studio buys.</p>
+  <div class="arena" id="arena">
+    <div class="contender" id="conA">
+      <span class="genre" id="genA"></span>
+      <h4 id="titleA"></h4>
+      <p class="logline" id="logA"></p>
+      <div class="reel"><i id="barA"></i></div>
+      <div class="idx-row"><span class="lbl">Demand index</span><span class="val" id="idxA">—</span></div>
+      <div class="rev-metrics" id="revA" hidden>
+        <div>Completion<b id="cmpA"></b></div><div>Replay<b id="rplA"></b></div><div>Scroll-away<b id="scrA"></b></div>
+      </div>
+      <button class="vote-btn" id="voteA" type="button">▶ Vote this one</button>
+    </div>
+    <div class="vs">VS</div>
+    <div class="contender" id="conB">
+      <span class="genre" id="genB"></span>
+      <h4 id="titleB"></h4>
+      <p class="logline" id="logB"></p>
+      <div class="reel"><i id="barB"></i></div>
+      <div class="idx-row"><span class="lbl">Demand index</span><span class="val" id="idxB">—</span></div>
+      <div class="rev-metrics" id="revB" hidden>
+        <div>Completion<b id="cmpB"></b></div><div>Replay<b id="rplB"></b></div><div>Scroll-away<b id="scrB"></b></div>
+      </div>
+      <button class="vote-btn" id="voteB" type="button">▶ Vote this one</button>
+    </div>
+  </div>
+  <div class="arena-status" id="arenaStatus" hidden></div>
+  <div class="arena-foot">
+    <span class="round-tag" id="roundTag">Matchup 1 of 3</span>
+    <button class="btn primary" id="nextMatch" type="button" hidden>Next matchup ▸</button>
+    <button class="btn" id="resetArena" type="button" hidden>Run it again</button>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">06</span><h2>The Economics of Asking</h2><span class="sec-note">Drag the sliders · render math is live</span></div>
+  <p class="dim" style="max-width:74ch;">The incumbent instrument prices one opinion at roughly <b class="mono" style="color:var(--gold)">$37.50</b> — a $15K test screening over 400 recruits, once, in one city, at rough cut. Set the dials on this instrument and watch what a read costs at concept stage.</p>
+  <div class="econ">
+    <div class="econ-ctl">
+      <div class="ctl-row">
+        <label for="rLen">Trailer length <output id="oLen">30 sec</output></label>
+        <input type="range" id="rLen" min="15" max="90" step="15" value="30">
+      </div>
+      <div class="ctl-row">
+        <label for="rCps">Render rate <output id="oCps">$0.07 / sec</output></label>
+        <input type="range" id="rCps" min="5" max="40" step="1" value="7">
+      </div>
+      <div class="ctl-row">
+        <label for="rVotes">Audience reads per concept <output id="oVotes">25,000</output></label>
+        <input type="range" id="rVotes" min="1" max="100" step="1" value="25">
+      </div>
+      <div class="ctl-row">
+        <label for="rCon">Concepts tested per month <output id="oCon">200</output></label>
+        <input type="range" id="rCon" min="25" max="1000" step="25" value="200">
+      </div>
+    </div>
+    <div class="econ-out">
+      <div class="eo"><div class="v" id="eCost">—</div><div class="k">Render cost per concept (3 takes + QC finals)</div></div>
+      <div class="eo"><div class="v lav" id="eMonth">—</div><div class="k">Monthly render budget, full slate</div></div>
+      <div class="eo"><div class="v gold" id="eRead">—</div><div class="k">Cost per audience read, at concept stage</div></div>
+      <div class="eo"><div class="v grn" id="eAdv">—</div><div class="k">Reads bought for the price of one test-screening recruit</div></div>
+      <div class="econ-note" id="econNote">Render compute only · excludes platform opex &amp; media cost · vs $15,000 / 400-recruit screening</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">07</span><h2>Why It Holds</h2><span class="sec-note">The defensible part is not the app</span></div>
+  <p class="lede">Anyone can build a voting app. A vote is worth money only when it carries a comparable — when the answer is not <em>"73% liked it"</em> but <em>"this concept indexes where that title indexed, and that title returned this."</em> The comparable is the asset, and it is already built.</p>
+  <div class="moat">
+    <div><h4>The Identity Spine</h4><p>A certified five-table Parent Key schema fusing identifiers across TV viewership, content metadata and social. Concepts, people and genres resolve into it on intake.<span class="fig">12,955,801 rows · certified</span></p></div>
+    <div><h4>The Ground Truth</h4><p>Box office, licensing revenue, linear delivery, SVOD minutes and social engagement already joined to the spine. Votes become meaningful the moment they sit beside a realized result.<span class="fig">Five performance surfaces</span></p></div>
+    <div><h4>The Narrative Decoder</h4><p>Narrative-feature extraction already running against the spine in the sibling HIT Predictor instrument. Concepts arrive pre-described in the same feature vocabulary as everything that came before.<span class="fig">Shared feature schema</span></p></div>
+    <div><h4>The Compounding Asset</h4><p>Every render, every vote, every scroll-away adds a labelled example. The consumer product is not the business — it is the sensor network that makes the data business possible.<span class="fig">Cold-start solved by catalog</span></p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">08</span><h2>Revenue — Four Engines, Sequenced</h2><span class="sec-note">Order is the strategy</span></div>
+  <p class="dim" style="max-width:74ch;">Four engines is the destination, not the starting line. Run in parallel they compete for the same scarce thing — attention and capital. Run in this order, each one pays for the next.</p>
+  <div class="tbl-scroll">
+    <table>
+      <thead><tr><th>Engine</th><th>What it actually sells</th><th>Who pays</th><th>Why here in the order</th><th>Phase</th></tr></thead>
+      <tbody>
+        <tr><td class="lead">Studio Panels<br><span class="mono" style="font-size:10px;color:var(--text-dim)">B2B SaaS</span></td>
+          <td>Closed, NDA-bound testing of a studio's own development slate. Priced directly against the test screening it replaces.</td>
+          <td>Studios, streamers, production companies</td>
+          <td>Shortest sales cycle and a budget line that already exists. This is the cash that funds the consumer build.</td>
+          <td><span class="seq now">First</span></td></tr>
+        <tr><td class="lead">Consumer Feed<br><span class="mono" style="font-size:10px;color:var(--text-dim)">Subscription + ads</span></td>
+          <td>A short-form entertainment product people actually choose to watch. Subscription plus advertising.</td>
+          <td>Viewers and advertisers</td>
+          <td>It is the sensor network. If it is not a real entertainment product, the data underneath it is worthless — so it cannot be an afterthought.</td>
+          <td><span class="seq now">First</span></td></tr>
+        <tr><td class="lead">Demand Feed<br><span class="mono" style="font-size:10px;color:var(--text-dim)">Data licensing</span></td>
+          <td>Standing subscription to aggregate demand by genre, demographic, narrative feature and window — for content that does not exist yet.</td>
+          <td>Studio strategy, programming, acquisitions</td>
+          <td>Highest margin and the real enterprise value, but it requires scale in the feed first. Sold on evidence, not on promise.</td>
+          <td><span class="seq">Second</span></td></tr>
+        <tr><td class="lead">Option Flow<br><span class="mono" style="font-size:10px;color:var(--text-dim)">Marketplace take</span></td>
+          <td>Brokerage on concepts that clear a demand threshold and get optioned or licensed.</td>
+          <td>Buyers, with revenue share to writers</td>
+          <td>The headline, and the reason good writers show up — but it is the output of the flywheel, not the entry to it. Lumpy by nature.</td>
+          <td><span class="seq later">Third</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout">
+    <span class="tag">The sequencing logic</span>
+    <p><b>Panels fund the feed. The feed creates the data. The data creates the licensing business. The licensing business creates the option flow.</b> Reverse that order and you are running a consumer media company with no revenue and no comparables — which is the failure mode of every script-voting platform that came before.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">09</span><h2>Supply — Three Waves</h2><span class="sec-note">Rights risk rises with signal quality</span></div>
+  <div class="cards">
+    <div class="card wave"><span class="tag">Wave 1 · Calibrate</span><h4>Public domain &amp; lapsed rights</h4><p>Zero clearance risk, instant catalog, and the honest way to calibrate the instrument before a single writer puts their IP at stake. Weak novelty signal — used to tune, not to sell.</p></div>
+    <div class="card wave"><span class="tag">Wave 1 · Volume</span><h4>User-submitted loglines</h4><p>Open intake. Infinite supply, near-zero acquisition cost, and the engine of the consumer feed. Noisy, needs originality screening and moderation. This is where virality comes from.</p></div>
+    <div class="card wave"><span class="tag">Wave 2 · Quality</span><h4>Opted-in spec scripts</h4><p>The strongest public signal — real screenplays that never got made. Requires explicit writer license, revenue share, and unambiguous terms on training use. The option flow is what buys this material.</p></div>
+    <div class="card wave"><span class="tag">Wave 3 · Revenue</span><h4>Studio slates under NDA</h4><p>Confidential by design: no public voting, closed panels, results visible only to the client. This is the supply side of the panel business and it never touches the consumer feed.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">10</span><h2>The Validation Gate</h2><span class="sec-note">Before anyone prices a deal on this</span></div>
+  <p class="lede">The instrument is not credible until it has been back-tested against reality, in public, with the result published either way.</p>
+  <div class="callout" style="border-left-color:var(--teal-bright); background:var(--teal-dim);">
+    <span class="tag" style="color:var(--teal-bright)">The test</span>
+    <p>Take 200 already-released titles with known realized performance in the spine. Render their <em>original loglines</em> as concept trailers. Run them through the panel blind — no titles, no cast, no marketing. Correlate the resulting demand index against realized box office, delivery and licensing revenue.</p>
+    <p><b>If it holds, the instrument is real and the number has a price. If it does not, that gets published too.</b> The precedent is set: the sibling script-ratings pilot scored nearly 10,000 titles, found that summary text explains under 2% of variance, and said so rather than burying it. Same discipline applies here.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">11</span><h2>What Would Break It</h2><span class="sec-note">Stated up front, not discovered later</span></div>
+  <div class="cards">
+    <div class="card"><span class="tag">Risk 01 · Construct validity</span><h4>Premise is not picture</h4><p>A 30-second trailer measures appetite for a premise, not for a finished film. The gap between the two is the central empirical question, and Section 10 exists to size it before anyone trades on it.</p></div>
+    <div class="card"><span class="tag">Risk 02 · Confound</span><h4>Execution contaminates signal</h4><p>A weak render kills a strong script. Unless render quality is held to a fixed standard across the panel, the instrument measures the generator instead of the story. This is why the orchestrator seat owns a hard QC gate — controlled by design, not by hope.</p></div>
+    <div class="card"><span class="tag">Risk 03 · Rights &amp; consent</span><h4>Guild and writer posture</h4><p>Generating video from a writer's script requires explicit, revocable licence and a stated position on training use. Opt-in only, revenue-shared, unambiguous. Getting this wrong is not a legal problem — it is a supply problem, permanently.</p></div>
+    <div class="card"><span class="tag">Risk 04 · Adversarial</span><h4>Any public vote is brigadeable</h4><p>Stated preference can be bought. Completion, replay, scroll-away point and forced head-to-head choice are far harder to manufacture at scale — which is why the revealed-preference layer, not the thumb, is what gets sold.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">12</span><h2>Roadmap</h2><span class="sec-note">Gate-to-gate, not date-to-date</span></div>
+  <div class="tbl-scroll">
+    <table>
+      <thead><tr><th>Phase</th><th>Build</th><th>Gate to clear before the next phase starts</th></tr></thead>
+      <tbody>
+        <tr><td class="lead">P0 · Calibrate</td><td>Render pipeline v1 on public-domain corpus. Blind back-test of 200 released titles against spine ground truth.</td><td>A published correlation — positive or null. No consumer launch until the instrument has a measured error bar.</td></tr>
+        <tr><td class="lead">P1 · Sensor</td><td>Consumer feed launch. Open logline intake. Full revealed-preference telemetry: completion, replay, scroll-away, head-to-head.</td><td>Sustained organic retention on the feed, and demonstrated resistance to a deliberate brigading attempt.</td></tr>
+        <tr><td class="lead">P2 · Panel</td><td>Closed studio panels on NDA slates. First B2B contracts. Demand Certificate as a shippable deliverable.</td><td>Two paying design partners renewing, and one decision a client will confirm the panel changed.</td></tr>
+        <tr><td class="lead">P3 · Market</td><td>Aggregate demand feed licensing. Writer opt-in program at scale. Option brokerage on threshold-clearing concepts.</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <p class="cta">SEEKING TWO STUDIO DESIGN PARTNERS AND ONE RIGHTS PARTNER.</p>
+  <p class="dim" style="max-width:74ch;">Design partners run their live development slate through closed panels at cost during P0–P2, and get the back-test results before anyone else does. The rights partner co-designs the writer opt-in terms — because the supply side, not the technology, is what determines whether this becomes an instrument or a toy.</p>
+  <div class="sig">
+    <span>Shiv Sehgal · Founder, SaSMaster</span>
+    <span>15 years · $800M+ media revenue optimized</span>
+    <span>INFORMS award for predictive analytics</span>
+    <span>UCLA–NUS GEMBA</span>
+  </div>
+  <p class="sources"><b>Sources.</b> Global content spend 2026 — Ampere Analysis (via MediaPost). Streamer spend crossing $100B in 2026 — Ampere Analysis (via Deadline). Micro-series in-app revenue $3.8B 2025 → $7.8B 2026 forecast — Deloitte TMT Predictions 2026. Black List production rate — The Black List survey, 1,000+ screenplays listed since 2005, at least 450 produced. Test-screening cost and sample — standard industry practice, $10–20K per screening at 300–500 recruits, run at rough cut. Generated-video pricing — published 2026 model API rates, $0.07–$0.40 per second by model and resolution. TRIBE — Meta FAIR trimodal brain encoder, first place, Algonauts Project 2025 challenge. Spine row count and the sub-2%-of-variance script-ratings finding — SaSMaster internal, certified. The vote demo in Section 05 runs on a simulated panel and is labelled as such; the development-timeline figure is a schematic argument, not measured data. No figure on this page is estimated or illustrative unless it says so.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var REDUCED=!!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var themeHooks=[];
+  function tweenNum(node,target,dur){
+    if(REDUCED||!window.requestAnimationFrame){ node.textContent=target; return; }
+    var t0=null;
+    function fr(ts){ if(!t0){t0=ts;} var p=Math.min(1,(ts-t0)/dur); p=1-Math.pow(1-p,3);
+      node.textContent=Math.round(target*p);
+      if(p<1){ requestAnimationFrame(fr); } }
+    requestAnimationFrame(fr);
+  }
+
+  /* ---------- theme toggle ---------- */
+  var root=document.documentElement, btn=document.getElementById('tt');
+  var saved=null;
+  try{ saved=localStorage.getItem('pg-theme'); }catch(e){}
+  if(saved){ root.setAttribute('data-theme',saved); }
+  btn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    if(!cur){ cur=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'; }
+    var next=cur==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    try{ localStorage.setItem('pg-theme',next); }catch(e){}
+    themeHooks.forEach(function(f){ f(); });
+  });
+
+  /* ---------- the loop — stepper ---------- */
+  var STAGES=[
+    {n:'STAGE 01',t:'Intake',
+     body:'Unmade material enters from four pools — <em>public-domain and lapsed rights</em>, <em>user-submitted loglines</em>, <em>opted-in spec scripts</em>, and <em>studio slates under NDA</em>. The orchestrator fleet runs rights triage and an originality screen, and every concept is minted into the identity spine on arrival — before a single frame exists.',
+     chips:[['CLAUDE · RIGHTS TRIAGE','lav'],['CLAUDE · ORIGINALITY SCREEN','lav']],
+     tel:'Emits — pool · rights posture · originality score · spine ID'},
+    {n:'STAGE 02',t:'Render',
+     body:'Script to trailer in four handoffs. <em>Gemini</em> decomposes the full screenplay into beats and a shot plan. <em>Claude</em> directs each shot and holds every render to one fixed house standard — the QC gate that keeps the test measuring the story, not the generator. <em>Seedance</em> generates the 30-second trailer at roughly $2 a take. <em>TRIBE</em> pre-screens candidate takes by predicted neural engagement before any real audience attention is spent.',
+     chips:[['GEMINI · DECOMPOSE',''],['CLAUDE · DIRECT + QC','lav'],['SEEDANCE · GENERATE','gold'],['TRIBE · PRE-SCREEN','grn']],
+     tel:'Emits — shot plan · takes rendered · QC pass score · predicted-engagement rank'},
+    {n:'STAGE 03',t:'Vote',
+     body:'The trailer enters a real consumer feed and a head-to-head arena. The thumb is the <em>stated</em> preference; completion rate, replay, scroll-away point and forced pairwise choice are the <em>revealed</em> one. Both are captured. Only one is hard to fake — and only one gets sold.',
+     chips:[['CONSUMER FEED',''],['HEAD-TO-HEAD ARENA',''],['REVEALED-PREFERENCE TELEMETRY','grn']],
+     tel:'Emits — completion · replay · scroll-away second · pairwise wins · cohort'},
+    {n:'STAGE 04',t:'Resolve',
+     body:'Every concept, creator, cast, genre and narrative feature binds into the <em>Parent Key spine</em> — the same certified identity layer that already fuses viewership, metadata and social. The narrative decoder describes each concept in the same feature vocabulary as every title that already aired and already earned. This is what makes a vote comparable to a result.',
+     chips:[['PARENT KEY SPINE · 12.9M ROWS','grn'],['NARRATIVE DECODER','lav']],
+     tel:'Emits — spine binding · feature vector · comparable set'},
+    {n:'STAGE 05',t:'Price',
+     body:'Output is a <em>Demand Certificate</em> per concept: an audience-verified index benchmarked against titles that already exist and already earned. Not a prediction of gross — a priced read on appetite, with its confidence stated and its error bar published.',
+     chips:[['DEMAND CERTIFICATE','gold'],['CONFIDENCE STATED','']],
+     tel:'Emits — demand index · genre benchmark · confidence band'}
+  ];
+  var stepper=document.getElementById('stepper'), panel=document.getElementById('stagePanel');
+  var cur=0, timer=null;
+  STAGES.forEach(function(s,i){
+    var b=document.createElement('button');
+    b.className='stage-btn'; b.type='button'; b.setAttribute('role','tab');
+    b.innerHTML='<span class="n">'+s.n+'</span><span class="t">'+s.t+'</span>';
+    b.addEventListener('click',function(){ stopPlay(); show(i); });
+    stepper.appendChild(b);
+  });
+  function show(i){
+    cur=(i+STAGES.length)%STAGES.length;
+    var kids=stepper.children;
+    for(var k=0;k<kids.length;k++){ kids[k].setAttribute('aria-selected', k===cur ? 'true':'false'); }
+    var s=STAGES[cur];
+    var chips=s.chips.map(function(c,ci){ return '<span class="model-chip '+c[1]+'" style="animation-delay:'+(ci*70)+'ms">'+c[0]+'</span>'; }).join('');
+    panel.innerHTML='<h3>'+s.n+' — '+s.t+'</h3><p>'+s.body+'</p><div class="chip-row">'+chips+'</div><div class="telemetry">'+s.tel+'</div>';
+    if(!REDUCED && panel.animate){ panel.animate([{opacity:0.35,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:260,easing:'cubic-bezier(0.05,0.7,0.1,1)'}); }
+  }
+  function stopPlay(){ if(timer){ clearInterval(timer); timer=null; playBtn.textContent='Auto-play'; } }
+  var playBtn=document.getElementById('stepPlay');
+  document.getElementById('stepPrev').addEventListener('click',function(){ stopPlay(); show(cur-1); });
+  document.getElementById('stepNext').addEventListener('click',function(){ stopPlay(); show(cur+1); });
+  playBtn.addEventListener('click',function(){
+    if(timer){ stopPlay(); return; }
+    playBtn.textContent='Pause';
+    show(cur+1);
+    timer=setInterval(function(){ show(cur+1); },3200);
+  });
+  show(0);
+
+  /* ---------- vote arena ---------- */
+  var MATCHUPS=[
+    [{t:'TIDELOCK',g:'Sci-Fi Thriller',l:'The Atlantic stops obeying the moon. A tide-authority engineer has 72 hours to work out why the ocean is suddenly running on a schedule — and whose.',base:112,cmp:81,rpl:1.6,scr:'0:27'},
+     {t:'THE UNDERSTUDY',g:'Psychological Drama',l:'An aging stage legend discovers her understudy has started playing her offstage as well — and the people closest to her prefer the copy.',base:98,cmp:72,rpl:1.3,scr:'0:21'}],
+    [{t:'DEAD LETTER OFFICE',g:'Supernatural Procedural',l:'A clerk in the undeliverable-mail vault starts receiving letters addressed to people who died yesterday — postmarked tomorrow.',base:121,cmp:86,rpl:1.8,scr:'0:29'},
+     {t:'SALT CIRCUIT',g:'Action Heist',l:'A desert rally race doubles as the world’s largest untraceable data transfer. One driver is carrying both the payload and the leak.',base:104,cmp:77,rpl:1.4,scr:'0:24'}],
+    [{t:'ORCHARD 9',g:'Family Saga',l:'Three generations fight over the last licensed apple orchard on Mars — where fruit is currency, grafting is inheritance, and the trees remember.',base:109,cmp:79,rpl:1.5,scr:'0:26'},
+     {t:'NIGHT AUDIT',g:'Neo-Noir Comedy',l:'The overnight clerk of a dying grand hotel realizes every guest this week has checked in under the name of a former owner. All of them.',base:95,cmp:70,rpl:1.2,scr:'0:19'}]
+  ];
+  var round=0, el=function(id){ return document.getElementById(id); };
+  var sides=[
+    {con:'conA',gen:'genA',title:'titleA',log:'logA',bar:'barA',idx:'idxA',rev:'revA',cmp:'cmpA',rpl:'rplA',scr:'scrA',btn:'voteA'},
+    {con:'conB',gen:'genB',title:'titleB',log:'logB',bar:'barB',idx:'idxB',rev:'revB',cmp:'cmpB',rpl:'rplB',scr:'scrB',btn:'voteB'}
+  ];
+  function loadRound(){
+    var m=MATCHUPS[round];
+    sides.forEach(function(s,i){
+      var c=m[i];
+      el(s.gen).textContent=c.g; el(s.title).textContent=c.t; el(s.log).textContent=c.l;
+      el(s.bar).style.width='0%'; el(s.idx).textContent='—';
+      el(s.rev).hidden=true; el(s.btn).disabled=false;
+      el(s.con).classList.remove('won');
+    });
+    el('arenaStatus').hidden=true; el('nextMatch').hidden=true; el('resetArena').hidden=true;
+    el('roundTag').textContent='Matchup '+(round+1)+' of '+MATCHUPS.length;
+  }
+  function vote(pick){
+    var m=MATCHUPS[round];
+    var n=2000+Math.floor(Math.random()*3000);
+    sides.forEach(function(s,i){
+      var c=m[i];
+      var idx=c.base+(i===pick?4:0)+Math.floor(Math.random()*5)-2;
+      el(s.btn).disabled=true;
+      tweenNum(el(s.idx),idx,650);
+      el(s.bar).style.width=Math.min(100,Math.round(idx/140*100))+'%';
+      el(s.cmp).textContent=c.cmp+'%'; el(s.rpl).textContent=c.rpl.toFixed(1)+'×'; el(s.scr).textContent=c.scr;
+      el(s.rev).hidden=false;
+      c._idx=idx;
+    });
+    var w = m[0]._idx>=m[1]._idx ? 0 : 1;
+    var wc=el(sides[w].con);
+    wc.classList.add('won');
+    if(!REDUCED && wc.animate){ wc.animate([{transform:'scale(1)'},{transform:'scale(1.012)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(0.4,0,0.2,1)'}); }
+    var agree = (w===pick) ? 'The panel read it the way you did.' : 'The panel split against your read — that disagreement is signal too.';
+    el('arenaStatus').innerHTML='Your read joined <b>'+n.toLocaleString()+' simulated reads</b>. <b>'+m[w].t+'</b> clears the matchup at index <b>'+m[w]._idx+'</b> — '+(m[w]._idx-100)+' over genre median. '+agree+' In production, this line item ships on a Demand Certificate, benchmarked against titles that already earned.';
+    el('arenaStatus').hidden=false;
+    if(round<MATCHUPS.length-1){ el('nextMatch').hidden=false; } else { el('resetArena').hidden=false; }
+  }
+  el('voteA').addEventListener('click',function(){ vote(0); });
+  el('voteB').addEventListener('click',function(){ vote(1); });
+  el('nextMatch').addEventListener('click',function(){ round++; loadRound(); });
+  el('resetArena').addEventListener('click',function(){ round=0; loadRound(); });
+  loadRound();
+
+  /* ---------- economics ---------- */
+  var rLen=el('rLen'), rCps=el('rCps'), rVotes=el('rVotes'), rCon=el('rCon');
+  function money(x){
+    if(x>=1e6) return '$'+(x/1e6).toFixed(2)+'M';
+    if(x>=1e3) return '$'+Math.round(x/1e3).toLocaleString()+'K';
+    if(x>=100) return '$'+Math.round(x).toLocaleString();
+    return '$'+x.toFixed(2);
+  }
+  function calc(){
+    var len=+rLen.value, cps=+rCps.value/100, votes=+rVotes.value*1000, con=+rCon.value;
+    el('oLen').textContent=len+' sec';
+    el('oCps').textContent='$'+cps.toFixed(2)+' / sec';
+    el('oVotes').textContent=votes.toLocaleString();
+    el('oCon').textContent=con.toLocaleString();
+    var perConcept=len*cps*4;           /* 3 takes + QC finals */
+    var monthly=perConcept*con;
+    var perRead=perConcept/votes;
+    var adv=37.5/perRead;
+    el('eCost').textContent=money(perConcept);
+    el('eMonth').textContent=money(monthly);
+    el('eRead').textContent=perRead>=0.01 ? '$'+perRead.toFixed(2) : (perRead*100).toFixed(2)+'¢';
+    el('eAdv').textContent=adv>=1e6 ? (adv/1e6).toFixed(1)+'M' : adv>=1e3 ? Math.round(adv/1e3).toLocaleString()+'K' : Math.round(adv).toLocaleString();
+  }
+  function pulseOutputs(){
+    if(REDUCED){ return; }
+    ['eCost','eMonth','eRead','eAdv'].forEach(function(id){
+      var v=el(id); v.classList.remove('tick'); void v.offsetWidth; v.classList.add('tick');
+    });
+  }
+  [rLen,rCps,rVotes,rCon].forEach(function(r){ r.addEventListener('input',calc); r.addEventListener('change',pulseOutputs); });
+  calc();
+
+  /* ================= motion module — fonts-gated init ================= */
+  function initMotion(){
+    var hasIO=('IntersectionObserver' in window);
+
+    /* --- scroll reveals + stat count-ups --- */
+    function countUp(elv){
+      var mm=/^([^0-9]*)([\d.]+)(.*)$/.exec(elv.textContent);
+      if(!mm || REDUCED){ return; }
+      var pre=mm[1], num=parseFloat(mm[2]), suf=mm[3];
+      var dec=(mm[2].split('.')[1]||'').length;
+      var t0=null, D=900;
+      function fr(ts){ if(!t0){t0=ts;} var p=Math.min(1,(ts-t0)/D); p=1-Math.pow(1-p,3);
+        elv.textContent=pre+(num*p).toFixed(dec)+suf;
+        if(p<1){ requestAnimationFrame(fr); } }
+      requestAnimationFrame(fr);
+    }
+    if(hasIO){
+      var io=new IntersectionObserver(function(ents){
+        ents.forEach(function(e){
+          if(!e.isIntersecting){ return; }
+          io.unobserve(e.target);
+          e.target.classList.add('in');
+          if(e.target.classList.contains('stat')){ var v=e.target.querySelector('.v'); if(v){ countUp(v); } }
+        });
+      },{threshold:0.18, rootMargin:'0px 0px -6% 0px'});
+      document.querySelectorAll('section').forEach(function(sec){
+        var kids=sec.querySelectorAll('.lede,.stat,.model,.moat > div,.card,.stage-btn,.tbl-scroll,.callout,.contender,.econ-ctl,.econ-out,figure');
+        var i=0;
+        kids.forEach(function(k){
+          k.classList.add('rv');
+          k.style.transitionDelay=Math.min(i*70,350)+'ms';
+          io.observe(k); i++;
+        });
+      });
+    }
+
+    /* --- spend curve draws itself on scroll --- */
+    var sp=document.getElementById('spendPath');
+    if(sp){
+      var fig=sp.closest('figure');
+      if(!REDUCED && hasIO && sp.getTotalLength){
+        var L=sp.getTotalLength();
+        sp.style.strokeDasharray=L; sp.style.strokeDashoffset=L;
+        var tio=new IntersectionObserver(function(ents){
+          ents.forEach(function(e){
+            if(!e.isIntersecting){ return; }
+            tio.disconnect();
+            sp.style.transition='stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1)';
+            requestAnimationFrame(function(){ sp.style.strokeDashoffset='0'; });
+            fig.querySelector('.spend-fill').classList.add('in');
+            setTimeout(function(){ fig.querySelector('.spend-markers').classList.add('in'); },1100);
+          });
+        },{threshold:0.4});
+        tio.observe(fig);
+      } else {
+        fig.querySelector('.spend-fill').classList.add('in');
+        fig.querySelector('.spend-markers').classList.add('in');
+      }
+    }
+
+    /* --- masthead signal field: turbulence resolving into signal --- */
+    initField();
+    function initField(){
+      var cv=document.getElementById('sigField');
+      if(!cv||!cv.getContext){ return; }
+      var ctx=cv.getContext('2d');
+      var host=cv.parentElement, w=0,h=0,dpr=1,t=0,parts=[],running=false,raf=null,inView=true,pal;
+      function readPal(){
+        var cs=getComputedStyle(root);
+        pal={ bg:getComputedStyle(document.body).backgroundColor,
+              cols:[cs.getPropertyValue('--lavender').trim(),
+                    cs.getPropertyValue('--teal-bright').trim(),
+                    cs.getPropertyValue('--gold').trim()] };
+      }
+      function spawn(p){
+        p.x=Math.random()*w; p.y=Math.random()*h; p.px=p.x; p.py=p.y;
+        p.life=90+Math.random()*180;
+        var r=Math.random(); p.c = r<0.5?0 : r<0.85?1 : 2;
+      }
+      function paintBase(){ ctx.globalAlpha=1; ctx.fillStyle=pal.bg; ctx.fillRect(0,0,w,h); }
+      function resize(){
+        w=host.clientWidth; h=host.clientHeight;
+        dpr=Math.min(2,window.devicePixelRatio||1);
+        cv.width=Math.max(1,Math.round(w*dpr)); cv.height=Math.max(1,Math.round(h*dpr));
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+        paintBase();
+        var n=w<700?220:460; parts=[];
+        for(var i=0;i<n;i++){ var p={}; spawn(p); parts.push(p); }
+      }
+      function step(){
+        t+=0.016;
+        ctx.globalAlpha=0.05; ctx.fillStyle=pal.bg; ctx.fillRect(0,0,w,h);
+        ctx.globalAlpha=0.5; ctx.lineWidth=1;
+        for(var i=0;i<parts.length;i++){
+          var p=parts[i];
+          var coher=Math.max(0,Math.min(1,(p.x/w-0.22)/0.62));
+          var nz=Math.sin(p.x*0.006+t*0.33)+Math.sin(p.y*0.012-t*0.21)+Math.sin((p.x+p.y)*0.0042+t*0.12);
+          var ang=nz*1.18*(1-coher);
+          var spd=0.55+coher*1.15;
+          p.px=p.x; p.py=p.y;
+          p.x+=Math.cos(ang)*spd; p.y+=Math.sin(ang)*spd*(1-coher*0.65);
+          p.life--;
+          if(p.x<-4||p.x>w+4||p.y<-4||p.y>h+4||p.life<=0){ spawn(p); continue; }
+          ctx.strokeStyle=pal.cols[p.c];
+          ctx.beginPath(); ctx.moveTo(p.px,p.py); ctx.lineTo(p.x,p.y); ctx.stroke();
+        }
+        ctx.globalAlpha=1;
+      }
+      function warm(){ for(var k=0;k<260;k++){ step(); } }
+      function loop(){ if(!running){ return; } step(); raf=requestAnimationFrame(loop); }
+      function start(){ if(running||REDUCED){ return; } running=true; raf=requestAnimationFrame(loop); }
+      function stop(){ running=false; if(raf){ cancelAnimationFrame(raf); } }
+      readPal(); resize();
+      if(REDUCED){ warm(); }
+      else if(hasIO){
+        var vio=new IntersectionObserver(function(es){
+          es.forEach(function(e){ inView=e.isIntersecting; (inView&&!document.hidden)?start():stop(); });
+        },{threshold:0.02});
+        vio.observe(host);
+        document.addEventListener('visibilitychange',function(){ (document.hidden||!inView)?stop():start(); });
+      } else { start(); }
+      var rT=null;
+      window.addEventListener('resize',function(){
+        clearTimeout(rT);
+        rT=setTimeout(function(){ resize(); if(REDUCED){ warm(); } },160);
+      });
+      function repaint(){ readPal(); paintBase(); if(REDUCED){ warm(); } }
+      themeHooks.push(repaint);
+      if(window.matchMedia){
+        var mq=matchMedia('(prefers-color-scheme: light)');
+        if(mq.addEventListener){ mq.addEventListener('change',repaint); }
+      }
+    }
+  }
+  if(document.fonts && document.fonts.ready && document.fonts.ready.then){
+    document.fonts.ready.then(initMotion);
+  } else { initMotion(); }
+})();
+</script>
