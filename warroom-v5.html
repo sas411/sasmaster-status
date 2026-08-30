@@ -2563,7 +2563,10 @@ function renderAgents(vm){
     const badge=agentHealthBadge(a);
     const ok=badge.ok;
     const lastRunStr=WarroomRender.formatAge(a.lastRun,WarroomClock,'never');
-    const console_out=escHtml((a.lastOutput||a.descOverride||a.log||'').substring(0,120));
+    // ORCH-WARROOM-FIX-001 finding 5: a.lastOutput is a raw tail of the agent's log file,
+    // which itself is written in Slack ":shortcode:" emoji syntax (e.g. ":rotating_light:")
+    // — convert before truncating/escaping so the literal shortcode never reaches the DOM.
+    const console_out=escHtml(WarroomRender.convertSlackShortcodes(a.lastOutput||a.descOverride||a.log||'').substring(0,120));
     const name=escHtml(nd(a.name));
     const nameAttr=escJsAttr(nd(a.name));
     return `<div class="acard ${ok?'':'err'}" data-agent-idx="${idx}" style="cursor:pointer">
@@ -3130,7 +3133,14 @@ function renderTelemetry(vm){
   if(evfeed){
     const rawItems=[
       ...vm.recentActivity.map((a,i)=>({...a,_id:'activity-'+i})),
-      ...(vm.slackFeed.builds||[]).map((t,i)=>({type:'build',text:t,ts:'',_id:'slack-build-'+i}))
+      // WARROOM-TELEMETRY-OBJ-001: slack_feed.builds rows are {ts,text} objects from
+      // api/status.js, not plain strings — this used to assign the whole object to
+      // `text`, which String()-coerced to the literal "[object Object]" on every render
+      // (ORCH-WARROOM-FIX-001 finding 2). Unwrap .text explicitly; ts stays '' by design
+      // (see comment above — these carry a display-only time label like "12:00 PM", not
+      // a WarroomClock-parseable timestamp, so the per-row time cell still shows its
+      // intentional ERROR state while the text itself now renders correctly).
+      ...(vm.slackFeed.builds||[]).map((t,i)=>({type:'build',text:(t&&typeof t==='object')?(t.text!=null?t.text:''):t,ts:'',_id:'slack-build-'+i}))
     ];
     const sorted=WarroomClock.sortFeedDesc(rawItems,'ts').slice(0,12);
     if(sorted.length>0){
@@ -3158,7 +3168,11 @@ function renderTelemetry(vm){
             return `<div class="evrow"><span class="t">ERROR</span><span class="tag tg-trig">ERR</span><span class="e">ERROR — ${escHtml(fmt.query_id)}</span></div>`;
           }
           const tagLabel=escHtml(String(ev.type||'EVENT').toUpperCase().substring(0,7));
-          const subject=escHtml(String(ev.text||'').substring(0,60));
+          // ORCH-WARROOM-FIX-001 finding 5: this fallback re-derives subject straight from
+          // ev.text (bypassing formatTelemetryEvent's own subject, which already converts
+          // shortcodes) for the "timestamp-only error" case — needs the same conversion or a
+          // Slack shortcode like ":rotating_light:" reaches the DOM literally on every such row.
+          const subject=escHtml(WarroomRender.convertSlackShortcodes(String(ev.text||'')).substring(0,60));
           return `<div class="evrow"><span class="t" title="${escHtml(fmt.reason||'')}">ERROR</span><span class="tag ${tagCls}">${tagLabel}</span><span class="e">${subject}</span></div>`;
         }
         const {type,subject,et_display}=fmt.value;
