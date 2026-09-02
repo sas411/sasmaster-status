@@ -5091,6 +5091,7 @@ PG.register('c13', {
   var PGT = window.PG_TRAILERS, TITLES = PGT && PGT.titles ? PGT.titles : [];
   var ATTRIB = (PGT && PGT.attribution) || 'This product uses the TMDB API but is not endorsed or certified by TMDB.';
   var EASE = 'cubic-bezier(.2,0,0,1)';
+  var EASE_IN = 'cubic-bezier(.3,0,1,1)';   /* matches root --ease-in — exits accelerate away, never reuse the entry curve */
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var BAND = { g: '#34d399', y: '#f59e0b', r: '#f43f5e' };
   var FEEL = { dread: '#4f52e0', thrill: '#c2410c', visceral: '#e11d48', intimate: '#0f9488', wit: '#b45309', wonder: '#6d4df0', kinetic: '#0284c7', nostalgic: '#BF6D2E' };
@@ -5247,7 +5248,7 @@ PG.register('c13', {
     var rm = function () { if (w.parentNode) w.parentNode.removeChild(w); if (s && s.parentNode) s.parentNode.removeChild(s); };
     if (immediate || reduced) { rm(); return; }
     if (s) s.classList.remove('on');
-    var a = w.animate([{ transform: 'none', opacity: 1 }, { transform: w.__from || 'scale(.92)', opacity: 0 }], { duration: 240, easing: EASE, fill: 'forwards' });
+    var a = w.animate([{ transform: 'none', opacity: 1 }, { transform: w.__from || 'scale(.92)', opacity: 0 }], { duration: 240, easing: EASE_IN, fill: 'forwards' });
     a.onfinish = rm; setTimeout(rm, 400);
   }
   function trailerOpen(key, anchorRect, opts) {
