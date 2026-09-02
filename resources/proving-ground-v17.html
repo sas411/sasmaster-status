@@ -1076,7 +1076,8 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
     'scg-taskrabbit':  { label: 'SCG-577 — Mini Case B: TaskRabbit', url: 'MGMT 295A Book 3, pp. 6-7', note: '"We spent very little money in the early days on digital ads. Paid ads became more important about 5 years after launch." 90%+ of early customers arrived by word of mouth. The CEO and early team ran tasks themselves to seed supply. Monetisation: 15% service fee + 7.5% trust-and-support fee.', date: '2020-10-31 / assigned 2026' },
     'scg-grubhub':     { label: 'SCG-577 — Mini Case C: GrubHub Seamless', url: 'MGMT 295A Book 3, pp. 8-9', note: 'Launched hyper-local (Lincoln Park, Chicago only) and grew geographically; demand-side solved first with scraped menus + SEO. 2019: $1.312B revenue against $1.318B of costs with 19.9M active users - a $6M operating loss. Scale does not produce break-even.', date: '2020-10-31 / assigned 2026' },
     'scg-instacart':   { label: 'SCG-577 — Mini Case D: Instacart', url: 'MGMT 295A Book 3, pp. 10-11', note: '"We always onboarded supply ahead of demand." Markets selected where demand was already likely. "About a third of our demand came through referrals early on"; "we did almost no paid marketing early on."', date: '2020-10-31 / assigned 2026' },
-    'estimate':        { label: 'Modeller assumption — no public benchmark; Shiv to correct', url: '', note: 'Marked isEstimate:true in DEFAULTS', date: '2026-09-01' }
+    'estimate':        { label: 'Modeller assumption — no public benchmark; Shiv to correct', url: '', note: 'Marked isEstimate:true in DEFAULTS', date: '2026-09-01' },
+    'economist-china-ai-2026': { label: "The Economist — \"China's AI drive threatens the world's largest workforce\" (briefing)", url: 'https://www.economist.com/briefing/2026/08/06/chinas-ai-drive-threatens-the-worlds-largest-workforce', note: 'China is integrating AI aggressively across its economy, including creative and white-collar work — script writing, coding, design — displacing labour at scale even as the state pushes the technology as a growth strategy. The same collapse in AI content-production cost that drives domestic displacement is double-edged: it also makes producing content profitably for small, niche, and underserved global audiences viable for the first time.', date: '2026-08-06' }
   };
 
   var DEFAULTS = {
@@ -1153,7 +1154,19 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
     toolingPerFte: d(1500, '$/mo', 'Tooling + SaaS per FTE', 0, 5000, 100, 'opex', 'estimate', true),
     gaRate:        d(0.12, 'share', 'G&A (legal, rights, finance, office) as share of payroll', 0, 0.30, 0.01, 'opex', 'estimate', true),
     baseInfra:     d(8000, '$/mo', 'Base cloud + gateway + spine hosting', 0, 50000, 1000, 'opex', 'estimate', true),
-    salesCommission: d(0.08, 'share', 'Commission on new B2B bookings (panels + data)', 0, 0.20, 0.01, 'opex', 'estimate', true)
+    salesCommission: d(0.08, 'share', 'Commission on new B2B bookings (panels + data)', 0, 0.20, 0.01, 'opex', 'estimate', true),
+    // ---- AI-Generated Content for Global Niche Audiences (P4) ----------------------------
+    // A step-change drop in AI content-production cost (economist-china-ai-2026) makes it viable to license/
+    // produce full episodic content — not just trailers — for small, niche, and underserved international
+    // audiences at near-zero marginal cost. Launches once the Demand Index and option-flow validation exist.
+    p4Start: d(30, 'month', 'P4 AI content launch (month)', 6, 60, 1, 'gates', 'roadmap-v2', true),
+    aiContentSubsNewPerMonth: d(4000, 'subs/mo', 'New AI-content subscribers per month', 0, 20000, 500, 'aicontent', 'estimate', true),
+    aiContentSubsMax: d(400000, 'subs', 'AI-content subscriber cap (niche + regional tiers, blended)', 10000, 2000000, 10000, 'aicontent', 'estimate', true),
+    aiContentPrice: d(6.99, '$/mo', 'Blended tiered subscription price (niche/regional AI content)', 2, 25, 0.5, 'aicontent', 'mpa-reelshort', true),
+    aiContentTitlesPerMonth: d(40, 'titles/mo', 'New episodic AI-content titles produced/month at scale', 5, 500, 5, 'aicontent', 'estimate', true),
+    aiContentRenderCostPerTitle: d(180, '$', 'AI-generation + localization cost per finished episodic title (vs $10.80 trailer concept)', 20, 2000, 10, 'aicontent', 'economist-china-ai-2026', true),
+    aiContentChurn: d(0.12, 'share', 'Monthly churn — AI-content subscribers', 0.03, 0.40, 0.01, 'aicontent', 'revenuecat-shortdrama', true),
+    aiContentCogsRate: d(0.15, 'share', 'AI-content COGS (hosting, delivery, localization overhead) as share of revenue', 0, 0.40, 0.01, 'aicontent', 'fiscallion-gm', true)
   };
 
   function vals(drivers) {                       // resolve {key:{value}} or {key:number} → plain numbers
@@ -1169,7 +1182,7 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
     var v = vals(drivers);
     var fb = v.fallback >= 0.5;
     var months = [];
-    var mau = 0, contracts = 0, dataSubs = 0, liteSubs = 0, cum = 0, prevContracts = 0, prevDataSubs = 0;
+    var mau = 0, contracts = 0, dataSubs = 0, liteSubs = 0, aiContentSubs = 0, cum = 0, prevContracts = 0, prevDataSubs = 0;
     var costPerRender = v.secondsPerRender * v.draftRatePerSec;                    // one candidate take
     var costPerFinal  = v.secondsPerRender * v.finalRatePerSec;                    // one 1080p QC final
     // cost per concept = takes × s × draft rate + finals × s × final rate + LLM overhead
@@ -1244,6 +1257,19 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
         optionRevenue = opts * v.takeRate * (v.optionFee + v.exerciseRate * v.purchasePrice);
       }
 
+      // ---- AI-Generated Content for Global Niche Audiences: subscribers ramp from P4 ----
+      // Extension of the validated Demand Index + option-flow (P3): licenses/produces full episodic
+      // AI-generated content — not just trailers — for niche/underserved global audiences at the
+      // collapsed production cost documented in economist-china-ai-2026.
+      var aiContentRevenue = 0, aiContentCogs = 0, aiContentTitles = 0;
+      if (m >= v.p4Start) {
+        aiContentSubs = Math.max(0, Math.min(v.aiContentSubsMax,
+                        aiContentSubs + v.aiContentSubsNewPerMonth - aiContentSubs * v.aiContentChurn));
+        aiContentRevenue = aiContentSubs * v.aiContentPrice;
+        aiContentTitles  = Math.max(1, v.aiContentTitlesPerMonth * aiContentSubs / v.aiContentSubsMax);
+        aiContentCogs = aiContentRevenue * v.aiContentCogsRate + aiContentTitles * v.aiContentRenderCostPerTitle;
+      }
+
       // ---- Renders and compute ---------------------------------------------------------
       var concepts = (phase === 'P0' ? v.p0ConceptsPerMonth : 0) + feedConcepts + panelConcepts + dpConcepts;
       var renders = concepts * rendersPerConcept;
@@ -1254,9 +1280,9 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
       var writerShare = feedSubRevenue * v.writerRevShareRate;                    // option-flow writer share is already net of take
       var infra = v.baseInfra + mau * v.infraPerMau;
       var dataCogs = dataLicenseRevenue * v.dataCogsRate;
-      var COGS = renderCost + infra + acquisitionCost + readCost + paymentFees + writerShare + dataCogs;
+      var COGS = renderCost + infra + acquisitionCost + readCost + paymentFees + writerShare + dataCogs + aiContentCogs;
 
-      var totalRevenue = panelRevenue + feedSubRevenue + feedAdRevenue + dataLicenseRevenue + optionRevenue;
+      var totalRevenue = panelRevenue + feedSubRevenue + feedAdRevenue + dataLicenseRevenue + optionRevenue + aiContentRevenue;
       var grossProfit = totalRevenue - COGS;
 
       // ---- Opex: headcount by phase, tooling, G&A, commissions on new bookings -----------
@@ -1281,13 +1307,15 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
         liquidityBound: panelDemand > 0 && panelCapacity < panelDemand,
         concepts: concepts, renders: renders, renderCost: renderCost, panelRenderCost: panelRenderCost, acquisitionCost: acquisitionCost, readCost: readCost,
         panelRevenue: panelRevenue, feedSubRevenue: feedSubRevenue, feedAdRevenue: feedAdRevenue,
-        dataLicenseRevenue: dataLicenseRevenue, optionRevenue: optionRevenue, totalRevenue: totalRevenue,
+        dataLicenseRevenue: dataLicenseRevenue, optionRevenue: optionRevenue,
+        aiContentSubs: aiContentSubs, aiContentTitles: aiContentTitles, aiContentRevenue: aiContentRevenue, aiContentCogs: aiContentCogs,
+        totalRevenue: totalRevenue,
         COGS: COGS, grossProfit: grossProfit, opex: opex, headcount: hc, EBITDA: EBITDA, cumulativeCash: cum });
     }
 
     // ---- Annual roll-up ----------------------------------------------------------------
     var sumKeys = ['renders','renderCost','panelRenderCost','acquisitionCost','readCost','panelRevenue','feedSubRevenue','feedAdRevenue',
-                   'dataLicenseRevenue','optionRevenue','totalRevenue','COGS','grossProfit','opex','EBITDA'];
+                   'dataLicenseRevenue','optionRevenue','aiContentRevenue','aiContentCogs','totalRevenue','COGS','grossProfit','opex','EBITDA'];
     var annual = [];
     for (var yr = 1; yr <= 5; yr++) {
       var row = { year: yr };
@@ -1310,11 +1338,13 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
     var cumulativeCashMin = Math.min.apply(null, months.map(function (r) { return r.cumulativeCash; }));
     var m60 = months[59], y5 = annual[4];
     var ARR = { panels: m60.panelRevenue * 12, feed: (m60.feedSubRevenue + m60.feedAdRevenue) * 12,
-                dataLicensing: m60.dataLicenseRevenue * 12, optionFlow: m60.optionRevenue * 12 };
+                dataLicensing: m60.dataLicenseRevenue * 12, optionFlow: m60.optionRevenue * 12,
+                aiContent: m60.aiContentRevenue * 12 };
     // per-engine contribution margin in Y5 (revenue minus directly attributable COGS)
     var margins = { panels: 1 - (y5.readCost + y5.panelRenderCost) / Math.max(1, y5.panelRevenue),
                     feed: 1 - (y5.acquisitionCost + y5.feedSubRevenue * (v.paymentFeeRate + v.writerRevShareRate)) / Math.max(1, y5.feedSubRevenue + y5.feedAdRevenue),
-                    dataLicensing: 1 - v.dataCogsRate, optionFlow: 1 };
+                    dataLicensing: 1 - v.dataCogsRate, optionFlow: 1,
+                    aiContent: 1 - y5.aiContentCogs / Math.max(1, y5.aiContentRevenue) };
     return { months: months, annual: annual,
       summary: { breakEvenMonth: breakEvenMonth, cumulativeCashMin: cumulativeCashMin, y5Revenue: y5.totalRevenue,
                  y5EBITDA: y5.EBITDA, y5GrossMargin: y5.grossMargin, ARR_by_engine_y5: ARR, y5EngineMargins: margins,
