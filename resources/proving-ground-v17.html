@@ -41,9 +41,9 @@ var l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.go
   --cf-cobalt:#6d4df0; --cf-sky:#0284c7; --cf-teal:#0f9488; --cf-mint:#059669; --cf-citron:#D2986B;
   --cf-orange:#c2410c; --cf-magenta:#e11d48; --cf-olive:#753606; --cf-sand:#BF6D2E; --cf-navy:#4f52e0; --cf-ochre:#b45309;
   /* roles (light) — literal hex so PG.hexA() keeps working */
-  --supply:#0891b2; --supply-2:#0f9488; --demand:#6d4df0; --demand-2:#4f52e0; --price:#b45309; --today:#c2410c; --pass:#059669; --kill:#e11d48; --link:#0284c7;
+  --supply:#0891b2; --supply-2:#0f9488; --demand:#6d4df0; --demand-2:#4f52e0; --price:#b45309; --today:#c2410c; --pass:#059669; --kill:#e11d48; --link:#0284c7; --aic:#be185d;
   --supply-dim:rgba(8,145,178,.12); --demand-dim:rgba(109,77,240,.12); --price-dim:rgba(180,83,9,.12);
-  --today-dim:rgba(194,65,12,.12); --pass-dim:rgba(5,150,105,.12); --kill-dim:rgba(225,29,72,.12); --link-dim:rgba(2,132,199,.12);
+  --today-dim:rgba(194,65,12,.12); --pass-dim:rgba(5,150,105,.12); --kill-dim:rgba(225,29,72,.12); --link-dim:rgba(2,132,199,.12); --aic-dim:rgba(190,24,93,.12);
   /* old hue names scenes read through C (engine maps cyan→supply, teal→supply-2, violet→demand, indigo→demand-2, amber→price, orange→today, emerald→pass, rose→kill, sky→link) */
   --violet:#6d4df0; --indigo:#4f52e0; --sky:#0284c7; --cyan:#0891b2; --teal:#0f9488;
   --emerald:#059669; --amber:#b45309; --orange:#c2410c; --rose:#e11d48;
@@ -67,9 +67,9 @@ html[data-theme="dark"]{
   --pg-paper:#0e1726; --pg-paper-2:#121d30; --pg-paper-3:#16233a;
   --pg-ink:#f2f5fb; --pg-ink-2:#b6c0d2; --pg-ink-3:#8391a8; --pg-ink-4:#5c6b85;
   --pg-hair:rgba(148,163,184,.14); --pg-hair-2:rgba(148,163,184,.26); --pg-hair-3:rgba(148,163,184,.42); --pg-scrim:rgba(2,6,18,.55);
-  --supply:#22d3ee; --supply-2:#14b8a6; --demand:#7c5cfc; --demand-2:#6366f1; --price:#f59e0b; --today:#f97316; --pass:#34d399; --kill:#f43f5e; --link:#0ea5e9;
+  --supply:#22d3ee; --supply-2:#14b8a6; --demand:#7c5cfc; --demand-2:#6366f1; --price:#f59e0b; --today:#f97316; --pass:#34d399; --kill:#f43f5e; --link:#0ea5e9; --aic:#f472b6;
   --supply-dim:rgba(34,211,238,.14); --demand-dim:rgba(124,92,252,.16); --price-dim:rgba(245,158,11,.14);
-  --today-dim:rgba(249,115,22,.14); --pass-dim:rgba(52,211,153,.14); --kill-dim:rgba(244,63,94,.14); --link-dim:rgba(14,165,233,.14);
+  --today-dim:rgba(249,115,22,.14); --pass-dim:rgba(52,211,153,.14); --kill-dim:rgba(244,63,94,.14); --link-dim:rgba(14,165,233,.14); --aic-dim:rgba(244,114,182,.14);
   --violet:#7c5cfc; --indigo:#6366f1; --sky:#0ea5e9; --cyan:#22d3ee; --teal:#14b8a6;
   --emerald:#34d399; --amber:#f59e0b; --orange:#f97316; --rose:#f43f5e;
   --ring-disc:#0e1726;
@@ -890,7 +890,7 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 <p style="font-size:12.5px;margin-top:8px">Requirement set at $10M before-tax profit on a 30% return on sales (E) — Shiv’s to set. The buffer moves live with the sliders.</p>
 </details>
 <details class="terms"><summary>Five-year P&amp;L · annual roll-up (live from the model)</summary>
-<div style="overflow-x:auto;margin-top:8px"><table class="tbl" id="c09-roll"><thead><tr><th>Year</th><th>Panels</th><th>Feed</th><th>Data</th><th>Options</th><th>Revenue</th><th>GM%</th><th>Opex</th><th>EBITDA</th><th>Cum. cash</th><th>HC</th></tr></thead>
+<div style="overflow-x:auto;margin-top:8px"><table class="tbl" id="c09-roll"><thead><tr><th>Year</th><th>Panels</th><th>Feed</th><th>Data</th><th>Options</th><th>AI Content</th><th>Revenue</th><th>GM%</th><th>Opex</th><th>EBITDA</th><th>Cum. cash</th><th>HC</th></tr></thead>
 <tbody></tbody></table></div>
 <p style="font-size:12.5px;margin-top:8px">Y1 panels are two paid pilots co-developing the product at a discount to list — small, but cash in year one, which is the whole point of the pilot-led sequence.</p>
 </details>
@@ -1462,7 +1462,7 @@ window.__PG_META={"c00": {"num": "00", "title": "Cover", "steps": 1}, "c01": {"n
   var C = {};
   function readColors() {
     var cs = getComputedStyle(root);
-    ['ink', 'surface', 'text', 'text-2', 'text-3', 'violet', 'indigo', 'sky', 'cyan', 'teal', 'emerald', 'amber', 'orange', 'rose', 'line', 'line-2', 'grid']
+    ['ink', 'surface', 'text', 'text-2', 'text-3', 'violet', 'indigo', 'sky', 'cyan', 'teal', 'emerald', 'amber', 'orange', 'rose', 'aic', 'line', 'line-2', 'grid']
       .forEach(function (k) { C[k.replace('-', '')] = cs.getPropertyValue('--' + k).trim(); });
     C.supply = C.cyan; C.supply2 = C.teal; C.demand = C.violet; C.demand2 = C.indigo; C.price = C.amber; C.today = C.orange; C.pass = C.emerald; C.kill = C.rose; C.link = C.sky;
     C.dim = C.text3;
@@ -3671,14 +3671,15 @@ PG.register('c08', {
   }
 });
 
-/* ---------- C09 · Revenue — four engines, sequenced: 60-month stacked P&L; two sides of the book (log); live drivers ---------- */
+/* ---------- C09 · Revenue — five engines, sequenced: 60-month stacked P&L; two sides of the book (log); live drivers ---------- */
 PG.register('c09', {
   tag: { kind: 'ill', text: 'Computed from the model defaults (E) — not a projection. Drivers are assumptions or named benchmarks (Sources C).' },
   ENGINES: [
     { k: 'panels', lab: 'Studio Panels', who: 'Studios, streamers, prodcos pay · P2', col: 'demand', v: function (m) { return m.panelRevenue; } },
     { k: 'feed', lab: 'Consumer Feed', who: 'Viewers, advertisers pay · P1', col: 'supply', v: function (m) { return m.feedSubRevenue + m.feedAdRevenue; } },
     { k: 'data', lab: 'Demand Feed', who: 'Strategy, programming, acquisitions pay · P3', col: 'link', v: function (m) { return m.dataLicenseRevenue; } },
-    { k: 'options', lab: 'Option Flow', who: 'Buyers pay · P3', col: 'price', v: function (m) { return m.optionRevenue; } }
+    { k: 'options', lab: 'Option Flow', who: 'Buyers pay · P3', col: 'price', v: function (m) { return m.optionRevenue; } },
+    { k: 'aicontent', lab: 'AI Content', who: 'Niche/regional subscribers pay · P4', col: 'aic', v: function (m) { return m.aiContentRevenue; } }
   ],
   DRIVERS: [
     ['@', 'Price and scale'],
@@ -3929,7 +3930,7 @@ PG.register('c09', {
     if (tb) {
       var td = function (v, num) { return '<td' + (num ? ' class="num"' : '') + '>' + v + '</td>'; };
       tb.innerHTML = res.annual.map(function (a) {
-        return '<tr>' + td('Y' + a.year) + td(f.money(a.panelRevenue), 1) + td(f.money(a.feedSubRevenue + a.feedAdRevenue), 1) + td(f.money(a.dataLicenseRevenue), 1) + td(f.money(a.optionRevenue), 1) + td(f.money(a.totalRevenue), 1) + td(f.pct(a.grossMargin), 1) + td(f.money(a.opex), 1) + td(f.money(a.EBITDA), 1) + td(f.money(a.cumulativeCash), 1) + td(a.endHeadcount, 1) + '</tr>';
+        return '<tr>' + td('Y' + a.year) + td(f.money(a.panelRevenue), 1) + td(f.money(a.feedSubRevenue + a.feedAdRevenue), 1) + td(f.money(a.dataLicenseRevenue), 1) + td(f.money(a.optionRevenue), 1) + td(f.money(a.aiContentRevenue), 1) + td(f.money(a.totalRevenue), 1) + td(f.pct(a.grossMargin), 1) + td(f.money(a.opex), 1) + td(f.money(a.EBITDA), 1) + td(f.money(a.cumulativeCash), 1) + td(a.endHeadcount, 1) + '</tr>';
       }).join('');
     }
     // ---- reverse income statement (McGrath & MacMillan, Table 6-1) ----
