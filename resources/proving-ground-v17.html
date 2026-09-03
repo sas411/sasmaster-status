@@ -41,9 +41,9 @@ var l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.go
   --cf-cobalt:#6d4df0; --cf-sky:#0284c7; --cf-teal:#0f9488; --cf-mint:#059669; --cf-citron:#D2986B;
   --cf-orange:#c2410c; --cf-magenta:#e11d48; --cf-olive:#753606; --cf-sand:#BF6D2E; --cf-navy:#4f52e0; --cf-ochre:#b45309;
   /* roles (light) — literal hex so PG.hexA() keeps working */
-  --supply:#0891b2; --supply-2:#0f9488; --demand:#6d4df0; --demand-2:#4f52e0; --price:#b45309; --today:#c2410c; --pass:#059669; --kill:#e11d48; --link:#0284c7;
+  --supply:#0891b2; --supply-2:#0f9488; --demand:#6d4df0; --demand-2:#4f52e0; --price:#b45309; --today:#c2410c; --pass:#059669; --kill:#e11d48; --link:#0284c7; --aic:#be185d;
   --supply-dim:rgba(8,145,178,.12); --demand-dim:rgba(109,77,240,.12); --price-dim:rgba(180,83,9,.12);
-  --today-dim:rgba(194,65,12,.12); --pass-dim:rgba(5,150,105,.12); --kill-dim:rgba(225,29,72,.12); --link-dim:rgba(2,132,199,.12);
+  --today-dim:rgba(194,65,12,.12); --pass-dim:rgba(5,150,105,.12); --kill-dim:rgba(225,29,72,.12); --link-dim:rgba(2,132,199,.12); --aic-dim:rgba(190,24,93,.12);
   /* old hue names scenes read through C (engine maps cyan→supply, teal→supply-2, violet→demand, indigo→demand-2, amber→price, orange→today, emerald→pass, rose→kill, sky→link) */
   --violet:#6d4df0; --indigo:#4f52e0; --sky:#0284c7; --cyan:#0891b2; --teal:#0f9488;
   --emerald:#059669; --amber:#b45309; --orange:#c2410c; --rose:#e11d48;
@@ -67,9 +67,9 @@ html[data-theme="dark"]{
   --pg-paper:#0e1726; --pg-paper-2:#121d30; --pg-paper-3:#16233a;
   --pg-ink:#f2f5fb; --pg-ink-2:#b6c0d2; --pg-ink-3:#8391a8; --pg-ink-4:#5c6b85;
   --pg-hair:rgba(148,163,184,.14); --pg-hair-2:rgba(148,163,184,.26); --pg-hair-3:rgba(148,163,184,.42); --pg-scrim:rgba(2,6,18,.55);
-  --supply:#22d3ee; --supply-2:#14b8a6; --demand:#7c5cfc; --demand-2:#6366f1; --price:#f59e0b; --today:#f97316; --pass:#34d399; --kill:#f43f5e; --link:#0ea5e9;
+  --supply:#22d3ee; --supply-2:#14b8a6; --demand:#7c5cfc; --demand-2:#6366f1; --price:#f59e0b; --today:#f97316; --pass:#34d399; --kill:#f43f5e; --link:#0ea5e9; --aic:#f472b6;
   --supply-dim:rgba(34,211,238,.14); --demand-dim:rgba(124,92,252,.16); --price-dim:rgba(245,158,11,.14);
-  --today-dim:rgba(249,115,22,.14); --pass-dim:rgba(52,211,153,.14); --kill-dim:rgba(244,63,94,.14); --link-dim:rgba(14,165,233,.14);
+  --today-dim:rgba(249,115,22,.14); --pass-dim:rgba(52,211,153,.14); --kill-dim:rgba(244,63,94,.14); --link-dim:rgba(14,165,233,.14); --aic-dim:rgba(244,114,182,.14);
   --violet:#7c5cfc; --indigo:#6366f1; --sky:#0ea5e9; --cyan:#22d3ee; --teal:#14b8a6;
   --emerald:#34d399; --amber:#f59e0b; --orange:#f97316; --rose:#f43f5e;
   --ring-disc:#0e1726;
@@ -154,7 +154,7 @@ main{padding-top:var(--rail)}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
 .legend i.sq{border-radius:0}
 .legend i.sup{background:var(--supply)} .legend i.dem{background:var(--demand)} .legend i.pri{background:var(--price)}
-.legend i.tod{background:var(--today)} .legend i.pas{background:var(--pass)} .legend i.kil{background:var(--kill)} .legend i.lnk{background:var(--link)}
+.legend i.tod{background:var(--today)} .legend i.pas{background:var(--pass)} .legend i.kil{background:var(--kill)} .legend i.lnk{background:var(--link)} .legend i.aic{background:var(--aic)}
 .legend i.hollow{background:transparent;border:1.5px solid var(--supply)}
 
 /* cover chapter — first frame carries the title; the field lives on the stage */
@@ -482,6 +482,8 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 .pg-mascot{display:inline-block;flex:none;border-radius:50%;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));transform-origin:50% 62%;animation:pgIdle 4.6s ease-in-out infinite,pgBlink 5.8s ease-in-out infinite}
 .pg-mascot.sz-cast{width:42px;height:42px;margin-bottom:9px}
 .pg-mascot.sz-beat{width:21px;height:21px;vertical-align:-6px;margin-right:5px}
+.pg-mascot.sz-cameo{width:24px;height:24px;vertical-align:-7px;margin-left:8px;opacity:.92}
+.pg-mascot.sz-egg{width:14px;height:14px;vertical-align:-2px;margin-left:6px;opacity:.8}
 .pg-mascot:hover{animation:pgHoverBounce .55s cubic-bezier(.34,1.56,.64,1) 1}
 @keyframes pgIdle{0%,100%{transform:scale(1) rotate(0deg)}50%{transform:scale(1.035) rotate(-1deg)}}
 @keyframes pgBlink{0%,90%,100%{opacity:1}93%,96%{opacity:.55}}
@@ -510,9 +512,11 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 @keyframes pgvMaraBreathe { 0%,100%{transform:translateY(0px) scale(1,1)} 50%{transform:translateY(-4px) scale(0.99,1.01)} }
 @keyframes pgvMaraBlink { 0%,93%,97%,100%{transform:scaleY(1)} 95%{transform:scaleY(0.08)} }
 @keyframes pgvCapTilt { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(-2.5deg)} }
+@keyframes pgvMaraSpark { 0%,100%{transform:scale(0.82) rotate(0deg);opacity:.5} 50%{transform:scale(1.18) rotate(20deg);opacity:1} }
 .pgv-mara-body { transform-origin:250px 420px; animation:pgvMaraBreathe 3.4s ease-in-out infinite; }
 .pgv-mara-eyelid { transform-origin:255px 150px; animation:pgvMaraBlink 4.2s infinite; }
 .pgv-mara-cap { transform-origin:250px 125px; animation:pgvCapTilt 3.4s ease-in-out infinite; }
+.pgv-mara-spark { transform-origin:314px 96px; animation:pgvMaraSpark 2.6s ease-in-out infinite; }
 </style>
 <g class="pgv-mara-body">
 <g id="head-group">
@@ -535,6 +539,7 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 </g>
 <g class="pgv-mara-cap">
 <path d="M196 130 C198 84 292 82 302 128 Z" fill="#F7B731"/>
+<path d="M199 127 C203 96 285 94 298 125 Z" fill="#FFCE5C" opacity="0.55"/>
 <circle cx="248" cy="85" r="5" fill="#D99B1E"/>
 <path d="M185 130 C170 128 175 106 225 108 L235 128 Z" fill="#F7B731" stroke="#D99B1E" stroke-width="1.5"/>
 <path d="M198 128 Q248 138 298 128 C285 133 210 133 198 128 Z" fill="#16655A" opacity="0.3"/>
@@ -542,6 +547,10 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 <g id="torso-hint">
 <path d="M175 220 C165 260 170 290 178 295 C215 305 285 305 322 295 C330 290 335 260 325 220 C310 195 290 190 250 190 C210 190 190 195 175 220 Z" fill="#FF6B4A"/>
 <path d="M220 192 C235 202 265 202 280 192" fill="none" stroke="#E05333" stroke-width="4.5" stroke-linecap="round"/>
+<path d="M230 196 L222 292 M270 196 L278 292" stroke="#B8391F" stroke-width="4" stroke-linecap="round" opacity="0.45"/>
+</g>
+<g class="pgv-mara-spark">
+<polygon points="314,84 318,93 328,94 320,101 322,111 314,105 306,111 308,101 300,94 310,93" fill="#F7B731" stroke="#B8391F" stroke-width="1.5"/>
 </g>
 </g>
 </symbol>
@@ -560,9 +569,11 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 <g class="pgv-b-body">
 <g id="tailored-suit-hint">
 <path d="M 120 440 C 120 340 155 275 250 275 C 345 275 380 340 380 440 Z" fill="#0F172A" stroke="#020617" stroke-width="5"/>
+<path d="M 130 435 C 132 350 162 288 250 282" fill="none" stroke="#1E293B" stroke-width="4" opacity="0.55"/>
 <polygon points="250,400 200,275 300,275" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
 <polygon points="236,290 264,290 258,310 242,310" fill="#991B1B"/>
 <polygon points="242,310 258,310 266,400 250,425 234,400" fill="#B91C1C" stroke="#7F1D1D" stroke-width="2"/>
+<polygon points="196,300 214,294 210,314 198,318" fill="#F59E0B" opacity="0.9"/>
 </g>
 <g id="cat-head">
 <g class="pgv-b-ear-l">
@@ -574,6 +585,7 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 <polygon points="332,170 315,85 286,132" fill="#FCA5A5"/>
 </g>
 <ellipse cx="250" cy="202" rx="90" ry="78" fill="#F59E0B" stroke="#271815" stroke-width="5"/>
+<ellipse cx="222" cy="168" rx="46" ry="26" fill="#FBBF57" opacity="0.5"/>
 <path d="M 160 205 Q 135 235 170 262 Q 250 288 330 262 Q 365 235 340 205 Z" fill="#FEF3C7" stroke="#271815" stroke-width="4"/>
 <path d="M 250 130 L 250 152" stroke="#78350F" stroke-width="4.5" stroke-linecap="round"/>
 <path d="M 235 136 L 240 155" stroke="#78350F" stroke-width="4.5" stroke-linecap="round"/>
@@ -597,8 +609,10 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 <path d="M 239 198 Q 250 188 261 198" fill="none" stroke="#D97706" stroke-width="6" stroke-linecap="round"/>
 <line x1="164" y1="198" x2="135" y2="190" stroke="#D97706" stroke-width="5" stroke-linecap="round"/>
 <line x1="336" y1="198" x2="365" y2="190" stroke="#D97706" stroke-width="5" stroke-linecap="round"/>
-<circle cx="202" cy="202" r="38" fill="#FFFFFF" fill-opacity="0.1" stroke="#F59E0B" stroke-width="7"/>
-<circle cx="298" cy="202" r="38" fill="#FFFFFF" fill-opacity="0.1" stroke="#F59E0B" stroke-width="7"/>
+<circle cx="202" cy="202" r="38" fill="#FFFFFF" fill-opacity="0.14" stroke="#F59E0B" stroke-width="7"/>
+<circle cx="298" cy="202" r="38" fill="#FFFFFF" fill-opacity="0.14" stroke="#F59E0B" stroke-width="7"/>
+<path d="M 188 190 Q 200 184 210 190" stroke="#FFFFFF" stroke-width="3" fill="none" opacity="0.6" stroke-linecap="round"/>
+<path d="M 284 190 Q 296 184 306 190" stroke="#FFFFFF" stroke-width="3" fill="none" opacity="0.6" stroke-linecap="round"/>
 </g>
 </g>
 </g>
@@ -607,19 +621,26 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 <symbol id="ico-dani" viewBox="140 60 220 220">
 <style>
 @keyframes pgvDaniBlink { 0%,90%,97%,100%{transform:scaleY(1)} 93%{transform:scaleY(0.08)} }
+@keyframes pgvDaniBob { 0%,100%{transform:translateY(0px) rotate(0deg)} 50%{transform:translateY(-3px) rotate(-1deg)} }
+@keyframes pgvDaniEarbudSwing { 0%,100%{transform:rotate(-14deg)} 50%{transform:rotate(16deg)} }
+.pgv-dani-body { transform-origin:250px 280px; animation:pgvDaniBob 3.1s ease-in-out infinite; }
 .pgv-dani-eyes { transform-origin:250px 175px; animation:pgvDaniBlink 4.2s infinite; }
+.pgv-dani-earbud { transform-origin:245px 220px; animation:pgvDaniEarbudSwing 1.7s cubic-bezier(.45,.05,.55,.95) infinite; }
 </style>
+<g class="pgv-dani-body">
 <g id="jacket-hint">
 <path d="M 160 300 C 160 250 195 220 250 220 C 305 220 340 250 340 300 L 344 280 L 156 280 Z" fill="#0284C7" stroke="#0F172A" stroke-width="5"/>
 <path d="M 160 250 C 130 280 135 320 155 275 L 190 260 Z" fill="#F8FAFC" stroke="#0F172A" stroke-width="4"/>
 <path d="M 340 250 C 370 280 365 320 345 275 L 310 260 Z" fill="#F8FAFC" stroke="#0F172A" stroke-width="4"/>
 <path d="M 215 220 Q 250 240 285 220" fill="none" stroke="#FBBF24" stroke-width="6" stroke-linecap="round"/>
 <path d="M 220 220 Q 250 236 280 220" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+<circle cx="308" cy="266" r="8" fill="#F97316" stroke="#FFFFFF" stroke-width="1.5"/>
 </g>
 <g id="dani-head">
 <rect x="238" y="195" width="24" height="28" fill="#C27858" stroke="#0F172A" stroke-width="2"/>
 <path d="M 220 135 C 220 100 280 100 280 135 C 280 175 268 195 250 198 C 232 195 220 175 220 135 Z" fill="#D98A68" stroke="#0F172A" stroke-width="4"/>
 <ellipse cx="250" cy="95" rx="34" ry="28" fill="#3E2723" stroke="#1A0F0C" stroke-width="4"/>
+<path d="M 224 82 Q 250 68 276 82" stroke="#5D4037" stroke-width="4" fill="none" opacity="0.55" stroke-linecap="round"/>
 <circle cx="230" cy="85" r="14" fill="#4E342E"/>
 <circle cx="270" cy="85" r="14" fill="#4E342E"/>
 <circle cx="250" cy="75" r="16" fill="#4E342E"/>
@@ -629,6 +650,8 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 <circle cx="234" cy="154" r="2" fill="#FFFFFF"/>
 <ellipse cx="264" cy="155" rx="6" ry="5" fill="#0F172A"/>
 <circle cx="262" cy="154" r="2" fill="#FFFFFF"/>
+<circle cx="235" cy="156" r="1" fill="#38BDF8"/>
+<circle cx="263" cy="156" r="1" fill="#38BDF8"/>
 </g>
 <path d="M 243 175 Q 250 181 257 175" fill="none" stroke="#0F172A" stroke-width="3" stroke-linecap="round"/>
 <ellipse cx="225" cy="168" rx="6" ry="4" fill="#F43F5E" opacity="0.4"/>
@@ -638,19 +661,51 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 <path d="M 222 152 L 222 165 C 222 185 235 210 245 220" fill="none" stroke="#FFFFFF" stroke-width="2.5"/>
 <ellipse cx="220" cy="152" rx="4.5" ry="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
 <circle cx="220" cy="152" r="2" fill="#38BDF8"/>
+<g class="pgv-dani-earbud">
+<path d="M 245 220 C 253 234 259 250 253 268" fill="none" stroke="#FFFFFF" stroke-width="2.5"/>
+<g transform="translate(253,268)">
+<rect x="-4" y="-3" width="8" height="12" rx="3.5" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.2"/>
+<circle cx="0" cy="9" r="2.6" fill="#38BDF8"/>
+</g>
+</g>
+</g>
 </g>
 </symbol>
 
 <symbol id="ico-drscoop" viewBox="0 0 64 64">
-  <circle cx="32" cy="32" r="22" fill="color-mix(in srgb,var(--demand) 100%,white 16%)"/>
-  <path d="M10 32a22 22 0 0 1 44 0 22 22 0 0 1 -13 20.2A22 22 0 0 1 10 32z" fill="var(--demand)" opacity=".55"/>
-  <ellipse cx="24" cy="22" rx="8" ry="5" fill="#fff" opacity=".26"/>
-  <circle cx="24.5" cy="32.5" r="2.5" fill="#fff"/><circle cx="39.5" cy="32.5" r="2.5" fill="#fff"/>
-  <circle cx="24.5" cy="32.5" r="1.1" fill="#20202c"/><circle cx="39.5" cy="32.5" r="1.1" fill="#20202c"/>
-  <path d="M23.5 41q8.5 6 17 0" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-  <g stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round">
-    <circle cx="32" cy="10.5" r="3.4"/><path d="M32 13.9v4.4"/>
-  </g>
+<style>
+@keyframes pgvScoopBounce { 0%,100%{transform:translateY(0px) rotate(-3deg)} 25%{transform:translateY(-5px) rotate(5deg)} 50%{transform:translateY(-1px) rotate(-3deg)} 75%{transform:translateY(-6px) rotate(6deg)} }
+@keyframes pgvScoopArmL { 0%,100%{transform:rotate(-16deg)} 50%{transform:rotate(30deg)} }
+@keyframes pgvScoopArmR { 0%,100%{transform:rotate(18deg)} 50%{transform:rotate(-28deg)} }
+@keyframes pgvScoopLegs { 0%,100%{transform:translateX(-1.5px)} 50%{transform:translateX(1.5px)} }
+.pgv-scoop-root { transform-origin:32px 58px; animation:pgvScoopBounce 1.05s ease-in-out infinite; }
+.pgv-scoop-arm-l { transform-origin:21px 39px; animation:pgvScoopArmL 1.05s ease-in-out infinite; }
+.pgv-scoop-arm-r { transform-origin:43px 39px; animation:pgvScoopArmR 1.05s ease-in-out infinite; }
+.pgv-scoop-legs { transform-origin:32px 50px; animation:pgvScoopLegs 1.05s ease-in-out infinite; }
+</style>
+<g class="pgv-scoop-root">
+<g class="pgv-scoop-legs">
+<path d="M27 49 L22 61 L28 61 L31 50 Z" fill="#20202c"/>
+<path d="M37 49 L42 61 L36 61 L33 50 Z" fill="#20202c"/>
+</g>
+<path d="M20.5 34 C18 40 19 47 24 51 C28 54 36 54 40 51 C45 47 46 40 43.5 34 Z" fill="var(--demand)"/>
+<path d="M27 34 L32 43 L37 34 Z" fill="#FFFFFF" opacity=".85"/>
+<g class="pgv-scoop-arm-l">
+<path d="M22 35 C16 37 12 42 13.5 48" fill="none" stroke="var(--demand)" stroke-width="5" stroke-linecap="round"/>
+</g>
+<g class="pgv-scoop-arm-r">
+<path d="M42 35 C48 37 52 42 50.5 48" fill="none" stroke="var(--demand)" stroke-width="5" stroke-linecap="round"/>
+</g>
+<rect x="29" y="27" width="6" height="8" rx="2" fill="color-mix(in srgb,var(--demand) 35%,white 65%)"/>
+<g id="tv-head">
+<rect x="16" y="4" width="32" height="28" rx="5" fill="color-mix(in srgb,var(--demand) 12%,white 88%)" stroke="var(--demand)" stroke-width="3"/>
+<rect x="12.5" y="0.5" width="9" height="6" rx="1.5" fill="var(--demand)" transform="rotate(-18 17 3.5)"/>
+<rect x="21" y="9" width="22" height="16" rx="2.5" fill="var(--demand)"/>
+<path d="M24 22 L31 12 M31 22 L38 10" stroke="#FFFFFF" stroke-width="2.5" opacity=".55" stroke-linecap="round"/>
+<circle cx="38" cy="12" r="1.6" fill="#FFFFFF"/>
+<rect x="28" y="27" width="8" height="2.4" rx="1.2" fill="var(--demand)" opacity=".6"/>
+</g>
+</g>
 </symbol>
 
 <symbol id="ico-script" viewBox="0 0 24 24">
@@ -740,7 +795,7 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 </svg>
 <header id="rail">
   <div class="brand"><svg class="pg-drscoop" aria-hidden="true" role="img" aria-label="SaSMaster Dr. Scoop"><use href="#ico-drscoop"></use></svg><a class="wm" id="wm" href="#c00-0" aria-label="Proving Ground"><span>P</span><span class="c">R</span><span class="c">O</span><span class="c">V</span><span class="c">I</span><span class="c">N</span><span class="c">G</span><span class="c"> </span><span>G</span><span class="c">R</span><span class="c">O</span><span class="c">U</span><span class="c">N</span><span class="c">D</span></a><span class="ch" id="railCh"></span></div>
-  <nav id="chapters" aria-label="Chapters"><a href="#c00-0" data-tip="00 · Cover">Cover</a><a href="#c01-0" data-tip="01 · The Thesis">The Thesis</a><a href="#c02-0" data-tip="02 · Market Context">Market Context</a><a href="#c03-0" data-tip="03 · The Loop">The Loop</a><a href="#c04-0" data-tip="04 · The Stack">The Stack</a><a href="#c05-0" data-tip="05 · Try the Instrument">Try the Instrument</a><a href="#c06-0" data-tip="06 · The Economics of Asking">The Economics of Asking</a><a href="#c07-0" data-tip="07 · Why It Holds">Why It Holds</a><a href="#c08-0" data-tip="08 · Who Gets What">Who Gets What</a><a href="#c09-0" data-tip="09 · Revenue — Four Engines, Sequenced">Revenue — Four Engines, Sequenced</a><a href="#c10-0" data-tip="10 · Supply — Three Waves">Supply — Three Waves</a><a href="#c11-0" data-tip="11 · The Validation Gate">The Validation Gate</a><a href="#c12-0" data-tip="12 · What Would Break It">What Would Break It</a><a href="#c13-0" data-tip="13 · Roadmap">Roadmap</a></nav>
+  <nav id="chapters" aria-label="Chapters"><a href="#c00-0" data-tip="00 · Cover">Cover</a><a href="#c01-0" data-tip="01 · The Thesis">The Thesis</a><a href="#c02-0" data-tip="02 · Market Context">Market Context</a><a href="#c03-0" data-tip="03 · The Loop">The Loop</a><a href="#c04-0" data-tip="04 · The Stack">The Stack</a><a href="#c05-0" data-tip="05 · Try the Instrument">Try the Instrument</a><a href="#c06-0" data-tip="06 · The Economics of Asking">The Economics of Asking</a><a href="#c07-0" data-tip="07 · Why It Holds">Why It Holds</a><a href="#c08-0" data-tip="08 · Who Gets What">Who Gets What</a><a href="#c09-0" data-tip="09 · Revenue — Five Engines, Sequenced">Revenue — Five Engines, Sequenced</a><a href="#c10-0" data-tip="10 · Supply — Three Waves">Supply — Three Waves</a><a href="#c11-0" data-tip="11 · The Validation Gate">The Validation Gate</a><a href="#c12-0" data-tip="12 · What Would Break It">What Would Break It</a><a href="#c13-0" data-tip="13 · Roadmap">Roadmap</a></nav>
   <div class="tools">
     <button class="ib" id="prev" aria-label="Previous step" title="Previous (←)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
     <button class="ib" id="next" aria-label="Next step" title="Next (→ or space)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
@@ -775,7 +830,7 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
   <div class="b"><b><svg class="pg-role" aria-hidden="true"><use href="#ico-backers"></use></svg>Backers</b>Fund the gate. The result publishes either way.</div>
 </div>
 <div class="pg-partners"><span class="lbl">Built on</span><span class="pp" title="Nielsen"><svg aria-hidden="true"><use href="#ico-p-nielsen"></use></svg>Nielsen</span><span class="pp" title="TMDB"><svg aria-hidden="true"><use href="#ico-p-tmdb"></use></svg>TMDB</span><span class="pp" title="YouTube"><svg aria-hidden="true"><use href="#ico-p-youtube"></use></svg>YouTube</span><span class="pp" title="MotherDuck"><svg aria-hidden="true"><use href="#ico-p-motherduck"></use></svg>MotherDuck</span><span class="pp" title="AWS"><svg aria-hidden="true"><use href="#ico-p-aws"></use></svg>AWS</span><span class="pp" title="Vercel"><svg aria-hidden="true"><use href="#ico-p-vercel"></use></svg>Vercel</span><span class="pp" title="Railway"><svg aria-hidden="true"><use href="#ico-p-railway"></use></svg>Railway</span><span class="lbl pg-lbl2">Signal from</span><span class="pp" title="X (Twitter)"><svg aria-hidden="true"><use href="#ico-p-x"></use></svg>X</span><span class="pp" title="Instagram"><svg aria-hidden="true"><use href="#ico-p-instagram"></use></svg>Instagram</span><span class="pp" title="TikTok"><svg aria-hidden="true"><use href="#ico-p-tiktok"></use></svg>TikTok</span><span class="pp" title="Facebook"><svg aria-hidden="true"><use href="#ico-p-facebook"></use></svg>Facebook</span></div>
-<div class="meta"><span>Business One-Pager · v7.0</span><span>Narrative edition</span><span>September 2026</span><span>A SaSMaster instrument</span><span>Confidential</span></div>
+<div class="meta"><span>Business One-Pager · v7.0</span><span>Narrative edition</span><span>September 2026</span><span>A SaSMaster instrument</span><span>Confidential</span><span title="Dr. Scoop is watching"><svg class="pg-mascot sz-egg" aria-hidden="true"><use href="#ico-drscoop"></use></svg></span></div>
 <div class="scrollcue"><span class="arrow"><svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg></span><span>Scroll, or press → · the stage on the right follows the text</span></div>
 </div></div></div></section><section class="chapter" id="c01" aria-label="The Thesis"><div class="steps"><div class="beat" data-ch="c01"><div><div class="k">Follow the script</div><p>The draft has been out to readers twice. Nobody has measured anything, because there is nothing at this stage to measure it with.</p></div></div><div class="step" data-ch="c01" data-i="0" id="c01-0"><div class="card"><div class="kick"><b>01</b> First principles<span class="tag ill">Post-mortems</span></div><h2>Every demand signal the industry owns is a post-mortem.</h2><p class="story"><b class="who m">Mara</b>’s script has three readers’ praise and no signal. Every signal <b class="who t">Mr. Biggles</b> can pull up — box office, delivery, minutes — belongs to films that already exist. TIDELOCK does not.</p>
 <p>Strip the industry to first principles and it has exactly two unsolved problems, and they are the same problem. Box office, Nielsen delivery, streaming minutes — every signal the industry owns measures things <strong>already written, already cast, already paid for</strong>.</p>
@@ -808,7 +863,7 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 <p>Keep scrolling and the marker slides down the curve to <strong>first draft (≈4%)</strong> — or drag it yourself. Everything above the marker is capital the read can still protect.</p>
 <p>At rough cut the sunk cost is the picture. At first draft it is a script fee and a $2–11 render. The read costs cents either way; only the timing changes what it can save.</p>
 <div class="cue">Drag on the stage · ← → on the marker · or tap a stage</div><div class="src">Render take $2–11 by tier (BytePlus ModelArk + reseller rate cards, Aug 2026) · $37.50 = $15,000 ÷ 400 (range $20–67) · Sources A</div></div></div><div class="step" data-ch="c03" data-i="2" id="c03-2"><div class="card"><div class="kick"><b>03</b> The loop behind the read<span class="tag src">Instrumented</span></div><h2>Render → Vote → Resolve → Price. A certificate at the end.</h2><p>Four stages, each instrumented. A script is <strong>rendered</strong> as a 30-second trailer; a live audience <strong>votes</strong> with behaviour — completion, replay, scroll-away, head-to-head; the concept is <strong>resolved</strong> against the Curated Content Catalog; the result is <strong>priced</strong> and signed.</p>
-<p>The loop runs at first draft, in days, for cents a read. It does not end in a report: a priced concept leaves the loop toward a buyer, and the buyer's option is what turns demand into a produced title. <strong>The certificate is the product; production is the point.</strong></p></div></div></div></section><section class="chapter" id="c04" aria-label="The Stack"><div class="steps"><div class="beat" data-ch="c04"><div><div class="k">Out of the drawer</div><p>The script leaves the drawer as a file. Before any vendor sees a page, the Gateway has redacted it and written the ledger row. Then the models take their seats.</p></div></div><div class="step" data-ch="c04" data-i="0" id="c04-0"><div class="card"><div class="kick"><b>04</b> Best-in-role · every seat swappable<span class="tag src">As of Sep 2026</span></div><h2>No single model runs this loop, and none of them is the product.</h2><p class="story">TIDELOCK enters as a file. One model breaks it into beats, another renders the tide, a third checks the take. None of them owns the script or the result.</p>
+<p>The loop runs at first draft, in days, for cents a read. It does not end in a report: a priced concept leaves the loop toward a buyer, and the buyer's option is what turns demand into a produced title. <strong>The certificate is the product; production is the point.</strong></p></div></div></div></section><section class="chapter" id="c04" aria-label="The Stack"><div class="steps"><div class="beat" data-ch="c04"><div><div class="k">Out of the drawer<svg class="pg-mascot sz-cameo" aria-hidden="true" title="Dr. Scoop, briefly"><use href="#ico-drscoop"></use></svg></div><p>The script leaves the drawer as a file. Before any vendor sees a page, the Gateway has redacted it and written the ledger row. Then the models take their seats.</p></div></div><div class="step" data-ch="c04" data-i="0" id="c04-0"><div class="card"><div class="kick"><b>04</b> Best-in-role · every seat swappable<span class="tag src">As of Sep 2026</span></div><h2>No single model runs this loop, and none of them is the product.</h2><p class="story">TIDELOCK enters as a file. One model breaks it into beats, another renders the tide, a third checks the take. None of them owns the script or the result.</p>
 <p>No single model can run this loop well, so none is asked to. Each seat goes to the model that currently wins its bake-off, behind the Model Gateway — a provenance wall where a model earns production status and loses it the same way.</p>
 <p><strong>Named today, married never.</strong> The models are components; the spine, the telemetry and the certificates are the IP.</p>
 <div class="cue">Hover or tap a seat — incumbent · swap cost · selection criterion</div><div class="src">Incumbents as of Sep 2026 · generated from the registry · no minor versions printed · Seat 04 is a research seat: CC-BY-NC, advisory only, never in a sold certificate</div></div></div><div class="step" data-ch="c04" data-i="1" id="c04-1"><div class="card"><div class="kick"><b>04</b> Model Gateway · G1–G11<span class="tag src">Live 2026-07-16</span></div><h3>Live since 16 July 2026, every call routes through eleven gates.</h3><p>The licence gate fails closed, so the research seat can never reach a sold certificate. NDA material enters vendors only through the Gateway: <strong>redacted before egress, ledgered</strong>, held for the render job, deleted on request, never near the feed, never used to train.</p>
@@ -865,11 +920,11 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 <div class="cue">Hover or tap a node · the touching ribbons light up · the rule appears</div><div class="src">Rules from §10 · encoded · supply enters at Render; demand enters at Vote; both sides leave with a price</div></div></div><div class="step" data-ch="c08" data-i="2" id="c08-2"><div class="card"><div class="kick"><b>08</b> Run a clearing<span class="tag ill">Seeded · not a result</span></div><h3>One clearing, drawn: the instrument prices every concept from where the reads land.</h3><p class="story">Run it. A concept like TIDELOCK enters left, reads land, and it either crosses to the buyers or is killed at draft with no negative spent. Seeded, not a result.</p>
 <p>Supply enters left, demand enters right, and the instrument in the middle prices every concept from where the reads land — <strong>not from what anyone said</strong>. Concepts the audience chose cross to the buyers; the rest never spend a dollar of production.</p>
 <p>Thresholds here are illustrative (<strong>2× and ⅓ of the expected read count</strong>); P0 sets the real ones and publishes them either way.</p>
-<div class="cue">Run a clearing on the stage · New seed · Reset — it never autoplays</div><div class="src">Illustrative simulation · seeded (2026) · 120 concepts · 360 reads · not a result</div></div></div></div></section><section class="chapter" id="c09" aria-label="Revenue — Four Engines, Sequenced"><div class="steps"><div class="beat" data-ch="c09"><div><div class="k">The ledger</div><p>Say <b class="who t">Mr. Biggles</b>’s studio runs its slate through a closed panel. The fee is one line in a ledger. That line is where the company’s revenue starts, and it is deliberately first.</p></div></div><div class="step" data-ch="c09" data-i="0" id="c09-0"><div class="card"><div class="kick"><b>09</b> Order is the strategy<span class="tag ill">Computed (E)</span></div><h2>Panels fund the build. The feed builds the data. The data builds the business.</h2><p class="story"><b class="who t">Mr. Biggles</b>’s slate runs through closed panels from P2; that fee is one line under Panels, and it pays first because his budget line already exists. TIDELOCK’s own line, an option, comes at P3.</p>
+<div class="cue">Run a clearing on the stage · New seed · Reset — it never autoplays</div><div class="src">Illustrative simulation · seeded (2026) · 120 concepts · 360 reads · not a result</div></div></div></div></section><section class="chapter" id="c09" aria-label="Revenue — Five Engines, Sequenced"><div class="steps"><div class="beat" data-ch="c09"><div><div class="k">The ledger</div><p>Say <b class="who t">Mr. Biggles</b>’s studio runs its slate through a closed panel. The fee is one line in a ledger. That line is where the company’s revenue starts, and it is deliberately first.</p></div></div><div class="step" data-ch="c09" data-i="0" id="c09-0"><div class="card"><div class="kick"><b>09</b> Order is the strategy<span class="tag ill">Computed (E)</span></div><h2>Panels fund the build. The feed builds the data. The data builds the business. The business builds new audiences.</h2><p class="story"><b class="who t">Mr. Biggles</b>’s slate runs through closed panels from P2; that fee is one line under Panels, and it pays first because his budget line already exists. TIDELOCK’s own line, an option, comes at P3.</p>
 <p>Both, sequenced honestly. <strong>Panels pay first</strong> because the budget line already exists. The feed launches at P1 as the agency product and drops cost per read another order of magnitude. If retention does not hold, recruited and partner audiences keep the panel business alive — dependency and fallback are both on the chart.</p>
-<div class="legend"><span><i class="dem"></i>Studio Panels · Studios, streamers, prodcos pay · P2</span><span><i class="sup"></i>Consumer Feed · Viewers, advertisers pay · P1</span><span><i class="lnk"></i>Demand Feed · Strategy, programming, acquisitions pay · P3</span><span><i class="pri"></i>Option Flow · Buyers pay · P3</span></div>
-<p style="font-size:14px">Studio Panels: closed NDA testing of a development slate, priced against the replaced screening. Consumer Feed: short-form entertainment with agency — subscription + ads. Demand Feed: standing subscription to aggregate demand by genre, demo, narrative feature, window. Option Flow: brokerage on threshold-clearing concepts; revenue share to writers.</p>
-<p><strong>Two of the four engines sell demand data</strong> — the certificate and the feed. The fourth is the reason the data exists: option flow is where a priced concept becomes a produced title, and where the writer is paid. A producer can also run it the other way — use the Demand Feed to decide what to make, and be their own proof of concept.</p>
+<div class="legend"><span><i class="dem"></i>Studio Panels · Studios, streamers, prodcos pay · P2</span><span><i class="sup"></i>Consumer Feed · Viewers, advertisers pay · P1</span><span><i class="lnk"></i>Demand Feed · Strategy, programming, acquisitions pay · P3</span><span><i class="pri"></i>Option Flow · Buyers pay · P3</span><span><i class="aic"></i>AI Content · Niche/regional subscribers pay · P4</span></div>
+<p style="font-size:14px">Studio Panels: closed NDA testing of a development slate, priced against the replaced screening. Consumer Feed: short-form entertainment with agency — subscription + ads. Demand Feed: standing subscription to aggregate demand by genre, demo, narrative feature, window. Option Flow: brokerage on threshold-clearing concepts; revenue share to writers. AI Content: a subscription library of AI-produced episodic content for niche and regional audiences no studio slate was ever built to serve.</p>
+<p><strong>Two of the five engines sell demand data</strong> — the certificate and the feed. Two turn that data into a produced title: option flow, where a priced concept is licensed onto someone else's slate and the writer is paid a share, and AI content, where TIDELOCK produces the title itself, for an audience too small or too local for any studio's greenlight math. A producer can also run it the other way — use the Demand Feed to decide what to make, and be their own proof of concept.</p>
 <p class="pull"><strong>What changed in this version.</strong> The plan used to hire a phase’s team on the gate month and sell cold afterwards. Discovery-Driven Planning calls that the dangerous assumption: a venture that needed cash in twelve months had first to recruit a sales force — four months to hire, four to learn, four left to sell. The fix in the case was not a better forecast. It was <strong>co-developing the offer with a paying pilot customer</strong>, which produced cash “with virtually no sales staff on board.” Two paid pilots now run from month 1, the panel opens at month 10 instead of 13, and each phase’s headcount arrives over nine months rather than on the gate. Break-even moves from month 36 to <strong>month 25</strong>, and peak cash need from $12.7M to <strong>$5.6M</strong>.</p>
 <p style="font-size:14px">Not in the model: brand placements inside trailers and produced shorts — a plausible upside line once the feed has an audience, left out until there is a benchmark to cite.</p><div class="src">60-month P&amp;L computed from window.PGModel defaults (E) — not a projection · benchmarks named in Sources C · Shiv to correct · sequencing per McGrath &amp; MacMillan, <em>Discovery-Driven Growth</em> ch. 6</div></div></div><div class="step" data-ch="c09" data-i="1" id="c09-1"><div class="card"><div class="kick"><b>09</b> Two sides of the book<span class="tag ill">From the model (E)</span></div><h3>Liquidity arrives in sequence.</h3><p>Concepts entering each month on the <strong>supply</strong> side, the audience in the feed on the <strong>demand</strong> side. Log scale; the lines move with the drivers two steps on.</p>
 <p>The gap between them is the constraint the model now enforces. A concept can only be panelled if there is an audience to read it — so panel concepts are capped at <strong>feed viewers × reads per viewer ÷ reads per concept</strong>, never at what the sales team sold. Instacart’s rule, stated plainly: <em>“we always onboarded supply ahead of demand.”</em> Here the supply is attention. Sell a slate the audience cannot read and the certificate is worthless, which is the failure the cap exists to make visible.</p>
@@ -890,14 +945,14 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 <p style="font-size:12.5px;margin-top:8px">Requirement set at $10M before-tax profit on a 30% return on sales (E) — Shiv’s to set. The buffer moves live with the sliders.</p>
 </details>
 <details class="terms"><summary>Five-year P&amp;L · annual roll-up (live from the model)</summary>
-<div style="overflow-x:auto;margin-top:8px"><table class="tbl" id="c09-roll"><thead><tr><th>Year</th><th>Panels</th><th>Feed</th><th>Data</th><th>Options</th><th>Revenue</th><th>GM%</th><th>Opex</th><th>EBITDA</th><th>Cum. cash</th><th>HC</th></tr></thead>
+<div style="overflow-x:auto;margin-top:8px"><table class="tbl" id="c09-roll"><thead><tr><th>Year</th><th>Panels</th><th>Feed</th><th>Data</th><th>Options</th><th>AI Content</th><th>Revenue</th><th>GM%</th><th>Opex</th><th>EBITDA</th><th>Cum. cash</th><th>HC</th></tr></thead>
 <tbody></tbody></table></div>
 <p style="font-size:12.5px;margin-top:8px">Y1 panels are two paid pilots co-developing the product at a discount to list — small, but cash in year one, which is the whole point of the pilot-led sequence.</p>
 </details>
 <details class="terms"><summary>Assumption checklist · what would have to be true (Table 6-2)</summary>
 <div style="overflow-x:auto;margin-top:8px"><table class="tbl" id="c09-assum"><thead><tr><th>#</th><th>Assumption</th><th>Relevant data</th><th>Source</th><th>Checked</th></tr></thead><tbody></tbody></table></div>
 <p style="font-size:12.5px;margin-top:8px">Every driver marked (E) is a modeller assumption with no public benchmark behind it — the responsible party is Shiv, and the checkpoint is the first month of real data on that line.</p>
-</details><div class="src">Headline drivers · all defaults (E) · benchmarks named in Sources C · Shiv to correct. Dawson’s (panel price vs $10–20K screening) · RevenueCat × Appfigures (ARPPU) · Liftoff (eCPM) · Bombora (data ACV) · sequencing and reverse financials per McGrath &amp; MacMillan ch. 6 · discovery loop per SCG-577</div></div></div></div></section><section class="chapter" id="c10" aria-label="Supply — Three Waves"><div class="steps"><div class="beat" data-ch="c10"><div><div class="k">Follow the script</div><p>Rewind. Before the card, before the Gateway, the script had to be allowed in. <b class="who m">Mara</b> had to opt it in, and the terms she opted into had to exist.</p></div></div><div class="step" data-ch="c10" data-i="0" id="c10-0"><div class="card"><div class="kick"><b>10</b> Wave 1 · Calibrate<span class="tag spec">Sourcing plan</span></div><h2>Rights risk rises with signal quality, so the roster is staged.</h2><p class="story">TIDELOCK came in on Wave 2, an opted-in spec script under DRAFT terms — the dashed cell. Before that cell opens, the instrument tunes on scripts nobody can object to.</p>
+</details><div class="src">Headline drivers · all defaults (E) · benchmarks named in Sources C · Shiv to correct. Dawson’s (panel price vs $10–20K screening) · RevenueCat × Appfigures (ARPPU) · Liftoff (eCPM) · Bombora (data ACV) · sequencing and reverse financials per McGrath &amp; MacMillan ch. 6 · discovery loop per SCG-577</div></div></div><div class="step" data-ch="c09" data-i="4" id="c09-4"><div class="card"><div class="kick"><b>09</b> AI-Generated Content<span class="tag ill">From the model (E)</span></div><h2>The cost collapse that threatens writers also pays for audiences no studio could ever afford.</h2><p class="story"><b class="who d">Dani</b> is not watching anything on Mr. Biggles's slate. Her feed serves a dubbed drama in a dialect no distributor ever licensed, an AI-produced serial written for her market's slang and nobody else's — a catalogue that would never have cleared a studio's greenlight math, produced anyway because the cost of making it collapsed.</p><p>The Economist's August 2026 briefing on China's AI drive is not encouraging reading for anyone paid to write: AI moving into creative and white-collar work — script writing, coding, design — displacing domestic labour at industrial scale, reported layoffs, workers anxious, the young hit hardest, even as the state pushes adoption as growth strategy (Sources G). But the mechanism cuts both ways. The same collapse in per-title production cost that lets a studio need fewer writers also makes it viable, for the first time, to profitably produce and localize content for audiences too small, too regional, or too underserved for traditional studio economics to ever justify serving.</p><p>AI Content is the engine that monetizes that unlock, and it is additive — it does not touch the Panels, Feed, Demand Feed or Option Flow lines above it. It gates on <strong>P4</strong> (month 30 by default): TIDELOCK stops licensing demand data and starts producing directly, for a catalogue no buyer on the Option Flow was going to greenlight. At default drivers — 4,000 new subscribers/month against a 400,000 cap, 12% monthly churn, a <strong>$6.99/mo</strong> blended niche/regional price, ~40 new episodic titles/month at scale, and a <strong>~$180</strong> AI-generation-plus-localization cost per finished title — the model converges to roughly <strong>$2.74M in Year-5 ARR at an ~85% contribution margin</strong>, high because the marginal cost of reach is a title, not a production.</p><p style="font-size:14px">Not in the model: there is no live subscriber, no measured churn curve, and no proof $6.99 clears in any specific niche or regional market — price and cap are estimates (E), not observed demand. The $180/title figure borrows the Economist's cost-collapse thesis, not a vendor quote; the number to watch is the first month of real production cost measured against it.</p><div class="src">The Economist, &quot;China&#x27;s AI drive threatens the world&#x27;s largest workforce&quot; (briefing), 6 Aug 2026, https://www.economist.com/briefing/2026/08/06/chinas-ai-drive-threatens-the-worlds-largest-workforce — Sources G · pricing/cost benchmarks reused from §09 defaults: Media Partners Asia, &quot;ReelShort / Crazy Maple Studio&quot; · RevenueCat × Appfigures short-drama monetisation · Sensor Tower, State of Short Drama Apps 2026 · Fiscallion SaaS gross-margin benchmarks · computed from window.PGModel defaults (E), gated on p4Start (month 30) — not a projection</div></div></div></div></section><section class="chapter" id="c10" aria-label="Supply — Three Waves"><div class="steps"><div class="beat" data-ch="c10"><div><div class="k">Follow the script</div><p>Rewind. Before the card, before the Gateway, the script had to be allowed in. <b class="who m">Mara</b> had to opt it in, and the terms she opted into had to exist.</p></div></div><div class="step" data-ch="c10" data-i="0" id="c10-0"><div class="card"><div class="kick"><b>10</b> Wave 1 · Calibrate<span class="tag spec">Sourcing plan</span></div><h2>Rights risk rises with signal quality, so the roster is staged.</h2><p class="story">TIDELOCK came in on Wave 2, an opted-in spec script under DRAFT terms — the dashed cell. Before that cell opens, the instrument tunes on scripts nobody can object to.</p>
 <p>Calibrated on scripts nobody can object to, fed by loglines anyone can submit, sharpened by scripts writers choose to enter, paid for by slates no one else sees. <strong>The strongest signal waits on the terms.</strong></p>
 <p>The first block is <strong>public domain and lapsed rights</strong>: zero clearance risk, an instant roster, a weak novelty signal. It tunes the instrument and sells nothing — it clears into the consumer feed only, and there is nothing to option.</p>
 <div class="legend"><span><i class="sup"></i>supply enters</span><span><i class="pri"></i>priced · money changes hands</span><span><i style="background:transparent;border:1.5px dashed var(--price)"></i>gated · DRAFT writer terms</span><span><i style="background:repeating-linear-gradient(45deg,var(--kill) 0 2px,transparent 2px 5px)"></i>never · by design</span><span>— no path</span></div><div class="src">Sourcing plan (design) · Wave 2 gated on writer terms — DRAFT · Wave 3 never touches the consumer feed</div></div></div><div class="step" data-ch="c10" data-i="1" id="c10-1"><div class="card"><div class="kick"><b>10</b> Wave 1 · Volume<span class="tag spec">Open intake</span></div><h3>Loglines anyone can submit are the engine of the feed.</h3><p><strong>User-submitted loglines</strong> enter under an open intake and a platform licence. This is where virality comes from — and it is noisy, so it needs originality screening and moderation before it meets an audience.</p>
@@ -928,7 +983,7 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 <p>The render contaminates the signal: a great premise on a bad take reads as a bad premise. We do: <strong>same seat, same tier, same QC bar across every head-to-head</strong> — a QC threshold of 8.5 / 10 on five checks, held constant.</p>
 <p>We publish: the reject rate from P0. The gate is a specification today; it has not yet been exercised on real renders.</p><div class="src">QC gate: specification (8.5/10, five checks); not yet exercised · claude_creative_director_qc · reject rate published from P0 · Sources D</div></div></div><div class="step" data-ch="c12" data-i="2" id="c12-2"><div class="card"><div class="kick"><b>12</b> Risk 03 · Rights &amp; consent<span class="tag spec">Draft terms</span></div><h3>A supply problem, permanently.</h3><p>Terms done wrong lose the writers — and the strongest signal with them. Nothing in the technology recovers that. We do: <strong>draft terms in §10; rights partner co-designs; opt-in training use only</strong>.</p>
 <p>We publish: the terms, redlined, and the opt-in count.</p><div class="src">Writer terms · DRAFT — rights partner to redline · training use OFF by default · §10</div></div></div><div class="step" data-ch="c12" data-i="3" id="c12-3"><div class="card"><div class="kick"><b>12</b> Risk 04 · Adversarial<span class="tag spec">Red-team at P1</span></div><h3>The thumb can be brigaded.</h3><p>A public vote can be gamed. We do: <strong>sell the revealed-preference layer, not the thumb</strong>; run a scripted 10k-vote brigade at P1 and watch what the index does.</p>
-<p>We publish: index movement under attack and whether it was flagged. The defence is heuristic today; the red-team result is published at P1 — the pass line is an index move of ≤ 3 points with the attack flagged.</p><div class="src">P1 red-team: scripted 10k-vote brigade · index moves ≤ 3 points and the attack is flagged · logged as calibration_control · §13</div></div></div></div></section><section class="chapter" id="c13" aria-label="Roadmap"><div class="steps"><div class="beat" data-ch="c13"><div><div class="k">At the doors</div><p>On this page the script has been rendered, read, resolved and, at P0, priced. None of that has happened in the world yet. The world starts at the doors.</p></div></div><div class="step" data-ch="c13" data-i="0" id="c13-0"><div class="card"><div class="kick"><b>13</b> Gate-to-gate<span class="tag spec">Status: pre-P0</span></div><h2>Gates, not dates: no consumer launch without a measured error bar.</h2><p class="story">Where is TIDELOCK today? Pre-P0. No index exists for it yet, and none will until 200 released titles have been read blind and the result is public.</p>
+<p>We publish: index movement under attack and whether it was flagged. The defence is heuristic today; the red-team result is published at P1 — the pass line is an index move of ≤ 3 points with the attack flagged.</p><div class="src">P1 red-team: scripted 10k-vote brigade · index moves ≤ 3 points and the attack is flagged · logged as calibration_control · §13</div></div></div></div></section><section class="chapter" id="c13" aria-label="Roadmap"><div class="steps"><div class="beat" data-ch="c13"><div><div class="k">At the doors<svg class="pg-mascot sz-cameo" aria-hidden="true" title="Dr. Scoop sees you out"><use href="#ico-drscoop"></use></svg></div><p>On this page the script has been rendered, read, resolved and, at P0, priced. None of that has happened in the world yet. The world starts at the doors.</p></div></div><div class="step" data-ch="c13" data-i="0" id="c13-0"><div class="card"><div class="kick"><b>13</b> Gate-to-gate<span class="tag spec">Status: pre-P0</span></div><h2>Gates, not dates: no consumer launch without a measured error bar.</h2><p class="story">Where is TIDELOCK today? Pre-P0. No index exists for it yet, and none will until 200 released titles have been read blind and the result is public.</p>
 <p>Each gate has a metric, a threshold and the table it is measured from. <strong>Status today: pre-P0.</strong> Open a padlock to read its threshold.</p>
 <p>P0 calibrates against 200 released titles. P1 proves the sensor holds an organic audience — and if the retention gate fails, the branch under it runs panels on recruited audiences instead. P2 needs signed renewals and a decision that cited a certificate. P3 is the market.</p>
 <div class="cue">Tap a padlock on the stage · the panel reads its gate</div><div class="src">Status: pre-P0 · four phases · each gate is a padlock · feed-fallback branch under P1 · tables named per gate</div></div></div><div class="step" data-ch="c13" data-i="1" id="c13-1"><div class="card"><div class="kick"><b>13</b> The ask<span class="tag spec">Three doors</span></div><h3>Three doors. Each one is an exchange, stated in full.</h3><p class="story"><b class="who m">Mara</b> reads the Door 1 terms twice, ink on her hand. <q>Show me the number either way.</q> She submits one script, non-exclusive, revocable, and keeps every right.</p>
@@ -1004,6 +1059,9 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 <h3 data-k="F">Sources F · Precedent trailers (TMDB)</h3>
 <p>Fourteen released titles whose demand was measured before production — or whose trailer was the measurement. Metadata, trailer links and stills from TMDB v3 (<code>/movie/{id}?append_to_response=videos,release_dates</code>, <code>/movie/{id}/keywords</code>, image.tmdb.org w154/w300); thumbnails from YouTube; all embedded as data URIs at build time, no runtime calls. Budget and gross are crowd-sourced on TMDB and unaudited — corroborate with The Numbers before quoting a multiple.</p>
 <div id="srcD"></div>
+<h3 data-k="G">Sources G · AI-content grounding</h3>
+<p>The Economist, &quot;China&#x27;s AI drive threatens the world&#x27;s largest workforce&quot; (briefing), 6 Aug 2026, <a href="https://www.economist.com/briefing/2026/08/06/chinas-ai-drive-threatens-the-worlds-largest-workforce" target="_blank" rel="noopener">economist.com/briefing/2026/08/06/chinas-ai-drive-threatens-the-worlds-largest-workforce</a> — reported: AI integrated aggressively across China's economy, including creative and white-collar work (script writing, coding, design), displacing domestic labour at scale even as the state pushes AI adoption as a growth strategy. §09's AI Content engine (step 09-4) reads this cost collapse as double-edged: the same drop in per-title AI production cost that threatens creative labour also makes producing and localizing content for niche and underserved audiences profitable for the first time — <code>economist-china-ai-2026</code> in <code>window.PGModel.SOURCES</code>, cited against <code>aiContentRenderCostPerTitle</code> (~$180/title).</p>
+<p style="font-size:12.5px">Pricing and margin context reused, not re-derived: Media Partners Asia, &quot;ReelShort / Crazy Maple Studio: Inside the US$1B Micro-Drama Machine&quot; (via TechTimes) · RevenueCat × Appfigures short-drama monetisation benchmarks (<code>aiContentChurn</code>) · Sensor Tower, State of Short Drama Apps 2026 · Fiscallion SaaS gross-margin benchmarks by stage (<code>aiContentCogsRate</code>) — the same sources already listed in Sources C, applied here to a new revenue line rather than newly introduced.</p>
 <p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
 <div class="foot"><span>[PLATFORM]</span><span>Proving Ground v17.0 · 2026-09-02</span><span>Shiv Sehgal · Founder, SaSMaster</span><span>Confidential</span></div>
 </div></section>
@@ -1076,7 +1134,8 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
     'scg-taskrabbit':  { label: 'SCG-577 — Mini Case B: TaskRabbit', url: 'MGMT 295A Book 3, pp. 6-7', note: '"We spent very little money in the early days on digital ads. Paid ads became more important about 5 years after launch." 90%+ of early customers arrived by word of mouth. The CEO and early team ran tasks themselves to seed supply. Monetisation: 15% service fee + 7.5% trust-and-support fee.', date: '2020-10-31 / assigned 2026' },
     'scg-grubhub':     { label: 'SCG-577 — Mini Case C: GrubHub Seamless', url: 'MGMT 295A Book 3, pp. 8-9', note: 'Launched hyper-local (Lincoln Park, Chicago only) and grew geographically; demand-side solved first with scraped menus + SEO. 2019: $1.312B revenue against $1.318B of costs with 19.9M active users - a $6M operating loss. Scale does not produce break-even.', date: '2020-10-31 / assigned 2026' },
     'scg-instacart':   { label: 'SCG-577 — Mini Case D: Instacart', url: 'MGMT 295A Book 3, pp. 10-11', note: '"We always onboarded supply ahead of demand." Markets selected where demand was already likely. "About a third of our demand came through referrals early on"; "we did almost no paid marketing early on."', date: '2020-10-31 / assigned 2026' },
-    'estimate':        { label: 'Modeller assumption — no public benchmark; Shiv to correct', url: '', note: 'Marked isEstimate:true in DEFAULTS', date: '2026-09-01' }
+    'estimate':        { label: 'Modeller assumption — no public benchmark; Shiv to correct', url: '', note: 'Marked isEstimate:true in DEFAULTS', date: '2026-09-01' },
+    'economist-china-ai-2026': { label: "The Economist — \"China's AI drive threatens the world's largest workforce\" (briefing)", url: 'https://www.economist.com/briefing/2026/08/06/chinas-ai-drive-threatens-the-worlds-largest-workforce', note: 'China is integrating AI aggressively across its economy, including creative and white-collar work — script writing, coding, design — displacing labour at scale even as the state pushes the technology as a growth strategy. The same collapse in AI content-production cost that drives domestic displacement is double-edged: it also makes producing content profitably for small, niche, and underserved global audiences viable for the first time.', date: '2026-08-06' }
   };
 
   var DEFAULTS = {
@@ -1153,7 +1212,19 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
     toolingPerFte: d(1500, '$/mo', 'Tooling + SaaS per FTE', 0, 5000, 100, 'opex', 'estimate', true),
     gaRate:        d(0.12, 'share', 'G&A (legal, rights, finance, office) as share of payroll', 0, 0.30, 0.01, 'opex', 'estimate', true),
     baseInfra:     d(8000, '$/mo', 'Base cloud + gateway + spine hosting', 0, 50000, 1000, 'opex', 'estimate', true),
-    salesCommission: d(0.08, 'share', 'Commission on new B2B bookings (panels + data)', 0, 0.20, 0.01, 'opex', 'estimate', true)
+    salesCommission: d(0.08, 'share', 'Commission on new B2B bookings (panels + data)', 0, 0.20, 0.01, 'opex', 'estimate', true),
+    // ---- AI-Generated Content for Global Niche Audiences (P4) ----------------------------
+    // A step-change drop in AI content-production cost (economist-china-ai-2026) makes it viable to license/
+    // produce full episodic content — not just trailers — for small, niche, and underserved international
+    // audiences at near-zero marginal cost. Launches once the Demand Index and option-flow validation exist.
+    p4Start: d(30, 'month', 'P4 AI content launch (month)', 6, 60, 1, 'gates', 'roadmap-v2', true),
+    aiContentSubsNewPerMonth: d(4000, 'subs/mo', 'New AI-content subscribers per month', 0, 20000, 500, 'aicontent', 'estimate', true),
+    aiContentSubsMax: d(400000, 'subs', 'AI-content subscriber cap (niche + regional tiers, blended)', 10000, 2000000, 10000, 'aicontent', 'estimate', true),
+    aiContentPrice: d(6.99, '$/mo', 'Blended tiered subscription price (niche/regional AI content)', 2, 25, 0.5, 'aicontent', 'mpa-reelshort', true),
+    aiContentTitlesPerMonth: d(40, 'titles/mo', 'New episodic AI-content titles produced/month at scale', 5, 500, 5, 'aicontent', 'estimate', true),
+    aiContentRenderCostPerTitle: d(180, '$', 'AI-generation + localization cost per finished episodic title (vs $10.80 trailer concept)', 20, 2000, 10, 'aicontent', 'economist-china-ai-2026', true),
+    aiContentChurn: d(0.12, 'share', 'Monthly churn — AI-content subscribers', 0.03, 0.40, 0.01, 'aicontent', 'revenuecat-shortdrama', true),
+    aiContentCogsRate: d(0.15, 'share', 'AI-content COGS (hosting, delivery, localization overhead) as share of revenue', 0, 0.40, 0.01, 'aicontent', 'fiscallion-gm', true)
   };
 
   function vals(drivers) {                       // resolve {key:{value}} or {key:number} → plain numbers
@@ -1169,7 +1240,7 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
     var v = vals(drivers);
     var fb = v.fallback >= 0.5;
     var months = [];
-    var mau = 0, contracts = 0, dataSubs = 0, liteSubs = 0, cum = 0, prevContracts = 0, prevDataSubs = 0;
+    var mau = 0, contracts = 0, dataSubs = 0, liteSubs = 0, aiContentSubs = 0, cum = 0, prevContracts = 0, prevDataSubs = 0;
     var costPerRender = v.secondsPerRender * v.draftRatePerSec;                    // one candidate take
     var costPerFinal  = v.secondsPerRender * v.finalRatePerSec;                    // one 1080p QC final
     // cost per concept = takes × s × draft rate + finals × s × final rate + LLM overhead
@@ -1244,6 +1315,19 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
         optionRevenue = opts * v.takeRate * (v.optionFee + v.exerciseRate * v.purchasePrice);
       }
 
+      // ---- AI-Generated Content for Global Niche Audiences: subscribers ramp from P4 ----
+      // Extension of the validated Demand Index + option-flow (P3): licenses/produces full episodic
+      // AI-generated content — not just trailers — for niche/underserved global audiences at the
+      // collapsed production cost documented in economist-china-ai-2026.
+      var aiContentRevenue = 0, aiContentCogs = 0, aiContentTitles = 0;
+      if (m >= v.p4Start) {
+        aiContentSubs = Math.max(0, Math.min(v.aiContentSubsMax,
+                        aiContentSubs + v.aiContentSubsNewPerMonth - aiContentSubs * v.aiContentChurn));
+        aiContentRevenue = aiContentSubs * v.aiContentPrice;
+        aiContentTitles  = Math.max(1, v.aiContentTitlesPerMonth * aiContentSubs / v.aiContentSubsMax);
+        aiContentCogs = aiContentRevenue * v.aiContentCogsRate + aiContentTitles * v.aiContentRenderCostPerTitle;
+      }
+
       // ---- Renders and compute ---------------------------------------------------------
       var concepts = (phase === 'P0' ? v.p0ConceptsPerMonth : 0) + feedConcepts + panelConcepts + dpConcepts;
       var renders = concepts * rendersPerConcept;
@@ -1254,9 +1338,9 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
       var writerShare = feedSubRevenue * v.writerRevShareRate;                    // option-flow writer share is already net of take
       var infra = v.baseInfra + mau * v.infraPerMau;
       var dataCogs = dataLicenseRevenue * v.dataCogsRate;
-      var COGS = renderCost + infra + acquisitionCost + readCost + paymentFees + writerShare + dataCogs;
+      var COGS = renderCost + infra + acquisitionCost + readCost + paymentFees + writerShare + dataCogs + aiContentCogs;
 
-      var totalRevenue = panelRevenue + feedSubRevenue + feedAdRevenue + dataLicenseRevenue + optionRevenue;
+      var totalRevenue = panelRevenue + feedSubRevenue + feedAdRevenue + dataLicenseRevenue + optionRevenue + aiContentRevenue;
       var grossProfit = totalRevenue - COGS;
 
       // ---- Opex: headcount by phase, tooling, G&A, commissions on new bookings -----------
@@ -1281,13 +1365,15 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
         liquidityBound: panelDemand > 0 && panelCapacity < panelDemand,
         concepts: concepts, renders: renders, renderCost: renderCost, panelRenderCost: panelRenderCost, acquisitionCost: acquisitionCost, readCost: readCost,
         panelRevenue: panelRevenue, feedSubRevenue: feedSubRevenue, feedAdRevenue: feedAdRevenue,
-        dataLicenseRevenue: dataLicenseRevenue, optionRevenue: optionRevenue, totalRevenue: totalRevenue,
+        dataLicenseRevenue: dataLicenseRevenue, optionRevenue: optionRevenue,
+        aiContentSubs: aiContentSubs, aiContentTitles: aiContentTitles, aiContentRevenue: aiContentRevenue, aiContentCogs: aiContentCogs,
+        totalRevenue: totalRevenue,
         COGS: COGS, grossProfit: grossProfit, opex: opex, headcount: hc, EBITDA: EBITDA, cumulativeCash: cum });
     }
 
     // ---- Annual roll-up ----------------------------------------------------------------
     var sumKeys = ['renders','renderCost','panelRenderCost','acquisitionCost','readCost','panelRevenue','feedSubRevenue','feedAdRevenue',
-                   'dataLicenseRevenue','optionRevenue','totalRevenue','COGS','grossProfit','opex','EBITDA'];
+                   'dataLicenseRevenue','optionRevenue','aiContentRevenue','aiContentCogs','totalRevenue','COGS','grossProfit','opex','EBITDA'];
     var annual = [];
     for (var yr = 1; yr <= 5; yr++) {
       var row = { year: yr };
@@ -1310,11 +1396,13 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
     var cumulativeCashMin = Math.min.apply(null, months.map(function (r) { return r.cumulativeCash; }));
     var m60 = months[59], y5 = annual[4];
     var ARR = { panels: m60.panelRevenue * 12, feed: (m60.feedSubRevenue + m60.feedAdRevenue) * 12,
-                dataLicensing: m60.dataLicenseRevenue * 12, optionFlow: m60.optionRevenue * 12 };
+                dataLicensing: m60.dataLicenseRevenue * 12, optionFlow: m60.optionRevenue * 12,
+                aiContent: m60.aiContentRevenue * 12 };
     // per-engine contribution margin in Y5 (revenue minus directly attributable COGS)
     var margins = { panels: 1 - (y5.readCost + y5.panelRenderCost) / Math.max(1, y5.panelRevenue),
                     feed: 1 - (y5.acquisitionCost + y5.feedSubRevenue * (v.paymentFeeRate + v.writerRevShareRate)) / Math.max(1, y5.feedSubRevenue + y5.feedAdRevenue),
-                    dataLicensing: 1 - v.dataCogsRate, optionFlow: 1 };
+                    dataLicensing: 1 - v.dataCogsRate, optionFlow: 1,
+                    aiContent: 1 - y5.aiContentCogs / Math.max(1, y5.aiContentRevenue) };
     return { months: months, annual: annual,
       summary: { breakEvenMonth: breakEvenMonth, cumulativeCashMin: cumulativeCashMin, y5Revenue: y5.totalRevenue,
                  y5EBITDA: y5.EBITDA, y5GrossMargin: y5.grossMargin, ARR_by_engine_y5: ARR, y5EngineMargins: margins,
@@ -1369,7 +1457,7 @@ html[data-ambient="on"] #hero.on .ring::before{animation:heropulse 2.6s var(--ea
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this));
 
 </script><script>
-window.__PG_META={"c00": {"num": "00", "title": "Cover", "steps": 1}, "c01": {"num": "01", "title": "The Thesis", "steps": 4}, "c02": {"num": "02", "title": "Market Context", "steps": 4}, "c03": {"num": "03", "title": "The Loop", "steps": 3}, "c04": {"num": "04", "title": "The Stack", "steps": 3}, "c05": {"num": "05", "title": "Try the Instrument", "steps": 7}, "c06": {"num": "06", "title": "The Economics of Asking", "steps": 3}, "c07": {"num": "07", "title": "Why It Holds", "steps": 5}, "c08": {"num": "08", "title": "Who Gets What", "steps": 3}, "c09": {"num": "09", "title": "Revenue — Four Engines, Sequenced", "steps": 4}, "c10": {"num": "10", "title": "Supply — Three Waves", "steps": 6}, "c11": {"num": "11", "title": "The Validation Gate", "steps": 4}, "c12": {"num": "12", "title": "What Would Break It", "steps": 4}, "c13": {"num": "13", "title": "Roadmap", "steps": 4}};
+window.__PG_META={"c00": {"num": "00", "title": "Cover", "steps": 1}, "c01": {"num": "01", "title": "The Thesis", "steps": 4}, "c02": {"num": "02", "title": "Market Context", "steps": 4}, "c03": {"num": "03", "title": "The Loop", "steps": 3}, "c04": {"num": "04", "title": "The Stack", "steps": 3}, "c05": {"num": "05", "title": "Try the Instrument", "steps": 7}, "c06": {"num": "06", "title": "The Economics of Asking", "steps": 3}, "c07": {"num": "07", "title": "Why It Holds", "steps": 5}, "c08": {"num": "08", "title": "Who Gets What", "steps": 3}, "c09": {"num": "09", "title": "Revenue — Five Engines, Sequenced", "steps": 5}, "c10": {"num": "10", "title": "Supply — Three Waves", "steps": 6}, "c11": {"num": "11", "title": "The Validation Gate", "steps": 4}, "c12": {"num": "12", "title": "What Would Break It", "steps": 4}, "c13": {"num": "13", "title": "Roadmap", "steps": 4}};
 /* ============================================================================
    Proving Ground v7 — core engine (vanilla, no deps)
    window.PG = { register, h, fmt, rng, P (particles), stage, colors, goto }
@@ -1432,7 +1520,7 @@ window.__PG_META={"c00": {"num": "00", "title": "Cover", "steps": 1}, "c01": {"n
   var C = {};
   function readColors() {
     var cs = getComputedStyle(root);
-    ['ink', 'surface', 'text', 'text-2', 'text-3', 'violet', 'indigo', 'sky', 'cyan', 'teal', 'emerald', 'amber', 'orange', 'rose', 'line', 'line-2', 'grid']
+    ['ink', 'surface', 'text', 'text-2', 'text-3', 'violet', 'indigo', 'sky', 'cyan', 'teal', 'emerald', 'amber', 'orange', 'rose', 'aic', 'line', 'line-2', 'grid']
       .forEach(function (k) { C[k.replace('-', '')] = cs.getPropertyValue('--' + k).trim(); });
     C.supply = C.cyan; C.supply2 = C.teal; C.demand = C.violet; C.demand2 = C.indigo; C.price = C.amber; C.today = C.orange; C.pass = C.emerald; C.kill = C.rose; C.link = C.sky;
     C.dim = C.text3;
@@ -3641,14 +3729,15 @@ PG.register('c08', {
   }
 });
 
-/* ---------- C09 · Revenue — four engines, sequenced: 60-month stacked P&L; two sides of the book (log); live drivers ---------- */
+/* ---------- C09 · Revenue — five engines, sequenced: 60-month stacked P&L; two sides of the book (log); live drivers ---------- */
 PG.register('c09', {
   tag: { kind: 'ill', text: 'Computed from the model defaults (E) — not a projection. Drivers are assumptions or named benchmarks (Sources C).' },
   ENGINES: [
     { k: 'panels', lab: 'Studio Panels', who: 'Studios, streamers, prodcos pay · P2', col: 'demand', v: function (m) { return m.panelRevenue; } },
     { k: 'feed', lab: 'Consumer Feed', who: 'Viewers, advertisers pay · P1', col: 'supply', v: function (m) { return m.feedSubRevenue + m.feedAdRevenue; } },
     { k: 'data', lab: 'Demand Feed', who: 'Strategy, programming, acquisitions pay · P3', col: 'link', v: function (m) { return m.dataLicenseRevenue; } },
-    { k: 'options', lab: 'Option Flow', who: 'Buyers pay · P3', col: 'price', v: function (m) { return m.optionRevenue; } }
+    { k: 'options', lab: 'Option Flow', who: 'Buyers pay · P3', col: 'price', v: function (m) { return m.optionRevenue; } },
+    { k: 'aicontent', lab: 'AI Content', who: 'Niche/regional subscribers pay · P4', col: 'aic', v: function (m) { return m.aiContentRevenue; } }
   ],
   DRIVERS: [
     ['@', 'Price and scale'],
@@ -3899,7 +3988,7 @@ PG.register('c09', {
     if (tb) {
       var td = function (v, num) { return '<td' + (num ? ' class="num"' : '') + '>' + v + '</td>'; };
       tb.innerHTML = res.annual.map(function (a) {
-        return '<tr>' + td('Y' + a.year) + td(f.money(a.panelRevenue), 1) + td(f.money(a.feedSubRevenue + a.feedAdRevenue), 1) + td(f.money(a.dataLicenseRevenue), 1) + td(f.money(a.optionRevenue), 1) + td(f.money(a.totalRevenue), 1) + td(f.pct(a.grossMargin), 1) + td(f.money(a.opex), 1) + td(f.money(a.EBITDA), 1) + td(f.money(a.cumulativeCash), 1) + td(a.endHeadcount, 1) + '</tr>';
+        return '<tr>' + td('Y' + a.year) + td(f.money(a.panelRevenue), 1) + td(f.money(a.feedSubRevenue + a.feedAdRevenue), 1) + td(f.money(a.dataLicenseRevenue), 1) + td(f.money(a.optionRevenue), 1) + td(f.money(a.aiContentRevenue), 1) + td(f.money(a.totalRevenue), 1) + td(f.pct(a.grossMargin), 1) + td(f.money(a.opex), 1) + td(f.money(a.EBITDA), 1) + td(f.money(a.cumulativeCash), 1) + td(a.endHeadcount, 1) + '</tr>';
       }).join('');
     }
     // ---- reverse income statement (McGrath & MacMillan, Table 6-1) ----
