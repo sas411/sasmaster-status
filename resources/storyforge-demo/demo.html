@@ -22,12 +22,15 @@
   --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   --ease:cubic-bezier(.16,1,.3,1); --std:cubic-bezier(.4,0,.2,1); --exit:cubic-bezier(.3,0,1,1);
   --t1:160ms; --t2:320ms; --t3:600ms; --r1:3px; --r2:6px; --r3:12px;
+  --film:#04060A; --perf:#1A2233; --edge:#F4C34A; --tick:#2C3A57; --rail:30px; --side:34px; --pitch:26px;
+  --perf-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 36' preserveAspectRatio='none'%3E%3Cpath fill-rule='evenodd' d='M0 0h30v36H0z M12 9h6a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-6a3 3 0 0 1-3-3V12a3 3 0 0 1 3-3z'/%3E%3C/svg%3E");
   color-scheme:dark;
 }
 :root[data-theme="light"]{
   --bg:#FFFFFF; --surface:#F6F8FB; --raise:#FFFFFF; --hair:#E3E7EE; --text:#0B0B0C; --muted:#5D6577;
   --accent:#1568CF; --accent-ink:#FFFFFF; --accent-soft:#E3EEFC;
   --coral:#D8402F; --gold:#B58200; --mint:#0B8577; --violet:#5B48E0;
+  --tick:#C7D0DE;
   --shadow:0 24px 48px -28px rgba(11,18,32,.45); color-scheme:light;
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -86,34 +89,44 @@ p{margin:0}
 @media(min-width:1100px){.nav{display:flex}}
 @media(min-width:1400px){.live{display:flex}}
 
-/* hero */
-.hero{position:relative;min-height:min(92vh,860px);display:grid;align-items:end;overflow:hidden;background:var(--navy);color:var(--navy-ink)}
-.hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 900ms var(--std)}
-.hero video.on{opacity:.9}
-.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(var(--scrim),.96) 0%,rgba(var(--scrim),.55) 42%,rgba(var(--scrim),.15) 70%,rgba(var(--scrim),.5) 100%)}
-.hero .wrap{position:relative;z-index:1;width:100%;padding-block:clamp(96px,16vh,160px) clamp(28px,5vw,56px);display:grid;gap:22px}
-.hero .label{color:rgba(238,243,250,.75)}
-.hero h1{font-size:clamp(2.6rem,1.2rem + 7vw,6.4rem);font-weight:800;line-height:.95;letter-spacing:-.04em;max-width:12ch}
-.hero h1 .w{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.08em}
-.hero h1 .w>span{display:inline-block;transform:translateY(110%)}
-.ready .hero h1 .w>span{transform:none;transition:transform 900ms var(--ease);transition-delay:calc(var(--i)*90ms + 150ms)}
-.hero .sub{max-width:54ch;font-size:clamp(1.02rem,.95rem + .4vw,1.25rem);color:rgba(238,243,250,.82)}
-.hero .sub b{color:#fff;font-weight:600}
-.hero .cta{display:flex;gap:10px;flex-wrap:wrap}
-.hero .btn:not(.primary){border-color:rgba(255,255,255,.7);color:#fff}
-.hero .btn:not(.primary):hover{background:#fff;color:var(--navy)}
+/* hero: the landing is one frame of film in the projector gate. Nothing sits on the picture but the player strip.
+   Perforations advance only while the trailer plays; a cut pulls the film down. Transform/opacity only. */
+.hero{position:relative;background:var(--film);color:var(--navy-ink)}
+.film{display:grid;grid-template-columns:var(--side) minmax(0,1fr) var(--side);grid-template-rows:var(--rail) minmax(0,1fr) var(--rail);height:calc(100vh - var(--chrome-h,105px));height:calc(100svh - var(--chrome-h,105px));min-height:420px;max-height:920px} /* the whole frame fits the first screen, under the sticky header */
+.perf{grid-column:1/-1;position:relative;overflow:hidden;background:var(--perf)}
+.perf .run{position:absolute;inset:0 -480px}
+.perf i{position:absolute;inset:0 calc(var(--pitch)*-1) 0 0;background:var(--film);will-change:transform;
+  -webkit-mask:var(--perf-mask) 0 0/var(--pitch) 100% repeat-x;mask:var(--perf-mask) 0 0/var(--pitch) 100% repeat-x;
+  animation:reel 1.25s linear infinite;animation-play-state:paused}
+.hero.rolling .perf i{animation-play-state:running}
+@keyframes reel{to{transform:translateX(calc(var(--pitch)*-1))}}
+.edge{display:none;writing-mode:vertical-rl;align-items:center;justify-content:space-between;padding-block:18px;font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--edge);opacity:.86;white-space:nowrap;user-select:none}
+.edge-l{transform:rotate(180deg)}
+.edge b{font-weight:500;color:#fff}
+.aperture{grid-column:2;grid-row:2;position:relative;overflow:hidden;border-radius:10px;background:var(--navy);isolation:isolate}
+.aperture video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 900ms var(--std)}
+.aperture video.on{opacity:1}
+.aperture::before{content:"";position:absolute;inset:0;z-index:2;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);pointer-events:none}
+.aperture::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to top,rgba(var(--scrim),.92) 0%,rgba(var(--scrim),.5) 22%,rgba(var(--scrim),0) 46%),radial-gradient(120% 90% at 50% 45%,rgba(var(--scrim),0) 55%,rgba(var(--scrim),.5) 100%)}
+.aperture .flash{position:absolute;inset:0;z-index:2;background:#fff;opacity:0;pointer-events:none}
+.vf{position:absolute;z-index:2;width:22px;height:22px;border:1.5px solid rgba(255,255,255,.72);pointer-events:none}
+.vf-tl{top:18px;left:18px;border-right:0;border-bottom:0}.vf-tr{top:18px;right:18px;border-left:0;border-bottom:0}
+.vf-bl{bottom:18px;left:18px;border-right:0;border-top:0}.vf-br{bottom:18px;right:18px;border-left:0;border-top:0}
+.now{position:absolute;inset:auto 0 0;z-index:3;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:clamp(18px,3vw,40px) clamp(22px,4.4vw,64px) clamp(26px,3.4vw,48px)}
+.np{display:grid;gap:6px;min-width:0}
+.np-k{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(238,243,250,.78)}
+.np-k .rec{width:7px;height:7px;border-radius:50%;background:var(--coral);animation:pulse 1.6s ease-in-out infinite}
+#nowTitle{font-family:var(--display);font-weight:700;font-size:clamp(1.5rem,1rem + 2.2vw,2.9rem);letter-spacing:-.03em;line-height:1.02;color:#fff;text-wrap:balance}
+#nowMeta{font-size:clamp(.86rem,.8rem + .2vw,1rem);color:rgba(238,243,250,.78)}
+.np-ctl{display:flex;gap:8px;flex:none}
+.now button{min-height:44px;padding:0 14px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:#fff;border:1px solid rgba(255,255,255,.38);border-radius:var(--r1);background:rgba(var(--scrim),.35);transition:background var(--t1),border-color var(--t1)}
+.now button:hover{background:rgba(255,255,255,.16);border-color:#fff}
+.now .bar{position:absolute;inset:auto 0 0;height:3px;background:rgba(255,255,255,.16);overflow:hidden}
+.now .bar i{display:block;height:100%;background:var(--edge);transform-origin:left;transform:scaleX(0)}
 .hero .fade{opacity:0;transform:translateY(14px)}
-.ready .hero .fade{opacity:1;transform:none;transition:opacity var(--t3) var(--ease),transform var(--t3) var(--ease);transition-delay:calc(var(--i)*90ms + 500ms)}
-.now{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:18px;border-top:1px solid rgba(255,255,255,.18);font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:rgba(238,243,250,.75)}
-.now b{color:#fff;font-weight:500}
-.now .rec{width:7px;height:7px;border-radius:50%;background:var(--coral);animation:pulse 1.6s ease-in-out infinite}
-.now .bar{flex:1;min-width:80px;height:2px;background:rgba(255,255,255,.2);overflow:hidden}
-.now .bar i{display:block;height:100%;background:#fff;transform-origin:left;transform:scaleX(0)}
-.now button{min-height:44px;padding:0 10px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:var(--r1);transition:background var(--t1)}
-.now button:hover{background:rgba(255,255,255,.14)}
-.facts{display:grid;grid-template-columns:1fr;gap:10px 28px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:rgba(238,243,250,.7)}
-.facts b{color:#fff;font-weight:500;font-size:13px}
-@media(min-width:768px){.facts{grid-template-columns:repeat(3,auto);justify-content:start}}
+.ready .hero .fade{opacity:1;transform:none;transition:opacity var(--t3) var(--ease),transform var(--t3) var(--ease);transition-delay:500ms}
+@media(min-width:768px){.edge{display:flex}}
+@media(max-width:767px){:root{--rail:26px;--side:8px;--pitch:22px}.film{min-height:360px}.aperture{border-radius:6px}.now{flex-direction:column;align-items:flex-start}.vf{width:16px;height:16px}.vf-tl,.vf-tr{top:12px}.vf-bl,.vf-br{bottom:12px}.vf-tl,.vf-bl{left:12px}.vf-tr,.vf-br{right:12px}}
 
 /* ticker */
 .ticker{background:var(--navy);color:var(--navy-ink);overflow:hidden;border-block:1px solid var(--hair)}
@@ -544,8 +557,66 @@ footer .fine{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;transition-delay:0ms!important}
-  .ticker .track{animation:none}.rv{opacity:1;transform:none}.hero h1 .w>span,.hero .fade{transform:none;opacity:1}
+  .ticker .track{animation:none}.rv{opacity:1;transform:none}.about-lead h1 .w>span,.hero .fade{transform:none;opacity:1}.perf i{animation:none}
 }
+
+/* about us: the print-out that comes off the film. Clean paper, a field of fine ticks behind it that runs
+   turbulent at the top and settles into order by the end, and parts around the copy. The field is a canvas (stage.js). */
+.about{background:var(--bg);border-top:1px solid var(--hair)}
+.about .field{position:absolute;inset:0;z-index:0;pointer-events:none}
+.about .field canvas{position:sticky;top:0;display:block;width:100%;height:100vh;height:100lvh}
+.about>.wrap{position:relative;z-index:1}
+.about-lead{display:grid;gap:clamp(24px,4vw,56px);grid-template-columns:minmax(0,1fr)}
+.about-lead .copy{display:grid;gap:22px;align-content:center;justify-items:start}
+.about-lead h1{font-size:clamp(2.6rem,1.2rem + 7vw,6.4rem);font-weight:800;line-height:.95;letter-spacing:-.04em;max-width:12ch}
+.about-lead h1 .w{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.08em}
+.about-lead h1 .w>span{display:inline-block;transform:translateY(110%)}
+.about-lead h1.rv{opacity:1;transform:none}
+.about-lead h1.in .w>span{transform:none;transition:transform 900ms var(--ease);transition-delay:calc(var(--i)*90ms + 80ms)}
+.about-lead .sub{max-width:54ch;font-size:clamp(1.02rem,.95rem + .4vw,1.25rem);color:var(--muted)}
+.about-lead .sub b{color:var(--text);font-weight:600}
+.about-lead .cta{display:flex;gap:10px;flex-wrap:wrap}
+.read{position:relative;min-height:clamp(260px,78vw,340px);display:grid;align-items:end}
+.read .cap{display:flex;align-items:baseline;gap:6px 12px;flex-wrap:wrap;justify-self:start;font-size:.9rem;color:var(--muted)}
+.read .cap b{font-family:var(--mono);font-weight:500;font-size:1rem;color:var(--text)}
+.read .cap .sw{animation:swap 420ms var(--ease) both}
+.about .facts{display:grid;grid-template-columns:minmax(0,1fr);gap:10px 32px;padding-top:18px;border-top:1px solid var(--hair);font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted)}
+.about .facts b{color:var(--text);font-weight:500;font-size:13px}
+.about-block{margin-top:clamp(64px,9vw,128px);padding-top:clamp(28px,4vw,48px);border-top:1px solid var(--hair)}
+@media(min-width:768px){.about .facts{grid-template-columns:repeat(3,auto);justify-content:start}}
+@media(min-width:1024px){.about-lead{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);min-height:min(74vh,640px)}.about-lead .facts{grid-column:1/-1}.read{min-height:420px}}
+
+/* dr. scoop: the guide. He waits bottom right, opens on a tap (never on his own), and walks the page stop by stop. */
+.scoop{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:35;display:grid;justify-items:end;gap:14px;pointer-events:none}
+.scoop>*{pointer-events:auto}
+.scoop-fab{position:relative;width:60px;height:86px;border-radius:20px;background:#fff;border:1px solid var(--hair);box-shadow:var(--shadow);transition:transform var(--t2) var(--ease)}
+.scoop-fab img{position:absolute;left:calc(50% - 19px);bottom:7px;width:38px;height:72px;max-width:none;transform-origin:50% 100%;animation:scoopBob 3.6s ease-in-out infinite}
+.scoop-fab:hover{transform:translateY(-3px)}
+.scoop-fab:hover img{animation:scoopWave 700ms var(--ease)}
+.scoop-fab:active{transform:scale(.96)}
+.scoop-fab::after{content:"";position:absolute;inset:-1px;border-radius:inherit;border:2px solid var(--accent);opacity:0;pointer-events:none}
+.scoop.nudge .scoop-fab::after{animation:scoopPing 1.6s var(--ease) 3}
+.scoop.open .scoop-fab img{animation:none}
+@keyframes scoopBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-2deg)}}
+@keyframes scoopWave{0%,100%{transform:rotate(0)}30%{transform:rotate(-8deg)}65%{transform:rotate(6deg)}}
+@keyframes scoopPing{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(1.35)}}
+.scoop-card{position:relative;width:min(340px,calc(100vw - 32px));border:1px solid var(--hair);border-radius:var(--r3);background:var(--raise);color:var(--text);box-shadow:var(--shadow);padding:18px 18px 16px;display:grid;gap:10px;transform-origin:100% 100%;animation:scoopIn 320ms var(--ease) both}
+.scoop-card.out{animation:scoopOut 180ms var(--exit) both}
+@keyframes scoopIn{from{opacity:0;transform:translateY(10px) scale(.96)}}
+@keyframes scoopOut{to{opacity:0;transform:translateY(8px) scale(.98)}}
+.scoop-card h3{font-size:1.15rem;padding-right:34px}
+.scoop-card p{color:var(--muted);font-size:.93rem}
+.scoop-card .sw{animation:swap 320ms var(--ease) both}
+.scoop-x{position:absolute;top:4px;right:4px;width:44px;height:44px;border-radius:50%;font-size:1.25rem;color:var(--muted);transition:background var(--t1),color var(--t1)}
+.scoop-x:hover{background:var(--surface);color:var(--text)}
+.scoop-nav{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.scoop-nav button{min-height:40px;padding:0 14px;border:1px solid var(--hair);border-radius:var(--r1);font-weight:600;font-size:.86rem;transition:background var(--t1),color var(--t1),border-color var(--t1),transform var(--t1)}
+.scoop-nav button:hover{border-color:var(--text)}
+.scoop-nav button:active{transform:scale(.97)}
+.scoop-nav .go{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.scoop-nav .go:hover{background:var(--text);border-color:var(--text);color:var(--bg)}
+.edge-r{justify-content:flex-start;gap:28px} /* keeps the edge print clear of the guide */
+@media(max-width:767px){.scoop-fab{width:52px;height:76px;border-radius:18px}.scoop-fab img{left:calc(50% - 16.5px);width:33px;height:62px}.scoop-nav button{min-height:44px}}
 </style>
 </head>
 <body>
@@ -555,7 +626,7 @@ footer .fine{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color
   <div class="wrap">
     <a class="wordmark" href="#top">Story<i>Forge</i></a>
     <nav class="nav" aria-label="Primary">
-      <a href="#faceoff">Face-off</a><a href="#library">Trailers</a><a href="#soon">Not out yet</a><a href="#founding">Founding 50</a><a href="#doors">Three doors</a><a href="#survey">Survey</a><a href="#analytics">Analytics</a>
+      <a href="#faceoff">Face-off</a><a href="#soon">Not out yet</a><a href="#about">About us</a><a href="#founding">Founding 50</a><a href="#board">Leaderboard</a><a href="#survey">Survey</a>
     </nav>
     <span class="spacer"></span>
     <span class="live" title="Baseline panel is illustrative; your votes are counted on this device"><b></b><span class="num" id="liveReads">0</span>&nbsp;READS · SAMPLE PANEL</span>
@@ -564,15 +635,22 @@ footer .fine{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color
   </div>
 </header>
 
-<section class="hero" id="top">
-  <video id="heroVid" muted playsinline preload="auto" poster="media/ash-wednesday.jpg" aria-hidden="true" tabindex="-1"></video>
-  <div class="wrap">
-    <span class="label fade" style="--i:0">A marketplace for stories that don't exist yet</span>
-    <h1 aria-label="Where Stories Come Alive."><span class="w"><span style="--i:0">Where</span></span> <span class="w"><span style="--i:1">Stories</span></span> <span class="w"><span style="--i:2">Come</span></span> <span class="w"><span style="--i:3"><em>Alive.</em></span></span></h1>
-    <p class="sub fade" style="--i:1">Unproduced scripts become 30-second concept trailers. Real audiences pick between them. <b>Every greenlight gets a number</b>, before the money is spent.</p>
-    <div class="cta fade" style="--i:2"><a class="btn primary" href="#faceoff">Vote in the face-off</a><a class="btn" href="#library">Watch the trailers</a></div>
-    <div class="now fade" style="--i:3"><span class="rec"></span><span>NOW SCREENING&nbsp; <b id="nowTitle">Ash Wednesday</b> · <span id="nowMeta">Horror · AI concept trailer</span></span><span class="bar"><i id="nowBar"></i></span><button id="heroSnd" aria-pressed="false">SOUND OFF</button><button id="heroNext" aria-label="Next trailer">NEXT →</button></div>
-    <div class="facts fade" style="--i:4"><span><b>$255B</b> committed before an audience is asked</span><span><b>~$25K</b> per test screening, at rough cut</span><span><b>&lt;$200</b> per StoryForge read, at first draft</span></div>
+<section class="hero" id="top" aria-label="Now screening: the StoryForge concept reel">
+  <div class="film">
+    <div class="perf" aria-hidden="true"><div class="run"><i></i></div></div>
+    <div class="edge edge-l" aria-hidden="true"><span>StoryForge concept reel</span><span id="reelNo">Reel 1 of 4</span></div>
+    <div class="aperture">
+      <video id="heroVid" muted playsinline preload="auto" poster="media/ash-wednesday.jpg" aria-hidden="true" tabindex="-1"></video>
+      <div class="flash" aria-hidden="true"></div>
+      <i class="vf vf-tl" aria-hidden="true"></i><i class="vf vf-tr" aria-hidden="true"></i><i class="vf vf-bl" aria-hidden="true"></i><i class="vf vf-br" aria-hidden="true"></i>
+      <div class="now fade">
+        <div class="np"><span class="np-k"><span class="rec"></span>Now screening</span><b id="nowTitle">Ash Wednesday</b><span id="nowMeta">Horror · AI concept trailer</span></div>
+        <div class="np-ctl"><button id="heroSnd" aria-pressed="false">SOUND OFF</button><button id="heroNext" aria-label="Next trailer">NEXT →</button></div>
+        <span class="bar"><i id="nowBar"></i></span>
+      </div>
+    </div>
+    <div class="edge edge-r" aria-hidden="true"><span class="num" id="reelTc">00:00.00</span><span id="reelIx"></span></div>
+    <div class="perf" aria-hidden="true"><div class="run"><i></i></div></div>
   </div>
 </section>
 
@@ -591,20 +669,6 @@ footer .fine{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color
   </div>
 </section>
 
-<section class="section" id="library">
-  <div class="wrap">
-    <div class="sec-head rv"><div><span class="label">Fresh off the forge · real AI renders</span><h2>Concept trailers for films <em>nobody has made.</em></h2></div><div class="chips" id="chips" role="group" aria-label="Filter trailers"></div></div>
-    <div class="grid" id="grid"></div>
-  </div>
-</section>
-
-<section class="section alt" id="anchors">
-  <div class="wrap">
-    <div class="sec-head rv"><div><span class="label">Calibration anchors · released horror</span><h2>Panelists who read the box office right weigh more.</h2></div><p>Released films are seeded into face-offs as known answers. No StoryForge read, index or certificate exists for any of them, and none is implied.</p></div>
-    <div class="rail rv" id="rail" style="--i:1"></div>
-  </div>
-</section>
-
 <section class="section" id="soon">
   <div class="wrap">
     <div class="sec-head rv"><div><span class="label">Not out yet · real official trailers</span><h2>The films <em>nobody has seen.</em></h2></div><p>Real trailers for releases still ahead. Released films are known answers; these are open questions, and each one gets scored the weekend it opens.</p></div>
@@ -613,13 +677,27 @@ footer .fine{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color
   </div>
 </section>
 
-<section class="section alt" id="instrument">
+<section class="section about" id="about">
+  <div class="field" aria-hidden="true"><canvas id="field"></canvas></div>
   <div class="wrap">
-    <div class="sec-head rv"><div><span class="label">The instrument</span><h2>From script to number in five steps.</h2></div><p>The renderer is replaceable. The cross-buyer calibration ledger is the moat.</p></div>
-    <div class="steps rv" id="steps" role="tablist" aria-label="Instrument steps"></div>
+    <div class="about-lead">
+      <div class="copy" data-clear>
+        <span class="label rv">About us · A marketplace for stories that don't exist yet</span>
+        <h1 class="rv" aria-label="Where Stories Come Alive."><span class="w"><span style="--i:0">Where</span></span> <span class="w"><span style="--i:1">Stories</span></span> <span class="w"><span style="--i:2">Come</span></span> <span class="w"><span style="--i:3"><em>Alive.</em></span></span></h1>
+        <p class="sub rv" style="--i:2">Unproduced scripts become 30-second concept trailers. Real audiences pick between them. <b>Every greenlight gets a number</b>, before the money is spent.</p>
+        <div class="cta rv" style="--i:3"><a class="btn primary" href="#faceoff">Vote in the face-off</a><a class="btn" href="#instrument">See the five steps</a></div>
+      </div>
+      <div class="read" id="fieldRead">
+        <p class="cap rv" data-clear style="--i:4"><span class="label">Demand Index</span><b id="frIx"></b><span id="frT"></span><span class="illus">sample panel</span></p>
+      </div>
+      <div class="facts rv" data-clear style="--i:2"><span><b>$255B</b> committed before an audience is asked</span><span><b>~$25K</b> per test screening, at rough cut</span><span><b>&lt;$200</b> per StoryForge read, at first draft</span></div>
+    </div>
+    <div class="about-block" id="instrument">
+    <div class="sec-head rv" data-clear><div><span class="label">The instrument</span><h2>From script to number in five steps.</h2></div><p>The renderer is replaceable. The cross-buyer calibration ledger is the moat.</p></div>
+    <div class="steps rv" data-clear id="steps" role="tablist" aria-label="Instrument steps"></div>
     <div class="step-panel rv" id="stepPanel" role="tabpanel" style="--i:1"></div>
     <div class="frt rv">
-      <span class="label">What changes · three injections, one outcome</span>
+      <span class="label" data-clear>What changes · three injections, one outcome</span>
       <div class="lane">
         <div class="inj"><span class="label">Injection 1</span><h3>AI concept visualization</h3><p>Script to a 30-second trailer, writer-approved.</p></div>
         <div class="inj"><span class="label">Injection 2</span><h3>Audience demand validation</h3><p>Controlled head-to-head reads and Demand Certificates.</p></div>
@@ -632,6 +710,25 @@ footer .fine{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color
       </div>
       <span class="arrow" aria-hidden="true">↓</span>
       <div class="lane one"><div class="inj out"><span class="label">Desired outcome</span><h3>More original stories progress toward qualified commercial opportunities</h3><p>Enabled by writer consent, IP rights verification, representative audience samples, buyer trust, and privacy and transaction safeguards.</p></div></div>
+    </div>
+    </div>
+    <div class="about-block" id="doors">
+    <div class="sec-head rv" data-clear><div><span class="label">One platform · three doors</span><h2>Anyone can render a trailer. <em>We keep score.</em></h2></div>
+      <div class="seg" id="doorSeg" role="tablist" aria-label="Choose your door"><span class="pill"></span><button role="tab" aria-selected="true" data-k="watch">I watch</button><button role="tab" aria-selected="false" data-k="write">I write</button><button role="tab" aria-selected="false" data-k="buy">I buy</button></div></div>
+    <div class="doors rv" style="--i:1">
+      <div class="door-panel" id="doorPanel" role="tabpanel"></div>
+      <form class="signup" id="signup" novalidate>
+        <span class="label">Founding slate · horror first · US + UK panels</span>
+        <h3 id="suTitle">Get four face-offs a night</h3>
+        <p id="suSub">Free to watch. Early access if your pick gets made.</p>
+        <label class="label" for="email">Email</label>
+        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@studio.com" required>
+        <button class="btn primary" type="submit" id="suBtn">Join as a fan</button>
+        <p class="ok" role="status">You're on the list on this device. Prototype: nothing was sent anywhere.</p>
+        <div class="funnel" id="funnel" aria-label="Door interest on this device"></div>
+        <span class="label" style="text-transform:none;letter-spacing:.03em">Door taps and sign-ups are stored in this browser only. The live build pipes them to the Looker funnel.</span>
+      </form>
+    </div>
     </div>
   </div>
 </section>
@@ -677,62 +774,12 @@ footer .fine{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color
   </div>
 </section>
 
-<section class="section" id="doors">
-  <div class="wrap">
-    <div class="sec-head rv"><div><span class="label">One platform · three doors</span><h2>Anyone can render a trailer. <em>We keep score.</em></h2></div>
-      <div class="seg" id="doorSeg" role="tablist" aria-label="Choose your door"><span class="pill"></span><button role="tab" aria-selected="true" data-k="watch">I watch</button><button role="tab" aria-selected="false" data-k="write">I write</button><button role="tab" aria-selected="false" data-k="buy">I buy</button></div></div>
-    <div class="doors rv" style="--i:1">
-      <div class="door-panel" id="doorPanel" role="tabpanel"></div>
-      <form class="signup" id="signup" novalidate>
-        <span class="label">Founding slate · horror first · US + UK panels</span>
-        <h3 id="suTitle">Get four face-offs a night</h3>
-        <p id="suSub">Free to watch. Early access if your pick gets made.</p>
-        <label class="label" for="email">Email</label>
-        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@studio.com" required>
-        <button class="btn primary" type="submit" id="suBtn">Join as a fan</button>
-        <p class="ok" role="status">You're on the list on this device. Prototype: nothing was sent anywhere.</p>
-        <div class="funnel" id="funnel" aria-label="Door interest on this device"></div>
-        <span class="label" style="text-transform:none;letter-spacing:.03em">Door taps and sign-ups are stored in this browser only. The live build pipes them to the Looker funnel.</span>
-      </form>
-    </div>
-  </div>
-</section>
-
-<section class="section alt" id="board">
+<section class="section" id="board">
   <div class="wrap">
     <div class="sec-head rv"><div><span class="label">Demand Index · sample slate</span><h2>The leaderboard moves when you vote.</h2></div>
       <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><button class="switch" id="simSw" role="switch" aria-checked="true"><i></i>SIMULATED PANEL FEED</button><button class="btn ghost sm" id="resetBtn">Reset my votes</button></div></div>
     <div class="board rv" id="boardEl" style="--i:1"></div>
     <p class="label" style="margin-top:12px;text-transform:none;letter-spacing:.03em">Index = share of head-to-head wins × 100, with a 95% sampling interval. Baseline panel counts are illustrative; your picks and the simulated feed are added on top.</p>
-  </div>
-</section>
-
-<section class="section" id="prfaq">
-  <div class="wrap">
-    <div class="sec-head rv"><div><span class="label">PR / FAQ · working backwards</span><h2>The press release we want to earn.</h2></div><p>Written before the product, the way Amazon does it: if the announcement is not worth reading, the product is not worth building.</p></div>
-    <div class="pr-grid rv" style="--i:1">
-      <article class="pr"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><span class="label">Press release · draft for gate G2</span><span class="illus">future-dated draft</span></div>
-        <h3>StoryForge opens its horror feed: every script gets a trailer, every greenlight gets a number</h3>
-        <p class="deck">Writers see their unproduced scripts as 30-second concept trailers. Fans pick between them four times a night. Studios read a Demand Certificate before they spend.</p>
-        <p><b>LOS ANGELES and LONDON.</b> StoryForge today opened its first public feed, a slate of horror concepts that do not exist yet as films. Each begins as a writer's own script, is rendered as a short concept trailer the writer approves, and is shown head-to-head to a paid panel in the US and UK. Four hundred paired reads later, the concept carries a Demand Index with an error bar.</p>
-        <p>Until now the first audience read on a film arrived at rough cut, from a recruited screening costing about $25,000, after most of the budget was committed. A StoryForge read costs under $200 and arrives at first draft.</p>
-        <blockquote>"Reading a script predicts almost nothing. Watching might. We built the instrument that finds out, and we publish the result either way."<cite>Shiv Sehgal, founder</cite></blockquote>
-        <p>Writers keep 100% of their rights and no script is used to train a model. Trailers are test stimuli and are never released as films. Studios read private slates under NDA; the public feed is opt-in.</p>
-        <p class="mute">Design-partner quote to be added after gate G1. No studio or writer is quoted here because none has signed.</p>
-      </article>
-      <div class="faq">
-        <span class="label">Frequently asked · customers</span>
-        <details open><summary>Does trailer reaction actually predict outcomes?</summary><p>We don't know yet, and we say so. Gate zero is one blind, pre-registered back-test against films whose results are already public. It costs about $18K and is published whether it passes or fails.</p></details>
-        <details><summary>I'm a writer. What happens to my script?</summary><p>It stays yours. Private by default, no training on your material, 100% of rights kept. You approve the beats before anything renders, and you leave with a sell kit: one-sheet, treatment and concept trailer.</p></details>
-        <details><summary>I'm a fan. What do I get for voting?</summary><p>You see which one won straight after the tap, and what happened next to every concept. If your pick gets made you get early access and a thanks credit. Rewards are earned, never bought.</p></details>
-        <details><summary>Is this AI slop?</summary><p>The story comes from a writer, the beats are approved, the library is curated and there is no infinite feed. The bar is premium TV, not the scroll. Ten of sixteen interviewees said AI is fine if the quality is there.</p></details>
-        <span class="label" style="margin-top:18px">Frequently asked · internal</span>
-        <details><summary>What stops a studio building this itself?</summary><p>A studio can build a renderer. It cannot build a calibration ledger of reads joined to realised outcomes across many buyers. The renderer is replaceable; the ledger is the moat.</p></details>
-        <details><summary>What does a buyer pay?</summary><p>Open. No buyer has quoted a number yet. Five pricing conversations are part of gate zero, and the list price is a hypothesis until then.</p></details>
-        <details><summary>Does it survive model costs going up?</summary><p>The logged render cost on the trailers above is $1.20 per 8-second shot. The stress test still to pass is surviving a 100× rise in token cost before scale.</p></details>
-        <details><summary>Who is on the panel?</summary><p>Paid panellists in the US and UK, 18 to 34 for the horror wedge, one person one tap. Released films are seeded in as known answers, and panellists who read those right weigh more.</p></details>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -750,24 +797,19 @@ footer .fine{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color
   </div>
 </section>
 
-<section class="section alt" id="analytics">
-  <div class="wrap">
-    <div class="sec-head rv"><div><span class="label">Analytics · validation dashboard</span><h2>Every tap on this page is counted.</h2></div>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div class="seg" id="dashSeg" role="group" aria-label="Data source"><span class="pill"></span><button aria-pressed="true" data-k="device">This device</button><button aria-pressed="false" data-k="sim">Simulated cohort</button></div><button class="btn ghost sm" id="dashExport">Export CSV</button><button class="btn ghost sm" id="dashClear">Clear</button></div></div>
-    <div class="rv" id="dash" style="--i:1"></div>
-    <p class="label" id="dashNote" style="margin-top:12px;text-transform:none;letter-spacing:.03em"></p>
-    <div class="toolkit rv"><span class="label">Quantitative validation toolkit on this page</span><div class="chips"><a class="chip" href="#top">Landing page</a><a class="chip" href="#analytics">Analytics</a><a class="chip" href="#faceoff">Call-to-action buttons</a><a class="chip" href="#survey">Survey</a><a class="chip" href="#share">Content sharing</a><a class="chip" href="#prfaq">PR / FAQ</a><a class="chip" href="#founding">Growth: Founding 50</a></div></div>
-  </div>
-</section>
-
 <footer><div class="wrap">
   <span class="wordmark">Story<i>Forge</i></span>
-  <p class="fine">Interactive prototype with sample data; the landing-page test lives at the site's main address. Prototype for UCLA–NUS Global Executive MBA · BME5405 · Tokyo 2026. Trailers on this page are real AI renders made for the prototype; concept titles marked as sample, loglines, panel counts, Demand Index figures, narrative-DNA scores and buyer matches are illustrative and no real panel, writer or buyer is represented. Votes, door taps, survey answers, analytics events and sign-ups are stored in this browser only; the simulated cohort in the dashboard is generated, not measured. The press release is a future-dated working draft and StoryForge has no customers yet. Released and unreleased films appear only as calibration anchors and context; their trailers play from YouTube and belong to their owners, and their titles, dates and art come from TMDB as of 10 Nov 2026. This product uses the TMDB API but is not endorsed or certified by TMDB. Market and industry figures are from the StoryForge Opportunity Validation deck and its cited sources (Ampere Analysis, Gower Street, Nielsen, Antenna, Sundance, FilmLA, own analysis n = 9,901).</p>
+  <p class="fine">Interactive prototype with sample data; the landing-page test lives at the site's main address. Prototype for UCLA–NUS Global Executive MBA · BME5405 · Tokyo 2026. Trailers on this page are real AI renders made for the prototype; concept titles marked as sample, loglines, panel counts, Demand Index figures, narrative-DNA scores and buyer matches are illustrative and no real panel, writer or buyer is represented. Votes, door taps, survey answers, analytics events and sign-ups are stored in this browser only. StoryForge has no customers yet. Unreleased films appear only as context; their trailers play from YouTube and belong to their owners, and their titles, dates and art come from TMDB as of 10 Nov 2026. This product uses the TMDB API but is not endorsed or certified by TMDB. Market and industry figures are from the StoryForge Opportunity Validation deck and its cited sources (Ampere Analysis, Gower Street, Nielsen, Antenna, Sundance, FilmLA, own analysis n = 9,901).</p>
 </div></footer>
 
+<!-- app.js still renders the removed trailer grid and calibration rail into these mounts. They stay hidden;
+     drop them when library() and anchors() are removed from app.js. -->
+<div hidden aria-hidden="true"><div id="chips"></div><div id="grid"></div><div id="rail"></div></div>
 <dialog id="theater" aria-label="Trailer"></dialog>
 <div class="toast" id="toast" role="status"></div>
 <script src="growth.js"></script>
+<script src="stage.js"></script>
 <script src="app.js"></script>
+<script src="scoop.js"></script>
 </body>
 </html>
